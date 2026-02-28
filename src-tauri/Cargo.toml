@@ -1,0 +1,24 @@
+[package]
+name = "zapcmd"
+version = "1.0.0"
+description = "ZapCmd desktop launcher"
+authors = ["zapcmd contributors"]
+edition = "2021"
+
+[lib]
+name = "zapcmd_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = ["tray-icon"] }
+
+[target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-shell = "2"

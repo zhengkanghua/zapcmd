@@ -1,0 +1,870 @@
+{
+  "_meta": {
+    "name": "Git 版本控制",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_git.md"
+  },
+  "commands": [
+    {
+      "id": "git-status",
+      "name": "查看仓库状态",
+      "tags": [
+        "git",
+        "版本控制",
+        "状态",
+        "status",
+        "查看",
+        "show"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git status",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-log",
+      "name": "查看提交历史",
+      "tags": [
+        "git",
+        "版本控制",
+        "日志",
+        "log",
+        "查看",
+        "show",
+        "提交",
+        "commit"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git log --oneline -{{count}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "count",
+          "label": "count",
+          "type": "number",
+          "required": true,
+          "default": "20"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-log-graph",
+      "name": "图形化提交历史",
+      "tags": [
+        "git",
+        "版本控制",
+        "日志",
+        "log",
+        "图谱",
+        "graph",
+        "提交",
+        "commit"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git log --oneline --graph --all -{{count}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "count",
+          "label": "count",
+          "type": "number",
+          "required": true,
+          "default": "30"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-diff",
+      "name": "查看未暂存更改",
+      "tags": [
+        "git",
+        "版本控制",
+        "diff",
+        "差异",
+        "查看",
+        "show"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git diff",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-diff-staged",
+      "name": "查看已暂存更改",
+      "tags": [
+        "git",
+        "版本控制",
+        "diff",
+        "差异",
+        "暂存区",
+        "staged",
+        "查看",
+        "show"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git diff --staged",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-add-all",
+      "name": "暂存所有更改",
+      "tags": [
+        "git",
+        "版本控制",
+        "添加",
+        "add",
+        "全部",
+        "all"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git add -A",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-commit",
+      "name": "提交更改",
+      "tags": [
+        "git",
+        "版本控制",
+        "提交",
+        "commit"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git commit -m \"{{message}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "message",
+          "label": "message",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-commit-amend",
+      "name": "修改上次提交",
+      "tags": [
+        "git",
+        "版本控制",
+        "提交",
+        "commit",
+        "修订",
+        "amend"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git commit --amend -m \"{{message}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "message",
+          "label": "message",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-push",
+      "name": "推送到远程",
+      "tags": [
+        "git",
+        "版本控制",
+        "推送",
+        "push"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git push origin {{branch}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "branch",
+          "label": "branch",
+          "type": "text",
+          "required": true,
+          "default": "main"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-pull",
+      "name": "拉取远程更新",
+      "tags": [
+        "git",
+        "版本控制",
+        "拉取",
+        "pull"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git pull origin {{branch}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "branch",
+          "label": "branch",
+          "type": "text",
+          "required": true,
+          "default": "main"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-branch-list",
+      "name": "查看所有分支",
+      "tags": [
+        "git",
+        "版本控制",
+        "分支",
+        "branch",
+        "列表",
+        "list",
+        "查看",
+        "show"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git branch -a",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-branch-create",
+      "name": "创建新分支",
+      "tags": [
+        "git",
+        "版本控制",
+        "分支",
+        "branch",
+        "创建",
+        "create"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git checkout -b {{branch}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "branch",
+          "label": "branch",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-branch-delete",
+      "name": "删除本地分支",
+      "tags": [
+        "git",
+        "版本控制",
+        "分支",
+        "branch",
+        "删除",
+        "delete",
+        "remove"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git branch -d {{branch}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "branch",
+          "label": "branch",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-switch",
+      "name": "切换分支",
+      "tags": [
+        "git",
+        "版本控制",
+        "切换",
+        "switch",
+        "分支",
+        "branch"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git switch {{branch}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "branch",
+          "label": "branch",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-stash",
+      "name": "暂存当前更改",
+      "tags": [
+        "git",
+        "版本控制",
+        "暂存",
+        "stash"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git stash",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-stash-pop",
+      "name": "恢复暂存更改",
+      "tags": [
+        "git",
+        "版本控制",
+        "暂存",
+        "stash",
+        "恢复",
+        "pop"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git stash pop",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-stash-list",
+      "name": "查看暂存列表",
+      "tags": [
+        "git",
+        "版本控制",
+        "暂存",
+        "stash",
+        "列表",
+        "list",
+        "查看",
+        "show"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git stash list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-reset-soft",
+      "name": "软回退到提交",
+      "tags": [
+        "git",
+        "版本控制",
+        "回退",
+        "reset",
+        "软回退",
+        "soft",
+        "提交",
+        "commit"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git reset --soft {{commit}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "commit",
+          "label": "commit",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-reset-hard",
+      "name": "硬回退到提交",
+      "tags": [
+        "git",
+        "版本控制",
+        "回退",
+        "reset",
+        "硬回退",
+        "hard",
+        "提交",
+        "commit"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git reset --hard {{commit}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "commit",
+          "label": "commit",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-cherry-pick",
+      "name": "Cherry Pick 提交",
+      "tags": [
+        "git",
+        "版本控制",
+        "cherry-pick",
+        "pick",
+        "提交",
+        "commit"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git cherry-pick {{commit}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "commit",
+          "label": "commit",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-rebase",
+      "name": "变基到分支",
+      "tags": [
+        "git",
+        "版本控制",
+        "变基",
+        "rebase",
+        "分支",
+        "branch"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git rebase {{branch}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "branch",
+          "label": "branch",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-merge",
+      "name": "合并分支",
+      "tags": [
+        "git",
+        "版本控制",
+        "合并",
+        "merge",
+        "分支",
+        "branch"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git merge {{branch}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "branch",
+          "label": "branch",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-tag",
+      "name": "创建标签",
+      "tags": [
+        "git",
+        "版本控制",
+        "标签",
+        "tag"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git tag {{tag}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "tag",
+          "label": "tag",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-remote-url",
+      "name": "查看远程地址",
+      "tags": [
+        "git",
+        "版本控制",
+        "远程",
+        "remote",
+        "url",
+        "查看",
+        "show"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git remote -v",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-clone",
+      "name": "克隆仓库",
+      "tags": [
+        "git",
+        "版本控制",
+        "克隆",
+        "clone"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git clone {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-blame",
+      "name": "查看文件修改者",
+      "tags": [
+        "git",
+        "版本控制",
+        "blame",
+        "查看",
+        "show",
+        "文件",
+        "file"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git blame {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-clean",
+      "name": "清理未跟踪文件",
+      "tags": [
+        "git",
+        "版本控制",
+        "清理",
+        "clean",
+        "文件",
+        "file"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git clean -fd",
+      "adminRequired": false,
+      "dangerous": true,
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "git-config-user",
+      "name": "设置用户名和邮箱",
+      "tags": [
+        "git",
+        "版本控制",
+        "配置",
+        "config",
+        "用户",
+        "user"
+      ],
+      "category": "git",
+      "platform": "all",
+      "template": "git config --global user.name \"{{name}}\" && git config --global user.email \"{{email}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "email",
+          "label": "email",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    }
+  ]
+}

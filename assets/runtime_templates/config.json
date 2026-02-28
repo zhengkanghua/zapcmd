@@ -1,0 +1,20 @@
+{
+  "general": {
+    "language": "zh",
+    "hotkey": "Alt+V",
+    "theme": "listary",
+    "launchAtStartup": false
+  },
+  "search": {
+    "maxResults": 8
+  },
+  "execution": {
+    "confirmBeforeRun": false,
+    "timeoutSeconds": 30,
+    "continueOnError": false
+  },
+  "commands": {
+    "disabledFiles": [],
+    "trustedFiles": []
+  }
+}

@@ -1,0 +1,144 @@
+import { ref } from "vue";
+import { describe, expect, it, vi } from "vitest";
+import { isTypingElement, useMainWindowShell } from "../../launcher/useMainWindowShell";
+
+function createHarness() {
+  const isSettingsWindow = ref(false);
+  const pendingCommand = ref<unknown>(null);
+  const safetyDialog = ref<unknown>(null);
+  const query = ref("");
+  const stagingExpanded = ref(false);
+  const cancelHotkeyRecording = vi.fn();
+  const cancelParamInput = vi.fn();
+  const cancelSafetyExecution = vi.fn();
+  const closeStagingDrawer = vi.fn();
+  const requestHideMainWindow = vi.fn(async () => {});
+  const close = vi.fn();
+  const hide = vi.fn(async () => {});
+  const resolveAppWindow = vi.fn(() => ({ close, hide }));
+  const isTauriRuntime = vi.fn(() => false);
+
+  const shell = useMainWindowShell({
+    isSettingsWindow,
+    cancelHotkeyRecording,
+    resolveAppWindow,
+    isTauriRuntime,
+    requestHideMainWindow,
+    pendingCommand,
+    cancelParamInput,
+    safetyDialog,
+    cancelSafetyExecution,
+    query,
+    stagingExpanded,
+    closeStagingDrawer
+  });
+
+  return {
+    shell,
+    state: {
+      isSettingsWindow,
+      pendingCommand,
+      safetyDialog,
+      query,
+      stagingExpanded
+    },
+    spies: {
+      cancelHotkeyRecording,
+      cancelParamInput,
+      cancelSafetyExecution,
+      closeStagingDrawer,
+      requestHideMainWindow,
+      close,
+      hide,
+      isTauriRuntime
+    }
+  };
+}
+
+describe("useMainWindowShell", () => {
+  it("closes settings window only in settings mode", () => {
+    const harness = createHarness();
+    harness.shell.closeSettingsWindow();
+    expect(harness.spies.close).not.toHaveBeenCalled();
+
+    harness.state.isSettingsWindow.value = true;
+    harness.shell.closeSettingsWindow();
+    expect(harness.spies.cancelHotkeyRecording).toHaveBeenCalledTimes(1);
+    expect(harness.spies.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears pending command first on Escape", () => {
+    const harness = createHarness();
+    harness.state.pendingCommand.value = { id: "pending" };
+
+    harness.shell.handleMainEscape();
+
+    expect(harness.spies.cancelParamInput).toHaveBeenCalledTimes(1);
+    expect(harness.spies.hide).not.toHaveBeenCalled();
+  });
+
+  it("closes safety dialog first on Escape", () => {
+    const harness = createHarness();
+    harness.state.safetyDialog.value = { title: "risk" };
+
+    harness.shell.handleMainEscape();
+
+    expect(harness.spies.cancelSafetyExecution).toHaveBeenCalledTimes(1);
+    expect(harness.spies.cancelParamInput).not.toHaveBeenCalled();
+  });
+
+  it("clears query before toggling staging or hiding", () => {
+    const harness = createHarness();
+    harness.state.query.value = " docker ";
+
+    harness.shell.handleMainEscape();
+
+    expect(harness.state.query.value).toBe("");
+    expect(harness.spies.closeStagingDrawer).not.toHaveBeenCalled();
+    expect(harness.spies.hide).not.toHaveBeenCalled();
+  });
+
+  it("closes staging before hiding window", () => {
+    const harness = createHarness();
+    harness.state.stagingExpanded.value = true;
+
+    harness.shell.handleMainEscape();
+
+    expect(harness.spies.closeStagingDrawer).toHaveBeenCalledTimes(1);
+    expect(harness.spies.hide).not.toHaveBeenCalled();
+  });
+
+  it("uses tauri hide command first and falls back to webview hide", async () => {
+    const harness = createHarness();
+    harness.spies.isTauriRuntime.mockReturnValue(true);
+
+    await harness.shell.hideMainWindow();
+    expect(harness.spies.requestHideMainWindow).toHaveBeenCalledTimes(1);
+    expect(harness.spies.hide).not.toHaveBeenCalled();
+
+    harness.spies.requestHideMainWindow.mockRejectedValueOnce(new Error("hide failed"));
+    await harness.shell.hideMainWindow();
+    expect(harness.spies.hide).toHaveBeenCalledTimes(1);
+  });
+
+  it("detects typing elements correctly", () => {
+    const input = document.createElement("input");
+    const textarea = document.createElement("textarea");
+    const select = document.createElement("select");
+    const div = document.createElement("div");
+    const editable = document.createElement("div");
+    Object.defineProperty(editable, "isContentEditable", {
+      configurable: true,
+      value: true
+    });
+
+    expect(isTypingElement(input)).toBe(true);
+    expect(isTypingElement(textarea)).toBe(true);
+    expect(isTypingElement(select)).toBe(true);
+    expect(isTypingElement(editable)).toBe(true);
+    expect(isTypingElement(div)).toBe(false);
+    expect(isTypingElement(null)).toBe(false);
+  });
+});
+
+

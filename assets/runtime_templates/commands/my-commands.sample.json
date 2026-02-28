@@ -1,0 +1,44 @@
+{
+  "_meta": {
+    "name": {
+      "zh": "用户命令示例",
+      "en": "User Commands Example"
+    },
+    "author": "user",
+    "version": "1.0.0"
+  },
+  "commands": [
+    {
+      "id": "echo-hello",
+      "name": {
+        "zh": "输出问候",
+        "en": "Echo Hello"
+      },
+      "description": {
+        "zh": "最小可运行示例命令",
+        "en": "Minimal runnable command"
+      },
+      "tags": [
+        "hello",
+        "echo",
+        "示例"
+      ],
+      "category": "dev",
+      "platform": "all",
+      "template": "echo {{text}}",
+      "adminRequired": false,
+      "args": [
+        {
+          "key": "text",
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          },
+          "type": "text",
+          "required": true,
+          "default": "hello zapcmd"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+# Local agent/tooling state
+.omc/
+.claude/
+.npm-cache/
+.env.keys.local
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor/IDE
+.idea/
+.vscode/
+
+# Logs/temp
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Common build outputs
+node_modules/
+dist/
+build/
+target/
+coverage/
+
+# Generated docs (keep local; do not publish)
+docs/builtin_commands.generated.md
+
+# Tauri package artifacts
+src-tauri/bundle/
+*.msi
+*.msix
+*.dmg
+*.deb
+*.rpm
+*.AppImage
+
+# Maintainer private docs (local only, do not publish)
+docs/active_context.md
+docs/DEVLOG_2026.md
+# Temporary development phase:
+# docs/.maintainer/** is intentionally versioned for multi-machine maintainer sync.
+# Before open-source launch promotion, migrate it out of repo and re-enable ignore policy.
+# Ignore all dot-directories under docs/ (maintainer local notes, not for publishing)
+# docs/.*/
+docs/ui_debug_screenshots
+
+# Internal planning and backup files (not for publishing)
+# AGENTS_backup.md
+# plan/

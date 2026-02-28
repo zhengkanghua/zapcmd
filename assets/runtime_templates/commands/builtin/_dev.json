@@ -1,0 +1,740 @@
+{
+  "_meta": {
+    "name": "开发工具",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_dev.md"
+  },
+  "commands": [
+    {
+      "id": "json-format",
+      "name": "格式化 JSON",
+      "tags": [
+        "开发",
+        "dev",
+        "json",
+        "格式化",
+        "format"
+      ],
+      "category": "dev",
+      "platform": "all",
+      "template": "echo '{{json}}' | python3 -m json.tool",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "json",
+          "label": "json",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        },
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        }
+      ]
+    },
+    {
+      "id": "base64-encode-mac",
+      "name": "Base64 编码",
+      "tags": [
+        "开发",
+        "dev",
+        "base64",
+        "编码",
+        "encode"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "echo -n \"{{text}}\" | base64",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        },
+        {
+          "id": "base64",
+          "type": "binary",
+          "required": true,
+          "check": "binary:base64"
+        }
+      ]
+    },
+    {
+      "id": "base64-encode-linux",
+      "name": "Base64 编码",
+      "tags": [
+        "开发",
+        "dev",
+        "base64",
+        "编码",
+        "encode"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "echo -n \"{{text}}\" | base64",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        },
+        {
+          "id": "base64",
+          "type": "binary",
+          "required": true,
+          "check": "binary:base64"
+        }
+      ]
+    },
+    {
+      "id": "base64-decode-mac",
+      "name": "Base64 解码",
+      "tags": [
+        "开发",
+        "dev",
+        "base64",
+        "解码",
+        "decode"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "echo \"{{text}}\" | base64 --decode",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        },
+        {
+          "id": "base64",
+          "type": "binary",
+          "required": true,
+          "check": "binary:base64"
+        }
+      ]
+    },
+    {
+      "id": "base64-decode-linux",
+      "name": "Base64 解码",
+      "tags": [
+        "开发",
+        "dev",
+        "base64",
+        "解码",
+        "decode"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "echo \"{{text}}\" | base64 --decode",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        },
+        {
+          "id": "base64",
+          "type": "binary",
+          "required": true,
+          "check": "binary:base64"
+        }
+      ]
+    },
+    {
+      "id": "md5-hash",
+      "name": "计算 MD5 哈希",
+      "tags": [
+        "开发",
+        "dev",
+        "md5",
+        "hash",
+        "哈希"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "md5 -s \"{{text}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "md5",
+          "type": "binary",
+          "required": true,
+          "check": "binary:md5"
+        }
+      ]
+    },
+    {
+      "id": "md5-hash-linux",
+      "name": "计算 MD5 哈希",
+      "tags": [
+        "开发",
+        "dev",
+        "md5",
+        "hash",
+        "哈希"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "echo -n \"{{text}}\" | md5sum",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        },
+        {
+          "id": "md5sum",
+          "type": "binary",
+          "required": true,
+          "check": "binary:md5sum"
+        }
+      ]
+    },
+    {
+      "id": "sha256-hash-mac",
+      "name": "计算 SHA256 哈希",
+      "tags": [
+        "开发",
+        "dev",
+        "sha256",
+        "hash",
+        "哈希"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "echo -n \"{{text}}\" | sha256sum",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        },
+        {
+          "id": "sha256sum",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sha256sum"
+        }
+      ]
+    },
+    {
+      "id": "sha256-hash-linux",
+      "name": "计算 SHA256 哈希",
+      "tags": [
+        "开发",
+        "dev",
+        "sha256",
+        "hash",
+        "哈希"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "echo -n \"{{text}}\" | sha256sum",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        },
+        {
+          "id": "sha256sum",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sha256sum"
+        }
+      ]
+    },
+    {
+      "id": "timestamp-now",
+      "name": "当前 Unix 时间戳",
+      "tags": [
+        "开发",
+        "dev",
+        "时间戳",
+        "timestamp",
+        "now"
+      ],
+      "category": "dev",
+      "platform": "all",
+      "template": "date +%s",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "date",
+          "type": "binary",
+          "required": true,
+          "check": "binary:date"
+        }
+      ]
+    },
+    {
+      "id": "timestamp-convert",
+      "name": "时间戳转日期",
+      "tags": [
+        "开发",
+        "dev",
+        "时间戳",
+        "timestamp",
+        "转换",
+        "convert"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "date -r {{timestamp}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "timestamp",
+          "label": "timestamp",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "date",
+          "type": "binary",
+          "required": true,
+          "check": "binary:date"
+        }
+      ]
+    },
+    {
+      "id": "timestamp-convert-linux",
+      "name": "时间戳转日期",
+      "tags": [
+        "开发",
+        "dev",
+        "时间戳",
+        "timestamp",
+        "转换",
+        "convert"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "date -d @{{timestamp}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "timestamp",
+          "label": "timestamp",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "date",
+          "type": "binary",
+          "required": true,
+          "check": "binary:date"
+        }
+      ]
+    },
+    {
+      "id": "uuid-gen-mac",
+      "name": "生成 UUID",
+      "tags": [
+        "开发",
+        "dev",
+        "uuid",
+        "gen"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "uuidgen",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "uuidgen",
+          "type": "binary",
+          "required": true,
+          "check": "binary:uuidgen"
+        }
+      ]
+    },
+    {
+      "id": "uuid-gen-linux",
+      "name": "生成 UUID",
+      "tags": [
+        "开发",
+        "dev",
+        "uuid",
+        "gen"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "uuidgen",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "uuidgen",
+          "type": "binary",
+          "required": true,
+          "check": "binary:uuidgen"
+        }
+      ]
+    },
+    {
+      "id": "random-string-mac",
+      "name": "生成随机字符串",
+      "tags": [
+        "开发",
+        "dev",
+        "随机",
+        "random",
+        "字符串",
+        "string"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "openssl rand -hex {{length}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "length",
+          "label": "length",
+          "type": "number",
+          "required": true,
+          "default": "16"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "openssl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:openssl"
+        }
+      ]
+    },
+    {
+      "id": "random-string-linux",
+      "name": "生成随机字符串",
+      "tags": [
+        "开发",
+        "dev",
+        "随机",
+        "random",
+        "字符串",
+        "string"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "openssl rand -hex {{length}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "length",
+          "label": "length",
+          "type": "number",
+          "required": true,
+          "default": "16"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "openssl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:openssl"
+        }
+      ]
+    },
+    {
+      "id": "http-server",
+      "name": "快速启动 HTTP 服务",
+      "tags": [
+        "开发",
+        "dev",
+        "http",
+        "服务",
+        "server",
+        "启动",
+        "start"
+      ],
+      "category": "dev",
+      "platform": "all",
+      "template": "python3 -m http.server {{port}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "8000"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        }
+      ]
+    },
+    {
+      "id": "regex-test-mac",
+      "name": "正则表达式测试",
+      "tags": [
+        "开发",
+        "dev",
+        "正则",
+        "regex",
+        "test",
+        "测试"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "echo \"{{text}}\" | grep -oP \"{{pattern}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "grep",
+          "type": "binary",
+          "required": true,
+          "check": "binary:grep"
+        },
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        }
+      ]
+    },
+    {
+      "id": "regex-test-linux",
+      "name": "正则表达式测试",
+      "tags": [
+        "开发",
+        "dev",
+        "正则",
+        "regex",
+        "test",
+        "测试"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "echo \"{{text}}\" | grep -oP \"{{pattern}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "grep",
+          "type": "binary",
+          "required": true,
+          "check": "binary:grep"
+        },
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        }
+      ]
+    },
+    {
+      "id": "url-encode",
+      "name": "URL 编码",
+      "tags": [
+        "开发",
+        "dev",
+        "url",
+        "编码",
+        "encode"
+      ],
+      "category": "dev",
+      "platform": "all",
+      "template": "python3 -c \"import urllib.parse; print(urllib.parse.quote('{{text}}'))\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        }
+      ]
+    },
+    {
+      "id": "url-decode",
+      "name": "URL 解码",
+      "tags": [
+        "开发",
+        "dev",
+        "url",
+        "解码",
+        "decode"
+      ],
+      "category": "dev",
+      "platform": "all",
+      "template": "python3 -c \"import urllib.parse; print(urllib.parse.unquote('{{text}}'))\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        }
+      ]
+    }
+  ]
+}

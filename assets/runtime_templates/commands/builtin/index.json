@@ -1,0 +1,64 @@
+{
+  "sourceDir": "docs/command_sources",
+  "sourcePattern": "_*.md",
+  "logicalCommandCount": 170,
+  "physicalCommandCount": 209,
+  "generatedFiles": [
+    {
+      "file": "_dev.json",
+      "sourceFile": "_dev.md",
+      "category": "dev",
+      "logicalCount": 15,
+      "physicalCount": 21
+    },
+    {
+      "file": "_docker.json",
+      "sourceFile": "_docker.md",
+      "category": "docker",
+      "logicalCount": 24,
+      "physicalCount": 24
+    },
+    {
+      "file": "_file.json",
+      "sourceFile": "_file.md",
+      "category": "file",
+      "logicalCount": 20,
+      "physicalCount": 34
+    },
+    {
+      "file": "_git.json",
+      "sourceFile": "_git.md",
+      "category": "git",
+      "logicalCount": 28,
+      "physicalCount": 28
+    },
+    {
+      "file": "_network.json",
+      "sourceFile": "_network.md",
+      "category": "network",
+      "logicalCount": 25,
+      "physicalCount": 31
+    },
+    {
+      "file": "_package.json",
+      "sourceFile": "_package.md",
+      "category": "package",
+      "logicalCount": 23,
+      "physicalCount": 23
+    },
+    {
+      "file": "_ssh.json",
+      "sourceFile": "_ssh.md",
+      "category": "ssh",
+      "logicalCount": 10,
+      "physicalCount": 11
+    },
+    {
+      "file": "_system.json",
+      "sourceFile": "_system.md",
+      "category": "system",
+      "logicalCount": 25,
+      "physicalCount": 37
+    }
+  ]
+}

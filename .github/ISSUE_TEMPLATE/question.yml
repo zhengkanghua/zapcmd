@@ -1,0 +1,23 @@
+name: Usage Question
+description: Ask about usage, configuration, or expected behavior.
+title: "[Question]: "
+labels:
+  - question
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: Describe what you want to achieve.
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What You Already Tried
+      description: Share attempted steps and results.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: OS/version/config details that may matter.

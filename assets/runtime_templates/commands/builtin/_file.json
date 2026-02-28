@@ -1,0 +1,1257 @@
+{
+  "_meta": {
+    "name": "文件操作",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_file.md"
+  },
+  "commands": [
+    {
+      "id": "find-file-mac",
+      "name": "按名称查找文件",
+      "tags": [
+        "文件",
+        "file",
+        "查找",
+        "find"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "find {{path}} -name \"{{pattern}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        },
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "find",
+          "type": "binary",
+          "required": true,
+          "check": "binary:find"
+        }
+      ]
+    },
+    {
+      "id": "find-file-linux",
+      "name": "按名称查找文件",
+      "tags": [
+        "文件",
+        "file",
+        "查找",
+        "find"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "find {{path}} -name \"{{pattern}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        },
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "find",
+          "type": "binary",
+          "required": true,
+          "check": "binary:find"
+        }
+      ]
+    },
+    {
+      "id": "find-file-win",
+      "name": "按名称查找文件",
+      "tags": [
+        "文件",
+        "file",
+        "查找",
+        "find"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "Get-ChildItem -Recurse -Filter \"{{pattern}}\" {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        },
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-childitem",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-childitem"
+        }
+      ]
+    },
+    {
+      "id": "find-content-mac",
+      "name": "按内容搜索文件",
+      "tags": [
+        "文件",
+        "file",
+        "查找",
+        "find",
+        "内容",
+        "content"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "grep -rn \"{{pattern}}\" {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "grep",
+          "type": "binary",
+          "required": true,
+          "check": "binary:grep"
+        }
+      ]
+    },
+    {
+      "id": "find-content-linux",
+      "name": "按内容搜索文件",
+      "tags": [
+        "文件",
+        "file",
+        "查找",
+        "find",
+        "内容",
+        "content"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "grep -rn \"{{pattern}}\" {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "grep",
+          "type": "binary",
+          "required": true,
+          "check": "binary:grep"
+        }
+      ]
+    },
+    {
+      "id": "find-content-win",
+      "name": "按内容搜索文件",
+      "tags": [
+        "文件",
+        "file",
+        "查找",
+        "find",
+        "内容",
+        "content"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "Select-String -Recurse -Pattern \"{{pattern}}\" -Path \"{{path}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "select-string",
+          "type": "binary",
+          "required": true,
+          "check": "binary:select-string"
+        }
+      ]
+    },
+    {
+      "id": "list-files-mac",
+      "name": "列出目录内容",
+      "tags": [
+        "文件",
+        "file",
+        "列表",
+        "list",
+        "files",
+        "目录",
+        "directory"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "ls -la {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ls",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ls"
+        }
+      ]
+    },
+    {
+      "id": "list-files-linux",
+      "name": "列出目录内容",
+      "tags": [
+        "文件",
+        "file",
+        "列表",
+        "list",
+        "files",
+        "目录",
+        "directory"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "ls -la {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ls",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ls"
+        }
+      ]
+    },
+    {
+      "id": "list-files-win",
+      "name": "列出目录内容",
+      "tags": [
+        "文件",
+        "file",
+        "列表",
+        "list",
+        "files",
+        "目录",
+        "directory"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "Get-ChildItem -Force {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-childitem",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-childitem"
+        }
+      ]
+    },
+    {
+      "id": "tree-mac",
+      "name": "目录树结构",
+      "tags": [
+        "文件",
+        "file",
+        "树",
+        "tree",
+        "目录",
+        "directory"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "tree -L {{depth}} {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        },
+        {
+          "key": "depth",
+          "label": "depth",
+          "type": "number",
+          "required": true,
+          "default": "3"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tree",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tree"
+        }
+      ]
+    },
+    {
+      "id": "tree-linux",
+      "name": "目录树结构",
+      "tags": [
+        "文件",
+        "file",
+        "树",
+        "tree",
+        "目录",
+        "directory"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "tree -L {{depth}} {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        },
+        {
+          "key": "depth",
+          "label": "depth",
+          "type": "number",
+          "required": true,
+          "default": "3"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tree",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tree"
+        }
+      ]
+    },
+    {
+      "id": "tree-win",
+      "name": "目录树结构",
+      "tags": [
+        "文件",
+        "file",
+        "树",
+        "tree",
+        "目录",
+        "directory"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "tree /F {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tree",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tree"
+        }
+      ]
+    },
+    {
+      "id": "file-size-mac",
+      "name": "查看文件大小",
+      "tags": [
+        "文件",
+        "file",
+        "大小",
+        "size",
+        "查看",
+        "show"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "ls -lh {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ls",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ls"
+        }
+      ]
+    },
+    {
+      "id": "file-size-linux",
+      "name": "查看文件大小",
+      "tags": [
+        "文件",
+        "file",
+        "大小",
+        "size",
+        "查看",
+        "show"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "ls -lh {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ls",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ls"
+        }
+      ]
+    },
+    {
+      "id": "file-count-mac",
+      "name": "统计文件数量",
+      "tags": [
+        "文件",
+        "file",
+        "count"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "find {{path}} -type f | wc -l",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "find",
+          "type": "binary",
+          "required": true,
+          "check": "binary:find"
+        },
+        {
+          "id": "wc",
+          "type": "binary",
+          "required": true,
+          "check": "binary:wc"
+        }
+      ]
+    },
+    {
+      "id": "file-count-linux",
+      "name": "统计文件数量",
+      "tags": [
+        "文件",
+        "file",
+        "count"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "find {{path}} -type f | wc -l",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "find",
+          "type": "binary",
+          "required": true,
+          "check": "binary:find"
+        },
+        {
+          "id": "wc",
+          "type": "binary",
+          "required": true,
+          "check": "binary:wc"
+        }
+      ]
+    },
+    {
+      "id": "file-permissions-mac",
+      "name": "修改文件权限",
+      "tags": [
+        "文件",
+        "file",
+        "权限",
+        "permissions"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "chmod {{mode}} {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "mode",
+          "label": "mode",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "chmod",
+          "type": "binary",
+          "required": true,
+          "check": "binary:chmod"
+        }
+      ]
+    },
+    {
+      "id": "file-permissions-linux",
+      "name": "修改文件权限",
+      "tags": [
+        "文件",
+        "file",
+        "权限",
+        "permissions"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "chmod {{mode}} {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "mode",
+          "label": "mode",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "chmod",
+          "type": "binary",
+          "required": true,
+          "check": "binary:chmod"
+        }
+      ]
+    },
+    {
+      "id": "file-owner-mac",
+      "name": "修改文件所有者",
+      "tags": [
+        "文件",
+        "file",
+        "所有者",
+        "owner"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "chown {{owner}} {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "owner",
+          "label": "owner",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "chown",
+          "type": "binary",
+          "required": true,
+          "check": "binary:chown"
+        }
+      ]
+    },
+    {
+      "id": "file-owner-linux",
+      "name": "修改文件所有者",
+      "tags": [
+        "文件",
+        "file",
+        "所有者",
+        "owner"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "chown {{owner}} {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "owner",
+          "label": "owner",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "chown",
+          "type": "binary",
+          "required": true,
+          "check": "binary:chown"
+        }
+      ]
+    },
+    {
+      "id": "compress-tar-mac",
+      "name": "打包压缩 (tar.gz)",
+      "tags": [
+        "文件",
+        "file",
+        "压缩",
+        "compress",
+        "tar"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "tar -czf {{output}}.tar.gz {{input}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "input",
+          "label": "input",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "output",
+          "label": "output",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tar",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tar"
+        }
+      ]
+    },
+    {
+      "id": "compress-tar-linux",
+      "name": "打包压缩 (tar.gz)",
+      "tags": [
+        "文件",
+        "file",
+        "压缩",
+        "compress",
+        "tar"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "tar -czf {{output}}.tar.gz {{input}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "input",
+          "label": "input",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "output",
+          "label": "output",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tar",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tar"
+        }
+      ]
+    },
+    {
+      "id": "extract-tar-mac",
+      "name": "解压 (tar.gz)",
+      "tags": [
+        "文件",
+        "file",
+        "解压",
+        "extract",
+        "tar"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "tar -xzf {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tar",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tar"
+        }
+      ]
+    },
+    {
+      "id": "extract-tar-linux",
+      "name": "解压 (tar.gz)",
+      "tags": [
+        "文件",
+        "file",
+        "解压",
+        "extract",
+        "tar"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "tar -xzf {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tar",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tar"
+        }
+      ]
+    },
+    {
+      "id": "compress-zip",
+      "name": "ZIP 压缩",
+      "tags": [
+        "文件",
+        "file",
+        "压缩",
+        "compress",
+        "zip"
+      ],
+      "category": "file",
+      "platform": "all",
+      "template": "zip -r {{output}}.zip {{input}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "input",
+          "label": "input",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "output",
+          "label": "output",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "zip",
+          "type": "binary",
+          "required": true,
+          "check": "binary:zip"
+        }
+      ]
+    },
+    {
+      "id": "extract-zip",
+      "name": "ZIP 解压",
+      "tags": [
+        "文件",
+        "file",
+        "解压",
+        "extract",
+        "zip"
+      ],
+      "category": "file",
+      "platform": "all",
+      "template": "unzip {{file}} -d {{dest}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "dest",
+          "label": "dest",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "unzip",
+          "type": "binary",
+          "required": true,
+          "check": "binary:unzip"
+        }
+      ]
+    },
+    {
+      "id": "watch-file-mac",
+      "name": "监听文件变化",
+      "tags": [
+        "文件",
+        "file",
+        "监听",
+        "watch"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "fswatch {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "fswatch",
+          "type": "binary",
+          "required": true,
+          "check": "binary:fswatch"
+        }
+      ]
+    },
+    {
+      "id": "watch-file-linux",
+      "name": "监听文件变化",
+      "tags": [
+        "文件",
+        "file",
+        "监听",
+        "watch"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "fswatch {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "fswatch",
+          "type": "binary",
+          "required": true,
+          "check": "binary:fswatch"
+        }
+      ]
+    },
+    {
+      "id": "tail-log-mac",
+      "name": "实时查看日志",
+      "tags": [
+        "文件",
+        "file",
+        "tail",
+        "日志",
+        "log",
+        "查看",
+        "show"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "tail -f {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tail",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tail"
+        }
+      ]
+    },
+    {
+      "id": "tail-log-linux",
+      "name": "实时查看日志",
+      "tags": [
+        "文件",
+        "file",
+        "tail",
+        "日志",
+        "log",
+        "查看",
+        "show"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "tail -f {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tail",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tail"
+        }
+      ]
+    },
+    {
+      "id": "head-file-mac",
+      "name": "查看文件前 N 行",
+      "tags": [
+        "文件",
+        "file",
+        "head",
+        "查看",
+        "show"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "head -n {{lines}} {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "lines",
+          "label": "lines",
+          "type": "number",
+          "required": true,
+          "default": "20"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "head",
+          "type": "binary",
+          "required": true,
+          "check": "binary:head"
+        }
+      ]
+    },
+    {
+      "id": "head-file-linux",
+      "name": "查看文件前 N 行",
+      "tags": [
+        "文件",
+        "file",
+        "head",
+        "查看",
+        "show"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "head -n {{lines}} {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "lines",
+          "label": "lines",
+          "type": "number",
+          "required": true,
+          "default": "20"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "head",
+          "type": "binary",
+          "required": true,
+          "check": "binary:head"
+        }
+      ]
+    },
+    {
+      "id": "wc-lines-mac",
+      "name": "统计文件行数",
+      "tags": [
+        "文件",
+        "file",
+        "行数",
+        "wc",
+        "行",
+        "lines"
+      ],
+      "category": "file",
+      "platform": "mac",
+      "template": "wc -l {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "wc",
+          "type": "binary",
+          "required": true,
+          "check": "binary:wc"
+        }
+      ]
+    },
+    {
+      "id": "wc-lines-linux",
+      "name": "统计文件行数",
+      "tags": [
+        "文件",
+        "file",
+        "行数",
+        "wc",
+        "行",
+        "lines"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "wc -l {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "wc",
+          "type": "binary",
+          "required": true,
+          "check": "binary:wc"
+        }
+      ]
+    }
+  ]
+}

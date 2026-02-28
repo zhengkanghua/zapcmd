@@ -1,0 +1,73 @@
+import type { HotkeyFieldId } from "../../stores/settingsStore";
+
+export type SettingsRoute = "hotkeys" | "general" | "commands" | "appearance" | "about";
+
+export interface HotkeyFieldDefinition {
+  id: HotkeyFieldId;
+  label: string;
+  scope: "global" | "local";
+}
+
+export interface CommandManagementRow {
+  id: string;
+  title: string;
+  category: string;
+  source: "builtin" | "user";
+  sourcePath?: string;
+  sourceFileLabel?: string;
+  overridesBuiltin: boolean;
+  enabled: boolean;
+  hasLoadIssue: boolean;
+}
+
+export interface CommandManagementSummary {
+  total: number;
+  enabled: number;
+  disabled: number;
+  userDefined: number;
+  overridden: number;
+}
+
+export interface CommandLoadIssueView {
+  code: "invalid-json" | "invalid-schema" | "duplicate-id";
+  sourceId: string;
+  commandId?: string;
+  message: string;
+}
+
+export type CommandFilterSource = "all" | "builtin" | "user";
+export type CommandFilterStatus = "all" | "enabled" | "disabled";
+export type CommandFilterOverride = "all" | "overridden";
+export type CommandFilterIssue = "all" | "with-issues";
+export type CommandSortBy = "default" | "title" | "category" | "source" | "status";
+export type CommandDisplayMode = "list" | "groupedByFile";
+
+export interface CommandSourceFileOption {
+  value: string;
+  label: string;
+  count: number;
+}
+
+export interface CommandSelectOption<T extends string> {
+  value: T;
+  label: string;
+}
+
+export interface CommandManagementViewState {
+  query: string;
+  sourceFilter: CommandFilterSource;
+  statusFilter: CommandFilterStatus;
+  overrideFilter: CommandFilterOverride;
+  issueFilter: CommandFilterIssue;
+  fileFilter: string;
+  sortBy: CommandSortBy;
+  displayMode: CommandDisplayMode;
+}
+
+export interface CommandManagementGroup {
+  key: string;
+  title: string;
+  count: number;
+  sourcePath?: string;
+  rows: CommandManagementRow[];
+}

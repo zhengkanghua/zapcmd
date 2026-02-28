@@ -1,0 +1,216 @@
+# ZapCmd
+
+[English](./README.md) | [简体中文](./README.zh-CN.md)
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-22c55e.svg)](./LICENSE)
+[![Desktop](https://img.shields.io/badge/desktop-Tauri%20%2B%20Vue-2563eb.svg)](https://tauri.app/)
+[![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-475569.svg)](./README.zh-CN.md#支持矩阵-v1)
+
+<img src="./docs/img/brand.png" alt="ZapCmd 品牌图" width="480" />
+
+ZapCmd 是一款强调速度、安全基线和可重复工作流的桌面命令启动器。
+
+## 为什么用 ZapCmd
+
+- 快速搜索和执行命令，减少记忆负担。
+- 执行前在 UI 填参数，降低误操作。
+- 支持命令暂存队列，批量在系统终端执行。
+- 运行时加载内置命令和用户命令文件。
+- 行为可追踪、可测试（高覆盖率 + 严格门禁）。
+
+## 功能亮点
+
+- 主流程：`搜索 -> 参数 -> 暂存 -> 执行`
+- 设置：热键、默认终端、界面语言、更新、开机自启、关于页
+- 命令管理：启停、来源文件筛选、排序、覆盖标记
+- 多语言：`zh-CN` + `en-US`（运行时切换 + 持久化）
+- 安全基线：高危命令确认 + 参数注入拦截
+- 会话恢复：重启后恢复暂存队列
+
+## 产品展示
+
+当前品牌与图标资产：
+
+- 品牌图：`docs/img/brand.png`
+- 应用图标源：`docs/img/logo.png`
+
+已预留截图位，请把图片放到 `docs/img/showcase/`：
+
+1. `launcher-search.png`（主窗口搜索态）
+2. `param-dialog.png`（参数填写弹层）
+3. `queue-batch-run.png`（队列与批量执行）
+4. `settings-command-management.png`（设置页命令管理）
+
+截图规范：`docs/img/showcase/README.md`
+推广用截图清单（含前后对比双图要求）：`docs/img/showcase/README.md`
+
+## 下载
+
+- GitHub Releases：https://github.com/zhengkanghua/zapcmd/releases
+- 推送 `vX.Y.Z` 标签后，会自动生成构建产物并上传安装包到 Releases。
+
+安装提示：
+
+1. 下载对应系统的安装包（Windows/macOS/Linux）。
+2. 使用 `SHA256SUMS` 校验完整性（每个 Release 会附带）。
+3. macOS 安装包当前未签名/未公证，首次启动可能需要手动放行。
+
+## 从源码运行（开发者）
+
+环境要求（从源码构建）：
+
+- Node.js（npm）
+- Rust 工具链
+- 当前系统对应的 Tauri 依赖
+
+本地运行：
+
+```bash
+npm install
+npm run tauri:dev
+```
+
+说明：更新密钥/端点集中在 `.env.keys`，由 `npm run keys:sync` 同步（已集成到 `tauri:dev` / `tauri:build`）。
+
+工程门禁：
+
+```bash
+npm run check:all
+```
+
+构建：
+
+```bash
+# 本地默认构建
+npm run tauri:build
+
+# 全量 bundle（需要可访问 NSIS 下载）
+npm run tauri:build:all
+```
+
+## 用户命令目录（`~/.zapcmd/commands`）
+
+ZapCmd 会递归读取用户 JSON 文件：
+
+- Windows：`%USERPROFILE%\\.zapcmd\\commands`
+- macOS/Linux：`~/.zapcmd/commands`
+
+用户命令会和内置命令合并；若 `id` 冲突，用户命令覆盖内置命令。
+
+最小示例：
+
+```json
+{
+  "commands": [
+    {
+      "id": "custom-hello-win",
+      "name": "自定义问候",
+      "tags": ["custom", "hello"],
+      "category": "custom",
+      "platform": "win",
+      "template": "Write-Output \"hello from user commands\"",
+      "shell": "powershell",
+      "adminRequired": false
+    }
+  ]
+}
+```
+
+Schema：
+
+- `docs/schemas/command-file.schema.json`
+- `docs/schemas/README.md`
+
+## 搜索机制（当前实现）
+
+- 不区分大小写的 contains 匹配字段：
+  - `title`
+  - `description`
+  - `preview`
+- 输入包含空格时使用分词 AND（所有词都要命中）。
+- 结果按相关性分数排序。
+- 高亮为分词级别，词序无关。
+
+## 多语言
+
+- 支持：`zh-CN`、`en-US`
+- 切换路径：`设置 -> 通用 -> 界面语言`
+- 偏好保存到 `zapcmd.settings`
+
+## 更新
+
+- 启动自动检查更新：`设置 -> 通用 -> 自动检查更新`（24 小时节流）。
+- 手动检查/下载安装：`设置 -> 关于`。
+- 更新使用 GitHub Releases 签名产物（`latest.json` + `.sig`）。
+
+## 当前实现与 Roadmap
+
+当前实现：
+
+- 主窗口、设置页、命令管理完整可用
+- 内置与用户命令运行时加载
+- 用户命令在应用启动时加载（修改后需重启）
+- 安全基线与队列会话恢复
+
+Roadmap：
+
+- 高级安全治理（策略/白名单/团队规则）
+- 真实桌面壳层 E2E 自动化基线
+
+## 支持矩阵（v1）
+
+1. Windows x64：支持
+2. macOS arm64（Apple Silicon）：支持
+3. Linux x64：支持
+4. 其他架构：当前版本不保证
+
+## 已知限制
+
+1. macOS 安装包当前未签名/未公证。
+2. 用户命令 JSON 修改后需重启应用生效。
+3. E2E 自动化基线尚未完全落地。
+
+## 提交问题与参与贡献
+
+Issue 入口：
+
+- 打开：https://github.com/zhengkanghua/zapcmd/issues/new/choose
+- 选择对应模板：
+  - `Bug Report`
+  - `Feature Request`
+  - `Usage Question`
+
+PR 流程：
+
+1. Fork 仓库并创建分支。
+2. 做小步且可验证的改动，并本地执行 `npm run check:all`。
+3. 提交 PR，并填写 `.github/pull_request_template.md`。
+
+完整贡献指南：
+
+- `CONTRIBUTING.zh-CN.md`
+
+审核与合并规则：
+
+- 外部改动统一通过 PR 审核后合并。
+- 是否接受与何时合并由维护者决定。
+
+## 发布权限说明
+
+- 社区贡献者通过 PR 提交改动，不直接发布版本。
+- 仅仓库维护者（具备写入/发布权限）应推送 `v*.*.*` 标签。
+- 推送 `vX.Y.Z` 标签后，会触发多平台构建并发布 GitHub Release。
+
+## 文档
+
+公开文档入口：
+
+- `docs/README.md`
+
+开源治理文件：
+
+- `LICENSE`
+- `CONTRIBUTING.zh-CN.md`
+- `CODE_OF_CONDUCT.zh-CN.md`
+- `SECURITY.zh-CN.md`
+- `SUPPORT.zh-CN.md`

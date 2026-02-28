@@ -1,0 +1,1094 @@
+{
+  "_meta": {
+    "name": "网络工具",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_network.md"
+  },
+  "commands": [
+    {
+      "id": "query-port-lsof-mac",
+      "name": "查询端口占用 (lsof)",
+      "tags": [
+        "网络",
+        "network",
+        "查询",
+        "query",
+        "端口",
+        "port",
+        "lsof",
+        "占用",
+        "冲突",
+        "端口占用",
+        "查端口"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "lsof -i :{{port}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "lsof",
+          "type": "binary",
+          "required": true,
+          "check": "binary:lsof"
+        }
+      ]
+    },
+    {
+      "id": "query-port-lsof-linux",
+      "name": "查询端口占用 (lsof)",
+      "tags": [
+        "网络",
+        "network",
+        "查询",
+        "query",
+        "端口",
+        "port",
+        "lsof",
+        "占用",
+        "冲突",
+        "端口占用",
+        "查端口"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "lsof -i :{{port}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "lsof",
+          "type": "binary",
+          "required": true,
+          "check": "binary:lsof"
+        }
+      ]
+    },
+    {
+      "id": "query-port-netstat",
+      "name": "查询端口占用 (netstat)",
+      "tags": [
+        "网络",
+        "network",
+        "查询",
+        "query",
+        "端口",
+        "port",
+        "netstat",
+        "占用",
+        "冲突",
+        "端口占用",
+        "查端口"
+      ],
+      "category": "network",
+      "platform": "win",
+      "template": "netstat -ano | findstr :{{port}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "netstat",
+          "type": "binary",
+          "required": true,
+          "check": "binary:netstat"
+        },
+        {
+          "id": "findstr",
+          "type": "binary",
+          "required": true,
+          "check": "binary:findstr"
+        }
+      ]
+    },
+    {
+      "id": "kill-port-mac",
+      "name": "解除端口占用",
+      "tags": [
+        "网络",
+        "network",
+        "kill",
+        "终止",
+        "结束",
+        "端口",
+        "port",
+        "占用",
+        "冲突",
+        "端口占用",
+        "释放端口"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "lsof -t -i:{{port}} | xargs kill -9",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "lsof",
+          "type": "binary",
+          "required": true,
+          "check": "binary:lsof"
+        },
+        {
+          "id": "kill",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kill"
+        }
+      ]
+    },
+    {
+      "id": "kill-port-mac-linux",
+      "name": "解除端口占用",
+      "tags": [
+        "网络",
+        "network",
+        "kill",
+        "终止",
+        "结束",
+        "端口",
+        "port",
+        "占用",
+        "冲突",
+        "端口占用",
+        "释放端口"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "lsof -t -i:{{port}} | xargs kill -9",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "lsof",
+          "type": "binary",
+          "required": true,
+          "check": "binary:lsof"
+        },
+        {
+          "id": "kill",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kill"
+        }
+      ]
+    },
+    {
+      "id": "kill-port-win",
+      "name": "解除端口占用",
+      "tags": [
+        "网络",
+        "network",
+        "kill",
+        "终止",
+        "结束",
+        "端口",
+        "port",
+        "占用",
+        "冲突",
+        "端口占用",
+        "释放端口"
+      ],
+      "category": "network",
+      "platform": "win",
+      "template": "Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "stop-process",
+          "type": "binary",
+          "required": true,
+          "check": "binary:stop-process"
+        },
+        {
+          "id": "get-nettcpconnection",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-nettcpconnection"
+        }
+      ]
+    },
+    {
+      "id": "ping",
+      "name": "Ping 主机",
+      "tags": [
+        "网络",
+        "network",
+        "ping"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "ping {{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ping",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ping"
+        }
+      ]
+    },
+    {
+      "id": "curl-get",
+      "name": "HTTP GET 请求",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "获取",
+        "get"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -s {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "curl-post",
+      "name": "HTTP POST 请求",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "post"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -X POST -H \"Content-Type: application/json\" -d '{{body}}' {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "body",
+          "label": "body",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "curl-headers",
+      "name": "查看 HTTP 响应头",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "headers",
+        "查看",
+        "show"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -I {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "dns-lookup",
+      "name": "DNS 查询",
+      "tags": [
+        "网络",
+        "network",
+        "dns",
+        "lookup",
+        "查询",
+        "query"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "nslookup {{domain}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "domain",
+          "label": "domain",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "nslookup",
+          "type": "binary",
+          "required": true,
+          "check": "binary:nslookup"
+        }
+      ]
+    },
+    {
+      "id": "dig-query-mac",
+      "name": "DNS 详细查询 (dig)",
+      "tags": [
+        "网络",
+        "network",
+        "dig",
+        "查询",
+        "query"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "dig {{domain}} {{type}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "domain",
+          "label": "domain",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "type",
+          "label": "type",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": [
+              "A",
+              "AAAA",
+              "MX",
+              "CNAME",
+              "NS",
+              "TXT"
+            ]
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "dig",
+          "type": "binary",
+          "required": true,
+          "check": "binary:dig"
+        }
+      ]
+    },
+    {
+      "id": "dig-query-linux",
+      "name": "DNS 详细查询 (dig)",
+      "tags": [
+        "网络",
+        "network",
+        "dig",
+        "查询",
+        "query"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "dig {{domain}} {{type}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "domain",
+          "label": "domain",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "type",
+          "label": "type",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": [
+              "A",
+              "AAAA",
+              "MX",
+              "CNAME",
+              "NS",
+              "TXT"
+            ]
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "dig",
+          "type": "binary",
+          "required": true,
+          "check": "binary:dig"
+        }
+      ]
+    },
+    {
+      "id": "check-ip",
+      "name": "查看本机公网 IP",
+      "tags": [
+        "网络",
+        "network",
+        "检查",
+        "check",
+        "ip",
+        "查看",
+        "show"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -s ifconfig.me",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "local-ip-mac",
+      "name": "查看本机局域网 IP",
+      "tags": [
+        "网络",
+        "network",
+        "本地",
+        "local",
+        "ip",
+        "查看",
+        "show"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "ipconfig getifaddr en0",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "ipconfig",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ipconfig"
+        }
+      ]
+    },
+    {
+      "id": "local-ip-linux",
+      "name": "查看本机局域网 IP",
+      "tags": [
+        "网络",
+        "network",
+        "本地",
+        "local",
+        "ip",
+        "查看",
+        "show"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "hostname -I",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "hostname",
+          "type": "binary",
+          "required": true,
+          "check": "binary:hostname"
+        }
+      ]
+    },
+    {
+      "id": "local-ip-win",
+      "name": "查看本机局域网 IP",
+      "tags": [
+        "网络",
+        "network",
+        "本地",
+        "local",
+        "ip",
+        "查看",
+        "show"
+      ],
+      "category": "network",
+      "platform": "win",
+      "template": "ipconfig",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "ipconfig",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ipconfig"
+        }
+      ]
+    },
+    {
+      "id": "traceroute-mac",
+      "name": "路由追踪",
+      "tags": [
+        "网络",
+        "network",
+        "traceroute",
+        "路由追踪"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "traceroute {{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "traceroute",
+          "type": "binary",
+          "required": true,
+          "check": "binary:traceroute"
+        }
+      ]
+    },
+    {
+      "id": "traceroute-linux",
+      "name": "路由追踪",
+      "tags": [
+        "网络",
+        "network",
+        "traceroute",
+        "路由追踪"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "traceroute {{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "traceroute",
+          "type": "binary",
+          "required": true,
+          "check": "binary:traceroute"
+        }
+      ]
+    },
+    {
+      "id": "tracert-win",
+      "name": "路由追踪",
+      "tags": [
+        "网络",
+        "network",
+        "tracert",
+        "路由追踪"
+      ],
+      "category": "network",
+      "platform": "win",
+      "template": "tracert {{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "tracert",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tracert"
+        }
+      ]
+    },
+    {
+      "id": "check-open-ports",
+      "name": "检查远程端口是否开放",
+      "tags": [
+        "网络",
+        "network",
+        "检查",
+        "check",
+        "open",
+        "ports",
+        "端口",
+        "port"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "nc -zv {{host}} {{port}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "nc",
+          "type": "binary",
+          "required": true,
+          "check": "binary:nc"
+        }
+      ]
+    },
+    {
+      "id": "wget-download-mac",
+      "name": "下载文件",
+      "tags": [
+        "网络",
+        "network",
+        "wget",
+        "下载",
+        "download",
+        "文件",
+        "file"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "wget -O {{filename}} {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "filename",
+          "label": "filename",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "wget",
+          "type": "binary",
+          "required": true,
+          "check": "binary:wget"
+        }
+      ]
+    },
+    {
+      "id": "wget-download-linux",
+      "name": "下载文件",
+      "tags": [
+        "网络",
+        "network",
+        "wget",
+        "下载",
+        "download",
+        "文件",
+        "file"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "wget -O {{filename}} {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "filename",
+          "label": "filename",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "wget",
+          "type": "binary",
+          "required": true,
+          "check": "binary:wget"
+        }
+      ]
+    },
+    {
+      "id": "curl-download",
+      "name": "下载文件",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "下载",
+        "download",
+        "文件",
+        "file"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -L -o {{filename}} {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "filename",
+          "label": "filename",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "list-listening-ports-mac",
+      "name": "查看所有监听端口",
+      "tags": [
+        "网络",
+        "network",
+        "列表",
+        "list",
+        "listening",
+        "ports",
+        "端口",
+        "port",
+        "查看",
+        "show"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "netstat -tlnp",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "netstat",
+          "type": "binary",
+          "required": true,
+          "check": "binary:netstat"
+        }
+      ]
+    },
+    {
+      "id": "list-listening-ports-linux",
+      "name": "查看所有监听端口",
+      "tags": [
+        "网络",
+        "network",
+        "列表",
+        "list",
+        "listening",
+        "ports",
+        "端口",
+        "port",
+        "查看",
+        "show"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "netstat -tlnp",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "netstat",
+          "type": "binary",
+          "required": true,
+          "check": "binary:netstat"
+        }
+      ]
+    },
+    {
+      "id": "list-listening-ports-win",
+      "name": "查看所有监听端口",
+      "tags": [
+        "网络",
+        "network",
+        "列表",
+        "list",
+        "listening",
+        "ports",
+        "端口",
+        "port",
+        "查看",
+        "show"
+      ],
+      "category": "network",
+      "platform": "win",
+      "template": "netstat -an | findstr LISTENING",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "netstat",
+          "type": "binary",
+          "required": true,
+          "check": "binary:netstat"
+        },
+        {
+          "id": "findstr",
+          "type": "binary",
+          "required": true,
+          "check": "binary:findstr"
+        }
+      ]
+    },
+    {
+      "id": "flush-dns-mac",
+      "name": "刷新 DNS 缓存",
+      "tags": [
+        "网络",
+        "network",
+        "刷新",
+        "flush",
+        "dns"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder",
+      "adminRequired": true,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "dscacheutil",
+          "type": "binary",
+          "required": true,
+          "check": "binary:dscacheutil"
+        },
+        {
+          "id": "killall",
+          "type": "binary",
+          "required": true,
+          "check": "binary:killall"
+        }
+      ]
+    },
+    {
+      "id": "flush-dns-win",
+      "name": "刷新 DNS 缓存",
+      "tags": [
+        "网络",
+        "network",
+        "刷新",
+        "flush",
+        "dns"
+      ],
+      "category": "network",
+      "platform": "win",
+      "template": "ipconfig /flushdns",
+      "adminRequired": true,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "ipconfig",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ipconfig"
+        }
+      ]
+    },
+    {
+      "id": "flush-dns-linux",
+      "name": "刷新 DNS 缓存",
+      "tags": [
+        "网络",
+        "network",
+        "刷新",
+        "flush",
+        "dns"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "sudo systemd-resolve --flush-caches",
+      "adminRequired": true,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "systemd-resolve",
+          "type": "binary",
+          "required": true,
+          "check": "binary:systemd-resolve"
+        }
+      ]
+    },
+    {
+      "id": "speed-test",
+      "name": "网络测速",
+      "tags": [
+        "网络",
+        "network",
+        "测速",
+        "speed",
+        "test",
+        "测试"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        },
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    }
+  ]
+}
