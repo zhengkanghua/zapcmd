@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { maybeCheckForUpdateAtStartup, LAST_UPDATE_CHECK_STORAGE_KEY } from "../startupUpdateCheck";
+import { checkForUpdate } from "../updateService";
 
 vi.mock("../updateService", () => ({
   checkForUpdate: vi.fn(async () => ({ result: { available: false }, update: null }))
@@ -42,6 +43,23 @@ describe("startupUpdateCheck", () => {
     expect(result.checked).toBe(true);
     expect(result.available).toBe(false);
     expect(localStorage.getItem(LAST_UPDATE_CHECK_STORAGE_KEY)).toBe("5000");
+  });
+
+  it("does not update timestamp when update check fails", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    localStorage.setItem(LAST_UPDATE_CHECK_STORAGE_KEY, "1000");
+    vi.mocked(checkForUpdate).mockRejectedValueOnce(new Error("network failed"));
+
+    const result = await maybeCheckForUpdateAtStartup({
+      enabled: true,
+      storage: localStorage,
+      nowMs: 5000,
+      intervalMs: 1
+    });
+
+    expect(result.checked).toBe(true);
+    expect(localStorage.getItem(LAST_UPDATE_CHECK_STORAGE_KEY)).toBe("1000");
+    errorSpy.mockRestore();
   });
 
   it("skips when storage is unavailable", async () => {

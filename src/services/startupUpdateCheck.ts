@@ -53,10 +53,13 @@ export async function maybeCheckForUpdateAtStartup(options: {
     return { checked: false, available: false };
   }
 
-  options.storage.setItem(LAST_UPDATE_CHECK_STORAGE_KEY, String(nowMs));
-
   try {
     const response = await checkForUpdate();
+    try {
+      options.storage.setItem(LAST_UPDATE_CHECK_STORAGE_KEY, String(nowMs));
+    } catch (error) {
+      console.warn("startup update check timestamp write failed:", error);
+    }
     return {
       checked: true,
       available: response.result.available,
