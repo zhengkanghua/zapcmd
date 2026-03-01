@@ -13,6 +13,10 @@ Format rule / 格式规则：
 ### Fixes / 修复
 
 1. 修复启动后首次拖拽主窗口可能被打断并意外隐藏（失焦回弹体感）/ Fix initial main window drag occasionally being interrupted and hidden after launch
+2. Web 预览模式执行命令时给出明确错误提示（不再假成功）/ Show explicit error when executing commands in web preview (no more fake success)
+3. 启动自动更新检查：失败不会写入节流时间戳，避免“失败也节流”/ Startup update check: don’t persist throttle timestamp on failure
+4. 设置保存：错误提示按步骤归因（自启/热键/localStorage/broadcast）/ Settings save: error attribution per step (autostart/hotkey/localStorage/broadcast)
+5. 命令 schema：`shell` 字段当前不生效时在命令管理中给出校验提示/ Command schema: show validation notice when `shell` is present but ignored
 
 ## [1.0.0] - 2026-02-28
 

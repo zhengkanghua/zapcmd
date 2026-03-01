@@ -59,6 +59,8 @@ npm install
 npm run tauri:dev
 ```
 
+Tip: `npm run dev` starts web preview mode (no terminal execution). Use `npm run tauri:dev` for desktop features.
+
 Note: updater keys/endpoints are centralized in `.env.keys` and synced by `npm run keys:sync` (already included in `tauri:dev` / `tauri:build`).
 
 Quality gate:
@@ -98,7 +100,6 @@ Minimal example:
       "category": "custom",
       "platform": "win",
       "template": "Write-Output \"hello from user commands\"",
-      "shell": "powershell",
       "adminRequired": false
     }
   ]
@@ -109,6 +110,10 @@ Schema:
 
 - `docs/schemas/command-file.schema.json`
 - `docs/schemas/README.md`
+
+Notes:
+
+- `shell` is currently validated by schema but ignored at runtime (no effect). ZapCmd shows a validation notice in `Settings -> Command Management`.
 
 ## Search Behavior (Current)
 
@@ -128,7 +133,7 @@ Schema:
 
 ## Updates
 
-- Auto check updates on startup: `Settings -> General -> Auto check updates` (throttled to once per 24h).
+- Auto check updates on startup: `Settings -> General -> Auto check updates` (throttled to once per 24h after a successful check; failures can retry on next startup).
 - Manual check + download/install: `Settings -> About`.
 - Updater uses signed GitHub Release assets (`latest.json` + `.sig`).
 

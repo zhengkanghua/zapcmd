@@ -64,6 +64,8 @@
 
 1. 用户命令 JSON 修改后需重启应用生效。
 2. 桌面壳层 E2E 自动化基线尚未完全落地（以 `README.md` 的 Roadmap 段落为准）。
+3. Web 预览模式（`npm run dev` / `npm run preview`）不支持执行命令；命令执行仅在桌面版（Tauri runtime）可用。
+4. 用户命令字段 `shell` 当前仅做 schema 校验，不影响执行（运行时会忽略）。如命令中填写 `shell`，会在 `Settings -> Command Management` 显示校验提示。
 
 ---
 

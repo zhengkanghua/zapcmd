@@ -59,6 +59,8 @@ npm install
 npm run tauri:dev
 ```
 
+提示：`npm run dev` 是 Web 预览模式（无法执行命令）；需要完整桌面能力请使用 `npm run tauri:dev`。
+
 说明：更新密钥/端点集中在 `.env.keys`，由 `npm run keys:sync` 同步（已集成到 `tauri:dev` / `tauri:build`）。
 
 工程门禁：
@@ -98,7 +100,6 @@ ZapCmd 会递归读取用户 JSON 文件：
       "category": "custom",
       "platform": "win",
       "template": "Write-Output \"hello from user commands\"",
-      "shell": "powershell",
       "adminRequired": false
     }
   ]
@@ -109,6 +110,10 @@ Schema：
 
 - `docs/schemas/command-file.schema.json`
 - `docs/schemas/README.md`
+
+说明：
+
+- `shell` 字段当前仅做 schema 校验，运行时会忽略（不会影响执行）。ZapCmd 会在 `设置 -> 命令管理` 显示校验提示。
 
 ## 搜索机制（当前实现）
 
@@ -128,7 +133,7 @@ Schema：
 
 ## 更新
 
-- 启动自动检查更新：`设置 -> 通用 -> 自动检查更新`（24 小时节流）。
+- 启动自动检查更新：`设置 -> 通用 -> 自动检查更新`（成功检查后 24 小时节流；失败会在下次启动重试）。
 - 手动检查/下载安装：`设置 -> 关于`。
 - 更新使用 GitHub Releases 签名产物（`latest.json` + `.sig`）。
 
