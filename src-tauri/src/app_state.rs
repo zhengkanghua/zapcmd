@@ -1,5 +1,5 @@
 #[cfg(desktop)]
-use std::sync::atomic::AtomicU64;
+use std::sync::atomic::{AtomicBool, AtomicU64};
 #[cfg(desktop)]
 use std::sync::Mutex;
 
@@ -11,5 +11,6 @@ pub(crate) const SETTINGS_WINDOW_LABEL: &str = "settings";
 #[cfg(desktop)]
 pub(crate) struct AppState {
     pub launcher_hotkey: Mutex<String>,
+    pub move_save_inflight: AtomicBool,
     pub move_save_token: AtomicU64,
 }

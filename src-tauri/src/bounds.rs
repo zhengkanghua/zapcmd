@@ -210,18 +210,45 @@ pub(crate) fn handle_main_window_event<R: Runtime>(window: &Window<R>, event: &W
             {
                 let app = window.app_handle();
                 let state = app.state::<AppState>();
-                let next_token = state.move_save_token.fetch_add(1, Ordering::SeqCst) + 1;
+                state.move_save_token.fetch_add(1, Ordering::SeqCst);
+                if state
+                    .move_save_inflight
+                    .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+                    .is_err()
+                {
+                    return;
+                }
+
                 let app_handle = app.clone();
                 let window = window.clone();
                 std::thread::spawn(move || {
-                    std::thread::sleep(Duration::from_millis(500));
                     let state = app_handle.state::<AppState>();
-                    let latest = state.move_save_token.load(Ordering::SeqCst);
-                    if latest != next_token {
-                        return;
-                    }
-                    if let Ok(position) = window.outer_position() {
-                        let _ = save_main_window_bounds(&app_handle, &window, position);
+                    let mut observed = state.move_save_token.load(Ordering::SeqCst);
+                    loop {
+                        std::thread::sleep(Duration::from_millis(500));
+                        let latest = state.move_save_token.load(Ordering::SeqCst);
+                        if latest != observed {
+                            observed = latest;
+                            continue;
+                        }
+                        if let Ok(position) = window.outer_position() {
+                            if let Err(error) = save_main_window_bounds(&app_handle, &window, position) {
+                                eprintln!("[zapcmd] save main window bounds failed: {}", error);
+                            }
+                        }
+
+                        state.move_save_inflight.store(false, Ordering::SeqCst);
+                        let final_token = state.move_save_token.load(Ordering::SeqCst);
+                        if final_token != latest
+                            && state
+                                .move_save_inflight
+                                .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+                                .is_ok()
+                        {
+                            observed = final_token;
+                            continue;
+                        }
+                        break;
                     }
                 });
             }

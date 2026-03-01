@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 #[cfg(desktop)]
-use std::sync::atomic::AtomicU64;
+use std::sync::atomic::{AtomicBool, AtomicU64};
 #[cfg(desktop)]
 use std::sync::Mutex;
 
@@ -26,6 +26,7 @@ pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
     #[cfg(desktop)]
     app.manage(AppState {
         launcher_hotkey: Mutex::new(DEFAULT_LAUNCHER_HOTKEY.to_string()),
+        move_save_inflight: AtomicBool::new(false),
         move_save_token: AtomicU64::new(0),
     });
 }
@@ -57,8 +58,16 @@ pub(crate) fn setup_global_shortcut<R: Runtime>(app: &mut App<R>) {
             }
         })
         .build();
-    let _ = app.handle().plugin(shortcut_plugin);
-    let _ = register_launcher_hotkey(&app.handle(), DEFAULT_LAUNCHER_HOTKEY);
+    if let Err(error) = app.handle().plugin(shortcut_plugin) {
+        eprintln!("[zapcmd] failed to register global shortcut plugin: {}", error);
+    }
+    if let Err(error) = register_launcher_hotkey(&app.handle(), DEFAULT_LAUNCHER_HOTKEY) {
+        eprintln!(
+            "[zapcmd] failed to register launcher hotkey ({}): {}",
+            DEFAULT_LAUNCHER_HOTKEY,
+            error
+        );
+    }
 }
 
 #[cfg(desktop)]
@@ -77,7 +86,9 @@ pub(crate) fn setup_tray<R: Runtime>(app: &mut App<R>) -> tauri::Result<()> {
         .on_menu_event(|app, event| match event.id().as_ref() {
             "toggle_window" => toggle_main_window(app),
             "open_settings" => {
-                let _ = open_or_focus_settings_window(app);
+                if let Err(error) = open_or_focus_settings_window(app) {
+                    eprintln!("[zapcmd] open settings window failed: {}", error);
+                }
             }
             "quit_app" => app.exit(0),
             _ => {}
