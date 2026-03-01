@@ -25,6 +25,8 @@ vi.mock("@tauri-apps/api/window", () => ({
 }));
 
 const wrappers: VueWrapper[] = [];
+let warnSpy: ReturnType<typeof vi.spyOn> | null = null;
+let errorSpy: ReturnType<typeof vi.spyOn> | null = null;
 
 async function waitForUi(): Promise<void> {
   await nextTick();
@@ -79,12 +81,18 @@ async function focusSearchAndType(wrapper: VueWrapper, value: string): Promise<v
 
 beforeEach(() => {
   localStorage.clear();
+  warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+  errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 afterEach(() => {
   while (wrappers.length > 0) {
     wrappers.pop()?.unmount();
   }
+  warnSpy?.mockRestore();
+  warnSpy = null;
+  errorSpy?.mockRestore();
+  errorSpy = null;
 });
 
 describe("App UI hotkeys regression", () => {
@@ -238,7 +246,7 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.get(".staging-chip__count").text()).toBe("0");
   });
 
-  it("executes queue with Ctrl+Enter and clears staged commands", async () => {
+  it("executes queue with Ctrl+Enter and keeps staged commands when execution is blocked", async () => {
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
@@ -253,7 +261,7 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("0");
+    expect(wrapper.get(".staging-chip__count").text()).toBe("2");
   });
 
   it("reorders staging items with Alt+ArrowDown", async () => {

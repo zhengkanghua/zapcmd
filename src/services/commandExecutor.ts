@@ -1,4 +1,5 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
+import { t } from "../i18n";
 
 export interface CommandExecutionRequest {
   terminalId: string;
@@ -20,7 +21,7 @@ class TauriCommandExecutor implements CommandExecutor {
 
 class BrowserNoopCommandExecutor implements CommandExecutor {
   async run(_request: CommandExecutionRequest): Promise<void> {
-    // Web preview mode: no terminal bridge.
+    throw new Error(t("execution.desktopOnly"));
   }
 }
 

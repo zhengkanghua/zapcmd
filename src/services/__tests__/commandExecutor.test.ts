@@ -1,6 +1,7 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { t } from "../../i18n";
 import { createCommandExecutor } from "../commandExecutor";
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -33,14 +34,16 @@ describe("createCommandExecutor", () => {
     });
   });
 
-  it("is a noop in browser mode", async () => {
+  it("rejects execution in browser mode", async () => {
     isTauriMock.mockReturnValue(false);
     const executor = createCommandExecutor();
 
-    await executor.run({
-      terminalId: "powershell",
-      command: "echo test"
-    });
+    await expect(
+      executor.run({
+        terminalId: "powershell",
+        command: "echo test"
+      })
+    ).rejects.toThrow(t("execution.desktopOnly"));
 
     expect(invokeMock).not.toHaveBeenCalled();
   });
