@@ -1,0 +1,1236 @@
+{
+  "_meta": {
+    "name": "系统管理",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_system.md"
+  },
+  "commands": [
+    {
+      "id": "ps-find-mac",
+      "name": "按名称查找进程",
+      "tags": [
+        "系统",
+        "system",
+        "进程",
+        "ps",
+        "查找",
+        "find",
+        "process"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "ps aux | grep {{name}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ps",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ps"
+        },
+        {
+          "id": "grep",
+          "type": "binary",
+          "required": true,
+          "check": "binary:grep"
+        }
+      ]
+    },
+    {
+      "id": "ps-find-linux",
+      "name": "按名称查找进程",
+      "tags": [
+        "系统",
+        "system",
+        "进程",
+        "ps",
+        "查找",
+        "find",
+        "process"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "ps aux | grep {{name}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ps",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ps"
+        },
+        {
+          "id": "grep",
+          "type": "binary",
+          "required": true,
+          "check": "binary:grep"
+        }
+      ]
+    },
+    {
+      "id": "ps-find-win",
+      "name": "按名称查找进程",
+      "tags": [
+        "系统",
+        "system",
+        "进程",
+        "ps",
+        "查找",
+        "find",
+        "process"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "tasklist | findstr /i {{name}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "findstr",
+          "type": "binary",
+          "required": true,
+          "check": "binary:findstr"
+        },
+        {
+          "id": "tasklist",
+          "type": "binary",
+          "required": true,
+          "check": "binary:tasklist"
+        }
+      ]
+    },
+    {
+      "id": "kill-pid-mac",
+      "name": "按 PID 杀进程",
+      "tags": [
+        "系统",
+        "system",
+        "kill",
+        "终止",
+        "结束",
+        "pid",
+        "进程",
+        "process"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "kill -9 {{pid}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "pid",
+          "label": "pid",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kill",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kill"
+        }
+      ]
+    },
+    {
+      "id": "kill-pid-linux",
+      "name": "按 PID 杀进程",
+      "tags": [
+        "系统",
+        "system",
+        "kill",
+        "终止",
+        "结束",
+        "pid",
+        "进程",
+        "process"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "kill -9 {{pid}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "pid",
+          "label": "pid",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kill",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kill"
+        }
+      ]
+    },
+    {
+      "id": "kill-pid-win",
+      "name": "按 PID 杀进程",
+      "tags": [
+        "系统",
+        "system",
+        "kill",
+        "终止",
+        "结束",
+        "pid",
+        "进程",
+        "process"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "taskkill /F /PID {{pid}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "pid",
+          "label": "pid",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "taskkill",
+          "type": "binary",
+          "required": true,
+          "check": "binary:taskkill"
+        }
+      ]
+    },
+    {
+      "id": "kill-name-mac",
+      "name": "按名称杀进程",
+      "tags": [
+        "系统",
+        "system",
+        "kill",
+        "终止",
+        "结束",
+        "名称",
+        "name",
+        "进程",
+        "process"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "pkill -f {{name}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pkill",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pkill"
+        }
+      ]
+    },
+    {
+      "id": "kill-name-linux",
+      "name": "按名称杀进程",
+      "tags": [
+        "系统",
+        "system",
+        "kill",
+        "终止",
+        "结束",
+        "名称",
+        "name",
+        "进程",
+        "process"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "pkill -f {{name}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pkill",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pkill"
+        }
+      ]
+    },
+    {
+      "id": "kill-name-win",
+      "name": "按名称杀进程",
+      "tags": [
+        "系统",
+        "system",
+        "kill",
+        "终止",
+        "结束",
+        "名称",
+        "name",
+        "进程",
+        "process"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "taskkill /F /IM {{name}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "taskkill",
+          "type": "binary",
+          "required": true,
+          "check": "binary:taskkill"
+        }
+      ]
+    },
+    {
+      "id": "disk-usage-mac",
+      "name": "查看磁盘空间",
+      "tags": [
+        "系统",
+        "system",
+        "磁盘",
+        "disk",
+        "使用率",
+        "usage",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "df -h",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "df",
+          "type": "binary",
+          "required": true,
+          "check": "binary:df"
+        }
+      ]
+    },
+    {
+      "id": "disk-usage-linux",
+      "name": "查看磁盘空间",
+      "tags": [
+        "系统",
+        "system",
+        "磁盘",
+        "disk",
+        "使用率",
+        "usage",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "df -h",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "df",
+          "type": "binary",
+          "required": true,
+          "check": "binary:df"
+        }
+      ]
+    },
+    {
+      "id": "disk-usage-win",
+      "name": "查看磁盘空间",
+      "tags": [
+        "系统",
+        "system",
+        "磁盘",
+        "disk",
+        "使用率",
+        "usage",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "Get-PSDrive -PSProvider FileSystem",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-psdrive",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-psdrive"
+        }
+      ]
+    },
+    {
+      "id": "dir-size-mac",
+      "name": "查看目录大小",
+      "tags": [
+        "系统",
+        "system",
+        "目录",
+        "directory",
+        "大小",
+        "size",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "du -sh {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "du",
+          "type": "binary",
+          "required": true,
+          "check": "binary:du"
+        }
+      ]
+    },
+    {
+      "id": "dir-size-linux",
+      "name": "查看目录大小",
+      "tags": [
+        "系统",
+        "system",
+        "目录",
+        "directory",
+        "大小",
+        "size",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "du -sh {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "du",
+          "type": "binary",
+          "required": true,
+          "check": "binary:du"
+        }
+      ]
+    },
+    {
+      "id": "dir-size-win",
+      "name": "查看目录大小",
+      "tags": [
+        "系统",
+        "system",
+        "目录",
+        "directory",
+        "大小",
+        "size",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "(Get-ChildItem -Recurse {{path}} | Measure-Object -Property Length -Sum).Sum / 1MB",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-childitem",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-childitem"
+        },
+        {
+          "id": "measure-object",
+          "type": "binary",
+          "required": true,
+          "check": "binary:measure-object"
+        }
+      ]
+    },
+    {
+      "id": "memory-usage",
+      "name": "查看内存使用",
+      "tags": [
+        "系统",
+        "system",
+        "内存",
+        "memory",
+        "使用率",
+        "usage",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "top -l 1 | head -n 10",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "top",
+          "type": "binary",
+          "required": true,
+          "check": "binary:top"
+        },
+        {
+          "id": "head",
+          "type": "binary",
+          "required": true,
+          "check": "binary:head"
+        }
+      ]
+    },
+    {
+      "id": "memory-usage-linux",
+      "name": "查看内存使用",
+      "tags": [
+        "系统",
+        "system",
+        "内存",
+        "memory",
+        "使用率",
+        "usage",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "free -h",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "free",
+          "type": "binary",
+          "required": true,
+          "check": "binary:free"
+        }
+      ]
+    },
+    {
+      "id": "memory-usage-win",
+      "name": "查看内存使用",
+      "tags": [
+        "系统",
+        "system",
+        "内存",
+        "memory",
+        "使用率",
+        "usage",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 10 Name, @{N='Mem(MB)';E={[math]::round($_.WorkingSet/1MB,1)}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-process",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-process"
+        },
+        {
+          "id": "sort-object",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sort-object"
+        },
+        {
+          "id": "select-object",
+          "type": "binary",
+          "required": true,
+          "check": "binary:select-object"
+        }
+      ]
+    },
+    {
+      "id": "system-info-mac",
+      "name": "查看系统信息",
+      "tags": [
+        "系统",
+        "system",
+        "info",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "uname -a",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "uname",
+          "type": "binary",
+          "required": true,
+          "check": "binary:uname"
+        }
+      ]
+    },
+    {
+      "id": "system-info-linux",
+      "name": "查看系统信息",
+      "tags": [
+        "系统",
+        "system",
+        "info",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "uname -a",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "uname",
+          "type": "binary",
+          "required": true,
+          "check": "binary:uname"
+        }
+      ]
+    },
+    {
+      "id": "system-info-win",
+      "name": "查看系统信息",
+      "tags": [
+        "系统",
+        "system",
+        "info",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "systeminfo",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
+    },
+    {
+      "id": "env-var-set-mac",
+      "name": "设置环境变量",
+      "tags": [
+        "系统",
+        "system",
+        "环境变量",
+        "env",
+        "变量",
+        "var",
+        "设置",
+        "set"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "export {{key}}={{value}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "key",
+          "label": "key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "value",
+          "label": "value",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "shell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:shell"
+        }
+      ]
+    },
+    {
+      "id": "env-var-set-linux",
+      "name": "设置环境变量",
+      "tags": [
+        "系统",
+        "system",
+        "环境变量",
+        "env",
+        "变量",
+        "var",
+        "设置",
+        "set"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "export {{key}}={{value}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "key",
+          "label": "key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "value",
+          "label": "value",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "shell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:shell"
+        }
+      ]
+    },
+    {
+      "id": "env-var-set-win",
+      "name": "设置环境变量",
+      "tags": [
+        "系统",
+        "system",
+        "环境变量",
+        "env",
+        "变量",
+        "var",
+        "设置",
+        "set"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "$env:{{key}} = \"{{value}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "key",
+          "label": "key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "value",
+          "label": "value",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
+    },
+    {
+      "id": "env-var-get-mac",
+      "name": "查看环境变量",
+      "tags": [
+        "系统",
+        "system",
+        "环境变量",
+        "env",
+        "变量",
+        "var",
+        "获取",
+        "get",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "echo ${{key}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "key",
+          "label": "key",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "shell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:shell"
+        }
+      ]
+    },
+    {
+      "id": "env-var-get-linux",
+      "name": "查看环境变量",
+      "tags": [
+        "系统",
+        "system",
+        "环境变量",
+        "env",
+        "变量",
+        "var",
+        "获取",
+        "get",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "echo ${{key}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "key",
+          "label": "key",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "shell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:shell"
+        }
+      ]
+    },
+    {
+      "id": "env-var-get-win",
+      "name": "查看环境变量",
+      "tags": [
+        "系统",
+        "system",
+        "环境变量",
+        "env",
+        "变量",
+        "var",
+        "获取",
+        "get",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "echo $env:{{key}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "key",
+          "label": "key",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "echo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:echo"
+        }
+      ]
+    },
+    {
+      "id": "uptime-mac",
+      "name": "系统运行时间",
+      "tags": [
+        "系统",
+        "system",
+        "运行时间",
+        "uptime"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "uptime",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "uptime",
+          "type": "binary",
+          "required": true,
+          "check": "binary:uptime"
+        }
+      ]
+    },
+    {
+      "id": "uptime-linux",
+      "name": "系统运行时间",
+      "tags": [
+        "系统",
+        "system",
+        "运行时间",
+        "uptime"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "uptime",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "uptime",
+          "type": "binary",
+          "required": true,
+          "check": "binary:uptime"
+        }
+      ]
+    },
+    {
+      "id": "cpu-top-mac",
+      "name": "CPU 占用排行",
+      "tags": [
+        "系统",
+        "system",
+        "cpu",
+        "top",
+        "占用",
+        "冲突"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "top -o cpu -n 10 -l 1",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "top",
+          "type": "binary",
+          "required": true,
+          "check": "binary:top"
+        }
+      ]
+    },
+    {
+      "id": "cpu-top-linux",
+      "name": "CPU 占用排行",
+      "tags": [
+        "系统",
+        "system",
+        "cpu",
+        "top",
+        "占用",
+        "冲突"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "top -o cpu -n 10 -l 1",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "top",
+          "type": "binary",
+          "required": true,
+          "check": "binary:top"
+        }
+      ]
+    },
+    {
+      "id": "cpu-top-win",
+      "name": "CPU 占用排行",
+      "tags": [
+        "系统",
+        "system",
+        "cpu",
+        "top",
+        "占用",
+        "冲突"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-process",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-process"
+        },
+        {
+          "id": "sort-object",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sort-object"
+        },
+        {
+          "id": "select-object",
+          "type": "binary",
+          "required": true,
+          "check": "binary:select-object"
+        }
+      ]
+    },
+    {
+      "id": "cron-list-mac",
+      "name": "查看定时任务",
+      "tags": [
+        "系统",
+        "system",
+        "定时任务",
+        "cron",
+        "列表",
+        "list",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "crontab -l",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "crontab",
+          "type": "binary",
+          "required": true,
+          "check": "binary:crontab"
+        }
+      ]
+    },
+    {
+      "id": "cron-list-linux",
+      "name": "查看定时任务",
+      "tags": [
+        "系统",
+        "system",
+        "定时任务",
+        "cron",
+        "列表",
+        "list",
+        "查看",
+        "show"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "crontab -l",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "crontab",
+          "type": "binary",
+          "required": true,
+          "check": "binary:crontab"
+        }
+      ]
+    },
+    {
+      "id": "hosts-edit-mac",
+      "name": "编辑 hosts 文件",
+      "tags": [
+        "系统",
+        "system",
+        "hosts",
+        "编辑",
+        "edit",
+        "文件",
+        "file"
+      ],
+      "category": "system",
+      "platform": "mac",
+      "template": "sudo nano /etc/hosts",
+      "adminRequired": true,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "nano",
+          "type": "binary",
+          "required": true,
+          "check": "binary:nano"
+        }
+      ]
+    },
+    {
+      "id": "hosts-edit-linux",
+      "name": "编辑 hosts 文件",
+      "tags": [
+        "系统",
+        "system",
+        "hosts",
+        "编辑",
+        "edit",
+        "文件",
+        "file"
+      ],
+      "category": "system",
+      "platform": "linux",
+      "template": "sudo nano /etc/hosts",
+      "adminRequired": true,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "nano",
+          "type": "binary",
+          "required": true,
+          "check": "binary:nano"
+        }
+      ]
+    },
+    {
+      "id": "hosts-edit-win",
+      "name": "编辑 hosts 文件",
+      "tags": [
+        "系统",
+        "system",
+        "hosts",
+        "编辑",
+        "edit",
+        "文件",
+        "file"
+      ],
+      "category": "system",
+      "platform": "win",
+      "template": "notepad C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts",
+      "adminRequired": true,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "notepad",
+          "type": "binary",
+          "required": true,
+          "check": "binary:notepad"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,452 @@
+export const messages = {
+  "zh-CN": {
+    app: {
+      launcherAriaLabel: "ZapCmd 启动器"
+    },
+    common: {
+      cancel: "取消",
+      confirm: "确定",
+      apply: "应用",
+      save: "保存",
+      clear: "清空",
+      remove: "移除",
+      execute: "执行",
+      search: "搜索"
+    },
+    launcher: {
+      searchPlaceholder: "输入命令关键词...",
+      noResult: "没有匹配到命令。",
+      queueToggleAria: "切换队列，当前 {count} 项",
+      queueTitle: "队列 {count}",
+      queueEmpty: "队列为空。",
+      executeAll: "执行全部",
+      executing: "执行中...",
+      paramTitle: "填写参数",
+      executeNow: "立即执行",
+      stageToQueue: "加入队列",
+      safetyDialogAria: "高风险命令确认"
+    },
+    settings: {
+      title: "设置",
+      saved: "已保存",
+      nav: {
+        hotkeys: "快捷键",
+        general: "通用",
+        commands: "命令",
+        appearance: "外观",
+        about: "关于"
+      },
+      hotkeys: {
+        hint: "点击任一快捷键项后，直接按键录制。录制过程中按 Esc 可取消。",
+        sectionGlobal: "全局快捷键",
+        sectionSearch: "搜索区快捷键",
+        sectionQueue: "队列快捷键",
+        recording: "请按快捷键...",
+        unset: "未设置",
+        fields: {
+          launcher: "唤起窗口",
+          toggleQueue: "显示/隐藏暂存区",
+          switchFocus: "切换焦点区域",
+          navigateUp: "上移选择",
+          navigateDown: "下移选择",
+          executeSelected: "执行当前命令",
+          stageSelected: "加入队列",
+          escape: "返回/隐藏窗口",
+          executeQueue: "执行队列",
+          clearQueue: "清空队列",
+          removeQueueItem: "移除队列项",
+          reorderUp: "队列上移",
+          reorderDown: "队列下移"
+        }
+      },
+      general: {
+        title: "通用",
+        defaultTerminal: "默认终端",
+        currentTerminalPath: "当前终端路径（只读）",
+        terminalDetecting: "正在检测终端...",
+        noTerminal: "无可用终端",
+        terminalPathNotFound: "未检测到路径",
+        language: "界面语言",
+        terminalHint: "执行命令时将优先使用此终端，涉及管理员权限时会以终端方式请求提权。",
+        languageOptionZhCn: "简体中文",
+        languageOptionEnUs: "English",
+        autoCheckUpdate: "自动检查更新",
+        autoCheckUpdateHint: "启动时自动检查 GitHub 上的新版本。",
+        launchAtLogin: "开机自启",
+        launchAtLoginHint: "系统启动时自动运行 ZapCmd。",
+        commandPrompt: "命令提示符"
+      },
+      about: {
+        title: "关于",
+        version: "版本",
+        platform: "运行平台",
+        homepage: "项目主页",
+        license: "开源许可",
+        feedback: "问题反馈",
+        checkUpdate: "检查更新",
+        checking: "检查中...",
+        updateAvailable: "发现新版本 {version}",
+        updateBody: "更新内容",
+        downloadUpdate: "立即更新",
+        downloading: "下载中... {progress}%",
+        installing: "安装中...",
+        upToDate: "当前已是最新版本",
+        updateFailed: "检查更新失败：{reason}",
+        openHomepage: "打开项目主页"
+      },
+      commands: {
+        title: "命令管理",
+        summaryTotal: "共 {total}",
+        summaryFiltered: "筛选 {filtered}",
+        summaryEnabled: "已启用 {enabled}",
+        summaryDisabled: "已禁用 {disabled}",
+        summaryUserDefined: "用户 {userDefined}",
+        summaryOverridden: "覆盖 {overridden}",
+        toggleFilters: "筛选",
+        queryLabel: "搜索（title / id / category / source）",
+        queryPlaceholder: "输入关键词筛选命令",
+        sourceFilter: "来源",
+        statusFilter: "状态",
+        overrideFilter: "冲突",
+        issueFilter: "导入问题",
+        fileFilter: "按文件筛选",
+        sortLabel: "排序",
+        displayMode: "展示方式",
+        displayListTitle: "平铺列表",
+        displayListAria: "平铺列表",
+        displayGroupedTitle: "按文件分组",
+        displayGroupedAria: "按文件分组",
+        enableFiltered: "启用当前结果（{count}）",
+        disableFiltered: "禁用当前结果（{count}）",
+        resetFilters: "重置筛选",
+        loadIssuesTitle: "导入校验提示",
+        commandListTitle: "命令列表",
+        allFiles: "全部文件",
+        fileCount: "{count} 条",
+        badgeOverride: "同 ID 覆盖内置",
+        badgeIssue: "来源存在导入异常",
+        sourceUser: "用户命令",
+        sourceBuiltin: "内置命令",
+        enabled: "已启用",
+        disabled: "已禁用",
+        groupCount: "{count} 条",
+        unknownSourceFile: "未标注来源文件",
+        overrideBadgeHint: "用户命令与内置命令 ID 相同，当前将优先使用用户命令。",
+        issueBadgeHint: "该命令来源文件存在导入异常，请检查 JSON 格式或 schema。",
+        issueInvalidJson: "文件 JSON 解析失败：{sourceId}",
+        issueInvalidSchema: "文件结构不符合 schema：{sourceId}",
+        issueDuplicateId: "命令 ID 冲突已跳过：{commandId}（来源 {sourceId}）"
+      },
+      appearance: {
+        title: "外观",
+        opacityLabel: "窗口透明度",
+        opacityHint: "调整主窗口的背景透明度，数值越小越通透。",
+        opacityValue: "{value}%",
+        preview: "效果预览"
+      },
+      commandFilters: {
+        sourceAll: "全部来源",
+        sourceBuiltin: "仅内置",
+        sourceUser: "仅用户",
+        statusAll: "全部状态",
+        statusEnabled: "仅已启用",
+        statusDisabled: "仅已禁用",
+        overrideAll: "全部冲突状态",
+        overrideOnly: "仅覆盖内置",
+        issueAll: "全部问题状态",
+        issueOnly: "仅导入异常来源",
+        sortDefault: "默认（禁用/冲突优先）",
+        sortTitle: "按标题",
+        sortCategory: "按分类",
+        sortSource: "按来源",
+        sortStatus: "按状态",
+        displayList: "平铺列表",
+        displayGroupedByFile: "按文件分组"
+      },
+      error: {
+        emptyHotkey: "{label} 不能为空。",
+        duplicateHotkey: "快捷键冲突：{hotkey} 同时用于 {labels}。",
+        terminalUnavailable: "默认终端不可用，请重新选择。",
+        updateLauncherHotkeyFailed: "更新唤起快捷键失败。",
+        updateLaunchAtLoginFailed: "更新开机自启设置失败。"
+      }
+    },
+    hotkeyHints: {
+      stagingFocus: "{switchFocus} 切焦点",
+      keyboard:
+        "{navigateUp}/{navigateDown} 选择 · {executeSelected} 执行 · {stageSelected} 入队 · {toggleQueue} 显隐 · {switchFocus} 切焦点"
+    },
+    runtime: {
+      submitExecuteHint: "按 Enter 会立即执行此命令。",
+      submitStageHint: "按 Enter 会将此命令加入队列。"
+    },
+    execution: {
+      emptyCommand: "（空命令）",
+      sentToTerminal: "命令已发送到终端（{command}），请在终端窗口查看输出。",
+      failed: "执行失败：{reason}",
+      failedFallback: "请检查终端环境或命令参数。",
+      queueEmpty: "队列中没有可执行命令。",
+      queueSuccess: "已在同一终端顺序执行 {count} 条命令（首条：{firstCommand}）。",
+      queueFailed: "执行队列失败：{reason}",
+      queueFailedFallback: "执行队列失败，请检查终端环境或命令参数。",
+      blocked: "执行已拦截：{reason}",
+      safetyQueueTitle: "确认执行高风险队列",
+      safetyQueueDescription: "队列中有 {count} 条命令涉及高风险操作，请确认后执行。",
+      safetySingleTitle: "确认执行高风险命令",
+      safetySingleDescription: "当前命令可能影响系统状态，请确认后执行。"
+    },
+    safety: {
+      reasons: {
+        rmRf: "包含批量删除目录操作（rm -rf）",
+        delForce: "包含强制删除操作（del /f）",
+        formatDisk: "包含磁盘格式化操作（format）",
+        shutdown: "包含系统关机/重启操作（shutdown）",
+        taskkillForce: "包含强制结束进程操作（taskkill /f）",
+        stopProcess: "包含进程终止操作（Stop-Process）",
+        kill9: "包含强制结束进程操作（kill -9）",
+        dangerousFlag: "命令模板标记为高危（dangerous=true）",
+        adminRequired: "命令模板标记为需要管理员权限（adminRequired=true）"
+      },
+      validation: {
+        required: "{label} 不能为空。",
+        number: "{label} 需要是数字。",
+        options: "{label} 不在允许选项中。",
+        pattern: "{label} 不符合格式要求。",
+        invalidPattern: "{label} 校验规则无效，请联系维护者修复命令模板。",
+        injection: "{label} 包含潜在注入符号，已阻止执行。"
+      },
+      queueBlockedPrefix: "{title}：{reason}"
+    },
+    command: {
+      argFallbackLabel: "参数"
+    }
+  },
+  "en-US": {
+    app: {
+      launcherAriaLabel: "ZapCmd Launcher"
+    },
+    common: {
+      cancel: "Cancel",
+      confirm: "OK",
+      apply: "Apply",
+      save: "Save",
+      clear: "Clear",
+      remove: "Remove",
+      execute: "Execute",
+      search: "Search"
+    },
+    launcher: {
+      searchPlaceholder: "Type command keywords...",
+      noResult: "No matching command found.",
+      queueToggleAria: "Toggle queue, currently {count} item(s)",
+      queueTitle: "Queue {count}",
+      queueEmpty: "Queue is empty.",
+      executeAll: "Run all",
+      executing: "Running...",
+      paramTitle: "Fill parameters",
+      executeNow: "Run now",
+      stageToQueue: "Add to queue",
+      safetyDialogAria: "High-risk command confirmation"
+    },
+    settings: {
+      title: "Settings",
+      saved: "Saved",
+      nav: {
+        hotkeys: "Hotkeys",
+        general: "General",
+        commands: "Commands",
+        appearance: "Appearance",
+        about: "About"
+      },
+      hotkeys: {
+        hint:
+          "Click any hotkey field and press keys to record. Press Esc while recording to cancel.",
+        sectionGlobal: "Global Hotkeys",
+        sectionSearch: "Search Area Hotkeys",
+        sectionQueue: "Queue Hotkeys",
+        recording: "Press hotkey...",
+        unset: "Not set",
+        fields: {
+          launcher: "Open launcher",
+          toggleQueue: "Show/Hide queue",
+          switchFocus: "Switch focus zone",
+          navigateUp: "Move selection up",
+          navigateDown: "Move selection down",
+          executeSelected: "Run selected command",
+          stageSelected: "Add to queue",
+          escape: "Back/Hide window",
+          executeQueue: "Run queue",
+          clearQueue: "Clear queue",
+          removeQueueItem: "Remove queue item",
+          reorderUp: "Move queue item up",
+          reorderDown: "Move queue item down"
+        }
+      },
+      general: {
+        title: "General",
+        defaultTerminal: "Default terminal",
+        currentTerminalPath: "Current terminal path (read-only)",
+        terminalDetecting: "Detecting terminals...",
+        noTerminal: "No available terminal",
+        terminalPathNotFound: "Path not detected",
+        language: "Language",
+        terminalHint:
+          "Commands are sent to this terminal by default. When elevation is required, privilege escalation is requested via terminal.",
+        languageOptionZhCn: "简体中文",
+        languageOptionEnUs: "English",
+        autoCheckUpdate: "Auto check for updates",
+        autoCheckUpdateHint: "Automatically check for new versions on GitHub at startup.",
+        launchAtLogin: "Launch at login",
+        launchAtLoginHint: "Automatically start ZapCmd when the system boots.",
+        commandPrompt: "Command Prompt"
+      },
+      about: {
+        title: "About",
+        version: "Version",
+        platform: "Platform",
+        homepage: "Homepage",
+        license: "License",
+        feedback: "Feedback",
+        checkUpdate: "Check for updates",
+        checking: "Checking...",
+        updateAvailable: "New version {version} available",
+        updateBody: "What's new",
+        downloadUpdate: "Update now",
+        downloading: "Downloading... {progress}%",
+        installing: "Installing...",
+        upToDate: "You're up to date",
+        updateFailed: "Update check failed: {reason}",
+        openHomepage: "Open homepage"
+      },
+      commands: {
+        title: "Command Management",
+        summaryTotal: "Total {total}",
+        summaryFiltered: "Filtered {filtered}",
+        summaryEnabled: "Enabled {enabled}",
+        summaryDisabled: "Disabled {disabled}",
+        summaryUserDefined: "User {userDefined}",
+        summaryOverridden: "Overrides {overridden}",
+        toggleFilters: "Filters",
+        queryLabel: "Search (title / id / category / source)",
+        queryPlaceholder: "Filter commands by keywords",
+        sourceFilter: "Source",
+        statusFilter: "Status",
+        overrideFilter: "Conflict",
+        issueFilter: "Import issues",
+        fileFilter: "Filter by file",
+        sortLabel: "Sort",
+        displayMode: "Display mode",
+        displayListTitle: "Flat list",
+        displayListAria: "Flat list",
+        displayGroupedTitle: "Group by file",
+        displayGroupedAria: "Group by file",
+        enableFiltered: "Enable current results ({count})",
+        disableFiltered: "Disable current results ({count})",
+        resetFilters: "Reset filters",
+        loadIssuesTitle: "Import validation",
+        commandListTitle: "Command list",
+        allFiles: "All files",
+        fileCount: "{count} items",
+        badgeOverride: "Overrides built-in",
+        badgeIssue: "Import issue in source",
+        sourceUser: "User command",
+        sourceBuiltin: "Built-in command",
+        enabled: "Enabled",
+        disabled: "Disabled",
+        groupCount: "{count} items",
+        unknownSourceFile: "Source file not specified",
+        overrideBadgeHint:
+          "This user command has the same ID as a built-in command, so the user command takes precedence.",
+        issueBadgeHint: "The source file has import issues. Check JSON format or schema.",
+        issueInvalidJson: "JSON parse failed: {sourceId}",
+        issueInvalidSchema: "Schema validation failed: {sourceId}",
+        issueDuplicateId: "Duplicate command ID skipped: {commandId} (source {sourceId})"
+      },
+      appearance: {
+        title: "Appearance",
+        opacityLabel: "Window opacity",
+        opacityHint: "Adjust the background opacity of the main window. Lower values are more transparent.",
+        opacityValue: "{value}%",
+        preview: "Preview"
+      },
+      commandFilters: {
+        sourceAll: "All sources",
+        sourceBuiltin: "Built-in only",
+        sourceUser: "User only",
+        statusAll: "All statuses",
+        statusEnabled: "Enabled only",
+        statusDisabled: "Disabled only",
+        overrideAll: "All conflicts",
+        overrideOnly: "Override built-ins only",
+        issueAll: "All issue statuses",
+        issueOnly: "Import issues only",
+        sortDefault: "Default (disabled/conflicts first)",
+        sortTitle: "By title",
+        sortCategory: "By category",
+        sortSource: "By source",
+        sortStatus: "By status",
+        displayList: "Flat list",
+        displayGroupedByFile: "Group by file"
+      },
+      error: {
+        emptyHotkey: "{label} cannot be empty.",
+        duplicateHotkey: "Hotkey conflict: {hotkey} is used by {labels}.",
+        terminalUnavailable: "Default terminal is unavailable. Please choose another one.",
+        updateLauncherHotkeyFailed: "Failed to update launcher hotkey.",
+        updateLaunchAtLoginFailed: "Failed to update launch at login setting."
+      }
+    },
+    hotkeyHints: {
+      stagingFocus: "{switchFocus} focus",
+      keyboard:
+        "{navigateUp}/{navigateDown} navigate · {executeSelected} run · {stageSelected} stage · {toggleQueue} toggle queue · {switchFocus} switch focus"
+    },
+    runtime: {
+      submitExecuteHint: "Press Enter to run this command now.",
+      submitStageHint: "Press Enter to add this command to queue."
+    },
+    execution: {
+      emptyCommand: "(empty command)",
+      sentToTerminal: "Command sent to terminal ({command}). Check output in terminal window.",
+      failed: "Execution failed: {reason}",
+      failedFallback: "Please check terminal environment or command arguments.",
+      queueEmpty: "No executable command in queue.",
+      queueSuccess: "Executed {count} command(s) sequentially in the same terminal (first: {firstCommand}).",
+      queueFailed: "Queue execution failed: {reason}",
+      queueFailedFallback: "Queue execution failed. Check terminal environment or command arguments.",
+      blocked: "Execution blocked: {reason}",
+      safetyQueueTitle: "Confirm high-risk queue execution",
+      safetyQueueDescription:
+        "{count} command(s) in queue involve high-risk operations. Confirm before execution.",
+      safetySingleTitle: "Confirm high-risk command execution",
+      safetySingleDescription: "This command may affect system state. Confirm before execution."
+    },
+    safety: {
+      reasons: {
+        rmRf: "Contains bulk directory deletion (rm -rf)",
+        delForce: "Contains force-delete operation (del /f)",
+        formatDisk: "Contains disk format operation (format)",
+        shutdown: "Contains system shutdown/restart (shutdown)",
+        taskkillForce: "Contains force process termination (taskkill /f)",
+        stopProcess: "Contains process termination (Stop-Process)",
+        kill9: "Contains force process termination (kill -9)",
+        dangerousFlag: "Command template is marked dangerous (dangerous=true)",
+        adminRequired: "Command template requires admin privilege (adminRequired=true)"
+      },
+      validation: {
+        required: "{label} is required.",
+        number: "{label} must be a number.",
+        options: "{label} is not in allowed options.",
+        pattern: "{label} does not match required format.",
+        invalidPattern: "{label} has invalid validation rule. Contact maintainer.",
+        injection: "{label} contains potential injection symbols and is blocked."
+      },
+      queueBlockedPrefix: "{title}: {reason}"
+    },
+    command: {
+      argFallbackLabel: "Argument"
+    }
+  }
+} as const;
+
+export type MessageKeyMap = typeof messages;

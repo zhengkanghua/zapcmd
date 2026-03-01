@@ -1,0 +1,680 @@
+{
+  "_meta": {
+    "name": "包管理",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_package.md"
+  },
+  "commands": [
+    {
+      "id": "npm-install",
+      "name": "NPM 安装依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "install",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm install {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-install-dev",
+      "name": "NPM 安装开发依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "install",
+        "dev",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm install -D {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-uninstall",
+      "name": "NPM 卸载依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "卸载",
+        "uninstall",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm uninstall {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-run",
+      "name": "NPM 运行脚本",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "运行",
+        "run"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm run {{script}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "script",
+          "label": "script",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-list",
+      "name": "NPM 查看已安装",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "列表",
+        "list",
+        "查看",
+        "show",
+        "安装",
+        "install"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm list --depth=0",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-outdated",
+      "name": "NPM 检查过期依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "过期",
+        "outdated",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm outdated",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-update",
+      "name": "NPM 更新依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "更新",
+        "update",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm update",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-cache-clean",
+      "name": "NPM 清理缓存",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "缓存",
+        "cache",
+        "清理",
+        "clean"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm cache clean --force",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "pnpm-install",
+      "name": "PNPM 安装依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "pnpm",
+        "install",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pnpm add {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pnpm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pnpm"
+        }
+      ]
+    },
+    {
+      "id": "yarn-install",
+      "name": "Yarn 安装依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "yarn",
+        "install",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "yarn add {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "yarn",
+          "type": "binary",
+          "required": true,
+          "check": "binary:yarn"
+        }
+      ]
+    },
+    {
+      "id": "pip-install",
+      "name": "Pip 安装包",
+      "tags": [
+        "包管理",
+        "package",
+        "pip",
+        "install",
+        "安装"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pip install {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pip",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pip"
+        }
+      ]
+    },
+    {
+      "id": "pip-uninstall",
+      "name": "Pip 卸载包",
+      "tags": [
+        "包管理",
+        "package",
+        "pip",
+        "卸载",
+        "uninstall"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pip uninstall {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pip",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pip"
+        }
+      ]
+    },
+    {
+      "id": "pip-list",
+      "name": "Pip 查看已安装",
+      "tags": [
+        "包管理",
+        "package",
+        "pip",
+        "列表",
+        "list",
+        "查看",
+        "show",
+        "安装",
+        "install"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pip list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "pip",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pip"
+        }
+      ]
+    },
+    {
+      "id": "pip-freeze",
+      "name": "Pip 导出依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "pip",
+        "freeze",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pip freeze > requirements.txt",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "pip",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pip"
+        }
+      ]
+    },
+    {
+      "id": "brew-install",
+      "name": "Homebrew 安装",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "install",
+        "安装"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew install {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "brew-uninstall",
+      "name": "Homebrew 卸载",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "卸载",
+        "uninstall"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew uninstall {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "brew-update",
+      "name": "Homebrew 更新索引",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "更新",
+        "update"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew update",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "brew-upgrade",
+      "name": "Homebrew 升级所有",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "upgrade"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew upgrade",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "brew-list",
+      "name": "Homebrew 已安装列表",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "列表",
+        "list",
+        "安装",
+        "install"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "cargo-build",
+      "name": "Cargo 构建",
+      "tags": [
+        "包管理",
+        "package",
+        "cargo",
+        "构建",
+        "build"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "cargo build --release",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "cargo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cargo"
+        }
+      ]
+    },
+    {
+      "id": "cargo-run",
+      "name": "Cargo 运行",
+      "tags": [
+        "包管理",
+        "package",
+        "cargo",
+        "运行",
+        "run"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "cargo run",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "cargo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cargo"
+        }
+      ]
+    },
+    {
+      "id": "cargo-test",
+      "name": "Cargo 测试",
+      "tags": [
+        "包管理",
+        "package",
+        "cargo",
+        "test",
+        "测试"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "cargo test",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "cargo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cargo"
+        }
+      ]
+    },
+    {
+      "id": "cargo-add",
+      "name": "Cargo 添加依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "cargo",
+        "添加",
+        "add",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "cargo add {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "cargo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cargo"
+        }
+      ]
+    }
+  ]
+}

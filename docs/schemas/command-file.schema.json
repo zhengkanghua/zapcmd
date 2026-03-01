@@ -1,0 +1,350 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zapcmd.dev/schemas/command-file.schema.json",
+  "title": "ZapCmd Command File Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "commands"
+  ],
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/localizedTextOrString"
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "$ref": "#/$defs/localizedTextOrString"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "commands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/command"
+      }
+    }
+  },
+  "$defs": {
+    "localizedText": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "localizedTextOrString": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/localizedText"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "network",
+        "docker",
+        "git",
+        "system",
+        "file",
+        "package",
+        "database",
+        "cloud",
+        "kubernetes",
+        "ssh",
+        "security",
+        "dev",
+        "custom"
+      ]
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "all",
+        "win",
+        "mac",
+        "linux"
+      ]
+    },
+    "shell": {
+      "type": "string",
+      "enum": [
+        "bash",
+        "zsh",
+        "powershell",
+        "cmd"
+      ]
+    },
+    "commandArgValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "minLength": 1
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "errorMessage": {
+          "$ref": "#/$defs/localizedTextOrString"
+        }
+      }
+    },
+    "commandArg": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "type"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "label": {
+          "$ref": "#/$defs/localizedTextOrString"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "number",
+            "path",
+            "select"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "default": {
+          "type": "string"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "validation": {
+          "$ref": "#/$defs/commandArgValidation"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "select"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "validation": {
+                "type": "object",
+                "required": [
+                  "options"
+                ]
+              }
+            },
+            "required": [
+              "validation"
+            ]
+          }
+        }
+      ]
+    },
+    "commandPrerequisite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "required",
+        "check"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "binary",
+            "shell",
+            "network",
+            "permission",
+            "env"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "check": {
+          "type": "string",
+          "minLength": 1
+        },
+        "installHint": {
+          "$ref": "#/$defs/localizedTextOrString"
+        },
+        "fallbackCommandId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        }
+      }
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "tags",
+        "category",
+        "platform",
+        "template",
+        "adminRequired"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "$ref": "#/$defs/localizedTextOrString"
+        },
+        "description": {
+          "$ref": "#/$defs/localizedTextOrString"
+        },
+        "tags": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "category": {
+          "$ref": "#/$defs/category"
+        },
+        "platform": {
+          "$ref": "#/$defs/platform"
+        },
+        "template": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shell": {
+          "$ref": "#/$defs/shell"
+        },
+        "adminRequired": {
+          "type": "boolean"
+        },
+        "dangerous": {
+          "type": "boolean"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/commandArg"
+          }
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/commandPrerequisite"
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "_meta": {
+        "name": {
+          "zh": "网络工具",
+          "en": "Network Tools"
+        },
+        "author": "zapcmd-team",
+        "version": "1.0.0"
+      },
+      "commands": [
+        {
+          "id": "kill-port-win",
+          "name": {
+            "zh": "解除端口占用",
+            "en": "Kill Port Process"
+          },
+          "description": {
+            "zh": "结束占用端口的进程",
+            "en": "Terminate process that occupies a port"
+          },
+          "tags": [
+            "kill",
+            "端口",
+            "port",
+            "占用"
+          ],
+          "category": "network",
+          "platform": "win",
+          "template": "Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force",
+          "shell": "powershell",
+          "adminRequired": false,
+          "args": [
+            {
+              "key": "port",
+              "label": {
+                "zh": "端口号",
+                "en": "Port"
+              },
+              "type": "number",
+              "required": true,
+              "validation": {
+                "min": 1,
+                "max": 65535
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

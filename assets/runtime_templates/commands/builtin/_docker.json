@@ -1,0 +1,830 @@
+{
+  "_meta": {
+    "name": "Docker 容器管理",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_docker.md"
+  },
+  "commands": [
+    {
+      "id": "docker-ps",
+      "name": "查看运行中容器",
+      "tags": [
+        "docker",
+        "容器",
+        "进程",
+        "ps",
+        "查看",
+        "show",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker ps",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        },
+        {
+          "id": "ps",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ps"
+        }
+      ]
+    },
+    {
+      "id": "docker-ps-all",
+      "name": "查看所有容器",
+      "tags": [
+        "docker",
+        "容器",
+        "进程",
+        "ps",
+        "全部",
+        "all",
+        "查看",
+        "show",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker ps -a",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        },
+        {
+          "id": "ps",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ps"
+        }
+      ]
+    },
+    {
+      "id": "docker-images",
+      "name": "查看本地镜像",
+      "tags": [
+        "docker",
+        "容器",
+        "镜像",
+        "images",
+        "查看",
+        "show",
+        "image"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker images",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-run",
+      "name": "运行容器",
+      "tags": [
+        "docker",
+        "容器",
+        "运行",
+        "run",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker run -d --name {{name}} -p {{ports}} {{image}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "image",
+          "label": "image",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "ports",
+          "label": "ports",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-stop",
+      "name": "停止容器",
+      "tags": [
+        "docker",
+        "容器",
+        "停止",
+        "stop",
+        "container",
+        "容器管理"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker stop {{container}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-start",
+      "name": "启动已停止容器",
+      "tags": [
+        "docker",
+        "容器",
+        "启动",
+        "start",
+        "停止",
+        "stop",
+        "container",
+        "容器管理"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker start {{container}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-restart",
+      "name": "重启容器",
+      "tags": [
+        "docker",
+        "容器",
+        "重启",
+        "restart",
+        "container",
+        "容器管理"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker restart {{container}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-rm",
+      "name": "删除容器",
+      "tags": [
+        "docker",
+        "容器",
+        "删除",
+        "rm",
+        "remove",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker rm {{container}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-rmi",
+      "name": "删除镜像",
+      "tags": [
+        "docker",
+        "容器",
+        "删除镜像",
+        "rmi",
+        "删除",
+        "remove",
+        "镜像",
+        "image"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker rmi {{image}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "image",
+          "label": "image",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-logs",
+      "name": "查看容器日志",
+      "tags": [
+        "docker",
+        "容器",
+        "日志",
+        "logs",
+        "查看",
+        "show",
+        "log",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker logs --tail {{lines}} {{container}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "lines",
+          "label": "lines",
+          "type": "number",
+          "required": true,
+          "default": "100"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-logs-follow",
+      "name": "实时查看容器日志",
+      "tags": [
+        "docker",
+        "容器",
+        "日志",
+        "logs",
+        "实时",
+        "follow",
+        "查看",
+        "show",
+        "log",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker logs -f {{container}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-exec",
+      "name": "进入容器 Shell",
+      "tags": [
+        "docker",
+        "容器",
+        "执行",
+        "exec",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker exec -it {{container}} {{shell}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "shell",
+          "label": "shell",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": [
+              "/bin/sh",
+              "/bin/bash"
+            ]
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-inspect",
+      "name": "查看容器详情",
+      "tags": [
+        "docker",
+        "容器",
+        "详情",
+        "inspect",
+        "查看",
+        "show",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker inspect {{container}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-stats",
+      "name": "容器资源使用",
+      "tags": [
+        "docker",
+        "容器",
+        "资源",
+        "stats",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker stats --no-stream",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-pull",
+      "name": "拉取镜像",
+      "tags": [
+        "docker",
+        "容器",
+        "拉取",
+        "pull",
+        "镜像",
+        "image"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker pull {{image}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "image",
+          "label": "image",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-build",
+      "name": "构建镜像",
+      "tags": [
+        "docker",
+        "容器",
+        "构建",
+        "build",
+        "镜像",
+        "image"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker build -t {{tag}} {{path}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "tag",
+          "label": "tag",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "path",
+          "label": "path",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-compose-up",
+      "name": "启动 Compose 服务",
+      "tags": [
+        "docker",
+        "容器",
+        "compose",
+        "启动",
+        "up",
+        "start"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose up -d",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-compose-down",
+      "name": "停止 Compose 服务",
+      "tags": [
+        "docker",
+        "容器",
+        "compose",
+        "停止",
+        "down",
+        "stop"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose down",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-compose-logs",
+      "name": "Compose 日志",
+      "tags": [
+        "docker",
+        "容器",
+        "compose",
+        "日志",
+        "logs",
+        "log"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose logs -f {{service}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "service",
+          "label": "service",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-prune",
+      "name": "清理未使用资源",
+      "tags": [
+        "docker",
+        "容器",
+        "清理",
+        "prune"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker system prune -f",
+      "adminRequired": false,
+      "dangerous": true,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-network-ls",
+      "name": "查看网络列表",
+      "tags": [
+        "docker",
+        "容器",
+        "网络",
+        "network",
+        "ls",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker network ls",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        },
+        {
+          "id": "ls",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ls"
+        }
+      ]
+    },
+    {
+      "id": "docker-volume-ls",
+      "name": "查看数据卷",
+      "tags": [
+        "docker",
+        "容器",
+        "数据卷",
+        "volume",
+        "ls",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker volume ls",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        },
+        {
+          "id": "ls",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ls"
+        }
+      ]
+    },
+    {
+      "id": "docker-cp",
+      "name": "复制文件到容器",
+      "tags": [
+        "docker",
+        "容器",
+        "复制",
+        "copy",
+        "container",
+        "文件",
+        "file"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker cp {{src}} {{container}}:{{dest}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "src",
+          "label": "src",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "dest",
+          "label": "dest",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-export",
+      "name": "导出容器",
+      "tags": [
+        "docker",
+        "容器",
+        "导出",
+        "export",
+        "container"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker export {{container}} > {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "container",
+          "label": "container",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "file",
+          "label": "file",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        },
+        {
+          "id": "export",
+          "type": "binary",
+          "required": true,
+          "check": "binary:export"
+        }
+      ]
+    }
+  ]
+}

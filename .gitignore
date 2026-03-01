@@ -1,0 +1,40 @@
+# Private / local-only (do not publish)
+# If you intentionally want to sync some of these across machines, comment out the relevant lines.
+.key/
+.env.keys.local
+# docs/.maintainer/
+
+.omc/
+.claude/
+.npm-cache/
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor/IDE
+.idea/
+.vscode/
+
+# Logs/temp
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Common build outputs
+node_modules/
+dist/
+build/
+target/
+coverage/
+
+# Tauri package artifacts
+src-tauri/bundle/
+*.msi
+*.msix
+*.dmg
+*.deb
+*.rpm
+*.AppImage

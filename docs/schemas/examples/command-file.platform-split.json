@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "name": {
+      "zh": "平台差异示例",
+      "en": "Platform Split Example"
+    },
+    "author": "zapcmd-team",
+    "version": "1.0.0"
+  },
+  "commands": [
+    {
+      "id": "query-port-netstat",
+      "name": {
+        "zh": "查询端口占用（Windows）",
+        "en": "Query Port (Windows)"
+      },
+      "tags": ["port", "端口", "query"],
+      "category": "network",
+      "platform": "win",
+      "template": "netstat -ano | findstr :{{port}}",
+      "shell": "powershell",
+      "adminRequired": false,
+      "args": [
+        {
+          "key": "port",
+          "label": {
+            "zh": "端口号",
+            "en": "Port"
+          },
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "query-port-lsof",
+      "name": {
+        "zh": "查询端口占用（mac/linux）",
+        "en": "Query Port (mac/linux)"
+      },
+      "tags": ["port", "端口", "query"],
+      "category": "network",
+      "platform": "mac",
+      "template": "lsof -i :{{port}}",
+      "shell": "zsh",
+      "adminRequired": false,
+      "args": [
+        {
+          "key": "port",
+          "label": {
+            "zh": "端口号",
+            "en": "Port"
+          },
+          "type": "number",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

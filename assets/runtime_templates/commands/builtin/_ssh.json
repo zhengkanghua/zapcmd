@@ -1,0 +1,474 @@
+{
+  "_meta": {
+    "name": "SSH 与远程连接",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_ssh.md"
+  },
+  "commands": [
+    {
+      "id": "ssh-connect",
+      "name": "SSH 连接",
+      "tags": [
+        "ssh",
+        "远程",
+        "连接",
+        "connect"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "ssh {{user}}@{{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ssh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh"
+        }
+      ]
+    },
+    {
+      "id": "ssh-connect-port",
+      "name": "SSH 连接 (指定端口)",
+      "tags": [
+        "ssh",
+        "远程",
+        "连接",
+        "connect",
+        "端口",
+        "port"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "ssh -p {{port}} {{user}}@{{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ssh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh"
+        }
+      ]
+    },
+    {
+      "id": "ssh-connect-key",
+      "name": "SSH 连接 (密钥)",
+      "tags": [
+        "ssh",
+        "远程",
+        "连接",
+        "connect",
+        "密钥",
+        "key"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "ssh -i {{key}} {{user}}@{{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "key",
+          "label": "key",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ssh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh"
+        }
+      ]
+    },
+    {
+      "id": "scp-upload",
+      "name": "SCP 上传文件",
+      "tags": [
+        "ssh",
+        "远程",
+        "scp",
+        "upload",
+        "上传",
+        "文件",
+        "file"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "scp {{local}} {{user}}@{{host}}:{{remote}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "local",
+          "label": "local",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "remote",
+          "label": "remote",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "scp",
+          "type": "binary",
+          "required": true,
+          "check": "binary:scp"
+        }
+      ]
+    },
+    {
+      "id": "scp-download",
+      "name": "SCP 下载文件",
+      "tags": [
+        "ssh",
+        "远程",
+        "scp",
+        "下载",
+        "download",
+        "文件",
+        "file"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "scp {{user}}@{{host}}:{{remote}} {{local}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "remote",
+          "label": "remote",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "local",
+          "label": "local",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "scp",
+          "type": "binary",
+          "required": true,
+          "check": "binary:scp"
+        }
+      ]
+    },
+    {
+      "id": "ssh-keygen",
+      "name": "生成 SSH 密钥",
+      "tags": [
+        "ssh",
+        "远程",
+        "生成密钥",
+        "keygen",
+        "密钥",
+        "key"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "ssh-keygen -t ed25519 -C \"{{email}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "email",
+          "label": "email",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ssh-keygen",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh-keygen"
+        }
+      ]
+    },
+    {
+      "id": "ssh-copy-id-mac",
+      "name": "复制公钥到服务器",
+      "tags": [
+        "ssh",
+        "远程",
+        "copy",
+        "id"
+      ],
+      "category": "ssh",
+      "platform": "mac",
+      "template": "ssh-copy-id {{user}}@{{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ssh-copy-id",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh-copy-id"
+        }
+      ]
+    },
+    {
+      "id": "ssh-copy-id-linux",
+      "name": "复制公钥到服务器",
+      "tags": [
+        "ssh",
+        "远程",
+        "copy",
+        "id"
+      ],
+      "category": "ssh",
+      "platform": "linux",
+      "template": "ssh-copy-id {{user}}@{{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ssh-copy-id",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh-copy-id"
+        }
+      ]
+    },
+    {
+      "id": "ssh-tunnel",
+      "name": "SSH 隧道 (端口转发)",
+      "tags": [
+        "ssh",
+        "远程",
+        "隧道",
+        "tunnel",
+        "端口",
+        "port"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "ssh -L {{local_port}}:{{target_host}}:{{target_port}} {{user}}@{{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "local_port",
+          "label": "local_port",
+          "type": "number",
+          "required": true
+        },
+        {
+          "key": "target_host",
+          "label": "target_host",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "target_port",
+          "label": "target_port",
+          "type": "number",
+          "required": true
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ssh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh"
+        }
+      ]
+    },
+    {
+      "id": "ssh-config-list",
+      "name": "查看 SSH 配置",
+      "tags": [
+        "ssh",
+        "远程",
+        "配置",
+        "config",
+        "列表",
+        "list",
+        "查看",
+        "show"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "cat ~/.ssh/config",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "ssh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh"
+        },
+        {
+          "id": "cat",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cat"
+        }
+      ]
+    },
+    {
+      "id": "ssh-agent-add",
+      "name": "添加密钥到 Agent",
+      "tags": [
+        "ssh",
+        "远程",
+        "agent",
+        "添加",
+        "add",
+        "密钥",
+        "key"
+      ],
+      "category": "ssh",
+      "platform": "all",
+      "template": "ssh-add {{key}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "key",
+          "label": "key",
+          "type": "path",
+          "required": true,
+          "default": "~/.ssh/id_ed25519"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "ssh-add",
+          "type": "binary",
+          "required": true,
+          "check": "binary:ssh-add"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+use tauri::{AppHandle, Manager, Position, Runtime, WebviewWindow};
+use tauri::{LogicalSize, PhysicalPosition};
+
+#[cfg(desktop)]
+use crate::app_state::SETTINGS_WINDOW_LABEL;
+use crate::bounds::reposition_to_cursor_monitor;
+
+#[tauri::command]
+pub(crate) fn ping() -> String {
+    "pong".to_string()
+}
+
+#[tauri::command]
+pub(crate) fn set_main_window_size(
+    window: WebviewWindow,
+    width: f64,
+    height: f64,
+) -> Result<(), String> {
+    let width = width.max(320.0);
+    let height = height.max(124.0);
+    let prev_pos: Option<PhysicalPosition<i32>> = window.outer_position().ok();
+    window
+        .set_size(LogicalSize::new(width, height))
+        .map_err(|err| err.to_string())?;
+    if let Some(pos) = prev_pos {
+        let _ = window.set_position(Position::Physical(pos));
+    }
+    Ok(())
+}
+
+pub(crate) fn show_main_window<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("main") {
+        reposition_to_cursor_monitor(&window);
+        let _ = window.show();
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+    }
+}
+
+pub(crate) fn toggle_main_window<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("main") {
+        let is_visible = window.is_visible().unwrap_or(false);
+        if is_visible {
+            let _ = window.hide();
+        } else {
+            show_main_window(app);
+        }
+    }
+}
+
+#[cfg(desktop)]
+pub(crate) fn open_or_focus_settings_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window(SETTINGS_WINDOW_LABEL) {
+        let _ = window.show();
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+        return Ok(());
+    }
+
+    let _window = tauri::WebviewWindowBuilder::new(
+        app,
+        SETTINGS_WINDOW_LABEL,
+        tauri::WebviewUrl::App("index.html".into()),
+    )
+    .title("ZapCmd Settings")
+    .inner_size(980.0, 700.0)
+    .min_inner_size(760.0, 560.0)
+    .resizable(true)
+    .decorations(true)
+    .maximizable(true)
+    .visible(false)
+    .focused(false)
+    .build()
+    .map_err(|err| format!("Failed to create settings window: {}", err))?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub(crate) fn open_settings_window(window: WebviewWindow) -> Result<(), String> {
+    #[cfg(desktop)]
+    {
+        return open_or_focus_settings_window(&window.app_handle());
+    }
+    #[allow(unreachable_code)]
+    Ok(())
+}
+
+#[tauri::command]
+pub(crate) fn hide_main_window(window: WebviewWindow) -> Result<(), String> {
+    let app = window.app_handle();
+    let main = app
+        .get_webview_window("main")
+        .ok_or_else(|| "Main window not found.".to_string())?;
+    main.hide().map_err(|err| err.to_string())
+}
