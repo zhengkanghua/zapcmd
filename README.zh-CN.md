@@ -7,7 +7,7 @@
 [![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-475569.svg)](./README.zh-CN.md#支持矩阵-v1)
 
 <p align="center">
-  <img src="./docs/img/logo.png" alt="ZapCmd 标志" width="240" />
+  <img src="./docs/img/logo.png?raw=1" alt="ZapCmd 标志" width="160" />
 </p>
 
 ZapCmd 是一款强调速度、安全基线和可重复工作流的桌面命令启动器。

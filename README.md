@@ -7,7 +7,7 @@
 [![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-475569.svg)](./README.md#support-matrix-v1)
 
 <p align="center">
-  <img src="./docs/img/logo.png" alt="ZapCmd logo" width="240" />
+  <img src="./docs/img/logo.png?raw=1" alt="ZapCmd logo" width="160" />
 </p>
 
 ZapCmd is a desktop command launcher focused on speed, safety baseline, and repeatable workflows.
