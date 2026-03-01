@@ -75,12 +75,26 @@ pub(crate) fn update_launcher_hotkey(window: WebviewWindow, hotkey: String) -> R
 
         unregister_launcher_hotkey(&app, &current)?;
         if let Err(register_err) = register_launcher_hotkey(&app, &hotkey) {
-            let _ = register_launcher_hotkey(&app, &current);
+            if let Err(rollback_err) = register_launcher_hotkey(&app, &current) {
+                return Err(format!("{}; rollback failed: {}", register_err, rollback_err));
+            }
             return Err(register_err);
         }
 
-        if let Ok(mut guard) = state.launcher_hotkey.lock() {
-            *guard = hotkey;
+        match state.launcher_hotkey.lock() {
+            Ok(mut guard) => {
+                *guard = hotkey;
+            }
+            Err(_) => {
+                let mut errors = vec!["launcher hotkey state lock failed".to_string()];
+                if let Err(unregister_err) = unregister_launcher_hotkey(&app, &hotkey) {
+                    errors.push(unregister_err);
+                }
+                if let Err(rollback_err) = register_launcher_hotkey(&app, &current) {
+                    errors.push(format!("rollback failed: {}", rollback_err));
+                }
+                return Err(errors.join("; "));
+            }
         }
         return Ok(());
     }
