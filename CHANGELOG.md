@@ -8,6 +8,12 @@ Format rule / 格式规则：
 2. Use bilingual entries in one line when possible: `中文 / English`.
 3. Release workflow extracts the matching version section into GitHub Release notes.
 
+## [1.0.1] - 2026-02-28
+
+### Fixes / 修复
+
+1. 修复启动后首次拖拽主窗口可能被打断并意外隐藏（失焦回弹体感）/ Fix initial main window drag occasionally being interrupted and hidden after launch
+
 ## [1.0.0] - 2026-02-28
 
 ### Highlights / 亮点

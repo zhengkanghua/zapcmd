@@ -2,7 +2,10 @@ use tauri::{AppHandle, Manager, Position, Runtime, WebviewWindow};
 use tauri::{LogicalSize, PhysicalPosition};
 
 #[cfg(desktop)]
-use crate::app_state::SETTINGS_WINDOW_LABEL;
+use std::sync::atomic::Ordering;
+
+#[cfg(desktop)]
+use crate::app_state::{AppState, SETTINGS_WINDOW_LABEL};
 use crate::bounds::reposition_to_cursor_monitor;
 
 #[tauri::command]
@@ -18,10 +21,23 @@ pub(crate) fn set_main_window_size(
 ) -> Result<(), String> {
     let width = width.max(320.0);
     let height = height.max(124.0);
+    #[cfg(desktop)]
+    let move_save_token = {
+        let state = window.app_handle().state::<AppState>();
+        state.move_save_token.load(Ordering::SeqCst)
+    };
     let prev_pos: Option<PhysicalPosition<i32>> = window.outer_position().ok();
     window
         .set_size(LogicalSize::new(width, height))
         .map_err(|err| err.to_string())?;
+    #[cfg(desktop)]
+    {
+        let state = window.app_handle().state::<AppState>();
+        let latest_token = state.move_save_token.load(Ordering::SeqCst);
+        if latest_token != move_save_token {
+            return Ok(());
+        }
+    }
     if let Some(pos) = prev_pos {
         let _ = window.set_position(Position::Physical(pos));
     }

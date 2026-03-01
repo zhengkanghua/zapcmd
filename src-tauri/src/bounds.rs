@@ -228,9 +228,23 @@ pub(crate) fn handle_main_window_event<R: Runtime>(window: &Window<R>, event: &W
         }
         WindowEvent::Focused(focused) => {
             if !focused {
+                #[cfg(desktop)]
+                let (app_handle, move_save_token) = {
+                    let app = window.app_handle();
+                    let state = app.state::<AppState>();
+                    (app.clone(), state.move_save_token.load(Ordering::SeqCst))
+                };
                 let window = window.clone();
                 std::thread::spawn(move || {
                     std::thread::sleep(Duration::from_millis(220));
+                    #[cfg(desktop)]
+                    {
+                        let state = app_handle.state::<AppState>();
+                        let latest_token = state.move_save_token.load(Ordering::SeqCst);
+                        if latest_token != move_save_token {
+                            return;
+                        }
+                    }
                     let still_unfocused = !window.is_focused().unwrap_or(true);
                     let is_visible = window.is_visible().unwrap_or(false);
                     if still_unfocused && is_visible {
