@@ -61,6 +61,7 @@ describe("useLauncherSessionState", () => {
   });
 
   it("removes invalid snapshot payload and continues safely", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const storage = createStorage("{invalid json");
     const stagedCommands = ref<StagedCommand[]>([]);
 
@@ -73,7 +74,9 @@ describe("useLauncherSessionState", () => {
     });
 
     expect(stagedCommands.value).toHaveLength(0);
+    expect(warnSpy).toHaveBeenCalledWith("launcher session snapshot invalid; clearing", expect.any(Error));
     expect(storage.removeItem).toHaveBeenCalledWith(LAUNCHER_SESSION_STORAGE_KEY);
+    warnSpy.mockRestore();
   });
 
   it("persists queue updates when enabled", async () => {

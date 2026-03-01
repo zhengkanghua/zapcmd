@@ -192,7 +192,12 @@ function bindAppRuntime(
     },
     onSettingsReady: () => {
       if (!isTauri()) return;
-      invoke("open_settings_window").catch(() => {});
+      invoke("open_settings_window").catch((error) => {
+        console.error("open_settings_window invoke failed", {
+          windowLabel: context.currentWindowLabel.value,
+          error
+        });
+      });
     }
   });
 

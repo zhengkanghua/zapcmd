@@ -48,8 +48,8 @@ export function useMainWindowShell(options: UseMainWindowShellOptions) {
       try {
         await options.requestHideMainWindow();
         return;
-      } catch {
-        // fall back to webview api
+      } catch (error) {
+        console.warn("hide_main_window invoke failed; falling back to webview api", error);
       }
     }
 

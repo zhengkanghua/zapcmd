@@ -155,7 +155,8 @@ function readLauncherSession(
     }
     storage.removeItem(LAUNCHER_SESSION_STORAGE_KEY);
     return null;
-  } catch {
+  } catch (error) {
+    console.warn("launcher session snapshot invalid; clearing", error);
     storage.removeItem(LAUNCHER_SESSION_STORAGE_KEY);
     return null;
   }

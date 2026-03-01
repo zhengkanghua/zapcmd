@@ -234,6 +234,26 @@ describe("useAppLifecycle", () => {
     wrapper.unmount();
     expect(state.focusCapture.unlisten).toHaveBeenCalledTimes(1);
   });
+
+  it("warns when launcher hotkey read fails", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { Harness, spies } = createHarness({
+      isTauriRuntime: true
+    });
+    spies.readLauncherHotkey.mockRejectedValueOnce(new Error("hotkey failed"));
+
+    mount(Harness);
+    await flushUi();
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      "launcher hotkey read failed",
+      expect.objectContaining({
+        windowLabel: "main",
+        error: expect.any(Error)
+      })
+    );
+    warnSpy.mockRestore();
+  });
 });
 
 

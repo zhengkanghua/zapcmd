@@ -123,8 +123,11 @@ export function useAppLifecycle(options: UseAppLifecycleOptions): void {
         if (currentLauncherHotkey) {
           options.onLauncherHotkeyLoaded(currentLauncherHotkey);
         }
-      } catch {
-        // ignore launcher hotkey read error
+      } catch (error) {
+        console.warn("launcher hotkey read failed", {
+          windowLabel: options.currentWindowLabel.value,
+          error
+        });
       }
     }
 

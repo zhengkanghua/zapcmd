@@ -109,16 +109,23 @@ describe("useMainWindowShell", () => {
   });
 
   it("uses tauri hide command first and falls back to webview hide", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const harness = createHarness();
     harness.spies.isTauriRuntime.mockReturnValue(true);
 
     await harness.shell.hideMainWindow();
     expect(harness.spies.requestHideMainWindow).toHaveBeenCalledTimes(1);
     expect(harness.spies.hide).not.toHaveBeenCalled();
+    expect(warnSpy).not.toHaveBeenCalled();
 
     harness.spies.requestHideMainWindow.mockRejectedValueOnce(new Error("hide failed"));
     await harness.shell.hideMainWindow();
     expect(harness.spies.hide).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(
+      "hide_main_window invoke failed; falling back to webview api",
+      expect.any(Error)
+    );
+    warnSpy.mockRestore();
   });
 
   it("detects typing elements correctly", () => {

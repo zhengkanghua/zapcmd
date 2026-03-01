@@ -94,7 +94,8 @@ export function createTerminalActions(deps: {
             : options.fallbackTerminalOptions();
       }
       ensureDefaultTerminal();
-    } catch {
+    } catch (error) {
+      console.warn("loadAvailableTerminals failed; using fallback", error);
       state.availableTerminals.value = options.fallbackTerminalOptions();
       ensureDefaultTerminal();
     } finally {

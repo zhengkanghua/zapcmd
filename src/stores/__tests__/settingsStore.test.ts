@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from "pinia";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   LEGACY_GENERAL_SETTINGS_STORAGE_KEY,
@@ -51,6 +51,7 @@ describe("settingsStore migration and persistence", () => {
   });
 
   it("falls back to legacy data when new version payload is invalid", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     localStorage.setItem(SETTINGS_STORAGE_KEY, "{invalid-json");
     localStorage.setItem(
       LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
@@ -61,6 +62,8 @@ describe("settingsStore migration and persistence", () => {
 
     const snapshot = readSettingsFromStorage(localStorage);
     expect(snapshot.hotkeys.launcher).toBe("Alt+K");
+    expect(warnSpy).toHaveBeenCalledWith("settings payload json parse failed", expect.any(Error));
+    warnSpy.mockRestore();
   });
 
   it("writes new key and removes legacy keys", () => {

@@ -458,6 +458,7 @@ describe("App failure and event regression", () => {
   });
 
   it("falls back to appWindow.hide when hide_main_window invoke fails", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     hoisted.isTauriMock.mockReturnValue(true);
     hoisted.invokeMock.mockImplementation(async (command: string) => {
       if (command === "get_available_terminals") {
@@ -481,6 +482,10 @@ describe("App failure and event regression", () => {
 
     expect(getInvokeCommandCallCount("hide_main_window")).toBe(1);
     expect(hoisted.hideSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(
+      "hide_main_window invoke failed; falling back to webview api",
+      expect.any(Error),
+    );
   });
 
   it("falls back to webview setSize when set_main_window_size invoke fails", async () => {
@@ -639,6 +644,7 @@ describe("App failure and event regression", () => {
   });
 
   it("uses fallback terminals when tauri terminal detection throws", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     hoisted.currentWindowLabel = "settings";
     hoisted.isTauriMock.mockReturnValue(true);
     hoisted.invokeMock.mockImplementation(async (command: string) => {
@@ -660,6 +666,10 @@ describe("App failure and event regression", () => {
     expect(
       wrapper.findAll(".settings-select-list__item").length,
     ).toBeGreaterThan(0);
+    expect(warnSpy).toHaveBeenCalledWith(
+      "loadAvailableTerminals failed; using fallback",
+      expect.any(Error),
+    );
   });
 
   it("keeps terminal dropdown closed on loading/empty guards and closes on outside pointerdown", async () => {

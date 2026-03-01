@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createAppWindowResolver } from "../../app/useAppWindowResolver";
 
 describe("createAppWindowResolver", () => {
@@ -10,11 +10,15 @@ describe("createAppWindowResolver", () => {
   });
 
   it("returns null when provider throws", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const resolveWindow = createAppWindowResolver(() => {
       throw new Error("not in tauri runtime");
     });
 
     expect(resolveWindow()).toBeNull();
+    expect(resolveWindow()).toBeNull();
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    warnSpy.mockRestore();
   });
 });
 

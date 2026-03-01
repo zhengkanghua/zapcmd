@@ -38,6 +38,7 @@ const DANGEROUS_COMMAND_PATTERNS: Array<{ pattern: RegExp; reasonKey: string }> 
 
 // Block common shell control tokens in argument values before template substitution.
 const INJECTION_PATTERN = /(?:\r|\n|[|&`<>]|;\s*|\$\(|\$\{)/;
+const loggedInvalidValidationPatterns = new Set<string>();
 
 function sanitizeCommandSummary(value: string): string {
   const collapsed = value.replace(/\s+/g, " ").trim();
@@ -70,7 +71,15 @@ function validateArgumentValue(arg: CommandArg, argValue: string | undefined): s
       if (!regex.test(value)) {
         return arg.validationError?.trim() || t("safety.validation.pattern", { label: arg.label });
       }
-    } catch {
+    } catch (error) {
+      if (!loggedInvalidValidationPatterns.has(arg.validationPattern)) {
+        loggedInvalidValidationPatterns.add(arg.validationPattern);
+        console.warn("command arg validationPattern is invalid", {
+          label: arg.label,
+          pattern: arg.validationPattern,
+          error
+        });
+      }
       return t("safety.validation.invalidPattern", { label: arg.label });
     }
   }

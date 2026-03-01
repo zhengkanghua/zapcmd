@@ -298,6 +298,8 @@ function extractLegacyHotkeys(payload: Record<string, unknown>): Partial<HotkeyS
   return out;
 }
 
+let hasWarnedSettingsPayloadParseFailure = false;
+
 function parseJsonRecord(raw: string | null): Record<string, unknown> | null {
   if (!raw) {
     return null;
@@ -305,7 +307,11 @@ function parseJsonRecord(raw: string | null): Record<string, unknown> | null {
   try {
     const parsed = JSON.parse(raw);
     return isRecord(parsed) ? parsed : null;
-  } catch {
+  } catch (error) {
+    if (!hasWarnedSettingsPayloadParseFailure) {
+      hasWarnedSettingsPayloadParseFailure = true;
+      console.warn("settings payload json parse failed", error);
+    }
     return null;
   }
 }
