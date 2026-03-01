@@ -59,7 +59,13 @@ function formatIssue(issue: CommandLoadIssue): string {
   if (issue.code === "invalid-schema") {
     return t("settings.commands.issueInvalidSchema", { sourceId: issue.sourceId });
   }
-  return t("settings.commands.issueDuplicateId", {
+  if (issue.code === "duplicate-id") {
+    return t("settings.commands.issueDuplicateId", {
+      commandId: issue.commandId ?? "unknown",
+      sourceId: issue.sourceId
+    });
+  }
+  return t("settings.commands.issueShellIgnored", {
     commandId: issue.commandId ?? "unknown",
     sourceId: issue.sourceId
   });

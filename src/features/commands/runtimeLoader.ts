@@ -43,7 +43,7 @@ export interface UserCommandJsonFile {
   modifiedMs: number;
 }
 
-export type CommandLoadIssueCode = "invalid-json" | "invalid-schema" | "duplicate-id";
+export type CommandLoadIssueCode = "invalid-json" | "invalid-schema" | "duplicate-id" | "shell-ignored";
 
 export interface CommandLoadIssue {
   code: CommandLoadIssueCode;
@@ -95,6 +95,13 @@ function loadTemplatesFromPayloadEntries(
       }
 
       ids.add(command.id);
+      if (command.shell) {
+        issues.push({
+          code: "shell-ignored",
+          sourceId: entry.sourceId,
+          commandId: command.id
+        });
+      }
       templates.push(mapRuntimeCommandToTemplate(command));
       sourceByCommandId[command.id] = entry.sourceId;
     }

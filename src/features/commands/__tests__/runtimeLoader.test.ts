@@ -39,4 +39,41 @@ describe("runtimeLoader", () => {
       warnSpy.mockRestore();
     }
   });
+
+  it("reports shell field as ignored", () => {
+    const loaded = loadUserCommandTemplatesWithReport(
+      [
+        {
+          path: "C:/Users/test/.zapcmd/commands/custom-shell.json",
+          content: JSON.stringify({
+            commands: [
+              {
+                id: "custom-shell",
+                name: "Custom shell command",
+                tags: ["test"],
+                category: "custom",
+                platform: "win",
+                template: "echo hello",
+                shell: "powershell",
+                adminRequired: false
+              }
+            ]
+          }),
+          modifiedMs: 1
+        }
+      ],
+      { runtimePlatform: "win" }
+    );
+
+    expect(loaded.templates).toHaveLength(1);
+    expect(loaded.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "shell-ignored",
+          sourceId: "C:/Users/test/.zapcmd/commands/custom-shell.json",
+          commandId: "custom-shell"
+        })
+      ])
+    );
+  });
 });
