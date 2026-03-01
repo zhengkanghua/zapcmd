@@ -124,7 +124,7 @@ export const messages = {
         allFiles: "全部文件",
         fileCount: "{count} 条",
         badgeOverride: "同 ID 覆盖内置",
-        badgeIssue: "来源存在导入异常",
+        badgeIssue: "来源存在校验提示",
         sourceUser: "用户命令",
         sourceBuiltin: "内置命令",
         enabled: "已启用",
@@ -132,10 +132,11 @@ export const messages = {
         groupCount: "{count} 条",
         unknownSourceFile: "未标注来源文件",
         overrideBadgeHint: "用户命令与内置命令 ID 相同，当前将优先使用用户命令。",
-        issueBadgeHint: "该命令来源文件存在导入异常，请检查 JSON 格式或 schema。",
+        issueBadgeHint: "该命令来源文件存在校验提示，请查看下方“导入校验提示”。",
         issueInvalidJson: "文件 JSON 解析失败：{sourceId}",
         issueInvalidSchema: "文件结构不符合 schema：{sourceId}",
-        issueDuplicateId: "命令 ID 冲突已跳过：{commandId}（来源 {sourceId}）"
+        issueDuplicateId: "命令 ID 冲突已跳过：{commandId}（来源 {sourceId}）",
+        issueShellIgnored: "shell 字段当前不会生效（将被忽略）：{commandId}（来源 {sourceId}）"
       },
       appearance: {
         title: "外观",
@@ -168,7 +169,9 @@ export const messages = {
         duplicateHotkey: "快捷键冲突：{hotkey} 同时用于 {labels}。",
         terminalUnavailable: "默认终端不可用，请重新选择。",
         updateLauncherHotkeyFailed: "更新唤起快捷键失败。",
-        updateLaunchAtLoginFailed: "更新开机自启设置失败。"
+        updateLaunchAtLoginFailed: "更新开机自启设置失败。",
+        persistSettingsFailed: "保存设置到本地失败。",
+        broadcastSettingsFailed: "同步设置失败。"
       }
     },
     hotkeyHints: {
@@ -183,6 +186,7 @@ export const messages = {
     execution: {
       emptyCommand: "（空命令）",
       sentToTerminal: "命令已发送到终端（{command}），请在终端窗口查看输出。",
+      desktopOnly: "Web 预览模式不支持执行命令，请使用桌面版 ZapCmd（Tauri）。",
       failed: "执行失败：{reason}",
       failedFallback: "请检查终端环境或命令参数。",
       queueEmpty: "队列中没有可执行命令。",
@@ -348,7 +352,7 @@ export const messages = {
         allFiles: "All files",
         fileCount: "{count} items",
         badgeOverride: "Overrides built-in",
-        badgeIssue: "Import issue in source",
+        badgeIssue: "Source warnings",
         sourceUser: "User command",
         sourceBuiltin: "Built-in command",
         enabled: "Enabled",
@@ -357,10 +361,11 @@ export const messages = {
         unknownSourceFile: "Source file not specified",
         overrideBadgeHint:
           "This user command has the same ID as a built-in command, so the user command takes precedence.",
-        issueBadgeHint: "The source file has import issues. Check JSON format or schema.",
+        issueBadgeHint: "This command's source file has validation warnings. See \"Import validation\" below.",
         issueInvalidJson: "JSON parse failed: {sourceId}",
         issueInvalidSchema: "Schema validation failed: {sourceId}",
-        issueDuplicateId: "Duplicate command ID skipped: {commandId} (source {sourceId})"
+        issueDuplicateId: "Duplicate command ID skipped: {commandId} (source {sourceId})",
+        issueShellIgnored: "`shell` is currently ignored (no effect): {commandId} (source {sourceId})"
       },
       appearance: {
         title: "Appearance",
@@ -393,7 +398,9 @@ export const messages = {
         duplicateHotkey: "Hotkey conflict: {hotkey} is used by {labels}.",
         terminalUnavailable: "Default terminal is unavailable. Please choose another one.",
         updateLauncherHotkeyFailed: "Failed to update launcher hotkey.",
-        updateLaunchAtLoginFailed: "Failed to update launch at login setting."
+        updateLaunchAtLoginFailed: "Failed to update launch at login setting.",
+        persistSettingsFailed: "Failed to persist settings.",
+        broadcastSettingsFailed: "Failed to broadcast settings updates."
       }
     },
     hotkeyHints: {
@@ -408,6 +415,7 @@ export const messages = {
     execution: {
       emptyCommand: "(empty command)",
       sentToTerminal: "Command sent to terminal ({command}). Check output in terminal window.",
+      desktopOnly: "Web preview mode cannot run commands. Please use the desktop app (Tauri).",
       failed: "Execution failed: {reason}",
       failedFallback: "Please check terminal environment or command arguments.",
       queueEmpty: "No executable command in queue.",
