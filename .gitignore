@@ -5,7 +5,9 @@
 # docs/.maintainer/
 
 .omc/
-.claude/
+# .ai/
+# .claude/
+# .codex/
 .npm-cache/
 
 # OS junk
