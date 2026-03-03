@@ -37,6 +37,8 @@
 2. 在 PR 页签 `Checks` 中确认出现 `CI Gate`
 3. 合并该 PR 后，在 `Actions` 中确认 `CI Gate` 对 `push(main)` 也会跑
 
+补充：维护者也可以在 `Actions` → `CI Gate` 里点击 `Run workflow` 手动触发一次（便于快速验证 runner/缓存/依赖是否正常）。
+
 如果你开启了主分支保护（推荐）：
 
 1. `Settings` → `Branches`（或 `Settings` → `Rules` → `Rulesets`）
@@ -89,4 +91,3 @@
 3. 预期：
    - `Release Build Matrix` 自动运行
    - GitHub Releases 出现对应版本资产 + `SHA256SUMS`
-

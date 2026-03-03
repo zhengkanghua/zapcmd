@@ -8,6 +8,8 @@
 2. CI / CodeQL / Release 工作流确认清单：`ci_cd_verification.md`
 3. 人工回归（真机）：`manual_regression_m0_m0a.md` / `manual_regression_m4_release.md`
 4. 维护者个人手册（仅维护者使用）：`MAINTAINER_OPEN_SOURCE_PLAYBOOK.local.md`
+5. Phase 01 运行手册（本地门禁 + Windows 桌面 E2E）：`phase_01_guard_and_e2e_runbook.md`
+6. GitHub Actions + 分支保护“一次性设置清单”（建议保留备查）：`TEMP_github_ci_setup.md`
 
 ## 项目公共文档（请看这里）
 

@@ -2,6 +2,30 @@
 
 > 目标：你只维护一个版本源（`package.json`）+ 一个变更入口（`CHANGELOG.md`）。
 
+## TL;DR（最短发版命令流程）
+
+1) 在一个 release 分支完成版本变更并走完门禁：
+- `git checkout -b release/vX.Y.Z`
+- 修改：`package.json`、`CHANGELOG.md`（以及必要的 `README*`）
+- `npm install`
+- `npm run check:all`
+- `git add -A`
+- `git commit -m "release: vX.Y.Z"`
+- `git push -u origin release/vX.Y.Z`
+- 开 PR 合并到 `main`（Required checks 全绿）
+
+2) 合并后基于最新 `main` 打 tag 并推送（触发正式发版）：
+- `git checkout main`
+- `git pull --rebase`
+- `git tag vX.Y.Z`
+- `git push origin vX.Y.Z`
+
+3) 观察 GitHub Actions：
+- `Actions` → `Release Build Matrix` 运行成功
+- `Releases` 出现对应版本资产 + `SHA256SUMS`
+
+> 说明：如果你开启了 `main` 分支保护（推荐），通常不能直接 push 到 `main`，上述流程天然适配（release 分支 → PR 合并 → main 打 tag）。
+
 ## 0. 分支约定（推荐）
 
 1. `main`：默认开发分支，所有贡献通过 PR 合并到 `main`。

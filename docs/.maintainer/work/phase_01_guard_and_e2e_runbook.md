@@ -18,6 +18,21 @@
 
 > 建议：通过 **PR 合并**进入 `main`，并在 GitHub 侧开启 branch protection 强制 CI 绿灯（见临时配置文档）。
 
+## 0.1 常用命令速查（复制即用）
+
+| 你想做什么 | 命令 |
+|---|---|
+| 安装依赖（会尝试自动启用 git hooks） | `npm install` |
+| 启用 git hooks（推荐显式执行一次） | `node scripts/setup-githooks.mjs` |
+| 查看 hooks 是否已启用 | `git config core.hooksPath` |
+| 手动跑 pre-commit 同口径逻辑（读取 staged 文件） | `npm run precommit:guard` |
+| 跑“合并前全量门禁”（与 CI 合并门禁同口径） | `npm run check:all` |
+| 只跑覆盖率 | `npm run test:coverage` |
+| 修改内置命令源后生成并检查差异 | `pwsh -File scripts/generate_builtin_commands.ps1` |
+| Windows 桌面端最小 E2E 冒烟（CI 同口径） | `npm run e2e:desktop:smoke` |
+
+> 说明：`npm install` 会运行 `package.json#prepare`，尝试自动执行 `scripts/setup-githooks.mjs`。如果你使用了 `npm install --ignore-scripts`，需要手动执行一次上面的 hooks 安装命令。
+
 ## 1. Git Hooks（pre-commit）启用确认
 
 本仓库的 pre-commit hook 位于 `.githooks/`，需要确保 git 配置已指向该目录。
@@ -44,7 +59,29 @@
 
 `node scripts/setup-githooks.mjs`
 
-### 1.3 如果你发现 `git commit` 没有触发门禁，如何排查？
+### 1.3 如果你想关闭 Git hooks（不推荐）
+
+说明：本仓库的 hooks 依赖 `core.hooksPath=.githooks`。关闭后 `git commit` 将不再自动运行本地门禁（你仍可手动跑 `npm run precommit:guard` / `npm run check:all`）。
+
+1) 先看当前 hooksPath 来自哪里（建议）：
+
+`git config --show-origin --get core.hooksPath`
+
+2) 仅对“当前仓库”关闭（最常见）：
+
+`git config --unset core.hooksPath`
+
+3) 如果你发现是全局配置导致（输出里有 `--global` 的配置文件路径），则关闭全局：
+
+`git config --global --unset core.hooksPath`
+
+4) 验证关闭成功（期望无输出）：
+
+`git config --get core.hooksPath`
+
+> 注意：`npm install` 会运行 `package.json#prepare`，其中会执行 `scripts/setup-githooks.mjs` 尝试重新启用 hooks。你如果要“长期保持关闭”，需要接受每次 `npm install` 后重新关闭，或使用 `npm install --ignore-scripts`（不推荐常态使用）。
+
+### 1.4 如果你发现 `git commit` 没有触发门禁，如何排查？
 
 1) 先确认 hooksPath 是否已生效：
 
@@ -205,6 +242,7 @@
 因此：
 - 你 push 到 feature 分支：**不会自动跑 CI**（除非你开 PR）
 - 你开 PR：**会跑 CI**
+ - 维护者如果想“不走 PR 也先跑一遍”：可以在 `Actions` 里手动 `Run workflow`（需要写权限）
 
 ### 5.2 Release Build（Tag）
 

@@ -22,6 +22,23 @@
 
 ---
 
+## 0.1 常用命令速查
+
+| 你想做什么 | 命令 |
+|---|---|
+| 安装依赖 | `npm install` |
+| 启用 git hooks（推荐显式执行一次） | `node scripts/setup-githooks.mjs` |
+| 查看 hooks 是否已启用 | `git config core.hooksPath` |
+| 手动跑 pre-commit 同口径逻辑（读取 staged 文件） | `npm run precommit:guard` |
+| 合并前全量门禁（与 CI 同口径） | `npm run check:all` |
+| 开发启动桌面应用 | `npm run tauri:dev` |
+| 仅跑测试（不带覆盖率） | `npm run test:run` |
+| 跑覆盖率（门禁同口径） | `npm run test:coverage` |
+| 修改内置命令源后生成并检查差异 | `pwsh -File scripts/generate_builtin_commands.ps1` |
+| Windows 桌面端最小 E2E 冒烟（CI 同口径） | `npm run e2e:desktop:smoke` |
+
+> 提示：`npm install` 会运行 `package.json#prepare`，尝试自动启用 hooks；如果你使用了 `--ignore-scripts`，需要手动运行 `node scripts/setup-githooks.mjs`。
+
 ## 1. 本地门禁：pre-commit（提交时触发）
 
 ### 1.1 pre-commit 会在什么时候触发？
@@ -36,6 +53,14 @@
 
 > 你也可以手动跑（不 commit 也能先验证）：`npm run precommit:guard`  
 > 注意：`git commit --no-verify` 会跳过所有 hooks（不建议在 PR 中使用）。
+
+如果你想在本机关闭 hooks（不推荐）：
+
+`git config --unset core.hooksPath`
+
+验证是否关闭（期望无输出）：
+
+`git config --get core.hooksPath`
 
 ### 1.2 pre-commit 做了什么（双通道）
 
@@ -119,10 +144,59 @@ CI/Release 会运行：
 
 ---
 
-## 6. PR 提交建议
+## 6. main 分支保护开启时怎么做 PR？我还能在本地 main 开发吗？
+
+结论：
+- 分支保护（Branch protection / Rulesets）只影响远端的 `origin/main`，**不会**禁止你在本地 checkout `main`、甚至在本地 `main` 上提交。
+- 但为了减少误操作，推荐把本地 `main` 当成“只同步不开发”的基线：只用来跟随 `origin/main`，真正开发在 feature 分支完成。
+
+推荐流程（维护者/贡献者通用）：
+
+1) 同步本地 `main`：
+
+`git fetch origin`
+
+`git switch main`
+
+`git pull --rebase origin main`
+
+2) 从 `main` 拉一个分支开发：
+
+`git switch -c feat/<topic>`
+
+3) 正常开发与提交：
+
+`git add -A`
+
+`git commit -m "feat: <msg>"`
+
+4) 推送分支并开 PR：
+
+`git push -u origin feat/<topic>`
+
+然后在 GitHub 上创建 PR（目标分支 `main`），等待 `CI Gate` 全绿后合并。
+
+如果你已经在本地 `main` 上写了几次 commit（还没 push）：
+
+1) 先把当前提交“收进”一个分支：
+
+`git switch -c feat/<topic>`
+
+`git push -u origin feat/<topic>`
+
+2)（可选）把本地 `main` 复位回远端 `main`（会丢弃本地 main 上的提交，所以务必确认这些提交已经在分支上）：
+
+`git switch main`
+
+`git fetch origin`
+
+`git reset --hard origin/main`
+
+---
+
+## 7. PR 提交建议
 
 - 尽量小步改动（便于 review 与回滚）
 - PR 前运行 `npm run check:all`
 - 修改内置命令源时务必提交生成产物（否则 CI 会失败）
 - 避免使用 `git commit --no-verify` 绕过本地门禁（CI 仍会阻断）
-

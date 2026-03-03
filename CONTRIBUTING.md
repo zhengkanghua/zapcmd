@@ -20,6 +20,23 @@ Thanks for contributing to ZapCmd. This guide focuses on the local + CI quality 
 
 `npm run check:all`
 
+## Command Cheat Sheet
+
+| What you want | Command |
+|---|---|
+| Install dependencies | `npm install` |
+| Enable repo Git hooks (recommended once) | `node scripts/setup-githooks.mjs` |
+| Check if hooks are enabled | `git config core.hooksPath` |
+| Run the same logic as pre-commit (reads staged files) | `npm run precommit:guard` |
+| Run the full merge gate (same bar as CI) | `npm run check:all` |
+| Run desktop dev | `npm run tauri:dev` |
+| Run tests (no coverage) | `npm run test:run` |
+| Run tests with coverage (gate) | `npm run test:coverage` |
+| Regenerate builtin commands (PowerShell) | `pwsh -File scripts/generate_builtin_commands.ps1` |
+| Windows desktop E2E smoke (same as CI) | `npm run e2e:desktop:smoke` |
+
+Note: `npm install` runs `package.json#prepare` which attempts to enable hooks automatically. If you use `--ignore-scripts`, run `node scripts/setup-githooks.mjs` manually.
+
 ## Local pre-commit gate
 
 If `git config core.hooksPath` is set to `.githooks`, every `git commit` runs:
@@ -31,6 +48,14 @@ You can also run it manually:
 `npm run precommit:guard`
 
 Note: `git commit --no-verify` skips hooks (CI will still enforce gates).
+
+If you want to disable hooks locally (not recommended):
+
+`git config --unset core.hooksPath`
+
+Verify (expect no output):
+
+`git config --get core.hooksPath`
 
 ## Builtin command sources (must commit generated outputs)
 
@@ -64,3 +89,24 @@ To run locally on Windows, install:
 
 `msedgedriver-tool install`
 
+## Working with a protected `main` branch
+
+Branch protection only affects pushes/merges to `origin/main`. It does not prevent local commits on `main`, but it’s strongly recommended to keep local `main` clean and do all work on feature branches.
+
+Recommended workflow:
+
+1) Sync local `main`:
+
+`git fetch origin`
+
+`git switch main`
+
+`git pull --rebase origin main`
+
+2) Create a feature branch:
+
+`git switch -c feat/<topic>`
+
+3) Commit as usual, then push and open a PR:
+
+`git push -u origin feat/<topic>`
