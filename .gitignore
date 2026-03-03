@@ -24,6 +24,7 @@ Desktop.ini
 *.tmp
 *.temp
 *.bak
+.tmp/
 
 # Common build outputs
 node_modules/
