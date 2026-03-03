@@ -1,3 +1,22 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: 质量门禁与回归基线
+current_phase: 1
+current_phase_name: 回归链路与最小桌面 E2E 基线
+current_plan: 0
+status: Ready to discuss（等待讨论/补充上下文）
+stopped_at: Phase 1 上下文已收集
+last_updated: "2026-03-03T07:38:38.629Z"
+last_activity: 2026-03-03
+progress:
+  total_phases: 9
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+---
+
 # Project State
 
 ## Project Reference
@@ -36,7 +55,7 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-03  
-**Stopped At:** 初始化规划文档  
-**Resume File:** None
+**Last Date:** 2026-03-03T07:38:38.626Z
+**Stopped At:** Phase 1 上下文已收集
+**Resume File:** .planning/phases/01-desktop-shell-e2e-baseline/01-CONTEXT.md
 
