@@ -13,7 +13,7 @@
 
 ### 回归链路（本地 + CI）
 
-- [ ] **REG-01**: 本地 pre-commit 对“功能/行为改动”强制跑全量回归（至少 `npm run test:coverage`），并对纯文档/非行为改动避免不必要阻塞
+- [x] **REG-01**: 本地 pre-commit 对“功能/行为改动”强制跑全量回归（至少 `npm run test:coverage`），并对纯文档/非行为改动避免不必要阻塞
 - [ ] **REG-02**: CI 持续执行 `npm run check:all` 作为合并门禁，失败时日志可直接定位到具体失败项
 
 ### Rust 侧关键模块可测试性
@@ -44,7 +44,7 @@
 
 ### 最小桌面端 E2E 基线（可选但需结论）
 
-- [ ] **E2E-01**: 建立并验证“最小 E2E 基线”（或明确记录不做的决定与原因），确保关键路径至少可被一次端到端验证
+- [x] **E2E-01**: 建立并验证“最小 E2E 基线”（或明确记录不做的决定与原因），确保关键路径至少可被一次端到端验证
 
 ## v2 需求（后续再做）
 
@@ -64,9 +64,9 @@
 
 | 需求 | Phase | 状态 |
 |------|-------|------|
-| REG-01 | Phase 1 | Pending |
+| REG-01 | Phase 1 | Complete |
 | REG-02 | Phase 1 | Pending |
-| E2E-01 | Phase 1 | Pending |
+| E2E-01 | Phase 1 | Complete |
 | COV-01 | Phase 2 | Pending |
 | COV-02 | Phase 2 | Pending |
 | COV-03 | Phase 3 | Pending |

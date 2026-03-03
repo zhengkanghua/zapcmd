@@ -30,7 +30,7 @@
 1. 本地 pre-commit 对“功能/行为改动”会强制执行全量回归（至少 `npm run test:coverage`），失败会阻止提交。
 2. CI 持续以 `npm run check:all` 作为合并门禁，失败日志可直接定位到具体失败项（lint/typecheck/test/build/rust）。
 3. 已产出“最小桌面端 E2E 基线”的结论：要么落地可运行的最小 E2E，要么记录不做的明确原因与替代验证方案。
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 01-01-PLAN.md — 本地 pre-commit 双通道（条件触发 `test:coverage`）与可解释输出
@@ -121,7 +121,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. 回归链路与最小桌面 E2E 基线 | 0/3 | Not started | - |
+| 1. 回归链路与最小桌面 E2E 基线 | 2/3 | In Progress|  |
 | 2. 覆盖率门禁提升到 90% | 0/TBD | Not started | - |
 | 3. 关键用户路径回归补齐 | 0/TBD | Not started | - |
 | 4. Rust 终端执行模块单测 | 0/TBD | Not started | - |
