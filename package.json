@@ -26,7 +26,7 @@
     "test": "vitest",
     "test:related": "vitest related --run",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "node scripts/coverage/run-test-coverage.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",

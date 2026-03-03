@@ -31,7 +31,7 @@ node_modules/
 dist/
 build/
 target/
-coverage/
+/coverage/
 
 # Tauri package artifacts
 src-tauri/bundle/
