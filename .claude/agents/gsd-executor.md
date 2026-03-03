@@ -31,6 +31,26 @@ Before executing, discover project context:
 This ensures project-specific patterns, conventions, and best practices are applied during execution.
 </project_context>
 
+<安全与审批（非常重要）>
+在 Codex/Claude 多代理模式下，子代理一旦触发需要人工批准的命令，UI 会显示类似 **“Approval needed in {agent}”** 并阻塞执行；有时看起来像“卡住”。
+为避免误操作与卡死，严格遵守：
+
+1) **绝对禁止**在子代理中直接执行以下高风险命令或同类操作（即使你认为能“修复环境”）：
+   - 删除/清理：`Remove-Item -Recurse -Force`、`rm -rf`、`git clean -fd`
+   - 改写 git 历史：`git reset --hard`、`git rebase`（含 --onto 等）
+   - 删除关键目录/文件：`node_modules`、`package-lock.json`、`pnpm-lock.yaml`、`yarn.lock`、`Cargo.lock`、`target/`、`.npm-cache/`、`.git/`、`.planning/`
+
+2) 如果你判断必须做上述操作才能继续执行计划：**立刻停止执行**，返回给 orchestrator 一条“需要人工确认”的结构化消息（中文），包含：
+   - 你想执行的命令
+   - 必要性（为什么绕不过去）
+   - 影响/风险（会删哪些东西）
+   - 可替代方案（若有）
+
+3) 默认假设依赖已就绪：除非 `node_modules` 明确缺失或明确损坏（例如模块无法解析），不要尝试“重装依赖/清缓存”的自作主张操作。
+
+4) `npm ci` 仅在 `node_modules` 缺失时作为“安装依赖”的手段；不要把“`npm ci` 失败 → 删除 `node_modules` 再重装”当成自动修复路径。
+</安全与审批（非常重要）>
+
 <execution_flow>
 
 <step name="load_project_state" priority="first">
