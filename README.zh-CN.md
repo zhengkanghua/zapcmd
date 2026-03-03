@@ -69,6 +69,31 @@ npm run tauri:dev
 npm run check:all
 ```
 
+推荐本地开发流程（贡献者 + 维护者）：
+
+```bash
+# 启用仓库 git hooks（pre-commit）
+node scripts/setup-githooks.mjs
+
+# 手动运行与 pre-commit 相同的逻辑（读取 staged 文件）
+npm run precommit:guard
+```
+
+当你修改内置命令源（`docs/command_sources/_*.md`）时，需要生成并提交产物：
+
+```bash
+pwsh -File scripts/generate_builtin_commands.ps1
+git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
+```
+
+Windows 桌面端最小 E2E 冒烟（CI 也会跑）：
+
+```bash
+npm run e2e:desktop:smoke
+```
+
+更详细说明见：`CONTRIBUTING.zh-CN.md`。
+
 构建：
 
 ```bash
@@ -149,7 +174,7 @@ Schema：
 Roadmap：
 
 - 高级安全治理（策略/白名单/团队规则）
-- 真实桌面壳层 E2E 自动化基线
+- 更完整的桌面壳层 E2E 自动化（跨平台 + 更多流程）
 
 ## 支持矩阵（v1）
 
@@ -162,7 +187,7 @@ Roadmap：
 
 1. macOS 安装包当前未签名/未公证。
 2. 用户命令 JSON 修改后需重启应用生效。
-3. E2E 自动化基线尚未完全落地。
+3. 目前仅落地了 Windows 最小桌面端 E2E 冒烟（smoke），尚未覆盖全平台矩阵与更多关键流程。
 
 ## 提交问题与参与贡献
 

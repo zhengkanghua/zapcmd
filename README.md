@@ -69,6 +69,31 @@ Quality gate:
 npm run check:all
 ```
 
+Recommended local workflow (contributors + maintainers):
+
+```bash
+# enable repo git hooks (pre-commit)
+node scripts/setup-githooks.mjs
+
+# run the same logic as pre-commit hook (reads staged files)
+npm run precommit:guard
+```
+
+Builtin command sources (`docs/command_sources/_*.md`) require generating and committing outputs:
+
+```bash
+pwsh -File scripts/generate_builtin_commands.ps1
+git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
+```
+
+Windows desktop E2E smoke (CI runs this too):
+
+```bash
+npm run e2e:desktop:smoke
+```
+
+See `CONTRIBUTING.md` for details.
+
 Build:
 
 ```bash
@@ -149,7 +174,7 @@ Current implementation:
 Roadmap:
 
 - Advanced security governance (policy/whitelist/team rules)
-- Full desktop-shell E2E baseline
+- More comprehensive desktop-shell E2E baseline (cross-platform, more flows)
 
 ## Support Matrix (v1)
 
@@ -162,7 +187,7 @@ Roadmap:
 
 1. macOS packages are currently unsigned/not notarized.
 2. User command JSON changes take effect after app restart.
-3. E2E automation baseline is not fully implemented yet.
+3. Desktop-shell E2E automation is currently minimal and Windows-only (smoke); full matrix coverage is still roadmap.
 
 ## Report Issues And Contribute
 

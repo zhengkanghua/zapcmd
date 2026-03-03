@@ -3,6 +3,21 @@
 **适用范围：** Phase 1（回归链路与最小桌面 E2E 基线）相关改动后的验证与日常操作  
 **更新时间：** 2026-03-03  
 
+## 0. 你关心的问题：`commit` / `push` / `PR` 分别会触发什么？
+
+先说结论：**只要 Git Hooks 已启用，`git commit` 就会触发本地门禁（pre-commit）。**  
+`git push` 本身不会在你本机“自动跑测试”；远端 CI 是否跑取决于 GitHub Actions 的触发条件（本仓库为 PR / main / tag）。
+
+| 你做的动作 | 本地 pre-commit（在你电脑上） | CI Gate（GitHub Actions） | Release Build（GitHub Actions） |
+|---|---|---|---|
+| `git commit` | ✅ 会触发（前提：已设置 `core.hooksPath=.githooks`） | ❌ 不会 | ❌ 不会 |
+| `git commit --no-verify` | ❌ 不会（被你显式跳过） | ❌ 不会 | ❌ 不会 |
+| `git push` 到你自己的分支 | ✅/❌（取决于你 commit 时是否触发过 hooks；push 不会额外触发本地门禁） | ✅ 仅当你开 PR（触发 `pull_request`） | ❌ 不会 |
+| `git push` 到 `main` | ✅/❌ 同上 | ✅ 会触发（workflow `push` 到 `main`） | ❌ 不会 |
+| `git push` 一个 `vX.Y.Z` tag | ✅/❌ 同上 | ❌ 不会 | ✅ 会触发（workflow `push.tags: v*.*.*`） |
+
+> 建议：通过 **PR 合并**进入 `main`，并在 GitHub 侧开启 branch protection 强制 CI 绿灯（见临时配置文档）。
+
 ## 1. Git Hooks（pre-commit）启用确认
 
 本仓库的 pre-commit hook 位于 `.githooks/`，需要确保 git 配置已指向该目录。
@@ -29,11 +44,44 @@
 
 `node scripts/setup-githooks.mjs`
 
+### 1.3 如果你发现 `git commit` 没有触发门禁，如何排查？
+
+1) 先确认 hooksPath 是否已生效：
+
+`git config core.hooksPath`
+
+必须是：
+
+`.githooks`
+
+2) 确认 hook 文件存在：
+
+`.githooks/pre-commit`
+
+3) 确认你没有使用跳过参数（最常见）：
+
+- 命令行：`git commit --no-verify`
+- 某些 GUI 客户端可能提供“跳过钩子/跳过校验”的选项
+
+4) 直接手动跑一次（排除 hook 没安装的情况）：
+
+`npm run precommit:guard`
+
+如果这条命令能正常执行，说明脚本本身没问题，问题通常在 hooksPath/提交方式。
+
 ## 2. 本地 pre-commit 门禁（双通道）怎么工作
 
 入口：
 
 `.githooks/pre-commit` → `npm run precommit:guard` → `scripts/precommit-guard.mjs`
+
+### 2.0 手动触发（不想 commit 也能先跑一遍）
+
+你可以直接运行：
+
+`npm run precommit:guard`
+
+这会读取 **当前 staged 的文件** 并执行同一套逻辑（等价于 pre-commit hook）。
 
 ### 2.1 纯文档改动：直通（不跑门禁）
 
@@ -51,6 +99,24 @@
 `npm run test:coverage`
 
 触发时会打印：触发原因、命中文件、将运行的命令清单。
+
+### 2.3 我想“手动跑全量门禁”，应该用哪个命令？
+
+全量门禁（CI 与维护者合并前的同口径）：
+
+`npm run check:all`
+
+其中包含：
+- `npm run lint`
+- `npm run typecheck`
+- `npm run typecheck:test`
+- `npm run test:coverage`
+- `npm run build`
+- `npm run check:rust`
+
+如果你只想跑覆盖率门禁：
+
+`npm run test:coverage`
 
 ## 3. 内置命令源变更：本地提示 + CI 阻断
 
@@ -74,6 +140,12 @@
 > 注意：本地 pre-commit 只提示，不阻断；但 CI（Windows Gate）会在 `check:all` 前执行生成并 `git diff --exit-code`，若产物不同步提交会直接失败。
 
 ## 4. Windows 桌面端最小 E2E 冒烟（本机）
+
+### 4.0 手动触发（CI 也会跑的同一条命令）
+
+`npm run e2e:desktop:smoke`
+
+> 说明：该脚本 **仅支持 Windows**。在非 Windows 平台会直接以非 0 退出（避免把 skip 当 pass）。
 
 ### 4.1 依赖安装（仅 Windows）
 
@@ -124,9 +196,18 @@
 1) 在 PR 中只改 `docs/command_sources/_git.md`，不提交生成产物：应被 Windows `quality-gate` 阻断  
 2) 修复后再次 push：应通过
 
+#### 5.1.1 常见误解：为什么“push 到分支”看不到 CI？
+
+本仓库 `ci-gate.yml` 的触发条件是：
+- `pull_request` → 只要你开 PR，就会跑
+- `push` 但仅限 `main` 分支
+
+因此：
+- 你 push 到 feature 分支：**不会自动跑 CI**（除非你开 PR）
+- 你开 PR：**会跑 CI**
+
 ### 5.2 Release Build（Tag）
 
 工作流：`.github/workflows/release-build.yml`
 
 Windows `quality-gate` 在 `npm run check:all` 后追加运行 `npm run e2e:desktop:smoke`；失败会阻断后续 `bundle/publish-release`。
-
