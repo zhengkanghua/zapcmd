@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: 质量门禁与回归基线
 current_phase: 1
 current_phase_name: 回归链路与最小桌面 E2E 基线
-current_plan: 2
-status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-03-03T12:59:33.231Z"
+current_plan: 3
+status: verifying
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-03-03T13:22:56.248Z"
 last_activity: 2026-03-03
 progress:
   total_phases: 9
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
-  percent: 67
+  completed_plans: 3
+  percent: 100
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Current Phase:** 1  
 **Current Phase Name:** 回归链路与最小桌面 E2E 基线  
 **Total Phases:** 9  
-**Current Plan:** 2  
+**Current Plan:** 3
 **Total Plans in Phase:** 3  
-**Status:** Ready to execute（下一步：01-02）
+**Status:** Phase complete — ready for verification
 **Last Activity:** 2026-03-03
 **Last Activity Description:** 已完成 01-01 本地 pre-commit 双通道门禁（下一步：01-02 接入 CI/Release 门禁）
 
-**Progress:** [███████░░░] 67%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -45,6 +45,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 |------|----------|-------|-------|
 | Phase 01 P03 | 9min | 2 tasks | 5 files |
 | Phase 01 P01 | 4min | 2 tasks | 1 files |
+| Phase 01 P02 | 3min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -55,6 +56,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 1]: 内置命令源变更本地仅提示生成与需提交产物，CI 负责阻断未同步提交
 - [Phase 1]: 桌面端 E2E 采用 tauri-driver + selenium-webdriver，并统一产物目录为 .tmp/e2e/desktop-smoke — 最小可执行、失败可定位，便于 CI 上传与门禁阻断
 - [Phase 1]: tauri:build:debug 固化为 --no-bundle — 加速 CI/本地构建，并保持 debug 可执行文件路径稳定
+- [Phase 01]: CI Gate 将桌面端最小 E2E 作为独立阻断 job 运行并统一上传 .tmp/e2e/desktop-smoke；Release Windows quality-gate 在 check:all 后追加同一套 E2E 防绕过
 
 ### Pending Todos
 
@@ -66,6 +68,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-03T12:59:33.227Z
-**Stopped At:** Completed 01-01-PLAN.md
-**Resume File:** .planning/phases/01-desktop-shell-e2e-baseline/01-02-PLAN.md
+**Last Date:** 2026-03-03T13:22:56.244Z
+**Stopped At:** Completed 01-02-PLAN.md
+**Resume File:** None

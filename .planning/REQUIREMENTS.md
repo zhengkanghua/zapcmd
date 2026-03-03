@@ -14,7 +14,7 @@
 ### 回归链路（本地 + CI）
 
 - [x] **REG-01**: 本地 pre-commit 对“功能/行为改动”强制跑全量回归（至少 `npm run test:coverage`），并对纯文档/非行为改动避免不必要阻塞
-- [ ] **REG-02**: CI 持续执行 `npm run check:all` 作为合并门禁，失败时日志可直接定位到具体失败项
+- [x] **REG-02**: CI 持续执行 `npm run check:all` 作为合并门禁，失败时日志可直接定位到具体失败项
 
 ### Rust 侧关键模块可测试性
 
@@ -65,7 +65,7 @@
 | 需求 | Phase | 状态 |
 |------|-------|------|
 | REG-01 | Phase 1 | Complete |
-| REG-02 | Phase 1 | Pending |
+| REG-02 | Phase 1 | Complete |
 | E2E-01 | Phase 1 | Complete |
 | COV-01 | Phase 2 | Pending |
 | COV-02 | Phase 2 | Pending |
