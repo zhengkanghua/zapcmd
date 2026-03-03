@@ -49,6 +49,42 @@ jobs:
       - name: Run quality gate
         run: npm run check:all
 
+  desktop-e2e-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install WebDriver dependencies
+        run: |
+          cargo install tauri-driver --locked
+          cargo install msedgedriver-tool --locked
+          msedgedriver-tool install
+
+      - name: Run desktop E2E smoke
+        run: npm run e2e:desktop:smoke
+
+      - name: Upload desktop E2E artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-e2e-smoke
+          path: .tmp/e2e/desktop-smoke/
+          if-no-files-found: warn
+
   cross-platform-smoke:
     strategy:
       fail-fast: false
