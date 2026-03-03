@@ -1,81 +1,517 @@
 import { describe, expect, it } from "vitest";
 import { isRuntimeCommandFile } from "../schemaGuard";
 
+function createValidPayload() {
+  return {
+    _meta: {
+      name: "network",
+      author: "zapcmd",
+      version: "1.0.0",
+      description: {
+        "zh-CN": "内置命令文件",
+        "en-US": "builtin command file"
+      },
+      source: "builtin"
+    },
+    commands: [
+      {
+        id: "kill-port-win",
+        name: "结束端口进程",
+        description: {
+          "zh-CN": "通过 PID 结束进程",
+          "en-US": "Kill a process by PID"
+        },
+        tags: ["port", "kill"],
+        category: "network",
+        platform: "win",
+        template: "Stop-Process -Id {{pid}} -Force",
+        shell: "powershell",
+        adminRequired: false,
+        dangerous: false,
+        args: [
+          {
+            key: "pid",
+            label: {
+              "zh-CN": "PID",
+              "en-US": "PID"
+            },
+            type: "number",
+            required: true,
+            placeholder: "1234",
+            validation: {
+              min: 1,
+              max: 65535,
+              errorMessage: "PID must be between 1 and 65535"
+            }
+          },
+          {
+            key: "mode",
+            label: "Mode",
+            type: "select",
+            required: true,
+            validation: {
+              options: ["fast", "safe"]
+            }
+          }
+        ],
+        prerequisites: [
+          {
+            id: "pwsh",
+            type: "binary",
+            required: true,
+            check: "pwsh -v",
+            installHint: {
+              "zh-CN": "请安装 PowerShell 7",
+              "en-US": "Please install PowerShell 7"
+            },
+            fallbackCommandId: "install-pwsh"
+          }
+        ]
+      }
+    ]
+  };
+}
+
 describe("isRuntimeCommandFile", () => {
   it("accepts a schema-compliant command file", () => {
-    const payload = {
-      _meta: {
-        name: "network",
-        author: "zapcmd",
-        version: "1.0.0"
-      },
-      commands: [
-        {
-          id: "kill-port-win",
-          name: "结束端口进程",
-          tags: ["port", "kill"],
-          category: "network",
-          platform: "win",
-          template: "Stop-Process -Id {{pid}} -Force",
-          shell: "powershell",
-          adminRequired: false,
-          args: [
-            {
-              key: "pid",
-              label: "PID",
-              type: "number",
-              required: true
-            }
-          ]
-        }
-      ]
-    };
+    expect(isRuntimeCommandFile(createValidPayload())).toBe(true);
+  });
+
+  it("accepts a valid command file without _meta", () => {
+    const payload = createValidPayload();
+    delete (payload as any)._meta;
 
     expect(isRuntimeCommandFile(payload)).toBe(true);
   });
 
-  it("rejects unsupported top-level properties", () => {
-    const payload = {
-      commands: [
-        {
-          id: "test",
-          name: "test",
-          tags: ["t"],
-          category: "dev",
-          platform: "all",
-          template: "echo test",
-          adminRequired: false
-        }
-      ],
-      unknown: true
-    };
+  it("accepts a valid command file without optional command fields", () => {
+    const payload = createValidPayload();
+    payload.commands[0] = {
+      id: "hello",
+      name: { "en-US": "Hello", "zh-CN": "你好" },
+      tags: ["hello"],
+      category: "dev",
+      platform: "all",
+      template: "echo hello",
+      adminRequired: true
+    } as any;
 
-    expect(isRuntimeCommandFile(payload)).toBe(false);
+    expect(isRuntimeCommandFile(payload)).toBe(true);
   });
+
+  const invalidTopLevelCases: Array<{ name: string; value: unknown }> = [
+    { name: "non-object payload", value: "not-an-object" },
+    { name: "null payload", value: null },
+    { name: "array payload", value: [] }
+  ];
+
+  for (const testCase of invalidTopLevelCases) {
+    it(`rejects top-level: ${testCase.name}`, () => {
+      expect(isRuntimeCommandFile(testCase.value)).toBe(false);
+    });
+  }
+
+  const invalidPayloadMutations: Array<{ name: string; mutate: (payload: any) => void }> = [
+    {
+      name: "unsupported top-level key",
+      mutate: (payload) => {
+        payload.unknown = true;
+      }
+    },
+    {
+      name: "_meta is not an object",
+      mutate: (payload) => {
+        payload._meta = "oops";
+      }
+    },
+    {
+      name: "_meta.name is empty localized object",
+      mutate: (payload) => {
+        payload._meta.name = {};
+      }
+    },
+    {
+      name: "_meta.author is empty string",
+      mutate: (payload) => {
+        payload._meta.author = "   ";
+      }
+    },
+    {
+      name: "_meta.version is not a string",
+      mutate: (payload) => {
+        payload._meta.version = 123;
+      }
+    },
+    {
+      name: "_meta.description localized text has empty key",
+      mutate: (payload) => {
+        payload._meta.description = { "": "bad" };
+      }
+    },
+    {
+      name: "_meta.source is empty string",
+      mutate: (payload) => {
+        payload._meta.source = "";
+      }
+    },
+    {
+      name: "commands is not an array",
+      mutate: (payload) => {
+        payload.commands = {};
+      }
+    },
+    {
+      name: "commands is empty array",
+      mutate: (payload) => {
+        payload.commands = [];
+      }
+    }
+  ];
+
+  for (const testCase of invalidPayloadMutations) {
+    it(`rejects payload: ${testCase.name}`, () => {
+      const payload = createValidPayload();
+      testCase.mutate(payload);
+      expect(isRuntimeCommandFile(payload)).toBe(false);
+    });
+  }
+
+  const invalidCommandMutations: Array<{ name: string; mutate: (command: any) => void }> = [
+    {
+      name: "command contains unknown key",
+      mutate: (command) => {
+        command.extra = true;
+      }
+    },
+    {
+      name: "id is empty string",
+      mutate: (command) => {
+        command.id = " ";
+      }
+    },
+    {
+      name: "id does not match pattern",
+      mutate: (command) => {
+        command.id = "bad id";
+      }
+    },
+    {
+      name: "name is empty string",
+      mutate: (command) => {
+        command.name = "";
+      }
+    },
+    {
+      name: "name is localized text with empty value",
+      mutate: (command) => {
+        command.name = { "en-US": "" };
+      }
+    },
+    {
+      name: "tags is not an array",
+      mutate: (command) => {
+        command.tags = "not-an-array";
+      }
+    },
+    {
+      name: "tags is empty array",
+      mutate: (command) => {
+        command.tags = [];
+      }
+    },
+    {
+      name: "tags contains empty string",
+      mutate: (command) => {
+        command.tags = ["ok", " "];
+      }
+    },
+    {
+      name: "tags contains duplicates",
+      mutate: (command) => {
+        command.tags = ["dup", "dup"];
+      }
+    },
+    {
+      name: "category is invalid enum",
+      mutate: (command) => {
+        command.category = "unknown";
+      }
+    },
+    {
+      name: "platform is invalid enum",
+      mutate: (command) => {
+        command.platform = "android";
+      }
+    },
+    {
+      name: "template is empty string",
+      mutate: (command) => {
+        command.template = "";
+      }
+    },
+    {
+      name: "adminRequired is not boolean",
+      mutate: (command) => {
+        command.adminRequired = "false";
+      }
+    },
+    {
+      name: "description is empty localized object",
+      mutate: (command) => {
+        command.description = {};
+      }
+    },
+    {
+      name: "shell is invalid enum",
+      mutate: (command) => {
+        command.shell = "fish";
+      }
+    },
+    {
+      name: "dangerous is not boolean",
+      mutate: (command) => {
+        command.dangerous = "yes";
+      }
+    },
+    {
+      name: "args is not an array",
+      mutate: (command) => {
+        command.args = {};
+      }
+    },
+    {
+      name: "args contains non-object item",
+      mutate: (command) => {
+        command.args = [null];
+      }
+    },
+    {
+      name: "prerequisites is not an array",
+      mutate: (command) => {
+        command.prerequisites = {};
+      }
+    },
+    {
+      name: "prerequisites contains non-object item",
+      mutate: (command) => {
+        command.prerequisites = [123];
+      }
+    }
+  ];
+
+  for (const testCase of invalidCommandMutations) {
+    it(`rejects command: ${testCase.name}`, () => {
+      const payload = createValidPayload();
+      testCase.mutate(payload.commands[0]);
+      expect(isRuntimeCommandFile(payload)).toBe(false);
+    });
+  }
+
+  const invalidArgMutations: Array<{ name: string; mutate: (arg: any) => void }> = [
+    {
+      name: "arg contains unknown key",
+      mutate: (arg) => {
+        arg.extra = true;
+      }
+    },
+    {
+      name: "key is empty string",
+      mutate: (arg) => {
+        arg.key = "";
+      }
+    },
+    {
+      name: "key does not match pattern",
+      mutate: (arg) => {
+        arg.key = "bad key";
+      }
+    },
+    {
+      name: "label is invalid type",
+      mutate: (arg) => {
+        arg.label = 123;
+      }
+    },
+    {
+      name: "type is invalid enum",
+      mutate: (arg) => {
+        arg.type = "date";
+      }
+    },
+    {
+      name: "required is not boolean",
+      mutate: (arg) => {
+        arg.required = "true";
+      }
+    },
+    {
+      name: "default is not string",
+      mutate: (arg) => {
+        arg.default = 1;
+      }
+    },
+    {
+      name: "placeholder is not string",
+      mutate: (arg) => {
+        arg.placeholder = 2;
+      }
+    },
+    {
+      name: "validation is not an object",
+      mutate: (arg) => {
+        arg.validation = "oops";
+      }
+    },
+    {
+      name: "validation contains unknown key",
+      mutate: (arg) => {
+        arg.validation = { unknown: true };
+      }
+    },
+    {
+      name: "validation.pattern is not string",
+      mutate: (arg) => {
+        arg.validation = { pattern: 123 };
+      }
+    },
+    {
+      name: "validation.min is not number",
+      mutate: (arg) => {
+        arg.validation = { min: "1" };
+      }
+    },
+    {
+      name: "validation.max is not number",
+      mutate: (arg) => {
+        arg.validation = { max: "2" };
+      }
+    },
+    {
+      name: "validation.options is empty array",
+      mutate: (arg) => {
+        arg.validation = { options: [] };
+      }
+    },
+    {
+      name: "validation.options has duplicates",
+      mutate: (arg) => {
+        arg.validation = { options: ["a", "a"] };
+      }
+    },
+    {
+      name: "validation.errorMessage invalid localized text",
+      mutate: (arg) => {
+        arg.validation = { errorMessage: {} };
+      }
+    }
+  ];
+
+  for (const testCase of invalidArgMutations) {
+    it(`rejects arg: ${testCase.name}`, () => {
+      const payload = createValidPayload();
+      const command = payload.commands[0];
+      command.args = [
+        {
+          key: "value",
+          label: "Value",
+          type: "text",
+          required: true
+        }
+      ];
+      testCase.mutate(command.args[0]);
+      expect(isRuntimeCommandFile(payload)).toBe(false);
+    });
+  }
 
   it("rejects select arg without options", () => {
-    const payload = {
-      commands: [
-        {
-          id: "select-missing-options",
-          name: "select missing options",
-          tags: ["select"],
-          category: "dev",
-          platform: "all",
-          template: "echo {{mode}}",
-          adminRequired: false,
-          args: [
-            {
-              key: "mode",
-              label: "Mode",
-              type: "select",
-              required: true
-            }
-          ]
-        }
-      ]
-    };
+    const payload = createValidPayload();
+    payload.commands[0].args = [
+      {
+        key: "mode",
+        label: "Mode",
+        type: "select",
+        required: true
+      }
+    ];
 
     expect(isRuntimeCommandFile(payload)).toBe(false);
   });
+
+  it("rejects select arg with duplicate options", () => {
+    const payload = createValidPayload();
+    payload.commands[0].args = [
+      {
+        key: "mode",
+        label: "Mode",
+        type: "select",
+        required: true,
+        validation: {
+          options: ["dup", "dup"]
+        }
+      }
+    ];
+
+    expect(isRuntimeCommandFile(payload)).toBe(false);
+  });
+
+  const invalidPrerequisiteMutations: Array<{ name: string; mutate: (item: any) => void }> = [
+    {
+      name: "prerequisite contains unknown key",
+      mutate: (item) => {
+        item.extra = true;
+      }
+    },
+    {
+      name: "id is empty string",
+      mutate: (item) => {
+        item.id = "";
+      }
+    },
+    {
+      name: "type is invalid enum",
+      mutate: (item) => {
+        item.type = "os";
+      }
+    },
+    {
+      name: "required is not boolean",
+      mutate: (item) => {
+        item.required = "true";
+      }
+    },
+    {
+      name: "check is empty string",
+      mutate: (item) => {
+        item.check = " ";
+      }
+    },
+    {
+      name: "installHint invalid localized text",
+      mutate: (item) => {
+        item.installHint = { "zh-CN": "" };
+      }
+    },
+    {
+      name: "fallbackCommandId does not match pattern",
+      mutate: (item) => {
+        item.fallbackCommandId = "bad id";
+      }
+    }
+  ];
+
+  for (const testCase of invalidPrerequisiteMutations) {
+    it(`rejects prerequisite: ${testCase.name}`, () => {
+      const payload = createValidPayload();
+      payload.commands[0].prerequisites = [
+        {
+          id: "git",
+          type: "binary",
+          required: true,
+          check: "git --version"
+        }
+      ];
+      testCase.mutate(payload.commands[0].prerequisites[0]);
+      expect(isRuntimeCommandFile(payload)).toBe(false);
+    });
+  }
 });
