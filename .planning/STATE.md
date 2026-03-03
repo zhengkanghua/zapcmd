@@ -6,7 +6,7 @@ current_phase: 1
 current_phase_name: 回归链路与最小桌面 E2E 基线
 current_plan: 2
 status: executing
-stopped_at: Completed 01-desktop-shell-e2e-baseline-03-PLAN.md
+stopped_at: Completed 01-01-PLAN.md
 last_updated: "2026-03-03T12:59:33.231Z"
 last_activity: 2026-03-03
 progress:
@@ -35,7 +35,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Total Plans in Phase:** 3  
 **Status:** Ready to execute（下一步：01-02）
 **Last Activity:** 2026-03-03
-**Last Activity Description:** 已完成 01-03 最小桌面端 E2E 冒烟基线（下一步：01-02 接入 CI/Release 门禁）
+**Last Activity Description:** 已完成 01-01 本地 pre-commit 双通道门禁（下一步：01-02 接入 CI/Release 门禁）
 
 **Progress:** [███████░░░] 67%
 
@@ -67,5 +67,5 @@ None yet.
 ## Session
 
 **Last Date:** 2026-03-03T12:59:33.227Z
-**Stopped At:** Completed 01-desktop-shell-e2e-baseline-03-PLAN.md
+**Stopped At:** Completed 01-01-PLAN.md
 **Resume File:** .planning/phases/01-desktop-shell-e2e-baseline/01-02-PLAN.md
