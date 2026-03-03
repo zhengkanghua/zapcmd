@@ -11,7 +11,7 @@
 ## Phases
 
 - [x] **Phase 1: 回归链路与最小桌面 E2E 基线** - 让“功能改动必回归”成为默认 (completed 2026-03-03)
-- [ ] **Phase 2: 覆盖率门禁提升到 90%** - 提升阈值并让失败可定位
+- [x] **Phase 2: 覆盖率门禁提升到 90%** - 提升阈值并让失败可定位 (completed 2026-03-03)
 - [ ] **Phase 3: 关键用户路径回归补齐** - 核心路径覆盖为可回归用例
 - [ ] **Phase 4: Rust 终端执行模块单测** - 终端参数/转义高风险分支可测
 - [ ] **Phase 5: Rust 命令目录与边界模块单测** - 命令覆盖规则与边界检查可测
@@ -45,14 +45,14 @@ Plans:
 1. `npm run test:coverage` 在本地与 CI 均通过，覆盖率四项阈值全部 ≥90%。
 2. 覆盖率门禁失败时输出的日志信息足以定位缺口（例如关键文件/分支未覆盖点），补齐路径清晰。
 3. 覆盖率提升不以“跳过/忽略”方式达成（例如禁止通过关闭分支统计或大范围排除文件来刷指标）。
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 
 Plans:
-- [ ] 02-01-PLAN.md — 覆盖率失败可定位输出（总览 + Top deficits + HTML 指引）
-- [ ] 02-02-PLAN.md — schemaGuard 分支覆盖提升（branches ≥90%）
-- [ ] 02-03-PLAN.md — useLauncherSessionState 分支覆盖提升（branches ≥90%）
-- [ ] 02-04-PLAN.md — useCommandManagement 分支覆盖提升（branches ≥90%）
-- [ ] 02-05-PLAN.md — 收尾：补齐剩余热点 + thresholds 提升到 90/90/90/90
+- [x] 02-01-PLAN.md — 覆盖率失败可定位输出（总览 + Top deficits + HTML 指引）
+- [x] 02-02-PLAN.md — schemaGuard 分支覆盖提升（branches ≥90%）
+- [x] 02-03-PLAN.md — useLauncherSessionState 分支覆盖提升（branches ≥90%）
+- [x] 02-04-PLAN.md — useCommandManagement 分支覆盖提升（branches ≥90%）
+- [x] 02-05-PLAN.md — 收尾：补齐剩余热点 + thresholds 提升到 90/90/90/90
 
 ### Phase 3: 关键用户路径回归补齐
 **Goal:** 把核心用户路径覆盖为稳定、可回归的自动化用例，并覆盖关键失败分支。  
@@ -129,7 +129,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. 回归链路与最小桌面 E2E 基线 | 3/3 | Complete   | 2026-03-03 |
-| 2. 覆盖率门禁提升到 90% | 0/5 | Not started | - |
+| 2. 覆盖率门禁提升到 90% | 5/5 | Complete   | 2026-03-03 |
 | 3. 关键用户路径回归补齐 | 0/TBD | Not started | - |
 | 4. Rust 终端执行模块单测 | 0/TBD | Not started | - |
 | 5. Rust 命令目录与边界模块单测 | 0/TBD | Not started | - |

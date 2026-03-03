@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { isRuntimeCommandFile } from "../schemaGuard";
 
+type UnknownRecord = Record<string, unknown>;
+
 function createValidPayload() {
   return {
     _meta: {
@@ -72,15 +74,18 @@ function createValidPayload() {
   };
 }
 
+type ValidPayload = ReturnType<typeof createValidPayload>;
+type ValidCommand = ValidPayload["commands"][number];
+type ValidArgs = ValidCommand["args"];
+type ValidPrerequisites = ValidCommand["prerequisites"];
+
 describe("isRuntimeCommandFile", () => {
   it("accepts a schema-compliant command file", () => {
     expect(isRuntimeCommandFile(createValidPayload())).toBe(true);
   });
 
   it("accepts a valid command file without _meta", () => {
-    const payload = createValidPayload();
-    delete (payload as any)._meta;
-
+    const { _meta: _ignored, ...payload } = createValidPayload();
     expect(isRuntimeCommandFile(payload)).toBe(true);
   });
 
@@ -94,7 +99,7 @@ describe("isRuntimeCommandFile", () => {
       platform: "all",
       template: "echo hello",
       adminRequired: true
-    } as any;
+    } as unknown as ValidCommand;
 
     expect(isRuntimeCommandFile(payload)).toBe(true);
   });
@@ -111,7 +116,7 @@ describe("isRuntimeCommandFile", () => {
     });
   }
 
-  const invalidPayloadMutations: Array<{ name: string; mutate: (payload: any) => void }> = [
+  const invalidPayloadMutations: Array<{ name: string; mutate: (payload: UnknownRecord) => void }> = [
     {
       name: "unsupported top-level key",
       mutate: (payload) => {
@@ -127,31 +132,36 @@ describe("isRuntimeCommandFile", () => {
     {
       name: "_meta.name is empty localized object",
       mutate: (payload) => {
-        payload._meta.name = {};
+        const meta = payload._meta as UnknownRecord;
+        meta.name = {};
       }
     },
     {
       name: "_meta.author is empty string",
       mutate: (payload) => {
-        payload._meta.author = "   ";
+        const meta = payload._meta as UnknownRecord;
+        meta.author = "   ";
       }
     },
     {
       name: "_meta.version is not a string",
       mutate: (payload) => {
-        payload._meta.version = 123;
+        const meta = payload._meta as UnknownRecord;
+        meta.version = 123;
       }
     },
     {
       name: "_meta.description localized text has empty key",
       mutate: (payload) => {
-        payload._meta.description = { "": "bad" };
+        const meta = payload._meta as UnknownRecord;
+        meta.description = { "": "bad" };
       }
     },
     {
       name: "_meta.source is empty string",
       mutate: (payload) => {
-        payload._meta.source = "";
+        const meta = payload._meta as UnknownRecord;
+        meta.source = "";
       }
     },
     {
@@ -171,12 +181,12 @@ describe("isRuntimeCommandFile", () => {
   for (const testCase of invalidPayloadMutations) {
     it(`rejects payload: ${testCase.name}`, () => {
       const payload = createValidPayload();
-      testCase.mutate(payload);
+      testCase.mutate(payload as unknown as UnknownRecord);
       expect(isRuntimeCommandFile(payload)).toBe(false);
     });
   }
 
-  const invalidCommandMutations: Array<{ name: string; mutate: (command: any) => void }> = [
+  const invalidCommandMutations: Array<{ name: string; mutate: (command: UnknownRecord) => void }> = [
     {
       name: "command contains unknown key",
       mutate: (command) => {
@@ -302,12 +312,12 @@ describe("isRuntimeCommandFile", () => {
   for (const testCase of invalidCommandMutations) {
     it(`rejects command: ${testCase.name}`, () => {
       const payload = createValidPayload();
-      testCase.mutate(payload.commands[0]);
+      testCase.mutate(payload.commands[0] as unknown as UnknownRecord);
       expect(isRuntimeCommandFile(payload)).toBe(false);
     });
   }
 
-  const invalidArgMutations: Array<{ name: string; mutate: (arg: any) => void }> = [
+  const invalidArgMutations: Array<{ name: string; mutate: (arg: UnknownRecord) => void }> = [
     {
       name: "arg contains unknown key",
       mutate: (arg) => {
@@ -417,8 +427,8 @@ describe("isRuntimeCommandFile", () => {
           type: "text",
           required: true
         }
-      ];
-      testCase.mutate(command.args[0]);
+      ] as unknown as ValidArgs;
+      testCase.mutate(command.args[0] as unknown as UnknownRecord);
       expect(isRuntimeCommandFile(payload)).toBe(false);
     });
   }
@@ -432,7 +442,7 @@ describe("isRuntimeCommandFile", () => {
         type: "select",
         required: true
       }
-    ];
+    ] as unknown as ValidArgs;
 
     expect(isRuntimeCommandFile(payload)).toBe(false);
   });
@@ -449,12 +459,12 @@ describe("isRuntimeCommandFile", () => {
           options: ["dup", "dup"]
         }
       }
-    ];
+    ] as unknown as ValidArgs;
 
     expect(isRuntimeCommandFile(payload)).toBe(false);
   });
 
-  const invalidPrerequisiteMutations: Array<{ name: string; mutate: (item: any) => void }> = [
+  const invalidPrerequisiteMutations: Array<{ name: string; mutate: (item: UnknownRecord) => void }> = [
     {
       name: "prerequisite contains unknown key",
       mutate: (item) => {
@@ -509,8 +519,8 @@ describe("isRuntimeCommandFile", () => {
           required: true,
           check: "git --version"
         }
-      ];
-      testCase.mutate(payload.commands[0].prerequisites[0]);
+      ] as unknown as ValidPrerequisites;
+      testCase.mutate(payload.commands[0].prerequisites[0] as unknown as UnknownRecord);
       expect(isRuntimeCommandFile(payload)).toBe(false);
     });
   }

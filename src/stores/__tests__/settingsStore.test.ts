@@ -121,6 +121,53 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.commands.view.displayMode).toBe("groupedByFile");
   });
 
+  it("normalizes booleans, fileFilter, disabled ids, and clamps window opacity for v3 payload", () => {
+    const migrated = migrateSettingsPayload({
+      version: 3,
+      hotkeys: {},
+      general: {
+        defaultTerminal: "   ",
+        language: "xx",
+        autoCheckUpdate: "false",
+        launchAtLogin: "true"
+      },
+      commands: {
+        disabledCommandIds: [1, " docker-ps ", "docker-ps", " "],
+        view: {
+          fileFilter: "   ",
+          sortBy: "title"
+        }
+      },
+      appearance: {
+        windowOpacity: 2
+      }
+    });
+
+    expect(migrated).toBeTruthy();
+    expect(migrated?.general.defaultTerminal).toBe("powershell");
+    expect(migrated?.general.language).toBe("zh-CN");
+    expect(migrated?.general.autoCheckUpdate).toBe(false);
+    expect(migrated?.general.launchAtLogin).toBe(true);
+    expect(migrated?.commands.disabledCommandIds).toEqual(["docker-ps"]);
+    expect(migrated?.commands.view.fileFilter).toBe("all");
+    expect(migrated?.appearance.windowOpacity).toBe(1);
+  });
+
+  it("falls back to default window opacity when value is non-finite", () => {
+    const migrated = migrateSettingsPayload({
+      version: 3,
+      hotkeys: {},
+      general: {},
+      commands: {},
+      appearance: {
+        windowOpacity: Number.NaN
+      }
+    });
+
+    expect(migrated).toBeTruthy();
+    expect(migrated?.appearance.windowOpacity).toBe(0.92);
+  });
+
   it("migrates versioned payload when hotkeys/general are non-record values", () => {
     const migrated = migrateSettingsPayload({
       version: 2,
@@ -169,6 +216,19 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated).toBeTruthy();
     expect(migrated?.hotkeys.launcher).toBe("Ctrl+Shift+B");
     expect(migrated?.general.defaultTerminal).toBe("pwsh");
+  });
+
+  it("falls back to legacy data when current payload parses to a non-record json", () => {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, "123");
+    localStorage.setItem(
+      LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        launcherHotkey: "Alt+K"
+      })
+    );
+
+    const snapshot = readSettingsFromStorage(localStorage);
+    expect(snapshot.hotkeys.launcher).toBe("Alt+K");
   });
 
   it("falls back to list display mode for invalid command view displayMode", () => {
@@ -245,6 +305,20 @@ describe("settingsStore migration and persistence", () => {
 
     store.setCommandEnabled("docker-ps", true);
     expect(store.disabledCommandIds).not.toContain("docker-ps");
+  });
+
+  it("setCommandEnabled no-ops when commandId is empty", () => {
+    const store = useSettingsStore();
+    store.setCommandEnabled("   ", false);
+    expect(store.disabledCommandIds).toEqual([]);
+  });
+
+  it("setHotkey keeps previous value when normalization fails", () => {
+    const store = useSettingsStore();
+    expect(store.hotkeys.launcher).toBe("Alt+V");
+
+    store.setHotkey("launcher", "");
+    expect(store.hotkeys.launcher).toBe("Alt+V");
   });
 
   it("writeSettingsToStorage safely no-ops when storage is null", () => {

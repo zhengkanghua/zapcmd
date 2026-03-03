@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
+import type { CommandLoadIssue } from "../../../features/commands/runtimeLoader";
 import type { CommandManagementViewState } from "../../../features/settings/types";
 import { useCommandManagement } from "../../settings/useCommandManagement";
 
@@ -66,7 +67,7 @@ function createFixture() {
 
   const disabledCommandIds = ref<string[]>([]);
   const overriddenCommandIds = ref<string[]>([]);
-  const loadIssues = ref<any[]>([]);
+  const loadIssues = ref<CommandLoadIssue[]>([]);
 
   const commandSourceById = ref<Record<string, string>>({
     "cmd-a": BUILTIN_PATH,
