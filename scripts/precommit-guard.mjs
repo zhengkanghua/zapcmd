@@ -264,6 +264,25 @@ function printCoveragePlan(decision, commandsToRun) {
   console.log("");
 }
 
+function printBuiltinCommandSyncHint(matchedFiles) {
+  console.log("");
+  console.log("[precommit-guard] ⚠️ 检测到“内置命令源”变更（本地仅提示，CI 会阻断未同步的产物）。");
+  console.log("");
+  console.log("命中文件：");
+  formatFileList(matchedFiles.sort()).forEach((file) => {
+    console.log(`  - ${file}`);
+  });
+  console.log("");
+  console.log("请在本地运行（Windows）：");
+  console.log("  pwsh -File scripts/generate_builtin_commands.ps1");
+  console.log("");
+  console.log("并同步提交以下产物：");
+  console.log("  - assets/runtime_templates/commands/builtin/*.json");
+  console.log("  - assets/runtime_templates/commands/builtin/index.json");
+  console.log("  - docs/builtin_commands.generated.md");
+  console.log("");
+}
+
 const stagedFiles = getStagedFiles();
 if (stagedFiles.length === 0) {
   process.exit(0);
@@ -273,6 +292,13 @@ const isDocOnlyChange = stagedFiles.every(isDocOnlyFile);
 if (isDocOnlyChange) {
   console.log("[precommit-guard] 仅文档/说明类改动：跳过本地门禁检查。");
   process.exit(0);
+}
+
+const builtinCommandSourceMatches = stagedFiles.filter(
+  (file) => isCommandSourceFile(file) || file === "scripts/generate_builtin_commands.ps1"
+);
+if (builtinCommandSourceMatches.length > 0) {
+  printBuiltinCommandSyncHint(builtinCommandSourceMatches);
 }
 
 const relatedBusinessTargets = stagedFiles.filter(isSrcBusinessCodeFile);
