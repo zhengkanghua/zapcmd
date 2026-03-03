@@ -24,6 +24,7 @@ function onSearchInput(event: Event): void {
         <label class="search-label" for="zapcmd-search-input">{{ t("common.search") }}</label>
         <input
           id="zapcmd-search-input"
+          data-testid="zapcmd-search-input"
           :ref="props.setSearchInputRef"
           :disabled="props.executing"
           :value="props.query"
@@ -51,6 +52,7 @@ function onSearchInput(event: Event): void {
       class="result-drawer"
       :style="{ maxHeight: `${props.drawerViewportHeight}px` }"
       aria-label="result-drawer"
+      data-testid="result-drawer"
     >
       <p class="keyboard-hint">{{ props.keyboardHintText }}</p>
       <ul v-if="props.filteredResults.length > 0" class="result-list">
