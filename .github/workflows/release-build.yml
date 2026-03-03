@@ -32,6 +32,23 @@ jobs:
       - name: Run quality gate
         run: npm run check:all
 
+      - name: 安装桌面 E2E WebDriver 依赖
+        run: |
+          cargo install tauri-driver --locked
+          cargo install msedgedriver-tool --locked
+          msedgedriver-tool install
+
+      - name: 运行桌面端 E2E 冒烟
+        run: npm run e2e:desktop:smoke
+
+      - name: 上传桌面端 E2E 诊断产物
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-e2e-smoke
+          path: .tmp/e2e/desktop-smoke/
+          if-no-files-found: warn
+
   bundle:
     needs: quality-gate
     strategy:
