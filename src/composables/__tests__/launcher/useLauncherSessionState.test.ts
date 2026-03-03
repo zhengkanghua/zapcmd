@@ -37,6 +37,30 @@ function createStagedCommand(id: string): StagedCommand {
 }
 
 describe("useLauncherSessionState", () => {
+  it("uses window.localStorage when storage is omitted", () => {
+    const snapshot = JSON.stringify({
+      version: 1,
+      stagingExpanded: false,
+      stagedCommands: [createStagedCommand("restored")]
+    });
+    window.localStorage.setItem(LAUNCHER_SESSION_STORAGE_KEY, snapshot);
+
+    const stagedCommands = ref<StagedCommand[]>([]);
+    const openStagingDrawer = vi.fn();
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer
+    });
+
+    expect(stagedCommands.value.map((item) => item.id)).toEqual(["restored"]);
+    expect(openStagingDrawer).not.toHaveBeenCalled();
+
+    window.localStorage.removeItem(LAUNCHER_SESSION_STORAGE_KEY);
+  });
+
   it("restores queue snapshot and drawer state from storage", () => {
     const snapshot = JSON.stringify({
       version: 1,
@@ -60,6 +84,233 @@ describe("useLauncherSessionState", () => {
     expect(openStagingDrawer).toHaveBeenCalledTimes(1);
   });
 
+  it("clears snapshot when version is mismatched", () => {
+    const snapshot = JSON.stringify({
+      version: 2,
+      stagingExpanded: true,
+      stagedCommands: [createStagedCommand("restored")]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(0);
+    expect(storage.removeItem).toHaveBeenCalledWith(LAUNCHER_SESSION_STORAGE_KEY);
+  });
+
+  it("accepts snapshot when version is a numeric string", () => {
+    const snapshot = JSON.stringify({
+      version: "1",
+      stagingExpanded: false,
+      stagedCommands: [createStagedCommand("restored")]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value.map((item) => item.id)).toEqual(["restored"]);
+    expect(storage.removeItem).not.toHaveBeenCalled();
+  });
+
+  it("ignores snapshots where stagedCommands is not an array (but does not crash)", () => {
+    const snapshot = JSON.stringify({
+      version: 1,
+      stagingExpanded: true,
+      stagedCommands: { not: "array" }
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+    const openStagingDrawer = vi.fn();
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer,
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(0);
+    expect(openStagingDrawer).not.toHaveBeenCalled();
+    expect(storage.removeItem).not.toHaveBeenCalled();
+  });
+
+  it("filters invalid stagedCommands safely during restore", () => {
+    const snapshot = JSON.stringify({
+      version: 1,
+      stagingExpanded: false,
+      stagedCommands: [
+        null,
+        createStagedCommand("ok"),
+        {
+          id: 1,
+          title: "bad-id-type",
+          rawPreview: "echo bad",
+          renderedCommand: "echo bad",
+          args: [],
+          argValues: {}
+        },
+        {
+          id: "bad",
+          title: "",
+          rawPreview: "echo bad",
+          renderedCommand: "echo bad",
+          args: [],
+          argValues: {}
+        }
+      ]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value.map((item) => item.id)).toEqual(["ok"]);
+  });
+
+  it("keeps stagedCommands where args is not an array (sanitizes to empty args)", () => {
+    const snapshot = JSON.stringify({
+      version: 1,
+      stagingExpanded: false,
+      stagedCommands: [
+        {
+          id: "args-not-array",
+          title: "args-not-array",
+          rawPreview: "echo args-not-array",
+          renderedCommand: "echo args-not-array",
+          args: "oops",
+          argValues: {}
+        }
+      ]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(1);
+    expect(stagedCommands.value[0]?.args).toEqual([]);
+  });
+
+  it("sanitizes args, argValues, and boolean flags during restore", () => {
+    const snapshot = JSON.stringify({
+      version: 1,
+      stagingExpanded: false,
+      stagedCommands: [
+        {
+          id: "with-args",
+          title: "with-args",
+          rawPreview: "echo {{pid}}",
+          renderedCommand: "echo 123",
+          adminRequired: true,
+          dangerous: false,
+          args: [
+            null,
+            {
+              key: 123,
+              label: "PID",
+              token: "{{pid}}"
+            },
+            {
+              key: "pid",
+              label: 123,
+              token: "{{pid}}"
+            },
+            {
+              key: "pid",
+              label: "PID",
+              token: 123
+            },
+            {
+              key: "pid",
+              label: "PID",
+              token: "{{pid}}",
+              placeholder: "123",
+              required: true,
+              defaultValue: "1",
+              argType: "number",
+              validationPattern: "^\\d+$",
+              validationError: "bad",
+              options: ["a", " ", 1]
+            },
+            {
+              key: "broken",
+              label: "Broken",
+              token: ""
+            }
+          ],
+          argValues: {
+            pid: "123",
+            extra: 1
+          }
+        },
+        {
+          id: "bad-argValues",
+          title: "bad-argValues",
+          rawPreview: "echo bad",
+          renderedCommand: "echo bad",
+          args: [],
+          argValues: "not-an-object"
+        }
+      ]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value.map((item) => item.id)).toEqual(["with-args"]);
+    const restored = stagedCommands.value[0] as StagedCommand;
+    expect(restored.adminRequired).toBe(true);
+    expect(restored.dangerous).toBe(false);
+    expect(restored.argValues).toEqual({ pid: "123" });
+    expect(restored.args).toHaveLength(1);
+    expect(restored.args[0]).toMatchObject({
+      key: "pid",
+      label: "PID",
+      token: "{{pid}}",
+      placeholder: "123",
+      required: true,
+      defaultValue: "1",
+      argType: "number",
+      validationPattern: "^\\d+$",
+      validationError: "bad",
+      options: ["a"]
+    });
+  });
+
   it("removes invalid snapshot payload and continues safely", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const storage = createStorage("{invalid json");
@@ -77,6 +328,43 @@ describe("useLauncherSessionState", () => {
     expect(warnSpy).toHaveBeenCalledWith("launcher session snapshot invalid; clearing", expect.any(Error));
     expect(storage.removeItem).toHaveBeenCalledWith(LAUNCHER_SESSION_STORAGE_KEY);
     warnSpy.mockRestore();
+  });
+
+  it("clears snapshot when parsed payload is null", () => {
+    const storage = createStorage("null");
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(0);
+    expect(storage.removeItem).toHaveBeenCalledWith(LAUNCHER_SESSION_STORAGE_KEY);
+  });
+
+  it("skips restore when disabled (does not read from storage)", () => {
+    const snapshot = JSON.stringify({
+      version: 1,
+      stagingExpanded: true,
+      stagedCommands: [createStagedCommand("restored")]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(false),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(0);
+    expect(storage.getItem).not.toHaveBeenCalled();
   });
 
   it("persists queue updates when enabled", async () => {
@@ -105,6 +393,49 @@ describe("useLauncherSessionState", () => {
     expect(payload.version).toBe(1);
     expect(payload.stagingExpanded).toBe(true);
     expect(payload.stagedCommands.map((item) => item.id)).toEqual(["a", "b"]);
+  });
+
+  it("does not persist when storage is explicitly null", async () => {
+    const stagedCommands = ref<StagedCommand[]>([]);
+    const stagingExpanded = ref(false);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded,
+      openStagingDrawer: vi.fn(),
+      storage: null
+    });
+
+    stagedCommands.value = [createStagedCommand("x")];
+    stagingExpanded.value = true;
+    await nextTick();
+  });
+
+  it("stops persisting when enabled becomes false", async () => {
+    const storage = createStorage(null);
+    const stagedCommands = ref<StagedCommand[]>([]);
+    const stagingExpanded = ref(false);
+    const enabled = ref(true);
+
+    useLauncherSessionState({
+      enabled,
+      stagedCommands,
+      stagingExpanded,
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    stagedCommands.value = [createStagedCommand("a")];
+    await nextTick();
+    const firstCallCount = storage.setItem.mock.calls.length;
+    expect(firstCallCount).toBeGreaterThan(0);
+
+    enabled.value = false;
+    stagedCommands.value = [createStagedCommand("b")];
+    await nextTick();
+
+    expect(storage.setItem.mock.calls.length).toBe(firstCallCount);
   });
 
   it("skips persistence when disabled", async () => {
