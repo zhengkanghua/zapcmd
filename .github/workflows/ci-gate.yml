@@ -32,6 +32,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: 检查内置命令生成产物已同步提交
+        shell: pwsh
+        run: |
+          pwsh -File scripts/generate_builtin_commands.ps1
+
+          git diff --exit-code -- assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "检测到内置命令生成产物未同步提交。请在本地执行："
+            Write-Host "  pwsh -File scripts/generate_builtin_commands.ps1"
+            Write-Host "然后提交生成产物："
+            Write-Host "  git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md"
+            exit 1
+          }
+
       - name: Run quality gate
         run: npm run check:all
 
