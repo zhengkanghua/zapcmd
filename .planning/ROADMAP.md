@@ -90,7 +90,11 @@ Plans:
 1. `src-tauri/src/command_catalog.rs` 对“内置命令 + 用户命令冲突/覆盖”行为有单元测试覆盖，且规则清晰。
 2. `src-tauri/src/bounds.rs`（若存在）边界检查/限制逻辑具备单元测试覆盖，至少覆盖 1 个拒绝路径。
 3. Rust 测试结果能帮助定位行为回归（断言粒度适中，失败信息可读）。
-**Plans:** TBD
+**Plans:** 0/2 plans executed
+
+Plans:
+- [ ] 05-01-PLAN.md — command_catalog 可测性最小重构 + Rust 单测（路径解析/递归/过滤/排序/fail-fast/modifiedMs=0）
+- [ ] 05-02-PLAN.md — bounds 可测性最小重构（提取纯逻辑）+ Rust 单测（restore + reposition + clamp + 拒绝路径）
 
 ### Phase 6: 安全基线回归补齐
 **Goal:** 把“危险命令确认 + 参数注入拦截”的关键路径变成稳定的自动化回归，防止安全基线退化。  
@@ -140,7 +144,7 @@ Plans:
 | 2. 覆盖率门禁提升到 90% | 5/5 | Complete   | 2026-03-03 |
 | 3. 关键用户路径回归补齐 | 1/1 | Complete   | 2026-03-04 |
 | 4. Rust 终端执行模块单测 | 3/3 | Complete   | 2026-03-04 |
-| 5. Rust 命令目录与边界模块单测 | 0/TBD | Not started | - |
+| 5. Rust 命令目录与边界模块单测 | 0/2 | Planned    |  |
 | 6. 安全基线回归补齐 | 0/TBD | Not started | - |
 | 7. 鲁棒性与错误提示增强 | 0/TBD | Not started | - |
 | 8. 架构可测试性重构 | 0/TBD | Not started | - |

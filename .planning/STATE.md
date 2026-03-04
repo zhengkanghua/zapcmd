@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: 质量门禁与回归基线
 current_phase: 05
 current_phase_name: rust catalog bounds tests
-current_plan: Not started
-status: planning
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-03-04T10:15:30.674Z"
+current_plan: 1
+status: executing
+stopped_at: Phase 05 planned
+last_updated: "2026-03-04T14:00:13.325Z"
 last_activity: 2026-03-04
 progress:
   total_phases: 9
   completed_phases: 4
-  total_plans: 12
+  total_plans: 14
   completed_plans: 12
-  percent: 100
+  percent: 86
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Current Phase:** 05
 **Current Phase Name:** rust catalog bounds tests
 **Total Phases:** 9  
-**Current Plan:** Not started
-**Total Plans in Phase:** 3
-**Status:** Ready to plan
+**Current Plan:** 1
+**Total Plans in Phase:** 2
+**Status:** Ready to execute
 **Last Activity:** 2026-03-04
-**Last Activity Description:** Phase 04 complete, transitioned to Phase 05
+**Last Activity Description:** Phase 05 planned
 
-**Progress:** [██████████] 100%
+**Progress:** [█████████░] 86%
 
 ## Performance Metrics
 
@@ -65,6 +65,8 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 03]: 终端执行断言采用跨平台可降级策略（Windows 严格 powershell，其它平台仅断言非空），并坚持最小稳定断言口径。 — 避免因平台默认终端/文案变动导致误报，让回归关注关键状态与失败原因片段。
 - [Phase 04]: test:rust 纳入 check:all 与 CI；precommit 高风险 Rust 变更追加 cargo test，低风险仍仅 cargo check。
 - [Phase 04]: CI Gate：Windows 复用 check:all；macOS/Ubuntu cross-platform-smoke 补齐 rust toolchain + Linux deps 并运行 npm run test:rust。
+- [Phase 05]: 用户命令目录读取契约：`<home>/.zapcmd/commands` 递归只读 `.json`（大小写不敏感），按路径排序，遇错 fail-fast，`modified_ms` 获取失败回退 0。
+- [Phase 05]: 主窗口 bounds 契约：show 时随鼠标屏居中；restore 时 display_name 优先，越界居中主屏/第一屏，clamp 保证完全可见。
 
 ### Pending Todos
 
@@ -76,6 +78,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-04T09:42:06.496Z
-**Stopped At:** Completed 04-03-PLAN.md
-**Resume File:** None
+**Last Date:** 2026-03-04T13:52:18.041Z
+**Stopped At:** Phase 05 planned
+**Resume File:** .planning/phases/05-rust-catalog-bounds-tests/05-01-PLAN.md

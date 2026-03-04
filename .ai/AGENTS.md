@@ -22,7 +22,7 @@
 ## 🛠️ Mandatory Tool Usage Policy (工具调用绝对准则)
 
 **CRITICAL INSTRUCTION (核心指令):**
-文档位置：./TOOL.md。
+文档位置：`./.ai/TOOL.md`。
 你的工具使用权限受到严格管控。**绝对禁止**凭猜测或习惯随意调用工具（如 `fast-context`, `context7`, `shrimp-task-manager` 等）。
 
 在决定调用任何工具之前，你 **必须 (MUST)** 文档规范。
