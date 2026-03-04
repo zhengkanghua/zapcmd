@@ -164,5 +164,31 @@ describe("App 核心路径回归（Phase 3）", () => {
     await waitForUi();
     expect(restored.get(".staging-chip__count").text()).toBe("0");
   });
-});
 
+  it("覆盖失败分支：终端执行失败 → 错误可见且队列不丢失", async () => {
+    hoisted.runMock.mockRejectedValueOnce(new Error("terminal-unavailable"));
+
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("ArrowRight");
+    await waitForUi();
+    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+
+    await wrapper.get("#param-input-container").setValue("my-container");
+    await wrapper.get(".param-dialog").trigger("submit");
+    await waitForUi();
+
+    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    await waitForUi();
+
+    expect(hoisted.runMock).toHaveBeenCalled();
+    expect(wrapper.get(".execution-feedback--error").text()).toContain(
+      "terminal-unavailable",
+    );
+    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+  });
+});
