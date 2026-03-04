@@ -75,7 +75,12 @@ Plans:
 1. `src-tauri/src/terminal.rs` 的关键逻辑具备单元测试覆盖，至少覆盖 1 个跨平台差异或高风险分支。
 2. Rust 侧测试可在 CI 稳定运行（不依赖交互式终端或本机特定环境）。
 3. 相关边界行为在测试中被明确表达（输入/输出/错误），便于后续改动回归。
-**Plans:** TBD
+**Plans:** 1/3 plans executed
+
+Plans:
+- [x] 04-01-PLAN.md — 终端执行：build/spawn 可测试化 + argv/转义/拒绝路径单测
+- [ ] 04-02-PLAN.md — 终端探测：resolver 注入 + 回退/路径解析单测（不锁定排序/label/path）
+- [ ] 04-03-PLAN.md — Rust 单测纳入本地与 CI 门禁（check:all + precommit + 三平台 CI）
 
 ### Phase 5: Rust 命令目录与边界模块单测
 **Goal:** 为命令加载覆盖规则与边界检查补齐 Rust 单元测试，确保行为可回归、可解释。  
@@ -134,7 +139,7 @@ Plans:
 | 1. 回归链路与最小桌面 E2E 基线 | 3/3 | Complete   | 2026-03-03 |
 | 2. 覆盖率门禁提升到 90% | 5/5 | Complete   | 2026-03-03 |
 | 3. 关键用户路径回归补齐 | 1/1 | Complete   | 2026-03-04 |
-| 4. Rust 终端执行模块单测 | 0/TBD | Not started | - |
+| 4. Rust 终端执行模块单测 | 1/3 | In Progress|  |
 | 5. Rust 命令目录与边界模块单测 | 0/TBD | Not started | - |
 | 6. 安全基线回归补齐 | 0/TBD | Not started | - |
 | 7. 鲁棒性与错误提示增强 | 0/TBD | Not started | - |

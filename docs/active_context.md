@@ -1,3 +1,5 @@
 # 短期记忆（2026-03-04）
 
-v1.0 已完成 Phase1-3：`check:all` 质量门禁、覆盖率阈值 ≥90、关键用户路径回归（新增 `app.core-path-regression` 集成用例：搜索→填参→入队→会话恢复→Ctrl+Enter 执行，含成功+终端失败）。下一步：Phase4 Rust 终端执行单测。
+已完成：Phase1-3（门禁、覆盖率90%、最小E2E、核心路径回归）。  
+最新：Phase4/04-01：`terminal.rs` build/spawn 分离 + Rust 单测锁定 argv/拒绝/错误传播。  
+下一步：04-02 终端探测单测；04-03 Rust 单测纳入门禁。  
