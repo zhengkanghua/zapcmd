@@ -355,3 +355,6 @@ pub(crate) fn get_runtime_platform() -> String {
 
 #[cfg(test)]
 mod tests_exec;
+
+#[cfg(test)]
+mod tests_discovery;
