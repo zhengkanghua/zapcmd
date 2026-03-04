@@ -5,16 +5,16 @@ milestone_name: 质量门禁与回归基线
 current_phase: 03
 current_phase_name: 关键用户路径回归补齐
 current_plan: 0
-status: planning
-stopped_at: Phase 03 context gathered (COV-03)
-last_updated: "2026-03-04T01:56:01.543Z"
-last_activity: 2026-03-03
+status: verifying
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-04T04:17:55.559Z"
+last_activity: 2026-03-04
 progress:
   total_phases: 9
-  completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
-  percent: 0
+  completed_phases: 3
+  total_plans: 9
+  completed_plans: 9
+  percent: 100
 ---
 
 # Project State
@@ -33,11 +33,11 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Total Phases:** 9  
 **Current Plan:** 0  
 **Total Plans in Phase:** 0  
-**Status:** Ready to plan（下一步：03-01）
-**Last Activity:** 2026-03-03
+**Status:** Phase complete — ready for verification
+**Last Activity:** 2026-03-04
 **Last Activity Description:** 已完成 Phase 2（覆盖率门禁提升到 90%，`npm run check:all` 全绿），下一步：规划 Phase 3
 
-**Progress:** [░░░░░░░░░░] 0%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 | Phase 01 P03 | 9min | 2 tasks | 5 files |
 | Phase 01 P01 | 4min | 2 tasks | 1 files |
 | Phase 01 P02 | 3min | 3 tasks | 2 files |
+| Phase 03 P01 | 25min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -58,6 +59,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 1]: tauri:build:debug 固化为 --no-bundle — 加速 CI/本地构建，并保持 debug 可执行文件路径稳定
 - [Phase 01]: CI Gate 将桌面端最小 E2E 作为独立阻断 job 运行并统一上传 .tmp/e2e/desktop-smoke；Release Windows quality-gate 在 check:all 后追加同一套 E2E 防绕过
 - [Phase 02]: 覆盖率门禁 thresholds 提升到 90/90/90/90，并补齐关键薄弱点单测，保证 `npm run check:all` 可作为稳定合并门禁
+- [Phase 03]: 终端执行断言采用跨平台可降级策略（Windows 严格 powershell，其它平台仅断言非空），并坚持最小稳定断言口径。 — 避免因平台默认终端/文案变动导致误报，让回归关注关键状态与失败原因片段。
 
 ### Pending Todos
 
@@ -69,6 +71,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-04T01:56:01.488Z
-**Stopped At:** Phase 03 context gathered (COV-03)
-**Resume File:** .planning/phases/03-core-path-regression/03-CONTEXT.md
+**Last Date:** 2026-03-04T04:17:24.653Z
+**Stopped At:** Completed 03-01-PLAN.md
+**Resume File:** None

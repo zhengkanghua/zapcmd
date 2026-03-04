@@ -9,7 +9,7 @@
 
 - [x] **COV-01**: `npm run test:coverage` 在本地与 CI 均通过，且 lines/functions/statements/branches 四项阈值全部 **≥ 90%**
 - [x] **COV-02**: 覆盖率门禁失败时输出可定位信息（例如关键文件/分支缺口或可追踪的覆盖率摘要），便于快速补齐回归
-- [ ] **COV-03**: 关键用户路径（搜索 → 填参 → 入队 → 会话恢复 → 系统终端执行）具备回归测试覆盖（至少覆盖 1 条成功路径 + 关键失败分支）
+- [x] **COV-03**: 关键用户路径（搜索 → 填参 → 入队 → 会话恢复 → 系统终端执行）具备回归测试覆盖（至少覆盖 1 条成功路径 + 关键失败分支）
 
 ### 回归链路（本地 + CI）
 
@@ -69,7 +69,7 @@
 | E2E-01 | Phase 1 | Complete |
 | COV-01 | Phase 2 | Complete |
 | COV-02 | Phase 2 | Complete |
-| COV-03 | Phase 3 | Pending |
+| COV-03 | Phase 3 | Complete |
 | RUST-01 | Phase 4 | Pending |
 | RUST-02 | Phase 5 | Pending |
 | RUST-03 | Phase 5 | Pending |
