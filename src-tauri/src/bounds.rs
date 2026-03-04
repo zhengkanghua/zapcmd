@@ -20,6 +20,13 @@ struct MainWindowBounds {
     display_name: Option<String>,
 }
 
+#[derive(Clone, Debug)]
+struct MonitorInfo {
+    name: Option<String>,
+    position: PhysicalPosition<i32>,
+    size: PhysicalSize<u32>,
+}
+
 fn main_window_bounds_path<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
     let app_data = app
         .path()
@@ -96,54 +103,65 @@ fn center_in_monitor(
     )
 }
 
-fn resolve_restored_window_position<R: Runtime>(
-    window: &WebviewWindow<R>,
+fn resolve_restored_window_position_with(
     saved: &MainWindowBounds,
-) -> Option<PhysicalPosition<i32>> {
+    window_size: PhysicalSize<u32>,
+    monitors: &[MonitorInfo],
+    primary: Option<&MonitorInfo>,
+) -> PhysicalPosition<i32> {
     let desired = PhysicalPosition::new(saved.x, saved.y);
-    let window_size = window.outer_size().ok()?;
-    let monitors = window.available_monitors().ok()?;
     if monitors.is_empty() {
-        return Some(desired);
+        return desired;
     }
 
-    if let Some(display_name) = saved.display_name.as_ref() {
+    if let Some(display_name) = saved.display_name.as_deref() {
         if let Some(monitor) = monitors
             .iter()
-            .find(|item| item.name().as_deref() == Some(display_name))
+            .find(|item| item.name.as_deref() == Some(display_name))
         {
-            return Some(clamp_to_monitor(
-                desired,
-                window_size,
-                *monitor.position(),
-                *monitor.size(),
-            ));
+            return clamp_to_monitor(desired, window_size, monitor.position, monitor.size);
         }
     }
 
     if let Some(monitor) = monitors
         .iter()
-        .find(|item| point_in_monitor(desired, *item.position(), *item.size()))
+        .find(|item| point_in_monitor(desired, item.position, item.size))
     {
-        return Some(clamp_to_monitor(
-            desired,
-            window_size,
-            *monitor.position(),
-            *monitor.size(),
-        ));
+        return clamp_to_monitor(desired, window_size, monitor.position, monitor.size);
     }
 
-    if let Some(primary) = window.primary_monitor().ok().flatten() {
-        return Some(center_in_monitor(
-            window_size,
-            *primary.position(),
-            *primary.size(),
-        ));
-    }
+    let fallback_monitor = primary.or_else(|| monitors.first());
+    fallback_monitor.map_or(desired, |monitor| {
+        center_in_monitor(window_size, monitor.position, monitor.size)
+    })
+}
 
-    monitors
-        .first()
-        .map(|monitor| center_in_monitor(window_size, *monitor.position(), *monitor.size()))
+fn resolve_restored_window_position<R: Runtime>(
+    window: &WebviewWindow<R>,
+    saved: &MainWindowBounds,
+) -> Option<PhysicalPosition<i32>> {
+    let window_size = window.outer_size().ok()?;
+    let monitors = window.available_monitors().ok()?;
+    let monitors = monitors
+        .into_iter()
+        .map(|monitor| MonitorInfo {
+            name: monitor.name().map(|name| name.to_string()),
+            position: *monitor.position(),
+            size: *monitor.size(),
+        })
+        .collect::<Vec<_>>();
+    let primary = window.primary_monitor().ok().flatten().map(|monitor| MonitorInfo {
+        name: monitor.name().map(|name| name.to_string()),
+        position: *monitor.position(),
+        size: *monitor.size(),
+    });
+
+    Some(resolve_restored_window_position_with(
+        saved,
+        window_size,
+        &monitors,
+        primary.as_ref(),
+    ))
 }
 
 pub(crate) fn restore_main_window_bounds<R: Runtime>(app: &AppHandle<R>) {
@@ -154,6 +172,38 @@ pub(crate) fn restore_main_window_bounds<R: Runtime>(app: &AppHandle<R>) {
             }
         }
     }
+}
+
+fn compute_reposition_to_cursor_monitor(
+    cursor: PhysicalPosition<i32>,
+    window_pos: PhysicalPosition<i32>,
+    window_size: Option<PhysicalSize<u32>>,
+    monitors: &[MonitorInfo],
+) -> Option<PhysicalPosition<i32>> {
+    if monitors.is_empty() {
+        return None;
+    }
+
+    let cursor_monitor_idx = monitors
+        .iter()
+        .position(|m| point_in_monitor(cursor, m.position, m.size));
+    let window_monitor_idx = monitors
+        .iter()
+        .position(|m| point_in_monitor(window_pos, m.position, m.size));
+
+    let should_reposition = match (cursor_monitor_idx, window_monitor_idx) {
+        (Some(c), Some(w)) => c != w,
+        (Some(_), None) => true,
+        _ => false,
+    };
+    if !should_reposition {
+        return None;
+    }
+
+    let idx = cursor_monitor_idx?;
+    let monitor = &monitors[idx];
+    let window_size = window_size.unwrap_or(PhysicalSize::new(680, 124));
+    Some(center_in_monitor(window_size, monitor.position, monitor.size))
 }
 
 /// If the cursor is on a different monitor than the window, reposition the window
@@ -175,27 +225,20 @@ pub(crate) fn reposition_to_cursor_monitor<R: Runtime>(window: &WebviewWindow<R>
     if monitors.is_empty() {
         return;
     }
+    let monitors = monitors
+        .into_iter()
+        .map(|monitor| MonitorInfo {
+            name: monitor.name().map(|name| name.to_string()),
+            position: *monitor.position(),
+            size: *monitor.size(),
+        })
+        .collect::<Vec<_>>();
+    let window_size = window.outer_size().ok();
 
-    let cursor_monitor_idx = monitors
-        .iter()
-        .position(|m| point_in_monitor(cursor, *m.position(), *m.size()));
-    let window_monitor_idx = monitors
-        .iter()
-        .position(|m| point_in_monitor(window_pos, *m.position(), *m.size()));
-
-    let should_reposition = match (cursor_monitor_idx, window_monitor_idx) {
-        (Some(c), Some(w)) => c != w,
-        (Some(_), None) => true,
-        _ => false,
-    };
-
-    if should_reposition {
-        if let Some(idx) = cursor_monitor_idx {
-            let monitor = &monitors[idx];
-            let window_size = window.outer_size().unwrap_or(PhysicalSize::new(680, 124));
-            let position = center_in_monitor(window_size, *monitor.position(), *monitor.size());
-            let _ = window.set_position(Position::Physical(position));
-        }
+    if let Some(position) =
+        compute_reposition_to_cursor_monitor(cursor, window_pos, window_size, &monitors)
+    {
+        let _ = window.set_position(Position::Physical(position));
     }
 }
 
@@ -283,3 +326,6 @@ pub(crate) fn handle_main_window_event<R: Runtime>(window: &Window<R>, event: &W
         _ => {}
     }
 }
+
+#[cfg(test)]
+mod tests_logic;
