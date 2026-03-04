@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: 质量门禁与回归基线
 current_phase: 05
 current_phase_name: rust catalog bounds tests
-current_plan: 1
-status: executing
-stopped_at: Phase 05 planned
-last_updated: "2026-03-04T14:00:13.325Z"
+current_plan: 2
+status: verifying
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-04T16:33:34.039Z"
 last_activity: 2026-03-04
 progress:
   total_phases: 9
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 14
-  completed_plans: 12
-  percent: 86
+  completed_plans: 14
+  percent: 100
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Current Phase:** 05
 **Current Phase Name:** rust catalog bounds tests
 **Total Phases:** 9  
-**Current Plan:** 1
+**Current Plan:** 2
 **Total Plans in Phase:** 2
-**Status:** Ready to execute
+**Status:** Phase complete — ready for verification
 **Last Activity:** 2026-03-04
 **Last Activity Description:** Phase 05 planned
 
-**Progress:** [█████████░] 86%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -50,6 +50,8 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 | Phase 04 P01 | 37min | 2 tasks | 2 files |
 | Phase 04 P02 | 16min | 2 tasks | 2 files |
 | Phase 04 P03 | 37min | 3 tasks | 3 files |
+| Phase 05 P01 | 6min | 2 tasks | 2 files |
+| Phase 05 P02 | 4min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -67,6 +69,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 04]: CI Gate：Windows 复用 check:all；macOS/Ubuntu cross-platform-smoke 补齐 rust toolchain + Linux deps 并运行 npm run test:rust。
 - [Phase 05]: 用户命令目录读取契约：`<home>/.zapcmd/commands` 递归只读 `.json`（大小写不敏感），按路径排序，遇错 fail-fast，`modified_ms` 获取失败回退 0。
 - [Phase 05]: 主窗口 bounds 契约：show 时随鼠标屏居中；restore 时 display_name 优先，越界居中主屏/第一屏，clamp 保证完全可见。
+- [Phase 05]: Rust 侧可测性重构采用可注入依赖与 MonitorInfo fixture，把关键 IO/决策提取为纯函数并锁定单测 — 避免测试依赖真实 Tauri 环境与全局 env，提升回归稳定性
 
 ### Pending Todos
 
@@ -78,6 +81,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-04T13:52:18.041Z
-**Stopped At:** Phase 05 planned
-**Resume File:** .planning/phases/05-rust-catalog-bounds-tests/05-01-PLAN.md
+**Last Date:** 2026-03-04T16:33:34.036Z
+**Stopped At:** Completed 05-02-PLAN.md
+**Resume File:** None

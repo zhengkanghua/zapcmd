@@ -19,8 +19,8 @@
 ### Rust 侧关键模块可测试性
 
 - [x] **RUST-01**: `src-tauri/src/terminal.rs` 关键 shell 参数/转义/边界行为具备单元测试覆盖（覆盖至少 1 个跨平台差异或高风险分支）
-- [ ] **RUST-02**: `src-tauri/src/command_catalog.rs` 命令加载与覆盖规则具备单元测试覆盖（内置命令与用户命令冲突时行为明确）
-- [ ] **RUST-03**: `src-tauri/src/bounds.rs`（若存在）边界检查/限制逻辑具备单元测试覆盖（至少覆盖 1 个拒绝路径）
+- [x] **RUST-02**: `src-tauri/src/command_catalog.rs` 命令加载与覆盖规则具备单元测试覆盖（内置命令与用户命令冲突时行为明确）
+- [x] **RUST-03**: `src-tauri/src/bounds.rs`（若存在）边界检查/限制逻辑具备单元测试覆盖（至少覆盖 1 个拒绝路径）
 
 ### 架构/质量改进（以“可测试”为验收）
 
@@ -71,8 +71,8 @@
 | COV-02 | Phase 2 | Complete |
 | COV-03 | Phase 3 | Complete |
 | RUST-01 | Phase 4 | Complete |
-| RUST-02 | Phase 5 | Pending |
-| RUST-03 | Phase 5 | Pending |
+| RUST-02 | Phase 5 | Complete |
+| RUST-03 | Phase 5 | Complete |
 | SEC-01 | Phase 6 | Pending |
 | ROB-01 | Phase 7 | Pending |
 | ROB-02 | Phase 7 | Pending |
