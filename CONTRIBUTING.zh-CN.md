@@ -100,6 +100,40 @@
 
 如果你看到“未找到 coverage 输出”，通常意味着测试过程提前失败导致没有生成 `coverage/` 产物；先修复测试错误后再重跑即可。
 
+### 2.2 如何清理本地日志/产物遗留（coverage / .tmp / dist / target）
+
+原则：
+- **控制台日志**不会自动落盘（除非你手动重定向输出），一般不需要“清理日志文件”。
+- 需要清理的通常是**本地构建/测试产物目录**，它们都已在 `.gitignore` 中忽略，不会被提交到仓库。
+
+常见产物目录：
+- 覆盖率报告：`coverage/`（HTML 入口：`coverage/index.html`）
+- E2E 冒烟产物：`.tmp/e2e/desktop-smoke/`（日志/截图等）
+- 前端构建产物：`dist/`
+- Rust 构建缓存：`src-tauri/target/`（或任意 `target/`）
+
+清理命令（PowerShell，Windows）：
+
+`Remove-Item -Recurse -Force coverage,.tmp,dist -ErrorAction SilentlyContinue`
+
+（可选）清理 Rust 构建缓存：
+
+`Remove-Item -Recurse -Force src-tauri/target -ErrorAction SilentlyContinue`
+
+清理命令（macOS/Linux）：
+
+`rm -rf coverage .tmp dist`
+
+（可选）`rm -rf src-tauri/target`
+
+进阶（谨慎使用）：如果你想“一次性清掉所有未跟踪文件（含被忽略的 node_modules 等）”，可以先 dry-run：
+
+`git clean -fdxn`
+
+确认无误后再执行：
+
+`git clean -fdx`
+
 ---
 
 ## 3. 内置命令源变更（重要：需要生成并提交产物）
