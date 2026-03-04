@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: 质量门禁与回归基线
-current_phase: 03
-current_phase_name: 关键用户路径回归补齐
-current_plan: 0
-status: verifying
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-04T04:17:55.559Z"
+current_phase: 04
+current_phase_name: rust terminal tests
+current_plan: Not started
+status: planning
+stopped_at: Phase 04 ready to plan (RUST-01)
+last_updated: "2026-03-04T04:25:46.820Z"
 last_activity: 2026-03-04
 progress:
   total_phases: 9
@@ -24,18 +24,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** Phase 3 — 关键用户路径回归补齐
+**Current focus:** Phase 4 — Rust 终端执行模块单测
 
 ## Current Position
 
-**Current Phase:** 03
-**Current Phase Name:** 关键用户路径回归补齐
+**Current Phase:** 04
+**Current Phase Name:** rust terminal tests
 **Total Phases:** 9  
-**Current Plan:** 0  
+**Current Plan:** Not started
 **Total Plans in Phase:** 0  
-**Status:** Phase complete — ready for verification
+**Status:** Ready to plan
 **Last Activity:** 2026-03-04
-**Last Activity Description:** 已完成 Phase 2（覆盖率门禁提升到 90%，`npm run check:all` 全绿），下一步：规划 Phase 3
+**Last Activity Description:** Phase 03 complete, transitioned to Phase 04
 
 **Progress:** [██████████] 100%
 
@@ -71,6 +71,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-04T04:17:24.653Z
-**Stopped At:** Completed 03-01-PLAN.md
+**Last Date:** 2026-03-04T04:25:46.818Z
+**Stopped At:** Phase 04 ready to plan (RUST-01)
 **Resume File:** None
