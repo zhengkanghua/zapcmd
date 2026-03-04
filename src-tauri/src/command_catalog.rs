@@ -10,15 +10,18 @@ pub(crate) struct UserCommandFile {
     modified_ms: u64,
 }
 
-fn resolve_home_dir() -> Option<PathBuf> {
+fn resolve_home_dir_with<F>(get_env: F) -> Option<PathBuf>
+where
+    F: for<'a> Fn(&'a str) -> Option<std::ffi::OsString>,
+{
     #[cfg(target_os = "windows")]
     {
-        if let Some(profile) = env::var_os("USERPROFILE") {
+        if let Some(profile) = get_env("USERPROFILE") {
             return Some(PathBuf::from(profile));
         }
 
-        let home_drive = env::var_os("HOMEDRIVE");
-        let home_path = env::var_os("HOMEPATH");
+        let home_drive = get_env("HOMEDRIVE");
+        let home_path = get_env("HOMEPATH");
         if let (Some(drive), Some(path)) = (home_drive, home_path) {
             let mut combined = PathBuf::from(drive);
             combined.push(path);
@@ -28,7 +31,7 @@ fn resolve_home_dir() -> Option<PathBuf> {
 
     #[cfg(not(target_os = "windows"))]
     {
-        if let Some(home) = env::var_os("HOME") {
+        if let Some(home) = get_env("HOME") {
             return Some(PathBuf::from(home));
         }
     }
@@ -36,19 +39,27 @@ fn resolve_home_dir() -> Option<PathBuf> {
     None
 }
 
-fn resolve_user_commands_dir_path() -> Result<PathBuf, String> {
-    let mut dir =
-        resolve_home_dir().ok_or_else(|| "Failed to resolve user home directory.".to_string())?;
+fn resolve_home_dir() -> Option<PathBuf> {
+    resolve_home_dir_with(|key| env::var_os(key))
+}
+
+fn resolve_user_commands_dir_path_in(home: &Path) -> PathBuf {
+    let mut dir = home.to_path_buf();
     dir.push(".zapcmd");
     dir.push("commands");
+    dir
+}
+
+fn ensure_user_commands_dir_with(home: &Path) -> Result<PathBuf, String> {
+    let dir = resolve_user_commands_dir_path_in(home);
+    fs::create_dir_all(&dir)
+        .map_err(|err| format!("Failed to create user commands dir {}: {}", dir.display(), err))?;
     Ok(dir)
 }
 
 fn ensure_user_commands_dir() -> Result<PathBuf, String> {
-    let dir = resolve_user_commands_dir_path()?;
-    fs::create_dir_all(&dir)
-        .map_err(|err| format!("Failed to create user commands dir {}: {}", dir.display(), err))?;
-    Ok(dir)
+    let home = resolve_home_dir().ok_or_else(|| "Failed to resolve user home directory.".to_string())?;
+    ensure_user_commands_dir_with(&home)
 }
 
 fn is_json_file(path: &Path) -> bool {
@@ -85,10 +96,19 @@ fn collect_json_files_recursive(root: &Path) -> Result<Vec<PathBuf>, String> {
     Ok(files)
 }
 
-fn read_single_user_command_file(path: &Path) -> Result<UserCommandFile, String> {
-    let content = fs::read_to_string(path)
+fn read_single_user_command_file_with<R, M>(
+    path: &Path,
+    read_to_string: R,
+    metadata: M,
+) -> Result<UserCommandFile, String>
+where
+    R: for<'a> Fn(&'a Path) -> Result<String, std::io::Error>,
+    M: for<'a> Fn(&'a Path) -> Result<std::fs::Metadata, std::io::Error>,
+{
+    let content = read_to_string(path)
         .map_err(|err| format!("Failed to read command file {}: {}", path.display(), err))?;
-    let modified_ms = fs::metadata(path)
+
+    let modified_ms = metadata(path)
         .ok()
         .and_then(|metadata| metadata.modified().ok())
         .and_then(|time| time.duration_since(UNIX_EPOCH).ok())
@@ -100,6 +120,14 @@ fn read_single_user_command_file(path: &Path) -> Result<UserCommandFile, String>
         content,
         modified_ms,
     })
+}
+
+fn read_single_user_command_file(path: &Path) -> Result<UserCommandFile, String> {
+    read_single_user_command_file_with(
+        path,
+        |path| fs::read_to_string(path),
+        |path| fs::metadata(path),
+    )
 }
 
 #[tauri::command]
@@ -117,3 +145,6 @@ pub(crate) fn read_user_command_files() -> Result<Vec<UserCommandFile>, String> 
     }
     Ok(payload)
 }
+
+#[cfg(test)]
+mod tests_io;
