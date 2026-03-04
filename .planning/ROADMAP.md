@@ -13,7 +13,7 @@
 - [x] **Phase 1: 回归链路与最小桌面 E2E 基线** - 让“功能改动必回归”成为默认 (completed 2026-03-03)
 - [x] **Phase 2: 覆盖率门禁提升到 90%** - 提升阈值并让失败可定位 (completed 2026-03-03)
 - [x] **Phase 3: 关键用户路径回归补齐** - 核心路径覆盖为可回归用例 (completed 2026-03-04)
-- [ ] **Phase 4: Rust 终端执行模块单测** - 终端参数/转义高风险分支可测
+- [x] **Phase 4: Rust 终端执行模块单测** - 终端参数/转义高风险分支可测 (completed 2026-03-04)
 - [ ] **Phase 5: Rust 命令目录与边界模块单测** - 命令覆盖规则与边界检查可测
 - [ ] **Phase 6: 安全基线回归补齐** - 危险命令确认 + 注入拦截有自动化回归
 - [ ] **Phase 7: 鲁棒性与错误提示增强** - 失败可见、可定位、可操作
@@ -75,12 +75,12 @@ Plans:
 1. `src-tauri/src/terminal.rs` 的关键逻辑具备单元测试覆盖，至少覆盖 1 个跨平台差异或高风险分支。
 2. Rust 侧测试可在 CI 稳定运行（不依赖交互式终端或本机特定环境）。
 3. 相关边界行为在测试中被明确表达（输入/输出/错误），便于后续改动回归。
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 04-01-PLAN.md — 终端执行：build/spawn 可测试化 + argv/转义/拒绝路径单测
 - [x] 04-02-PLAN.md — 终端探测：resolver 注入 + 回退/路径解析单测（不锁定排序/label/path）
-- [ ] 04-03-PLAN.md — Rust 单测纳入本地与 CI 门禁（check:all + precommit + 三平台 CI）
+- [x] 04-03-PLAN.md — Rust 单测纳入本地与 CI 门禁（check:all + precommit + 三平台 CI）
 
 ### Phase 5: Rust 命令目录与边界模块单测
 **Goal:** 为命令加载覆盖规则与边界检查补齐 Rust 单元测试，确保行为可回归、可解释。  
@@ -139,7 +139,7 @@ Plans:
 | 1. 回归链路与最小桌面 E2E 基线 | 3/3 | Complete   | 2026-03-03 |
 | 2. 覆盖率门禁提升到 90% | 5/5 | Complete   | 2026-03-03 |
 | 3. 关键用户路径回归补齐 | 1/1 | Complete   | 2026-03-04 |
-| 4. Rust 终端执行模块单测 | 2/3 | In Progress|  |
+| 4. Rust 终端执行模块单测 | 3/3 | Complete   | 2026-03-04 |
 | 5. Rust 命令目录与边界模块单测 | 0/TBD | Not started | - |
 | 6. 安全基线回归补齐 | 0/TBD | Not started | - |
 | 7. 鲁棒性与错误提示增强 | 0/TBD | Not started | - |

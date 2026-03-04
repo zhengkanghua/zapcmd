@@ -5,16 +5,16 @@ milestone_name: 质量门禁与回归基线
 current_phase: 04
 current_phase_name: rust terminal tests
 current_plan: 3
-status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-03-04T09:02:40.156Z"
+status: verifying
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-03-04T09:42:06.504Z"
 last_activity: 2026-03-04
 progress:
   total_phases: 9
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 11
-  percent: 92
+  completed_plans: 12
+  percent: 100
 ---
 
 # Project State
@@ -33,11 +33,11 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Total Phases:** 9  
 **Current Plan:** 3
 **Total Plans in Phase:** 3
-**Status:** Ready to execute
+**Status:** Phase complete — ready for verification
 **Last Activity:** 2026-03-04
-**Last Activity Description:** 04-02 执行完成，准备执行 04-03
+**Last Activity Description:** 04-03 执行完成，Phase 04 已完成，等待验证
 
-**Progress:** [█████████░] 92%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 | Phase 03 P01 | 25min | 2 tasks | 1 files |
 | Phase 04 P01 | 37min | 2 tasks | 2 files |
 | Phase 04 P02 | 16min | 2 tasks | 2 files |
+| Phase 04 P03 | 37min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,8 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 01]: CI Gate 将桌面端最小 E2E 作为独立阻断 job 运行并统一上传 .tmp/e2e/desktop-smoke；Release Windows quality-gate 在 check:all 后追加同一套 E2E 防绕过
 - [Phase 02]: 覆盖率门禁 thresholds 提升到 90/90/90/90，并补齐关键薄弱点单测，保证 `npm run check:all` 可作为稳定合并门禁
 - [Phase 03]: 终端执行断言采用跨平台可降级策略（Windows 严格 powershell，其它平台仅断言非空），并坚持最小稳定断言口径。 — 避免因平台默认终端/文案变动导致误报，让回归关注关键状态与失败原因片段。
+- [Phase 04]: test:rust 纳入 check:all 与 CI；precommit 高风险 Rust 变更追加 cargo test，低风险仍仅 cargo check。
+- [Phase 04]: CI Gate：Windows 复用 check:all；macOS/Ubuntu cross-platform-smoke 补齐 rust toolchain + Linux deps 并运行 npm run test:rust。
 
 ### Pending Todos
 
@@ -73,6 +76,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-04T08:56:27.516Z
-**Stopped At:** Completed 04-02-PLAN.md
+**Last Date:** 2026-03-04T09:42:06.496Z
+**Stopped At:** Completed 04-03-PLAN.md
 **Resume File:** None
