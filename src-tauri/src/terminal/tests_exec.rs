@@ -1,2 +1,144 @@
-// Task 1 只负责把 terminal.rs 的执行逻辑拆分为可测试的 build/spawn，
-// 实际的 argv/脚本契约单测在 Task 2 补齐。
+use super::{run_command_in_terminal, sanitize_command, spawn_and_forget, ProcessCommand};
+
+fn command_program(cmd: &ProcessCommand) -> String {
+    cmd.get_program().to_string_lossy().into_owned()
+}
+
+fn command_args(cmd: &ProcessCommand) -> Vec<String> {
+    cmd.get_args()
+        .map(|arg| arg.to_string_lossy().into_owned())
+        .collect()
+}
+
+fn assert_command(cmd: &ProcessCommand, expected_program: &str, expected_args: &[&str]) {
+    assert_eq!(command_program(cmd), expected_program);
+    assert_eq!(
+        command_args(cmd),
+        expected_args
+            .iter()
+            .map(|arg| (*arg).to_string())
+            .collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn sanitize_command_trims() {
+    assert_eq!(sanitize_command("   echo 1  ").unwrap(), "echo 1");
+}
+
+#[test]
+fn sanitize_command_rejects_all_whitespace() {
+    assert!(sanitize_command(" \n\t ").is_err());
+}
+
+#[test]
+fn run_command_in_terminal_rejects_all_whitespace() {
+    assert!(run_command_in_terminal("powershell".to_string(), " \n\t ".to_string()).is_err());
+}
+
+#[test]
+fn spawn_and_forget_propagates_spawn_error() {
+    let mut cmd = ProcessCommand::new("definitely-not-a-real-binary-xyz");
+    assert!(spawn_and_forget(&mut cmd).is_err());
+}
+
+#[cfg(target_os = "windows")]
+mod windows {
+    use super::{assert_command, command_args, command_program};
+    use crate::terminal::build_command_windows;
+
+    #[test]
+    fn build_windows_wt_args_contract() {
+        let cmd = build_command_windows("wt", "echo 1");
+        assert_command(&cmd, "wt", &["new-tab", "cmd", "/K", "echo 1"]);
+    }
+
+    #[test]
+    fn build_windows_cmd_args_contract() {
+        let cmd = build_command_windows("cmd", "echo 1");
+        assert_command(&cmd, "cmd", &["/K", "echo 1"]);
+    }
+
+    #[test]
+    fn build_windows_pwsh_args_contract() {
+        let cmd = build_command_windows("pwsh", "echo 1");
+        assert_command(&cmd, "pwsh", &["-NoExit", "-Command", "echo 1"]);
+    }
+
+    #[test]
+    fn build_windows_default_args_contract() {
+        let cmd = build_command_windows("something-else", "echo 1");
+
+        assert_eq!(command_program(&cmd), "powershell");
+        assert_eq!(
+            command_args(&cmd),
+            vec!["-NoExit".to_string(), "-Command".to_string(), "echo 1".to_string()]
+        );
+    }
+}
+
+#[cfg(target_os = "macos")]
+mod macos {
+    use super::assert_command;
+    use crate::terminal::build_command_macos;
+
+    #[test]
+    fn build_macos_terminal_script_escape_contract() {
+        let cmd = build_command_macos("terminal", r#"echo "a\b""#);
+        assert_command(
+            &cmd,
+            "osascript",
+            &[
+                "-e",
+                r#"tell application "Terminal" to do script "echo \"a\\b\"""#,
+            ],
+        );
+    }
+
+    #[test]
+    fn build_macos_iterm2_script_escape_contract() {
+        let cmd = build_command_macos("iterm2", r#"echo "a\b""#);
+        assert_command(
+            &cmd,
+            "osascript",
+            &[
+                "-e",
+                r#"tell application "iTerm" to create window with default profile command "echo \"a\\b\"""#,
+            ],
+        );
+    }
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+mod linux {
+    use super::{assert_command, command_args};
+    use crate::terminal::build_command_linux;
+
+    #[test]
+    fn build_linux_gnome_terminal_bash_lc_contract() {
+        let cmd = build_command_linux("gnome-terminal", "echo 1");
+        assert_command(&cmd, "gnome-terminal", &["--", "bash", "-lc", "echo 1"]);
+        assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+    }
+
+    #[test]
+    fn build_linux_konsole_bash_lc_contract() {
+        let cmd = build_command_linux("konsole", "echo 1");
+        assert_command(&cmd, "konsole", &["-e", "bash", "-lc", "echo 1"]);
+        assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+    }
+
+    #[test]
+    fn build_linux_alacritty_bash_lc_contract() {
+        let cmd = build_command_linux("alacritty", "echo 1");
+        assert_command(&cmd, "alacritty", &["-e", "bash", "-lc", "echo 1"]);
+        assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+    }
+
+    #[test]
+    fn build_linux_default_bash_lc_contract() {
+        let cmd = build_command_linux("something-else", "echo 1");
+        assert_command(&cmd, "x-terminal-emulator", &["-e", "bash", "-lc", "echo 1"]);
+        assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+    }
+}
