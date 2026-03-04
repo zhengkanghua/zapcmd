@@ -85,6 +85,21 @@
 
 该命令包含 `npm run test:coverage`、`npm run build`、`npm run check:rust` 等关键步骤，是“合并前最权威”的本地验证方式。
 
+### 2.1 覆盖率失败时怎么定位（`npm run test:coverage` 输出说明）
+
+本仓库的 `test:coverage` 是一个 wrapper（见：`scripts/coverage/run-test-coverage.mjs`），它会：
+
+1) 先运行 `vitest run --coverage`  
+2) **无论成功/失败**，都会尝试输出覆盖率诊断信息（见：`scripts/coverage/coverage-report.mjs`）
+
+你会在日志里看到三段关键输出：
+
+- **覆盖率总览（All files）**：Statements / Branches / Functions / Lines 当前值 vs 门槛（当前门槛是 90%）
+- **Top 缺失分支 / Top 缺失行**：按缺口从大到小列出最薄弱文件（优先补这些文件的测试）
+- **HTML 报告入口**：`coverage/index.html`（需要更细粒度定位时打开）
+
+如果你看到“未找到 coverage 输出”，通常意味着测试过程提前失败导致没有生成 `coverage/` 产物；先修复测试错误后再重跑即可。
+
 ---
 
 ## 3. 内置命令源变更（重要：需要生成并提交产物）
