@@ -1,4 +1,7 @@
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 function normalizeGitPath(value) {
   return value.replace(/\\/g, "/");
@@ -27,26 +30,35 @@ function run(command, args) {
 }
 
 function execText(command, args) {
-  const result = spawnSync(command, args, {
-    stdio: "pipe",
-    encoding: "utf8",
-    shell: process.platform === "win32"
-  });
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "precommit-guard-"));
+  const stdoutPath = path.join(tmpDir, "stdout.txt");
 
-  if (result.error) {
-    console.error(`[precommit-guard] 无法执行命令：${command}`);
-    console.error(result.error);
-    process.exit(1);
-  }
+  const stdoutFd = fs.openSync(stdoutPath, "w");
+  try {
+    const result = spawnSync(command, args, {
+      stdio: ["ignore", stdoutFd, "inherit"],
+      shell: false
+    });
 
-  if (result.status !== 0) {
-    if (result.stderr) {
-      console.error(result.stderr);
+    if (result.error) {
+      console.error(`[precommit-guard] 无法执行命令：${command}`);
+      console.error(result.error);
+      process.exit(1);
     }
-    process.exit(result.status ?? 1);
-  }
 
-  return result.stdout ?? "";
+    if (result.status !== 0) {
+      process.exit(result.status ?? 1);
+    }
+
+    return fs.readFileSync(stdoutPath, "utf8");
+  } finally {
+    try {
+      fs.closeSync(stdoutFd);
+    } catch {}
+    try {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch {}
+  }
 }
 
 function getStagedFiles() {
@@ -133,6 +145,12 @@ function formatCommand(command, args) {
   return `${command} ${args[0]} ${args[1]} …（共 ${Math.max(0, args.length - 2)} 个参数）`;
 }
 
+const highRiskRustTargets = new Set([
+  "src-tauri/src/terminal.rs",
+  "src-tauri/src/command_catalog.rs",
+  "src-tauri/src/bounds.rs"
+]);
+
 function getCoverageDecision(stagedFiles) {
   const isOnlyTestsOrStyles = stagedFiles.every((file) => isTestFile(file) || isStyleFile(file));
   if (isOnlyTestsOrStyles) {
@@ -208,11 +226,6 @@ function getCoverageDecision(stagedFiles) {
     });
   }
 
-  const highRiskRustTargets = new Set([
-    "src-tauri/src/terminal.rs",
-    "src-tauri/src/command_catalog.rs",
-    "src-tauri/src/bounds.rs"
-  ]);
   const highRiskRustMatches = stagedFiles.filter((file) => highRiskRustTargets.has(file));
   if (highRiskRustMatches.length > 0) {
     reasons.push({
@@ -320,6 +333,8 @@ const hasRustChanges = stagedFiles.some(
     file.endsWith("Cargo.lock")
 );
 
+const highRiskRustMatches = stagedFiles.filter((file) => highRiskRustTargets.has(file));
+
 const coverageDecision = getCoverageDecision(stagedFiles);
 
 const commandsToRun = [
@@ -342,6 +357,22 @@ if (hasRustChanges) {
   commandsToRun.push({
     command: "cargo",
     args: ["check", "--manifest-path", "src-tauri/Cargo.toml"]
+  });
+}
+
+if (highRiskRustMatches.length > 0) {
+  const formattedTargets = formatFileList(highRiskRustMatches.sort(), 10).join(", ");
+  console.log(
+    `[precommit-guard] 命中高风险 Rust 变更：${formattedTargets}；将追加执行 ${formatCommand("cargo", [
+      "test",
+      "--manifest-path",
+      "src-tauri/Cargo.toml"
+    ])}`
+  );
+
+  commandsToRun.push({
+    command: "cargo",
+    args: ["test", "--manifest-path", "src-tauri/Cargo.toml"]
   });
 }
 
