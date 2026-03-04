@@ -57,6 +57,55 @@ Verify (expect no output):
 
 `git config --get core.hooksPath`
 
+## Coverage failures: how to debug (`npm run test:coverage` output)
+
+In this repo, `test:coverage` is a wrapper (see `scripts/coverage/run-test-coverage.mjs`) that:
+
+1) Runs `vitest run --coverage`  
+2) **Always** attempts to print actionable coverage diagnostics afterwards (see `scripts/coverage/coverage-report.mjs`)
+
+You should see:
+
+- **All files coverage summary**: Statements / Branches / Functions / Lines vs the threshold (current threshold is 90%)
+- **Top missing branches / Top missing lines**: the weakest files (fix these first)
+- **HTML report entry**: `coverage/index.html` for deeper drill-down
+
+If the diagnostics say “no coverage output found”, tests likely failed before generating `coverage/`. Fix the test error first, then re-run.
+
+## Cleaning up local artifacts (coverage / .tmp / dist / target)
+
+Notes:
+- Console logs are not written to disk unless you redirect output.
+- The folders below are local build/test artifacts and are gitignored (they won’t be committed).
+
+Common artifact folders:
+- Coverage report: `coverage/` (HTML entry: `coverage/index.html`)
+- E2E smoke artifacts: `.tmp/e2e/desktop-smoke/` (logs/screenshots)
+- Frontend build output: `dist/`
+- Rust build cache: `src-tauri/target/` (or any `target/`)
+
+PowerShell (Windows):
+
+`Remove-Item -Recurse -Force coverage,.tmp,dist -ErrorAction SilentlyContinue`
+
+(Optional) Rust cache:
+
+`Remove-Item -Recurse -Force src-tauri/target -ErrorAction SilentlyContinue`
+
+macOS/Linux:
+
+`rm -rf coverage .tmp dist`
+
+(Optional) `rm -rf src-tauri/target`
+
+Advanced (use with care): remove all untracked files (including ignored ones). Dry-run first:
+
+`git clean -fdxn`
+
+Then execute:
+
+`git clean -fdx`
+
 ## Builtin command sources (must commit generated outputs)
 
 If you change:
