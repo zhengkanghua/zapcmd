@@ -93,8 +93,8 @@ Plans:
 **Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 05-01-PLAN.md — command_catalog 可测性最小重构 + Rust 单测（路径解析/递归/过滤/排序/fail-fast/modifiedMs=0）
-- [ ] 05-02-PLAN.md — bounds 可测性最小重构（提取纯逻辑）+ Rust 单测（restore + reposition + clamp + 拒绝路径）
+- [x] 05-01-PLAN.md — command_catalog 可测性最小重构 + Rust 单测（路径解析/递归/过滤/排序/fail-fast/modifiedMs=0）
+- [x] 05-02-PLAN.md — bounds 可测性最小重构（提取纯逻辑）+ Rust 单测（restore + reposition + clamp + 拒绝路径）
 
 ### Phase 6: 安全基线回归补齐
 **Goal:** 把“危险命令确认 + 参数注入拦截”的关键路径变成稳定的自动化回归，防止安全基线退化。  
