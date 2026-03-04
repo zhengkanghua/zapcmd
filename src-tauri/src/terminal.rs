@@ -26,6 +26,13 @@ fn spawn_and_forget(cmd: &mut ProcessCommand) -> Result<(), String> {
     cmd.spawn().map(|_| ()).map_err(|err| err.to_string())
 }
 
+fn parse_first_non_empty_line(raw: &str) -> Option<String> {
+    raw.lines()
+        .map(|line| line.trim())
+        .find(|line| !line.is_empty())
+        .map(|line| line.to_string())
+}
+
 #[cfg(target_os = "windows")]
 fn command_exists(command: &str) -> bool {
     create_hidden_process("where")
@@ -51,10 +58,7 @@ fn command_path(command: &str) -> Option<String> {
         return None;
     }
     let raw = String::from_utf8_lossy(&output.stdout);
-    raw.lines()
-        .map(|line| line.trim())
-        .find(|line| !line.is_empty())
-        .map(|line| line.to_string())
+    parse_first_non_empty_line(&raw)
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -64,10 +68,7 @@ fn command_path(command: &str) -> Option<String> {
         return None;
     }
     let raw = String::from_utf8_lossy(&output.stdout);
-    raw.lines()
-        .map(|line| line.trim())
-        .find(|line| !line.is_empty())
-        .map(|line| line.to_string())
+    parse_first_non_empty_line(&raw)
 }
 
 #[cfg(target_os = "windows")]
@@ -78,116 +79,133 @@ fn create_hidden_process(program: &str) -> ProcessCommand {
 }
 
 #[cfg(target_os = "macos")]
-fn first_existing_path(candidates: &[&str]) -> Option<String> {
-    candidates
+fn resolve_macos_terminals(path_exists: impl Fn(&str) -> bool) -> Vec<TerminalOption> {
+    let mut options = Vec::<TerminalOption>::new();
+    options.push(TerminalOption {
+        id: "terminal".to_string(),
+        label: "Terminal".to_string(),
+        path: "/System/Applications/Utilities/Terminal.app".to_string(),
+    });
+
+    let iterm_candidates = ["/Applications/iTerm.app", "/Applications/iTerm2.app"];
+    if let Some(path) = iterm_candidates
         .iter()
-        .find_map(|path| Path::new(path).exists().then(|| (*path).to_string()))
+        .copied()
+        .find(|candidate| path_exists(candidate))
+    {
+        options.push(TerminalOption {
+            id: "iterm2".to_string(),
+            label: "iTerm2".to_string(),
+            path: path.to_string(),
+        });
+    }
+
+    options
+}
+
+#[cfg(target_os = "windows")]
+fn resolve_windows_terminals(
+    exists: impl Fn(&str) -> bool,
+    path: impl Fn(&str) -> Option<String>,
+) -> Vec<TerminalOption> {
+    let mut options = Vec::<TerminalOption>::new();
+    if exists("powershell") {
+        options.push(TerminalOption {
+            id: "powershell".to_string(),
+            label: "PowerShell".to_string(),
+            path: path("powershell").unwrap_or_else(|| "powershell.exe".to_string()),
+        });
+    }
+    if exists("pwsh") {
+        options.push(TerminalOption {
+            id: "pwsh".to_string(),
+            label: "PowerShell 7".to_string(),
+            path: path("pwsh").unwrap_or_else(|| "pwsh.exe".to_string()),
+        });
+    }
+    if exists("wt") {
+        options.push(TerminalOption {
+            id: "wt".to_string(),
+            label: "Windows Terminal".to_string(),
+            path: path("wt").unwrap_or_else(|| "wt.exe".to_string()),
+        });
+    }
+    if exists("cmd") {
+        options.push(TerminalOption {
+            id: "cmd".to_string(),
+            label: "命令提示符 (CMD)".to_string(),
+            path: path("cmd").unwrap_or_else(|| "cmd.exe".to_string()),
+        });
+    }
+    if options.is_empty() {
+        options.push(TerminalOption {
+            id: "powershell".to_string(),
+            label: "PowerShell".to_string(),
+            path: "powershell.exe".to_string(),
+        });
+    }
+    options
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+fn resolve_linux_terminals(
+    exists: impl Fn(&str) -> bool,
+    path: impl Fn(&str) -> Option<String>,
+) -> Vec<TerminalOption> {
+    let mut options = Vec::<TerminalOption>::new();
+    if exists("x-terminal-emulator") {
+        options.push(TerminalOption {
+            id: "x-terminal-emulator".to_string(),
+            label: "System Terminal".to_string(),
+            path: path("x-terminal-emulator").unwrap_or_else(|| "x-terminal-emulator".to_string()),
+        });
+    }
+    if exists("gnome-terminal") {
+        options.push(TerminalOption {
+            id: "gnome-terminal".to_string(),
+            label: "GNOME Terminal".to_string(),
+            path: path("gnome-terminal").unwrap_or_else(|| "gnome-terminal".to_string()),
+        });
+    }
+    if exists("konsole") {
+        options.push(TerminalOption {
+            id: "konsole".to_string(),
+            label: "Konsole".to_string(),
+            path: path("konsole").unwrap_or_else(|| "konsole".to_string()),
+        });
+    }
+    if exists("alacritty") {
+        options.push(TerminalOption {
+            id: "alacritty".to_string(),
+            label: "Alacritty".to_string(),
+            path: path("alacritty").unwrap_or_else(|| "alacritty".to_string()),
+        });
+    }
+    if options.is_empty() {
+        options.push(TerminalOption {
+            id: "x-terminal-emulator".to_string(),
+            label: "System Terminal".to_string(),
+            path: "x-terminal-emulator".to_string(),
+        });
+    }
+    options
 }
 
 #[tauri::command]
 pub(crate) fn get_available_terminals() -> Result<Vec<TerminalOption>, String> {
     #[cfg(target_os = "windows")]
     {
-        let mut options = Vec::<TerminalOption>::new();
-        if command_exists("powershell") {
-            options.push(TerminalOption {
-                id: "powershell".to_string(),
-                label: "PowerShell".to_string(),
-                path: command_path("powershell").unwrap_or_else(|| "powershell.exe".to_string()),
-            });
-        }
-        if command_exists("pwsh") {
-            options.push(TerminalOption {
-                id: "pwsh".to_string(),
-                label: "PowerShell 7".to_string(),
-                path: command_path("pwsh").unwrap_or_else(|| "pwsh.exe".to_string()),
-            });
-        }
-        if command_exists("wt") {
-            options.push(TerminalOption {
-                id: "wt".to_string(),
-                label: "Windows Terminal".to_string(),
-                path: command_path("wt").unwrap_or_else(|| "wt.exe".to_string()),
-            });
-        }
-        if command_exists("cmd") {
-            options.push(TerminalOption {
-                id: "cmd".to_string(),
-                label: "命令提示符 (CMD)".to_string(),
-                path: command_path("cmd").unwrap_or_else(|| "cmd.exe".to_string()),
-            });
-        }
-        if options.is_empty() {
-            options.push(TerminalOption {
-                id: "powershell".to_string(),
-                label: "PowerShell".to_string(),
-                path: "powershell.exe".to_string(),
-            });
-        }
-        return Ok(options);
+        return Ok(resolve_windows_terminals(command_exists, command_path));
     }
 
     #[cfg(target_os = "macos")]
     {
-        let mut options = Vec::<TerminalOption>::new();
-        options.push(TerminalOption {
-            id: "terminal".to_string(),
-            label: "Terminal".to_string(),
-            path: "/System/Applications/Utilities/Terminal.app".to_string(),
-        });
-        if let Some(path) =
-            first_existing_path(&["/Applications/iTerm.app", "/Applications/iTerm2.app"])
-        {
-            options.push(TerminalOption {
-                id: "iterm2".to_string(),
-                label: "iTerm2".to_string(),
-                path,
-            });
-        }
-        return Ok(options);
+        return Ok(resolve_macos_terminals(|path| Path::new(path).exists()));
     }
 
     #[cfg(all(unix, not(target_os = "macos")))]
     {
-        let mut options = Vec::<TerminalOption>::new();
-        if command_exists("x-terminal-emulator") {
-            options.push(TerminalOption {
-                id: "x-terminal-emulator".to_string(),
-                label: "System Terminal".to_string(),
-                path: command_path("x-terminal-emulator")
-                    .unwrap_or_else(|| "x-terminal-emulator".to_string()),
-            });
-        }
-        if command_exists("gnome-terminal") {
-            options.push(TerminalOption {
-                id: "gnome-terminal".to_string(),
-                label: "GNOME Terminal".to_string(),
-                path: command_path("gnome-terminal")
-                    .unwrap_or_else(|| "gnome-terminal".to_string()),
-            });
-        }
-        if command_exists("konsole") {
-            options.push(TerminalOption {
-                id: "konsole".to_string(),
-                label: "Konsole".to_string(),
-                path: command_path("konsole").unwrap_or_else(|| "konsole".to_string()),
-            });
-        }
-        if command_exists("alacritty") {
-            options.push(TerminalOption {
-                id: "alacritty".to_string(),
-                label: "Alacritty".to_string(),
-                path: command_path("alacritty").unwrap_or_else(|| "alacritty".to_string()),
-            });
-        }
-        if options.is_empty() {
-            options.push(TerminalOption {
-                id: "x-terminal-emulator".to_string(),
-                label: "System Terminal".to_string(),
-                path: "x-terminal-emulator".to_string(),
-            });
-        }
-        return Ok(options);
+        return Ok(resolve_linux_terminals(command_exists, command_path));
     }
 
     #[allow(unreachable_code)]
