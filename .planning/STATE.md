@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: 质量门禁与回归基线
-current_phase: 05
-current_phase_name: rust catalog bounds tests
-current_plan: 2
-status: verifying
+current_phase: 06
+current_phase_name: security regression
+current_plan: Not started
+status: planning
 stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-04T16:45:27.892Z"
+last_updated: "2026-03-04T17:07:19.332Z"
 last_activity: 2026-03-04
 progress:
   total_phases: 9
@@ -24,18 +24,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** Phase 5 — Rust 命令目录与边界模块单测
+**Current focus:** Phase 6 — 安全基线回归补齐
 
 ## Current Position
 
-**Current Phase:** 05
-**Current Phase Name:** rust catalog bounds tests
+**Current Phase:** 06
+**Current Phase Name:** security regression
 **Total Phases:** 9  
-**Current Plan:** 2
-**Total Plans in Phase:** 2
-**Status:** Phase complete — ready for verification
+**Current Plan:** Not started
+**Total Plans in Phase:** 0
+**Status:** Ready to plan
 **Last Activity:** 2026-03-04
-**Last Activity Description:** Phase 05 planned
+**Last Activity Description:** Phase 05 complete, transitioned to Phase 06
 
 **Progress:** [██████████] 100%
 
