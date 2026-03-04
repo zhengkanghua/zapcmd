@@ -14,6 +14,18 @@ pub(crate) struct TerminalOption {
     path: String,
 }
 
+fn sanitize_command(command: &str) -> Result<String, String> {
+    let trimmed = command.trim();
+    if trimmed.is_empty() {
+        return Err("Command cannot be empty.".to_string());
+    }
+    Ok(trimmed.to_string())
+}
+
+fn spawn_and_forget(cmd: &mut ProcessCommand) -> Result<(), String> {
+    cmd.spawn().map(|_| ()).map_err(|err| err.to_string())
+}
+
 #[cfg(target_os = "windows")]
 fn command_exists(command: &str) -> bool {
     create_hidden_process("where")
@@ -187,8 +199,8 @@ pub(crate) fn get_available_terminals() -> Result<Vec<TerminalOption>, String> {
 }
 
 #[cfg(target_os = "windows")]
-fn run_command_windows(terminal_id: &str, command: &str) -> Result<(), String> {
-    let mut cmd = match terminal_id {
+fn build_command_windows(terminal_id: &str, command: &str) -> ProcessCommand {
+    match terminal_id {
         "wt" => {
             let mut process = ProcessCommand::new("wt");
             process.args(["new-tab", "cmd", "/K", command]);
@@ -209,14 +221,18 @@ fn run_command_windows(terminal_id: &str, command: &str) -> Result<(), String> {
             process.args(["-NoExit", "-Command", command]);
             process
         }
-    };
+    }
+}
 
-    cmd.spawn().map_err(|err| err.to_string())?;
-    Ok(())
+#[cfg(target_os = "windows")]
+fn run_command_windows(terminal_id: &str, command: &str) -> Result<(), String> {
+    let mut cmd = build_command_windows(terminal_id, command);
+
+    spawn_and_forget(&mut cmd)
 }
 
 #[cfg(target_os = "macos")]
-fn run_command_macos(terminal_id: &str, command: &str) -> Result<(), String> {
+fn build_command_macos(terminal_id: &str, command: &str) -> ProcessCommand {
     let escaped = command.replace('\\', "\\\\").replace('\"', "\\\"");
     match terminal_id {
         "iterm2" => {
@@ -224,25 +240,28 @@ fn run_command_macos(terminal_id: &str, command: &str) -> Result<(), String> {
                 "tell application \"iTerm\" to create window with default profile command \"{}\"",
                 escaped
             );
-            ProcessCommand::new("osascript")
-                .args(["-e", &script])
-                .spawn()
-                .map_err(|err| err.to_string())?;
+            let mut process = ProcessCommand::new("osascript");
+            process.args(["-e", &script]);
+            process
         }
         _ => {
             let script = format!("tell application \"Terminal\" to do script \"{}\"", escaped);
-            ProcessCommand::new("osascript")
-                .args(["-e", &script])
-                .spawn()
-                .map_err(|err| err.to_string())?;
+            let mut process = ProcessCommand::new("osascript");
+            process.args(["-e", &script]);
+            process
         }
     }
-    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn run_command_macos(terminal_id: &str, command: &str) -> Result<(), String> {
+    let mut cmd = build_command_macos(terminal_id, command);
+    spawn_and_forget(&mut cmd)
 }
 
 #[cfg(all(unix, not(target_os = "macos")))]
-fn run_command_linux(terminal_id: &str, command: &str) -> Result<(), String> {
-    let mut cmd = match terminal_id {
+fn build_command_linux(terminal_id: &str, command: &str) -> ProcessCommand {
+    match terminal_id {
         "gnome-terminal" => {
             let mut process = ProcessCommand::new("gnome-terminal");
             process.args(["--", "bash", "-lc", command]);
@@ -263,32 +282,32 @@ fn run_command_linux(terminal_id: &str, command: &str) -> Result<(), String> {
             process.args(["-e", "bash", "-lc", command]);
             process
         }
-    };
+    }
+}
 
-    cmd.spawn().map_err(|err| err.to_string())?;
-    Ok(())
+#[cfg(all(unix, not(target_os = "macos")))]
+fn run_command_linux(terminal_id: &str, command: &str) -> Result<(), String> {
+    let mut cmd = build_command_linux(terminal_id, command);
+    spawn_and_forget(&mut cmd)
 }
 
 #[tauri::command]
 pub(crate) fn run_command_in_terminal(terminal_id: String, command: String) -> Result<(), String> {
-    let command = command.trim();
-    if command.is_empty() {
-        return Err("Command cannot be empty.".to_string());
-    }
+    let command = sanitize_command(&command)?;
 
     #[cfg(target_os = "windows")]
     {
-        return run_command_windows(terminal_id.as_str(), command);
+        return run_command_windows(terminal_id.as_str(), command.as_str());
     }
 
     #[cfg(target_os = "macos")]
     {
-        return run_command_macos(terminal_id.as_str(), command);
+        return run_command_macos(terminal_id.as_str(), command.as_str());
     }
 
     #[cfg(all(unix, not(target_os = "macos")))]
     {
-        return run_command_linux(terminal_id.as_str(), command);
+        return run_command_linux(terminal_id.as_str(), command.as_str());
     }
 
     #[allow(unreachable_code)]
@@ -315,3 +334,6 @@ pub(crate) fn get_runtime_platform() -> String {
     #[allow(unreachable_code)]
     "all".to_string()
 }
+
+#[cfg(test)]
+mod tests_exec;
