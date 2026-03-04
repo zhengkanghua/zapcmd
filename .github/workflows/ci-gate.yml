@@ -107,8 +107,25 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
       - name: Install dependencies
         run: npm ci
 
       - name: Run cross-platform smoke gate
         run: npm run typecheck && npm run typecheck:test && npm run test:run && npm run build
+
+      - name: Run Rust tests
+        run: npm run test:rust
