@@ -428,4 +428,56 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expect(wrapper.find(".safety-overlay").exists()).toBe(false);
   });
+
+  it("keeps staged queue and arg value after canceling safety dialog with Escape", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "解除端口占用");
+
+    dispatchWindowKeydown("ArrowRight");
+    await waitForUi();
+    await wrapper.get("#param-input-port").setValue("443");
+    await wrapper.get(".param-dialog").trigger("submit");
+    await waitForUi();
+    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expect(wrapper.get(".staging-card code").text()).toContain("443");
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+
+    dispatchWindowKeydown("Escape");
+    await waitForUi();
+    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expect(wrapper.get(".staging-card code").text()).toContain("443");
+    expect(
+      (wrapper.get(".staging-card__arg input").element as HTMLInputElement).value,
+    ).toBe("443");
+  });
+
+  it("keeps staged queue and arg value after canceling safety dialog by overlay click", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "解除端口占用");
+
+    dispatchWindowKeydown("ArrowRight");
+    await waitForUi();
+    await wrapper.get("#param-input-port").setValue("443");
+    await wrapper.get(".param-dialog").trigger("submit");
+    await waitForUi();
+    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expect(wrapper.get(".staging-card code").text()).toContain("443");
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+
+    await wrapper.get(".safety-overlay").trigger("click");
+    await waitForUi();
+    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expect(wrapper.get(".staging-card code").text()).toContain("443");
+    expect(
+      (wrapper.get(".staging-card__arg input").element as HTMLInputElement).value,
+    ).toBe("443");
+  });
 });

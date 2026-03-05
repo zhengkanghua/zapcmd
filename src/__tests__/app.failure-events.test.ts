@@ -839,6 +839,36 @@ describe("App failure and event regression", () => {
     expect(hoisted.runMock).toHaveBeenCalledTimes(1);
   });
 
+  it("does not bypass queue safety dialog when Ctrl+Enter is pressed repeatedly", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "解除端口占用");
+
+    dispatchWindowKeydown("ArrowRight");
+    await waitForUi();
+    await wrapper.get("#param-input-port").setValue("443");
+    await wrapper.get(".param-dialog").trigger("submit");
+    await waitForUi();
+    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expect(hoisted.runMock).not.toHaveBeenCalled();
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(hoisted.runMock).not.toHaveBeenCalled();
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(hoisted.runMock).not.toHaveBeenCalled();
+
+    const confirmButton = wrapper.findAll(".safety-dialog footer button")[1];
+    await confirmButton.trigger("click");
+    await waitForUi();
+    await waitForUi();
+
+    expect(hoisted.runMock).toHaveBeenCalledTimes(1);
+  });
+
   it("blocks injected argument before execution", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "解除端口占用");
