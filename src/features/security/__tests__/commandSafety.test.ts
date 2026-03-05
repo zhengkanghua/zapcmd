@@ -5,6 +5,18 @@ import {
   type SafetyCommandInput
 } from "../commandSafety";
 
+const INJECTION_CASES: Array<{ label: string; value: string }> = [
+  { label: "semicolon", value: "safe;whoami" },
+  { label: "pipe", value: "safe | whoami" },
+  { label: "ampersand", value: "safe & whoami" },
+  { label: "backtick", value: "safe `whoami`" },
+  { label: "angle-left", value: "safe < out.txt" },
+  { label: "angle-right", value: "safe > out.txt" },
+  { label: "newline", value: "safe\nwhoami" },
+  { label: "dollar-paren", value: "safe $(whoami)" },
+  { label: "dollar-brace", value: "safe ${PATH}" }
+];
+
 describe("commandSafety", () => {
   it("blocks single command when numeric arg contains injection token", () => {
     const result = checkSingleCommandSafety({
@@ -250,5 +262,139 @@ describe("commandSafety", () => {
 
     const blankItem = result.confirmationItems.find((item) => item.title === "blank");
     expect(blankItem?.renderedCommand.trim().length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    {
+      name: "number arg accepts trimmed numeric value",
+      arg: {
+        key: "port",
+        label: "port",
+        token: "{{port}}",
+        required: true,
+        argType: "number" as const
+      },
+      value: "  443  "
+    },
+    {
+      name: "text arg accepts trimmed allowed option",
+      arg: {
+        key: "shell",
+        label: "shell",
+        token: "{{shell}}",
+        required: true,
+        argType: "text" as const,
+        options: ["pwsh", "cmd"]
+      },
+      value: "  pwsh  "
+    }
+  ])("$name", ({ arg, value }) => {
+    const result = checkSingleCommandSafety({
+      title: "allow-trim",
+      renderedCommand: "echo {{value}}",
+      args: [arg],
+      argValues: {
+        [arg.key]: value
+      }
+    });
+
+    expect(result.blockedMessage).toBeNull();
+  });
+
+  it.each(INJECTION_CASES)(
+    "blocks text arg when value contains injection token: $label",
+    ({ value }) => {
+      const result = checkSingleCommandSafety({
+        title: "inject-block",
+        renderedCommand: "echo {{message}}",
+        args: [
+          {
+            key: "message",
+            label: "message",
+            token: "{{message}}",
+            required: true,
+            argType: "text"
+          }
+        ],
+        argValues: {
+          message: value
+        }
+      });
+
+      expect(result.blockedMessage).toContain("message");
+      expect(result.blockedMessage).toContain("注入");
+      expect(result.confirmationReasons).toHaveLength(0);
+    }
+  );
+
+  it("keeps trim boundary behavior: valid value passes but trimmed invalid value still blocks", () => {
+    const allowed = checkSingleCommandSafety({
+      title: "trim-allow",
+      renderedCommand: "echo {{shell}}",
+      args: [
+        {
+          key: "shell",
+          label: "shell",
+          token: "{{shell}}",
+          required: true,
+          argType: "text",
+          options: ["pwsh"]
+        }
+      ],
+      argValues: {
+        shell: "   pwsh   "
+      }
+    });
+
+    const blocked = checkSingleCommandSafety({
+      title: "trim-block",
+      renderedCommand: "echo {{message}}",
+      args: [
+        {
+          key: "message",
+          label: "message",
+          token: "{{message}}",
+          required: true,
+          argType: "text"
+        }
+      ],
+      argValues: {
+        message: "   whoami; id   "
+      }
+    });
+
+    expect(allowed.blockedMessage).toBeNull();
+    expect(blocked.blockedMessage).toContain("注入");
+  });
+
+  it("fails fast for queue and clears confirmationItems when any item is blocked", () => {
+    const result = checkQueueCommandSafety([
+      {
+        title: "needs-confirmation",
+        renderedCommand: "taskkill /F /PID 8888",
+        dangerous: true
+      },
+      {
+        title: "blocked-item",
+        renderedCommand: "echo {{message}}",
+        args: [
+          {
+            key: "message",
+            label: "message",
+            token: "{{message}}",
+            required: true,
+            argType: "text"
+          }
+        ],
+        argValues: {
+          message: "  whoami | cat /etc/passwd  "
+        }
+      }
+    ]);
+
+    expect(result.blockedMessage).toContain("blocked-item");
+    expect(result.blockedMessage).toMatch(/[:：]/);
+    expect(result.blockedMessage).toContain("注入");
+    expect(result.confirmationItems).toHaveLength(0);
   });
 });
