@@ -10,21 +10,45 @@ function Write-Info([string]$Message) {
   Write-Host "[msedgedriver] $Message"
 }
 
-function Try-Run([string]$Command, [string[]]$Args) {
+function Try-Run([string]$Command, [string[]]$Args, [int]$TimeoutSec = 20) {
   try {
-    $output = & $Command @Args 2>$null
-    if ($LASTEXITCODE -eq 0) {
-      return @{ ok = $true; output = ($output | Out-String).Trim() }
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $Command
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+
+    foreach ($arg in $Args) {
+      [void]$startInfo.ArgumentList.Add($arg)
+    }
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    [void]$process.Start()
+
+    if (-not $process.WaitForExit($TimeoutSec * 1000)) {
+      try { $process.Kill($true) } catch {}
+      return @{ ok = $false; output = ""; timedOut = $true }
+    }
+
+    $output = $process.StandardOutput.ReadToEnd()
+    if ($process.ExitCode -eq 0) {
+      return @{ ok = $true; output = ($output | Out-String).Trim(); timedOut = $false }
     }
   } catch {}
-  return @{ ok = $false; output = "" }
+  return @{ ok = $false; output = ""; timedOut = $false }
 }
 
 if (-not $Force) {
+  Write-Info "Probing existing msedgedriver..."
   $existing = Try-Run "msedgedriver" @("--version")
   if ($existing.ok) {
     Write-Info "Found existing: $($existing.output)"
     exit 0
+  }
+  if ($existing.timedOut) {
+    Write-Info "Existing msedgedriver probe timed out; continue with fresh install."
   }
 }
 
@@ -74,7 +98,7 @@ function Test-UrlExists([string]$Url) {
 }
 
 function Get-DriverVersionFromIndex([string]$IndexUrl) {
-  $raw = Invoke-RestMethod -Uri $IndexUrl
+  $raw = Invoke-RestMethod -Uri $IndexUrl -TimeoutSec 30
   $text = ($raw | Out-String)
   $normalized = ($text -replace "`0", "" -replace "[^0-9\.]", "").Trim()
   $m = [regex]::Match($normalized, "^(\d+\.\d+\.\d+\.\d+)$")
@@ -132,7 +156,7 @@ New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 
 $zipPath = Join-Path $installDir $zipName
 Write-Info "Downloading: $downloadUrl"
-Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath
+Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -TimeoutSec 180
 
 Write-Info "Extracting to: $installDir"
 Expand-Archive -Path $zipPath -DestinationPath $installDir -Force
@@ -149,8 +173,11 @@ if ($env:GITHUB_PATH) {
   Add-Content -Path $env:GITHUB_PATH -Value $binDir
 }
 
-$versionOut = Try-Run $exe.FullName @("--version")
+$versionOut = Try-Run $exe.FullName @("--version") 15
 if (-not $versionOut.ok) {
+  if ($versionOut.timedOut) {
+    throw "msedgedriver installed but `--version` probe timed out: $($exe.FullName)"
+  }
   throw "msedgedriver installed but `--version` probe failed: $($exe.FullName)"
 }
 

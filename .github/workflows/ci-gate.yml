@@ -70,10 +70,11 @@ jobs:
         run: npm ci
 
       - name: Install WebDriver dependencies
+        timeout-minutes: 20
         shell: pwsh
         run: |
           cargo install tauri-driver --locked
-          pwsh -File scripts/e2e/install-msedgedriver.ps1
+          pwsh -File scripts/e2e/install-msedgedriver.ps1 -Force
 
       - name: Run desktop E2E smoke
         run: npm run e2e:desktop:smoke

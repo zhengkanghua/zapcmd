@@ -33,10 +33,11 @@ jobs:
         run: npm run check:all
 
       - name: 安装桌面 E2E WebDriver 依赖
+        timeout-minutes: 20
         shell: pwsh
         run: |
           cargo install tauri-driver --locked
-          pwsh -File scripts/e2e/install-msedgedriver.ps1
+          pwsh -File scripts/e2e/install-msedgedriver.ps1 -Force
 
       - name: 运行桌面端 E2E 冒烟
         run: npm run e2e:desktop:smoke
