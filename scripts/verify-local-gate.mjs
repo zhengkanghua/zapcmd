@@ -6,7 +6,9 @@ import process from "node:process";
 const flags = new Set(process.argv.slice(2));
 const isWindows = process.platform === "win32";
 const isMacOS = process.platform === "darwin";
-const supportsDesktopE2E = isWindows || isMacOS;
+const enableExperimentalMacDesktopE2E =
+  flags.has("--macos-desktop-e2e-experimental") || process.env.ZAPCMD_E2E_EXPERIMENTAL_MACOS === "1";
+const supportsDesktopE2E = isWindows || (isMacOS && enableExperimentalMacDesktopE2E);
 
 const runE2E = !flags.has("--skip-e2e");
 const e2eOnly = flags.has("--e2e-only");
@@ -21,7 +23,7 @@ function printUsage() {
   console.log("默认行为:");
   console.log("1) 运行 npm run check:all");
   console.log("2) Windows 上自动检测 WebDriver 依赖，缺失时自动安装");
-  console.log("3) Windows / macOS 上运行 npm run e2e:desktop:smoke");
+  console.log("3) Windows 上运行 npm run e2e:desktop:smoke（macOS 默认仅执行 quality gate）");
   console.log("");
   console.log("选项:");
   console.log("  --skip-e2e             跳过桌面 E2E 冒烟");
@@ -30,6 +32,7 @@ function printUsage() {
   console.log("  --force-webdriver      与 --install-webdriver 搭配，强制重装 msedgedriver");
   console.log("  --require-desktop-e2e  当前平台无法跑桌面 E2E 时直接失败");
   console.log("  --require-windows-e2e  兼容旧参数，等价于 --require-desktop-e2e");
+  console.log("  --macos-desktop-e2e-experimental  启用 macOS 实验性 desktop smoke（默认关闭）");
   console.log("  --dry-run              仅打印将执行的命令，不实际执行");
   console.log("  --help                 显示帮助");
 }
@@ -281,7 +284,9 @@ async function runDesktopSmokeIfNeeded() {
   }
 
   if (!supportsDesktopE2E) {
-    const message = `当前平台（${process.platform}）不支持桌面 E2E 冒烟，已跳过`;
+    const message = isMacOS
+      ? "macOS 默认跳过 desktop-smoke：Tauri 官方 WebDriver 当前未稳定支持 WKWebView（可用 --macos-desktop-e2e-experimental 手动试验）"
+      : `当前平台（${process.platform}）不支持桌面 E2E 冒烟，已跳过`;
     if (requireDesktopE2E) {
       throw new Error(`${message}（已开启 --require-desktop-e2e）`);
     }

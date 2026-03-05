@@ -87,41 +87,6 @@ jobs:
           path: .tmp/e2e/desktop-smoke/
           if-no-files-found: warn
 
-  desktop-e2e-smoke-macos:
-    runs-on: macos-latest
-    timeout-minutes: 90
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install desktop E2E dependencies
-        timeout-minutes: 20
-        run: |
-          cargo install tauri-driver --locked
-
-      - name: Run desktop E2E smoke (macOS)
-        run: npm run e2e:desktop:smoke
-
-      - name: Upload desktop E2E artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: desktop-e2e-smoke-macos
-          path: .tmp/e2e/desktop-smoke/
-          if-no-files-found: warn
-
   cross-platform-smoke:
     strategy:
       fail-fast: false

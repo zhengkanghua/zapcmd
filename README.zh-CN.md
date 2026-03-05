@@ -69,7 +69,7 @@ npm run tauri:dev
 npm run check:all
 ```
 
-一键本地全量验证（同口径质量门禁 + Windows/macOS 桌面冒烟；Windows 缺失驱动会自动补装）：
+一键本地全量验证（同口径质量门禁 + Windows 桌面冒烟；Windows 缺失驱动会自动补装）：
 
 ```bash
 npm run verify:local
@@ -92,7 +92,7 @@ pwsh -File scripts/generate_builtin_commands.ps1
 git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
 ```
 
-Windows / macOS 桌面端最小 E2E 冒烟（CI 也会跑）：
+Windows 桌面端最小 E2E 冒烟（CI 同口径）：
 
 ```bash
 npm run e2e:desktop:smoke
@@ -109,6 +109,13 @@ macOS 本地桌面冒烟前置：
 ```bash
 cargo install tauri-driver --locked
 safaridriver --enable
+```
+
+说明：由于 Tauri 在 WKWebView 上的 WebDriver 支持尚不稳定，macOS 桌面冒烟默认关闭。  
+若需手动试验，可执行：
+
+```bash
+npm run verify:local -- --macos-desktop-e2e-experimental
 ```
 
 更详细说明见：`CONTRIBUTING.zh-CN.md`。
@@ -206,7 +213,7 @@ Roadmap：
 
 1. macOS 安装包当前未签名/未公证。
 2. 用户命令 JSON 修改后需重启应用生效。
-3. 当前桌面端 E2E 仅覆盖 Windows/macOS 的最小 smoke，Linux 桌面冒烟与更完整流程仍在 Roadmap 中。
+3. 当前桌面端 E2E 阻断门禁仅覆盖 Windows；macOS 仍为实验性探测，Linux 桌面冒烟与更完整流程仍在 Roadmap 中。
 
 ## 提交问题与参与贡献
 
