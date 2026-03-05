@@ -105,10 +105,10 @@ Plans:
 1. 危险命令确认逻辑具备回归测试覆盖（确认/取消/绕过尝试等路径至少覆盖 2 条）。
 2. 参数注入拦截逻辑具备回归测试覆盖（至少覆盖 1 条允许 + 1 条拦截 + 1 条边界输入）。
 3. 安全相关失败提示清晰可操作（提示原因与下一步），且不会静默吞错。
-**Plans:** 2 plans
+**Plans:** 1/2 plans complete
 
 Plans:
-- [ ] 06-01-PLAN.md — 安全判定与执行编排回归加固（allow/block/boundary + queue fail-fast）
+- [x] 06-01-PLAN.md — 安全判定与执行编排回归加固（allow/block/boundary + queue fail-fast）
 - [ ] 06-02-PLAN.md — App 热键与弹层防绕过回归（确认/取消/绕过 + 双语失败提示）
 
 ### Phase 7: 鲁棒性与错误提示增强
@@ -150,7 +150,7 @@ Plans:
 | 3. 关键用户路径回归补齐 | 1/1 | Complete   | 2026-03-04 |
 | 4. Rust 终端执行模块单测 | 3/3 | Complete   | 2026-03-04 |
 | 5. Rust 命令目录与边界模块单测 | 2/2 | Complete   | 2026-03-04 |
-| 6. 安全基线回归补齐 | 0/TBD | Not started | - |
+| 6. 安全基线回归补齐 | 1/2 | In Progress | - |
 | 7. 鲁棒性与错误提示增强 | 0/TBD | Not started | - |
 | 8. 架构可测试性重构 | 0/TBD | Not started | - |
 | 9. UI/UX 小幅精修 | 0/TBD | Not started | - |

@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: 质量门禁与回归基线
-current_phase: 10
-current_phase_name: macos-e2e
-current_plan: Completed (3/3)
-status: completed
-stopped_at: Phase 06 context gathered
-last_updated: "2026-03-05T11:42:59.487Z"
+current_phase: 6
+current_phase_name: security-regression
+current_plan: 2/2
+status: in_progress
+stopped_at: Completed 06-security-regression-01-PLAN.md
+last_updated: "2026-03-05T13:17:47.397Z"
 last_activity: 2026-03-05
 progress:
   total_phases: 10
   completed_phases: 6
-  total_plans: 17
-  completed_plans: 17
-  percent: 100
+  total_plans: 19
+  completed_plans: 18
+  percent: 95
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** Milestone complete — ready for next milestone planning
+**Current focus:** 完成 Phase 06 剩余计划并收敛安全回归基线
 
 ## Current Position
 
-**Current Phase:** 10
-**Current Phase Name:** macos-e2e
+**Current Phase:** 6
+**Current Phase Name:** security-regression
 **Total Phases:** 10  
-**Current Plan:** Completed (3/3)
-**Total Plans in Phase:** 3
-**Status:** Milestone complete
+**Current Plan:** 2/2
+**Total Plans in Phase:** 2
+**Status:** In Progress
 **Last Activity:** 2026-03-05
-**Last Activity Description:** Phase 10 complete
+**Last Activity Description:** Completed Phase 06 Plan 01
 
-**Progress:** [██████████] 100%
+**Progress:** [██████████] 95%
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 | Phase 04 P03 | 37min | 3 tasks | 3 files |
 | Phase 05 P01 | 6min | 2 tasks | 2 files |
 | Phase 05 P02 | 4min | 2 tasks | 2 files |
+| Phase 06-security-regression P01 | 20 min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 10]: desktop-smoke 脚本升级为 win32/darwin 平台画像，macOS 默认 safaridriver 预检并输出 Go/No-Go 结论
 - [Phase 10]: verify:local 在 Windows/macOS 默认执行桌面冒烟；Windows 缺驱动自动补装，macOS 缺前置直接失败并给修复指引
 - [Phase 10]: CI Gate / Release 均新增 macOS desktop smoke 阻断，产物按平台命名上传（desktop-e2e-smoke-windows/macos）
+- [Phase 06-security-regression]: 安全拦截断言统一采用前缀 + 原因片段，避免整句文案硬编码导致回归脆弱。
+- [Phase 06-security-regression]: Task 3 在无行为偏差时保持源码不变，并以空提交保留任务级验证轨迹。
 
 ### Roadmap Evolution
 
@@ -88,6 +91,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-05T11:42:59.481Z
-**Stopped At:** Phase 06 context gathered
-**Resume File:** .planning/phases/06-security-regression/06-CONTEXT.md
+**Last Date:** 2026-03-05T13:17:47.394Z
+**Stopped At:** Completed 06-security-regression-01-PLAN.md
+**Resume File:** None

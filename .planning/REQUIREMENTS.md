@@ -40,7 +40,7 @@
 
 ### 安全基线回归
 
-- [ ] **SEC-01**: 危险命令确认与参数注入拦截逻辑具备回归测试覆盖（覆盖允许/拦截/确认三类路径）
+- [x] **SEC-01**: 危险命令确认与参数注入拦截逻辑具备回归测试覆盖（覆盖允许/拦截/确认三类路径）
 
 ### 最小桌面端 E2E 基线（可选但需结论）
 
@@ -74,7 +74,7 @@
 | RUST-01 | Phase 4 | Complete |
 | RUST-02 | Phase 5 | Complete |
 | RUST-03 | Phase 5 | Complete |
-| SEC-01 | Phase 6 | Pending |
+| SEC-01 | Phase 6 | Complete |
 | ROB-01 | Phase 7 | Pending |
 | ROB-02 | Phase 7 | Pending |
 | ROB-03 | Phase 7 | Pending |
