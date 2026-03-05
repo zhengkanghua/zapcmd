@@ -17,7 +17,6 @@ const WEBDRIVER_BASE_URL = "http://127.0.0.1:4444";
 const WEBDRIVER_SERVER_URL = `${WEBDRIVER_BASE_URL}/`;
 const WEBDRIVER_STATUS_URL = `${WEBDRIVER_BASE_URL}/status`;
 
-const DEFAULT_APP_PATH = path.resolve("src-tauri/target/debug/zapcmd.exe");
 const DEFAULT_QUERY = "git";
 
 const DRIVER_READY_TIMEOUT_MS = 30_000;
@@ -138,6 +137,51 @@ function resolveEdgeDriverPath() {
   return "";
 }
 
+function resolveSafariDriverPath() {
+  const pathHit = resolveCommandPath("safaridriver");
+  if (pathHit) {
+    return pathHit;
+  }
+
+  const candidates = ["/usr/bin/safaridriver", "/usr/local/bin/safaridriver"];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return "";
+}
+
+function resolvePlatformProfile() {
+  if (process.platform === "win32") {
+    return {
+      id: "win32",
+      nativeDriverName: "msedgedriver",
+      nativeDriverDisplayName: "Edge WebDriver",
+      resolveNativeDriverPath: resolveEdgeDriverPath,
+      installHints: ["pwsh -File scripts/e2e/install-msedgedriver.ps1"],
+      defaultAppPaths: [path.resolve("src-tauri/target/debug/zapcmd.exe")]
+    };
+  }
+
+  if (process.platform === "darwin") {
+    return {
+      id: "darwin",
+      nativeDriverName: "safaridriver",
+      nativeDriverDisplayName: "SafariDriver",
+      resolveNativeDriverPath: resolveSafariDriverPath,
+      installHints: ["safaridriver --enable"],
+      defaultAppPaths: [
+        path.resolve("src-tauri/target/debug/zapcmd"),
+        path.resolve("src-tauri/target/debug/zapcmd.app/Contents/MacOS/zapcmd")
+      ]
+    };
+  }
+
+  return null;
+}
+
 function formatCommandFix(command) {
   return `- ${command}`;
 }
@@ -190,17 +234,31 @@ async function waitForWebDriverReady({ timeoutMs, logLine }) {
   throw new Error(`等待 tauri-driver 就绪超时（>${timeoutMs}ms）：${logLine}`);
 }
 
-function resolveAppPath() {
+function resolveAppPath(platformProfile) {
   const envPath = process.env.ZAPCMD_E2E_APP_PATH?.trim();
-  const appPath = envPath && envPath.length > 0 ? path.resolve(envPath) : DEFAULT_APP_PATH;
-  if (!fs.existsSync(appPath)) {
-    const hint =
-      envPath && envPath.length > 0
-        ? `未找到可执行文件：${appPath}\n请检查 ZAPCMD_E2E_APP_PATH 是否正确。`
-        : `未找到默认可执行文件：${appPath}\n请先运行：\n${formatCommandFix("npm run tauri:build:debug")}\n或设置 ZAPCMD_E2E_APP_PATH 指向已构建的 zapcmd.exe。`;
-    throw new Error(hint);
+  if (envPath && envPath.length > 0) {
+    const appPath = path.resolve(envPath);
+    if (fs.existsSync(appPath)) {
+      return appPath;
+    }
+    throw new Error(`未找到可执行文件：${appPath}\n请检查 ZAPCMD_E2E_APP_PATH 是否正确。`);
   }
-  return appPath;
+
+  for (const candidate of platformProfile.defaultAppPaths) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  const defaultList = platformProfile.defaultAppPaths.join("\n");
+  throw new Error(
+    [
+      "未找到默认可执行文件，已尝试：",
+      defaultList,
+      `请先运行：\n${formatCommandFix("npm run tauri:build:debug")}`,
+      "或设置 ZAPCMD_E2E_APP_PATH 指向已构建的可执行文件。"
+    ].join("\n")
+  );
 }
 
 function createLogger() {
@@ -322,13 +380,16 @@ async function main() {
   await ensureOutputDir();
 
   log("desktop-smoke 开始");
+  log(`当前平台：${process.platform}`);
 
-  if (process.platform !== "win32") {
-    log("当前平台非 Windows，本脚本不支持。为避免误把 skip 当 pass，将以非 0 退出码失败。");
+  const platformProfile = resolvePlatformProfile();
+  if (!platformProfile) {
+    log("当前平台暂不支持 desktop-smoke（仅支持 Windows / macOS）。为避免误把 skip 当 pass，将以非 0 退出码失败。");
     await flushToDisk();
     process.exitCode = 1;
     return;
   }
+  log(`平台画像：${platformProfile.id}，native driver=${platformProfile.nativeDriverName}`);
 
   const tauriDriverProbe = runCommandProbe("tauri-driver");
   if (!tauriDriverProbe.ok) {
@@ -339,20 +400,24 @@ async function main() {
     return;
   }
 
-  const edgeDriverPath = resolveEdgeDriverPath();
-  if (!edgeDriverPath) {
-    log("未检测到可用的 msedgedriver（Edge WebDriver）。请先安装并确保在 PATH 中可用：");
-    log(formatCommandFix("pwsh -File scripts/e2e/install-msedgedriver.ps1"));
-    log("若安装到自定义目录，可设置 ZAPCMD_E2E_WEBDRIVER_ROOT 指向该目录。");
+  const nativeDriverPath = platformProfile.resolveNativeDriverPath();
+  if (!nativeDriverPath) {
+    log(`未检测到可用的 ${platformProfile.nativeDriverName}（${platformProfile.nativeDriverDisplayName}）。请先安装并确保在 PATH 中可用：`);
+    for (const hint of platformProfile.installHints) {
+      log(formatCommandFix(hint));
+    }
+    if (platformProfile.id === "win32") {
+      log("若安装到自定义目录，可设置 ZAPCMD_E2E_WEBDRIVER_ROOT 指向该目录。");
+    }
     await flushToDisk();
     process.exitCode = 1;
     return;
   }
-  log(`Edge WebDriver 路径：${edgeDriverPath}`);
+  log(`${platformProfile.nativeDriverDisplayName} 路径：${nativeDriverPath}`);
 
   let appPath;
   try {
-    appPath = resolveAppPath();
+    appPath = resolveAppPath(platformProfile);
   } catch (error) {
     log(String(error instanceof Error ? error.message : error));
     await flushToDisk();
@@ -366,7 +431,7 @@ async function main() {
   let failed = false;
 
   try {
-    const { child } = spawnTauriDriver({ log, nativeDriverPath: edgeDriverPath });
+    const { child } = spawnTauriDriver({ log, nativeDriverPath });
     tauriDriverChild = child;
 
     await waitForWebDriverReady({
@@ -385,10 +450,16 @@ async function main() {
     await runSmokeCase(driver, { log });
 
     log("desktop-smoke 成功 ✅");
+    if (platformProfile.id === "darwin") {
+      log("macOS Go/No-Go: GO（已建立 session 并跑通最小 smoke）");
+    }
   } catch (error) {
     failed = true;
     const message = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
     log("desktop-smoke 失败 ❌");
+    if (platformProfile.id === "darwin") {
+      log("macOS Go/No-Go: NO-GO（未满足会话建立或最小 smoke 通过条件）");
+    }
     log(message);
 
     try {

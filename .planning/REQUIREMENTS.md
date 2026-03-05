@@ -67,6 +67,7 @@
 | REG-01 | Phase 1 | Complete |
 | REG-02 | Phase 1 | Complete |
 | E2E-01 | Phase 1 | Complete |
+| E2E-02 (partial: macOS gate only) | Phase 10 | Complete (partial) |
 | COV-01 | Phase 2 | Complete |
 | COV-02 | Phase 2 | Complete |
 | COV-03 | Phase 3 | Complete |

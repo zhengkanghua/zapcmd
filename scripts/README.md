@@ -27,9 +27,23 @@ npm run verify:local
 ```
 
 说明：在 Windows 上会自动检测 `tauri-driver` / `msedgedriver`，缺失时先补装再继续执行。
+在 macOS 上会预检 `tauri-driver` / `safaridriver`，前置不满足时直接失败并给出修复指引。
 
 Windows 显式预装模式（每次都先执行驱动安装）：
 
 ```bash
 npm run verify:local -- --install-webdriver
+```
+
+macOS 常见前置命令：
+
+```bash
+cargo install tauri-driver --locked
+safaridriver --enable
+```
+
+仅预览将执行的命令（不实际执行）：
+
+```bash
+npm run verify:local -- --dry-run
 ```

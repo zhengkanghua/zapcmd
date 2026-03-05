@@ -19,6 +19,7 @@
 - [ ] **Phase 7: 鲁棒性与错误提示增强** - 失败可见、可定位、可操作
 - [ ] **Phase 8: 架构可测试性重构** - 收窄接口/解耦 IO，提升单测效率
 - [ ] **Phase 9: UI/UX 小幅精修** - 键盘可达性与视觉一致性提升
+- [x] **Phase 10: 补齐 macOS 桌面端 E2E 冒烟** - 桌面冒烟门禁扩展到 macOS（本地 + CI） (completed 2026-03-05)
 
 ## Phase Details
 
@@ -149,3 +150,16 @@ Plans:
 | 7. 鲁棒性与错误提示增强 | 0/TBD | Not started | - |
 | 8. 架构可测试性重构 | 0/TBD | Not started | - |
 | 9. UI/UX 小幅精修 | 0/TBD | Not started | - |
+| 10. 补齐 macOS 桌面端 E2E 冒烟 | 3/3 | Complete    | 2026-03-05 |
+
+### Phase 10: 补齐 macOS 桌面端 E2E 冒烟
+
+**Goal:** 在保持现有最小 smoke 口径不变的前提下，让 macOS 在本地与 CI 都能执行桌面端 E2E 冒烟并阻断失败，且提供可定位诊断产物。
+**Requirements**: [E2E-02 (partial: macOS gate only)]
+**Depends on:** Phase 9
+**Plans:** 3/3 plans complete
+
+Plans:
+- [x] 10-01-PLAN.md — desktop-smoke 脚本跨平台化（win32 + darwin）与 macOS 可行性闸门
+- [x] 10-02-PLAN.md — verify:local 接入 macOS 默认桌面冒烟 + 脚本文档对齐
+- [x] 10-03-PLAN.md — CI/Release 纳入 macOS 桌面冒烟阻断 + 贡献者文档对齐

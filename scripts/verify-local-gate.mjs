@@ -5,12 +5,14 @@ import process from "node:process";
 
 const flags = new Set(process.argv.slice(2));
 const isWindows = process.platform === "win32";
+const isMacOS = process.platform === "darwin";
+const supportsDesktopE2E = isWindows || isMacOS;
 
 const runE2E = !flags.has("--skip-e2e");
 const e2eOnly = flags.has("--e2e-only");
 const installWebDriver = flags.has("--install-webdriver");
 const forceWebDriver = flags.has("--force-webdriver");
-const requireWindowsE2E = flags.has("--require-windows-e2e");
+const requireDesktopE2E = flags.has("--require-desktop-e2e") || flags.has("--require-windows-e2e");
 const dryRun = flags.has("--dry-run");
 
 function printUsage() {
@@ -19,14 +21,15 @@ function printUsage() {
   console.log("默认行为:");
   console.log("1) 运行 npm run check:all");
   console.log("2) Windows 上自动检测 WebDriver 依赖，缺失时自动安装");
-  console.log("3) Windows 上运行 npm run e2e:desktop:smoke");
+  console.log("3) Windows / macOS 上运行 npm run e2e:desktop:smoke");
   console.log("");
   console.log("选项:");
   console.log("  --skip-e2e             跳过桌面 E2E 冒烟");
   console.log("  --e2e-only             仅运行桌面 E2E 冒烟");
   console.log("  --install-webdriver    无论是否缺失都先执行 WebDriver 安装流程");
   console.log("  --force-webdriver      与 --install-webdriver 搭配，强制重装 msedgedriver");
-  console.log("  --require-windows-e2e  非 Windows 环境下无法跑 E2E 时直接失败");
+  console.log("  --require-desktop-e2e  当前平台无法跑桌面 E2E 时直接失败");
+  console.log("  --require-windows-e2e  兼容旧参数，等价于 --require-desktop-e2e");
   console.log("  --dry-run              仅打印将执行的命令，不实际执行");
   console.log("  --help                 显示帮助");
 }
@@ -41,6 +44,9 @@ function assertFlags() {
   }
   if (flags.has("--force-webdriver") && !flags.has("--install-webdriver")) {
     throw new Error("--force-webdriver 需要与 --install-webdriver 一起使用");
+  }
+  if (flags.has("--require-windows-e2e")) {
+    console.log("[local-gate] 提示：--require-windows-e2e 已兼容映射为 --require-desktop-e2e");
   }
 }
 
@@ -166,8 +172,31 @@ function resolveEdgeDriverPath() {
   return "";
 }
 
+function resolveSafariDriverPath() {
+  const pathHit = resolveCommandPath("safaridriver");
+  if (pathHit) {
+    return pathHit;
+  }
+
+  const candidates = ["/usr/bin/safaridriver", "/usr/local/bin/safaridriver"];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return "";
+}
+
 async function installDriversIfNeeded() {
-  if (!runE2E || !isWindows) {
+  if (!runE2E) {
+    return;
+  }
+
+  if (!isWindows) {
+    if (installWebDriver) {
+      console.log("[local-gate] 当前平台非 Windows，跳过 msedgedriver 自动安装流程");
+    }
     return;
   }
 
@@ -202,6 +231,43 @@ async function installDriversIfNeeded() {
   }
 }
 
+async function preflightDesktopDependenciesIfNeeded() {
+  if (!runE2E || !supportsDesktopE2E) {
+    return;
+  }
+
+  if (dryRun) {
+    console.log("[dry-run] 预检桌面 E2E 依赖: tauri-driver + native driver");
+    return;
+  }
+
+  const tauriDriverPath = resolveCommandPath("tauri-driver");
+  if (!tauriDriverPath) {
+    throw new Error("未检测到 tauri-driver，请先执行：cargo install tauri-driver --locked");
+  }
+
+  if (isWindows) {
+    const edgeDriverPath = resolveEdgeDriverPath();
+    if (!edgeDriverPath) {
+      throw new Error("未检测到 msedgedriver，请先执行：pwsh -File scripts/e2e/install-msedgedriver.ps1");
+    }
+    return;
+  }
+
+  if (isMacOS) {
+    const safariDriverPath = resolveSafariDriverPath();
+    if (!safariDriverPath) {
+      throw new Error(
+        [
+          "未检测到 safaridriver（SafariDriver）。",
+          "请先执行：safaridriver --enable",
+          "若命令不可用，请先安装 Xcode Command Line Tools：xcode-select --install"
+        ].join("\n")
+      );
+    }
+  }
+}
+
 async function runQualityGateIfNeeded() {
   if (e2eOnly) {
     return;
@@ -214,10 +280,10 @@ async function runDesktopSmokeIfNeeded() {
     return;
   }
 
-  if (!isWindows) {
-    const message = "当前非 Windows 环境，跳过桌面 E2E 冒烟";
-    if (requireWindowsE2E) {
-      throw new Error(`${message}（已开启 --require-windows-e2e）`);
+  if (!supportsDesktopE2E) {
+    const message = `当前平台（${process.platform}）不支持桌面 E2E 冒烟，已跳过`;
+    if (requireDesktopE2E) {
+      throw new Error(`${message}（已开启 --require-desktop-e2e）`);
     }
     console.log(`[local-gate] ${message}`);
     return;
@@ -234,6 +300,7 @@ async function main() {
 
   assertFlags();
   await installDriversIfNeeded();
+  await preflightDesktopDependenciesIfNeeded();
   await runQualityGateIfNeeded();
   await runDesktopSmokeIfNeeded();
   console.log("[local-gate] 本地验证完成");

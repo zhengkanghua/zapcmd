@@ -69,7 +69,7 @@ Quality gate:
 npm run check:all
 ```
 
-One-command local full validation (same gate + Windows desktop smoke, auto-installs missing WebDriver deps):
+One-command local full validation (same gate + Windows/macOS desktop smoke; Windows auto-installs missing WebDriver deps):
 
 ```bash
 npm run verify:local
@@ -92,7 +92,7 @@ pwsh -File scripts/generate_builtin_commands.ps1
 git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
 ```
 
-Windows desktop E2E smoke (CI runs this too):
+Windows / macOS desktop E2E smoke (CI runs this too):
 
 ```bash
 npm run e2e:desktop:smoke
@@ -102,6 +102,13 @@ To force driver install step before validation on Windows:
 
 ```bash
 npm run verify:local -- --install-webdriver
+```
+
+macOS prerequisites for local desktop smoke:
+
+```bash
+cargo install tauri-driver --locked
+safaridriver --enable
 ```
 
 See `CONTRIBUTING.md` for details.
@@ -199,7 +206,7 @@ Roadmap:
 
 1. macOS packages are currently unsigned/not notarized.
 2. User command JSON changes take effect after app restart.
-3. Desktop-shell E2E automation is currently minimal and Windows-only (smoke); full matrix coverage is still roadmap.
+3. Desktop-shell E2E automation currently covers minimal smoke on Windows/macOS; Linux desktop smoke is still roadmap.
 
 ## Report Issues And Contribute
 

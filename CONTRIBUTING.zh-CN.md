@@ -31,12 +31,12 @@
 | 查看 hooks 是否已启用 | `git config core.hooksPath` |
 | 手动跑 pre-commit 同口径逻辑（读取 staged 文件） | `npm run precommit:guard` |
 | 合并前全量门禁（与 CI 同口径） | `npm run check:all` |
-| 一键本地全量验证（质量门禁 + Windows 冒烟，缺失驱动会自动补装） | `npm run verify:local` |
+| 一键本地全量验证（质量门禁 + Windows/macOS 冒烟；Windows 缺失驱动会自动补装） | `npm run verify:local` |
 | 开发启动桌面应用 | `npm run tauri:dev` |
 | 仅跑测试（不带覆盖率） | `npm run test:run` |
 | 跑覆盖率（门禁同口径） | `npm run test:coverage` |
 | 修改内置命令源后生成并检查差异 | `pwsh -File scripts/generate_builtin_commands.ps1` |
-| Windows 桌面端最小 E2E 冒烟（CI 同口径） | `npm run e2e:desktop:smoke` |
+| Windows/macOS 桌面端最小 E2E 冒烟（CI 同口径） | `npm run e2e:desktop:smoke` |
 
 > 提示：`npm install` 会运行 `package.json#prepare`，尝试自动启用 hooks；如果你使用了 `--ignore-scripts`，需要手动运行 `node scripts/setup-githooks.mjs`。
 
@@ -160,7 +160,7 @@
 
 ---
 
-## 4. Windows 桌面端最小 E2E（CI 会跑，建议 Windows 贡献者本地可选跑）
+## 4. Windows/macOS 桌面端最小 E2E（CI 会跑，建议贡献者本地可选跑）
 
 CI/Release 会运行：
 
@@ -168,19 +168,28 @@ CI/Release 会运行：
 
 该用例覆盖：启动 → 搜索输入 → 结果抽屉出现/关闭。失败会产出 `.tmp/e2e/desktop-smoke/`（日志/截图）并以非 0 退出码失败。
 
-### 4.1 本地运行所需依赖（仅 Windows）
+### 4.1 本地运行所需依赖（按平台）
+
+Windows 前置：
 
 `cargo install tauri-driver --locked`
 
 `pwsh -File scripts/e2e/install-msedgedriver.ps1`
 
-也可以直接用一键验证脚本（会先跑 `check:all`，再在 Windows 跑桌面冒烟）：
+macOS 前置：
+
+`cargo install tauri-driver --locked`
+
+`safaridriver --enable`
+
+也可以直接用一键验证脚本（会先跑 `check:all`，再在 Windows/macOS 跑桌面冒烟）：
 
 `npm run verify:local`
 
-在 Windows 上，该命令会自动检测 `tauri-driver` / `msedgedriver`，缺失时先补装再继续。
+在 Windows 上，该命令会自动检测 `tauri-driver` / `msedgedriver`，缺失时先补装再继续。  
+在 macOS 上，该命令会预检 `tauri-driver` / `safaridriver`，缺失时给出修复指引并失败退出。
 
-如果你希望每次都先执行驱动安装流程，可使用：
+如果你希望每次都先执行 Windows 驱动安装流程，可使用：
 
 `npm run verify:local -- --install-webdriver`
 
@@ -188,11 +197,12 @@ CI/Release 会运行：
 
 1) 本地 `commit`（已启用 hooks）：会触发 `.githooks/pre-commit` -> `npm run precommit:guard`（增量本地门禁）。
 
-2) 本地一键全量验证：执行 `npm run verify:local`（全量门禁 + Windows 桌面冒烟；Windows 缺驱动会自动补装）。
+2) 本地一键全量验证：执行 `npm run verify:local`（全量门禁 + Windows/macOS 桌面冒烟；Windows 缺驱动会自动补装）。
 
 3) push / PR 到上游仓库：
 - push 到 `main` 或 PR 目标为 `main` 时，触发 `CI Gate`。
 - 仅 push 到上游 feature 分支通常不会触发 `CI Gate`，除非已创建到 `main` 的 PR。
+- `CI Gate` 当前包含：Windows 质量门禁、Windows 桌面冒烟、macOS 桌面冒烟，以及 cross-platform smoke（macOS/Linux 的构建与测试门禁）。
 
 4) push `v*.*.*` tag：触发发布构建与发布流程。
 

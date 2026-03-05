@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: 质量门禁与回归基线
-current_phase: 06
-current_phase_name: security regression
-current_plan: Not started
-status: planning
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-04T17:07:19.332Z"
-last_activity: 2026-03-04
+current_phase: 10
+current_phase_name: macos-e2e
+current_plan: Completed (3/3)
+status: completed
+stopped_at: Completed Phase 10 execution and verification
+last_updated: "2026-03-05T07:40:43.144Z"
+last_activity: 2026-03-05
 progress:
-  total_phases: 9
-  completed_phases: 5
-  total_plans: 14
-  completed_plans: 14
+  total_phases: 10
+  completed_phases: 6
+  total_plans: 17
+  completed_plans: 17
   percent: 100
 ---
 
@@ -24,18 +24,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** Phase 6 — 安全基线回归补齐
+**Current focus:** Milestone complete — ready for next milestone planning
 
 ## Current Position
 
-**Current Phase:** 06
-**Current Phase Name:** security regression
-**Total Phases:** 9  
-**Current Plan:** Not started
-**Total Plans in Phase:** 0
-**Status:** Ready to plan
-**Last Activity:** 2026-03-04
-**Last Activity Description:** Phase 05 complete, transitioned to Phase 06
+**Current Phase:** 10
+**Current Phase Name:** macos-e2e
+**Total Phases:** 10  
+**Current Plan:** Completed (3/3)
+**Total Plans in Phase:** 3
+**Status:** Milestone complete
+**Last Activity:** 2026-03-05
+**Last Activity Description:** Phase 10 complete
 
 **Progress:** [██████████] 100%
 
@@ -70,6 +70,13 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 05]: 用户命令目录读取契约：`<home>/.zapcmd/commands` 递归只读 `.json`（大小写不敏感），按路径排序，遇错 fail-fast，`modified_ms` 获取失败回退 0。
 - [Phase 05]: 主窗口 bounds 契约：show 时随鼠标屏居中；restore 时 display_name 优先，越界居中主屏/第一屏，clamp 保证完全可见。
 - [Phase 05]: Rust 侧可测性重构采用可注入依赖与 MonitorInfo fixture，把关键 IO/决策提取为纯函数并锁定单测 — 避免测试依赖真实 Tauri 环境与全局 env，提升回归稳定性
+- [Phase 10]: desktop-smoke 脚本升级为 win32/darwin 平台画像，macOS 默认 safaridriver 预检并输出 Go/No-Go 结论
+- [Phase 10]: verify:local 在 Windows/macOS 默认执行桌面冒烟；Windows 缺驱动自动补装，macOS 缺前置直接失败并给修复指引
+- [Phase 10]: CI Gate / Release 均新增 macOS desktop smoke 阻断，产物按平台命名上传（desktop-e2e-smoke-windows/macos）
+
+### Roadmap Evolution
+
+- Phase 10 added: 补齐 macOS 桌面端 E2E 冒烟
 
 ### Pending Todos
 
@@ -82,5 +89,5 @@ None yet.
 ## Session
 
 **Last Date:** 2026-03-04T16:45:27.889Z
-**Stopped At:** Completed 05-02-PLAN.md
-**Resume File:** None
+**Stopped At:** Completed Phase 10 execution and verification
+**Resume File:** .planning/phases/10-macos-e2e/10-VERIFICATION.md

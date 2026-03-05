@@ -29,12 +29,12 @@ Thanks for contributing to ZapCmd. This guide focuses on the local + CI quality 
 | Check if hooks are enabled | `git config core.hooksPath` |
 | Run the same logic as pre-commit (reads staged files) | `npm run precommit:guard` |
 | Run the full merge gate (same bar as CI) | `npm run check:all` |
-| One-command local full validation (quality gate + desktop smoke on Windows, auto-install missing WebDriver deps) | `npm run verify:local` |
+| One-command local full validation (quality gate + desktop smoke on Windows/macOS; Windows auto-installs missing WebDriver deps) | `npm run verify:local` |
 | Run desktop dev | `npm run tauri:dev` |
 | Run tests (no coverage) | `npm run test:run` |
 | Run tests with coverage (gate) | `npm run test:coverage` |
 | Regenerate builtin commands (PowerShell) | `pwsh -File scripts/generate_builtin_commands.ps1` |
-| Windows desktop E2E smoke (same as CI) | `npm run e2e:desktop:smoke` |
+| Windows/macOS desktop E2E smoke (same as CI) | `npm run e2e:desktop:smoke` |
 
 Note: `npm install` runs `package.json#prepare` which attempts to enable hooks automatically. If you use `--ignore-scripts`, run `node scripts/setup-githooks.mjs` manually.
 
@@ -121,7 +121,7 @@ You must regenerate and commit outputs:
 
 CI (Windows) will block PRs if generated outputs are not committed.
 
-## Windows desktop E2E smoke (CI runs this)
+## Windows/macOS desktop E2E smoke (CI runs this)
 
 CI runs:
 
@@ -147,15 +147,22 @@ If you want to force-install driver deps before running checks:
 
 `npm run verify:local -- --install-webdriver`
 
+To run locally on macOS, install/enable:
+
+`cargo install tauri-driver --locked`
+
+`safaridriver --enable`
+
 ## Trigger and permission matrix
 
 1) Local `commit` (with hooks enabled): runs `.githooks/pre-commit` -> `npm run precommit:guard` (incremental local gate).
 
-2) Local one-command validation: run `npm run verify:local` (full gate + Windows desktop smoke; auto-installs missing WebDriver deps on Windows).
+2) Local one-command validation: run `npm run verify:local` (full gate + Windows/macOS desktop smoke; auto-installs missing WebDriver deps on Windows).
 
 3) Push / PR to upstream:
 - Push to `main` or PR targeting `main` triggers `CI Gate`.
 - Push to a personal feature branch in upstream usually does not trigger `CI Gate` unless you open a PR to `main`.
+- `CI Gate` currently includes: Windows quality gate, Windows desktop smoke, macOS desktop smoke, and cross-platform smoke (macOS/Linux build+test gate).
 
 4) Tag push (`v*.*.*`): triggers release build/publish pipeline.
 

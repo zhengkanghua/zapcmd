@@ -46,12 +46,49 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-e2e-smoke
+          name: desktop-e2e-smoke-windows
+          path: .tmp/e2e/desktop-smoke/
+          if-no-files-found: warn
+
+  desktop-e2e-smoke-macos:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: 安装 macOS 桌面 E2E 依赖
+        timeout-minutes: 20
+        run: |
+          cargo install tauri-driver --locked
+
+      - name: 运行 macOS 桌面端 E2E 冒烟
+        run: npm run e2e:desktop:smoke
+
+      - name: 上传 macOS 桌面端 E2E 诊断产物
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-e2e-smoke-macos
           path: .tmp/e2e/desktop-smoke/
           if-no-files-found: warn
 
   bundle:
-    needs: quality-gate
+    needs:
+      - quality-gate
+      - desktop-e2e-smoke-macos
     strategy:
       fail-fast: false
       matrix:
