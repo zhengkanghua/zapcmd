@@ -31,6 +31,7 @@
 | 查看 hooks 是否已启用 | `git config core.hooksPath` |
 | 手动跑 pre-commit 同口径逻辑（读取 staged 文件） | `npm run precommit:guard` |
 | 合并前全量门禁（与 CI 同口径） | `npm run check:all` |
+| 一键本地全量验证（质量门禁 + Windows 冒烟，缺失驱动会自动补装） | `npm run verify:local` |
 | 开发启动桌面应用 | `npm run tauri:dev` |
 | 仅跑测试（不带覆盖率） | `npm run test:run` |
 | 跑覆盖率（门禁同口径） | `npm run test:coverage` |
@@ -172,6 +173,33 @@ CI/Release 会运行：
 `cargo install tauri-driver --locked`
 
 `pwsh -File scripts/e2e/install-msedgedriver.ps1`
+
+也可以直接用一键验证脚本（会先跑 `check:all`，再在 Windows 跑桌面冒烟）：
+
+`npm run verify:local`
+
+在 Windows 上，该命令会自动检测 `tauri-driver` / `msedgedriver`，缺失时先补装再继续。
+
+如果你希望每次都先执行驱动安装流程，可使用：
+
+`npm run verify:local -- --install-webdriver`
+
+## 4.3 触发与权限矩阵（commit / push / tag / 手动工作流）
+
+1) 本地 `commit`（已启用 hooks）：会触发 `.githooks/pre-commit` -> `npm run precommit:guard`（增量本地门禁）。
+
+2) 本地一键全量验证：执行 `npm run verify:local`（全量门禁 + Windows 桌面冒烟；Windows 缺驱动会自动补装）。
+
+3) push / PR 到上游仓库：
+- push 到 `main` 或 PR 目标为 `main` 时，触发 `CI Gate`。
+- 仅 push 到上游 feature 分支通常不会触发 `CI Gate`，除非已创建到 `main` 的 PR。
+
+4) push `v*.*.*` tag：触发发布构建与发布流程。
+
+5) GitHub 手动工作流（`workflow_dispatch`）权限：
+- 在上游仓库中，通常只有具备写权限（write）的成员可以手动触发。
+- 外部贡献者（无写权限）通常不能触发上游手动工作流。
+- 贡献者可以在自己的 fork 上手动触发（前提是 fork 中启用了对应 workflow）。
 
 ### 4.2 常用环境变量
 

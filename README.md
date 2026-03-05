@@ -69,6 +69,12 @@ Quality gate:
 npm run check:all
 ```
 
+One-command local full validation (same gate + Windows desktop smoke, auto-installs missing WebDriver deps):
+
+```bash
+npm run verify:local
+```
+
 Recommended local workflow (contributors + maintainers):
 
 ```bash
@@ -90,6 +96,12 @@ Windows desktop E2E smoke (CI runs this too):
 
 ```bash
 npm run e2e:desktop:smoke
+```
+
+To force driver install step before validation on Windows:
+
+```bash
+npm run verify:local -- --install-webdriver
 ```
 
 See `CONTRIBUTING.md` for details.

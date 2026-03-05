@@ -16,6 +16,7 @@
     "tauri:build": "npm run version:sync && npm run keys:sync && tauri build --bundles msi",
     "tauri:build:all": "npm run version:sync && npm run keys:sync && tauri build",
     "e2e:desktop:smoke": "npm run tauri:build:debug && node scripts/e2e/desktop-smoke.cjs",
+    "verify:local": "node scripts/verify-local-gate.mjs",
     "check:rust": "cargo check --manifest-path src-tauri/Cargo.toml",
     "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
     "lint": "eslint src vite.config.ts vitest.config.ts --ext .ts,.vue --max-warnings=0",

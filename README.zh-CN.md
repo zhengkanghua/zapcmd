@@ -69,6 +69,12 @@ npm run tauri:dev
 npm run check:all
 ```
 
+一键本地全量验证（同口径质量门禁 + Windows 桌面冒烟，缺失驱动会自动补装）：
+
+```bash
+npm run verify:local
+```
+
 推荐本地开发流程（贡献者 + 维护者）：
 
 ```bash
@@ -90,6 +96,12 @@ Windows 桌面端最小 E2E 冒烟（CI 也会跑）：
 
 ```bash
 npm run e2e:desktop:smoke
+```
+
+Windows 强制预装模式（每次都先执行驱动安装再验证）：
+
+```bash
+npm run verify:local -- --install-webdriver
 ```
 
 更详细说明见：`CONTRIBUTING.zh-CN.md`。

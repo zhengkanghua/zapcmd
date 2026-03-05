@@ -29,6 +29,7 @@ Thanks for contributing to ZapCmd. This guide focuses on the local + CI quality 
 | Check if hooks are enabled | `git config core.hooksPath` |
 | Run the same logic as pre-commit (reads staged files) | `npm run precommit:guard` |
 | Run the full merge gate (same bar as CI) | `npm run check:all` |
+| One-command local full validation (quality gate + desktop smoke on Windows, auto-install missing WebDriver deps) | `npm run verify:local` |
 | Run desktop dev | `npm run tauri:dev` |
 | Run tests (no coverage) | `npm run test:run` |
 | Run tests with coverage (gate) | `npm run test:coverage` |
@@ -135,6 +136,33 @@ To run locally on Windows, install:
 `cargo install tauri-driver --locked`
 
 `pwsh -File scripts/e2e/install-msedgedriver.ps1`
+
+You can also run a one-command local validation script:
+
+`npm run verify:local`
+
+On Windows, this command auto-detects missing `tauri-driver` / `msedgedriver` and installs them before running smoke tests.
+
+If you want to force-install driver deps before running checks:
+
+`npm run verify:local -- --install-webdriver`
+
+## Trigger and permission matrix
+
+1) Local `commit` (with hooks enabled): runs `.githooks/pre-commit` -> `npm run precommit:guard` (incremental local gate).
+
+2) Local one-command validation: run `npm run verify:local` (full gate + Windows desktop smoke; auto-installs missing WebDriver deps on Windows).
+
+3) Push / PR to upstream:
+- Push to `main` or PR targeting `main` triggers `CI Gate`.
+- Push to a personal feature branch in upstream usually does not trigger `CI Gate` unless you open a PR to `main`.
+
+4) Tag push (`v*.*.*`): triggers release build/publish pipeline.
+
+5) GitHub manual workflows (`workflow_dispatch`):
+- In upstream repo, only users with write-level repository permission can trigger them.
+- External contributors without write access cannot trigger upstream manual workflows.
+- Contributors can run manual workflows in their own forks if enabled there.
 
 ## Working with a protected `main` branch
 

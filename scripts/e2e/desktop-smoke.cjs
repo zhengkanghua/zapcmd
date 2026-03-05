@@ -4,7 +4,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const http = require("node:http");
-const { spawn, spawnSync } = require("node:child_process");
+const { spawn } = require("node:child_process");
 
 const { Builder, By, Capabilities, Key, until } = require("selenium-webdriver");
 
@@ -32,16 +32,110 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function runVersionProbe(command) {
-  const result = spawnSync(command, ["--version"], {
-    windowsHide: true,
-    encoding: "utf8"
-  });
+function resolveCommandPath(command) {
+  const pathValue = process.env.PATH ?? "";
+  if (!pathValue) {
+    return "";
+  }
+
+  const pathEntries = pathValue
+    .split(path.delimiter)
+    .map((entry) => entry.trim().replace(/^"(.*)"$/, "$1"))
+    .filter((entry) => entry.length > 0);
+
+  const hasExtension = /\.[^./\\]+$/.test(command);
+  const pathExts =
+    process.platform === "win32"
+      ? (process.env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD")
+          .split(";")
+          .map((ext) => ext.trim())
+          .filter((ext) => ext.length > 0)
+      : [""];
+
+  const candidateNames = hasExtension
+    ? [command]
+    : process.platform === "win32"
+      ? [command, ...pathExts.map((ext) => `${command}${ext}`)]
+      : [command];
+
+  for (const dir of pathEntries) {
+    for (const name of candidateNames) {
+      const fullPath = path.join(dir, name);
+      if (fs.existsSync(fullPath)) {
+        return fullPath;
+      }
+    }
+  }
+
+  return "";
+}
+
+function runCommandProbe(command) {
+  const resolvedPath = resolveCommandPath(command);
   return {
-    ok: result.status === 0,
-    stdout: (result.stdout ?? "").trim(),
-    stderr: (result.stderr ?? "").trim()
+    ok: resolvedPath.length > 0,
+    stdout: resolvedPath,
+    stderr: ""
   };
+}
+
+function findFileRecursively(rootDir, targetFileName, maxDepth = 6) {
+  if (!rootDir || !fs.existsSync(rootDir)) {
+    return "";
+  }
+
+  const pending = [{ dir: rootDir, depth: 0 }];
+  while (pending.length > 0) {
+    const current = pending.shift();
+    if (!current) {
+      continue;
+    }
+
+    let entries = [];
+    try {
+      entries = fs.readdirSync(current.dir, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+
+    for (const entry of entries) {
+      const fullPath = path.join(current.dir, entry.name);
+      if (entry.isFile() && entry.name.toLowerCase() === targetFileName.toLowerCase()) {
+        return fullPath;
+      }
+      if (entry.isDirectory() && current.depth < maxDepth) {
+        pending.push({ dir: fullPath, depth: current.depth + 1 });
+      }
+    }
+  }
+
+  return "";
+}
+
+function resolveEdgeDriverPath() {
+  const pathHit = resolveCommandPath("msedgedriver");
+  if (pathHit) {
+    return pathHit;
+  }
+
+  const candidateRoots = [];
+  const customRoot = process.env.ZAPCMD_E2E_WEBDRIVER_ROOT?.trim();
+  if (customRoot) {
+    candidateRoots.push(path.resolve(customRoot));
+  }
+  if (process.env.RUNNER_TEMP) {
+    candidateRoots.push(path.join(process.env.RUNNER_TEMP, "zapcmd-webdriver"));
+  }
+  candidateRoots.push(path.resolve(".tmp/webdriver"));
+
+  for (const root of candidateRoots) {
+    const found = findFileRecursively(root, "msedgedriver.exe");
+    if (found) {
+      return found;
+    }
+  }
+
+  return "";
 }
 
 function formatCommandFix(command) {
@@ -123,9 +217,13 @@ function createLogger() {
   return { log, flushToDisk };
 }
 
-function spawnTauriDriver({ log }) {
+function spawnTauriDriver({ log, nativeDriverPath }) {
   const logStream = fs.createWriteStream(TAURI_DRIVER_LOG_PATH, { flags: "w" });
-  const child = spawn("tauri-driver", [], {
+  const args = [];
+  if (nativeDriverPath) {
+    args.push("--native-driver", nativeDriverPath);
+  }
+  const child = spawn("tauri-driver", args, {
     windowsHide: true,
     stdio: ["ignore", "pipe", "pipe"]
   });
@@ -138,7 +236,8 @@ function spawnTauriDriver({ log }) {
     log(`tauri-driver 已退出：code=${code ?? "null"} signal=${signal ?? "null"}`);
   });
 
-  log(`已启动 tauri-driver（pid=${child.pid ?? "unknown"}），日志写入：${TAURI_DRIVER_LOG_PATH}`);
+  const nativeDriverText = nativeDriverPath ? `，native-driver=${nativeDriverPath}` : "";
+  log(`已启动 tauri-driver（pid=${child.pid ?? "unknown"}${nativeDriverText}），日志写入：${TAURI_DRIVER_LOG_PATH}`);
   return { child, logStream };
 }
 
@@ -231,7 +330,7 @@ async function main() {
     return;
   }
 
-  const tauriDriverProbe = runVersionProbe("tauri-driver");
+  const tauriDriverProbe = runCommandProbe("tauri-driver");
   if (!tauriDriverProbe.ok) {
     log("未检测到可用的 tauri-driver。请先安装：");
     log(formatCommandFix("cargo install tauri-driver --locked"));
@@ -240,14 +339,16 @@ async function main() {
     return;
   }
 
-  const edgeDriverProbe = runVersionProbe("msedgedriver");
-  if (!edgeDriverProbe.ok) {
+  const edgeDriverPath = resolveEdgeDriverPath();
+  if (!edgeDriverPath) {
     log("未检测到可用的 msedgedriver（Edge WebDriver）。请先安装并确保在 PATH 中可用：");
     log(formatCommandFix("pwsh -File scripts/e2e/install-msedgedriver.ps1"));
+    log("若安装到自定义目录，可设置 ZAPCMD_E2E_WEBDRIVER_ROOT 指向该目录。");
     await flushToDisk();
     process.exitCode = 1;
     return;
   }
+  log(`Edge WebDriver 路径：${edgeDriverPath}`);
 
   let appPath;
   try {
@@ -265,7 +366,7 @@ async function main() {
   let failed = false;
 
   try {
-    const { child } = spawnTauriDriver({ log });
+    const { child } = spawnTauriDriver({ log, nativeDriverPath: edgeDriverPath });
     tauriDriverChild = child;
 
     await waitForWebDriverReady({

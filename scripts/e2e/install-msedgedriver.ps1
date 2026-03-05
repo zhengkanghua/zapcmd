@@ -73,6 +73,17 @@ function Test-UrlExists([string]$Url) {
   }
 }
 
+function Get-DriverVersionFromIndex([string]$IndexUrl) {
+  $raw = Invoke-RestMethod -Uri $IndexUrl
+  $text = ($raw | Out-String)
+  $normalized = ($text -replace "`0", "" -replace "[^0-9\.]", "").Trim()
+  $m = [regex]::Match($normalized, "^(\d+\.\d+\.\d+\.\d+)$")
+  if (-not $m.Success) {
+    throw "Failed to parse EdgeDriver version from index: $IndexUrl"
+  }
+  return $m.Groups[1].Value
+}
+
 $edgeVersion = Get-EdgeVersion
 if (-not $edgeVersion) {
   throw "Unable to detect Microsoft Edge version. Please ensure Edge is installed on this machine."
@@ -94,8 +105,10 @@ $root = if ($InstallRoot -and $InstallRoot.Trim().Length -gt 0) { $InstallRoot }
 Write-Info "Edge version: $edgeVersion"
 Write-Info "Install root: $root"
 
+$driverHost = "https://msedgedriver.microsoft.com"
+
 $candidateVersion = $edgeVersion
-$candidateUrl = "https://msedgedriver.azureedge.net/$candidateVersion/$zipName"
+$candidateUrl = "$driverHost/$candidateVersion/$zipName"
 
 $driverVersion = ""
 $downloadUrl = ""
@@ -106,11 +119,11 @@ if (Test-UrlExists $candidateUrl) {
   Write-Info "Using exact match driver version: $driverVersion"
 } else {
   Write-Info "No exact match driver for $edgeVersion, falling back to LATEST_STABLE"
-  $driverVersion = (Invoke-RestMethod -Uri "https://msedgedriver.azureedge.net/LATEST_STABLE").Trim()
+  $driverVersion = Get-DriverVersionFromIndex "$driverHost/LATEST_STABLE"
   if (-not $driverVersion) {
     throw "Failed to resolve EdgeDriver version from LATEST_STABLE"
   }
-  $downloadUrl = "https://msedgedriver.azureedge.net/$driverVersion/$zipName"
+  $downloadUrl = "$driverHost/$driverVersion/$zipName"
   Write-Info "Using LATEST_STABLE driver version: $driverVersion"
 }
 
