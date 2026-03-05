@@ -18,7 +18,13 @@ export function createWindowKeydownHandler<TItem>(
     }
 
     if (options.main.safetyDialogOpen.value) {
-      if (event.key === "Enter") {
+      const isPlainEnter =
+        event.key === "Enter" &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey &&
+        !event.shiftKey;
+      if (isPlainEnter) {
         event.preventDefault();
         event.stopPropagation();
         void options.main.confirmSafetyExecution();
