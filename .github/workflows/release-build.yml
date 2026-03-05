@@ -33,10 +33,10 @@ jobs:
         run: npm run check:all
 
       - name: 安装桌面 E2E WebDriver 依赖
+        shell: pwsh
         run: |
           cargo install tauri-driver --locked
-          cargo install msedgedriver-tool --locked
-          msedgedriver-tool install
+          pwsh -File scripts/e2e/install-msedgedriver.ps1
 
       - name: 运行桌面端 E2E 冒烟
         run: npm run e2e:desktop:smoke

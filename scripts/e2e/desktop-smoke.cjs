@@ -243,8 +243,7 @@ async function main() {
   const edgeDriverProbe = runVersionProbe("msedgedriver");
   if (!edgeDriverProbe.ok) {
     log("未检测到可用的 msedgedriver（Edge WebDriver）。请先安装并确保在 PATH 中可用：");
-    log(formatCommandFix("cargo install msedgedriver-tool --locked"));
-    log(formatCommandFix("msedgedriver-tool install"));
+    log(formatCommandFix("pwsh -File scripts/e2e/install-msedgedriver.ps1"));
     await flushToDisk();
     process.exitCode = 1;
     return;

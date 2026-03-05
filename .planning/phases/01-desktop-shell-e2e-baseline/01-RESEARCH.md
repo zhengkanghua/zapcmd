@@ -172,7 +172,7 @@
 
 - `tauri-driver`（Rust 安装）：`cargo install tauri-driver --locked`
 - `msedgedriver`（版本需匹配 Edge）：
-  - 推荐：`cargo install msedgedriver-tool --locked` 后运行 `msedgedriver-tool install`
+  - 推荐：运行 `pwsh -File scripts/e2e/install-msedgedriver.ps1`（下载并把 `msedgedriver.exe` 加入 PATH）
 - Node 侧：`selenium-webdriver`（作为 devDependency）
 
 ### 用例设计（只做 1 条冒烟）
@@ -191,4 +191,3 @@
 | REG-01 | 本地 pre-commit 对功能/行为改动强制全量回归（至少 `test:coverage`），并避免对纯文档阻塞 | `01-01-PLAN.md` |
 | REG-02 | CI 以 `npm run check:all` 作为合并门禁，失败日志可定位 | `01-02-PLAN.md` |
 | E2E-01 | 最小桌面端 E2E 基线落地或明确替代结论，并接入 CI/Release 阻断 | `01-03-PLAN.md` + `01-02-PLAN.md` |
-

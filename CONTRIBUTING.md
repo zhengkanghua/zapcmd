@@ -134,9 +134,7 @@ To run locally on Windows, install:
 
 `cargo install tauri-driver --locked`
 
-`cargo install msedgedriver-tool --locked`
-
-`msedgedriver-tool install`
+`pwsh -File scripts/e2e/install-msedgedriver.ps1`
 
 ## Working with a protected `main` branch
 

@@ -171,9 +171,7 @@ CI/Release 会运行：
 
 `cargo install tauri-driver --locked`
 
-`cargo install msedgedriver-tool --locked`
-
-`msedgedriver-tool install`
+`pwsh -File scripts/e2e/install-msedgedriver.ps1`
 
 ### 4.2 常用环境变量
 

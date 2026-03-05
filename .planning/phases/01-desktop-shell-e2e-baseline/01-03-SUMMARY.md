@@ -87,14 +87,14 @@ completed: 2026-03-03
 - 受当前执行沙箱限制（Node `child_process.spawn*` 返回 `EPERM`），无法在此环境内运行 `npm run test:run`（Vite/Vitest 依赖 esbuild 子进程）以及真正启动 `tauri-driver` 的端到端链路验证。
   - **建议在开发者本机/CI Windows 环境复验：**
     1) `npm ci`
-    2) 安装 WebDriver 依赖：`cargo install tauri-driver --locked`、`cargo install msedgedriver-tool --locked`、`msedgedriver-tool install`
+    2) 安装 WebDriver 依赖：`cargo install tauri-driver --locked`、`pwsh -File scripts/e2e/install-msedgedriver.ps1`
     3) `npm run e2e:desktop:smoke`
     4) `npm run test:run`
 
 ## 用户需要的本地准备
 
 - Windows 本地运行需安装 WebDriver 依赖：`cargo install tauri-driver --locked`
-- Windows 本地运行需安装并配置 Edge WebDriver：`cargo install msedgedriver-tool --locked` + `msedgedriver-tool install`
+- Windows 本地运行需安装并配置 Edge WebDriver：`pwsh -File scripts/e2e/install-msedgedriver.ps1`（确保 `msedgedriver` 在 PATH）
 
 ## 下一阶段准备
 
