@@ -5,16 +5,16 @@ milestone_name: 质量门禁与回归基线
 current_phase: 6
 current_phase_name: security-regression
 current_plan: 2/2
-status: in_progress
-stopped_at: Completed 06-security-regression-01-PLAN.md
-last_updated: "2026-03-05T13:17:47.397Z"
+status: verifying
+stopped_at: Completed 06-security-regression-02-PLAN.md
+last_updated: "2026-03-05T13:56:48.867Z"
 last_activity: 2026-03-05
 progress:
   total_phases: 10
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 19
-  completed_plans: 18
-  percent: 95
+  completed_plans: 19
+  percent: 100
 ---
 
 # Project State
@@ -33,11 +33,11 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Total Phases:** 10  
 **Current Plan:** 2/2
 **Total Plans in Phase:** 2
-**Status:** In Progress
+**Status:** Phase complete — ready for verification
 **Last Activity:** 2026-03-05
-**Last Activity Description:** Completed Phase 06 Plan 01
+**Last Activity Description:** Completed Phase 06 Plan 02
 
-**Progress:** [██████████] 95%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 | Phase 05 P01 | 6min | 2 tasks | 2 files |
 | Phase 05 P02 | 4min | 2 tasks | 2 files |
 | Phase 06-security-regression P01 | 20 min | 3 tasks | 2 files |
+| Phase 06-security-regression P02 | 18 min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 10]: CI Gate / Release 均新增 macOS desktop smoke 阻断，产物按平台命名上传（desktop-e2e-smoke-windows/macos）
 - [Phase 06-security-regression]: 安全拦截断言统一采用前缀 + 原因片段，避免整句文案硬编码导致回归脆弱。
 - [Phase 06-security-regression]: Task 3 在无行为偏差时保持源码不变，并以空提交保留任务级验证轨迹。
+- [Phase 06-security-regression]: 安全弹层确认动作限定为无修饰键 Enter，Ctrl+Enter 在弹层打开态仅拦截不确认
+- [Phase 06-security-regression]: blocked 提示双语回归统一采用前缀 + 原因片段，并同时断言 runMock 未调用
 
 ### Roadmap Evolution
 
@@ -91,6 +94,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-05T13:17:47.394Z
-**Stopped At:** Completed 06-security-regression-01-PLAN.md
+**Last Date:** 2026-03-05T13:56:48.865Z
+**Stopped At:** Completed 06-security-regression-02-PLAN.md
 **Resume File:** None
