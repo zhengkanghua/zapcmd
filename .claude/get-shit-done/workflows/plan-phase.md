@@ -3,6 +3,7 @@ Create executable phase prompts (PLAN.md files) for a roadmap phase with integra
 </purpose>
 
 <required_reading>
+Read .ai/AGENTS.md before any operation to load highest-priority project principles.
 Read all files referenced by the invoking prompt's execution_context before starting.
 
 @./.claude/get-shit-done/references/ui-brand.md
