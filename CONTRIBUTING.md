@@ -20,6 +20,26 @@ Thanks for contributing to ZapCmd. This guide focuses on the local + CI quality 
 
 `npm run check:all`
 
+## Daily development cadence (shared)
+
+1) Create a feature branch from `main` and develop in small commits:
+
+`git switch -c feat/<topic>`
+
+2) Run local quality checks before commit:
+
+`npm run precommit:guard`
+
+3) Run one-command local verification before PR:
+
+`npm run verify:local`
+
+Notes:
+- On Windows, this includes quality gate + blocking desktop smoke (auto-installs missing driver deps).
+- On macOS, this runs quality gate by default; desktop smoke is experimental (`--macos-desktop-e2e-experimental`).
+
+4) Open a PR to `main` and wait for `CI Gate` to pass before merge.
+
 ## Command Cheat Sheet
 
 | What you want | Command |

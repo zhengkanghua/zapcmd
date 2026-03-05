@@ -6,9 +6,8 @@
 
 1. 发版与回滚跑书：`release_runbook.md`
 2. CI / CodeQL / Release 工作流确认清单：`ci_cd_verification.md`
-3. 维护者个人手册（仅维护者使用）：`MAINTAINER_OPEN_SOURCE_PLAYBOOK.local.md`
-4. Phase 01 运行手册（本地门禁 + Windows 桌面 E2E）：`phase_01_guard_and_e2e_runbook.md`
-5. GitHub Actions + 分支保护“一次性设置清单”（建议保留备查）：`TEMP_github_ci_setup.md`
+3. 人工回归清单（桌面真实环境能力）：`manual_regression_m0_m0a.md`
+4. GitHub Actions + 分支保护“一次性设置清单”（建议保留备查）：`TEMP_github_ci_setup.md`
 
 ## 项目公共文档（请看这里）
 

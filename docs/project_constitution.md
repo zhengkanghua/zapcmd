@@ -96,7 +96,7 @@
 人工回归清单：
 
 - 日常（M0/M0A）：`docs/.maintainer/work/manual_regression_m0_m0a.md`
-- 发布（M4）：`docs/.maintainer/work/manual_regression_m4_release.md`
+- 发布前：按 `docs/.maintainer/work/release_runbook.md` 的“发布前人工验收（macOS 真机）”执行
 
 ---
 

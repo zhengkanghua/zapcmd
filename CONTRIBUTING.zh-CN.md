@@ -20,6 +20,27 @@
 
 4) 开 PR，让 GitHub Actions 跑完 `CI Gate`（Windows + macOS + Linux）。
 
+## 0.2 日常开发节奏（贡献者共用）
+
+1) 从 `main` 拉功能分支，小步提交：
+
+`git switch -c feat/<topic>`
+
+2) 提交前先跑本地增量门禁：
+
+`npm run precommit:guard`
+
+3) 提 PR 前跑一键全量验证：
+
+`npm run verify:local`
+
+说明：
+- Windows：默认执行质量门禁 + 阻断级桌面冒烟（缺驱动会自动补装）。
+- macOS：默认只跑质量门禁；桌面冒烟为实验性（`--macos-desktop-e2e-experimental`）。
+
+4) 开 PR 到 `main`，等待 `CI Gate` 全绿后再合并。
+
+
 ---
 
 ## 0.1 常用命令速查
@@ -191,7 +212,12 @@ Windows 前置：
 
 `npm run verify:local -- --macos-desktop-e2e-experimental`
 
-## 4.3 触发与权限矩阵（commit / push / tag / 手动工作流）
+### 4.2 常用环境变量
+
+- `ZAPCMD_E2E_APP_PATH`：指定已构建的 `zapcmd.exe` 路径
+- `ZAPCMD_E2E_QUERY`：指定搜索关键词
+
+### 4.3 触发与权限矩阵（commit / push / tag / 手动工作流）
 
 1) 本地 `commit`（已启用 hooks）：会触发 `.githooks/pre-commit` -> `npm run precommit:guard`（增量本地门禁）。
 
@@ -208,11 +234,6 @@ Windows 前置：
 - 在上游仓库中，通常只有具备写权限（write）的成员可以手动触发。
 - 外部贡献者（无写权限）通常不能触发上游手动工作流。
 - 贡献者可以在自己的 fork 上手动触发（前提是 fork 中启用了对应 workflow）。
-
-### 4.2 常用环境变量
-
-- `ZAPCMD_E2E_APP_PATH`：指定已构建的 `zapcmd.exe` 路径
-- `ZAPCMD_E2E_QUERY`：指定搜索关键词
 
 ---
 

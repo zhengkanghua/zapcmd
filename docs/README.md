@@ -26,8 +26,9 @@
 3. `docs/project_structure.md`：项目结构与技术栈说明（快速上手入口）
 4. `docs/plan/README.md`：需求/计划文档（Docs-first 落地入口）
 5. `docs/architecture_plan.md`：架构说明（当前实现 + Roadmap）
-6. `docs/command_sources/README.md`：内置命令源文件维护入口（含生成说明）
-7. `docs/schemas/README.md`：命令文件 schema 说明
-8. `docs/schemas/command-file.schema.json`：命令 JSON schema
-9. `assets/runtime_templates/README.md`：运行时模板资产说明与维护口径
-10. `.github/README*.md`：CI/CD 与协作模板说明
+6. `docs/.maintainer/work/README.md`：维护者内部跑书入口（发布/CI 核对/人工回归）
+7. `docs/command_sources/README.md`：内置命令源文件维护入口（含生成说明）
+8. `docs/schemas/README.md`：命令文件 schema 说明
+9. `docs/schemas/command-file.schema.json`：命令 JSON schema
+10. `assets/runtime_templates/README.md`：运行时模板资产说明与维护口径
+11. `.github/README*.md`：CI/CD 与协作模板说明

@@ -1,115 +1,96 @@
-# ZapCmd 发版流程（main + tags）
+# ZapCmd 维护者发版跑书（Windows 阻断冒烟 + macOS 人工冒烟）
 
-> 目标：你只维护一个版本源（`package.json`）+ 一个变更入口（`CHANGELOG.md`）。
+> 目标：保持“自动化稳定阻断 + 真机人工验收”的平衡。  
+> 口径：Windows 桌面冒烟在 CI 阻断；macOS 桌面冒烟在真实 Mac 人工执行。
 
-## TL;DR（最短发版命令流程）
+## 0. 文档分层（避免重复）
 
-1) 在一个 release 分支完成版本变更并走完门禁：
-- `git checkout -b release/vX.Y.Z`
-- 修改：`package.json`、`CHANGELOG.md`（以及必要的 `README*`）
-- `npm install`
-- `npm run check:all`
-- `git add -A`
-- `git commit -m "release: vX.Y.Z"`
-- `git push -u origin release/vX.Y.Z`
-- 开 PR 合并到 `main`（Required checks 全绿）
+1. 贡献者共用流程：`CONTRIBUTING.md` / `CONTRIBUTING.zh-CN.md`
+2. 维护者发版细节：本文件
+3. CI/CD 设置核对：`docs/.maintainer/work/ci_cd_verification.md`
 
-2) 合并后基于最新 `main` 打 tag 并推送（触发正式发版）：
-- `git checkout main`
-- `git pull --rebase`
-- `git tag vX.Y.Z`
-- `git push origin vX.Y.Z`
+## 1. 当前门禁策略（项目现状）
 
-3) 观察 GitHub Actions：
-- `Actions` → `Release Build Matrix` 运行成功
-- `Releases` 出现对应版本资产 + `SHA256SUMS`
+### 1.1 CI Gate（PR / push main）
 
-> 说明：如果你开启了 `main` 分支保护（推荐），通常不能直接 push 到 `main`，上述流程天然适配（release 分支 → PR 合并 → main 打 tag）。
+1. Windows `quality-gate`：`npm run check:all`
+2. Windows `desktop-e2e-smoke`：`npm run e2e:desktop:smoke`
+3. `cross-platform-smoke`（macOS + Linux）：`typecheck + test + build + rust test`
 
-## 0. 分支约定（推荐）
+### 1.2 Release Build Matrix（push tag `v*.*.*`）
 
-1. `main`：默认开发分支，所有贡献通过 PR 合并到 `main`。
-2. 发布以 tag 为准：`vX.Y.Z` 指向的提交即为已发布版本；`main` 可能包含未发布提交。
-3. 推荐开启主分支保护（Branch protection / Rulesets）：
-   - Require PR
-   - Required status checks（至少 `CI Gate`）
-   - 禁止 force-push / 删除分支
+1. 先跑 Windows `quality-gate + desktop smoke`
+2. 再构建 Windows/macOS/Linux 安装包
+3. 自动发布 GitHub Release（包含 `SHA256SUMS`）
 
-## 0.1 仓库设置（一次性）
+### 1.3 macOS 桌面端验证策略
 
-1. 确认默认分支为 `main`。
-2. GitHub Actions 已启用（Settings → Actions）。
-3. 分支保护（Branch protection / Rulesets）建议对 `main` 启用：
-   - Require PR + Required status checks（至少 `CI Gate`）
-   - Restrict who can push（仅维护者，可选）
+1. 不在 CI 阻断执行 WebDriver 桌面冒烟（稳定性不足）
+2. 在真实 macOS 机器进行人工冒烟（发布前）
 
-## 0.2 CodeQL 设置（避免冲突）
+## 2. 日常开发节奏（维护者）
 
-如果你使用仓库内的 `.github/workflows/codeql.yml`（Advanced configuration），请确保在 GitHub 的 Code scanning 设置中 **关闭 Default setup**，否则会出现：
+1. 从 `main` 拉分支开发：
+   - `git fetch origin`
+   - `git switch main`
+   - `git pull --rebase origin main`
+   - `git switch -c feat/<topic>`
+2. 本地增量检查：`npm run precommit:guard`
+3. 提交前全量检查（Windows 主力机）：`npm run verify:local`
+4. 提 PR 到 `main`，等待 `CI Gate` 全绿后合并
 
-> `CodeQL analyses from advanced configurations cannot be processed when the default setup is enabled`
+## 3. 发版节奏（推荐）
 
-处理方式（二选一）：
-1. 保留 Advanced：关闭 Default setup（推荐，触发规则可控）。
-2. 使用 Default setup：删除/禁用仓库内的 CodeQL workflow。
+### 3.1 准备发版 PR（main 前置）
 
-自动化检测确认清单：`docs/.maintainer/work/ci_cd_verification.md`
-
-## 1. 发版前准备
-
-1. 在 `package.json` 更新版本号（例如 `0.1.3`）。
-2. 在 `CHANGELOG.md` 新增同版本条目：
-   - 标题必须是：`## [0.1.3] - YYYY-MM-DD`
-   - 内容建议按双语写法：`中文 / English`
-3. 同步用户入口文档（如有用户可见变更）：
+1. 更新版本与变更：
+   - `package.json`（唯一版本源）
+   - `CHANGELOG.md`（必须有 `## [X.Y.Z] - YYYY-MM-DD`）
+2. 如有用户可见变化，同步：
    - `README.md`
    - `README.zh-CN.md`
+3. 在 Windows 跑：
+   - `npm run verify:local`
+4. 提交 release PR 并合并到 `main`
 
-## 2. 本地校验
+### 3.2 发布前人工验收（macOS 真机）
 
-1. 执行：`npm run check:all`
-2. 需要桌面验证时执行：
-   - `npm run tauri:build`（本地 Windows MSI）
-3. 发布候选手工回归：
-   - `docs/.maintainer/work/manual_regression_m0_m0a.md`
-   - `docs/.maintainer/work/manual_regression_m4_release.md`
+1. 在 GitHub Actions 手动运行 `Release Dry Run Build`（`platform=macos` 或 `all`）
+2. 下载 macOS 构建产物（`.dmg` / `.app`）
+3. 在真实 Mac 安装并执行最小人工冒烟：
+   - 应用可启动
+   - 搜索输入有结果
+   - Esc 可关闭抽屉/恢复基础状态
+   - 执行 1~2 条基础命令确认终端链路
+4. 记录结果（建议写入发布 PR 评论）
 
-## 3. 正式发版（手动打 Tag）
+### 3.3 正式发布（打 tag）
 
-1. 确认本轮改动已合并到 `main`（PR 已通过 `CI Gate` 并合并）。
-2. 推送主分支改动：
+1. 确认 `main` 已是待发布提交：
+   - `git switch main`
+   - `git pull --rebase origin main`
+2. 推送主分支：
    - `git push origin main`
-3. 在 `main` 上创建并推送版本 tag：
-   - `git tag v0.1.3`
-   - `git push origin v0.1.3`
+3. 创建并推送 tag：
+   - `git tag -a vX.Y.Z -m "vX.Y.Z"`
+   - `git push origin vX.Y.Z`
 
-也可用 PowerShell 自动读取版本创建 tag：
+> 注意：当前 workflow 是“tag 即正式发布”，不是 Draft Release。
 
-```powershell
-$ver = (Get-Content package.json -Raw | ConvertFrom-Json).version
-git tag "v$ver"
-git push origin "v$ver"
-```
+### 3.4 发版后确认
 
-## 4. 工作流自动做什么
+1. `Release Build Matrix` 全部成功
+2. GitHub Release 资产完整（Windows/macOS/Linux）
+3. `SHA256SUMS` 存在且可校验
+4. Release 正文与 `CHANGELOG` 版本一致
 
-触发 `.github/workflows/release-build.yml` 后，自动执行：
+## 4. 常用命令速查（维护者）
 
-1. 校验 `tag 版本 == package.json 版本`（不一致直接失败）。
-2. 抽取 `CHANGELOG.md` 对应版本条目作为 Release 正文。
-3. 构建三平台安装包并上传到 GitHub Releases。
-4. 生成并上传 `SHA256SUMS` 校验文件。
+1. 全量质量门禁：`npm run check:all`
+2. 本地发布前门禁（Windows）：`npm run verify:local`
+3. 手动试验 macOS 桌面自动化：`npm run verify:local -- --macos-desktop-e2e-experimental`
+4. 手动触发构建验收：GitHub Actions → `Release Dry Run Build`
 
-## 5. 发版后确认
+## 5. 如果未来要改成 Draft Release
 
-1. 在 GitHub Releases 确认：
-   - 资产完整（Windows/macOS/Linux）
-   - 有 `SHA256SUMS`
-   - 正文包含对应版本的 changelog 条目
-2. 抽样校验一个安装包哈希是否匹配 `SHA256SUMS`。
-
-## 6. 回滚简版
-
-1. 选择最近稳定 tag（例如 `v0.1.2`）。
-2. 必要时将该版本重新标记为推荐下载版本。
-3. 修复后发布补丁版本（例如 `v0.1.4`）。
+若后续想采用“先自动发布 Draft，再人工点击 Publish”模式，可在 `release-build.yml` 的发布步骤增加 `draft: true`。当前仓库尚未启用该模式。
