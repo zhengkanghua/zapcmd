@@ -174,11 +174,12 @@ if ($env:GITHUB_PATH) {
 }
 
 $versionOut = Try-Run $exe.FullName @("--version") 15
-if (-not $versionOut.ok) {
-  if ($versionOut.timedOut) {
-    throw "msedgedriver installed but `--version` probe timed out: $($exe.FullName)"
-  }
-  throw "msedgedriver installed but `--version` probe failed: $($exe.FullName)"
+if ($versionOut.ok) {
+  Write-Info "Installed: $($versionOut.output)"
+} elseif ($versionOut.timedOut) {
+  Write-Info "Installed at: $($exe.FullName)"
+  Write-Info "Version probe timed out; continue and let desktop smoke verify runtime launch."
+} else {
+  Write-Info "Installed at: $($exe.FullName)"
+  Write-Info "Version probe failed; continue and let desktop smoke verify runtime launch."
 }
-
-Write-Info "Installed: $($versionOut.output)"
