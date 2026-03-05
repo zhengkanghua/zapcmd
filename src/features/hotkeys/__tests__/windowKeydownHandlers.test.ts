@@ -204,4 +204,21 @@ describe("windowKeydownHandlers", () => {
     expect(spies.cancelSafetyExecution).toHaveBeenCalledTimes(1);
     expect(spies.executeStaged).not.toHaveBeenCalled();
   });
+
+  it("does not confirm safety dialog on Ctrl+Enter", () => {
+    const { handler, options, spies } = createHarness();
+    options.main.safetyDialogOpen.value = true;
+    const event = new KeyboardEvent("keydown", {
+      key: "Enter",
+      ctrlKey: true,
+      cancelable: true
+    });
+
+    handler(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(spies.confirmSafetyExecution).not.toHaveBeenCalled();
+    expect(spies.cancelSafetyExecution).not.toHaveBeenCalled();
+    expect(spies.executeStaged).not.toHaveBeenCalled();
+  });
 });
