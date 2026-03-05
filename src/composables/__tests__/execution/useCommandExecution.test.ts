@@ -142,6 +142,20 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
   });
 
+  it("trims boundary arg input before single execution and keeps success feedback", async () => {
+    const harness = createHarness();
+    const command = createArgCommand();
+
+    harness.execution.executeResult(command);
+    harness.execution.updatePendingArgValue("value", "  8088  ");
+    harness.execution.submitParamInput();
+    await nextTick();
+
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
+    expect(harness.execution.executionFeedbackTone.value).toBe("success");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
+  });
+
   it("auto dismisses execution feedback after 3 seconds", async () => {
     vi.useFakeTimers();
     const harness = createHarness();
@@ -228,6 +242,22 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("首条：ls -la");
   });
 
+  it("blocks queue execution on injection hit, keeps queue, and does not call terminal runners", async () => {
+    const harness = createHarness(true);
+    const command = createArgCommand();
+
+    harness.execution.stageResult(command);
+    harness.execution.updatePendingArgValue("value", " 8080; whoami ");
+    harness.execution.submitParamInput();
+    await harness.execution.executeStaged();
+
+    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("执行已拦截");
+  });
+
   it("removes staged command and clamps active index", () => {
     const harness = createHarness();
     harness.stagedCommands.value = [
@@ -306,5 +336,4 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["taskkill /F /PID 1234"]);
   });
 });
-
 
