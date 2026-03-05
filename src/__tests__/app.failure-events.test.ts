@@ -869,22 +869,46 @@ describe("App failure and event regression", () => {
     expect(hoisted.runMock).toHaveBeenCalledTimes(1);
   });
 
-  it("blocks injected argument before execution", async () => {
+  it("shows blocked feedback in zh-CN and does not execute injected argument", async () => {
     const wrapper = await mountApp();
-    await focusSearchAndType(wrapper, "解除端口占用");
+    await focusSearchAndType(wrapper, "查看容器日志");
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
     expect(wrapper.find(".param-overlay").exists()).toBe(true);
 
-    await wrapper.get("#param-input-port").setValue("443; whoami");
+    await wrapper.get("#param-input-container").setValue("demo; whoami");
     await wrapper.get(".param-dialog").trigger("submit");
     await waitForUi();
 
     expect(wrapper.find(".safety-overlay").exists()).toBe(false);
     expect(hoisted.runMock).not.toHaveBeenCalled();
-    expect(wrapper.get(".execution-feedback--error").text()).toContain(
-      "执行已拦截",
-    );
+    const feedback = wrapper.get(".execution-feedback--error").text();
+    expect(feedback).toContain("执行已拦截");
+    expect(feedback).toContain("包含潜在注入");
+  });
+
+  it("shows blocked feedback in en-US and does not execute injected argument", async () => {
+    const wrapper = await mountApp();
+    const settingsStore = getSettingsStoreFromWrapper(wrapper);
+    settingsStore.setLanguage("en-US");
+    await waitForUi();
+    await waitForUi();
+
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("Enter");
+    await waitForUi();
+    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+
+    await wrapper.get("#param-input-container").setValue("demo; whoami");
+    await wrapper.get(".param-dialog").trigger("submit");
+    await waitForUi();
+
+    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(hoisted.runMock).not.toHaveBeenCalled();
+    const feedback = wrapper.get(".execution-feedback--error").text();
+    expect(feedback).toContain("Execution blocked");
+    expect(feedback).toContain("contains potential injection");
   });
 });
