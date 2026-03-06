@@ -126,5 +126,25 @@ describe("useSettingsWindow persistence", () => {
     expect(harness.settingsStore.persist).not.toHaveBeenCalled();
     expect(harness.state.settingsError.value).toBe("autostart failed");
   });
-});
 
+  it("recovers on next save after a persistence failure", async () => {
+    const harness = createHarness({
+      isTauriRuntime: () => false
+    });
+    harness.settingsStore.persist.mockImplementationOnce(() => {
+      throw new Error("persist failed");
+    });
+
+    await harness.actions.saveSettings();
+    expect(harness.state.settingsError.value).toBe("persist failed");
+    expect(harness.state.settingsSaved.value).toBe(false);
+    expect(harness.options.broadcastSettingsUpdated).not.toHaveBeenCalled();
+
+    await harness.actions.saveSettings();
+
+    expect(harness.settingsStore.persist).toHaveBeenCalledTimes(2);
+    expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
+    expect(harness.state.settingsError.value).toBe("");
+    expect(harness.state.settingsSaved.value).toBe(true);
+  });
+});

@@ -2,6 +2,11 @@ import { mount } from "@vue/test-utils";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useAppLifecycle } from "../../app/useAppLifecycle";
+import {
+  evaluateSettingsWindowOpenPolicy,
+  evaluateStartupUpdateFeedbackPolicy,
+  evaluateStartupUpdatePolicy
+} from "../../app/useAppCompositionRoot/policies";
 
 class MockBroadcastChannel {
   static instances: MockBroadcastChannel[] = [];
@@ -256,4 +261,74 @@ describe("useAppLifecycle", () => {
   });
 });
 
+describe("useAppCompositionRoot policies", () => {
+  it("blocks startup update checks when runtime cannot execute", () => {
+    expect(
+      evaluateStartupUpdatePolicy({
+        isTauriRuntime: false,
+        autoCheckUpdateEnabled: true
+      })
+    ).toEqual({
+      shouldCheck: false,
+      enabled: true
+    });
+    expect(
+      evaluateStartupUpdatePolicy({
+        isTauriRuntime: true,
+        autoCheckUpdateEnabled: false
+      })
+    ).toEqual({
+      shouldCheck: false,
+      enabled: false
+    });
+  });
+
+  it("normalizes startup update feedback when version is missing", () => {
+    expect(
+      evaluateStartupUpdateFeedbackPolicy({
+        checked: true,
+        available: false
+      })
+    ).toEqual({
+      shouldNotify: false,
+      version: ""
+    });
+    expect(
+      evaluateStartupUpdateFeedbackPolicy({
+        checked: true,
+        available: true
+      })
+    ).toEqual({
+      shouldNotify: true,
+      version: ""
+    });
+    expect(
+      evaluateStartupUpdateFeedbackPolicy({
+        checked: true,
+        available: true,
+        version: "  1.2.3  "
+      })
+    ).toEqual({
+      shouldNotify: true,
+      version: "1.2.3"
+    });
+  });
+
+  it("blocks settings-window invoke when tauri window is unavailable", () => {
+    expect(
+      evaluateSettingsWindowOpenPolicy({
+        isTauriRuntime: false
+      })
+    ).toEqual({
+      shouldOpen: false
+    });
+    expect(
+      evaluateSettingsWindowOpenPolicy({
+        isTauriRuntime: true
+      })
+    ).toEqual({
+      shouldOpen: true
+    });
+  });
+});
 

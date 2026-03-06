@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useAppWindowKeydown } from "../../app/useAppWindowKeydown";
 import type { HotkeyFieldId } from "../../../stores/settingsStore";
+import { createAppCompositionRootPorts } from "../../app/useAppCompositionRoot/ports";
 
 function createHarness() {
   const isSettingsWindow = ref(false);
@@ -135,3 +136,36 @@ describe("useAppWindowKeydown", () => {
   });
 });
 
+describe("useAppCompositionRoot ports", () => {
+  it("supports overriding external window side-effect entry", async () => {
+    const openExternalUrl = vi.fn(async () => {});
+    const ports = createAppCompositionRootPorts({
+      openExternalUrl
+    });
+
+    await ports.openExternalUrl("https://example.com");
+
+    expect(openExternalUrl).toHaveBeenCalledWith("https://example.com");
+  });
+
+  it("supports overriding startup update checker and storage port", async () => {
+    const checkStartupUpdate = vi.fn(async () => ({
+      checked: false,
+      available: false
+    }));
+    const getLocalStorage = vi.fn(() => null);
+    const ports = createAppCompositionRootPorts({
+      checkStartupUpdate,
+      getLocalStorage
+    });
+
+    expect(ports.getLocalStorage()).toBeNull();
+    await ports.checkStartupUpdate({ enabled: true, storage: null });
+
+    expect(getLocalStorage).toHaveBeenCalledTimes(1);
+    expect(checkStartupUpdate).toHaveBeenCalledWith({
+      enabled: true,
+      storage: null
+    });
+  });
+});

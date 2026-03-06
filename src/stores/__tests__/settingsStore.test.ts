@@ -398,4 +398,62 @@ describe("settingsStore migration and persistence", () => {
     expect(adapter.readSettings()).toEqual(createDefaultSettingsSnapshot());
     expect(() => adapter.writeSettings(createDefaultSettingsSnapshot())).not.toThrow();
   });
+
+  it("keeps snapshot stable across read-write-read round-trip from legacy payload", () => {
+    localStorage.setItem(
+      LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        launcherHotkey: "ctrl+shift+v",
+        toggleQueueHotkey: "tab"
+      })
+    );
+    localStorage.setItem(
+      LEGACY_GENERAL_SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        defaultTerminal: "pwsh"
+      })
+    );
+
+    const first = readSettingsFromStorage(localStorage);
+    writeSettingsToStorage(first, localStorage);
+    const second = readSettingsFromStorage(localStorage);
+
+    expect(second).toEqual(first);
+  });
+
+  it("prefers current key when current and legacy payload coexist", () => {
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        version: 3,
+        hotkeys: {
+          launcher: "alt+x"
+        },
+        general: {
+          defaultTerminal: "wt",
+          language: "en-US",
+          autoCheckUpdate: true,
+          launchAtLogin: false
+        },
+        commands: {
+          disabledCommandIds: [],
+          view: {}
+        },
+        appearance: {
+          windowOpacity: 0.88
+        }
+      })
+    );
+    localStorage.setItem(
+      LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        launcherHotkey: "ctrl+shift+v"
+      })
+    );
+
+    const snapshot = readSettingsFromStorage(localStorage);
+    expect(snapshot.hotkeys.launcher).toBe("Alt+X");
+    expect(snapshot.general.defaultTerminal).toBe("wt");
+    expect(snapshot.general.language).toBe("en-US");
+  });
 });
