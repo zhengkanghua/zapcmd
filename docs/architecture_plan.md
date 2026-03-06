@@ -31,6 +31,7 @@
 9. 命令文件轻量 schema guard：按 `docs/schemas/command-file.schema.json` 的核心字段约束做运行时校验（非法文件跳过）。
 10. 执行安全链路：参数注入防护 + 高危命令执行前确认（单命令/队列）。
 11. 会话恢复：主窗口暂存队列状态跨会话恢复（`zapcmd.session.launcher`）。
+12. Phase 8 架构可测试性收敛：组合根引入 `ports/policies/runtime` 分层，`settingsStore` 拆分为 `defaults/normalization/migration/storageAdapter/store`。
 
 ### 1.3 未实现能力
 
@@ -47,6 +48,7 @@
 - 启动入口：`src/main.ts`
 - 全局样式：`src/styles.css`
 - 应用编排根：`src/composables/app/useAppCompositionRoot/`
+- 组合根边界层：`src/composables/app/useAppCompositionRoot/ports.ts`、`src/composables/app/useAppCompositionRoot/policies.ts`
 - 主窗口视图：`src/components/launcher/LauncherWindow.vue`
 - 主窗口子组件：`src/components/launcher/parts/*`
 - 主窗口类型定义：`src/components/launcher/types.ts`
@@ -54,6 +56,7 @@
 - 设置窗口子组件：`src/components/settings/parts/*`
 - 设置窗口类型定义：`src/components/settings/types.ts`
 - 设置状态：`src/stores/settingsStore.ts`
+- 设置领域子模块：`src/stores/settings/defaults.ts`、`src/stores/settings/normalization.ts`、`src/stores/settings/migration.ts`、`src/stores/settings/storageAdapter.ts`
 - 热键工具：`src/shared/hotkeys.ts`
 - 窗口尺寸编排：`src/composables/launcher/useWindowSizing/`
 - 设置窗口状态编排：`src/composables/settings/useSettingsWindow/`
@@ -140,7 +143,7 @@ Rust 侧当前职责：
 
 ## 5. 主要技术债
 
-1. `useAppCompositionRoot/runtime.ts` 仍承担较多跨模块装配，需继续按领域拆分。
+1. 组合根已完成 ports/policies 解耦，但 `runtime/viewModel` 仍有一定跨领域装配密度，后续应继续收敛到更窄接口。
 2. 交互状态机仍以组合式逻辑为主，尚未形成统一状态图文档。
 3. 文档中的目标能力与当前实现差距较大。
 4. lint/typecheck/test/coverage/Rust 本地与 CI 门禁已落地，后续重点是稳定维护与失败分流。
@@ -159,7 +162,7 @@ Rust 侧当前职责：
 ### 6.2 P2：可维护性
 
 1. 继续拆分 `useAppCompositionRoot/runtime.ts`（settings/queue/execution/window bindings）。
-2. 统一目录级对外 API（index 导出约束 + 内部模块边界）。
+2. 固化目录级对外 API（index 导出约束 + 内部模块边界），避免回流到 `App.vue` 直连副作用实现。
 3. 继续将窗口/同步状态按领域拆分 store/composable。
 
 ### 6.3 P3：能力接入
@@ -183,4 +186,3 @@ Rust 侧当前职责：
    - `docs/active_context.md`
    - 自动化回归测试（对应模块）
    - `README.md` / `README.zh-CN.md`（如影响开源用户使用方式）
-
