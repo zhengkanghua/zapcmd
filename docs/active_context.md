@@ -66,3 +66,6 @@
 
 ## 补充（2026-03-06｜Phase 12 口径收敛）
 - 已统一公开文档与 Phase 10 evidence：Windows desktop smoke 仍是唯一 blocking gate；macOS 仅保留 experimental / non-blocking probe。剩余 tech debt 仅为等待上游稳定性变化。
+
+## 补充（2026-03-06｜v1.0 里程碑归档）
+- 已归档 v1.0：ROADMAP/REQUIREMENTS/audit 已入 .planning/milestones/，当前无 blocker，下一步改为 $gsd-new-milestone。
