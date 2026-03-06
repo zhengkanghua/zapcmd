@@ -63,3 +63,6 @@
 
 ## 补充（2026-03-06｜settings 确定/取消语义修正）
 - 关闭 settings 现在分成两条路径：取消/`Esc` 走“请求关闭”，有未保存修改时先确认再决定是否丢弃；确定走“先保存，成功后直接关闭”，不再复用取消路径，避免出现点确定却无反应。
+
+## 补充（2026-03-06｜Phase 12 口径收敛）
+- 已统一公开文档与 Phase 10 evidence：Windows desktop smoke 仍是唯一 blocking gate；macOS 仅保留 experimental / non-blocking probe。剩余 tech debt 仅为等待上游稳定性变化。
