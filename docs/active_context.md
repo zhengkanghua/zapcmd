@@ -1,9 +1,9 @@
 # 短期记忆（2026-03-05）
 
-- 完成 Phase 10：桌面冒烟从 Windows 扩展到 Windows/macOS，`desktop-smoke.cjs` 增加平台画像与 macOS `safaridriver` 预检。
-- `verify:local` 默认在 Windows/macOS 执行桌面冒烟；Windows 缺驱动自动补装，macOS 缺前置时给指引并失败退出。
-- CI Gate 与 Release 门禁均新增 macOS desktop smoke 阻断，产物按平台上传，保持 `.tmp/e2e/desktop-smoke/`。
-- Roadmap/State/Requirements 与 10-01~10-03 SUMMARY、10-VERIFICATION 已同步，Phase 10 验证状态为 `passed`。
+- 完成 Phase 10：补齐 desktop-smoke 的跨平台探测基础；最终口径已由 Phase 12 更正为 Windows 继续阻断、macOS 仅保留 experimental / non-blocking probe。
+- `verify:local` 当前默认策略：Windows=质量门禁+桌面冒烟（自动补驱动），macOS=仅质量门禁；可加 `--macos-desktop-e2e-experimental` 手动探测。
+- CI Gate / Release 当前只对 Windows desktop smoke 设阻断；macOS/Linux 保留在 cross-platform smoke / bundle 路径。
+- Roadmap/State/Requirements 与 Phase 10 / Phase 12 evidence 已同步；剩余仅为 `E2E-02` full-matrix 的 v2 deferred tech debt。
 
 ## 补充（2026-03-05）
 

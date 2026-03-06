@@ -78,9 +78,9 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 05]: 用户命令目录读取契约：`<home>/.zapcmd/commands` 递归只读 `.json`（大小写不敏感），按路径排序，遇错 fail-fast，`modified_ms` 获取失败回退 0。
 - [Phase 05]: 主窗口 bounds 契约：show 时随鼠标屏居中；restore 时 display_name 优先，越界居中主屏/第一屏，clamp 保证完全可见。
 - [Phase 05]: Rust 侧可测性重构采用可注入依赖与 MonitorInfo fixture，把关键 IO/决策提取为纯函数并锁定单测 — 避免测试依赖真实 Tauri 环境与全局 env，提升回归稳定性
-- [Phase 10]: desktop-smoke 脚本升级为 win32/darwin 平台画像，macOS 默认 safaridriver 预检并输出 Go/No-Go 结论
-- [Phase 10]: verify:local 在 Windows/macOS 默认执行桌面冒烟；Windows 缺驱动自动补装，macOS 缺前置直接失败并给修复指引
-- [Phase 10]: CI Gate / Release 均新增 macOS desktop smoke 阻断，产物按平台命名上传（desktop-e2e-smoke-windows/macos）
+- [Phase 10]: desktop-smoke 脚本升级为 win32/darwin 平台画像；最终口径已由 Phase 12 更正为 macOS 仅保留 safaridriver experimental / non-blocking probe。
+- [Phase 10]: `verify:local` 的最终默认策略已由 Phase 12 收敛为 Windows=质量门禁+桌面冒烟、macOS=仅质量门禁；experimental 路径仍可显式触发。
+- [Phase 10]: CI Gate / Release 的最终现实已由 Phase 12 更正为 Windows desktop smoke 阻断；macOS 仅保留 cross-platform smoke / bundle 路径。
 - [Phase 06-security-regression]: 安全拦截断言统一采用前缀 + 原因片段，避免整句文案硬编码导致回归脆弱。
 - [Phase 06-security-regression]: Task 3 在无行为偏差时保持源码不变，并以空提交保留任务级验证轨迹。
 - [Phase 06-security-regression]: 安全弹层确认动作限定为无修饰键 Enter，Ctrl+Enter 在弹层打开态仅拦截不确认
