@@ -7,8 +7,8 @@
 
 ### 覆盖率门禁
 
-- [ ] **COV-01**: `npm run test:coverage` 在本地与 CI 均通过，且 lines/functions/statements/branches 四项阈值全部 **≥ 90%**
-- [ ] **COV-02**: 覆盖率门禁失败时输出可定位信息（例如关键文件/分支缺口或可追踪的覆盖率摘要），便于快速补齐回归
+- [x] **COV-01**: `npm run test:coverage` 在本地与 CI 均通过，且 lines/functions/statements/branches 四项阈值全部 **≥ 90%**
+- [x] **COV-02**: 覆盖率门禁失败时输出可定位信息（例如关键文件/分支缺口或可追踪的覆盖率摘要），便于快速补齐回归
 - [x] **COV-03**: 关键用户路径（搜索 → 填参 → 入队 → 会话恢复 → 系统终端执行）具备回归测试覆盖（至少覆盖 1 条成功路径 + 关键失败分支）
 
 ### 回归链路（本地 + CI）
@@ -29,8 +29,8 @@
 
 ### UI/UX 小幅精修（不改变产品形态）
 
-- [ ] **UX-01**: 启动器/设置页键盘可达性与焦点行为一致（focus 可见、Tab 顺序合理、Esc 行为一致且不误触）
-- [ ] **UX-02**: 信息层级、间距/对齐、对比度更一致；关键状态（空态/加载/错误）有清晰反馈
+- [x] **UX-01**: 启动器/设置页键盘可达性与焦点行为一致（focus 可见、Tab 顺序合理、Esc 行为一致且不误触）
+- [x] **UX-02**: 信息层级、间距/对齐、对比度更一致；关键状态（空态/加载/错误）有清晰反馈
 
 ### 鲁棒性与错误提示
 
@@ -68,8 +68,8 @@
 | REG-02 | Phase 1 | Complete |
 | E2E-01 | Phase 1 | Complete |
 | E2E-02 (partial: macOS gate only) | Phase 12 | Pending |
-| COV-01 | Phase 11 | Pending |
-| COV-02 | Phase 11 | Pending |
+| COV-01 | Phase 11 | Complete |
+| COV-02 | Phase 11 | Complete |
 | COV-03 | Phase 3 | Complete |
 | RUST-01 | Phase 4 | Complete |
 | RUST-02 | Phase 5 | Complete |
@@ -80,13 +80,13 @@
 | ROB-03 | Phase 7 | Complete |
 | ARC-01 | Phase 8 | Complete |
 | ARC-02 | Phase 8 | Complete |
-| UX-01 | Phase 11 | Pending |
-| UX-02 | Phase 11 | Pending |
+| UX-01 | Phase 11 | Complete |
+| UX-02 | Phase 11 | Complete |
 
 **覆盖统计（v1）:**
 - v1 需求总数: 17
-- 已勾选完成: 13
-- 待补缺口: 4
+- 已勾选完成: 17
+- 待补缺口: 0
 - 已映射到 phases: 17 ✓
 - 未映射: 0
 

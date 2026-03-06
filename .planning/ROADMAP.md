@@ -20,7 +20,7 @@
 - [x] **Phase 8: 架构可测试性重构** - 收窄接口/解耦 IO，提升单测效率 (completed 2026-03-06)
 - [x] **Phase 9: UI/UX 小幅精修** - 键盘可达性与视觉一致性提升 (completed 2026-03-06)
 - [x] **Phase 10: 补齐 macOS 桌面端 E2E 冒烟** - 桌面冒烟门禁扩展到 macOS（本地 + CI） (completed 2026-03-05)
-- [ ] **Phase 11: 审计证据补齐与需求追踪收敛** - 补齐 Phase 2 / 9 的 verification 缺口并恢复可审计状态
+- [x] **Phase 11: 审计证据补齐与需求追踪收敛** - 补齐 Phase 2 / 9 的 verification 缺口并恢复可审计状态 (completed 2026-03-06)
 - [ ] **Phase 12: macOS 桌面冒烟门禁与口径收敛** - 收敛 Phase 10 的本地 / CI / Release / 文档口径
 
 ## Phase Details
@@ -172,7 +172,7 @@ Plans:
 | 8. 架构可测试性重构 | 3/3 | Complete | 2026-03-06 |
 | 9. UI/UX 小幅精修 | 3/3 | Complete | 2026-03-06 |
 | 10. 补齐 macOS 桌面端 E2E 冒烟 | 3/3 | Complete    | 2026-03-05 |
-| 11. 审计证据补齐与需求追踪收敛 | 2/3 | In Progress|  |
+| 11. 审计证据补齐与需求追踪收敛 | 3/3 | Complete   | 2026-03-06 |
 | 12. macOS 桌面冒烟门禁与口径收敛 | 0/0 | Pending | - |
 
 ### Phase 10: 补齐 macOS 桌面端 E2E 冒烟
@@ -197,12 +197,12 @@ Plans:
 1. `.planning/phases/02-coverage-gate-90/02-VERIFICATION.md` 存在，并明确验证 `COV-01` / `COV-02` 与对应证据。
 2. `.planning/phases/09-ui-ux-polish/09-VERIFICATION.md` 存在，并明确验证 `UX-01` / `UX-02`；必要的 `requirements-completed` / traceability 元数据同步完成。
 3. 重新运行 milestone audit 后，不再把 `COV-01` / `COV-02` / `UX-01` / `UX-02` 标记为 orphaned。
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 11-01-PLAN.md — 补齐 Phase 2 verification 报告并校准 `COV-01` / `COV-02`
 - [x] 11-02-PLAN.md — 补齐 Phase 9 verification 与 summary requirement 元数据
-- [ ] 11-03-PLAN.md — 重新收敛 milestone audit 并同步 `STATE.md`
+- [x] 11-03-PLAN.md — 重新收敛 milestone audit 并同步 `STATE.md`
 
 ### Phase 12: macOS 桌面冒烟门禁与口径收敛
 

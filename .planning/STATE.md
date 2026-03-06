@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: 质量门禁与回归基线
-current_phase: 09
-current_phase_name: ui ux polish
+current_phase: 11
+current_phase_name: audit verification gap closure
 current_plan: Complete
-status: milestone_complete
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-03-06T07:18:00.000Z"
+status: phase_complete
+stopped_at: Completed 11-03-PLAN.md
+last_updated: "2026-03-06T20:58:00.000Z"
 last_activity: 2026-03-06
 progress:
-  total_phases: 10
-  completed_phases: 10
-  total_plans: 28
-  completed_plans: 28
-  percent: 100
+  total_phases: 12
+  completed_phases: 11
+  total_plans: 31
+  completed_plans: 31
+  percent: 92
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v1.0 全部 phase 已完成，准备做里程碑审计/归档
+**Current focus:** Phase 11 已完成，当前 blocker 收敛到 Phase 12 的 macOS desktop smoke 口径统一
 
 ## Current Position
 
-**Current Phase:** 09
-**Current Phase Name:** ui ux polish
-**Total Phases:** 10  
+**Current Phase:** 11
+**Current Phase Name:** audit verification gap closure
+**Total Phases:** 12  
 **Current Plan:** Complete
 **Total Plans in Phase:** 3
-**Status:** Milestone complete
+**Status:** Phase complete
 **Last Activity:** 2026-03-06
-**Last Activity Description:** Phase 09 complete; milestone ready to close
+**Last Activity Description:** Phase 11 complete; COV / UX 审计缺口已关闭，下一步进入 Phase 12
 
-**Progress:** [██████████] 100%
+**Progress:** [█████████░] 92%
 
 ## Performance Metrics
 
@@ -57,6 +57,9 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 | Phase 07 P01 | 53min | 3 tasks | 10 files |
 | Phase 07 P02 | 9min | 2 tasks | 5 files |
 | Phase 07 P03 | 30min | 2 tasks | 8 files |
+| Phase 11 P01 | 4min | 2 tasks | 2 files |
+| Phase 11 P02 | 7min | 2 tasks | 5 files |
+| Phase 11 P03 | 6min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -88,21 +91,25 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 07]: 参数必填缺失改为显式反馈，禁止提交阶段 silent return。
 - [Phase 07]: 更新失败统一带 stage（check/download/install），服务层透传，管理层只做状态转换。
 - [Phase 07]: 下载/安装失败后允许就地重试，About 视图按阶段渲染 next-step 指引。
+- [Phase 11]: 审计补证优先补 VERIFICATION.md 与 summary frontmatter，而不是直接篡改 audit 结论。
+- [Phase 11]: verification 结论以当前仓库实测为准，历史 summary 数值只作为背景，不作为最终审计证据。
 
 ### Roadmap Evolution
 
 - Phase 10 added: 补齐 macOS 桌面端 E2E 冒烟
+- Phase 11 completed: 审计证据补齐与需求追踪收敛
+- Phase 12 added: macOS 桌面冒烟门禁与口径收敛
 
 ### Pending Todos
 
-None yet.
+- Phase 12 仍是当前 blocker：需要统一 macOS desktop smoke 的本地 / CI / Release / 文档口径。
 
 ### Blockers/Concerns
 
-None yet.
+- `E2E-02` 仍为 partial；在 Phase 12 完成前，不应再次尝试 complete-milestone。
 
 ## Session
 
-**Last Date:** 2026-03-06T02:45:52.244Z
-**Stopped At:** Completed 07-03-PLAN.md
+**Last Date:** 2026-03-06T20:58:00.000Z
+**Stopped At:** Completed 11-03-PLAN.md
 **Resume File:** None
