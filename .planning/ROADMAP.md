@@ -20,6 +20,8 @@
 - [x] **Phase 8: 架构可测试性重构** - 收窄接口/解耦 IO，提升单测效率 (completed 2026-03-06)
 - [x] **Phase 9: UI/UX 小幅精修** - 键盘可达性与视觉一致性提升 (completed 2026-03-06)
 - [x] **Phase 10: 补齐 macOS 桌面端 E2E 冒烟** - 桌面冒烟门禁扩展到 macOS（本地 + CI） (completed 2026-03-05)
+- [ ] **Phase 11: 审计证据补齐与需求追踪收敛** - 补齐 Phase 2 / 9 的 verification 缺口并恢复可审计状态
+- [ ] **Phase 12: macOS 桌面冒烟门禁与口径收敛** - 收敛 Phase 10 的本地 / CI / Release / 文档口径
 
 ## Phase Details
 
@@ -170,6 +172,8 @@ Plans:
 | 8. 架构可测试性重构 | 3/3 | Complete | 2026-03-06 |
 | 9. UI/UX 小幅精修 | 3/3 | Complete | 2026-03-06 |
 | 10. 补齐 macOS 桌面端 E2E 冒烟 | 3/3 | Complete    | 2026-03-05 |
+| 11. 审计证据补齐与需求追踪收敛 | 0/0 | Pending | - |
+| 12. macOS 桌面冒烟门禁与口径收敛 | 0/0 | Pending | - |
 
 ### Phase 10: 补齐 macOS 桌面端 E2E 冒烟
 
@@ -182,3 +186,33 @@ Plans:
 - [x] 10-01-PLAN.md — desktop-smoke 脚本跨平台化（win32 + darwin）与 macOS 可行性闸门
 - [x] 10-02-PLAN.md — verify:local 接入 macOS 默认桌面冒烟 + 脚本文档对齐
 - [x] 10-03-PLAN.md — CI/Release 纳入 macOS 桌面冒烟阻断 + 贡献者文档对齐
+
+### Phase 11: 审计证据补齐与需求追踪收敛
+
+**Goal:** 补齐 Phase 2 / Phase 9 缺失的验证证据与 requirements 追踪元数据，让 `COV-01` / `COV-02` / `UX-01` / `UX-02` 从“已实现但不可审计”恢复为可验证状态。
+**Requirements**: [COV-01, COV-02, UX-01, UX-02]
+**Depends on:** Phase 10
+**Gap Closure:** 关闭 `.planning/v1.0-MILESTONE-AUDIT.md` 中 Phase 2 / 9 verification 缺失与 requirement orphaned 审计缺口
+**Success Criteria** (what must be TRUE):
+1. `.planning/phases/02-coverage-gate-90/02-VERIFICATION.md` 存在，并明确验证 `COV-01` / `COV-02` 与对应证据。
+2. `.planning/phases/09-ui-ux-polish/09-VERIFICATION.md` 存在，并明确验证 `UX-01` / `UX-02`；必要的 `requirements-completed` / traceability 元数据同步完成。
+3. 重新运行 milestone audit 后，不再把 `COV-01` / `COV-02` / `UX-01` / `UX-02` 标记为 orphaned。
+**Plans:** 0/0 planned
+
+Plans:
+- [ ] 待通过 `$gsd-plan-phase 11` 生成具体 PLAN
+
+### Phase 12: macOS 桌面冒烟门禁与口径收敛
+
+**Goal:** 收敛 Phase 10 对 macOS desktop smoke 的真实交付口径，使本地脚本、CI / Release workflow、ROADMAP / REQUIREMENTS / SUMMARY / active context 之间完全一致，并能通过重新审计。
+**Requirements**: [E2E-02 (partial: macOS gate only)]
+**Depends on:** Phase 11
+**Gap Closure:** 关闭 `.planning/v1.0-MILESTONE-AUDIT.md` 中 Phase 10 的 macOS local gate / CI gate / 文档漂移缺口
+**Success Criteria** (what must be TRUE):
+1. `verify:local` 在 macOS 的真实行为与 README / Phase 10 文档保持一致，不再出现“默认执行”与“实验开关”并存的矛盾口径。
+2. `.github/workflows/ci-gate.yml` 与 `.github/workflows/release-build.yml` 对 macOS desktop smoke 的阻断范围与文档表述一致。
+3. 重新运行 milestone audit 后，不再出现 `E2E-02` partial / flow / integration 相关的一致性缺口。
+**Plans:** 0/0 planned
+
+Plans:
+- [ ] 待通过 `$gsd-plan-phase 12` 生成具体 PLAN

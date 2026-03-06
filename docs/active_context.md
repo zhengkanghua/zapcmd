@@ -38,6 +38,11 @@
 ## 补充（2026-03-06｜更新检查修复）
 
 - `src-tauri/capabilities/default.json` 补充 `updater:default`，修复 `updater.check not allowed`。
+
+## 补充（2026-03-06｜里程碑补缺起步）
+
+- 已新增仓库根 `AGENTS.md`，强制新会话与 `$gsd-*` 前先读 `CLAUDE.md -> .ai/AGENTS.md -> .ai/TOOL.md`。
+- `v1.0` 审计结果为 `gaps_found`，已新增 Phase 11/12，分别处理 Phase 2/9 verification 缺口与 Phase 10 macOS gate 口径收敛。
 - 关于页更新失败提示新增“权限缺失”分支，不再把权限问题误导为网络问题；新增 3 条组件测试覆盖该路径。
 ## 补充（2026-03-06｜Phase 09 讨论完成）
 - 已创建 `09-CONTEXT.md`：锁定启动器键盘流与状态反馈。`Esc` 分层后退、主界面有查询时先清空；`Tab` 继续开关队列；设置保存成功/失败统一顶部 Toast；空态为“一句话+下一步”；功能错误留在各区，加载反馈更明显。
