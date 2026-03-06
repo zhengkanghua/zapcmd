@@ -5,16 +5,16 @@ milestone_name: 质量门禁与回归基线
 current_phase: 07
 current_phase_name: robustness errors
 current_plan: 03
-status: executing
-stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-03-06T01:55:48.242Z"
+status: verifying
+stopped_at: Completed 07-03-PLAN.md
+last_updated: "2026-03-06T02:40:15.461Z"
 last_activity: 2026-03-06
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 22
-  completed_plans: 21
-  percent: 95
+  completed_plans: 22
+  percent: 100
 ---
 
 # Project State
@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** 完成 Phase 06 剩余计划并收敛安全回归基线
+**Current focus:** 完成 Phase 07 验证并切换到 Phase 08 规划
 
 ## Current Position
 
@@ -33,11 +33,11 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Total Phases:** 10  
 **Current Plan:** 03
 **Total Plans in Phase:** 3
-**Status:** Executing plan 03 of 3
+**Status:** All plans complete, pending phase verification
 **Last Activity:** 2026-03-06
-**Last Activity Description:** Completed 07-02-PLAN.md
+**Last Activity Description:** Completed 07-03-PLAN.md
 
-**Progress:** [██████████] 95%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 | Phase 06-security-regression P02 | 18 min | 3 tasks | 4 files |
 | Phase 07 P01 | 53min | 3 tasks | 10 files |
 | Phase 07 P02 | 9min | 2 tasks | 5 files |
+| Phase 07 P03 | 30min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 07]: 读取用户命令失败必须转为 read-failed 提示，不允许仅 console.warn。
 - [Phase 07]: 执行失败统一为 reason + next-step 提示，单条与队列共用同一分类映射。
 - [Phase 07]: 参数必填缺失改为显式反馈，禁止提交阶段 silent return。
+- [Phase 07]: 更新失败统一带 stage（check/download/install），服务层透传，管理层只做状态转换。
+- [Phase 07]: 下载/安装失败后允许就地重试，About 视图按阶段渲染 next-step 指引。
 
 ### Roadmap Evolution
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-06T01:55:48.239Z
-**Stopped At:** Completed 07-02-PLAN.md
+**Last Date:** 2026-03-06T02:40:15.461Z
+**Stopped At:** Completed 07-03-PLAN.md
 **Resume File:** None
