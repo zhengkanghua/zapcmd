@@ -3,11 +3,14 @@ import type { CommandTemplate } from "../../features/commands/types";
 import type { RuntimePlatform } from "../../features/commands/runtimeTypes";
 import type { AppLocale } from "../../i18n";
 import {
+  createReadFailedIssue,
   type CommandLoadIssue,
   loadBuiltinCommandTemplatesWithReport,
   loadUserCommandTemplatesWithReport,
   type UserCommandJsonFile
 } from "../../features/commands/runtimeLoader";
+
+const USER_COMMAND_SOURCE_ID = "user-command-files";
 
 function mergeCommandTemplates(
   builtinTemplates: CommandTemplate[],
@@ -193,7 +196,6 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
     if (runtimePlatform !== null) {
       return;
     }
-
     try {
       const resolved = await options.readRuntimePlatform();
       runtimePlatform = normalizeRuntimePlatform(resolved);
@@ -205,9 +207,7 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
 
   function loadBuiltinTemplatesAndSource(): void {
     const loaded = runtimePlatform
-      ? loadBuiltinCommandTemplatesWithReport({
-          runtimePlatform
-        })
+      ? loadBuiltinCommandTemplatesWithReport({ runtimePlatform })
       : loadBuiltinCommandTemplatesWithReport();
     builtinTemplates.value = loaded.templates;
     builtinCommandSourceById.value = loaded.sourceByCommandId;
@@ -236,27 +236,20 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
       applyMergedTemplates();
       return;
     }
-
     try {
       await resolveRuntimePlatform();
-
       const files = await options.readUserCommandFiles();
       if (!Array.isArray(files)) {
         return;
       }
-
       const currentPlatform = runtimePlatform ?? null;
       const signature = createUserFilesSignature(files);
       const platformChanged = currentPlatform !== appliedRuntimePlatform;
       if (signature === lastSignature && !platformChanged) {
         return;
       }
-
       loadBuiltinTemplatesAndSource();
-      const userLoaded = loadUserCommandTemplatesWithReport(
-        files,
-        runtimePlatform ? { runtimePlatform } : {}
-      );
+      const userLoaded = loadUserCommandTemplatesWithReport(files, runtimePlatform ? { runtimePlatform } : {});
       userTemplates.value = userLoaded.templates;
       userCommandSourceById.value = userLoaded.sourceByCommandId;
       loadIssues.value = userLoaded.issues;
@@ -265,6 +258,7 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
       appliedRuntimePlatform = currentPlatform;
     } catch (error) {
       console.warn("[commands] failed to refresh user command files", error);
+      loadIssues.value = [createReadFailedIssue(USER_COMMAND_SOURCE_ID, error)];
     }
   }
 

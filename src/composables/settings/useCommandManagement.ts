@@ -52,22 +52,50 @@ function toSourceFileLabel(sourcePath: string): string {
   return last ?? sourcePath;
 }
 
+function formatIssueStage(issue: CommandLoadIssue): string {
+  if (issue.stage === "read") {
+    return t("settings.commands.issueStageRead");
+  }
+  if (issue.stage === "parse") {
+    return t("settings.commands.issueStageParse");
+  }
+  if (issue.stage === "schema") {
+    return t("settings.commands.issueStageSchema");
+  }
+  return t("settings.commands.issueStageMerge");
+}
+
 function formatIssue(issue: CommandLoadIssue): string {
+  const stage = formatIssueStage(issue);
+  const reason = issue.reason.trim().length > 0 ? issue.reason : t("execution.failedFallback");
+
+  let summary = "";
+  if (issue.code === "read-failed") {
+    summary = t("settings.commands.issueReadFailed", { sourceId: issue.sourceId });
+  }
   if (issue.code === "invalid-json") {
-    return t("settings.commands.issueInvalidJson", { sourceId: issue.sourceId });
+    summary = t("settings.commands.issueInvalidJson", { sourceId: issue.sourceId });
   }
   if (issue.code === "invalid-schema") {
-    return t("settings.commands.issueInvalidSchema", { sourceId: issue.sourceId });
+    summary = t("settings.commands.issueInvalidSchema", { sourceId: issue.sourceId });
   }
   if (issue.code === "duplicate-id") {
-    return t("settings.commands.issueDuplicateId", {
+    summary = t("settings.commands.issueDuplicateId", {
       commandId: issue.commandId ?? "unknown",
       sourceId: issue.sourceId
     });
   }
-  return t("settings.commands.issueShellIgnored", {
-    commandId: issue.commandId ?? "unknown",
-    sourceId: issue.sourceId
+  if (issue.code === "shell-ignored") {
+    summary = t("settings.commands.issueShellIgnored", {
+      commandId: issue.commandId ?? "unknown",
+      sourceId: issue.sourceId
+    });
+  }
+
+  return t("settings.commands.issueWithReason", {
+    stage,
+    summary,
+    reason
   });
 }
 
@@ -158,7 +186,9 @@ function createIssueViews(loadIssues: Readonly<Ref<CommandLoadIssue[]>>) {
   return computed<CommandLoadIssueView[]>(() =>
     loadIssues.value.map((issue) => ({
       code: issue.code,
+      stage: issue.stage,
       sourceId: issue.sourceId,
+      reason: issue.reason,
       commandId: issue.commandId,
       message: formatIssue(issue)
     }))

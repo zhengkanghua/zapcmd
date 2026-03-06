@@ -29,8 +29,10 @@ export interface CommandManagementSummary {
 }
 
 export interface CommandLoadIssueView {
-  code: "invalid-json" | "invalid-schema" | "duplicate-id" | "shell-ignored";
+  code: "read-failed" | "invalid-json" | "invalid-schema" | "duplicate-id" | "shell-ignored";
+  stage: "read" | "parse" | "schema" | "merge";
   sourceId: string;
+  reason: string;
   commandId?: string;
   message: string;
 }

@@ -261,7 +261,7 @@ function isDisplayModeActive(mode: CommandManagementViewState["displayMode"]): b
     <ul class="settings-command-issues" aria-label="command-load-issues">
       <li
         v-for="issue in props.commandLoadIssues"
-        :key="`${issue.code}:${issue.sourceId}:${issue.commandId ?? ''}`"
+        :key="`${issue.code}:${issue.stage}:${issue.sourceId}:${issue.commandId ?? ''}`"
         class="settings-command-issues__item"
       >
         <span class="settings-command-issues__icon" aria-hidden="true">⚠</span>
