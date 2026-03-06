@@ -11,7 +11,14 @@ vi.mock("../../../services/tauriBridge", () => ({
 
 vi.mock("../../../services/updateService", () => ({
   checkForUpdate: vi.fn(),
-  downloadAndInstall: vi.fn()
+  downloadAndInstall: vi.fn(),
+  isStagedUpdateError: vi.fn((error: unknown) => {
+    if (!(error instanceof Error)) {
+      return false;
+    }
+    const stage = (error as { stage?: unknown }).stage;
+    return stage === "check" || stage === "download" || stage === "install";
+  })
 }));
 
 describe("useUpdateManager", () => {
@@ -55,6 +62,43 @@ describe("useUpdateManager", () => {
     expect(manager.updateStatus.value.state).toBe("upToDate");
   });
 
+  it("sets check-stage error when update check fails", async () => {
+    const manager = useUpdateManager();
+    vi.mocked(checkForUpdate).mockRejectedValueOnce(new Error("check failed"));
+
+    await manager.checkUpdate();
+
+    expect(manager.updateStatus.value.state).toBe("error");
+    if (manager.updateStatus.value.state === "error") {
+      expect(manager.updateStatus.value.stage).toBe("check");
+      expect(manager.updateStatus.value.reason).toContain("check failed");
+    }
+  });
+
+  it("blocks download retry for check-stage errors and reset restores idle", async () => {
+    const manager = useUpdateManager();
+    const update = {} as Update;
+
+    vi.mocked(checkForUpdate).mockResolvedValueOnce({
+      result: { available: true, version: "1.2.0" },
+      update
+    });
+
+    await manager.checkUpdate();
+    manager.updateStatus.value = {
+      state: "error",
+      reason: "check failed",
+      stage: "check",
+      version: "1.2.0"
+    };
+
+    await manager.downloadUpdate();
+    expect(vi.mocked(downloadAndInstall)).not.toHaveBeenCalled();
+
+    manager.resetUpdateStatus();
+    expect(manager.updateStatus.value).toEqual({ state: "idle" });
+  });
+
   it("downloads available update and reports progress", async () => {
     const update = {} as Update;
     const manager = useUpdateManager();
@@ -80,7 +124,7 @@ describe("useUpdateManager", () => {
     expect(manager.updateStatus.value.state).toBe("installing");
   });
 
-  it("sets error when downloading fails, and no-ops when update is not available", async () => {
+  it("sets download-stage error when downloading fails, and no-ops when update is not available", async () => {
     const manager = useUpdateManager();
     await manager.downloadUpdate();
     expect(vi.mocked(downloadAndInstall)).not.toHaveBeenCalled();
@@ -96,7 +140,35 @@ describe("useUpdateManager", () => {
     await manager.downloadUpdate();
     expect(manager.updateStatus.value.state).toBe("error");
     if (manager.updateStatus.value.state === "error") {
+      expect(manager.updateStatus.value.stage).toBe("download");
+      expect(manager.updateStatus.value.version).toBe("1.0.0");
       expect(manager.updateStatus.value.reason).toContain("network down");
     }
+  });
+
+  it("records install-stage failure and allows retry download", async () => {
+    const manager = useUpdateManager();
+    const update = {} as Update;
+    const installError = Object.assign(new Error("install failed"), { stage: "install" as const });
+
+    vi.mocked(checkForUpdate).mockResolvedValueOnce({
+      result: { available: true, version: "1.1.0" },
+      update
+    });
+    vi.mocked(downloadAndInstall).mockRejectedValueOnce(installError);
+
+    await manager.checkUpdate();
+    await manager.downloadUpdate();
+
+    expect(manager.updateStatus.value.state).toBe("error");
+    if (manager.updateStatus.value.state === "error") {
+      expect(manager.updateStatus.value.stage).toBe("install");
+      expect(manager.updateStatus.value.version).toBe("1.1.0");
+    }
+
+    vi.mocked(downloadAndInstall).mockResolvedValueOnce(undefined);
+    await manager.downloadUpdate();
+    expect(vi.mocked(downloadAndInstall)).toHaveBeenCalledTimes(2);
+    expect(manager.updateStatus.value.state).toBe("installing");
   });
 });

@@ -1,5 +1,6 @@
 import { isTauri } from "@tauri-apps/api/core";
 import { check, type Update } from "@tauri-apps/plugin-updater";
+import type { UpdateFailureStage } from "../features/update/types";
 
 export interface UpdateCheckResult {
   available: boolean;
@@ -21,6 +22,33 @@ export interface CheckForUpdateResponse {
 }
 
 const MAX_PROGRESS_PERCENT = 100;
+const UNKNOWN_UPDATE_ERROR = "Unknown update error.";
+
+export type StagedUpdateError = Error & { stage: UpdateFailureStage };
+
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message.trim();
+  }
+  if (typeof error === "string" && error.trim()) {
+    return error.trim();
+  }
+  return UNKNOWN_UPDATE_ERROR;
+}
+
+function toStagedUpdateError(stage: UpdateFailureStage, error: unknown): StagedUpdateError {
+  const stagedError = new Error(toErrorMessage(error)) as StagedUpdateError;
+  stagedError.stage = stage;
+  return stagedError;
+}
+
+export function isStagedUpdateError(error: unknown): error is StagedUpdateError {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  const stage = (error as { stage?: unknown }).stage;
+  return stage === "check" || stage === "download" || stage === "install";
+}
 
 function resolveUpdateBody(update: Update): string | undefined {
   if (typeof update.body === "string") {
@@ -37,20 +65,24 @@ export async function checkForUpdate(): Promise<CheckForUpdateResponse> {
     return { result: { available: false }, update: null };
   }
 
-  const update = await check();
-  if (!update || !update.available) {
-    return { result: { available: false }, update: update ?? null };
-  }
+  try {
+    const update = await check();
+    if (!update || !update.available) {
+      return { result: { available: false }, update: update ?? null };
+    }
 
-  const version = typeof update.version === "string" ? update.version : "";
-  return {
-    result: {
-      available: true,
-      version: version.trim() || undefined,
-      body: resolveUpdateBody(update)
-    },
-    update
-  };
+    const version = typeof update.version === "string" ? update.version : "";
+    return {
+      result: {
+        available: true,
+        version: version.trim() || undefined,
+        body: resolveUpdateBody(update)
+      },
+      update
+    };
+  } catch (error) {
+    throw toStagedUpdateError("check", error);
+  }
 }
 
 function resolveContentLength(data: { contentLength?: number }): number | null {
@@ -88,33 +120,42 @@ export async function downloadAndInstall(
 
   let downloadedBytes = 0;
   let totalBytes: number | null = null;
+  let failureStage: Extract<UpdateFailureStage, "download" | "install"> = "download";
 
-  await update.downloadAndInstall((event) => {
-    if (!onProgress) {
-      return;
-    }
+  try {
+    await update.downloadAndInstall((event) => {
+      if (!onProgress) {
+        if (event.event === "Finished") {
+          failureStage = "install";
+        }
+        return;
+      }
 
-    switch (event.event) {
-      case "Started": {
-        totalBytes = resolveContentLength(event.data);
-        onProgress(toProgressEvent(downloadedBytes, totalBytes));
-        return;
-      }
-      case "Progress": {
-        const chunkLength = resolveChunkLength(event.data);
-        if (chunkLength) {
-          downloadedBytes += chunkLength;
+      switch (event.event) {
+        case "Started": {
+          totalBytes = resolveContentLength(event.data);
+          onProgress(toProgressEvent(downloadedBytes, totalBytes));
+          return;
         }
-        onProgress(toProgressEvent(downloadedBytes, totalBytes));
-        return;
-      }
-      case "Finished": {
-        if (totalBytes) {
-          downloadedBytes = totalBytes;
+        case "Progress": {
+          const chunkLength = resolveChunkLength(event.data);
+          if (chunkLength) {
+            downloadedBytes += chunkLength;
+          }
+          onProgress(toProgressEvent(downloadedBytes, totalBytes));
+          return;
         }
-        onProgress(toProgressEvent(downloadedBytes, totalBytes));
-        return;
+        case "Finished": {
+          failureStage = "install";
+          if (totalBytes) {
+            downloadedBytes = totalBytes;
+          }
+          onProgress(toProgressEvent(downloadedBytes, totalBytes));
+          return;
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    throw toStagedUpdateError(failureStage, error);
+  }
 }

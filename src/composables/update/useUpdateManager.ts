@@ -1,10 +1,28 @@
 import { ref, shallowRef } from "vue";
 import type { Update } from "@tauri-apps/plugin-updater";
-import type { UpdateStatus } from "../../features/update/types";
+import type { UpdateFailureStage, UpdateStatus } from "../../features/update/types";
 import { readRuntimePlatform } from "../../services/tauriBridge";
-import { checkForUpdate, downloadAndInstall } from "../../services/updateService";
+import { checkForUpdate, downloadAndInstall, isStagedUpdateError } from "../../services/updateService";
 
 const INITIAL_UPDATE_STATUS: UpdateStatus = { state: "idle" };
+const FALLBACK_UPDATE_ERROR = "Unknown update error.";
+
+function toUpdateReason(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message.trim();
+  }
+  if (typeof error === "string" && error.trim()) {
+    return error.trim();
+  }
+  return FALLBACK_UPDATE_ERROR;
+}
+
+function resolveFailureStage(error: unknown, fallbackStage: UpdateFailureStage): UpdateFailureStage {
+  if (isStagedUpdateError(error)) {
+    return error.stage;
+  }
+  return fallbackStage;
+}
 
 export function useUpdateManager() {
   const runtimePlatform = ref("");
@@ -39,17 +57,26 @@ export function useUpdateManager() {
       };
     } catch (error) {
       pendingUpdate.value = null;
-      const reason = error instanceof Error ? error.message : String(error);
-      updateStatus.value = { state: "error", reason };
+      updateStatus.value = {
+        state: "error",
+        reason: toUpdateReason(error),
+        stage: resolveFailureStage(error, "check")
+      };
     }
   }
 
   async function downloadUpdate(): Promise<void> {
-    if (!pendingUpdate.value || updateStatus.value.state !== "available") {
+    if (!pendingUpdate.value) {
+      return;
+    }
+    if (updateStatus.value.state !== "available" && updateStatus.value.state !== "error") {
+      return;
+    }
+    if (updateStatus.value.state === "error" && updateStatus.value.stage === "check") {
       return;
     }
 
-    const version = updateStatus.value.version;
+    const version = updateStatus.value.state === "available" ? updateStatus.value.version : updateStatus.value.version ?? "";
     updateStatus.value = { state: "downloading", progressPercent: 0, version };
 
     try {
@@ -62,8 +89,12 @@ export function useUpdateManager() {
       });
       updateStatus.value = { state: "installing", version };
     } catch (error) {
-      const reason = error instanceof Error ? error.message : String(error);
-      updateStatus.value = { state: "error", reason };
+      updateStatus.value = {
+        state: "error",
+        reason: toUpdateReason(error),
+        stage: resolveFailureStage(error, "download"),
+        version
+      };
     }
   }
 
