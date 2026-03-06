@@ -13,8 +13,11 @@ concurrency:
   group: ci-gate-${{ github.ref }}
   cancel-in-progress: true
 
+# Windows desktop WebDriver smoke is the only blocking desktop gate in CI.
+# macOS/Linux remain on cross-platform build/test/Rust smoke only.
 jobs:
   quality-gate:
+    name: Windows quality gate
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
@@ -51,6 +54,7 @@ jobs:
         run: npm run check:all
 
   desktop-e2e-smoke:
+    name: Windows-only blocking desktop smoke
     runs-on: windows-latest
     timeout-minutes: 90
     steps:
@@ -69,25 +73,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install WebDriver dependencies
+      - name: Install Windows desktop smoke WebDriver dependencies
         timeout-minutes: 20
         shell: pwsh
         run: |
           cargo install tauri-driver --locked
           pwsh -File scripts/e2e/install-msedgedriver.ps1 -Force
 
-      - name: Run desktop E2E smoke
+      - name: Run Windows-only blocking desktop E2E smoke
         run: npm run e2e:desktop:smoke
 
-      - name: Upload desktop E2E artifacts
+      - name: Upload Windows blocking desktop smoke artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-e2e-smoke-windows
+          name: windows-blocking-desktop-e2e-smoke
           path: .tmp/e2e/desktop-smoke/
           if-no-files-found: warn
 
   cross-platform-smoke:
+    name: Cross-platform build/test smoke (${{ matrix.os }})
+    # macOS/Linux intentionally stop at build, test, and Rust smoke here.
+    # This job does not represent a macOS desktop WebDriver smoke gate.
     strategy:
       fail-fast: false
       matrix:
@@ -125,7 +132,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run cross-platform smoke gate
+      - name: Run cross-platform build/test smoke (no desktop WebDriver gate)
         run: npm run typecheck && npm run typecheck:test && npm run test:run && npm run build
 
       - name: Run Rust tests
