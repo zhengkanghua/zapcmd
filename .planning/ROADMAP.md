@@ -17,7 +17,7 @@
 - [x] **Phase 5: Rust 命令目录与边界模块单测** - 命令覆盖规则与边界检查可测 (completed 2026-03-04)
 - [x] **Phase 6: 安全基线回归补齐** - 危险命令确认 + 注入拦截有自动化回归 (completed 2026-03-05)
 - [x] **Phase 7: 鲁棒性与错误提示增强** - 失败可见、可定位、可操作 (completed 2026-03-06)
-- [ ] **Phase 8: 架构可测试性重构** - 收窄接口/解耦 IO，提升单测效率
+- [x] **Phase 8: 架构可测试性重构** - 收窄接口/解耦 IO，提升单测效率 (completed 2026-03-06)
 - [ ] **Phase 9: UI/UX 小幅精修** - 键盘可达性与视觉一致性提升
 - [x] **Phase 10: 补齐 macOS 桌面端 E2E 冒烟** - 桌面冒烟门禁扩展到 macOS（本地 + CI） (completed 2026-03-05)
 
@@ -134,7 +134,12 @@ Plans:
 1. 至少 1 个高耦合模块（`App.vue` 或组合根相关）完成重构，使核心业务逻辑可在无 Tauri 环境下单测，并补齐关键分支用例。
 2. 至少 1 个“难测/职责不清”的 store/service 完成拆分，业务部分可被单测覆盖，且接口更窄、更稳定。
 3. 重构后改动不引入功能回归（关键用例/覆盖率门禁全绿）。
-**Plans:** TBD
+**Plans:** 3/3 plans complete
+
+Plans:
+- [x] 08-01-PLAN.md — 组合根可测试边界重构（ports/policies + runtime 注入 + 组合根单测）
+- [x] 08-02-PLAN.md — settingsStore 职责拆分（normalization/migration/storage adapter）
+- [x] 08-03-PLAN.md — Phase 8 收敛验收（跨模块回归矩阵 + check:all + 架构文档同步）
 
 ### Phase 9: UI/UX 小幅精修
 **Goal:** 在不大改产品形态的前提下，打磨可达性与一致性，让高频操作更顺畅、更可预期。  
@@ -157,7 +162,7 @@ Plans:
 | 5. Rust 命令目录与边界模块单测 | 2/2 | Complete   | 2026-03-04 |
 | 6. 安全基线回归补齐 | 2/2 | Complete   | 2026-03-05 |
 | 7. 鲁棒性与错误提示增强 | 3/3 | Complete | 2026-03-06 |
-| 8. 架构可测试性重构 | 0/TBD | Not started | - |
+| 8. 架构可测试性重构 | 3/3 | Complete | 2026-03-06 |
 | 9. UI/UX 小幅精修 | 0/TBD | Not started | - |
 | 10. 补齐 macOS 桌面端 E2E 冒烟 | 3/3 | Complete    | 2026-03-05 |
 

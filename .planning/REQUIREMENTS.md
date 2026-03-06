@@ -24,8 +24,8 @@
 
 ### 架构/质量改进（以“可测试”为验收）
 
-- [ ] **ARC-01**: 识别并重构至少 1 个高耦合模块（`App.vue` 或组合根相关），使核心业务逻辑可在无 Tauri 环境下单测，并补齐关键分支用例
-- [ ] **ARC-02**: 识别并重构至少 1 个“难测/职责不清”的 store/service（例如 `src/stores/settingsStore.ts`），拆分 IO 与业务计算，使业务部分可被单测覆盖
+- [x] **ARC-01**: 识别并重构至少 1 个高耦合模块（`App.vue` 或组合根相关），使核心业务逻辑可在无 Tauri 环境下单测，并补齐关键分支用例
+- [x] **ARC-02**: 识别并重构至少 1 个“难测/职责不清”的 store/service（例如 `src/stores/settingsStore.ts`），拆分 IO 与业务计算，使业务部分可被单测覆盖
 
 ### UI/UX 小幅精修（不改变产品形态）
 
@@ -78,8 +78,8 @@
 | ROB-01 | Phase 7 | Complete |
 | ROB-02 | Phase 7 | Complete |
 | ROB-03 | Phase 7 | Complete |
-| ARC-01 | Phase 8 | Pending |
-| ARC-02 | Phase 8 | Pending |
+| ARC-01 | Phase 8 | Complete |
+| ARC-02 | Phase 8 | Complete |
 | UX-01 | Phase 9 | Pending |
 | UX-02 | Phase 9 | Pending |
 
