@@ -117,7 +117,20 @@ interface Deferred<T> {
   reject: (reason?: unknown) => void;
 }
 
-function buildSnapshot(launcherHotkey: string): PersistedSettingsSnapshot {
+interface SnapshotOverrides {
+  defaultTerminal?: string;
+}
+
+interface FeedbackContract {
+  tone: "neutral" | "success" | "error";
+  reasonSnippet: string;
+  guidanceSnippet?: string;
+}
+
+function buildSnapshot(
+  launcherHotkey: string,
+  overrides: SnapshotOverrides = {},
+): PersistedSettingsSnapshot {
   return {
     version: SETTINGS_SCHEMA_VERSION,
     hotkeys: {
@@ -136,7 +149,7 @@ function buildSnapshot(launcherHotkey: string): PersistedSettingsSnapshot {
       reorderDown: "Alt+ArrowDown",
     },
     general: {
-      defaultTerminal: "powershell",
+      defaultTerminal: overrides.defaultTerminal ?? "powershell",
       language: "zh-CN",
       autoCheckUpdate: true,
       launchAtLogin: false,
@@ -203,6 +216,19 @@ function getSettingsStoreFromWrapper(wrapper: VueWrapper) {
 function getInvokeCommandCallCount(command: string): number {
   return hoisted.invokeMock.mock.calls.filter((call) => call[0] === command)
     .length;
+}
+
+function expectFeedbackContract(
+  wrapper: VueWrapper,
+  contract: FeedbackContract,
+): void {
+  const feedback = wrapper.get(`.execution-feedback--${contract.tone}`);
+  expect(feedback.classes()).toContain(`execution-feedback--${contract.tone}`);
+  const text = feedback.text();
+  expect(text).toContain(contract.reasonSnippet);
+  if (contract.guidanceSnippet) {
+    expect(text).toContain(contract.guidanceSnippet);
+  }
 }
 
 function dispatchWindowKeydown(
@@ -283,9 +309,11 @@ describe("App failure and event regression", () => {
     expect(
       (wrapper.get("#zapcmd-search-input").element as HTMLInputElement).disabled,
     ).toBe(false);
-    const feedback = wrapper.get(".execution-feedback--error").text();
-    expect(feedback).toContain("single-failed");
-    expect(feedback).toContain("下一步");
+    expectFeedbackContract(wrapper, {
+      tone: "error",
+      reasonSnippet: "single-failed",
+      guidanceSnippet: "下一步",
+    });
   });
 
   it("retains staged queue when batch execute fails", async () => {
@@ -309,9 +337,11 @@ describe("App failure and event regression", () => {
     expect(errorSpy).toHaveBeenCalled();
     expect(hoisted.runMock).toHaveBeenCalledTimes(1);
     expect(wrapper.get(".staging-chip__count").text()).toBe("2");
-    const feedback = wrapper.get(".execution-feedback--error").text();
-    expect(feedback).toContain("queue-failed");
-    expect(feedback).toContain("下一步");
+    expectFeedbackContract(wrapper, {
+      tone: "error",
+      reasonSnippet: "queue-failed",
+      guidanceSnippet: "下一步",
+    });
   });
 
   it("shows save error when launcher hotkey update invoke fails", async () => {
@@ -388,10 +418,10 @@ describe("App failure and event regression", () => {
     await waitForUi();
     await waitForUi();
 
-    const errorText = wrapper.get(".about-status--error").text();
-    expect(errorText).toContain("检查更新失败");
-    expect(errorText).toContain("下一步");
-    expect(errorText).toContain("重试");
+    const aboutError = wrapper.get(".about-status--error").text();
+    expect(aboutError).toContain("检查更新失败");
+    expect(aboutError).toContain("下一步");
+    expect(aboutError).toContain("重试");
   });
 
   it("reloads settings on storage event for tracked keys and ignores unrelated keys", async () => {
@@ -435,6 +465,34 @@ describe("App failure and event regression", () => {
     channel.emit({ type: "settings-updated" });
     await waitForUi();
     expect(recorder.text()).toBe("Alt+L");
+  });
+
+  it("applies synced default terminal to command execution after storage update", async () => {
+    const wrapper = await mountApp();
+
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify(buildSnapshot("Alt+V", { defaultTerminal: "wt" })),
+    );
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: SETTINGS_STORAGE_KEY }),
+    );
+    await waitForUi();
+
+    await focusSearchAndType(wrapper, "docker");
+    dispatchWindowKeydown("Enter");
+    await waitForUi();
+    await waitForUi();
+
+    expect(hoisted.runMock).toHaveBeenCalledTimes(1);
+    expect(hoisted.runMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        terminalId: "wt",
+        command: expect.stringContaining("[zapcmd] executing:"),
+      }),
+    );
+    const lastRequest = hoisted.runMock.mock.calls.at(-1)?.[0];
+    expect(lastRequest?.command ?? "").toContain("&&");
   });
 
   it("supports drag reorder and resets drag state on dragend", async () => {
@@ -933,9 +991,11 @@ describe("App failure and event regression", () => {
 
     expect(wrapper.find(".safety-overlay").exists()).toBe(false);
     expect(hoisted.runMock).not.toHaveBeenCalled();
-    const feedback = wrapper.get(".execution-feedback--error").text();
-    expect(feedback).toContain("执行已拦截");
-    expect(feedback).toContain("包含潜在注入");
+    expectFeedbackContract(wrapper, {
+      tone: "error",
+      reasonSnippet: "执行已拦截",
+      guidanceSnippet: "包含潜在注入",
+    });
   });
 
   it("shows blocked feedback in en-US and does not execute injected argument", async () => {
@@ -957,9 +1017,13 @@ describe("App failure and event regression", () => {
 
     expect(wrapper.find(".safety-overlay").exists()).toBe(false);
     expect(hoisted.runMock).not.toHaveBeenCalled();
-    const feedback = wrapper.get(".execution-feedback--error").text();
-    expect(feedback).toContain("Execution blocked");
-    expect(feedback).toContain("contains potential injection");
-    expect(feedback).toContain("Next step");
+    expectFeedbackContract(wrapper, {
+      tone: "error",
+      reasonSnippet: "Execution blocked",
+      guidanceSnippet: "contains potential injection",
+    });
+    expect(wrapper.get(".execution-feedback--error").text()).toContain(
+      "Next step",
+    );
   });
 });

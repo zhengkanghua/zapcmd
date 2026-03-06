@@ -421,6 +421,61 @@ describe("settingsStore migration and persistence", () => {
     expect(second).toEqual(first);
   });
 
+  it("normalizes dirty versioned payload across adapter hydrate-persist round-trip", () => {
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        version: 2,
+        hotkeys: {
+          launcher: " ctrl+alt+g "
+        },
+        general: {
+          defaultTerminal: "   ",
+          language: "invalid",
+          autoCheckUpdate: false,
+          launchAtLogin: true
+        },
+        commands: {
+          disabledCommandIds: [" docker-ps ", "docker-ps", "   "],
+          view: {
+            query: "  docker  ",
+            sortBy: "invalid",
+            displayMode: "invalid"
+          }
+        },
+        appearance: {
+          windowOpacity: Number.NaN
+        }
+      })
+    );
+
+    const store = useSettingsStore();
+    store.hydrateFromStorage();
+
+    expect(store.hotkeys.launcher).toBe("Ctrl+Alt+G");
+    expect(store.defaultTerminal).toBe("powershell");
+    expect(store.language).toBe("zh-CN");
+    expect(store.autoCheckUpdate).toBe(true);
+    expect(store.launchAtLogin).toBe(false);
+    expect(store.disabledCommandIds).toEqual(["docker-ps"]);
+    expect(store.commandView.query).toBe("docker");
+    expect(store.commandView.sortBy).toBe("default");
+    expect(store.commandView.displayMode).toBe("list");
+    expect(store.windowOpacity).toBe(0.92);
+
+    const roundTrip = readSettingsFromStorage(localStorage);
+    expect(roundTrip.hotkeys.launcher).toBe("Ctrl+Alt+G");
+    expect(roundTrip.general.defaultTerminal).toBe("powershell");
+    expect(roundTrip.general.language).toBe("zh-CN");
+    expect(roundTrip.general.autoCheckUpdate).toBe(true);
+    expect(roundTrip.general.launchAtLogin).toBe(false);
+    expect(roundTrip.commands.disabledCommandIds).toEqual(["docker-ps"]);
+    expect(roundTrip.commands.view.query).toBe("docker");
+    expect(roundTrip.commands.view.sortBy).toBe("default");
+    expect(roundTrip.commands.view.displayMode).toBe("list");
+    expect(roundTrip.appearance.windowOpacity).toBe(0.92);
+  });
+
   it("prefers current key when current and legacy payload coexist", () => {
     localStorage.setItem(
       SETTINGS_STORAGE_KEY,
