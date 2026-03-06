@@ -92,6 +92,12 @@ export const messages = {
         installing: "安装中...",
         upToDate: "当前已是最新版本",
         updateFailed: "检查更新失败：{reason}",
+        updateFailedCheck: "检查更新失败：{reason}",
+        updateFailedDownload: "下载更新失败：{reason}",
+        updateFailedInstall: "安装更新失败：{reason}",
+        updateNextStepCheck: "下一步：请检查网络后重试“检查更新”。",
+        updateNextStepDownload: "下一步：请重试下载更新。",
+        updateNextStepInstall: "下一步：请稍后重试安装或手动安装新版本。",
         openHomepage: "打开项目主页"
       },
       commands: {
@@ -333,6 +339,12 @@ export const messages = {
         installing: "Installing...",
         upToDate: "You're up to date",
         updateFailed: "Update check failed: {reason}",
+        updateFailedCheck: "Update check failed: {reason}",
+        updateFailedDownload: "Update download failed: {reason}",
+        updateFailedInstall: "Update install failed: {reason}",
+        updateNextStepCheck: "Next step: verify network and retry Check for updates.",
+        updateNextStepDownload: "Next step: retry downloading the update.",
+        updateNextStepInstall: "Next step: retry install later or install the release manually.",
         openHomepage: "Open homepage"
       },
       commands: {

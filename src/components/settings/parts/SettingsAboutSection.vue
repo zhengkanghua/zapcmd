@@ -32,13 +32,48 @@ const canCheckUpdate = computed(
     props.updateStatus.state !== "downloading" &&
     props.updateStatus.state !== "installing"
 );
-const canDownloadUpdate = computed(
-  () => props.updateStatus.state === "available" && props.updateStatus.version.trim().length > 0
-);
+const canDownloadUpdate = computed(() => {
+  if (props.updateStatus.state === "available") {
+    return props.updateStatus.version.trim().length > 0;
+  }
+  if (props.updateStatus.state === "error") {
+    if (props.updateStatus.stage !== "download" && props.updateStatus.stage !== "install") {
+      return false;
+    }
+    return (props.updateStatus.version ?? "").trim().length > 0;
+  }
+  return false;
+});
 
 const checkButtonLabel = computed(() =>
   props.updateStatus.state === "checking" ? t("settings.about.checking") : t("settings.about.checkUpdate")
 );
+
+const updateErrorMessage = computed(() => {
+  if (props.updateStatus.state !== "error") {
+    return "";
+  }
+  if (props.updateStatus.stage === "download") {
+    return t("settings.about.updateFailedDownload", { reason: props.updateStatus.reason });
+  }
+  if (props.updateStatus.stage === "install") {
+    return t("settings.about.updateFailedInstall", { reason: props.updateStatus.reason });
+  }
+  return t("settings.about.updateFailedCheck", { reason: props.updateStatus.reason });
+});
+
+const updateErrorNextStep = computed(() => {
+  if (props.updateStatus.state !== "error") {
+    return "";
+  }
+  if (props.updateStatus.stage === "download") {
+    return t("settings.about.updateNextStepDownload");
+  }
+  if (props.updateStatus.stage === "install") {
+    return t("settings.about.updateNextStepInstall");
+  }
+  return t("settings.about.updateNextStepCheck");
+});
 </script>
 
 <template>
@@ -93,7 +128,8 @@ const checkButtonLabel = computed(() =>
     </div>
 
     <div v-if="props.updateStatus.state === 'error'" class="about-status about-status--error" role="status">
-      {{ t("settings.about.updateFailed", { reason: props.updateStatus.reason }) }}
+      <p class="about-status__title">{{ updateErrorMessage }}</p>
+      <p class="about-status__next-step">{{ updateErrorNextStep }}</p>
     </div>
     <div
       v-else-if="props.updateStatus.state === 'upToDate'"
@@ -179,6 +215,10 @@ const checkButtonLabel = computed(() =>
 .about-status__title {
   margin: 0 0 8px;
   font-weight: 600;
+}
+
+.about-status__next-step {
+  margin: 0;
 }
 
 .about-status__label {

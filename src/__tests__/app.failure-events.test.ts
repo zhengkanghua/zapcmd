@@ -2,6 +2,7 @@ import { createPinia } from "pinia";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { check as updaterCheck } from "@tauri-apps/plugin-updater";
 
 import {
   SETTINGS_SCHEMA_VERSION,
@@ -342,6 +343,44 @@ describe("App failure and event regression", () => {
     expect(wrapper.get(".settings-error").text()).toContain(
       "mock launcher update failed",
     );
+  });
+
+  it("shows staged check-update failure guidance in About section", async () => {
+    hoisted.currentWindowLabel = "settings";
+    hoisted.isTauriMock.mockReturnValue(true);
+    hoisted.invokeMock.mockImplementation(async (command: string) => {
+      if (command === "get_available_terminals") {
+        return [
+          { id: "powershell", label: "PowerShell", path: "powershell.exe" },
+        ];
+      }
+      if (command === "get_autostart_enabled") {
+        return false;
+      }
+      return undefined;
+    });
+    vi.mocked(updaterCheck).mockRejectedValueOnce(new Error("update check failed"));
+
+    const wrapper = await mountApp();
+    const aboutNav = wrapper
+      .findAll("button.settings-nav__item")
+      .find((item) => item.text() === "关于");
+    expect(aboutNav).toBeTruthy();
+    await aboutNav!.trigger("click");
+    await waitForUi();
+
+    const checkButton = wrapper
+      .findAll("button")
+      .find((item) => item.text().includes("检查更新"));
+    expect(checkButton).toBeTruthy();
+    await checkButton!.trigger("click");
+    await waitForUi();
+    await waitForUi();
+
+    const errorText = wrapper.get(".about-status--error").text();
+    expect(errorText).toContain("检查更新失败");
+    expect(errorText).toContain("下一步");
+    expect(errorText).toContain("重试");
   });
 
   it("reloads settings on storage event for tracked keys and ignores unrelated keys", async () => {
