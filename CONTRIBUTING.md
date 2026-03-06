@@ -36,7 +36,7 @@ Thanks for contributing to ZapCmd. This guide focuses on the local + CI quality 
 
 Notes:
 - On Windows, this includes quality gate + blocking desktop smoke (auto-installs missing driver deps).
-- On macOS, this runs quality gate by default; desktop smoke is experimental (`--macos-desktop-e2e-experimental`).
+- On macOS, this runs quality gate by default; desktop smoke stays experimental / non-blocking (`--macos-desktop-e2e-experimental`).
 
 4) Open a PR to `main` and wait for `CI Gate` to pass before merge.
 
@@ -167,7 +167,7 @@ If you want to force-install driver deps before running checks:
 
 `npm run verify:local -- --install-webdriver`
 
-For macOS, `verify:local` runs quality gate only by default (desktop smoke is disabled).  
+For macOS, `verify:local` runs quality gate only by default (desktop smoke stays experimental / non-blocking and is disabled).
 If you want to probe experimental macOS desktop smoke manually:
 
 `npm run verify:local -- --macos-desktop-e2e-experimental`
@@ -184,6 +184,7 @@ If you want to probe experimental macOS desktop smoke manually:
 - `CI Gate` currently includes: Windows quality gate, Windows desktop smoke, and cross-platform smoke (macOS/Linux build+test gate).
 
 4) Tag push (`v*.*.*`): triggers release build/publish pipeline.
+- Release currently keeps the same boundary: Windows release quality gate includes desktop smoke, while macOS only participates in multi-platform bundle builds.
 
 5) GitHub manual workflows (`workflow_dispatch`):
 - In upstream repo, only users with write-level repository permission can trigger them.

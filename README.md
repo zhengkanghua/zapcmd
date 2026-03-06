@@ -111,12 +111,15 @@ cargo install tauri-driver --locked
 safaridriver --enable
 ```
 
-Note: macOS desktop smoke is disabled by default because Tauri WebDriver on WKWebView is not yet stable.
+Note: macOS desktop smoke stays experimental / non-blocking and is disabled by default because Tauri WebDriver on WKWebView is not yet stable.
 Use experimental mode only when you explicitly want to probe it:
 
 ```bash
 npm run verify:local -- --macos-desktop-e2e-experimental
 ```
+
+Current remote gate wording matches `.github/workflows/ci-gate.yml`: Windows desktop smoke is the only blocking desktop gate in CI; macOS/Linux stay in cross-platform smoke (build/test) only.
+Release tags keep the same boundary: Windows release quality gate includes desktop smoke, while macOS only participates in multi-platform bundle builds.
 
 See `CONTRIBUTING.md` for details.
 
@@ -213,7 +216,7 @@ Roadmap:
 
 1. macOS packages are currently unsigned/not notarized.
 2. User command JSON changes take effect after app restart.
-3. Desktop-shell E2E automation currently runs as blocking smoke on Windows; macOS remains experimental until upstream WebDriver support stabilizes.
+3. Desktop-shell E2E automation currently runs as blocking smoke on Windows; macOS remains experimental / non-blocking until upstream WebDriver support stabilizes.
 
 ## Report Issues And Contribute
 

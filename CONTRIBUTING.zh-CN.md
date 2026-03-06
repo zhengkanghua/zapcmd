@@ -36,7 +36,7 @@
 
 说明：
 - Windows：默认执行质量门禁 + 阻断级桌面冒烟（缺驱动会自动补装）。
-- macOS：默认只跑质量门禁；桌面冒烟为实验性（`--macos-desktop-e2e-experimental`）。
+- macOS：默认只跑质量门禁；桌面冒烟保持实验性 / 非阻断（`--macos-desktop-e2e-experimental`）。
 
 4) 开 PR 到 `main`，等待 `CI Gate` 全绿后再合并。
 
@@ -202,7 +202,7 @@ Windows 前置：
 `npm run verify:local`
 
 在 Windows 上，该命令会自动检测 `tauri-driver` / `msedgedriver`，缺失时先补装再继续。  
-在 macOS 上，该命令默认仅跑质量门禁（`check:all`），桌面冒烟默认关闭。
+在 macOS 上，该命令默认仅跑质量门禁（`check:all`），桌面冒烟保持实验性 / 非阻断，默认关闭。
 
 如果你希望每次都先执行 Windows 驱动安装流程，可使用：
 
@@ -229,6 +229,7 @@ Windows 前置：
 - `CI Gate` 当前包含：Windows 质量门禁、Windows 桌面冒烟，以及 cross-platform smoke（macOS/Linux 的构建与测试门禁）。
 
 4) push `v*.*.*` tag：触发发布构建与发布流程。
+- 发布流程沿用同一边界：Windows release quality gate 包含 desktop smoke；macOS 只参与多平台 bundle 构建。
 
 5) GitHub 手动工作流（`workflow_dispatch`）权限：
 - 在上游仓库中，通常只有具备写权限（write）的成员可以手动触发。

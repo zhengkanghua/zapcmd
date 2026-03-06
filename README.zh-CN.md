@@ -111,12 +111,15 @@ cargo install tauri-driver --locked
 safaridriver --enable
 ```
 
-说明：由于 Tauri 在 WKWebView 上的 WebDriver 支持尚不稳定，macOS 桌面冒烟默认关闭。  
+说明：由于 Tauri 在 WKWebView 上的 WebDriver 支持尚不稳定，macOS 桌面冒烟保持实验性 / 非阻断，默认关闭。
 若需手动试验，可执行：
 
 ```bash
 npm run verify:local -- --macos-desktop-e2e-experimental
 ```
+
+当前远端门禁与 `.github/workflows/ci-gate.yml` 一致：CI 中只有 Windows desktop smoke 是阻断桌面门禁；macOS/Linux 仅保留 cross-platform smoke（构建/测试）。
+Release 标签沿用同一边界：Windows release quality gate 包含 desktop smoke，macOS 仅参与多平台 bundle 构建，不是单独的阻断桌面门禁。
 
 更详细说明见：`CONTRIBUTING.zh-CN.md`。
 
@@ -213,7 +216,7 @@ Roadmap：
 
 1. macOS 安装包当前未签名/未公证。
 2. 用户命令 JSON 修改后需重启应用生效。
-3. 当前桌面端 E2E 阻断门禁仅覆盖 Windows；macOS 仍为实验性探测，Linux 桌面冒烟与更完整流程仍在 Roadmap 中。
+3. 当前桌面端 E2E 阻断门禁仅覆盖 Windows；macOS 仍为实验性 / 非阻断探测，Linux 桌面冒烟与更完整流程仍在 Roadmap 中。
 
 ## 提交问题与参与贡献
 
