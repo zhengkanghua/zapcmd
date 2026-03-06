@@ -30,6 +30,7 @@ patterns-established:
   - "supportsDesktopE2E 平台门禁（win32/darwin）统一处理"
   - "dry-run 场景仅输出执行计划，不做真实环境探测失败"
 requirements-completed: ["E2E-02 (partial: macOS gate only)"]
+phase12-correction: "Superseded by Phase 12: audit later found the macOS default/blocking gate conclusion in this artifact was scope drift. Current repo reality is Windows blocking desktop smoke; macOS remains experimental/non-blocking."
 duration: 20min
 completed: 2026-03-05
 ---
@@ -37,6 +38,11 @@ completed: 2026-03-05
 # Phase 10: 补齐 macOS 桌面端 E2E 冒烟 Summary
 
 **verify:local 已支持 macOS 默认桌面冒烟，并在依赖缺失时提供可执行修复路径。**
+
+## Phase 12 Correction Note (superseded / scope drift)
+
+- 上方加粗结论保留 2026-03-05 的历史执行记录，但其“macOS 默认执行 desktop smoke”的结论已被 Phase 12 superseded。
+- 后续审计见 `.planning/v1.0-MILESTONE-AUDIT.md` 与 `.planning/phases/12-macos-e2e-gate-alignment/12-01-SUMMARY.md`：该结论属于 scope drift；当前仓库现实为 Windows blocking desktop smoke，macOS 仅保留 experimental / non-blocking probe。
 
 ## Performance
 

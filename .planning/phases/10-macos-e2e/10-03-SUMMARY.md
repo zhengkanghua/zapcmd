@@ -34,6 +34,7 @@ patterns-established:
   - "桌面 smoke artifacts 使用按平台命名（desktop-e2e-smoke-windows/macos）"
   - "贡献者文档明确 commit/push/tag/workflow_dispatch 触发与权限边界"
 requirements-completed: ["E2E-02 (partial: macOS gate only)"]
+phase12-correction: "Superseded by Phase 12: audit later found the macOS CI/Release blocking-gate conclusion in this artifact was scope drift. Current repo reality is Windows blocking desktop smoke; macOS remains experimental/non-blocking."
 duration: 30min
 completed: 2026-03-05
 ---
@@ -41,6 +42,11 @@ completed: 2026-03-05
 # Phase 10: 补齐 macOS 桌面端 E2E 冒烟 Summary
 
 **CI/Release 门禁已补齐 macOS desktop smoke 阻断，并同步更新中英文贡献者命令文档。**
+
+## Phase 12 Correction Note (superseded / scope drift)
+
+- 上方加粗结论保留 2026-03-05 的历史执行记录，但其“CI/Release 已存在 macOS blocking desktop smoke gate”的结论已被 Phase 12 superseded。
+- 后续审计见 `.planning/v1.0-MILESTONE-AUDIT.md` 与 `.planning/phases/12-macos-e2e-gate-alignment/12-02-SUMMARY.md`：该结论属于 scope drift；当前仓库现实为 CI 只阻断 Windows desktop smoke，macOS/Linux 停留在 cross-platform smoke，Release 侧 macOS 只参与 bundle 构建。
 
 ## Performance
 

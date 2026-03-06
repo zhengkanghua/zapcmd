@@ -3,6 +3,7 @@ phase: 10-macos-e2e
 verified: 2026-03-05T15:50:41+08:00
 status: passed
 score: 96/100
+phase12-correction: "Superseded by Phase 12: this verification report preserved the original review trail, but its macOS local/CI blocking-gate conclusion was later identified as scope drift. Current repo reality is Windows blocking desktop smoke; macOS remains experimental/non-blocking."
 ---
 
 # Phase 10: 补齐 macOS 桌面端 E2E 冒烟 — Verification Report
@@ -12,6 +13,11 @@ score: 96/100
 - **Status:** `passed`
 - **Score:** `96/100`
 - **总体判断:** 目标能力已达成，且上轮指出的 3 个缺口已全部修复；当前仅保留后续演进风险，不构成本 Phase 阻断。
+
+## Phase 12 Correction Note (superseded / scope drift)
+
+- 本报告保留 2026-03-05 的验证轨迹，但其“macOS 本地+CI 桌面冒烟门禁补齐”的结论已在 Phase 12 被更正。
+- 后续审计见 `.planning/v1.0-MILESTONE-AUDIT.md`、`.planning/phases/12-macos-e2e-gate-alignment/12-01-SUMMARY.md` 与 `.planning/phases/12-macos-e2e-gate-alignment/12-02-SUMMARY.md`：当前仓库现实为 Windows blocking desktop smoke；macOS desktop smoke 仅为 experimental / non-blocking probe，CI/Release 也不存在独立 macOS blocking desktop smoke gate。
 
 ## 校验要点结果
 
