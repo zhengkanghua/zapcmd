@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { loadBuiltinCommandTemplates, loadUserCommandTemplatesWithReport } from "../runtimeLoader";
+import {
+  createReadFailedIssue,
+  loadBuiltinCommandTemplates,
+  loadUserCommandTemplatesWithReport
+} from "../runtimeLoader";
 
 describe("runtimeLoader", () => {
   it("loads command templates for current platform", () => {
@@ -34,7 +38,104 @@ describe("runtimeLoader", () => {
         { runtimePlatform: "win" }
       );
       expect(loaded.templates).toHaveLength(0);
-      expect(loaded.issues.some((item) => item.code === "invalid-json")).toBe(true);
+      const issue = loaded.issues.find((item) => item.code === "invalid-json");
+      expect(issue).toMatchObject({
+        code: "invalid-json",
+        stage: "parse",
+        sourceId: "C:/Users/test/.zapcmd/commands/bad.json"
+      });
+      expect(issue?.reason.length).toBeGreaterThan(0);
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it("reports invalid schema with first failure reason", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const loaded = loadUserCommandTemplatesWithReport(
+        [
+          {
+            path: "C:/Users/test/.zapcmd/commands/invalid-schema.json",
+            content: JSON.stringify({
+              commands: [
+                {
+                  id: "bad id",
+                  name: "bad id",
+                  tags: ["test"],
+                  category: "custom",
+                  platform: "win",
+                  template: "echo bad",
+                  adminRequired: false
+                }
+              ]
+            }),
+            modifiedMs: 1
+          }
+        ],
+        { runtimePlatform: "win" }
+      );
+
+      expect(loaded.templates).toHaveLength(0);
+      expect(loaded.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: "invalid-schema",
+            stage: "schema",
+            sourceId: "C:/Users/test/.zapcmd/commands/invalid-schema.json"
+          })
+        ])
+      );
+      const issue = loaded.issues.find((item) => item.code === "invalid-schema");
+      expect(issue?.reason).toContain("commands[0].id");
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it("reports duplicate ids with merge stage reason", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const loaded = loadUserCommandTemplatesWithReport(
+        [
+          {
+            path: "C:/Users/test/.zapcmd/commands/duplicate-id.json",
+            content: JSON.stringify({
+              commands: [
+                {
+                  id: "custom-dup",
+                  name: "duplicate 1",
+                  tags: ["test"],
+                  category: "custom",
+                  platform: "win",
+                  template: "echo one",
+                  adminRequired: false
+                },
+                {
+                  id: "custom-dup",
+                  name: "duplicate 2",
+                  tags: ["test"],
+                  category: "custom",
+                  platform: "win",
+                  template: "echo two",
+                  adminRequired: false
+                }
+              ]
+            }),
+            modifiedMs: 1
+          }
+        ],
+        { runtimePlatform: "win" }
+      );
+
+      const duplicateIssue = loaded.issues.find((item) => item.code === "duplicate-id");
+      expect(duplicateIssue).toMatchObject({
+        code: "duplicate-id",
+        stage: "merge",
+        sourceId: "C:/Users/test/.zapcmd/commands/duplicate-id.json",
+        commandId: "custom-dup"
+      });
+      expect(duplicateIssue?.reason).toContain("custom-dup");
     } finally {
       warnSpy.mockRestore();
     }
@@ -70,10 +171,24 @@ describe("runtimeLoader", () => {
       expect.arrayContaining([
         expect.objectContaining({
           code: "shell-ignored",
+          stage: "merge",
           sourceId: "C:/Users/test/.zapcmd/commands/custom-shell.json",
-          commandId: "custom-shell"
+          commandId: "custom-shell",
+          reason: expect.stringContaining("ignored")
         })
       ])
     );
+  });
+
+  it("creates read-failed issues with read stage reason", () => {
+    const issue = createReadFailedIssue("C:/Users/test/.zapcmd/commands", new Error("permission denied"));
+    expect(issue).toEqual(
+      expect.objectContaining({
+        code: "read-failed",
+        stage: "read",
+        sourceId: "C:/Users/test/.zapcmd/commands"
+      })
+    );
+    expect(issue.reason).toContain("permission denied");
   });
 });

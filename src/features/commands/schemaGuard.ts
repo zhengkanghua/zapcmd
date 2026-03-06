@@ -71,6 +71,10 @@ function hasOnlyKeys(target: Record<string, unknown>, allowedKeys: Set<string>):
   return Object.keys(target).every((key) => allowedKeys.has(key));
 }
 
+function findFirstUnknownKey(target: Record<string, unknown>, allowedKeys: Set<string>): string | undefined {
+  return Object.keys(target).find((key) => !allowedKeys.has(key));
+}
+
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -272,6 +276,248 @@ function hasValidMeta(value: unknown): boolean {
     return false;
   }
   return true;
+}
+
+function explainInvalidMeta(value: unknown): string {
+  if (!isObject(value)) {
+    return "_meta must be an object when provided.";
+  }
+
+  if (value.name !== undefined && !isLocalizedTextOrString(value.name)) {
+    return "_meta.name must be a non-empty string or localized object.";
+  }
+  if (value.author !== undefined && !isNonEmptyString(value.author)) {
+    return "_meta.author must be a non-empty string.";
+  }
+  if (value.version !== undefined && !isNonEmptyString(value.version)) {
+    return "_meta.version must be a non-empty string.";
+  }
+  if (value.description !== undefined && !isLocalizedTextOrString(value.description)) {
+    return "_meta.description must be a non-empty string or localized object.";
+  }
+  if (value.source !== undefined && !isNonEmptyString(value.source)) {
+    return "_meta.source must be a non-empty string.";
+  }
+
+  return "_meta is invalid.";
+}
+
+function explainInvalidValidationRule(value: unknown, path: string): string {
+  if (!isObject(value)) {
+    return `${path} must be an object.`;
+  }
+
+  const unknownKey = findFirstUnknownKey(value, ALLOWED_VALIDATION_KEYS);
+  if (unknownKey) {
+    return `${path} contains unknown key "${unknownKey}".`;
+  }
+
+  if (value.pattern !== undefined && !isNonEmptyString(value.pattern)) {
+    return `${path}.pattern must be a non-empty string.`;
+  }
+  if (value.min !== undefined && typeof value.min !== "number") {
+    return `${path}.min must be a number.`;
+  }
+  if (value.max !== undefined && typeof value.max !== "number") {
+    return `${path}.max must be a number.`;
+  }
+  if (value.options !== undefined) {
+    if (!Array.isArray(value.options) || !hasUniqueNonEmptyStrings(value.options)) {
+      return `${path}.options must be a non-empty unique string array.`;
+    }
+  }
+  if (value.errorMessage !== undefined && !isLocalizedTextOrString(value.errorMessage)) {
+    return `${path}.errorMessage must be a non-empty string or localized object.`;
+  }
+
+  return `${path} is invalid.`;
+}
+
+function explainInvalidArg(value: unknown, path: string): string {
+  if (!isObject(value)) {
+    return `${path} must be an object.`;
+  }
+
+  const unknownKey = findFirstUnknownKey(value, ALLOWED_ARG_KEYS);
+  if (unknownKey) {
+    return `${path} contains unknown key "${unknownKey}".`;
+  }
+
+  if (!isNonEmptyString(value.key) || !COMMAND_ARG_KEY_PATTERN.test(value.key)) {
+    return `${path}.key must match ${COMMAND_ARG_KEY_PATTERN.toString()}.`;
+  }
+  if (!isLocalizedTextOrString(value.label)) {
+    return `${path}.label must be a non-empty string or localized object.`;
+  }
+  if (!isNonEmptyString(value.type) || !ALLOWED_ARG_TYPES.has(value.type)) {
+    return `${path}.type must be one of ${Array.from(ALLOWED_ARG_TYPES).join(", ")}.`;
+  }
+  if (value.required !== undefined && typeof value.required !== "boolean") {
+    return `${path}.required must be boolean.`;
+  }
+  if (value.default !== undefined && typeof value.default !== "string") {
+    return `${path}.default must be a string.`;
+  }
+  if (value.placeholder !== undefined && typeof value.placeholder !== "string") {
+    return `${path}.placeholder must be a string.`;
+  }
+  if (value.validation !== undefined && !isValidCommandArgValidation(value.validation)) {
+    return explainInvalidValidationRule(value.validation, `${path}.validation`);
+  }
+  if (value.type === "select") {
+    if (!isObject(value.validation) || !Array.isArray(value.validation.options)) {
+      return `${path}.validation.options is required for select arguments.`;
+    }
+    if (!hasUniqueNonEmptyStrings(value.validation.options)) {
+      return `${path}.validation.options must be a non-empty unique string array.`;
+    }
+  }
+
+  return `${path} is invalid.`;
+}
+
+function explainInvalidPrerequisite(value: unknown, path: string): string {
+  if (!isObject(value)) {
+    return `${path} must be an object.`;
+  }
+
+  const unknownKey = findFirstUnknownKey(value, ALLOWED_PREREQUISITE_KEYS);
+  if (unknownKey) {
+    return `${path} contains unknown key "${unknownKey}".`;
+  }
+
+  if (!isNonEmptyString(value.id)) {
+    return `${path}.id must be a non-empty string.`;
+  }
+  if (!isNonEmptyString(value.type) || !ALLOWED_PREREQUISITE_TYPES.has(value.type)) {
+    return `${path}.type must be one of ${Array.from(ALLOWED_PREREQUISITE_TYPES).join(", ")}.`;
+  }
+  if (typeof value.required !== "boolean") {
+    return `${path}.required must be boolean.`;
+  }
+  if (!isNonEmptyString(value.check)) {
+    return `${path}.check must be a non-empty string.`;
+  }
+  if (value.installHint !== undefined && !isLocalizedTextOrString(value.installHint)) {
+    return `${path}.installHint must be a non-empty string or localized object.`;
+  }
+  if (value.fallbackCommandId !== undefined) {
+    if (!isNonEmptyString(value.fallbackCommandId) || !COMMAND_ID_PATTERN.test(value.fallbackCommandId)) {
+      return `${path}.fallbackCommandId must match ${COMMAND_ID_PATTERN.toString()}.`;
+    }
+  }
+
+  return `${path} is invalid.`;
+}
+
+function explainInvalidCommand(value: unknown, path: string): string {
+  if (!isObject(value)) {
+    return `${path} must be an object.`;
+  }
+
+  const unknownKey = findFirstUnknownKey(value, ALLOWED_COMMAND_KEYS);
+  if (unknownKey) {
+    return `${path} contains unknown key "${unknownKey}".`;
+  }
+
+  if (!isNonEmptyString(value.id) || !COMMAND_ID_PATTERN.test(value.id)) {
+    return `${path}.id must match ${COMMAND_ID_PATTERN.toString()}.`;
+  }
+  if (!isLocalizedTextOrString(value.name)) {
+    return `${path}.name must be a non-empty string or localized object.`;
+  }
+  if (!Array.isArray(value.tags) || !hasUniqueNonEmptyStrings(value.tags)) {
+    return `${path}.tags must be a non-empty unique string array.`;
+  }
+  if (!isNonEmptyString(value.category) || !ALLOWED_CATEGORIES.has(value.category)) {
+    return `${path}.category must be one of ${Array.from(ALLOWED_CATEGORIES).join(", ")}.`;
+  }
+  if (!isNonEmptyString(value.platform) || !ALLOWED_PLATFORMS.has(value.platform)) {
+    return `${path}.platform must be one of ${Array.from(ALLOWED_PLATFORMS).join(", ")}.`;
+  }
+  if (!isNonEmptyString(value.template)) {
+    return `${path}.template must be a non-empty string.`;
+  }
+  if (typeof value.adminRequired !== "boolean") {
+    return `${path}.adminRequired must be boolean.`;
+  }
+  if (value.description !== undefined && !isLocalizedTextOrString(value.description)) {
+    return `${path}.description must be a non-empty string or localized object.`;
+  }
+  if (value.shell !== undefined) {
+    if (!isNonEmptyString(value.shell) || !ALLOWED_SHELLS.has(value.shell)) {
+      return `${path}.shell must be one of ${Array.from(ALLOWED_SHELLS).join(", ")}.`;
+    }
+  }
+  if (value.dangerous !== undefined && typeof value.dangerous !== "boolean") {
+    return `${path}.dangerous must be boolean when provided.`;
+  }
+  if (value.args !== undefined) {
+    if (!Array.isArray(value.args)) {
+      return `${path}.args must be an array.`;
+    }
+    for (let index = 0; index < value.args.length; index += 1) {
+      if (!isValidCommandArg(value.args[index])) {
+        return explainInvalidArg(value.args[index], `${path}.args[${index}]`);
+      }
+    }
+  }
+  if (value.prerequisites !== undefined) {
+    if (!Array.isArray(value.prerequisites)) {
+      return `${path}.prerequisites must be an array.`;
+    }
+    for (let index = 0; index < value.prerequisites.length; index += 1) {
+      if (!isValidCommandPrerequisite(value.prerequisites[index])) {
+        return explainInvalidPrerequisite(value.prerequisites[index], `${path}.prerequisites[${index}]`);
+      }
+    }
+  }
+
+  return `${path} is invalid.`;
+}
+
+function explainInvalidRuntimeCommandFile(value: unknown): string {
+  if (!isObject(value)) {
+    return "Root payload must be an object.";
+  }
+
+  const unknownKey = findFirstUnknownKey(value, ALLOWED_TOP_LEVEL_KEYS);
+  if (unknownKey) {
+    return `Root contains unknown key "${unknownKey}".`;
+  }
+
+  if (!hasValidMeta(value._meta)) {
+    return explainInvalidMeta(value._meta);
+  }
+
+  if (!Array.isArray(value.commands)) {
+    return "commands must be an array.";
+  }
+  if (value.commands.length === 0) {
+    return "commands must contain at least one command.";
+  }
+
+  for (let index = 0; index < value.commands.length; index += 1) {
+    const command = value.commands[index];
+    if (!isValidCommand(command)) {
+      return explainInvalidCommand(command, `commands[${index}]`);
+    }
+  }
+
+  return "Runtime command file is invalid.";
+}
+
+export type RuntimeCommandFileValidationResult = { valid: true } | { valid: false; reason: string };
+
+export function validateRuntimeCommandFile(value: unknown): RuntimeCommandFileValidationResult {
+  if (isRuntimeCommandFile(value)) {
+    return { valid: true };
+  }
+
+  return {
+    valid: false,
+    reason: explainInvalidRuntimeCommandFile(value)
+  };
 }
 
 export function isRuntimeCommandFile(value: unknown): value is RuntimeCommandFile {
