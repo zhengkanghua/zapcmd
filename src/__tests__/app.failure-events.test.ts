@@ -282,9 +282,9 @@ describe("App failure and event regression", () => {
     expect(
       (wrapper.get("#zapcmd-search-input").element as HTMLInputElement).disabled,
     ).toBe(false);
-    expect(wrapper.get(".execution-feedback--error").text()).toContain(
-      "single-failed",
-    );
+    const feedback = wrapper.get(".execution-feedback--error").text();
+    expect(feedback).toContain("single-failed");
+    expect(feedback).toContain("下一步");
   });
 
   it("retains staged queue when batch execute fails", async () => {
@@ -308,9 +308,9 @@ describe("App failure and event regression", () => {
     expect(errorSpy).toHaveBeenCalled();
     expect(hoisted.runMock).toHaveBeenCalledTimes(1);
     expect(wrapper.get(".staging-chip__count").text()).toBe("2");
-    expect(wrapper.get(".execution-feedback--error").text()).toContain(
-      "queue-failed",
-    );
+    const feedback = wrapper.get(".execution-feedback--error").text();
+    expect(feedback).toContain("queue-failed");
+    expect(feedback).toContain("下一步");
   });
 
   it("shows save error when launcher hotkey update invoke fails", async () => {
@@ -910,5 +910,6 @@ describe("App failure and event regression", () => {
     const feedback = wrapper.get(".execution-feedback--error").text();
     expect(feedback).toContain("Execution blocked");
     expect(feedback).toContain("contains potential injection");
+    expect(feedback).toContain("Next step");
   });
 });
