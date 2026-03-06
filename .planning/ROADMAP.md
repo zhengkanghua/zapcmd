@@ -172,7 +172,7 @@ Plans:
 | 8. 架构可测试性重构 | 3/3 | Complete | 2026-03-06 |
 | 9. UI/UX 小幅精修 | 3/3 | Complete | 2026-03-06 |
 | 10. 补齐 macOS 桌面端 E2E 冒烟 | 3/3 | Complete    | 2026-03-05 |
-| 11. 审计证据补齐与需求追踪收敛 | 0/0 | Pending | - |
+| 11. 审计证据补齐与需求追踪收敛 | 2/3 | In Progress|  |
 | 12. macOS 桌面冒烟门禁与口径收敛 | 0/0 | Pending | - |
 
 ### Phase 10: 补齐 macOS 桌面端 E2E 冒烟
@@ -197,10 +197,12 @@ Plans:
 1. `.planning/phases/02-coverage-gate-90/02-VERIFICATION.md` 存在，并明确验证 `COV-01` / `COV-02` 与对应证据。
 2. `.planning/phases/09-ui-ux-polish/09-VERIFICATION.md` 存在，并明确验证 `UX-01` / `UX-02`；必要的 `requirements-completed` / traceability 元数据同步完成。
 3. 重新运行 milestone audit 后，不再把 `COV-01` / `COV-02` / `UX-01` / `UX-02` 标记为 orphaned。
-**Plans:** 0/0 planned
+**Plans:** 2/3 plans executed
 
 Plans:
-- [ ] 待通过 `$gsd-plan-phase 11` 生成具体 PLAN
+- [x] 11-01-PLAN.md — 补齐 Phase 2 verification 报告并校准 `COV-01` / `COV-02`
+- [x] 11-02-PLAN.md — 补齐 Phase 9 verification 与 summary requirement 元数据
+- [ ] 11-03-PLAN.md — 重新收敛 milestone audit 并同步 `STATE.md`
 
 ### Phase 12: macOS 桌面冒烟门禁与口径收敛
 
