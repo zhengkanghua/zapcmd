@@ -9,8 +9,9 @@ import {
 } from "../../../features/security/commandSafety";
 import {
   appendToStaging,
+  buildExecutionFailureFeedback,
   executeSingleCommand,
-  shouldRejectPendingSubmit,
+  getPendingSubmitRejection,
   summarizeCommandForFeedback,
   updateStagedRenderedCommand
 } from "./helpers";
@@ -51,12 +52,7 @@ function createExecuteStagedAction(
       );
     } catch (error) {
       console.error("queue execution failed:", error);
-      state.setExecutionFeedback(
-        "error",
-        error instanceof Error && error.message
-          ? t("execution.queueFailed", { reason: error.message })
-          : t("execution.queueFailedFallback")
-      );
+      state.setExecutionFeedback("error", buildExecutionFailureFeedback(error, "queue"));
     } finally {
       state.executing.value = false;
       options.scheduleSearchInputFocus(false);
@@ -81,7 +77,10 @@ function createExecuteStagedAction(
     if (queueSafety.blockedMessage) {
       state.setExecutionFeedback(
         "error",
-        t("execution.blocked", { reason: queueSafety.blockedMessage })
+        t("execution.blockedWithNextStep", {
+          reason: queueSafety.blockedMessage,
+          nextStep: t("execution.nextStepBlocked")
+        })
       );
       options.scheduleSearchInputFocus(false);
       return;
@@ -123,7 +122,13 @@ function createSingleExecutionRequester(
     );
 
     if (safety.blockedMessage) {
-      state.setExecutionFeedback("error", t("execution.blocked", { reason: safety.blockedMessage }));
+      state.setExecutionFeedback(
+        "error",
+        t("execution.blockedWithNextStep", {
+          reason: safety.blockedMessage,
+          nextStep: t("execution.nextStepBlocked")
+        })
+      );
       options.scheduleSearchInputFocus(false);
       return;
     }
@@ -187,7 +192,18 @@ export function createCommandExecutionActions(
 
   function submitParamInput(): void {
     const command = state.pendingCommand.value;
-    if (!command || shouldRejectPendingSubmit(command, state.pendingArgValues.value)) {
+    if (!command) {
+      return;
+    }
+    const rejection = getPendingSubmitRejection(command, state.pendingArgValues.value);
+    if (rejection) {
+      state.setExecutionFeedback(
+        "error",
+        t("execution.failedWithNextStep", {
+          reason: rejection.reason,
+          nextStep: rejection.nextStep
+        })
+      );
       return;
     }
     const values = { ...state.pendingArgValues.value };

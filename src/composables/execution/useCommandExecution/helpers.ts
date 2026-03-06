@@ -9,6 +9,29 @@ import {
 import type { StagedCommand } from "../../../features/launcher/types";
 import type { CommandExecutionState, UseCommandExecutionOptions } from "./model";
 
+type ExecutionFailureKind = "terminal-unavailable" | "invalid-params" | "blocked" | "unknown";
+
+const TERMINAL_UNAVAILABLE_MARKERS = [
+  "terminal unavailable",
+  "terminal not found",
+  "enoent",
+  "not recognized as an internal or external command",
+  "command not found",
+  "终端不可用",
+  "未检测到可用终端",
+  "找不到终端"
+];
+const INVALID_PARAMS_MARKERS = [
+  "required",
+  "不能为空",
+  "invalid argument",
+  "invalid parameter",
+  "参数",
+  "not in allowed options",
+  "does not match"
+];
+const BLOCKED_MARKERS = ["blocked", "拦截", "injection", "注入"];
+
 function toErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message.trim()) {
     return error.message.trim();
@@ -17,6 +40,61 @@ function toErrorMessage(error: unknown, fallback: string): string {
     return error.trim();
   }
   return fallback;
+}
+
+function includesAny(input: string, markers: string[]): boolean {
+  return markers.some((marker) => input.includes(marker));
+}
+
+function classifyExecutionFailure(reason: string): ExecutionFailureKind {
+  const normalized = reason.trim().toLowerCase();
+  if (includesAny(normalized, TERMINAL_UNAVAILABLE_MARKERS)) {
+    return "terminal-unavailable";
+  }
+  if (includesAny(normalized, INVALID_PARAMS_MARKERS)) {
+    return "invalid-params";
+  }
+  if (includesAny(normalized, BLOCKED_MARKERS)) {
+    return "blocked";
+  }
+  return "unknown";
+}
+
+function mapFailureKindToNextStep(kind: ExecutionFailureKind): string {
+  if (kind === "terminal-unavailable") {
+    return t("execution.nextStepTerminalUnavailable");
+  }
+  if (kind === "invalid-params") {
+    return t("execution.nextStepInvalidParams");
+  }
+  if (kind === "blocked") {
+    return t("execution.nextStepBlocked");
+  }
+  return t("execution.nextStepUnknown");
+}
+
+function formatFailureMessage(
+  reason: string,
+  kind: ExecutionFailureKind,
+  mode: "single" | "queue"
+): string {
+  const nextStep = mapFailureKindToNextStep(kind);
+  if (mode === "queue") {
+    return t("execution.queueFailedWithNextStep", {
+      reason,
+      nextStep
+    });
+  }
+  return t("execution.failedWithNextStep", {
+    reason,
+    nextStep
+  });
+}
+
+export function buildExecutionFailureFeedback(error: unknown, mode: "single" | "queue"): string {
+  const fallback = mode === "queue" ? t("execution.queueFailedFallback") : t("execution.failedFallback");
+  const reason = toErrorMessage(error, fallback);
+  return formatFailureMessage(reason, classifyExecutionFailure(reason), mode);
 }
 
 export function summarizeCommandForFeedback(command: string): string {
@@ -29,18 +107,29 @@ export function summarizeCommandForFeedback(command: string): string {
   return collapsed.length > maxLength ? `${collapsed.slice(0, maxLength)}...` : collapsed;
 }
 
-export function shouldRejectPendingSubmit(
+export interface PendingSubmitRejection {
+  reason: string;
+  nextStep: string;
+}
+
+export function getPendingSubmitRejection(
   command: CommandTemplate,
   pendingArgValues: Record<string, string>
-): boolean {
+): PendingSubmitRejection | null {
   const args = getCommandArgs(command);
-  return args.some((arg) => {
+  for (const arg of args) {
     if (arg.required === false) {
-      return false;
+      continue;
     }
     const value = pendingArgValues[arg.key]?.trim() ?? "";
-    return value.length === 0;
-  });
+    if (value.length === 0) {
+      return {
+        reason: t("safety.validation.required", { label: arg.label }),
+        nextStep: t("execution.nextStepInvalidParams")
+      };
+    }
+  }
+  return null;
 }
 
 function buildStagedCommand(
@@ -82,12 +171,7 @@ export async function executeSingleCommand(
     );
   } catch (error) {
     console.error("command execution failed:", error);
-    state.setExecutionFeedback(
-      "error",
-      t("execution.failed", {
-        reason: toErrorMessage(error, t("execution.failedFallback"))
-      })
-    );
+    state.setExecutionFeedback("error", buildExecutionFailureFeedback(error, "single"));
   } finally {
     state.executing.value = false;
     options.scheduleSearchInputFocus(false);

@@ -124,6 +124,9 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("不能为空");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
   it("executes command from pending execute mode", async () => {
@@ -183,6 +186,22 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("mock-run-failed");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
+    errorSpy.mockRestore();
+  });
+
+  it("maps terminal unavailable failure to actionable next step", async () => {
+    const harness = createHarness();
+    const command = createNoArgCommand();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.runCommandInTerminal.mockRejectedValueOnce(new Error("ENOENT: terminal not found"));
+
+    harness.execution.executeResult(command);
+    await nextTick();
+
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("ENOENT");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("检查并切换可用终端");
     errorSpy.mockRestore();
   });
 
@@ -256,6 +275,7 @@ describe("useCommandExecution", () => {
     expect(harness.stagedCommands.value).toHaveLength(1);
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("执行已拦截");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
   it("removes staged command and clamps active index", () => {
@@ -298,6 +318,7 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("执行已拦截");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
   it("requires safety confirmation for dangerous single command", async () => {
@@ -336,4 +357,3 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["taskkill /F /PID 1234"]);
   });
 });
-
