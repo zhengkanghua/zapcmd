@@ -1,20 +1,9 @@
-import { isTauri } from "@tauri-apps/api/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import { storeToRefs } from "pinia";
 import { computed, ref, watch } from "vue";
 import type { StagedCommand } from "../../../features/launcher/types";
 import { fallbackTerminalOptions } from "../../../features/terminals/fallbackTerminals";
 import { currentLocale, setAppLocale } from "../../../i18n";
 import { createCommandExecutor } from "../../../services/commandExecutor";
-import { open } from "@tauri-apps/plugin-shell";
-import {
-  readUserCommandFiles,
-  readRuntimePlatform,
-  readAvailableTerminals,
-  readAutoStartEnabled,
-  writeAutoStartEnabled,
-  writeLauncherHotkey
-} from "../../../services/tauriBridge";
 import { useSettingsStore } from "../../../stores/settingsStore";
 import { createAppWindowResolver } from "../useAppWindowResolver";
 import { useHotkeyBindings } from "../../settings/useHotkeyBindings";
@@ -28,6 +17,10 @@ import { useStagedFeedback } from "../../launcher/useStagedFeedback";
 import { useTerminalExecution } from "../../launcher/useTerminalExecution";
 import { useUpdateManager } from "../../update/useUpdateManager";
 import { HOTKEY_DEFINITIONS, SETTINGS_HASH_PREFIX } from "./constants";
+import {
+  createAppCompositionRootPorts,
+  type AppCompositionRootPorts
+} from "./ports";
 
 const FALLBACK_APP_VERSION = "";
 
@@ -41,19 +34,14 @@ function resolveHomepageUrl(): string | null {
   return owner && repo ? `https://github.com/${owner}/${repo}` : null;
 }
 
-async function openHomepageInBrowser(): Promise<void> {
+async function openHomepageInBrowser(ports: AppCompositionRootPorts): Promise<void> {
   const url = resolveHomepageUrl();
   if (!url) {
-    console.error("homepage url is not configured");
+    ports.logError("homepage url is not configured");
     return;
   }
 
-  if (isTauri()) {
-    await open(url);
-    return;
-  }
-
-  window.open(url, "_blank", "noopener,noreferrer");
+  await ports.openExternalUrl(url);
 }
 
 function bindSettingsSideEffects(deps: {
@@ -87,7 +75,12 @@ function bindSettingsSideEffects(deps: {
   );
 }
 
-export function createAppCompositionContext() {
+export interface AppCompositionContextOptions {
+  ports?: Partial<AppCompositionRootPorts>;
+}
+
+export function createAppCompositionContext(options: AppCompositionContextOptions = {}) {
+  const ports = createAppCompositionRootPorts(options.ports);
   const settingsStore = useSettingsStore();
   const {
     hotkeys,
@@ -100,9 +93,9 @@ export function createAppCompositionContext() {
     windowOpacity
   } = storeToRefs(settingsStore);
   const commandCatalog = useCommandCatalog({
-    isTauriRuntime: isTauri,
-    readUserCommandFiles,
-    readRuntimePlatform,
+    isTauriRuntime: ports.isTauriRuntime,
+    readUserCommandFiles: ports.readUserCommandFiles,
+    readRuntimePlatform: ports.readRuntimePlatform,
     disabledCommandIds,
     locale: currentLocale
   });
@@ -115,7 +108,7 @@ export function createAppCompositionContext() {
     hotkeys,
     setHotkey: (field, value) => settingsStore.setHotkey(field, value)
   });
-  const resolveAppWindow = createAppWindowResolver(getCurrentWindow);
+  const resolveAppWindow = createAppWindowResolver(ports.getCurrentWindow);
   const initialWindowLabel = resolveAppWindow()?.label ?? "main";
   const currentWindowLabel = ref(initialWindowLabel);
   const settingsSyncChannel = ref<BroadcastChannel | null>(null);
@@ -147,11 +140,11 @@ export function createAppCompositionContext() {
     settingsStore,
     getHotkeyValue: hotkeyBindings.getHotkeyValue,
     setHotkeyValue: hotkeyBindings.setHotkeyValue,
-    isTauriRuntime: isTauri,
-    readAvailableTerminals,
-    readAutoStartEnabled,
-    writeAutoStartEnabled,
-    writeLauncherHotkey,
+    isTauriRuntime: ports.isTauriRuntime,
+    readAvailableTerminals: ports.readAvailableTerminals,
+    readAutoStartEnabled: ports.readAutoStartEnabled,
+    writeAutoStartEnabled: ports.writeAutoStartEnabled,
+    writeLauncherHotkey: ports.writeLauncherHotkey,
     fallbackTerminalOptions,
     broadcastSettingsUpdated: () => {
       settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
@@ -194,12 +187,13 @@ export function createAppCompositionContext() {
     runtimePlatform: updateManager.runtimePlatform,
     checkUpdate: updateManager.checkUpdate,
     downloadUpdate: updateManager.downloadUpdate,
-    openHomepage: openHomepageInBrowser,
+    openHomepage: () => openHomepageInBrowser(ports),
     ensureActiveStagingVisibleRef,
     isSettingsWindow,
     settingsWindow,
     commandManagement,
     windowOpacity,
+    ports,
     setWindowOpacity: (value: number) => settingsStore.setWindowOpacity(value)
   };
 }

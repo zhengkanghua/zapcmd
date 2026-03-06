@@ -1,4 +1,3 @@
-import { invoke, isTauri } from "@tauri-apps/api/core";
 import { computed } from "vue";
 import type { CommandArg } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
@@ -17,16 +16,16 @@ import { useLauncherSessionState } from "../../launcher/useLauncherSessionState"
 import { useCommandExecution } from "../../execution/useCommandExecution";
 import { useStagingQueue } from "../../launcher/useStagingQueue";
 import { useWindowSizing } from "../../launcher/useWindowSizing";
-import {
-  readLauncherHotkey,
-  requestHideMainWindow,
-  requestSetMainWindowSize
-} from "../../../services/tauriBridge";
 import type { createAppCompositionContext } from "./context";
 import { SETTINGS_STORAGE_KEYS } from "./constants";
-import { maybeCheckForUpdateAtStartup } from "../../../services/startupUpdateCheck";
+import {
+  evaluateSettingsWindowOpenPolicy,
+  evaluateStartupUpdateFeedbackPolicy,
+  evaluateStartupUpdatePolicy
+} from "./policies";
 
 type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
+type LauncherRuntime = ReturnType<typeof createLauncherRuntime>;
 
 function createLauncherRuntime(context: AppCompositionContext) {
   const stagingQueue = useStagingQueue({
@@ -96,16 +95,93 @@ function createLauncherRuntime(context: AppCompositionContext) {
   };
 }
 
+function createOnMainReady(context: AppCompositionContext, launcherRuntime: LauncherRuntime) {
+  return () => {
+    const startupPolicy = evaluateStartupUpdatePolicy({
+      isTauriRuntime: context.ports.isTauriRuntime(),
+      autoCheckUpdateEnabled: context.autoCheckUpdate.value
+    });
+    if (!startupPolicy.shouldCheck) {
+      return;
+    }
+
+    void context.ports
+      .checkStartupUpdate({
+        enabled: startupPolicy.enabled,
+        storage: context.ports.getLocalStorage()
+      })
+      .then((updateResult) => {
+        const feedbackPolicy = evaluateStartupUpdateFeedbackPolicy(updateResult);
+        if (!feedbackPolicy.shouldNotify) {
+          return;
+        }
+        launcherRuntime.commandExecution.setExecutionFeedback(
+          "neutral",
+          t("settings.about.updateAvailable", { version: feedbackPolicy.version })
+        );
+      })
+      .catch((error) => {
+        context.ports.logError("startup update check failed", error);
+      });
+  };
+}
+
+function createOnSettingsReady(context: AppCompositionContext) {
+  return () => {
+    const openPolicy = evaluateSettingsWindowOpenPolicy({
+      isTauriRuntime: context.ports.isTauriRuntime()
+    });
+    if (!openPolicy.shouldOpen) {
+      return;
+    }
+    context.ports.invoke("open_settings_window").catch((error) => {
+      context.ports.logError("open_settings_window invoke failed", {
+        windowLabel: context.currentWindowLabel.value,
+        error
+      });
+    });
+  };
+}
+
+function bindLifecycleBridge(
+  context: AppCompositionContext,
+  launcherRuntime: LauncherRuntime,
+  windowSizing: ReturnType<typeof useWindowSizing>,
+  onWindowKeydown: (event: KeyboardEvent) => void
+): void {
+  useAppLifecycleBridge({
+    runtime: {
+      isSettingsWindow: context.isSettingsWindow,
+      isTauriRuntime: context.ports.isTauriRuntime,
+      resolveAppWindow: context.resolveAppWindow,
+      currentWindowLabel: context.currentWindowLabel,
+      settingsSyncChannel: context.settingsSyncChannel,
+      settingsStorageKeys: SETTINGS_STORAGE_KEYS
+    },
+    settingsWindow: context.settingsWindow,
+    windowSizing,
+    queue: launcherRuntime.stagingQueue,
+    stagedFeedback: context.stagedFeedback,
+    execution: launcherRuntime.commandExecution,
+    onWindowKeydown,
+    readLauncherHotkey: context.ports.readLauncherHotkey,
+    launcherHotkey: context.hotkeyBindings.launcherHotkey,
+    scheduleSearchInputFocus: context.scheduleSearchInputFocus,
+    onMainReady: createOnMainReady(context, launcherRuntime),
+    onSettingsReady: createOnSettingsReady(context)
+  });
+}
+
 function bindAppRuntime(
   context: AppCompositionContext,
-  launcherRuntime: ReturnType<typeof createLauncherRuntime>
+  launcherRuntime: LauncherRuntime
 ) {
   const windowSizing = useWindowSizing({
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: context.isSettingsWindow,
-    isTauriRuntime: isTauri,
+    isTauriRuntime: context.ports.isTauriRuntime,
     resolveAppWindow: context.resolveAppWindow,
-    requestSetMainWindowSize,
+    requestSetMainWindowSize: context.ports.requestSetMainWindowSize,
     searchShellRef: context.domBridge.searchShellRef,
     stagingPanelRef: context.domBridge.stagingPanelRef,
     stagingExpanded: launcherRuntime.stagingQueue.stagingExpanded,
@@ -124,8 +200,8 @@ function bindAppRuntime(
     isSettingsWindow: context.isSettingsWindow,
     cancelHotkeyRecording: context.settingsWindow.cancelHotkeyRecording,
     resolveAppWindow: context.resolveAppWindow,
-    isTauriRuntime: isTauri,
-    requestHideMainWindow,
+    isTauriRuntime: context.ports.isTauriRuntime,
+    requestHideMainWindow: context.ports.requestHideMainWindow,
     pendingCommand: launcherRuntime.commandExecution.pendingCommand,
     cancelParamInput: launcherRuntime.commandExecution.cancelParamInput,
     safetyDialog: launcherRuntime.commandExecution.safetyDialog,
@@ -152,54 +228,7 @@ function bindAppRuntime(
     isTypingElement
   });
 
-  useAppLifecycleBridge({
-    runtime: {
-      isSettingsWindow: context.isSettingsWindow,
-      isTauriRuntime: isTauri,
-      resolveAppWindow: context.resolveAppWindow,
-      currentWindowLabel: context.currentWindowLabel,
-      settingsSyncChannel: context.settingsSyncChannel,
-      settingsStorageKeys: SETTINGS_STORAGE_KEYS
-    },
-    settingsWindow: context.settingsWindow,
-    windowSizing,
-    queue: launcherRuntime.stagingQueue,
-    stagedFeedback: context.stagedFeedback,
-    execution: launcherRuntime.commandExecution,
-    onWindowKeydown,
-    readLauncherHotkey,
-    launcherHotkey: context.hotkeyBindings.launcherHotkey,
-    scheduleSearchInputFocus: context.scheduleSearchInputFocus,
-    onMainReady: () => {
-      if (!isTauri()) {
-        return;
-      }
-
-      void maybeCheckForUpdateAtStartup({
-        enabled: context.autoCheckUpdate.value,
-        storage: window.localStorage
-      }).then((result) => {
-        if (!result.available) {
-          return;
-        }
-
-        const version = result.version?.trim() || "";
-        launcherRuntime.commandExecution.setExecutionFeedback(
-          "neutral",
-          t("settings.about.updateAvailable", { version })
-        );
-      });
-    },
-    onSettingsReady: () => {
-      if (!isTauri()) return;
-      invoke("open_settings_window").catch((error) => {
-        console.error("open_settings_window invoke failed", {
-          windowLabel: context.currentWindowLabel.value,
-          error
-        });
-      });
-    }
-  });
+  bindLifecycleBridge(context, launcherRuntime, windowSizing, onWindowKeydown);
 
   useLauncherWatcherBindings({
     drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,

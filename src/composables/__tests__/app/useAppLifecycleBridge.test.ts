@@ -8,7 +8,7 @@ vi.mock("../../app/useAppLifecycle", () => ({
 }));
 
 describe("useAppLifecycleBridge", () => {
-  it("delegates lifecycle wiring to useAppLifecycle and syncs launcher hotkey", () => {
+  it("delegates lifecycle wiring to useAppLifecycle and syncs launcher hotkey", async () => {
     const runtime = {
       isSettingsWindow: ref(false),
       isTauriRuntime: vi.fn(() => true),
@@ -71,7 +71,9 @@ describe("useAppLifecycleBridge", () => {
 
     arg?.onLauncherHotkeyLoaded("Ctrl+L");
     expect(launcherHotkey.value).toBe("Ctrl+L");
+
+    await arg?.readLauncherHotkey();
+    expect(readLauncherHotkey).toHaveBeenCalledTimes(1);
   });
 });
-
 
