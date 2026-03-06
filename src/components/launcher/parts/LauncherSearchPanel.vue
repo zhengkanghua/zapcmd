@@ -87,7 +87,10 @@ function onSearchInput(event: Event): void {
           </button>
         </li>
       </ul>
-      <p v-else class="drawer-empty">{{ t("launcher.noResult") }}</p>
+      <p v-else class="drawer-empty">
+        <span class="drawer-empty__title">{{ t("launcher.noResult") }}</span>
+        <span class="drawer-empty__hint">{{ t("launcher.noResultHint") }}</span>
+      </p>
     </section>
   </section>
 </template>

@@ -88,6 +88,9 @@ const {
   commandSourceFileOptions,
   commandGroups,
   settingsError,
+  settingsErrorRoute,
+  hotkeyErrorFields,
+  hotkeyErrorPrimaryField,
   settingsSaved,
   navigateSettings,
   startHotkeyRecording,
@@ -116,6 +119,13 @@ async function confirmSettings(): Promise<void> {
     return;
   }
   closeSettingsWindow();
+}
+
+function navigateToSettingsError(): void {
+  if (!settingsErrorRoute.value) {
+    return;
+  }
+  navigateSettings(settingsErrorRoute.value);
 }
 </script>
 
@@ -177,11 +187,14 @@ async function confirmSettings(): Promise<void> {
     v-else
     :settings-nav-items="settingsNavItems"
     :settings-route="settingsRoute"
+    :settings-error-route="settingsErrorRoute"
     :hotkey-global-fields="hotkeyGlobalFields"
     :hotkey-search-fields="hotkeySearchFields"
     :hotkey-queue-fields="hotkeyQueueFields"
     :is-hotkey-recording="isHotkeyRecording"
     :get-hotkey-display="getHotkeyDisplay"
+    :hotkey-error-fields="hotkeyErrorFields"
+    :hotkey-error-primary-field="hotkeyErrorPrimaryField"
     :available-terminals="availableTerminals"
     :terminal-loading="terminalLoading"
     :terminal-dropdown-open="terminalDropdownOpen"
@@ -230,5 +243,6 @@ async function confirmSettings(): Promise<void> {
     @close="closeSettingsWindow"
     @apply="saveSettings"
     @confirm="confirmSettings"
+    @navigate-to-error="navigateToSettingsError"
   />
 </template>

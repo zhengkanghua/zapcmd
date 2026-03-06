@@ -258,6 +258,7 @@ function isDisplayModeActive(mode: CommandManagementViewState["displayMode"]): b
 
   <section v-if="props.commandLoadIssues.length > 0" class="settings-group">
     <h2>{{ t("settings.commands.loadIssuesTitle") }}</h2>
+    <p class="settings-hint">{{ t("settings.commands.loadIssuesHint") }}</p>
     <ul class="settings-command-issues" aria-label="command-load-issues">
       <li
         v-for="issue in props.commandLoadIssues"

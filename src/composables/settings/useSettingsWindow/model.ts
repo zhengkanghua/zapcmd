@@ -3,7 +3,7 @@ import { t, type AppLocale } from "../../../i18n";
 import { normalizeHotkey } from "../../../shared/hotkeys";
 import type { HotkeyFieldDefinition, SettingsRoute } from "../../../features/settings/types";
 import type { TerminalOption } from "../../../features/terminals/fallbackTerminals";
-import type { HotkeyFieldId } from "../../../stores/settingsStore";
+import type { HotkeyFieldId, PersistedSettingsSnapshot } from "../../../stores/settingsStore";
 
 export interface HotkeyEntry extends HotkeyFieldDefinition {
   value: string;
@@ -12,6 +12,15 @@ export interface HotkeyEntry extends HotkeyFieldDefinition {
 interface SettingsStoreLike {
   persist: () => void;
   hydrateFromStorage: () => void;
+  toSnapshot: () => PersistedSettingsSnapshot;
+  applySnapshot: (snapshot: PersistedSettingsSnapshot) => void;
+}
+
+export interface SettingsValidationIssue {
+  message: string;
+  route: SettingsRoute | null;
+  hotkeyFieldIds?: HotkeyFieldId[];
+  primaryHotkeyField?: HotkeyFieldId | null;
 }
 
 export interface UseSettingsWindowOptions {
@@ -44,7 +53,13 @@ export interface SettingsWindowState {
   settingsRoute: Ref<SettingsRoute>;
   recordingHotkeyField: Ref<HotkeyFieldId | null>;
   settingsError: Ref<string>;
+  settingsErrorRoute: Ref<SettingsRoute | null>;
+  settingsErrorHotkeyFields: Ref<HotkeyFieldId[]>;
+  settingsErrorPrimaryHotkeyField: Ref<HotkeyFieldId | null>;
   settingsSaved: Ref<boolean>;
+  settingsDirty: Ref<boolean>;
+  lastEditedHotkeyField: Ref<HotkeyFieldId | null>;
+  settingsBaselineSnapshot: Ref<PersistedSettingsSnapshot | null>;
 }
 
 export function createSettingsState(): SettingsWindowState {
@@ -58,8 +73,66 @@ export function createSettingsState(): SettingsWindowState {
     settingsRoute: ref("hotkeys"),
     recordingHotkeyField: ref(null),
     settingsError: ref(""),
-    settingsSaved: ref(false)
+    settingsErrorRoute: ref(null),
+    settingsErrorHotkeyFields: ref([]),
+    settingsErrorPrimaryHotkeyField: ref(null),
+    settingsSaved: ref(false),
+    settingsDirty: ref(false),
+    lastEditedHotkeyField: ref(null),
+    settingsBaselineSnapshot: ref(null)
   };
+}
+
+export function markSettingsDirty(state: SettingsWindowState): void {
+  state.settingsDirty.value = true;
+  state.settingsSaved.value = false;
+}
+
+export function resetSettingsDirty(state: SettingsWindowState): void {
+  state.settingsDirty.value = false;
+}
+
+export function clearSettingsErrorState(state: SettingsWindowState): void {
+  state.settingsError.value = "";
+  state.settingsErrorRoute.value = null;
+  state.settingsErrorHotkeyFields.value = [];
+  state.settingsErrorPrimaryHotkeyField.value = null;
+}
+
+export function applySettingsValidationIssue(
+  state: SettingsWindowState,
+  issue: SettingsValidationIssue
+): void {
+  state.settingsError.value = issue.message;
+  state.settingsErrorRoute.value = issue.route;
+  state.settingsErrorHotkeyFields.value = issue.hotkeyFieldIds ?? [];
+  state.settingsErrorPrimaryHotkeyField.value = issue.primaryHotkeyField ?? null;
+}
+
+export function syncSettingsBaseline(
+  state: SettingsWindowState,
+  options: UseSettingsWindowOptions
+): void {
+  state.settingsBaselineSnapshot.value = options.settingsStore.toSnapshot();
+  resetSettingsDirty(state);
+}
+
+export function restoreSettingsBaseline(
+  state: SettingsWindowState,
+  options: UseSettingsWindowOptions
+): void {
+  if (!state.settingsBaselineSnapshot.value) {
+    return;
+  }
+  options.settingsStore.applySnapshot(state.settingsBaselineSnapshot.value);
+  resetSettingsDirty(state);
+}
+
+export function hasUnsavedSettingsChanges(
+  state: SettingsWindowState,
+  _options: UseSettingsWindowOptions
+): boolean {
+  return state.settingsDirty.value;
 }
 
 export function getHotkeyEntries(options: UseSettingsWindowOptions): HotkeyEntry[] {
@@ -90,6 +163,44 @@ export function getDuplicateHotkeyConflict(entries: HotkeyEntry[]): string | nul
     }
     const labels = list.map((item) => item.label).join(", ");
     return t("settings.error.duplicateHotkey", { hotkey, labels });
+  }
+
+  return null;
+}
+
+export function getDuplicateHotkeyIssue(
+  entries: HotkeyEntry[],
+  preferredField: HotkeyFieldId | null
+): SettingsValidationIssue | null {
+  const map = new Map<string, HotkeyEntry[]>();
+  for (const entry of entries) {
+    if (!entry.value) {
+      continue;
+    }
+    const key = entry.value.toLowerCase();
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    map.get(key)!.push(entry);
+  }
+
+  for (const [hotkey, list] of map.entries()) {
+    if (list.length < 2) {
+      continue;
+    }
+    const labels = list.map((item) => item.label).join(", ");
+    const hotkeyFieldIds = list.map((item) => item.id);
+    const primaryHotkeyField =
+      preferredField && hotkeyFieldIds.includes(preferredField)
+        ? preferredField
+        : hotkeyFieldIds[hotkeyFieldIds.length - 1] ?? null;
+
+    return {
+      message: t("settings.error.duplicateHotkey", { hotkey, labels }),
+      route: "hotkeys",
+      hotkeyFieldIds,
+      primaryHotkeyField
+    };
   }
 
   return null;

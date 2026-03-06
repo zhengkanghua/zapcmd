@@ -357,6 +357,32 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.findAll(".result-item").length).toBe(0);
   });
 
+  it("clears query before closing staging on Escape when both are active", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "docker");
+
+    dispatchWindowKeydown("ArrowRight");
+    await waitForUi();
+
+    await focusSearchAndType(wrapper, "git");
+    expect(wrapper.findAll(".result-item").length).toBeGreaterThan(0);
+
+    const panel = wrapper.get(".staging-panel");
+    expect(panel.classes().join(" ")).toMatch(/staging-panel--(opening|open)/);
+
+    dispatchWindowKeydown("Escape");
+    await waitForUi();
+
+    const input = wrapper.get("#zapcmd-search-input").element as HTMLInputElement;
+    expect(input.value).toBe("");
+    expect(panel.classes().join(" ")).toMatch(/staging-panel--(opening|open)/);
+
+    dispatchWindowKeydown("Escape");
+    await waitForUi();
+
+    expect(panel.classes().join(" ")).toMatch(/staging-panel--(closing|closed)/);
+  });
+
   it("closes param overlay on Escape", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");

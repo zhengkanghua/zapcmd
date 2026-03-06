@@ -1,4 +1,11 @@
-import type { SettingsWindowState, UseSettingsWindowOptions } from "./model";
+import {
+  clearSettingsErrorState,
+  hasUnsavedSettingsChanges,
+  markSettingsDirty,
+  syncSettingsBaseline,
+  type SettingsWindowState,
+  type UseSettingsWindowOptions
+} from "./model";
 
 export interface GeneralActions {
   setAutoCheckUpdate: (value: boolean) => void;
@@ -14,14 +21,14 @@ export function createGeneralActions(deps: {
 
   function setAutoCheckUpdate(value: boolean): void {
     options.autoCheckUpdate.value = value;
-    state.settingsSaved.value = false;
-    state.settingsError.value = "";
+    markSettingsDirty(state);
+    clearSettingsErrorState(state);
   }
 
   function setLaunchAtLogin(value: boolean): void {
     options.launchAtLogin.value = value;
-    state.settingsSaved.value = false;
-    state.settingsError.value = "";
+    markSettingsDirty(state);
+    clearSettingsErrorState(state);
   }
 
   async function loadAutoStartEnabled(): Promise<void> {
@@ -40,7 +47,10 @@ export function createGeneralActions(deps: {
       options.launchAtLogin.value = enabled;
       state.launchAtLoginBaseline.value = enabled;
       state.settingsSaved.value = false;
-      state.settingsError.value = "";
+      clearSettingsErrorState(state);
+      if (!hasUnsavedSettingsChanges(state, options)) {
+        syncSettingsBaseline(state, options);
+      }
     } catch (error) {
       console.error("read autostart status failed:", error);
       state.launchAtLoginBaseline.value ??= options.launchAtLogin.value;
@@ -55,4 +65,3 @@ export function createGeneralActions(deps: {
     loadAutoStartEnabled
   };
 }
-

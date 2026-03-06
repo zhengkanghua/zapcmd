@@ -20,7 +20,12 @@ const emit = defineEmits<{
         <button
           type="button"
           class="hotkey-recorder"
-          :class="{ 'hotkey-recorder--recording': props.isHotkeyRecording(field.id) }"
+          :class="{
+            'hotkey-recorder--recording': props.isHotkeyRecording(field.id),
+            'hotkey-recorder--error': props.hotkeyErrorFields.includes(field.id),
+            'hotkey-recorder--error-primary': props.hotkeyErrorPrimaryField === field.id
+          }"
+          :aria-invalid="props.hotkeyErrorFields.includes(field.id) ? 'true' : undefined"
           @click="emit('start-recording', field.id)"
         >
           {{ props.getHotkeyDisplay(field.id) }}
@@ -37,7 +42,12 @@ const emit = defineEmits<{
         <button
           type="button"
           class="hotkey-recorder"
-          :class="{ 'hotkey-recorder--recording': props.isHotkeyRecording(field.id) }"
+          :class="{
+            'hotkey-recorder--recording': props.isHotkeyRecording(field.id),
+            'hotkey-recorder--error': props.hotkeyErrorFields.includes(field.id),
+            'hotkey-recorder--error-primary': props.hotkeyErrorPrimaryField === field.id
+          }"
+          :aria-invalid="props.hotkeyErrorFields.includes(field.id) ? 'true' : undefined"
           @click="emit('start-recording', field.id)"
         >
           {{ props.getHotkeyDisplay(field.id) }}
@@ -54,7 +64,12 @@ const emit = defineEmits<{
         <button
           type="button"
           class="hotkey-recorder"
-          :class="{ 'hotkey-recorder--recording': props.isHotkeyRecording(field.id) }"
+          :class="{
+            'hotkey-recorder--recording': props.isHotkeyRecording(field.id),
+            'hotkey-recorder--error': props.hotkeyErrorFields.includes(field.id),
+            'hotkey-recorder--error-primary': props.hotkeyErrorPrimaryField === field.id
+          }"
+          :aria-invalid="props.hotkeyErrorFields.includes(field.id) ? 'true' : undefined"
           @click="emit('start-recording', field.id)"
         >
           {{ props.getHotkeyDisplay(field.id) }}

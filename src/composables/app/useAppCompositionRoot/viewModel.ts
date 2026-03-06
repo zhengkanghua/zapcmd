@@ -1,13 +1,46 @@
+import type { CommandManagementViewState } from "../../../features/settings/types";
 import type { createAppCompositionContext } from "./context";
 import type { createAppCompositionRuntime } from "./runtime";
 
 type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 type AppCompositionRuntime = ReturnType<typeof createAppCompositionRuntime>;
 
+function createSettingsMutationHandlers(context: AppCompositionContext) {
+  function markDirty(): void {
+    context.settingsWindow.settingsDirty.value = true;
+    context.settingsWindow.settingsSaved.value = false;
+  }
+
+  return {
+    toggleCommandEnabled(commandId: string, enabled: boolean): void {
+      markDirty();
+      context.commandManagement.toggleCommandEnabled(commandId, enabled);
+    },
+    setFilteredCommandsEnabled(enabled: boolean): void {
+      markDirty();
+      context.commandManagement.setFilteredCommandsEnabled(enabled);
+    },
+    updateCommandView(patch: Partial<CommandManagementViewState>): void {
+      markDirty();
+      context.commandManagement.updateCommandView(patch);
+    },
+    resetCommandFilters(): void {
+      markDirty();
+      context.commandManagement.resetCommandFilters();
+    },
+    setWindowOpacity(value: number): void {
+      markDirty();
+      context.setWindowOpacity(value);
+    }
+  };
+}
+
 export function createAppCompositionViewModel(
   context: AppCompositionContext,
   runtime: AppCompositionRuntime
 ) {
+  const settingsMutationHandlers = createSettingsMutationHandlers(context);
+
   return {
     isSettingsWindow: context.isSettingsWindow,
     query: context.search.query,
@@ -60,11 +93,14 @@ export function createAppCompositionViewModel(
     cancelSafetyExecution: runtime.commandExecution.cancelSafetyExecution,
     settingsNavItems: context.settingsWindow.settingsNavItems,
     settingsRoute: context.settingsWindow.settingsRoute,
+    settingsErrorRoute: context.settingsWindow.settingsErrorRoute,
     hotkeyGlobalFields: context.settingsWindow.hotkeyGlobalFields,
     hotkeySearchFields: context.settingsWindow.hotkeySearchFields,
     hotkeyQueueFields: context.settingsWindow.hotkeyQueueFields,
     isHotkeyRecording: context.settingsWindow.isHotkeyRecording,
     getHotkeyDisplay: context.settingsWindow.getHotkeyDisplay,
+    hotkeyErrorFields: context.settingsWindow.settingsErrorHotkeyFields,
+    hotkeyErrorPrimaryField: context.settingsWindow.settingsErrorPrimaryHotkeyField,
     availableTerminals: context.settingsWindow.availableTerminals,
     terminalLoading: context.settingsWindow.terminalLoading,
     terminalDropdownOpen: context.settingsWindow.terminalDropdownOpen,
@@ -101,17 +137,18 @@ export function createAppCompositionViewModel(
     selectLanguageOption: context.settingsWindow.selectLanguageOption,
     setAutoCheckUpdate: context.settingsWindow.setAutoCheckUpdate,
     setLaunchAtLogin: context.settingsWindow.setLaunchAtLogin,
-    toggleCommandEnabled: context.commandManagement.toggleCommandEnabled,
-    setFilteredCommandsEnabled: context.commandManagement.setFilteredCommandsEnabled,
-    updateCommandView: context.commandManagement.updateCommandView,
-    resetCommandFilters: context.commandManagement.resetCommandFilters,
+    toggleCommandEnabled: settingsMutationHandlers.toggleCommandEnabled,
+    setFilteredCommandsEnabled: settingsMutationHandlers.setFilteredCommandsEnabled,
+    updateCommandView: settingsMutationHandlers.updateCommandView,
+    resetCommandFilters: settingsMutationHandlers.resetCommandFilters,
     checkUpdate: context.checkUpdate,
     downloadUpdate: context.downloadUpdate,
     openHomepage: context.openHomepage,
     closeSettingsWindow: runtime.closeSettingsWindow,
+    forceCloseSettingsWindow: runtime.forceCloseSettingsWindow,
     hideMainWindow: runtime.hideMainWindow,
     saveSettings: context.settingsWindow.saveSettings,
     windowOpacity: context.windowOpacity,
-    setWindowOpacity: context.setWindowOpacity
+    setWindowOpacity: settingsMutationHandlers.setWindowOpacity
   };
 }

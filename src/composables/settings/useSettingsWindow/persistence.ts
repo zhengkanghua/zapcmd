@@ -1,7 +1,14 @@
 import {
-  getDuplicateHotkeyConflict,
+  applySettingsValidationIssue,
+  clearSettingsErrorState,
+  getDuplicateHotkeyIssue,
   getHotkeyEntries,
+  hasUnsavedSettingsChanges,
+  resetSettingsDirty,
+  restoreSettingsBaseline,
+  syncSettingsBaseline,
   type HotkeyEntry,
+  type SettingsValidationIssue,
   type UseSettingsWindowOptions,
   type SettingsWindowState
 } from "./model";
@@ -13,13 +20,22 @@ function resolveSettingsError(error: unknown, fallbackKey: string): string {
   return error instanceof Error && error.message ? error.message : t(fallbackKey);
 }
 
-function validateHotkeyEntries(entries: HotkeyEntry[]): string | null {
+function validateHotkeyEntries(params: {
+  entries: HotkeyEntry[];
+  state: SettingsWindowState;
+}): SettingsValidationIssue | null {
+  const { entries, state } = params;
   const emptyHotkeyItem = entries.find((entry) => !entry.value);
   if (emptyHotkeyItem) {
-    return t("settings.error.emptyHotkey", { label: emptyHotkeyItem.label });
+    return {
+      message: t("settings.error.emptyHotkey", { label: emptyHotkeyItem.label }),
+      route: "hotkeys",
+      hotkeyFieldIds: [emptyHotkeyItem.id],
+      primaryHotkeyField: emptyHotkeyItem.id
+    };
   }
 
-  const duplicateConflict = getDuplicateHotkeyConflict(entries);
+  const duplicateConflict = getDuplicateHotkeyIssue(entries, state.lastEditedHotkeyField.value);
   if (duplicateConflict) {
     return duplicateConflict;
   }
@@ -30,7 +46,7 @@ function validateHotkeyEntries(entries: HotkeyEntry[]): string | null {
 function validateTerminalSelection(params: {
   options: UseSettingsWindowOptions;
   state: SettingsWindowState;
-}): string | null {
+}): SettingsValidationIssue | null {
   if (params.state.availableTerminals.value.length === 0) {
     return null;
   }
@@ -39,7 +55,10 @@ function validateTerminalSelection(params: {
     (item) => item.id === params.options.defaultTerminal.value
   );
   if (!terminalValid) {
-    return t("settings.error.terminalUnavailable");
+    return {
+      message: t("settings.error.terminalUnavailable"),
+      route: "general"
+    };
   }
 
   return null;
@@ -57,7 +76,10 @@ async function applyLaunchAtLogin(params: {
     params.state.launchAtLoginBaseline.value = params.desiredLaunchAtLogin;
     return true;
   } catch (error) {
-    params.state.settingsError.value = resolveSettingsError(error, "settings.error.updateLaunchAtLoginFailed");
+    applySettingsValidationIssue(params.state, {
+      message: resolveSettingsError(error, "settings.error.updateLaunchAtLoginFailed"),
+      route: "general"
+    });
     return false;
   }
 }
@@ -72,7 +94,10 @@ async function applyAndPersistSettings(params: {
     try {
       await params.options.writeLauncherHotkey(params.launcherHotkey);
     } catch (error) {
-      params.state.settingsError.value = resolveSettingsError(error, "settings.error.updateLauncherHotkeyFailed");
+      applySettingsValidationIssue(params.state, {
+        message: resolveSettingsError(error, "settings.error.updateLauncherHotkeyFailed"),
+        route: "hotkeys"
+      });
       return false;
     }
   }
@@ -84,14 +109,20 @@ async function applyAndPersistSettings(params: {
   try {
     params.options.settingsStore.persist();
   } catch (error) {
-    params.state.settingsError.value = resolveSettingsError(error, "settings.error.persistSettingsFailed");
+    applySettingsValidationIssue(params.state, {
+      message: resolveSettingsError(error, "settings.error.persistSettingsFailed"),
+      route: null
+    });
     return false;
   }
 
   try {
     params.options.broadcastSettingsUpdated();
   } catch (error) {
-    params.state.settingsError.value = resolveSettingsError(error, "settings.error.broadcastSettingsFailed");
+    applySettingsValidationIssue(params.state, {
+      message: resolveSettingsError(error, "settings.error.broadcastSettingsFailed"),
+      route: null
+    });
     return false;
   }
 
@@ -102,6 +133,8 @@ export interface PersistenceActions {
   saveSettings: () => Promise<void>;
   loadSettings: () => void;
   clearSettingsSavedTimer: () => void;
+  hasUnsavedSettingsChanges: () => boolean;
+  prepareToCloseSettingsWindow: () => boolean;
 }
 
 export function createPersistenceActions(deps: {
@@ -132,7 +165,7 @@ export function createPersistenceActions(deps: {
   }
 
   async function saveSettings(): Promise<void> {
-    state.settingsError.value = "";
+    clearSettingsErrorState(state);
     state.settingsSaved.value = false;
     cancelHotkeyRecording();
 
@@ -140,15 +173,15 @@ export function createPersistenceActions(deps: {
     const baselineLaunchAtLogin = state.launchAtLoginBaseline.value ?? desiredLaunchAtLogin;
 
     const entries = getHotkeyEntries(options);
-    const validationError = validateHotkeyEntries(entries);
+    const validationError = validateHotkeyEntries({ entries, state });
     if (validationError) {
-      state.settingsError.value = validationError;
+      applySettingsValidationIssue(state, validationError);
       return;
     }
 
     const terminalError = validateTerminalSelection({ options, state });
     if (terminalError) {
-      state.settingsError.value = terminalError;
+      applySettingsValidationIssue(state, terminalError);
       return;
     }
 
@@ -166,18 +199,48 @@ export function createPersistenceActions(deps: {
       return;
     }
 
+    syncSettingsBaseline(state, options);
     markSettingsSaved();
   }
 
   function loadSettings(): void {
     options.settingsStore.hydrateFromStorage();
     ensureDefaultTerminal();
-    void loadAutoStartEnabled();
+    syncSettingsBaseline(state, options);
+    void loadAutoStartEnabled().finally(() => {
+      if (!hasUnsavedSettingsChanges(state, options)) {
+        syncSettingsBaseline(state, options);
+      }
+    });
+  }
+
+  function prepareToCloseSettingsWindow(): boolean {
+    cancelHotkeyRecording();
+    clearSettingsSavedTimer();
+    state.settingsSaved.value = false;
+
+    if (!hasUnsavedSettingsChanges(state, options)) {
+      clearSettingsErrorState(state);
+      return true;
+    }
+
+    const shouldDiscard = window.confirm(t("settings.unsavedDiscardConfirm"));
+    if (!shouldDiscard) {
+      return false;
+    }
+
+    restoreSettingsBaseline(state, options);
+    state.launchAtLoginBaseline.value = options.launchAtLogin.value;
+    resetSettingsDirty(state);
+    clearSettingsErrorState(state);
+    return true;
   }
 
   return {
     saveSettings,
     loadSettings,
-    clearSettingsSavedTimer
+    clearSettingsSavedTimer,
+    hasUnsavedSettingsChanges: () => hasUnsavedSettingsChanges(state, options),
+    prepareToCloseSettingsWindow
   };
 }

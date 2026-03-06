@@ -28,6 +28,7 @@ export interface SettingsNavItem {
 export interface SettingsNavProps {
   settingsNavItems: SettingsNavItem[];
   settingsRoute: SettingsRoute;
+  settingsErrorRoute: SettingsRoute | null;
 }
 
 export interface SettingsHotkeysProps {
@@ -36,6 +37,8 @@ export interface SettingsHotkeysProps {
   hotkeyQueueFields: HotkeyFieldDefinition[];
   isHotkeyRecording: (field: HotkeyFieldId) => boolean;
   getHotkeyDisplay: (field: HotkeyFieldId) => string;
+  hotkeyErrorFields: HotkeyFieldId[];
+  hotkeyErrorPrimaryField: HotkeyFieldId | null;
 }
 
 export interface SettingsGeneralProps {

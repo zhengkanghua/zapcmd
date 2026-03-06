@@ -1,5 +1,12 @@
 import { normalizeAppLocale, type AppLocale } from "../../../i18n";
-import type { SettingsWindowState, UseSettingsWindowOptions } from "./model";
+import {
+  clearSettingsErrorState,
+  hasUnsavedSettingsChanges,
+  markSettingsDirty,
+  syncSettingsBaseline,
+  type SettingsWindowState,
+  type UseSettingsWindowOptions
+} from "./model";
 
 export interface TerminalActions {
   ensureDefaultTerminal: () => void;
@@ -54,12 +61,14 @@ export function createTerminalActions(deps: {
     const selectedIndex = state.availableTerminals.value.findIndex((item) => item.id === id);
     state.terminalFocusIndex.value = selectedIndex >= 0 ? selectedIndex : -1;
     state.terminalDropdownOpen.value = false;
-    state.settingsSaved.value = false;
+    markSettingsDirty(state);
+    clearSettingsErrorState(state);
   }
 
   function selectLanguageOption(locale: AppLocale): void {
     options.language.value = normalizeAppLocale(locale);
-    state.settingsSaved.value = false;
+    markSettingsDirty(state);
+    clearSettingsErrorState(state);
   }
 
   function onGlobalPointerDown(event: PointerEvent): void {
@@ -94,10 +103,16 @@ export function createTerminalActions(deps: {
             : options.fallbackTerminalOptions();
       }
       ensureDefaultTerminal();
+      if (!hasUnsavedSettingsChanges(state, options)) {
+        syncSettingsBaseline(state, options);
+      }
     } catch (error) {
       console.warn("loadAvailableTerminals failed; using fallback", error);
       state.availableTerminals.value = options.fallbackTerminalOptions();
       ensureDefaultTerminal();
+      if (!hasUnsavedSettingsChanges(state, options)) {
+        syncSettingsBaseline(state, options);
+      }
     } finally {
       state.terminalLoading.value = false;
     }

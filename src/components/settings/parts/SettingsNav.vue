@@ -16,10 +16,15 @@ const emit = defineEmits<{
       :key="item.route"
       type="button"
       class="settings-nav__item"
-      :class="{ 'settings-nav__item--active': props.settingsRoute === item.route }"
+      :class="{
+        'settings-nav__item--active': props.settingsRoute === item.route,
+        'settings-nav__item--error': props.settingsErrorRoute === item.route
+      }"
       :data-route="item.route"
       :title="item.label"
       :aria-label="item.label"
+      :aria-current="props.settingsRoute === item.route ? 'page' : undefined"
+      :aria-invalid="props.settingsErrorRoute === item.route ? 'true' : undefined"
       @click="emit('navigate', item.route)"
     >
       <span class="settings-nav__label">{{ item.label }}</span>

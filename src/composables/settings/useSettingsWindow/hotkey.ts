@@ -1,6 +1,11 @@
 import type { HotkeyFieldId } from "../../../stores/settingsStore";
 import { t } from "../../../i18n";
-import type { SettingsWindowState, UseSettingsWindowOptions } from "./model";
+import {
+  clearSettingsErrorState,
+  markSettingsDirty,
+  type SettingsWindowState,
+  type UseSettingsWindowOptions
+} from "./model";
 
 export interface HotkeyActions {
   startHotkeyRecording: (field: HotkeyFieldId) => void;
@@ -19,7 +24,7 @@ export function createHotkeyActions(deps: {
   function startHotkeyRecording(field: HotkeyFieldId): void {
     state.recordingHotkeyField.value = field;
     state.settingsSaved.value = false;
-    state.settingsError.value = "";
+    clearSettingsErrorState(state);
   }
 
   function cancelHotkeyRecording(): void {
@@ -29,8 +34,9 @@ export function createHotkeyActions(deps: {
   function applyRecordedHotkey(field: HotkeyFieldId, captured: string): void {
     options.setHotkeyValue(field, captured);
     cancelHotkeyRecording();
-    state.settingsSaved.value = false;
-    state.settingsError.value = "";
+    markSettingsDirty(state);
+    state.lastEditedHotkeyField.value = field;
+    clearSettingsErrorState(state);
   }
 
   function isHotkeyRecording(field: HotkeyFieldId): boolean {

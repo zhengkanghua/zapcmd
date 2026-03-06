@@ -294,6 +294,16 @@ afterEach(() => {
 });
 
 describe("App failure and event regression", () => {
+  it("shows no-result empty state with next-step hint", async () => {
+    const wrapper = await mountApp();
+
+    await focusSearchAndType(wrapper, "no-such-command-keyword");
+
+    const emptyState = wrapper.get(".drawer-empty");
+    expect(emptyState.text()).toContain("没有匹配到命令");
+    expect(emptyState.text()).toContain("按 Esc 清空后重新搜索");
+  });
+
   it("handles single command execution failure and resets executing state", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     hoisted.runMock.mockRejectedValueOnce(new Error("single-failed"));
@@ -373,6 +383,7 @@ describe("App failure and event regression", () => {
     expect(wrapper.get(".settings-error").text()).toContain(
       "mock launcher update failed",
     );
+    expect(wrapper.get(".settings-error").classes()).toContain("execution-toast");
   });
 
   it("does not invoke open_settings_window when running in non-tauri settings window", async () => {
@@ -687,6 +698,7 @@ describe("App failure and event regression", () => {
     await waitForUi();
 
     expect(wrapper.get(".settings-error").text()).toContain("不能为空");
+    expect(wrapper.get(".settings-error").classes()).toContain("execution-toast");
   });
 
   it("shows terminal validation error when selected terminal is unavailable", async () => {
@@ -712,13 +724,20 @@ describe("App failure and event regression", () => {
     await waitForUi();
 
     expect(wrapper.get(".settings-error").text()).toContain("默认终端不可用");
+    expect(wrapper.get(".settings-error").classes()).toContain("execution-toast");
+    expect(wrapper.get(".settings-error__action").text()).toContain("通用");
+    expect(wrapper.find('.settings-nav__item--error[data-route="general"]').exists()).toBe(true);
+
+    await wrapper.get(".settings-error__action").trigger("click");
+    await waitForUi();
+    expect(wrapper.find('.settings-nav__item--active[data-route="general"]').exists()).toBe(true);
   });
 
   it("clears save success flag after timeout", async () => {
     hoisted.currentWindowLabel = "settings";
     const wrapper = await mountApp();
 
-    await wrapper.get("button.btn-primary").trigger("click");
+    await wrapper.findAll("button.btn-muted")[1].trigger("click");
     await waitForUi();
     expect(wrapper.find(".settings-ok").exists()).toBe(true);
 
@@ -802,6 +821,7 @@ describe("App failure and event regression", () => {
 
     setupState.terminalLoading = true;
     await waitForUi();
+    expect(wrapper.find(".settings-status--loading").exists()).toBe(true);
     await selectButton.trigger("click");
     await waitForUi();
     expect(wrapper.find(".settings-select-list").exists()).toBe(false);

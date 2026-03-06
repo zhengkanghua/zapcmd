@@ -49,13 +49,30 @@ const emit = defineEmits<{
   (e: "close"): void;
   (e: "apply"): void;
   (e: "confirm"): void;
+  (e: "navigate-to-error"): void;
 }>();
 </script>
 
 <template>
   <main class="settings-window-root">
+    <div
+      v-if="props.settingsError"
+      class="settings-error execution-feedback execution-toast execution-feedback--error"
+      role="alert"
+      aria-live="assertive"
+    >
+      <span class="settings-error__text">{{ props.settingsError }}</span>
+      <button
+        v-if="props.settingsErrorRoute && props.settingsErrorRoute !== props.settingsRoute"
+        type="button"
+        class="btn-muted settings-error__action"
+        @click="emit('navigate-to-error')"
+      >
+        {{ t("settings.error.gotoRoute", { route: t(`settings.nav.${props.settingsErrorRoute}`) }) }}
+      </button>
+    </div>
     <p
-      v-if="props.settingsSaved && !props.settingsError"
+      v-else-if="props.settingsSaved"
       class="settings-ok execution-feedback execution-toast execution-feedback--success"
       role="status"
       aria-live="polite"
@@ -66,6 +83,7 @@ const emit = defineEmits<{
       <SettingsNav
         :settings-nav-items="props.settingsNavItems"
         :settings-route="props.settingsRoute"
+        :settings-error-route="props.settingsErrorRoute"
         @navigate="emit('navigate', $event)"
       />
 
@@ -77,6 +95,8 @@ const emit = defineEmits<{
           :hotkey-queue-fields="props.hotkeyQueueFields"
           :is-hotkey-recording="props.isHotkeyRecording"
           :get-hotkey-display="props.getHotkeyDisplay"
+          :hotkey-error-fields="props.hotkeyErrorFields"
+          :hotkey-error-primary-field="props.hotkeyErrorPrimaryField"
           @start-recording="emit('start-recording', $event)"
         />
         <SettingsGeneralSection
@@ -138,7 +158,6 @@ const emit = defineEmits<{
     <p v-if="props.settingsRoute === 'hotkeys'" class="settings-hint">
       {{ t("settings.hotkeys.hint") }}
     </p>
-    <p v-if="props.settingsError" class="settings-error">{{ props.settingsError }}</p>
     <footer class="settings-window__footer">
       <button type="button" class="btn-muted" @click="emit('close')">{{ t("common.cancel") }}</button>
       <button type="button" class="btn-muted" @click="emit('apply')">{{ t("common.apply") }}</button>

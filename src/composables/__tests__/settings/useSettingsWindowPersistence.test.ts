@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import type { HotkeyFieldDefinition } from "../../../features/settings/types";
+import { createDefaultSettingsSnapshot } from "../../../stores/settingsStore";
 import { createPersistenceActions } from "../../settings/useSettingsWindow/persistence";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
 
@@ -14,9 +15,26 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     }
   ];
 
+  const baseSnapshot = createDefaultSettingsSnapshot();
+
   const settingsStore = {
     persist: vi.fn(),
-    hydrateFromStorage: vi.fn()
+    hydrateFromStorage: vi.fn(),
+    toSnapshot: vi.fn(() => ({
+      ...baseSnapshot,
+      hotkeys: {
+        ...baseSnapshot.hotkeys,
+        launcher: "Alt+K"
+      },
+      general: {
+        ...baseSnapshot.general,
+        defaultTerminal: "powershell",
+        language: "zh-CN" as const,
+        autoCheckUpdate: true,
+        launchAtLogin: false
+      }
+    })),
+    applySnapshot: vi.fn()
   };
 
   const options: UseSettingsWindowOptions = {

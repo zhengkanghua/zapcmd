@@ -39,7 +39,9 @@ export function useMainWindowShell(options: UseMainWindowShellOptions) {
     options.cancelHotkeyRecording();
     const appWindow = options.resolveAppWindow();
     if (appWindow) {
-      void appWindow.close();
+      void Promise.resolve(appWindow.close()).catch((error) => {
+        console.warn("close settings window failed", error);
+      });
     }
   }
 

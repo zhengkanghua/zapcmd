@@ -79,6 +79,9 @@ function onLaunchAtLoginChange(event: Event): void {
             </li>
           </ul>
         </div>
+        <p v-if="props.terminalLoading" class="settings-status settings-status--loading" role="status" aria-live="polite">
+          {{ t("settings.general.terminalDetectingHint") }}
+        </p>
       </div>
       <div class="settings-field">
         <label for="language-select">{{ t("settings.general.language") }}</label>

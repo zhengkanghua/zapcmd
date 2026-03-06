@@ -29,8 +29,8 @@
 
 ### UI/UX 小幅精修（不改变产品形态）
 
-- [ ] **UX-01**: 启动器/设置页键盘可达性与焦点行为一致（focus 可见、Tab 顺序合理、Esc 行为一致且不误触）
-- [ ] **UX-02**: 信息层级、间距/对齐、对比度更一致；关键状态（空态/加载/错误）有清晰反馈
+- [x] **UX-01**: 启动器/设置页键盘可达性与焦点行为一致（focus 可见、Tab 顺序合理、Esc 行为一致且不误触）
+- [x] **UX-02**: 信息层级、间距/对齐、对比度更一致；关键状态（空态/加载/错误）有清晰反馈
 
 ### 鲁棒性与错误提示
 
@@ -80,8 +80,8 @@
 | ROB-03 | Phase 7 | Complete |
 | ARC-01 | Phase 8 | Complete |
 | ARC-02 | Phase 8 | Complete |
-| UX-01 | Phase 9 | Pending |
-| UX-02 | Phase 9 | Pending |
+| UX-01 | Phase 9 | Complete |
+| UX-02 | Phase 9 | Complete |
 
 **覆盖统计（v1）:**
 - v1 需求总数: 17

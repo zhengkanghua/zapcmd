@@ -13,6 +13,8 @@ const emit = defineEmits<{
 const { t } = useI18nText();
 
 const FALLBACK_TEXT = "-";
+const UPDATER_PERMISSION_ERROR_PATTERN =
+  /updater\.check\s+not\s+allowed|permissions associated with this command/i;
 
 const githubOwner =
   typeof __GITHUB_OWNER__ === "string" && __GITHUB_OWNER__.trim()
@@ -71,6 +73,9 @@ const updateErrorNextStep = computed(() => {
   }
   if (props.updateStatus.stage === "install") {
     return t("settings.about.updateNextStepInstall");
+  }
+  if (UPDATER_PERMISSION_ERROR_PATTERN.test(props.updateStatus.reason)) {
+    return t("settings.about.updateNextStepPermission");
   }
   return t("settings.about.updateNextStepCheck");
 });
@@ -131,6 +136,10 @@ const updateErrorNextStep = computed(() => {
       <p class="about-status__title">{{ updateErrorMessage }}</p>
       <p class="about-status__next-step">{{ updateErrorNextStep }}</p>
     </div>
+    <div v-else-if="props.updateStatus.state === 'checking'" class="about-status about-status--loading" role="status">
+      <p class="about-status__title">{{ t("settings.about.checking") }}</p>
+      <p class="about-status__next-step">{{ t("settings.about.checkingHint") }}</p>
+    </div>
     <div
       v-else-if="props.updateStatus.state === 'upToDate'"
       class="about-status about-status--success"
@@ -147,14 +156,16 @@ const updateErrorNextStep = computed(() => {
         <pre class="about-status__content">{{ props.updateStatus.body }}</pre>
       </div>
     </div>
-    <div v-else-if="props.updateStatus.state === 'downloading'" class="about-status" role="status">
+    <div v-else-if="props.updateStatus.state === 'downloading'" class="about-status about-status--loading" role="status">
       <p class="about-status__title">
         {{ t("settings.about.downloading", { progress: props.updateStatus.progressPercent }) }}
       </p>
+      <p class="about-status__next-step">{{ t("settings.about.downloadingHint") }}</p>
       <progress :value="props.updateStatus.progressPercent" max="100"></progress>
     </div>
-    <div v-else-if="props.updateStatus.state === 'installing'" class="about-status" role="status">
-      {{ t("settings.about.installing") }}
+    <div v-else-if="props.updateStatus.state === 'installing'" class="about-status about-status--loading" role="status">
+      <p class="about-status__title">{{ t("settings.about.installing") }}</p>
+      <p class="about-status__next-step">{{ t("settings.about.installingHint") }}</p>
     </div>
   </section>
 </template>
@@ -200,15 +211,28 @@ const updateErrorNextStep = computed(() => {
 
 .about-status {
   margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
   font-size: 12px;
   color: rgba(255, 255, 255, 0.85);
 }
 
+.about-status--loading {
+  border-color: rgba(55, 204, 138, 0.24);
+  background: rgba(55, 204, 138, 0.08);
+}
+
 .about-status--success {
+  border-color: rgba(55, 204, 138, 0.28);
+  background: rgba(55, 204, 138, 0.1);
   color: rgba(55, 204, 138, 0.9);
 }
 
 .about-status--error {
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.08);
   color: rgba(248, 113, 113, 0.9);
 }
 
@@ -219,6 +243,13 @@ const updateErrorNextStep = computed(() => {
 
 .about-status__next-step {
   margin: 0;
+}
+
+progress {
+  width: 100%;
+  height: 8px;
+  margin-top: 8px;
+  accent-color: #37cc8a;
 }
 
 .about-status__label {

@@ -56,15 +56,17 @@ function createHarness() {
 }
 
 describe("useMainWindowShell", () => {
-  it("closes settings window only in settings mode", () => {
+  it("closes settings window only in settings mode", async () => {
     const harness = createHarness();
     harness.shell.closeSettingsWindow();
     expect(harness.spies.close).not.toHaveBeenCalled();
 
     harness.state.isSettingsWindow.value = true;
     harness.shell.closeSettingsWindow();
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(harness.spies.cancelHotkeyRecording).toHaveBeenCalledTimes(1);
     expect(harness.spies.close).toHaveBeenCalledTimes(1);
+    expect(harness.spies.hide).not.toHaveBeenCalled();
   });
 
   it("clears pending command first on Escape", () => {
@@ -147,5 +149,3 @@ describe("useMainWindowShell", () => {
     expect(isTypingElement(null)).toBe(false);
   });
 });
-
-

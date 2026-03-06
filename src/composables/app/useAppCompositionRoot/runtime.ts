@@ -196,7 +196,7 @@ function bindAppRuntime(
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
     loadSettings: context.settingsWindow.loadSettings
   });
-  const { closeSettingsWindow, hideMainWindow, handleMainEscape } = useMainWindowShell({
+  const { closeSettingsWindow: closeSettingsWindowImmediately, hideMainWindow, handleMainEscape } = useMainWindowShell({
     isSettingsWindow: context.isSettingsWindow,
     cancelHotkeyRecording: context.settingsWindow.cancelHotkeyRecording,
     resolveAppWindow: context.resolveAppWindow,
@@ -210,10 +210,16 @@ function bindAppRuntime(
     stagingExpanded: launcherRuntime.stagingQueue.stagingExpanded,
     closeStagingDrawer: launcherRuntime.stagingQueue.closeStagingDrawer
   });
+  function requestCloseSettingsWindow(): void {
+    if (!context.settingsWindow.prepareToCloseSettingsWindow()) {
+      return;
+    }
+    closeSettingsWindowImmediately();
+  }
   const onWindowKeydown = useAppWindowKeydown({
     isSettingsWindow: context.isSettingsWindow,
     settingsWindow: context.settingsWindow,
-    closeSettingsWindow,
+    closeSettingsWindow: requestCloseSettingsWindow,
     stagingQueue: launcherRuntime.stagingQueue,
     commandExecution: launcherRuntime.commandExecution,
     searchInputRef: context.domBridge.searchInputRef,
@@ -246,7 +252,8 @@ function bindAppRuntime(
   });
 
   return {
-    closeSettingsWindow,
+    closeSettingsWindow: requestCloseSettingsWindow,
+    forceCloseSettingsWindow: closeSettingsWindowImmediately,
     hideMainWindow
   };
 }

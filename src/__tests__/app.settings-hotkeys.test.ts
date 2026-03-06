@@ -4,6 +4,7 @@ import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "../App.vue";
+import { useSettingsStore } from "../stores/settingsStore";
 
 const hoisted = vi.hoisted(() => ({
   closeSpy: vi.fn(),
@@ -75,6 +76,13 @@ async function mountAppSettings(): Promise<VueWrapper> {
   wrappers.push(wrapper);
   await waitForUi();
   return wrapper;
+}
+
+function getSettingsStoreFromWrapper(wrapper: VueWrapper) {
+  const vm = wrapper.vm as unknown as {
+    $pinia: Parameters<typeof useSettingsStore>[0];
+  };
+  return useSettingsStore(vm.$pinia);
 }
 
 afterEach(() => {
@@ -327,6 +335,46 @@ describe("App settings hotkeys regression", () => {
 
     const error = wrapper.get(".settings-error").text();
     expect(error).toContain("快捷键冲突");
+    expect(launcherField!.get(".hotkey-recorder").classes()).toContain("hotkey-recorder--error");
+    expect(focusField!.get(".hotkey-recorder").classes()).toContain("hotkey-recorder--error-primary");
+    expect(wrapper.find(".settings-error__action").exists()).toBe(false);
+  });
+
+  it("shows route guidance when hotkey conflict is saved from another route", async () => {
+    const wrapper = await mountAppSettings();
+
+    const fields = wrapper.findAll(".settings-field");
+    const launcherField = fields.find((item) => item.find("label").text() === "唤起窗口");
+    const focusField = fields.find((item) => item.find("label").text() === "切换焦点区域");
+    expect(launcherField).toBeTruthy();
+    expect(focusField).toBeTruthy();
+
+    await launcherField!.get(".hotkey-recorder").trigger("click");
+    await waitForUi();
+    dispatchWindowKeydown("k", { ctrlKey: true });
+    await waitForUi();
+
+    await focusField!.get(".hotkey-recorder").trigger("click");
+    await waitForUi();
+    dispatchWindowKeydown("k", { ctrlKey: true });
+    await waitForUi();
+
+    const generalNav = wrapper.findAll("button.settings-nav__item").find((item) => item.attributes("data-route") === "general");
+    expect(generalNav).toBeTruthy();
+    await generalNav!.trigger("click");
+    await waitForUi();
+
+    const applyButton = wrapper.findAll("button.btn-muted").find((item) => item.text() === "应用");
+    expect(applyButton).toBeTruthy();
+    await applyButton!.trigger("click");
+    await waitForUi();
+
+    expect(wrapper.get(".settings-error__action").text()).toContain("快捷键");
+    expect(wrapper.find('.settings-nav__item--error[data-route="hotkeys"]').exists()).toBe(true);
+
+    await wrapper.get(".settings-error__action").trigger("click");
+    await waitForUi();
+    expect(wrapper.find('.settings-nav__item--active[data-route="hotkeys"]').exists()).toBe(true);
   });
 
   it("shows save success for valid settings", async () => {
@@ -345,5 +393,62 @@ describe("App settings hotkeys regression", () => {
     await waitForUi();
 
     expect(hoisted.closeSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("saves changes and closes settings window on confirm", async () => {
+    const wrapper = await mountAppSettings();
+    const settingsStore = getSettingsStoreFromWrapper(wrapper);
+
+    const recorder = wrapper.findAll("button.hotkey-recorder")[0];
+    await recorder.trigger("click");
+    await waitForUi();
+    dispatchWindowKeydown("j", { ctrlKey: true });
+    await waitForUi();
+
+    await wrapper.get("button.btn-primary").trigger("click");
+    await waitForUi();
+
+    expect(settingsStore.hotkeys.launcher).toBe("Ctrl+J");
+    expect(hoisted.closeSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps settings open when cancel discard is rejected", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+    const wrapper = await mountAppSettings();
+
+    const recorder = wrapper.findAll("button.hotkey-recorder")[0];
+    await recorder.trigger("click");
+    await waitForUi();
+    dispatchWindowKeydown("j", { ctrlKey: true });
+    await waitForUi();
+
+    await wrapper.findAll("button.btn-muted")[0].trigger("click");
+    await waitForUi();
+
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(hoisted.closeSpy).not.toHaveBeenCalled();
+    expect(recorder.text()).toBe("Ctrl+J");
+    confirmSpy.mockRestore();
+  });
+
+  it("discards unsaved changes on cancel after confirmation", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const wrapper = await mountAppSettings();
+    const settingsStore = getSettingsStoreFromWrapper(wrapper);
+    const originalHotkey = settingsStore.hotkeys.launcher;
+
+    const recorder = wrapper.findAll("button.hotkey-recorder")[0];
+    await recorder.trigger("click");
+    await waitForUi();
+    dispatchWindowKeydown("j", { ctrlKey: true });
+    await waitForUi();
+
+    await wrapper.findAll("button.btn-muted")[0].trigger("click");
+    await waitForUi();
+
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(hoisted.closeSpy).toHaveBeenCalledTimes(1);
+    expect(settingsStore.hotkeys.launcher).toBe(originalHotkey);
+    confirmSpy.mockRestore();
   });
 });
