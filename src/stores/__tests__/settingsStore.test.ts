@@ -5,8 +5,11 @@ import {
   LEGACY_GENERAL_SETTINGS_STORAGE_KEY,
   LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
   SETTINGS_STORAGE_KEY,
-  createDefaultSettingsSnapshot,
-  migrateSettingsPayload,
+  createDefaultSettingsSnapshot
+} from "../settings/defaults";
+import { migrateSettingsPayload } from "../settings/migration";
+import { normalizeWindowOpacity } from "../settings/normalization";
+import {
   readSettingsFromStorage,
   useSettingsStore,
   writeSettingsToStorage
@@ -151,6 +154,36 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.commands.disabledCommandIds).toEqual(["docker-ps"]);
     expect(migrated?.commands.view.fileFilter).toBe("all");
     expect(migrated?.appearance.windowOpacity).toBe(1);
+  });
+
+  it("normalizes query/source/status/sort and display mode to safe defaults", () => {
+    const migrated = migrateSettingsPayload({
+      version: 3,
+      hotkeys: {},
+      general: {},
+      commands: {
+        disabledCommandIds: [],
+        view: {
+          query: "  docker  ",
+          sourceFilter: "invalid",
+          statusFilter: "invalid",
+          overrideFilter: "invalid",
+          issueFilter: "invalid",
+          sortBy: "invalid",
+          displayMode: "invalid"
+        }
+      },
+      appearance: {}
+    });
+
+    expect(migrated).toBeTruthy();
+    expect(migrated?.commands.view.query).toBe("docker");
+    expect(migrated?.commands.view.sourceFilter).toBe("all");
+    expect(migrated?.commands.view.statusFilter).toBe("all");
+    expect(migrated?.commands.view.overrideFilter).toBe("all");
+    expect(migrated?.commands.view.issueFilter).toBe("all");
+    expect(migrated?.commands.view.sortBy).toBe("default");
+    expect(migrated?.commands.view.displayMode).toBe("list");
   });
 
   it("falls back to default window opacity when value is non-finite", () => {
@@ -324,5 +357,11 @@ describe("settingsStore migration and persistence", () => {
   it("writeSettingsToStorage safely no-ops when storage is null", () => {
     const snapshot = createDefaultSettingsSnapshot();
     expect(() => writeSettingsToStorage(snapshot, null)).not.toThrow();
+  });
+
+  it("normalizeWindowOpacity clamps to min/max and falls back for invalid values", () => {
+    expect(normalizeWindowOpacity(-2)).toBe(0.2);
+    expect(normalizeWindowOpacity(2)).toBe(1);
+    expect(normalizeWindowOpacity(Number.NaN)).toBe(0.92);
   });
 });
