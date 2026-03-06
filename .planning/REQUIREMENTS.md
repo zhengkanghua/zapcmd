@@ -52,6 +52,8 @@
 - **SYNC-01**: 命令与设置云同步（多设备一致）
 - **SEC-02**: 团队/组织级安全策略（白名单、策略下发、审计等）
 
+> 说明：Phase 12 已关闭 v1 中围绕 macOS desktop smoke 的脚本 / workflow / 文档口径漂移；这不代表 `E2E-02` 已完成。`E2E-02` 继续表示 v2 的全矩阵桌面端自动化 E2E 目标。
+
 ## 明确不做（本里程碑）
 
 | 功能 | 原因 |
@@ -67,7 +69,7 @@
 | REG-01 | Phase 1 | Complete |
 | REG-02 | Phase 1 | Complete |
 | E2E-01 | Phase 1 | Complete |
-| E2E-02 (partial: macOS gate only) | Phase 12 | Pending |
+| E2E-02 (v2 full-matrix) | Deferred (v2) | Deferred |
 | COV-01 | Phase 11 | Complete |
 | COV-02 | Phase 11 | Complete |
 | COV-03 | Phase 3 | Complete |
@@ -82,6 +84,8 @@
 | ARC-02 | Phase 8 | Complete |
 | UX-01 | Phase 11 | Complete |
 | UX-02 | Phase 11 | Complete |
+
+**追踪说明：** Phase 12 关闭的是 v1 里“Windows-only blocking gate 与 macOS experimental / non-blocking probe”之间的口径漂移；`E2E-02` 作为 Windows/macOS/Linux full-matrix 目标，继续保留在 v2 backlog。
 
 **覆盖统计（v1）:**
 - v1 需求总数: 17

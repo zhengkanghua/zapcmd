@@ -19,7 +19,7 @@
 - [x] **Phase 7: 鲁棒性与错误提示增强** - 失败可见、可定位、可操作 (completed 2026-03-06)
 - [x] **Phase 8: 架构可测试性重构** - 收窄接口/解耦 IO，提升单测效率 (completed 2026-03-06)
 - [x] **Phase 9: UI/UX 小幅精修** - 键盘可达性与视觉一致性提升 (completed 2026-03-06)
-- [x] **Phase 10: 补齐 macOS 桌面端 E2E 冒烟** - 桌面冒烟门禁扩展到 macOS（本地 + CI） (completed 2026-03-05)
+- [x] **Phase 10: 补齐 macOS 桌面端 E2E 冒烟** - 补齐 macOS 桌面冒烟探测与诊断产物（阻断口径已由 Phase 12 更正） (completed 2026-03-05)
 - [x] **Phase 11: 审计证据补齐与需求追踪收敛** - 补齐 Phase 2 / 9 的 verification 缺口并恢复可审计状态 (completed 2026-03-06)
 - [ ] **Phase 12: macOS 桌面冒烟门禁与口径收敛** - 收敛 Phase 10 的本地 / CI / Release / 文档口径
 
@@ -173,19 +173,21 @@ Plans:
 | 9. UI/UX 小幅精修 | 3/3 | Complete | 2026-03-06 |
 | 10. 补齐 macOS 桌面端 E2E 冒烟 | 3/3 | Complete    | 2026-03-05 |
 | 11. 审计证据补齐与需求追踪收敛 | 3/3 | Complete   | 2026-03-06 |
-| 12. macOS 桌面冒烟门禁与口径收敛 | 0/0 | Pending | - |
+| 12. macOS 桌面冒烟门禁与口径收敛 | 0/4 | Pending | - |
 
 ### Phase 10: 补齐 macOS 桌面端 E2E 冒烟
 
-**Goal:** 在保持现有最小 smoke 口径不变的前提下，让 macOS 在本地与 CI 都能执行桌面端 E2E 冒烟并阻断失败，且提供可定位诊断产物。
+**Goal:** 在当时的执行中补齐 macOS desktop smoke 的探测路径与诊断产物；其“默认 / 阻断 gate”表述已由 Phase 12 更正为 experimental / non-blocking。
 **Requirements**: [E2E-02 (partial: macOS gate only)]
 **Depends on:** Phase 9
-**Plans:** 3/3 plans complete
+**Plans:** 3/3 plans complete（历史执行；相关阻断结论已由 Phase 12 更正）
 
 Plans:
 - [x] 10-01-PLAN.md — desktop-smoke 脚本跨平台化（win32 + darwin）与 macOS 可行性闸门
 - [x] 10-02-PLAN.md — verify:local 接入 macOS 默认桌面冒烟 + 脚本文档对齐
 - [x] 10-03-PLAN.md — CI/Release 纳入 macOS 桌面冒烟阻断 + 贡献者文档对齐
+
+> Correction: Phase 10 保留原始计划与执行记录；其“macOS 默认 / 阻断 desktop smoke gate”结论已在 Phase 12 中以 correction note 方式更正为“Windows-only blocking gate + macOS experimental / non-blocking probe”。
 
 ### Phase 11: 审计证据补齐与需求追踪收敛
 
@@ -206,15 +208,18 @@ Plans:
 
 ### Phase 12: macOS 桌面冒烟门禁与口径收敛
 
-**Goal:** 收敛 Phase 10 对 macOS desktop smoke 的真实交付口径，使本地脚本、CI / Release workflow、ROADMAP / REQUIREMENTS / SUMMARY / active context 之间完全一致，并能通过重新审计。
-**Requirements**: [E2E-02 (partial: macOS gate only)]
+**Goal:** 收敛 Phase 10 对 macOS desktop smoke 的真实交付口径，使本地脚本、CI / Release workflow、ROADMAP / REQUIREMENTS / SUMMARY / active context 之间完全一致；明确 v1 关闭的是口径漂移，而非补完 unsupported 的 macOS blocking gate。
+**Requirements**: [E2E-02 traceability realignment for v1; full-matrix target remains deferred to v2]
 **Depends on:** Phase 11
 **Gap Closure:** 关闭 `.planning/v1.0-MILESTONE-AUDIT.md` 中 Phase 10 的 macOS local gate / CI gate / 文档漂移缺口
 **Success Criteria** (what must be TRUE):
 1. `verify:local` 在 macOS 的真实行为与 README / Phase 10 文档保持一致，不再出现“默认执行”与“实验开关”并存的矛盾口径。
 2. `.github/workflows/ci-gate.yml` 与 `.github/workflows/release-build.yml` 对 macOS desktop smoke 的阻断范围与文档表述一致。
-3. 重新运行 milestone audit 后，不再出现 `E2E-02` partial / flow / integration 相关的一致性缺口。
-**Plans:** 0/0 planned
+3. 重新运行 milestone audit 后，不再出现 macOS local / CI / Release / docs drift 类 blocker，`E2E-02` full-matrix 仅以 deferred / tech debt 形式保留。
+**Plans:** 4/4 plans executed
 
 Plans:
-- [ ] 待通过 `$gsd-plan-phase 12` 生成具体 PLAN
+- [x] 12-01-PLAN.md — 固化本地 experimental 口径与脚本文档
+- [x] 12-02-PLAN.md — 澄清 CI/Release workflow 的真实职责边界
+- [x] 12-03-PLAN.md — 对齐公开文档与 Phase 10 历史证据
+- [x] 12-04-PLAN.md — 收敛 roadmap / requirements / state / audit 结论
