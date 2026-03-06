@@ -345,6 +345,17 @@ describe("App failure and event regression", () => {
     );
   });
 
+  it("does not invoke open_settings_window when running in non-tauri settings window", async () => {
+    hoisted.currentWindowLabel = "settings";
+    hoisted.isTauriMock.mockReturnValue(false);
+    hoisted.invokeMock.mockResolvedValue(undefined);
+
+    await mountApp();
+    await waitForUi();
+
+    expect(getInvokeCommandCallCount("open_settings_window")).toBe(0);
+  });
+
   it("shows staged check-update failure guidance in About section", async () => {
     hoisted.currentWindowLabel = "settings";
     hoisted.isTauriMock.mockReturnValue(true);
