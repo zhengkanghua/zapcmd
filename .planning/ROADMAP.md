@@ -21,7 +21,7 @@
 - [x] **Phase 9: UI/UX 小幅精修** - 键盘可达性与视觉一致性提升 (completed 2026-03-06)
 - [x] **Phase 10: 补齐 macOS 桌面端 E2E 冒烟** - 补齐 macOS 桌面冒烟探测与诊断产物（阻断口径已由 Phase 12 更正） (completed 2026-03-05)
 - [x] **Phase 11: 审计证据补齐与需求追踪收敛** - 补齐 Phase 2 / 9 的 verification 缺口并恢复可审计状态 (completed 2026-03-06)
-- [ ] **Phase 12: macOS 桌面冒烟门禁与口径收敛** - 收敛 Phase 10 的本地 / CI / Release / 文档口径
+- [x] **Phase 12: macOS 桌面冒烟门禁与口径收敛** - 收敛 Phase 10 的本地 / CI / Release / 文档口径 (completed 2026-03-06)
 
 ## Phase Details
 
@@ -173,7 +173,7 @@ Plans:
 | 9. UI/UX 小幅精修 | 3/3 | Complete | 2026-03-06 |
 | 10. 补齐 macOS 桌面端 E2E 冒烟 | 3/3 | Complete    | 2026-03-05 |
 | 11. 审计证据补齐与需求追踪收敛 | 3/3 | Complete   | 2026-03-06 |
-| 12. macOS 桌面冒烟门禁与口径收敛 | 0/4 | Pending | - |
+| 12. macOS 桌面冒烟门禁与口径收敛 | 4/4 | Complete    | 2026-03-06 |
 
 ### Phase 10: 补齐 macOS 桌面端 E2E 冒烟
 
@@ -216,7 +216,7 @@ Plans:
 1. `verify:local` 在 macOS 的真实行为与 README / Phase 10 文档保持一致，不再出现“默认执行”与“实验开关”并存的矛盾口径。
 2. `.github/workflows/ci-gate.yml` 与 `.github/workflows/release-build.yml` 对 macOS desktop smoke 的阻断范围与文档表述一致。
 3. 重新运行 milestone audit 后，不再出现 macOS local / CI / Release / docs drift 类 blocker，`E2E-02` full-matrix 仅以 deferred / tech debt 形式保留。
-**Plans:** 4/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 - [x] 12-01-PLAN.md — 固化本地 experimental 口径与脚本文档

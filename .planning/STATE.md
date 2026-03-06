@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: 质量门禁与回归基线
 current_phase: 12
 current_phase_name: macos-e2e-gate-alignment
-current_plan: 12-04-PLAN.md
-status: in_progress
-stopped_at: Executing 12-04-PLAN.md
-last_updated: "2026-03-06T23:15:19+08:00"
+current_plan: Complete
+status: phase_complete
+stopped_at: Completed 12-04-PLAN.md
+last_updated: "2026-03-06T23:35:31+08:00"
 last_activity: 2026-03-06
 progress:
   total_phases: 12
-  completed_phases: 11
-  total_plans: 31
-  completed_plans: 31
-  percent: 92
+  completed_phases: 12
+  total_plans: 35
+  completed_plans: 35
+  percent: 100
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** Phase 12 已把 macOS desktop smoke 的本地 / CI / Release / 文档口径收敛到同一现实，当前进入阶段验证与里程碑收尾。
+**Current focus:** Phase 12 已通过验证并关闭 macOS gate 口径漂移，当前无 blocker，下一步进入里程碑收尾。
 
 ## Current Position
 
 **Current Phase:** 12
 **Current Phase Name:** macos-e2e-gate-alignment
 **Total Phases:** 12  
-**Current Plan:** 12-04-PLAN.md
+**Current Plan:** Complete
 **Total Plans in Phase:** 4
-**Status:** Phase execution in progress
+**Status:** Phase complete
 **Last Activity:** 2026-03-06
-**Last Activity Description:** Phase 12 已完成本地脚本、workflow、公开文档与 planning 口径收敛；下一步执行阶段验证并准备里程碑收尾
+**Last Activity Description:** Phase 12 complete; macOS gate drift closed, next step complete milestone
 
-**Progress:** [█████████░] 92%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -114,6 +114,6 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 
 ## Session
 
-**Last Date:** 2026-03-06T20:58:00.000Z
-**Stopped At:** Completed 11-03-PLAN.md
+**Last Date:** 2026-03-06T23:35:31+08:00
+**Stopped At:** Completed 12-04-PLAN.md
 **Resume File:** None
