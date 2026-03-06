@@ -3,19 +3,14 @@ import type { AppLocale } from "../i18n";
 import {
   DEFAULT_AUTO_CHECK_UPDATE,
   DEFAULT_LAUNCH_AT_LOGIN,
-  LEGACY_GENERAL_SETTINGS_STORAGE_KEY,
-  LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
   SETTINGS_SCHEMA_VERSION,
-  SETTINGS_STORAGE_KEY,
   createDefaultSettingsSnapshot,
   type CommandManagementViewState,
   type HotkeyFieldId,
   type HotkeySettings,
   type PersistedSettingsSnapshot
 } from "./settings/defaults";
-import { migrateLegacyStoragePayload, migrateSettingsPayload } from "./settings/migration";
 import {
-  isRecord,
   normalizeBoolean,
   normalizeCommandViewState,
   normalizeDisabledCommandIds,
@@ -25,6 +20,10 @@ import {
   normalizeTerminalId,
   normalizeWindowOpacity
 } from "./settings/normalization";
+import {
+  createSettingsStorageAdapter,
+  type SettingsStorageAdapter
+} from "./settings/storageAdapter";
 
 export {
   DEFAULT_WINDOW_OPACITY,
@@ -51,62 +50,8 @@ export type {
   PersistedSettingsSnapshot
 } from "./settings/defaults";
 export { migrateSettingsPayload } from "./settings/migration";
-
-let hasWarnedSettingsPayloadParseFailure = false;
-
-function parseJsonRecord(raw: string | null): Record<string, unknown> | null {
-  if (!raw) {
-    return null;
-  }
-  try {
-    const parsed = JSON.parse(raw);
-    return isRecord(parsed) ? parsed : null;
-  } catch (error) {
-    if (!hasWarnedSettingsPayloadParseFailure) {
-      hasWarnedSettingsPayloadParseFailure = true;
-      console.warn("settings payload json parse failed", error);
-    }
-    return null;
-  }
-}
-
-function resolveStorage(): Storage | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  return window.localStorage ?? null;
-}
-
-export function readSettingsFromStorage(storage: Storage | null = resolveStorage()): PersistedSettingsSnapshot {
-  if (!storage) {
-    return createDefaultSettingsSnapshot();
-  }
-
-  const currentPayload = parseJsonRecord(storage.getItem(SETTINGS_STORAGE_KEY));
-  const migratedCurrent = migrateSettingsPayload(currentPayload);
-  if (migratedCurrent) {
-    return migratedCurrent;
-  }
-
-  const legacyHotkeysPayload = parseJsonRecord(storage.getItem(LEGACY_HOTKEY_SETTINGS_STORAGE_KEY));
-  const legacyGeneralPayload = parseJsonRecord(storage.getItem(LEGACY_GENERAL_SETTINGS_STORAGE_KEY));
-
-  return migrateLegacyStoragePayload({ legacyHotkeysPayload, legacyGeneralPayload });
-}
-
-export function writeSettingsToStorage(
-  snapshot: PersistedSettingsSnapshot,
-  storage: Storage | null = resolveStorage()
-): void {
-  if (!storage) {
-    return;
-  }
-
-  const normalizedSnapshot = normalizePersistedSettingsSnapshot(snapshot);
-  storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(normalizedSnapshot));
-  storage.removeItem(LEGACY_HOTKEY_SETTINGS_STORAGE_KEY);
-  storage.removeItem(LEGACY_GENERAL_SETTINGS_STORAGE_KEY);
-}
+export { createSettingsStorageAdapter, readSettingsFromStorage, writeSettingsToStorage } from "./settings/storageAdapter";
+export type { SettingsStorageAdapter } from "./settings/storageAdapter";
 
 interface SettingsState {
   schemaVersion: number;
@@ -140,6 +85,10 @@ function snapshotFromState(state: SettingsState): PersistedSettingsSnapshot {
   });
 }
 
+function resolveAdapter(adapter?: SettingsStorageAdapter): SettingsStorageAdapter {
+  return adapter ?? createSettingsStorageAdapter();
+}
+
 export const useSettingsStore = defineStore("settings", {
   state: (): SettingsState => {
     const defaults = createDefaultSettingsSnapshot();
@@ -156,10 +105,11 @@ export const useSettingsStore = defineStore("settings", {
     };
   },
   actions: {
-    hydrateFromStorage(): void {
-      const snapshot = readSettingsFromStorage();
+    hydrateFromStorage(adapter?: SettingsStorageAdapter): void {
+      const storageAdapter = resolveAdapter(adapter);
+      const snapshot = storageAdapter.readSettings();
       this.applySnapshot(snapshot);
-      writeSettingsToStorage(snapshot);
+      storageAdapter.writeSettings(snapshot);
     },
     applySnapshot(snapshot: PersistedSettingsSnapshot): void {
       const normalized = normalizePersistedSettingsSnapshot(snapshot);
@@ -227,8 +177,8 @@ export const useSettingsStore = defineStore("settings", {
         windowOpacity: this.windowOpacity
       });
     },
-    persist(): void {
-      writeSettingsToStorage(this.toSnapshot());
+    persist(adapter?: SettingsStorageAdapter): void {
+      resolveAdapter(adapter).writeSettings(this.toSnapshot());
     }
   }
 });

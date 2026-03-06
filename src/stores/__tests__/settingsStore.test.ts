@@ -9,6 +9,7 @@ import {
 } from "../settings/defaults";
 import { migrateSettingsPayload } from "../settings/migration";
 import { normalizeWindowOpacity } from "../settings/normalization";
+import { createSettingsStorageAdapter, type SettingsStorageAdapter } from "../settings/storageAdapter";
 import {
   readSettingsFromStorage,
   useSettingsStore,
@@ -363,5 +364,38 @@ describe("settingsStore migration and persistence", () => {
     expect(normalizeWindowOpacity(-2)).toBe(0.2);
     expect(normalizeWindowOpacity(2)).toBe(1);
     expect(normalizeWindowOpacity(Number.NaN)).toBe(0.92);
+  });
+
+  it("uses injected adapter for hydrate and persist orchestration", () => {
+    const snapshot = createDefaultSettingsSnapshot();
+    snapshot.hotkeys.launcher = "Ctrl+Shift+X";
+    snapshot.general.defaultTerminal = "pwsh";
+
+    const adapter: SettingsStorageAdapter = {
+      readSettings: vi.fn(() => snapshot),
+      writeSettings: vi.fn()
+    };
+
+    const store = useSettingsStore();
+    store.hydrateFromStorage(adapter);
+
+    expect(adapter.readSettings).toHaveBeenCalledTimes(1);
+    expect(adapter.writeSettings).toHaveBeenCalledTimes(1);
+    expect(store.hotkeys.launcher).toBe("Ctrl+Shift+X");
+
+    store.setDefaultTerminal("wt");
+    store.persist(adapter);
+    expect(adapter.writeSettings).toHaveBeenCalledTimes(2);
+    expect(adapter.writeSettings).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        general: expect.objectContaining({ defaultTerminal: "wt" })
+      })
+    );
+  });
+
+  it("adapter supports null storage fallback without throwing", () => {
+    const adapter = createSettingsStorageAdapter({ storage: null });
+    expect(adapter.readSettings()).toEqual(createDefaultSettingsSnapshot());
+    expect(() => adapter.writeSettings(createDefaultSettingsSnapshot())).not.toThrow();
   });
 });
