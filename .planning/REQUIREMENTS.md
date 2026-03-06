@@ -35,7 +35,7 @@
 ### 鲁棒性与错误提示
 
 - [x] **ROB-01**: 命令加载/解析失败给出明确错误提示（包含来源、命令标识、失败原因），不吞错误
-- [ ] **ROB-02**: 命令执行失败（终端不可用/参数非法/被安全策略拦截）提示可操作的解决方案或下一步
+- [x] **ROB-02**: 命令执行失败（终端不可用/参数非法/被安全策略拦截）提示可操作的解决方案或下一步
 - [ ] **ROB-03**: 更新流程（检查/下载/安装）失败提示清晰，且失败不会导致应用不可用或进入坏状态
 
 ### 安全基线回归
@@ -76,7 +76,7 @@
 | RUST-03 | Phase 5 | Complete |
 | SEC-01 | Phase 6 | Complete |
 | ROB-01 | Phase 7 | Complete |
-| ROB-02 | Phase 7 | Pending |
+| ROB-02 | Phase 7 | Complete |
 | ROB-03 | Phase 7 | Pending |
 | ARC-01 | Phase 8 | Pending |
 | ARC-02 | Phase 8 | Pending |

@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: 质量门禁与回归基线
 current_phase: 07
 current_phase_name: robustness errors
-current_plan: 02
+current_plan: 03
 status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-03-06T01:02:12.327Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-06T01:55:48.242Z"
 last_activity: 2026-03-06
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 22
-  completed_plans: 20
-  percent: 91
+  completed_plans: 21
+  percent: 95
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 **Current Phase:** 07
 **Current Phase Name:** robustness errors
 **Total Phases:** 10  
-**Current Plan:** 02
+**Current Plan:** 03
 **Total Plans in Phase:** 3
-**Status:** Executing plan 02 of 3
+**Status:** Executing plan 03 of 3
 **Last Activity:** 2026-03-06
-**Last Activity Description:** Completed 07-01-PLAN.md
+**Last Activity Description:** Completed 07-02-PLAN.md
 
-**Progress:** [█████████░] 91%
+**Progress:** [██████████] 95%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 | Phase 06-security-regression P01 | 20 min | 3 tasks | 2 files |
 | Phase 06-security-regression P02 | 18 min | 3 tasks | 4 files |
 | Phase 07 P01 | 53min | 3 tasks | 10 files |
+| Phase 07 P02 | 9min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 06-security-regression]: blocked 提示双语回归统一采用前缀 + 原因片段，并同时断言 runMock 未调用
 - [Phase 07]: 命令加载问题统一使用 stage/reason/sourceId/commandId 契约，并在设置页直接可见。
 - [Phase 07]: 读取用户命令失败必须转为 read-failed 提示，不允许仅 console.warn。
+- [Phase 07]: 执行失败统一为 reason + next-step 提示，单条与队列共用同一分类映射。
+- [Phase 07]: 参数必填缺失改为显式反馈，禁止提交阶段 silent return。
 
 ### Roadmap Evolution
 
@@ -97,6 +100,6 @@ None yet.
 
 ## Session
 
-**Last Date:** 2026-03-06T01:02:12.324Z
-**Stopped At:** Completed 07-01-PLAN.md
+**Last Date:** 2026-03-06T01:55:48.239Z
+**Stopped At:** Completed 07-02-PLAN.md
 **Resume File:** None
