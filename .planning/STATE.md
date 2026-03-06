@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: 质量门禁与回归基线
-current_phase: 11
-current_phase_name: audit verification gap closure
-current_plan: Complete
-status: phase_complete
-stopped_at: Completed 11-03-PLAN.md
-last_updated: "2026-03-06T20:58:00.000Z"
+current_phase: 12
+current_phase_name: macos-e2e-gate-alignment
+current_plan: 12-04-PLAN.md
+status: in_progress
+stopped_at: Executing 12-04-PLAN.md
+last_updated: "2026-03-06T23:15:19+08:00"
 last_activity: 2026-03-06
 progress:
   total_phases: 12
@@ -24,18 +24,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** Phase 11 已完成，当前 blocker 收敛到 Phase 12 的 macOS desktop smoke 口径统一
+**Current focus:** Phase 12 已把 macOS desktop smoke 的本地 / CI / Release / 文档口径收敛到同一现实，当前进入阶段验证与里程碑收尾。
 
 ## Current Position
 
-**Current Phase:** 11
-**Current Phase Name:** audit verification gap closure
+**Current Phase:** 12
+**Current Phase Name:** macos-e2e-gate-alignment
 **Total Phases:** 12  
-**Current Plan:** Complete
-**Total Plans in Phase:** 3
-**Status:** Phase complete
+**Current Plan:** 12-04-PLAN.md
+**Total Plans in Phase:** 4
+**Status:** Phase execution in progress
 **Last Activity:** 2026-03-06
-**Last Activity Description:** Phase 11 complete; COV / UX 审计缺口已关闭，下一步进入 Phase 12
+**Last Activity Description:** Phase 12 已完成本地脚本、workflow、公开文档与 planning 口径收敛；下一步执行阶段验证并准备里程碑收尾
 
 **Progress:** [█████████░] 92%
 
@@ -93,6 +93,8 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 - [Phase 07]: 下载/安装失败后允许就地重试，About 视图按阶段渲染 next-step 指引。
 - [Phase 11]: 审计补证优先补 VERIFICATION.md 与 summary frontmatter，而不是直接篡改 audit 结论。
 - [Phase 11]: verification 结论以当前仓库实测为准，历史 summary 数值只作为背景，不作为最终审计证据。
+- [Phase 12]: Windows desktop smoke 继续作为唯一 blocking gate；macOS 仅保留 experimental / non-blocking probe，Linux full-matrix 继续 deferred。
+- [Phase 12]: 历史 evidence 采用 correction note 更正，不抹除原始执行事实；后续审计应以当前 repo reality 为准。
 
 ### Roadmap Evolution
 
@@ -102,11 +104,13 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 
 ### Pending Todos
 
-- Phase 12 仍是当前 blocker：需要统一 macOS desktop smoke 的本地 / CI / Release / 文档口径。
+- 重新运行 `$gsd-audit-milestone`，确认只剩 deferred / tech debt。
+- 审计通过后进入 `$gsd-complete-milestone`。
 
 ### Blockers/Concerns
 
-- `E2E-02` 仍为 partial；在 Phase 12 完成前，不应再次尝试 complete-milestone。
+- 当前无阻断 blocker；`E2E-02` full-matrix 仍属于 v2 deferred backlog。
+- macOS desktop smoke 的稳定性仍受 SafariDriver / WKWebView 影响，继续保留 experimental / non-blocking 观测路径。
 
 ## Session
 
