@@ -136,7 +136,7 @@ describe("useCommandCatalog", () => {
     try {
       let getTemplates: () => CommandTemplate[] = () => [];
       let getAllTemplates: () => CommandTemplate[] = () => [];
-      let getIssues: () => { code: string }[] = () => [];
+      let getIssues: () => { code: string; stage: string; reason: string }[] = () => [];
       let getOverrides: () => string[] = () => [];
 
       const Harness = defineComponent({
@@ -164,11 +164,57 @@ describe("useCommandCatalog", () => {
       expect(getTemplates().some((item) => item.id === "docker-ps")).toBe(false);
       expect(getOverrides()).toContain("docker-ps");
       expect(getIssues().some((item) => item.code === "invalid-json")).toBe(true);
+      const parseIssue = getIssues().find((item) => item.code === "invalid-json");
+      expect(parseIssue).toMatchObject({
+        code: "invalid-json",
+        stage: "parse"
+      });
+      expect(parseIssue?.reason.length).toBeGreaterThan(0);
 
       disabledCommandIds.value = [];
       await nextTick();
       expect(getTemplates().some((item) => item.id === "docker-ps")).toBe(true);
 
+      wrapper.unmount();
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it("reports read failure as load issue instead of silent warning", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const readUserCommandFiles = vi.fn(async () => {
+      throw new Error("permission denied");
+    });
+
+    try {
+      let getIssues: () => { code: string; stage: string; sourceId: string; reason: string }[] = () => [];
+      const Harness = defineComponent({
+        setup() {
+          const catalog = useCommandCatalog({
+            isTauriRuntime: () => true,
+            readUserCommandFiles,
+            readRuntimePlatform: async () => "win"
+          });
+          getIssues = () => catalog.loadIssues.value;
+          return () => null;
+        }
+      });
+
+      const wrapper = mount(Harness);
+      await nextTick();
+      await Promise.resolve();
+      await nextTick();
+
+      expect(readUserCommandFiles).toHaveBeenCalledTimes(1);
+      expect(getIssues()).toContainEqual(
+        expect.objectContaining({
+          code: "read-failed",
+          stage: "read",
+          sourceId: "user-command-files"
+        })
+      );
+      expect(getIssues()[0]?.reason).toContain("permission denied");
       wrapper.unmount();
     } finally {
       warnSpy.mockRestore();

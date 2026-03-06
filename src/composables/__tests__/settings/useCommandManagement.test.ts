@@ -103,17 +103,25 @@ describe("useCommandManagement", () => {
   it("formats issue messages for all known codes", () => {
     const { model, refs } = createFixture();
     refs.loadIssues.value = [
-      { code: "invalid-json", sourceId: USER_PATH },
-      { code: "invalid-schema", sourceId: BUILTIN_PATH },
-      { code: "duplicate-id", sourceId: BUILTIN_PATH, commandId: "cmd-a" },
-      { code: "duplicate-id", sourceId: BUILTIN_PATH },
-      { code: "shell-ignored", sourceId: BUILTIN_PATH }
+      { code: "read-failed", stage: "read", sourceId: USER_PATH, reason: "permission denied" },
+      { code: "invalid-json", stage: "parse", sourceId: USER_PATH, reason: "Unexpected token" },
+      { code: "invalid-schema", stage: "schema", sourceId: BUILTIN_PATH, reason: "commands[0].id invalid" },
+      { code: "duplicate-id", stage: "merge", sourceId: BUILTIN_PATH, commandId: "cmd-a", reason: "duplicate id" },
+      { code: "duplicate-id", stage: "merge", sourceId: BUILTIN_PATH, reason: "duplicate id" },
+      { code: "shell-ignored", stage: "merge", sourceId: BUILTIN_PATH, reason: "shell ignored" }
     ];
 
-    expect(model.commandLoadIssues.value).toHaveLength(5);
+    expect(model.commandLoadIssues.value).toHaveLength(6);
+    expect(model.commandLoadIssues.value.at(0)).toMatchObject({
+      code: "read-failed",
+      stage: "read",
+      reason: "permission denied"
+    });
     for (const issue of model.commandLoadIssues.value) {
       expect(typeof issue.message).toBe("string");
       expect(issue.message.length).toBeGreaterThan(0);
+      expect(issue.message).toContain(issue.sourceId);
+      expect(issue.message).toContain(issue.reason);
     }
   });
 
@@ -164,7 +172,7 @@ describe("useCommandManagement", () => {
     expect(model.commandRows.value.map((row) => row.id)).toEqual(["cmd-b"]);
 
     refs.commandView.value.overrideFilter = "all";
-    refs.loadIssues.value = [{ code: "invalid-json", sourceId: BUILTIN_PATH }];
+    refs.loadIssues.value = [{ code: "invalid-json", stage: "parse", sourceId: BUILTIN_PATH, reason: "bad json" }];
     refs.commandView.value.issueFilter = "with-issues";
     expect(model.commandRows.value.map((row) => row.id).sort()).toEqual(["cmd-a", "cmd-c"]);
 
