@@ -81,6 +81,62 @@ describe("useLauncherLayoutMetrics", () => {
     stagingExpanded.value = true;
     expect(metrics.stagingListShouldScroll.value).toBe(true);
   });
-});
 
+  it("applies drawer floor height only when stagingExpanded=true and results < 4", () => {
+    setScreenSize(1600, 1000);
+
+    const floorViewportHeight = 322;
+    const viewportChromeHeight = 12 + 22;
+    const rowHeight = 72;
+
+    const counts = [0, 1, 3, 4] as const;
+    const stagingExpandedVariants = [false, true] as const;
+
+    for (const stagingExpandedValue of stagingExpandedVariants) {
+      for (const resultCount of counts) {
+        const query = ref("dock");
+        const filteredResults = ref(Array.from({ length: resultCount }, (_, idx) => ({ id: idx })));
+        const stagedCommands = ref<unknown[]>([]);
+        const stagingExpanded = ref(stagingExpandedValue);
+
+        const metrics = useLauncherLayoutMetrics({
+          query,
+          filteredResults,
+          stagedCommands,
+          stagingExpanded
+        });
+
+        const naturalViewportHeight =
+          Math.max(resultCount, 1) * rowHeight + viewportChromeHeight;
+        const shouldUseFloorHeight = stagingExpandedValue && resultCount < 4;
+
+        const expectedViewportHeight = shouldUseFloorHeight
+          ? floorViewportHeight
+          : naturalViewportHeight;
+        const expectedFillerHeight = shouldUseFloorHeight
+          ? floorViewportHeight - naturalViewportHeight
+          : 0;
+
+        const snapshot = {
+          resultCount,
+          stagingExpanded: stagingExpandedValue,
+          usesFloor: metrics.drawerUsesFloorHeight.value,
+          drawerVisibleRows: metrics.drawerVisibleRows.value,
+          drawerViewportHeight: metrics.drawerViewportHeight.value,
+          drawerFillerHeight: metrics.drawerFillerHeight.value
+        };
+
+        if (metrics.drawerUsesFloorHeight.value !== shouldUseFloorHeight) {
+          throw new Error(`drawerUsesFloorHeight mismatch: ${JSON.stringify(snapshot)}`);
+        }
+        if (metrics.drawerViewportHeight.value !== expectedViewportHeight) {
+          throw new Error(`drawerViewportHeight mismatch: ${JSON.stringify(snapshot)}`);
+        }
+        if (metrics.drawerFillerHeight.value !== expectedFillerHeight) {
+          throw new Error(`drawerFillerHeight mismatch: ${JSON.stringify(snapshot)}`);
+        }
+      }
+    }
+  });
+});
 
