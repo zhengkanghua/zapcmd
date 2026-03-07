@@ -98,8 +98,12 @@ export function resolveWindowSize(options: UseWindowSizingOptions): WindowSize {
   const width = resolveWindowWidth(options);
   const overlayMinContentHeight = resolveOverlayMinHeight(options);
   const estimatedContentHeight = estimateWindowContentHeight(options, contentHeightCap);
+  const sizingContentHeight =
+    measuredContentHeight === null
+      ? estimatedContentHeight
+      : Math.max(measuredContentHeight, estimatedContentHeight);
   const resolvedContentHeight = Math.min(
-    Math.max(measuredContentHeight ?? estimatedContentHeight, overlayMinContentHeight),
+    Math.max(sizingContentHeight, overlayMinContentHeight),
     contentHeightCap
   );
   return {
