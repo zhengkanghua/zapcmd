@@ -1,6 +1,8 @@
 import type { Ref } from "vue";
 import { LogicalSize } from "@tauri-apps/api/window";
 
+export const UI_TOP_ALIGN_OFFSET_PX_FALLBACK = 18; // 与 src/styles.css 的 --ui-top-align-offset 保持一致
+
 export interface WindowSize {
   width: number;
   height: number;

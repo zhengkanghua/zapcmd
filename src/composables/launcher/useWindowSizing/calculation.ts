@@ -1,4 +1,17 @@
+import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK } from "./model";
 import type { UseWindowSizingOptions, WindowSize } from "./model";
+
+function resolveShellDragStripHeight(options: UseWindowSizingOptions): number {
+  const shell = options.searchShellRef.value;
+  const dragStrip = shell ? shell.querySelector<HTMLElement>(".shell-drag-strip") : null;
+  if (dragStrip) {
+    const height = dragStrip.getBoundingClientRect().height;
+    if (Number.isFinite(height) && height > 0) {
+      return Math.ceil(height);
+    }
+  }
+  return UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
+}
 
 function resolveWindowWidth(options: UseWindowSizingOptions): number {
   const { constants } = options;
@@ -20,7 +33,11 @@ function resolveOverlayMinHeight(options: UseWindowSizingOptions): number {
   return options.constants.windowBaseHeight;
 }
 
-function measureWindowHeightFromLayout(options: UseWindowSizingOptions): number | null {
+function measureWindowContentHeightFromLayout(
+  options: UseWindowSizingOptions,
+  dragStripHeight: number,
+  contentHeightCap: number
+): number | null {
   const shell = options.searchShellRef.value;
   if (!shell) {
     return null;
@@ -37,21 +54,17 @@ function measureWindowHeightFromLayout(options: UseWindowSizingOptions): number 
     ? Math.max(0, shellRect.top - rootRect.top)
     : Math.max(0, shellRect.top);
 
-  return Math.max(
-    constants.windowBaseHeight,
-    Math.min(
-      options.windowHeightCap.value,
-      Math.ceil(
-        topOffset +
-          (contentBottom - shellRect.top) +
-          constants.windowSafeVerticalPad +
-          constants.windowBottomSafePad
-      )
-    )
+  const windowHeight = Math.ceil(
+    topOffset +
+      (contentBottom - shellRect.top) +
+      constants.windowSafeVerticalPad +
+      constants.windowBottomSafePad
   );
+  const contentHeight = Math.max(0, windowHeight - dragStripHeight);
+  return Math.max(constants.windowBaseHeight, Math.min(contentHeightCap, contentHeight));
 }
 
-function estimateWindowHeight(options: UseWindowSizingOptions): number {
+function estimateWindowContentHeight(options: UseWindowSizingOptions, contentHeightCap: number): number {
   const { constants } = options;
   let leftHeight = constants.windowBaseHeight;
   if (options.drawerOpen.value) {
@@ -65,23 +78,33 @@ function estimateWindowHeight(options: UseWindowSizingOptions): number {
       : constants.stagingChromeHeight +
         options.stagingVisibleRows.value * constants.stagingCardEstHeight +
         Math.max(options.stagingVisibleRows.value - 1, 0) * constants.stagingListGap;
-    rightHeight = constants.stagingTopOffset + panelHeight;
+    rightHeight = panelHeight;
   }
   if (options.pendingCommand.value) {
     leftHeight = Math.max(leftHeight, constants.paramOverlayMinHeight);
   }
 
-  return Math.min(Math.max(leftHeight, rightHeight), options.windowHeightCap.value);
+  return Math.min(Math.max(leftHeight, rightHeight), contentHeightCap);
 }
 
 export function resolveWindowSize(options: UseWindowSizingOptions): WindowSize {
-  const measuredHeight = measureWindowHeightFromLayout(options);
+  const dragStripHeight = resolveShellDragStripHeight(options);
+  const contentHeightCap = Math.max(0, options.windowHeightCap.value - dragStripHeight);
+  const measuredContentHeight = measureWindowContentHeightFromLayout(
+    options,
+    dragStripHeight,
+    contentHeightCap
+  );
   const width = resolveWindowWidth(options);
-  const overlayMinHeight = resolveOverlayMinHeight(options);
-  const estimatedHeight = estimateWindowHeight(options);
+  const overlayMinContentHeight = resolveOverlayMinHeight(options);
+  const estimatedContentHeight = estimateWindowContentHeight(options, contentHeightCap);
+  const resolvedContentHeight = Math.min(
+    Math.max(measuredContentHeight ?? estimatedContentHeight, overlayMinContentHeight),
+    contentHeightCap
+  );
   return {
     width,
-    height: Math.max(measuredHeight ?? estimatedHeight, overlayMinHeight)
+    height: resolvedContentHeight + dragStripHeight
   };
 }
 
