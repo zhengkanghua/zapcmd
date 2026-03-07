@@ -3,8 +3,10 @@ import { afterEach, describe, it, vi } from "vitest";
 
 import { WINDOW_SIZING_CONSTANTS } from "../../launcher/useLauncherLayoutMetrics";
 import { resolveWindowSize } from "../../launcher/useWindowSizing/calculation";
-import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK } from "../../launcher/useWindowSizing/model";
-import type { UseWindowSizingOptions } from "../../launcher/useWindowSizing/model";
+import {
+  UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
+  type UseWindowSizingOptions
+} from "../../launcher/useWindowSizing/model";
 
 function mockRect(
   element: Element,
@@ -184,4 +186,3 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     });
   });
 });
-

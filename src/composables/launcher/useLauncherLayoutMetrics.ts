@@ -70,9 +70,50 @@ function resolveSearchMainWidth(screenWidth: number): number {
   return Math.max(lower, Math.min(upper, preferred));
 }
 
+function createStagingLayoutMetrics(options: {
+  stagedCommands: Ref<unknown[]>;
+  stagingExpanded: Ref<boolean>;
+  windowHeightCap: Ref<number>;
+}) {
+  const stagingHasData = computed(() => options.stagedCommands.value.length > 0);
+
+  const stagingVisibleRows = computed(() => {
+    if (!stagingHasData.value) {
+      return 0;
+    }
+    const rowsByCount = Math.max(options.stagedCommands.value.length, 1);
+    const maxRowsByHeight = Math.max(
+      1,
+      Math.floor(
+        (options.windowHeightCap.value - WINDOW_BASE_HEIGHT - STAGING_CHROME_HEIGHT - 10) /
+          (STAGING_CARD_EST_HEIGHT + STAGING_LIST_GAP)
+      )
+    );
+    return Math.min(rowsByCount, STAGING_ESTIMATE_ROWS, maxRowsByHeight);
+  });
+
+  const stagingListShouldScroll = computed(
+    () => options.stagingExpanded.value && options.stagedCommands.value.length > stagingVisibleRows.value
+  );
+
+  const stagingListMaxHeight = computed(() => {
+    const rows = stagingVisibleRows.value;
+    if (rows <= 0) {
+      return "0px";
+    }
+    const height = rows * STAGING_CARD_EST_HEIGHT + Math.max(rows - 1, 0) * STAGING_LIST_GAP;
+    return `${height}px`;
+  });
+
+  return {
+    stagingVisibleRows,
+    stagingListShouldScroll,
+    stagingListMaxHeight
+  };
+}
+
 export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOptions) {
   const drawerOpen = computed(() => options.query.value.trim().length > 0);
-  const stagingHasData = computed(() => options.stagedCommands.value.length > 0);
 
   const windowHeightCap = computed(() => {
     const screenHeight = resolveScreenHeight();
@@ -170,33 +211,12 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     return Math.max(0, drawerFloorViewportHeight.value - drawerNaturalViewportHeight.value);
   });
 
-  const stagingVisibleRows = computed(() => {
-    if (!stagingHasData.value) {
-      return 0;
-    }
-    const rowsByCount = Math.max(options.stagedCommands.value.length, 1);
-    const maxRowsByHeight = Math.max(
-      1,
-      Math.floor(
-        (windowHeightCap.value - WINDOW_BASE_HEIGHT - STAGING_CHROME_HEIGHT - 10) /
-          (STAGING_CARD_EST_HEIGHT + STAGING_LIST_GAP)
-      )
-    );
-    return Math.min(rowsByCount, STAGING_ESTIMATE_ROWS, maxRowsByHeight);
-  });
-
-  const stagingListShouldScroll = computed(
-    () => options.stagingExpanded.value && options.stagedCommands.value.length > stagingVisibleRows.value
-  );
-
-  const stagingListMaxHeight = computed(() => {
-    const rows = stagingVisibleRows.value;
-    if (rows <= 0) {
-      return "0px";
-    }
-    const height = rows * STAGING_CARD_EST_HEIGHT + Math.max(rows - 1, 0) * STAGING_LIST_GAP;
-    return `${height}px`;
-  });
+  const { stagingVisibleRows, stagingListShouldScroll, stagingListMaxHeight } =
+    createStagingLayoutMetrics({
+      stagedCommands: options.stagedCommands,
+      stagingExpanded: options.stagingExpanded,
+      windowHeightCap
+    });
 
   return {
     drawerOpen,

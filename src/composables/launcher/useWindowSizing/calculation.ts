@@ -1,5 +1,4 @@
-import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK } from "./model";
-import type { UseWindowSizingOptions, WindowSize } from "./model";
+import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
 
 function resolveShellDragStripHeight(options: UseWindowSizingOptions): number {
   const shell = options.searchShellRef.value;
