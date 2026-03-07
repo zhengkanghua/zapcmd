@@ -32,3 +32,4 @@
 9. `docs/schemas/command-file.schema.json`：命令 JSON schema
 10. `assets/runtime_templates/README.md`：运行时模板资产说明与维护口径
 11. `.github/README*.md`：CI/CD 与协作模板说明
+12. `docs/ui-redesign/README.md`：界面大重构工作区（主窗口 / Settings / 配色 / Prompt / 影响分析）

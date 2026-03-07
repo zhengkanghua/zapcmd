@@ -69,3 +69,19 @@
 
 ## 补充（2026-03-06｜v1.0 里程碑归档）
 - 已归档 v1.0：ROADMAP/REQUIREMENTS/audit 已入 .planning/milestones/，当前无 blocker，下一步改为 $gsd-new-milestone。
+
+## 补充（2026-03-07｜UI 评审）
+- 已完成主窗口与 settings 截图评审：当前问题不在技术栈上，而在视觉系统与信息架构；后续优先收敛为更克制的深色专业风，弱化绿色品牌色，重做暂存区布局与 settings 卡片化层级。
+
+## 补充（2026-03-07｜UI 重构文档工作区）
+- 已新增 `docs/ui-redesign/`：包含重构背景、现状审计、方案对比、设计系统、代码影响图、Gemini Canvas Prompt 与执行路线；当前推荐主方向为“Search / Review 两态”，待外部 Demo 比较后再进入正式 phase。
+## 补充（2026-03-07｜UI 方案锁定 B4）
+- 已正式收敛界面大重构主方案为 `B4 = Overlay Review Mode with Floor Height Protection`：搜索态保持动态高度；Review 态在内部 shell 中右侧滑出；结果不足时使用左侧抽屉 floor height `322px` 与 filler 补高；遮罩只作用于内部圆角 shell，不做整窗遮罩；若实时 resize 抖动则退回单次 resize + 内部动画。
+## 补充（2026-03-07｜B4 交互与状态机文档）
+- 已新增 `docs/ui-redesign/08-b4-interaction-state-machine.md`：明确 B4 的窗口/搜索/Review/Param/Safety 四维状态模型、层级优先级、键盘规则、焦点恢复策略，以及 `toggleQueue` / `switchFocus` 在兼容期的目标语义。
+## 补充（2026-03-07｜B4 热键迁移表）
+- 已新增 `docs/ui-redesign/09-b4-hotkey-migration-map.md`：明确 `toggleQueue` / `switchFocus` 在 B4 第一阶段的兼容语义、Review 态下 `Tab` 回归标准焦点循环的规则，以及热键文案/测试/设置模型的收口建议。
+## 补充（2026-03-07｜B4 组件/视觉/验收文档）
+- 已补齐 `docs/ui-redesign/10-b4-component-architecture.md`、`11-b4-visual-spec.md`、`12-b4-acceptance-matrix.md`：分别覆盖组件拆分与状态归属、主窗口/Review/Settings 视觉规格，以及 Demo 评审/手动验收/自动化测试优先级；当前 `docs/ui-redesign/` 已可作为进入正式 phase 前的完整前置方案包。
+## 补充（2026-03-07｜范围再次收窄）
+- 已在 `docs/ui-redesign/` 中明确写死：本轮只做 launcher 主窗口；`settings` 继续保持独立窗口，不并入 launcher，也不纳入本轮重构范围。后续若要做 settings 升级，另开独立专题。
