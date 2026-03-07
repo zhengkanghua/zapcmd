@@ -60,9 +60,10 @@ Note: `npm install` runs `package.json#prepare` which attempts to enable hooks a
 
 ## Local pre-commit gate
 
-If `git config core.hooksPath` is set to `.githooks`, every `git commit` runs:
+If `git config core.hooksPath` is set, every `git commit` runs:
 
-`.githooks/pre-commit` → `npm run precommit:guard` → `scripts/precommit-guard.mjs`
+- On Windows: `.githooks/windows/pre-commit` → `npm run precommit:guard` → `scripts/precommit-guard.mjs`
+- On macOS/Linux: `.githooks/posix/pre-commit` → `npm run precommit:guard` → `scripts/precommit-guard.mjs`
 
 You can also run it manually:
 
@@ -174,7 +175,9 @@ If you want to probe experimental macOS desktop smoke manually:
 
 ## Trigger and permission matrix
 
-1) Local `commit` (with hooks enabled): runs `.githooks/pre-commit` -> `npm run precommit:guard` (incremental local gate).
+1) Local `commit` (with hooks enabled): runs pre-commit hook -> `npm run precommit:guard` (incremental local gate).
+   - Windows: `.githooks/windows/pre-commit`
+   - macOS/Linux: `.githooks/posix/pre-commit`
 
 2) Local one-command validation: run `npm run verify:local` (full gate + Windows desktop smoke; auto-installs missing WebDriver deps on Windows).
 

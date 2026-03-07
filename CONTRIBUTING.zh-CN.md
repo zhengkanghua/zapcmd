@@ -67,11 +67,12 @@
 
 只要你的 git 已配置：
 
-`git config core.hooksPath .githooks`
+`git config core.hooksPath`（非空）
 
 那么每次 `git commit` 都会触发：
 
-`.githooks/pre-commit` → `npm run precommit:guard` → `scripts/precommit-guard.mjs`
+- Windows：`.githooks/windows/pre-commit` → `npm run precommit:guard` → `scripts/precommit-guard.mjs`
+- macOS/Linux：`.githooks/posix/pre-commit` → `npm run precommit:guard` → `scripts/precommit-guard.mjs`
 
 > 你也可以手动跑（不 commit 也能先验证）：`npm run precommit:guard`  
 > 注意：`git commit --no-verify` 会跳过所有 hooks（不建议在 PR 中使用）。
@@ -219,7 +220,9 @@ Windows 前置：
 
 ### 4.3 触发与权限矩阵（commit / push / tag / 手动工作流）
 
-1) 本地 `commit`（已启用 hooks）：会触发 `.githooks/pre-commit` -> `npm run precommit:guard`（增量本地门禁）。
+1) 本地 `commit`（已启用 hooks）：会触发 pre-commit hook -> `npm run precommit:guard`（增量本地门禁）。
+   - Windows：`.githooks/windows/pre-commit`
+   - macOS/Linux：`.githooks/posix/pre-commit`
 
 2) 本地一键全量验证：执行 `npm run verify:local`（全量门禁 + Windows 桌面冒烟；Windows 缺驱动会自动补装）。
 

@@ -8,7 +8,9 @@
 
 1. 确认 git hooks 路径：
    - `git config core.hooksPath`
-   - 预期输出：`.githooks`
+   - 预期输出：
+     - Windows：`.githooks/windows`
+     - macOS/Linux：`.githooks/posix`
 2. 确认 pre-commit 会执行：
    - 改一个 `src/**/*.ts` 或 `src/**/*.vue`
    - `git add -A`
