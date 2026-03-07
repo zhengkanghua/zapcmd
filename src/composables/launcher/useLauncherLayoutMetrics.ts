@@ -12,6 +12,7 @@ const WINDOW_BOTTOM_SAFE_PAD = 22;
 const DRAWER_CHROME_HEIGHT = 12;
 const DRAWER_HINT_HEIGHT = 22;
 const DRAWER_DEFAULT_ROWS = 8;
+const DRAWER_FLOOR_ROWS = 4;
 const DRAWER_ROW_HEIGHT = 72;
 const STAGING_CARD_EST_HEIGHT = 96;
 const STAGING_LIST_GAP = 8;
@@ -101,26 +102,72 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
       WINDOW_SIDE_SAFE_PAD * 2
   );
 
-  const drawerVisibleRows = computed(() => {
-    if (!drawerOpen.value) {
-      return 0;
-    }
-    const rowsByResultCount = Math.max(options.filteredResults.value.length, 1);
-    const maxRowsByHeight = Math.max(
+  const drawerMaxRowsByHeight = computed(() => {
+    return Math.max(
       1,
       Math.floor(
         (windowHeightCap.value - WINDOW_BASE_HEIGHT - DRAWER_CHROME_HEIGHT - DRAWER_HINT_HEIGHT - 10) /
           DRAWER_ROW_HEIGHT
       )
     );
-    return Math.min(rowsByResultCount, DRAWER_DEFAULT_ROWS, maxRowsByHeight);
+  });
+
+  const drawerVisibleRows = computed(() => {
+    if (!drawerOpen.value) {
+      return 0;
+    }
+    const rowsByResultCount = Math.max(options.filteredResults.value.length, 1);
+    return Math.min(rowsByResultCount, DRAWER_DEFAULT_ROWS, drawerMaxRowsByHeight.value);
+  });
+
+  const drawerUsesFloorHeight = computed(() => {
+    if (!drawerOpen.value) {
+      return false;
+    }
+    if (!options.stagingExpanded.value) {
+      return false;
+    }
+    return options.filteredResults.value.length < DRAWER_FLOOR_ROWS;
+  });
+
+  const drawerFloorVisibleRows = computed(() => {
+    if (!drawerOpen.value) {
+      return 0;
+    }
+    return Math.min(DRAWER_FLOOR_ROWS, drawerMaxRowsByHeight.value, DRAWER_DEFAULT_ROWS);
+  });
+
+  const drawerNaturalViewportHeight = computed(() => {
+    if (!drawerOpen.value) {
+      return 0;
+    }
+    return drawerVisibleRows.value * DRAWER_ROW_HEIGHT + DRAWER_CHROME_HEIGHT + DRAWER_HINT_HEIGHT;
+  });
+
+  const drawerFloorViewportHeight = computed(() => {
+    if (!drawerOpen.value) {
+      return 0;
+    }
+    return (
+      drawerFloorVisibleRows.value * DRAWER_ROW_HEIGHT + DRAWER_CHROME_HEIGHT + DRAWER_HINT_HEIGHT
+    );
   });
 
   const drawerViewportHeight = computed(() => {
     if (!drawerOpen.value) {
       return 0;
     }
-    return drawerVisibleRows.value * DRAWER_ROW_HEIGHT + DRAWER_CHROME_HEIGHT + DRAWER_HINT_HEIGHT;
+    if (drawerUsesFloorHeight.value) {
+      return drawerFloorViewportHeight.value;
+    }
+    return drawerNaturalViewportHeight.value;
+  });
+
+  const drawerFillerHeight = computed(() => {
+    if (!drawerUsesFloorHeight.value) {
+      return 0;
+    }
+    return Math.max(0, drawerFloorViewportHeight.value - drawerNaturalViewportHeight.value);
   });
 
   const stagingVisibleRows = computed(() => {
@@ -158,8 +205,11 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     searchMainWidth,
     searchShellStyle,
     minShellWidth,
+    drawerUsesFloorHeight,
     drawerVisibleRows,
     drawerViewportHeight,
+    drawerFloorViewportHeight,
+    drawerFillerHeight,
     stagingVisibleRows,
     stagingListShouldScroll,
     stagingListMaxHeight
