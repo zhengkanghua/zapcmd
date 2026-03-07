@@ -85,3 +85,6 @@
 - 已补齐 `docs/ui-redesign/10-b4-component-architecture.md`、`11-b4-visual-spec.md`、`12-b4-acceptance-matrix.md`：分别覆盖组件拆分与状态归属、主窗口/Review/Settings 视觉规格，以及 Demo 评审/手动验收/自动化测试优先级；当前 `docs/ui-redesign/` 已可作为进入正式 phase 前的完整前置方案包。
 ## 补充（2026-03-07｜范围再次收窄）
 - 已在 `docs/ui-redesign/` 中明确写死：本轮只做 launcher 主窗口；`settings` 继续保持独立窗口，不并入 launcher，也不纳入本轮重构范围。后续若要做 settings 升级，另开独立专题。
+
+## 补充（2026-03-07｜v2.0 里程碑启动）
+- 启动 v2.0「主窗口 B4 UI 重构」：已生成 `.planning/REQUIREMENTS.md`/`.planning/ROADMAP.md` 与 `.planning/research/*`，Phase 13-16（底座→Overlay→键盘→动效）待执行；下一步 `$gsd-plan-phase 13`。
