@@ -1,43 +1,43 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: 质量门禁与回归基线
-current_phase: null
-current_phase_name: planning-next-milestone
+milestone: v2.0
+milestone_name: 主窗口 B4 UI 重构
+current_phase: 13
+current_phase_name: phase-13-b4-layout-sizing-foundation
 current_plan: null
-status: milestone_complete
-stopped_at: Archived v1.0 milestone
-last_updated: "2026-03-06T23:55:00+08:00"
-last_activity: 2026-03-06
+status: roadmap_created
+stopped_at: Roadmap created; ready to plan Phase 13
+last_updated: "2026-03-07T18:40:58+08:00"
+last_activity: 2026-03-07
 progress:
-  total_phases: 12
-  completed_phases: 12
-  total_plans: 35
-  completed_plans: 35
-  percent: 100
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-06)
+See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v1.0 已归档完成，当前进入下一个 milestone 的需求定义与路线图阶段。
+**Current focus:** v2.0（主窗口 B4 UI 重构）已定义需求与路线图，准备进入 Phase 13。
 
 ## Current Position
 
-**Current Phase:** None
-**Current Phase Name:** planning-next-milestone
-**Total Phases:** 12  
+**Current Phase:** 13
+**Current Phase Name:** B4 布局与尺寸底座
+**Total Phases:** 4  
 **Current Plan:** None
 **Total Plans in Phase:** 0
-**Status:** Milestone complete
-**Last Activity:** 2026-03-06
-**Last Activity Description:** Archived v1.0 milestone; next step is defining the next milestone
+**Status:** Roadmap created — ready to plan Phase 13
+**Last Activity:** 2026-03-07
+**Last Activity Description:** Created v2.0 requirements + roadmap; next step is planning Phase 13
 
-**Progress:** [██████████] 100%
+**Progress:** [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -72,18 +72,19 @@ See: .planning/PROJECT.md (updated 2026-03-06)
 ### Roadmap Evolution
 
 - v1.0 已归档到 `.planning/milestones/`。
+- v2.0 进入规划：主窗口 B4 UI 重构（见 `docs/ui-redesign/`）。
 
 ### Pending Todos
 
-- 运行 `$gsd-new-milestone`，定义下一轮需求、范围与路线图。
+- （可选）`$gsd-discuss-phase 13`：补齐 Phase 13 的实现上下文与验收口径。
+- `$gsd-plan-phase 13`：生成 Phase 13 详细执行计划（PLAN.md）。
 
 ### Blockers/Concerns
 
-- 当前无阻断 blocker；剩余开放项为下一里程碑可选目标与 v2 deferred backlog。
-- `E2E-02` full-matrix 与团队级能力（`SYNC-01` / `SEC-02`）仍待下一里程碑重新定义优先级。
+- 当前无阻断 blocker；重点风险集中在“窗口 resize 稳定性 + 焦点/热键契约收敛 + 回归同步更新”。
 
 ## Session
 
-**Last Date:** 2026-03-06T23:55:00+08:00
-**Stopped At:** Archived v1.0 milestone
+**Last Date:** 2026-03-07T18:40:58+08:00
+**Stopped At:** Roadmap created; ready to plan Phase 13
 **Resume File:** None
