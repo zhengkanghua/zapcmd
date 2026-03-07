@@ -245,6 +245,11 @@ body {
   height: 0;
 }
 
+.result-drawer__filler {
+  width: 100%;
+  pointer-events: none;
+}
+
 .result-list,
 .staging-list {
   margin: 0;

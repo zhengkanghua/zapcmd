@@ -91,6 +91,12 @@ function onSearchInput(event: Event): void {
         <span class="drawer-empty__title">{{ t("launcher.noResult") }}</span>
         <span class="drawer-empty__hint">{{ t("launcher.noResultHint") }}</span>
       </p>
+      <div
+        v-if="props.drawerFillerHeight > 0"
+        class="result-drawer__filler"
+        :style="{ height: `${props.drawerFillerHeight}px` }"
+        aria-hidden="true"
+      ></div>
     </section>
   </section>
 </template>

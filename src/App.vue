@@ -13,6 +13,7 @@ const {
   stagingExpanded,
   drawerOpen,
   drawerViewportHeight,
+  drawerFillerHeight,
   keyboardHintText,
   filteredResults,
   activeIndex,
@@ -140,6 +141,7 @@ function navigateToSettingsError(): void {
     :staging-expanded="stagingExpanded"
     :drawer-open="drawerOpen"
     :drawer-viewport-height="drawerViewportHeight"
+    :drawer-filler-height="drawerFillerHeight"
     :keyboard-hint-text="keyboardHintText"
     :filtered-results="filteredResults"
     :active-index="activeIndex"

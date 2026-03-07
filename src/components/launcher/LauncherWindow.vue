@@ -27,6 +27,7 @@ const props = defineProps<{
   stagingExpanded: boolean;
   drawerOpen: boolean;
   drawerViewportHeight: number;
+  drawerFillerHeight: number;
   keyboardHintText: string;
   filteredResults: CommandTemplate[];
   activeIndex: number;
@@ -103,6 +104,7 @@ const { onRootPointerDown } = useLauncherHitZones({
         :execution-feedback-tone="props.executionFeedbackTone"
         :drawer-open="props.drawerOpen"
         :drawer-viewport-height="props.drawerViewportHeight"
+        :drawer-filler-height="props.drawerFillerHeight"
         :keyboard-hint-text="props.keyboardHintText"
         :filtered-results="props.filteredResults"
         :active-index="props.activeIndex"
