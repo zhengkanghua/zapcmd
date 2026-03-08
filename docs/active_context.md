@@ -100,3 +100,6 @@
 
 ## 补充（2026-03-08｜Phase 13 执行完成）
 - Phase 13 已完成：floor/filler（aria-hidden、无假结果 DOM、仅 `stagingExpanded=true` 且 0~3 结果触发）+ sizing 排除 drag strip + 回归单测；`npm run check:all` 全绿；下一步 `$gsd-plan-phase 14`。
+
+## 补充（2026-03-08｜Phase 14 讨论完成）
+- 修复 gsd-tools 缺失 `core/state` 模块；并生成 Phase 14 `14-CONTEXT.md`：入口=搜索区 pill（仅队列非空）；关闭=按钮+点遮罩；面板宽度按搜索区宽度比例计算（推荐 2/3，clamp 到 420–480）、头尾固定列表内滚、轻 dim 锁背景；卡片=标题+摘要、复制+悬浮、参数仍可编辑。见 `.planning/phases/14-review-overlay/14-CONTEXT.md`。
