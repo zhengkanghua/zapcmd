@@ -78,10 +78,10 @@
 ### 抽屉规格
 - 抽屉顶部 hint 区：`22px`
 - 抽屉 chrome：`12px`
-- `drawerFloorHeight = 322px`
+- `drawerFloorHeight`（= “4 条结果高度 + 搜索框高度”的计算值，不写死 px；搜索框高度以 `.search-form` 容器渲染高度为准，含 padding，非 input 高度）
 
 ### filler 规则
-- 当结果区不足 4 条高度时，抽屉容器补足到 `322px`
+- 当结果区不足 4 条高度时，抽屉容器补足到 `drawerFloorHeight`
 - filler 只承担视觉延展，不承担真实数据语义
 - filler 建议做成：
   - 低对比表面层
@@ -116,7 +116,7 @@
 - `420+` 才足以让命令摘要、参数和操作按钮不挤在一起
 
 ## 最小可视高度
-- 内容区最小高度：`322px`
+- 内容区最小高度与 `drawerFloorHeight` 对齐
 - 内部列表允许滚动
 
 ## 外观

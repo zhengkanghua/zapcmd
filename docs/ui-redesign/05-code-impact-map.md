@@ -65,7 +65,7 @@ B4 的核心不是“右侧滑出”本身，而是：
 - `resolveWindowSize()` 最终把抽屉高度与 staging 高度一起算进窗口：`src/composables/launcher/useWindowSizing/calculation.ts`
 
 ### B4 需要新增/重构的概念
-- `drawerFloorHeight = 322px`
+- `drawerFloorHeight`（由“4 条结果高度 + 搜索框高度”计算，不写死 px）
 - `searchDrawerFillerHeight`
 - `reviewOverlayOpen`
 - `reviewTargetContentHeight`

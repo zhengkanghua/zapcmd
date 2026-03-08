@@ -7,25 +7,25 @@
 
 ## Next
 
-- ▶ **Phase 13：B4 布局与尺寸底座** — floor height + sizing 口径 + 回归底座
+- ▶ **Phase 14: Review Overlay 结构接入** — overlay 结构 + 背景锁定 + 更宽的 Review 阅读面板
 
 ## Progress
 
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 质量门禁与回归基线 | 1-12 | 35 | Complete | 2026-03-06 |
-| v2.0 主窗口 B4 UI 重构 | 13-16 | 0 | Roadmap defined | - |
+| v2.0 主窗口 B4 UI 重构 | 13-16 | 3 | Phase 13 complete | - |
 
 ---
 
-## Milestone v2.0：主窗口 B4 UI 重构
+## Milestone v2.0: 主窗口 B4 UI 重构
 
-**Status:** 📋 Roadmap defined
+**Status:** 🚧 In progress
 
 本里程碑的唯一结构方案：**B4 = Overlay Review Mode with Floor Height Protection**  
 范围：只做 launcher 主窗口；`settings` 继续保持独立窗口且不纳入本轮重构。
 
-### Phase 13：B4 布局与尺寸底座
+### Phase 13: B4 布局与尺寸底座
 
 **Goal:** 为 B4 引入 floor height 与 sizing 口径底座（不计拖拽区），并把关键分支锁进可定位回归。
 
@@ -33,12 +33,21 @@
 
 **Requirements:** `SIZE-01` `SIZE-04` `TST-02`
 
+**Plans:** 3/3 plans complete
+
+Plans:
+- [x] 13-01-PLAN.md — floor height 指标 + drawer filler/spacer（仅 Review/opening 触发）
+- [x] 13-02-PLAN.md — window sizing 口径：drag strip 排除 + cap 收敛（measured/estimated 一致）
+- [x] 13-03-PLAN.md — floor/sizing 回归单测 + “无假结果 DOM / aria” 组件语义断言
+
+**Verification:** `.planning/phases/13-b4-layout-sizing-foundation/13-VERIFICATION.md` (`passed`)
+
 **Success criteria:**
-1. 结果不足时的 `322px` floor height 只通过 filler/spacer 实现（无假结果数据/DOM，可达性语义不被污染）。
+1. 结果不足时的 floor height（由“4 条结果高度 + 搜索框高度”计算得出；其中搜索框高度以 `.search-form` 容器渲染高度为准，含 padding，非 input 高度）只通过 filler/spacer 实现（无假结果数据/DOM，可达性语义不被污染）。
 2. sizing/floor height 的比较与补齐不把顶部拖拽区计入内容高度。
 3. sizing 相关关键分支具备单测断言且失败输出可定位（不依赖手动肉眼判断）。
 
-### Phase 14：Review Overlay 结构接入
+### Phase 14: Review Overlay 结构接入
 
 **Goal:** 将“常驻并列 staging 右栏”改为 B4 Review overlay，并建立背景锁定与更宽的 Review 阅读面板。
 
@@ -50,10 +59,10 @@
 1. 搜索态为单焦点主舞台（不再存在常驻并列 staging 工作区），队列非空时以 queue summary pill 作为进入 Review 的主入口之一。
 2. Review 打开后背景可见但不可交互（不可点击/滚动/聚焦），当前唯一可交互层为 Review。
 3. Review 面板宽度提升到可读范围（约 `420px~480px`），长命令以摘要方式呈现（不在主结果列表铺完整长命令）。
-4. Review 内部列表在面板内滚动（最小可视高度与 `322px` 对齐），不会随队列项持续拉高窗口。
+4. Review 内部列表在面板内滚动（最小可视高度与 floor height 对齐），不会随队列项持续拉高窗口。
 5. 顶部拖拽区在 Review 打开时仍可用，且不被遮罩/overlay 吞掉。
 
-### Phase 15：键盘 / 焦点 / 关闭语义收口
+### Phase 15: 键盘 / 焦点 / 关闭语义收口
 
 **Goal:** 将 B4 的键盘契约与层级优先级稳定落地，并补齐 P0 自动化回归。
 
@@ -68,7 +77,7 @@
 4. 参数弹层与安全确认层的优先级与 focus trap 不被 B4 改造破坏。
 5. 自动化回归覆盖 B4 P0：toggleQueue/switchFocus/Esc/Tab/floor height（含“无假结果”约束）。
 
-### Phase 16：动画与视觉系统落地
+### Phase 16: 动画与视觉系统落地
 
 **Goal:** 在结构与契约稳定后打磨动效与新视觉系统，并验证 Windows 下 resize 稳定性与降级策略。
 

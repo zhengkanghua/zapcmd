@@ -9,7 +9,7 @@
 ### Pitfall 1: 用“假结果项/假 DOM”补 floor height
 
 **What goes wrong:**  
-为实现 `drawerFloorHeight=322px`，在 `filteredResults` 中插入假数据或渲染额外 `.result-item`，导致键盘导航、a11y 语义、测试断言全部被污染；后续几乎无法“局部修补”。
+为实现 `drawerFloorHeight`（计算值），在 `filteredResults` 中插入假数据或渲染额外 `.result-item`，导致键盘导航、a11y 语义、测试断言全部被污染；后续几乎无法“局部修补”。
 
 **Why it happens:**  
 看起来实现最省事；同时容易把“视觉高度概念”误解为“数据行数”。

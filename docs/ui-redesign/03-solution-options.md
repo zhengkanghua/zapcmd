@@ -60,22 +60,22 @@
 
 本次已明确采用：
 
-- **搜索抽屉 floor height = 4 条结果高度**
-- 单条结果高度：`72px`
-- 抽屉 chrome：`12px`
-- hint 区：`22px`
+- **搜索抽屉 floor height = “4 条结果高度 + 搜索框高度”**
+- 搜索框高度口径：以 `.search-form` 整块容器的渲染高度为准（含 padding，非 `.search-input` 高度）。
+- floor height **不写死具体 px**，按布局常量/DOM 计算得到（并且不计顶部拖拽区）。
 
 因此：
 
-`drawerFloorHeight = 4 × 72 + 12 + 22 = 322px`
+- `drawerFloorHeight = searchFormHeight + drawerViewportHeightFor4Rows`（计算值）
+- `drawerViewportHeightFor4Rows = 4 × resultRowHeight + drawerChromeHeight + drawerHintHeight`
 
-### 这个 322px 的用途
+### 这个 floor height 的用途
 - 它是 **Review 态中左侧搜索抽屉的视觉下限**。
 - 它不是“真的补 4 条假结果数据”。
 - 它是对抽屉容器高度做 floor protection，让左侧视觉不会过矮。
 
 ## 3. Review 面板高度
-- Review 面板自身内容区也采用同一个最低可视高度：`322px`
+- Review 面板自身内容区也采用同一个最低可视高度：floor height（同上计算）
 - Review 卡片列表在面板内部滚动
 - 因此不会因为卡片多就继续强制拉高窗口
 
@@ -97,10 +97,10 @@
 进入 Review 时：
 
 1. 读取当前搜索态内容高度
-2. 计算 `drawerFloorHeight = 322px`
-3. 计算 `targetContentHeight = max(currentSearchContentHeight, 322px)`
+2. 计算 `drawerFloorHeight`（按“4 条结果高度 + 搜索框高度”得到）
+3. 计算 `targetContentHeight = max(currentSearchContentHeight, drawerFloorHeight)`
 4. 如果当前高度不足：
-   - 先把左侧搜索抽屉补到 `322px`
+   - 先把左侧搜索抽屉补到 `drawerFloorHeight`
    - 再拉高窗口到对应目标值
 5. 然后从右侧滑出 Review Overlay
 
@@ -139,8 +139,8 @@
 ### Open Review
 1. 用户点击 `queued` 入口或按快捷键
 2. 锁定背景交互
-3. 如果当前左侧内容高度 < `322px`：
-   - 左侧抽屉先扩展到 `322px`
+3. 如果当前左侧内容高度 < `drawerFloorHeight`：
+   - 左侧抽屉先扩展到 `drawerFloorHeight`
    - 触发窗口 resize
 4. 当高度达到目标后：
    - 内部 shell 出现 dim / overlay 背景层

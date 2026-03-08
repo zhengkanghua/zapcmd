@@ -76,7 +76,7 @@
 ## 补充（2026-03-07｜UI 重构文档工作区）
 - 已新增 `docs/ui-redesign/`：包含重构背景、现状审计、方案对比、设计系统、代码影响图、Gemini Canvas Prompt 与执行路线；当前推荐主方向为“Search / Review 两态”，待外部 Demo 比较后再进入正式 phase。
 ## 补充（2026-03-07｜UI 方案锁定 B4）
-- 已正式收敛界面大重构主方案为 `B4 = Overlay Review Mode with Floor Height Protection`：搜索态保持动态高度；Review 态在内部 shell 中右侧滑出；结果不足时使用左侧抽屉 floor height `322px` 与 filler 补高；遮罩只作用于内部圆角 shell，不做整窗遮罩；若实时 resize 抖动则退回单次 resize + 内部动画。
+- 已正式收敛界面大重构主方案为 `B4 = Overlay Review Mode with Floor Height Protection`：搜索态保持动态高度；Review 态在内部 shell 中右侧滑出；结果不足时使用左侧抽屉 floor height（= 4 条结果高度 + 搜索框高度，计算值）与 filler 补高；遮罩只作用于内部圆角 shell，不做整窗遮罩；若实时 resize 抖动则退回单次 resize + 内部动画。
 ## 补充（2026-03-07｜B4 交互与状态机文档）
 - 已新增 `docs/ui-redesign/08-b4-interaction-state-machine.md`：明确 B4 的窗口/搜索/Review/Param/Safety 四维状态模型、层级优先级、键盘规则、焦点恢复策略，以及 `toggleQueue` / `switchFocus` 在兼容期的目标语义。
 ## 补充（2026-03-07｜B4 热键迁移表）
@@ -91,3 +91,12 @@
 
 ## 补充（2026-03-07｜Git hooks 修复）
 - pre-commit hooks 改为平台目录：Windows=`.githooks/windows`（PowerShell），macOS/Linux=`.githooks/posix`（sh），规避 `sh.exe couldn't create signal pipe (Win32 error 5)`。
+
+## 补充（2026-03-07｜Phase 13 讨论完成）
+- Phase 13 已生成 CONTEXT（`.planning/phases/13-b4-layout-sizing-foundation/13-CONTEXT.md`）：floor 仅“打开 Review 前”触发（0~3 结果），floor height 由“4 条结果高度 + 搜索框高度”计算，content height 只排除顶端 drag strip，并要求 P0 单测锁定“无假结果 DOM”。
+
+## 补充（2026-03-07｜Phase 13 规划完成）
+- 已生成 `.planning/phases/13-b4-layout-sizing-foundation/13-RESEARCH.md` 与 `13-01/02/03-PLAN.md`（Wave 1：floor+filler、sizing 口径；Wave 2：回归单测）。下一步：`$gsd-execute-phase 13`。
+
+## 补充（2026-03-08｜Phase 13 执行完成）
+- Phase 13 已完成：floor/filler（aria-hidden、无假结果 DOM、仅 `stagingExpanded=true` 且 0~3 结果触发）+ sizing 排除 drag strip + 回归单测；`npm run check:all` 全绿；下一步 `$gsd-plan-phase 14`。

@@ -28,7 +28,7 @@
 
 **Must have (table stakes):**
 - Review Overlay（背景可见但不可交互；唯一可交互层为 Review）
-- floor height protection（`drawerFloorHeight=322px`，filler/spacer，无假结果）
+- floor height protection（`drawerFloorHeight` 计算值，filler/spacer，无假结果）
 - 热键语义迁移 + 焦点锁定/恢复 + `Esc` 分层后退
 
 **Should have (competitive):**
@@ -62,7 +62,7 @@
 
 ### Phase 13: B4 布局与尺寸底座
 **Rationale:** floor height、测量口径与 sizing 是后续一切行为的地基。  
-**Delivers:** `drawerFloorHeight=322px`、filler 层、Review 目标高度计算、drag strip 不计入口径。  
+**Delivers:** `drawerFloorHeight`（= 4 条结果高度 + 搜索框高度，计算值）、filler 层、Review 目标高度计算、drag strip 不计入口径。  
 **Addresses:** floor protection / sizing pitfalls  
 **Avoids:** 假结果补高、口径漂移
 

@@ -12,7 +12,7 @@
 |---------|--------------|------------|-------|
 | 搜索态单焦点（只以搜索+结果为主舞台） | 启动器的核心效率来自“输入→选择→执行” | MEDIUM | 必须移除“右侧常驻并列工作区”的同级竞争感。 |
 | Review Overlay（按需出现的队列审阅层） | 队列/暂存是高级能力，但不能抢主舞台 | MEDIUM | Review 打开后背景可见但不可交互；唯一可交互层为 Review。 |
-| floor height protection（`drawerFloorHeight=322px`） | 1 条结果时不应塌陷/割裂 | MEDIUM | 只允许 filler/spacer；禁止伪造假结果/假 DOM。 |
+| floor height protection（`drawerFloorHeight` 计算值） | 1 条结果时不应塌陷/割裂 | MEDIUM | 只允许 filler/spacer；禁止伪造假结果/假 DOM。 |
 | 拖拽区保留且不计入内容高度 | 桌面窗口必须可拖拽移动 | LOW | `shell-drag-strip` 必须在 Review 打开时仍保留且不被遮罩吞掉。 |
 | 热键语义迁移（toggleQueue/switchFocus→进入 Review） | 键盘优先用户依赖既有肌肉记忆 | MEDIUM | 第一阶段保持 hotkey ID 与大多数键值不变，只迁移行为语义。 |
 | 焦点锁定与恢复（Safety > Param > Review > Search） | 多层阻断是桌面工具常态 | HIGH | 必须避免焦点泄漏到背景；Review 内 `Tab` 回归焦点遍历与循环。 |
@@ -60,7 +60,7 @@ floor height protection
 
 - [ ] Search State 仍动态高度 + queue summary pill 入口
 - [ ] Review Overlay（宽面板 + 内部滚动）+ 背景不可交互
-- [ ] `drawerFloorHeight=322px` 的 filler 方案（无假结果）
+- [ ] `drawerFloorHeight`（= 4 条结果高度 + 搜索框高度，计算值）的 filler 方案（无假结果）
 - [ ] 热键与 `Esc` 分层语义迁移（含 Safety/Param 优先级）
 - [ ] 回归测试更新（P0 用例：toggleQueue/switchFocus/Esc/Tab/floor height）
 
@@ -81,7 +81,7 @@ floor height protection
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
 | Review Overlay + 背景锁定 | HIGH | MEDIUM | P1 |
-| floor height protection（322px） | HIGH | MEDIUM | P1 |
+| floor height protection（drawerFloorHeight 计算值） | HIGH | MEDIUM | P1 |
 | 热键/焦点/ Esc 分层契约 | HIGH | HIGH | P1 |
 | 视觉系统（品牌色分离、降低透明） | HIGH | MEDIUM | P1 |
 | 动画打磨（动态 resize） | MEDIUM | MEDIUM | P2 |

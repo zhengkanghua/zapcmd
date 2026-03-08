@@ -58,7 +58,7 @@
 
 在进入代码前，把下列参数也锁定：
 
-- `drawerFloorHeight = 322px`
+- `drawerFloorHeight`（由“4 条结果高度 + 搜索框高度”计算，不写死 px）
 - Review panel 宽度范围
 - Review 内部卡片密度
 - 是否保留实时动态 resize
@@ -113,7 +113,7 @@
 
 ### Gate 1：Demo 视觉确认
 - B4 的开合是否自然
-- 322px floor 是否合适
+- floor height（= 4 条结果高度 + 搜索框高度）是否合适
 - Review 宽度是否足够支撑长命令阅读
 
 ### Gate 2：工程策略确认
