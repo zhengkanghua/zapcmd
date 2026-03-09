@@ -3,6 +3,7 @@ import type { CommandTemplate } from "../../../features/commands/commandTemplate
 import { useI18nText } from "../../../i18n";
 import type { LauncherSearchPanelProps } from "../types";
 import LauncherHighlightText from "./LauncherHighlightText.vue";
+import LauncherQueueSummaryPill from "./LauncherQueueSummaryPill.vue";
 
 const props = defineProps<LauncherSearchPanelProps>();
 const { t } = useI18nText();
@@ -10,6 +11,7 @@ const { t } = useI18nText();
 const emit = defineEmits<{
   (e: "query-input", value: string): void;
   (e: "stage-result", command: CommandTemplate): void;
+  (e: "toggle-staging"): void;
 }>();
 
 function onSearchInput(event: Event): void {
@@ -35,6 +37,12 @@ function onSearchInput(event: Event): void {
           @input="onSearchInput"
         />
       </form>
+      <div v-if="props.stagedCommandCount > 0" class="search-queue-summary">
+        <LauncherQueueSummaryPill
+          :count="props.stagedCommandCount"
+          @toggle-staging="emit('toggle-staging')"
+        />
+      </div>
       <p
         v-if="props.executionFeedbackMessage"
         class="execution-feedback execution-toast"

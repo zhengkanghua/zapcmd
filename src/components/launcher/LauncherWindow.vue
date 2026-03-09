@@ -109,11 +109,13 @@ const { onRootPointerDown } = useLauncherHitZones({
         :filtered-results="props.filteredResults"
         :active-index="props.activeIndex"
         :staged-feedback-command-id="props.stagedFeedbackCommandId"
+        :staged-command-count="props.stagedCommands.length"
         :set-search-input-ref="props.setSearchInputRef"
         :set-drawer-ref="props.setDrawerRef"
         :set-result-button-ref="props.setResultButtonRef"
         @query-input="emit('query-input', $event)"
         @stage-result="emit('stage-result', $event)"
+        @toggle-staging="emit('toggle-staging')"
       />
       <LauncherStagingPanel
         :staging-drawer-state="props.stagingDrawerState"
