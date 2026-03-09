@@ -1,4 +1,5 @@
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { summarizeCommandForFeedback } from "../../../../composables/execution/useCommandExecution/helpers";
@@ -110,5 +111,49 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
     expect(wrapper.find(".review-overlay").exists()).toBe(true);
     expect(wrapper.find(".review-panel__empty").exists()).toBe(true);
     expect(wrapper.emitted("toggle-staging")).toBeUndefined();
+  });
+
+  it("Review 打开后会把焦点送入 review-panel 内（不滞留背景 Search）", async () => {
+    const wrapper = mount(LauncherReviewOverlay, {
+      attachTo: document.body,
+      props: createProps()
+    });
+
+    await nextTick();
+    await nextTick();
+    const panel = wrapper.get(".review-panel").element as HTMLElement;
+    const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    expect(active).not.toBeNull();
+    expect(panel.contains(active!)).toBe(true);
+    wrapper.unmount();
+  });
+
+  it("plain Tab 在 Review 内循环且不会冒泡到 window", async () => {
+    const wrapper = mount(LauncherReviewOverlay, {
+      attachTo: document.body,
+      props: createProps()
+    });
+
+    await nextTick();
+    await nextTick();
+    const panel = wrapper.get(".review-panel").element as HTMLElement;
+
+    const windowKeydownSpy = vi.fn();
+    window.addEventListener("keydown", windowKeydownSpy);
+
+    const closeButton = wrapper.get(".review-panel__header button").element as HTMLButtonElement;
+    closeButton.focus();
+
+    const event = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    closeButton.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    expect(active).not.toBeNull();
+    expect(panel.contains(active!)).toBe(true);
+    expect(windowKeydownSpy).not.toHaveBeenCalled();
+
+    window.removeEventListener("keydown", windowKeydownSpy);
+    wrapper.unmount();
   });
 });
