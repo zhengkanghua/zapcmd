@@ -12,14 +12,29 @@ function resolveShellDragStripHeight(options: UseWindowSizingOptions): number {
   return UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 }
 
+function resolveReviewWidthFromCss(options: UseWindowSizingOptions): number | null {
+  const shell = options.searchShellRef.value;
+  if (!shell) {
+    return null;
+  }
+
+  const raw = getComputedStyle(shell).getPropertyValue("--review-width").trim();
+  const parsed = Number.parseFloat(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return null;
+  }
+  return Math.round(parsed);
+}
+
 function resolveWindowWidth(options: UseWindowSizingOptions): number {
   const { constants } = options;
+  const gap = options.stagingExpanded.value ? constants.windowGap : 0;
   const stagingWidth = options.stagingExpanded.value
-    ? constants.windowStagingWidth
-    : constants.windowStagingCollapsedWidth;
+    ? (resolveReviewWidthFromCss(options) ?? constants.windowStagingWidth)
+    : 0;
   const width =
     options.searchMainWidth.value +
-    constants.windowGap +
+    gap +
     stagingWidth +
     constants.windowSideSafePad * 2;
   return Math.max(options.minShellWidth.value, Math.min(options.windowWidthCap.value, width));
@@ -45,7 +60,7 @@ function measureWindowContentHeightFromLayout(
   const { constants } = options;
   const rootRect = shell.parentElement?.getBoundingClientRect();
   const shellRect = shell.getBoundingClientRect();
-  const stagingRect = options.stagingPanelRef.value
+  const stagingRect = options.stagingExpanded.value && options.stagingPanelRef.value
     ? options.stagingPanelRef.value.getBoundingClientRect()
     : null;
   const contentBottom = stagingRect ? Math.max(shellRect.bottom, stagingRect.bottom) : shellRect.bottom;

@@ -2,8 +2,10 @@ import { computed, type Ref } from "vue";
 
 const WINDOW_BASE_WIDTH = 680;
 const WINDOW_BASE_MIN_WIDTH = 420;
-const WINDOW_STAGING_WIDTH = 300;
-const WINDOW_STAGING_COLLAPSED_WIDTH = 72;
+const STAGING_CLOSED_WIDTH_PX = 0;
+const REVIEW_PANEL_WIDTH_RATIO = 2 / 3;
+const REVIEW_PANEL_MIN_WIDTH_PX = 420;
+const REVIEW_PANEL_MAX_WIDTH_PX = 480;
 const WINDOW_GAP = 12;
 const WINDOW_SIDE_SAFE_PAD = 10;
 const WINDOW_BASE_HEIGHT = 124;
@@ -25,8 +27,8 @@ const PARAM_OVERLAY_MIN_HEIGHT = 340;
 
 export const STAGING_TRANSITION_MS = 170;
 export const WINDOW_SIZING_CONSTANTS = {
-  windowStagingWidth: WINDOW_STAGING_WIDTH,
-  windowStagingCollapsedWidth: WINDOW_STAGING_COLLAPSED_WIDTH,
+  windowStagingWidth: REVIEW_PANEL_MAX_WIDTH_PX,
+  windowStagingCollapsedWidth: STAGING_CLOSED_WIDTH_PX,
   windowGap: WINDOW_GAP,
   windowSideSafePad: WINDOW_SIDE_SAFE_PAD,
   windowBaseHeight: WINDOW_BASE_HEIGHT,
@@ -64,10 +66,15 @@ function resolveScreenWidth(): number {
 
 function resolveSearchMainWidth(screenWidth: number): number {
   const preferred = Math.floor(screenWidth * 0.56);
-  const maxByOpenLayout = Math.floor(screenWidth * 0.94) - WINDOW_GAP - WINDOW_STAGING_WIDTH;
+  const maxByOpenLayout =
+    Math.floor(screenWidth * 0.94) - WINDOW_GAP - REVIEW_PANEL_MAX_WIDTH_PX;
   const upper = Math.min(WINDOW_BASE_WIDTH, maxByOpenLayout);
   const lower = Math.min(WINDOW_BASE_MIN_WIDTH, upper);
   return Math.max(lower, Math.min(upper, preferred));
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }
 
 function createStagingLayoutMetrics(options: {
@@ -115,6 +122,8 @@ function createStagingLayoutMetrics(options: {
 export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOptions) {
   const drawerOpen = computed(() => options.query.value.trim().length > 0);
 
+  const shellGap = computed(() => (options.stagingExpanded.value ? WINDOW_GAP : 0));
+
   const windowHeightCap = computed(() => {
     const screenHeight = resolveScreenHeight();
     return Math.max(420, Math.floor(screenHeight * 0.82));
@@ -126,20 +135,28 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
   });
 
   const searchMainWidth = computed(() => resolveSearchMainWidth(resolveScreenWidth()));
+  const reviewWidth = computed(() =>
+    clamp(
+      Math.floor(searchMainWidth.value * REVIEW_PANEL_WIDTH_RATIO),
+      REVIEW_PANEL_MIN_WIDTH_PX,
+      REVIEW_PANEL_MAX_WIDTH_PX
+    )
+  );
 
   const searchShellStyle = computed<Record<string, string>>(() => ({
     "--search-main-width": `${searchMainWidth.value}px`,
-    "--shell-gap": `${WINDOW_GAP}px`,
+    "--shell-gap": `${shellGap.value}px`,
     "--shell-side-pad": `${WINDOW_SIDE_SAFE_PAD}px`,
-    "--staging-collapsed-width": `${WINDOW_STAGING_COLLAPSED_WIDTH}px`,
-    "--staging-expanded-width": `${WINDOW_STAGING_WIDTH}px`
+    "--review-width": `${reviewWidth.value}px`,
+    "--staging-collapsed-width": `${STAGING_CLOSED_WIDTH_PX}px`,
+    "--staging-expanded-width": `${reviewWidth.value}px`
   }));
 
   const minShellWidth = computed(
     () =>
       searchMainWidth.value +
-      WINDOW_GAP +
-      WINDOW_STAGING_COLLAPSED_WIDTH +
+      shellGap.value +
+      (options.stagingExpanded.value ? reviewWidth.value : STAGING_CLOSED_WIDTH_PX) +
       WINDOW_SIDE_SAFE_PAD * 2
   );
 

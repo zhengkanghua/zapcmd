@@ -65,7 +65,7 @@ body {
 }
 
 .search-shell--staging-wide {
-  grid-template-columns: var(--search-main-width) var(--staging-expanded-width);
+  grid-template-columns: var(--search-main-width) var(--review-width);
 }
 
 .search-main {
@@ -442,6 +442,7 @@ body {
   position: relative;
   margin-top: 0;
   width: 100%;
+  min-width: 0;
   padding: 10px;
   display: grid;
   gap: 8px;
@@ -482,13 +483,7 @@ body {
 }
 
 .staging-panel--closed {
-  padding: 0;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
+  display: none;
 }
 
 .staging-chip {
