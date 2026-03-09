@@ -119,17 +119,25 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.find(".terminal-hint").exists()).toBe(false);
   });
 
-  it("toggles staging panel with Tab", async () => {
+  it("opens Review with Tab and reserves Tab for focus traversal in Review state", async () => {
     const wrapper = await mountApp();
     expect(wrapper.find(".review-overlay").exists()).toBe(false);
 
     dispatchWindowKeydown("Tab");
     await waitForUi();
-    expect(wrapper.get(".review-overlay").classes()).toContain("review-overlay--opening");
+    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
 
-    dispatchWindowKeydown("Tab");
+    const panel = wrapper.get(".review-panel").element as HTMLElement;
+    dispatchElementKeydown(panel, "Tab");
     await waitForUi();
-    expect(wrapper.get(".review-overlay").classes()).toContain("review-overlay--closing");
+    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
+
+    dispatchWindowKeydown("Escape");
+    await waitForUi();
+    const overlay = wrapper.find(".review-overlay");
+    expect(
+      !overlay.exists() || overlay.classes().join(" ").match(/review-overlay--(closing|closed)/)
+    ).toBeTruthy();
   });
 
   it("navigates search results with ArrowDown/ArrowUp", async () => {
@@ -386,7 +394,7 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.findAll(".result-item").length).toBe(0);
   });
 
-  it("clears query before closing staging on Escape when both are active", async () => {
+  it("closes staging before clearing query on Escape when both are active", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "docker");
 
@@ -405,11 +413,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
 
     const input = wrapper.get("#zapcmd-search-input").element as HTMLInputElement;
-    expect(input.value).toBe("");
-    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
-
-    dispatchWindowKeydown("Escape");
-    await waitForUi();
+    expect(input.value).toBe("git");
 
     const overlay = wrapper.find(".review-overlay");
     expect(
