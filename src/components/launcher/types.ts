@@ -40,6 +40,12 @@ export interface LauncherStagingPanelProps {
   setStagingListRef: (el: ElementRefArg) => void;
 }
 
+export interface LauncherReviewOverlayProps {
+  stagingDrawerState: StagingDrawerState;
+  stagedCommands: StagedCommand[];
+  setStagingPanelRef: (el: ElementRefArg) => void;
+}
+
 export interface LauncherParamOverlayProps {
   pendingCommand: CommandTemplate | null;
   pendingArgs: CommandArg[];

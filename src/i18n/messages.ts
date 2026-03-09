@@ -5,6 +5,7 @@ export const messages = {
     },
     common: {
       cancel: "取消",
+      close: "关闭",
       confirm: "确定",
       apply: "应用",
       save: "保存",
@@ -259,6 +260,7 @@ export const messages = {
     },
     common: {
       cancel: "Cancel",
+      close: "Close",
       confirm: "OK",
       apply: "Apply",
       save: "Save",

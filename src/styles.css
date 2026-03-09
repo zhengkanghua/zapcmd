@@ -16,6 +16,7 @@
   --ui-subtle: #a1a1aa;
   --ui-accent: #37cc8a;
   --ui-top-align-offset: 18px;
+  --ui-shell-dim: rgba(11, 14, 20, 0.32);
 }
 
 *,
@@ -126,6 +127,7 @@ body {
 
 .search-main,
 .staging-panel,
+.review-panel,
 .param-dialog,
 .output-overlay {
   border-radius: var(--ui-radius);
@@ -434,6 +436,61 @@ body {
 .drawer-empty__hint {
   font-size: 12px;
   line-height: 1.45;
+}
+
+.review-overlay {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  z-index: 20;
+}
+
+.review-overlay__scrim {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  border-radius: var(--ui-radius);
+  background: var(--ui-shell-dim);
+  cursor: pointer;
+}
+
+.review-panel {
+  width: var(--review-width);
+  min-width: 0;
+  padding: 10px;
+  margin-left: auto;
+  display: grid;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 22px 42px rgba(0, 0, 0, 0.42);
+}
+
+.review-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-panel__header h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.review-panel__empty {
+  margin: 0;
+  padding: 12px 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  color: var(--ui-subtle);
+  font-size: 12px;
 }
 
 .staging-panel {
