@@ -51,6 +51,7 @@ export function createAppCompositionViewModel(
     stagingExpanded: runtime.stagingQueue.stagingExpanded,
     drawerOpen: runtime.layoutMetrics.drawerOpen,
     drawerViewportHeight: runtime.layoutMetrics.drawerViewportHeight,
+    drawerFloorViewportHeight: runtime.layoutMetrics.drawerFloorViewportHeight,
     drawerFillerHeight: runtime.layoutMetrics.drawerFillerHeight,
     keyboardHintText: context.hotkeyBindings.keyboardHintText,
     filteredResults: context.search.filteredResults,

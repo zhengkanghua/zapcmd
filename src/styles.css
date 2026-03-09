@@ -463,10 +463,10 @@ body {
 .review-panel {
   width: var(--review-width);
   min-width: 0;
-  padding: 10px;
+  padding: 16px;
   margin-left: auto;
   display: grid;
-  gap: 10px;
+  gap: 12px;
   position: relative;
   z-index: 1;
   box-shadow: 0 22px 42px rgba(0, 0, 0, 0.42);
@@ -479,9 +479,20 @@ body {
   gap: 10px;
 }
 
+.review-panel__heading {
+  display: grid;
+  gap: 4px;
+}
+
 .review-panel__header h2 {
   margin: 0;
   font-size: 15px;
+}
+
+.review-panel__hint {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--ui-subtle);
 }
 
 .review-panel__empty {
@@ -491,6 +502,24 @@ body {
   border-radius: 8px;
   color: var(--ui-subtle);
   font-size: 12px;
+}
+
+.review-panel__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.review-card__command {
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .staging-panel {

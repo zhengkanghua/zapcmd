@@ -42,8 +42,17 @@ export interface LauncherStagingPanelProps {
 
 export interface LauncherReviewOverlayProps {
   stagingDrawerState: StagingDrawerState;
+  stagingExpanded: boolean;
   stagedCommands: StagedCommand[];
+  stagingHintText: string;
+  stagingListShouldScroll: boolean;
+  stagingListMaxHeight: string;
+  drawerFloorViewportHeight: number;
+  focusZone: FocusZone;
+  stagingActiveIndex: number;
+  executing: boolean;
   setStagingPanelRef: (el: ElementRefArg) => void;
+  setStagingListRef: (el: ElementRefArg) => void;
 }
 
 export interface LauncherParamOverlayProps {

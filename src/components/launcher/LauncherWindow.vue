@@ -27,6 +27,7 @@ const props = defineProps<{
   stagingExpanded: boolean;
   drawerOpen: boolean;
   drawerViewportHeight: number;
+  drawerFloorViewportHeight: number;
   drawerFillerHeight: number;
   keyboardHintText: string;
   filteredResults: CommandTemplate[];
@@ -120,9 +121,26 @@ const { onRootPointerDown } = useLauncherHitZones({
       <LauncherReviewOverlay
         v-if="props.stagingExpanded"
         :staging-drawer-state="props.stagingDrawerState"
+        :staging-expanded="props.stagingExpanded"
         :staged-commands="props.stagedCommands"
+        :staging-hint-text="props.stagingHintText"
+        :staging-list-should-scroll="props.stagingListShouldScroll"
+        :staging-list-max-height="props.stagingListMaxHeight"
+        :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
+        :focus-zone="props.focusZone"
+        :staging-active-index="props.stagingActiveIndex"
+        :executing="props.executing"
         :set-staging-panel-ref="props.setStagingPanelRef"
+        :set-staging-list-ref="props.setStagingListRef"
         @toggle-staging="emit('toggle-staging')"
+        @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
+        @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
+        @staging-drag-end="emit('staging-drag-end')"
+        @focus-staging-index="emit('focus-staging-index', $event)"
+        @remove-staged-command="emit('remove-staged-command', $event)"
+        @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
+        @clear-staging="emit('clear-staging')"
+        @execute-staged="emit('execute-staged')"
       />
     </div>
 
