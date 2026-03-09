@@ -59,6 +59,7 @@ completed: 2026-03-09
 1. **Task 1: 搜索区新增队列摘要 pill 入口** - `66e162e`
 2. **Task 2: 禁止入队与会话恢复自动打开 Review** - `648bb1d`
 3. **Task 3: 统一 Review 宽度口径并单列化 Search 壳层** - `5bc49ed`
+- Follow-up（回归底座对齐，无行为变化）：`4fd9279`
 
 ## Files Created/Modified
 - `src/components/launcher/parts/LauncherQueueSummaryPill.vue` - queue summary pill（aria label + click → toggle-staging）
@@ -74,4 +75,3 @@ completed: 2026-03-09
 
 ## Next Phase Readiness
 - 已具备 overlay 接入的入口与尺寸底座：Phase 14-02 可在 `--review-width` 与单焦点壳层基线上落地背景锁定、scrim 关闭语义与内部滚动结构。
-
