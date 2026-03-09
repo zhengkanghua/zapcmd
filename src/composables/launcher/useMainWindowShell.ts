@@ -70,12 +70,12 @@ export function useMainWindowShell(options: UseMainWindowShellOptions) {
       options.cancelParamInput();
       return;
     }
-    if (options.query.value.trim().length > 0) {
-      options.query.value = "";
-      return;
-    }
     if (options.stagingExpanded.value) {
       options.closeStagingDrawer();
+      return;
+    }
+    if (options.query.value.trim().length > 0) {
+      options.query.value = "";
       return;
     }
     void hideMainWindow();
