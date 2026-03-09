@@ -20,7 +20,12 @@ function onSearchInput(event: Event): void {
 </script>
 
 <template>
-  <section class="search-main" data-hit-zone="interactive">
+  <section
+    class="search-main"
+    data-hit-zone="interactive"
+    :inert="props.reviewOpen ? '' : undefined"
+    :aria-hidden="props.reviewOpen ? 'true' : undefined"
+  >
     <section class="search-capsule" aria-label="search-capsule">
       <form class="search-form" @submit.prevent>
         <label class="search-label" for="zapcmd-search-input">{{ t("common.search") }}</label>

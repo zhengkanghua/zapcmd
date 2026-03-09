@@ -111,6 +111,7 @@ const { onRootPointerDown } = useLauncherHitZones({
         :active-index="props.activeIndex"
         :staged-feedback-command-id="props.stagedFeedbackCommandId"
         :staged-command-count="props.stagedCommands.length"
+        :review-open="props.stagingExpanded"
         :set-search-input-ref="props.setSearchInputRef"
         :set-drawer-ref="props.setDrawerRef"
         :set-result-button-ref="props.setResultButtonRef"

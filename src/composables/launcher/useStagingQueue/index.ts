@@ -29,6 +29,7 @@ export function useStagingQueue<T extends StagedCommandLike>(
     options,
     focusZone,
     stagingActiveIndex,
+    stagingDrawerState,
     stagedCommands: options.stagedCommands
   });
   bindDrawerGuards({

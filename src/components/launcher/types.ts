@@ -21,6 +21,7 @@ export interface LauncherSearchPanelProps {
   activeIndex: number;
   stagedFeedbackCommandId: string | null;
   stagedCommandCount: number;
+  reviewOpen: boolean;
   setSearchInputRef: (el: ElementRefArg) => void;
   setDrawerRef: (el: ElementRefArg) => void;
   setResultButtonRef: (el: ElementRefArg, index: number) => void;

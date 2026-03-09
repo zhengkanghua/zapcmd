@@ -72,6 +72,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
     runCommandsInTerminal: context.runCommandsInTerminal
   });
   context.shouldBlockSearchInputFocusRef.value = () =>
+    stagingQueue.stagingExpanded.value ||
     commandExecution.executing.value ||
     commandExecution.pendingCommand.value !== null ||
     commandExecution.safetyDialog.value !== null;

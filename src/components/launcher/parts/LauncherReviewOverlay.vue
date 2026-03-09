@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { useI18nText } from "../../../i18n";
 import { summarizeCommandForFeedback } from "../../../composables/execution/useCommandExecution/helpers";
-import type { LauncherReviewOverlayProps } from "../types";
+import type { ElementRefArg, LauncherReviewOverlayProps } from "../types";
 
 const props = defineProps<LauncherReviewOverlayProps>();
 const { t } = useI18nText();
+
+const reviewListRef = ref<HTMLElement | null>(null);
 
 const emit = defineEmits<{
   (e: "toggle-staging"): void;
@@ -20,6 +23,32 @@ const emit = defineEmits<{
 
 function closeReview(): void {
   emit("toggle-staging");
+}
+
+function setReviewListRef(el: ElementRefArg): void {
+  props.setStagingListRef(el);
+  reviewListRef.value = el instanceof HTMLElement ? el : null;
+}
+
+function onScrimWheel(event: WheelEvent): void {
+  const list = reviewListRef.value;
+  if (!list) {
+    return;
+  }
+
+  const deltaY = event.deltaY;
+  if (!Number.isFinite(deltaY) || deltaY === 0) {
+    return;
+  }
+
+  const atTop = list.scrollTop <= 0;
+  const atBottom = Math.ceil(list.scrollTop + list.clientHeight) >= list.scrollHeight;
+  if ((deltaY < 0 && atTop) || (deltaY > 0 && atBottom)) {
+    return;
+  }
+
+  event.preventDefault();
+  list.scrollTop += deltaY;
 }
 
 function onStagingDragStart(index: number, event: DragEvent): void {
@@ -54,6 +83,7 @@ async function copyCommand(command: string): Promise<void> {
       data-hit-zone="overlay"
       :aria-label="t('common.close')"
       @click="closeReview"
+      @wheel="onScrimWheel"
     ></button>
     <section
       :ref="props.setStagingPanelRef"
@@ -76,7 +106,7 @@ async function copyCommand(command: string): Promise<void> {
       <p v-if="props.stagedCommands.length === 0" class="review-panel__empty">{{ t("launcher.queueEmpty") }}</p>
       <ul
         v-else
-        :ref="props.setStagingListRef"
+        :ref="setReviewListRef"
         class="staging-list review-list"
         :class="{ 'staging-list--scrollable': props.stagingListShouldScroll }"
         :style="{
