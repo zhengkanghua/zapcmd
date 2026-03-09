@@ -55,7 +55,7 @@ Plans:
 
 **Requirements:** `SHELL-01` `SHELL-02` `SHELL-03` `SIZE-02` `REV-01` `REV-02` `REV-03` `VIS-03`
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 14-01-PLAN.md — 壳层单焦点化 + pill 入口 + Review 宽度口径（2/3 clamp 420–480）+ 禁止入队自动打开

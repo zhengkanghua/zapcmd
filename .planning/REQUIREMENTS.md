@@ -8,21 +8,21 @@
 ### Shell / Layers
 
 - [x] **SHELL-01**: 用户打开 launcher 主窗口时只看到单焦点搜索态（不再存在常驻并列的右侧 staging 工作区）
-- [ ] **SHELL-02**: 用户打开 Review overlay 后仍能看到搜索上下文，但背景不可交互（不可点击、不可滚动、不可获得焦点）
-- [ ] **SHELL-03**: 顶部拖拽区在 Search/Review 状态都可用，且不会被遮罩/overlay 吞掉
+- [x] **SHELL-02**: 用户打开 Review overlay 后仍能看到搜索上下文，但背景不可交互（不可点击、不可滚动、不可获得焦点）
+- [x] **SHELL-03**: 顶部拖拽区在 Search/Review 状态都可用，且不会被遮罩/overlay 吞掉
 
 ### Floor Height / Window Sizing
 
 - [x] **SIZE-01**: 当搜索结果不足 4 条高度时，用户打开 Review 前左侧抽屉会被补足到 floor height（= “4 条结果高度 + 搜索框高度”的计算值；其中搜索框高度以 `.search-form` 容器渲染高度为准，含 padding，非 input 高度；仅 filler/spacer；无假结果数据/DOM）
-- [ ] **SIZE-02**: Review overlay 的最小可视高度与 floor height 对齐，且 Review 列表在面板内部滚动（不随队列项持续拉高窗口）
+- [x] **SIZE-02**: Review overlay 的最小可视高度与 floor height 对齐，且 Review 列表在面板内部滚动（不随队列项持续拉高窗口）
 - [ ] **SIZE-03**: Review 打开/关闭涉及窗口 resize 时在 Windows 下稳定可用（允许采用“先稳定尺寸再动画”的策略，并保留降级路径）
 - [x] **SIZE-04**: sizing/floor height 的比较与补齐不把顶部拖拽区计入内容高度
 
 ### Review Overlay（Queue/Review）
 
 - [x] **REV-01**: 用户可以通过 queue summary pill（如 `3 queued`）或等价入口进入 Review overlay
-- [ ] **REV-02**: 用户在 Review 中可以浏览队列项，且长命令以“可读摘要”呈现（不在主列表铺完整长命令）
-- [ ] **REV-03**: 用户在 Review 中可以删除队列项、调整顺序，并能触发队列执行/清空（复用现有队列能力）
+- [x] **REV-02**: 用户在 Review 中可以浏览队列项，且长命令以“可读摘要”呈现（不在主列表铺完整长命令）
+- [x] **REV-03**: 用户在 Review 中可以删除队列项、调整顺序，并能触发队列执行/清空（复用现有队列能力）
 
 ### Hotkeys / Focus
 
@@ -75,15 +75,15 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SHELL-01 | Phase 14 | Complete |
-| SHELL-02 | Phase 14 | Pending |
-| SHELL-03 | Phase 14 | Pending |
+| SHELL-02 | Phase 14 | Complete |
+| SHELL-03 | Phase 14 | Complete |
 | SIZE-01 | Phase 13 | Complete |
-| SIZE-02 | Phase 14 | Pending |
+| SIZE-02 | Phase 14 | Complete |
 | SIZE-03 | Phase 16 | Pending |
 | SIZE-04 | Phase 13 | Complete |
 | REV-01 | Phase 14 | Complete |
-| REV-02 | Phase 14 | Pending |
-| REV-03 | Phase 14 | Pending |
+| REV-02 | Phase 14 | Complete |
+| REV-03 | Phase 14 | Complete |
 | KEY-01 | Phase 15 | Pending |
 | KEY-02 | Phase 15 | Pending |
 | KEY-03 | Phase 15 | Pending |
