@@ -52,7 +52,7 @@ verifier: Codex (main context)
 | `useLauncherLayoutMetrics` | `styles.css` | `--review-width` | ✓ WIRED | Review 宽度常量与样式层统一口径 |
 | queue summary pill | Review overlay | `toggle-staging` | ✓ WIRED | 回归以 pill 显式打开 Review（不依赖入队自动打开） |
 | Review open state | Search panel background lock | `inert + aria-hidden` | ✓ WIRED | 测试层可定位断言，避免回归到可交互背景 |
-| Review overlay layout | Drag strip row | CSS grid rows | ✓ WIRED | `.review-overlay { grid-row: 2 }` 与 `--ui-top-align-offset` 的 drag strip 分离，避免遮罩吞 drag region |
+| Review overlay layout | Drag strip row | absolute + top offset | ✓ WIRED | `.review-overlay` 采用 `position: absolute` 且 `top: calc(var(--ui-top-align-offset) + var(--search-capsule-height))`，仅覆盖搜索框下方的 drawer 区域，避免遮罩吞 drag strip 与搜索框 |
 
 ## Requirements Coverage
 
@@ -83,4 +83,3 @@ Phase 14 的目标已达成：
 1. 入队 2 条命令后点击 pill 打开 Review；确认背景无法点击/聚焦，滚轮滚动 Review 列表；
 2. 点击 scrim：只关闭 Review，不隐藏主窗口；
 3. Review 打开时拖拽顶部 drag strip：窗口可正常拖动。
-

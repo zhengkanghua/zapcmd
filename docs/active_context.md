@@ -109,3 +109,6 @@
 
 ## 补充（2026-03-09｜Phase 14-03 回归迁移）
 - 自动化回归迁移到 pill + Review overlay；新增 Review 组件级单测；`npm run check:all` 全绿，为 Phase 15 键盘/焦点收口提供稳定基线。
+
+## 补充（2026-03-09｜Phase 14 UI 对齐）
+- 队列 pill 移入搜索框右侧同排；Review overlay 的遮罩从搜索框下方覆盖结果抽屉区域（仅暗结果区）。

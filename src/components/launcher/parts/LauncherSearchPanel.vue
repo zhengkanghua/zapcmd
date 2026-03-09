@@ -41,13 +41,12 @@ function onSearchInput(event: Event): void {
           autocomplete="off"
           @input="onSearchInput"
         />
-      </form>
-      <div v-if="props.stagedCommandCount > 0" class="search-queue-summary">
         <LauncherQueueSummaryPill
+          v-if="props.stagedCommandCount > 0"
           :count="props.stagedCommandCount"
           @toggle-staging="emit('toggle-staging')"
         />
-      </div>
+      </form>
       <p
         v-if="props.executionFeedbackMessage"
         class="execution-feedback execution-toast"
