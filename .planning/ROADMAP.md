@@ -77,12 +77,14 @@ Plans:
 
 **Requirements:** `KEY-01` `KEY-02` `KEY-03` `KEY-04` `KEY-05` `TST-01`
 
-**Plans:** 0/3 plans complete
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 15-01-PLAN.md — 全局热键与 Esc 分层后退收口（Tab/ToggleQueue/SwitchFocus）
-- [ ] 15-02-PLAN.md — Review 初始焦点 + switchFocus 焦点落点 + Tab focus trap
-- [ ] 15-03-PLAN.md — P0 回归更新：toggleQueue/switchFocus/Esc/Tab（组件+App UI）
+- [x] 15-01-PLAN.md — 全局热键与 Esc 分层后退收口（Tab/ToggleQueue/SwitchFocus）
+- [x] 15-02-PLAN.md — Review 初始焦点 + switchFocus 焦点落点 + Tab focus trap
+- [x] 15-03-PLAN.md — P0 回归更新：toggleQueue/switchFocus/Esc/Tab（组件+App UI）
+
+**Verification:** `.planning/phases/15-keyboard-focus-close-semantics/15-VERIFICATION.md` (`human_needed`)
 
 **Success criteria:**
 1. 搜索态：`toggleQueue` 打开 Review；`switchFocus` 打开 Review 并聚焦队列列表。

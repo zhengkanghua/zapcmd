@@ -116,3 +116,6 @@
 
 ## 补充（2026-03-09｜Phase 15 计划完成）
 - 已生成 Phase 15 的 3 个执行计划（15-01/02/03）：热键语义、Esc 分层后退、Review 初始焦点/Tab focus trap、P0 自动化回归更新。下一步：`$gsd-execute-phase 15`。
+
+## 补充（2026-03-09｜Phase 15 执行完成待复验）
+- Phase 15 已落地：Tab/Ctrl+Tab 打开 Review、Review 内 Tab trap、Esc 先关 Review；但本容器无法跑 vitest（esbuild spawn EPERM），需本地 `npm run check:all` + 键盘 smoke（见 `.planning/phases/15-keyboard-focus-close-semantics/15-VERIFICATION.md`）。
