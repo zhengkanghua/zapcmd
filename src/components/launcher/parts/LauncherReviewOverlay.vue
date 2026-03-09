@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { useI18nText } from "../../../i18n";
 import { summarizeCommandForFeedback } from "../../../composables/execution/useCommandExecution/helpers";
 import type { ElementRefArg, LauncherReviewOverlayProps } from "../types";
@@ -7,7 +7,9 @@ import type { ElementRefArg, LauncherReviewOverlayProps } from "../types";
 const props = defineProps<LauncherReviewOverlayProps>();
 const { t } = useI18nText();
 
+const reviewPanelRef = ref<HTMLElement | null>(null);
 const reviewListRef = ref<HTMLElement | null>(null);
+const closeButtonRef = ref<HTMLButtonElement | null>(null);
 
 const emit = defineEmits<{
   (e: "toggle-staging"): void;
@@ -25,9 +27,81 @@ function closeReview(): void {
   emit("toggle-staging");
 }
 
+function setReviewPanelRef(el: ElementRefArg): void {
+  props.setStagingPanelRef(el);
+  reviewPanelRef.value = el instanceof HTMLElement ? el : null;
+}
+
 function setReviewListRef(el: ElementRefArg): void {
   props.setStagingListRef(el);
   reviewListRef.value = el instanceof HTMLElement ? el : null;
+}
+
+function focusActiveCardOrFallback(): void {
+  const list = reviewListRef.value;
+  const activeCard = list?.querySelector<HTMLElement>(
+    `[data-staging-index="${props.stagingActiveIndex}"] .staging-card`
+  );
+  if (activeCard) {
+    activeCard.focus();
+    return;
+  }
+
+  closeButtonRef.value?.focus();
+}
+
+watch(
+  () => props.stagingExpanded,
+  async (expanded) => {
+    if (!expanded) {
+      return;
+    }
+    await nextTick();
+    focusActiveCardOrFallback();
+  },
+  { immediate: true }
+);
+
+function onReviewPanelKeydown(event: KeyboardEvent): void {
+  if (event.key !== "Tab") {
+    return;
+  }
+  if (event.ctrlKey || event.metaKey || event.altKey) {
+    return;
+  }
+
+  const root = reviewPanelRef.value;
+  if (!root) {
+    return;
+  }
+
+  const focusable = Array.from(
+    root.querySelectorAll<HTMLElement>(
+      [
+        "a[href]",
+        "button:not([disabled])",
+        "input:not([disabled])",
+        "select:not([disabled])",
+        "textarea:not([disabled])",
+        "[tabindex]:not([tabindex='-1'])"
+      ].join(",")
+    )
+  );
+
+  if (focusable.length === 0) {
+    return;
+  }
+
+  const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const currentIndex = active ? focusable.indexOf(active) : -1;
+  const delta = event.shiftKey ? -1 : 1;
+  const nextIndexRaw = currentIndex === -1 ? 0 : currentIndex + delta;
+  const nextIndex =
+    nextIndexRaw < 0 ? focusable.length - 1 : nextIndexRaw % focusable.length;
+
+  event.preventDefault();
+  event.stopPropagation();
+  focusable[nextIndex]?.focus();
 }
 
 function onScrimWheel(event: WheelEvent): void {
@@ -86,19 +160,20 @@ async function copyCommand(command: string): Promise<void> {
       @wheel="onScrimWheel"
     ></button>
     <section
-      :ref="props.setStagingPanelRef"
+      :ref="setReviewPanelRef"
       class="review-panel"
       data-hit-zone="overlay"
       role="dialog"
       aria-modal="true"
       :aria-label="t('launcher.queueTitle', { count: props.stagedCommands.length })"
+      @keydown="onReviewPanelKeydown"
     >
       <header class="review-panel__header">
         <div class="review-panel__heading">
           <h2>{{ t("launcher.queueTitle", { count: props.stagedCommands.length }) }}</h2>
           <span class="review-panel__hint">{{ props.stagingHintText }}</span>
         </div>
-        <button type="button" class="btn-muted btn-small" @click="closeReview">
+        <button ref="closeButtonRef" type="button" class="btn-muted btn-small" @click="closeReview">
           {{ t("common.close") }}
         </button>
       </header>
@@ -128,6 +203,7 @@ async function copyCommand(command: string): Promise<void> {
           <article
             class="staging-card review-card"
             :class="{ 'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex }"
+            :tabindex="index === props.stagingActiveIndex ? 0 : -1"
           >
             <header class="staging-card__head">
               <h3>{{ cmd.title }}</h3>
