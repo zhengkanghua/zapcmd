@@ -255,6 +255,24 @@ async function focusSearchAndType(
   await waitForUi();
 }
 
+function readQueueCount(wrapper: VueWrapper): number {
+  const pill = wrapper.find(".queue-summary-pill");
+  if (!pill.exists()) {
+    return 0;
+  }
+  const match = pill.text().match(/(\d+)/);
+  return match ? Number(match[1]) : Number.NaN;
+}
+
+function expectQueueCount(wrapper: VueWrapper, count: number): void {
+  expect(readQueueCount(wrapper)).toBe(count);
+}
+
+async function openReviewByPill(wrapper: VueWrapper): Promise<void> {
+  await wrapper.get(".queue-summary-pill").trigger("click");
+  await waitForUi();
+}
+
 async function openGeneralSettings(wrapper: VueWrapper): Promise<void> {
   const generalNav = wrapper
     .findAll("button.settings-nav__item")
@@ -338,7 +356,7 @@ describe("App failure and event regression", () => {
     await focusSearchAndType(wrapper, "git");
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("2");
+    expectQueueCount(wrapper, 2);
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -346,7 +364,7 @@ describe("App failure and event regression", () => {
 
     expect(errorSpy).toHaveBeenCalled();
     expect(hoisted.runMock).toHaveBeenCalledTimes(1);
-    expect(wrapper.get(".staging-chip__count").text()).toBe("2");
+    expectQueueCount(wrapper, 2);
     expectFeedbackContract(wrapper, {
       tone: "error",
       reasonSnippet: "queue-failed",
@@ -516,6 +534,10 @@ describe("App failure and event regression", () => {
     await focusSearchAndType(wrapper, "git");
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
+
+    expectQueueCount(wrapper, 2);
+    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    await openReviewByPill(wrapper);
 
     const rows = wrapper.findAll(".staging-list > li");
     expect(rows.length).toBe(2);
@@ -898,7 +920,7 @@ describe("App failure and event regression", () => {
     const setupState = getSetupState(wrapper);
 
     expect(() => setupState.submitParamInput()).not.toThrow();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("0");
+    expectQueueCount(wrapper, 0);
   });
 
   it("updates staged command preview when staged arg input changes", async () => {
@@ -911,10 +933,14 @@ describe("App failure and event regression", () => {
     await wrapper.get(".param-dialog").trigger("submit");
     await waitForUi();
 
-    expect(wrapper.get(".staging-card code").text()).toContain("container-a");
+    expectQueueCount(wrapper, 1);
+    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    await openReviewByPill(wrapper);
+
+    expect(wrapper.get(".review-card__command").attributes("title")).toContain("container-a");
     await wrapper.get(".staging-card__arg input").setValue("container-b");
     await waitForUi();
-    expect(wrapper.get(".staging-card code").text()).toContain("container-b");
+    expect(wrapper.get(".review-card__command").attributes("title")).toContain("container-b");
   });
 
   it("restores staged queue from launcher session snapshot", async () => {
@@ -939,7 +965,10 @@ describe("App failure and event regression", () => {
     const wrapper = await mountApp();
     await waitForUi();
 
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
+    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+
+    await openReviewByPill(wrapper);
     expect(wrapper.findAll(".staging-card").length).toBe(1);
     expect(wrapper.get(".staging-card h3").text()).toBe("restored command");
   });
@@ -976,7 +1005,7 @@ describe("App failure and event regression", () => {
     await wrapper.get("#param-input-port").setValue("443");
     await wrapper.get(".param-dialog").trigger("submit");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
     expect(hoisted.runMock).not.toHaveBeenCalled();
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });

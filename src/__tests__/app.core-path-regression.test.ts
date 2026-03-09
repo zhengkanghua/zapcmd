@@ -101,6 +101,24 @@ async function focusSearchAndType(
   await waitForUi();
 }
 
+function readQueueCount(wrapper: VueWrapper): number {
+  const pill = wrapper.find(".queue-summary-pill");
+  if (!pill.exists()) {
+    return 0;
+  }
+  const match = pill.text().match(/(\d+)/);
+  return match ? Number(match[1]) : Number.NaN;
+}
+
+function expectQueueCount(wrapper: VueWrapper, count: number): void {
+  expect(readQueueCount(wrapper)).toBe(count);
+}
+
+async function openReviewByPill(wrapper: VueWrapper): Promise<void> {
+  await wrapper.get(".queue-summary-pill").trigger("click");
+  await waitForUi();
+}
+
 beforeEach(() => {
   localStorage.clear();
   hoisted.runMock.mockReset();
@@ -133,8 +151,11 @@ describe("App 核心路径回归（Phase 3）", () => {
     await wrapper.get(".param-dialog").trigger("submit");
     await waitForUi();
 
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
-    expect(wrapper.get(".staging-card code").text()).toContain("my-container");
+    expectQueueCount(wrapper, 1);
+    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+
+    await openReviewByPill(wrapper);
+    expect(wrapper.get(".review-card__command").attributes("title")).toContain("my-container");
 
     await waitForUi();
     expect(localStorage.getItem(LAUNCHER_SESSION_STORAGE_KEY)).toBeTruthy();
@@ -143,8 +164,11 @@ describe("App 核心路径回归（Phase 3）", () => {
     removeWrapper(wrapper);
 
     const restored = await mountApp();
-    expect(restored.get(".staging-chip__count").text()).toBe("1");
-    expect(restored.get(".staging-card code").text()).toContain("my-container");
+    expectQueueCount(restored, 1);
+    expect(restored.find(".review-overlay").exists()).toBe(false);
+
+    await openReviewByPill(restored);
+    expect(restored.get(".review-card__command").attributes("title")).toContain("my-container");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -162,7 +186,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     }
 
     await waitForUi();
-    expect(restored.get(".staging-chip__count").text()).toBe("0");
+    expectQueueCount(restored, 0);
   });
 
   it("覆盖失败分支：终端执行失败 → 错误可见且队列不丢失", async () => {
@@ -179,7 +203,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     await wrapper.get(".param-dialog").trigger("submit");
     await waitForUi();
 
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -189,6 +213,6 @@ describe("App 核心路径回归（Phase 3）", () => {
     expect(wrapper.get(".execution-feedback--error").text()).toContain(
       "terminal-unavailable",
     );
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
   });
 });

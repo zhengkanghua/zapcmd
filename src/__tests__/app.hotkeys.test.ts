@@ -79,6 +79,24 @@ async function focusSearchAndType(wrapper: VueWrapper, value: string): Promise<v
   await waitForUi();
 }
 
+function readQueueCount(wrapper: VueWrapper): number {
+  const pill = wrapper.find(".queue-summary-pill");
+  if (!pill.exists()) {
+    return 0;
+  }
+  const match = pill.text().match(/(\d+)/);
+  return match ? Number(match[1]) : Number.NaN;
+}
+
+function expectQueueCount(wrapper: VueWrapper, count: number): void {
+  expect(readQueueCount(wrapper)).toBe(count);
+}
+
+async function openReviewByPill(wrapper: VueWrapper): Promise<void> {
+  await wrapper.get(".queue-summary-pill").trigger("click");
+  await waitForUi();
+}
+
 beforeEach(() => {
   localStorage.clear();
   warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -103,16 +121,15 @@ describe("App UI hotkeys regression", () => {
 
   it("toggles staging panel with Tab", async () => {
     const wrapper = await mountApp();
-    const panel = wrapper.get(".staging-panel");
-    expect(panel.classes()).toContain("staging-panel--closed");
+    expect(wrapper.find(".review-overlay").exists()).toBe(false);
 
     dispatchWindowKeydown("Tab");
     await waitForUi();
-    expect(panel.classes()).toContain("staging-panel--opening");
+    expect(wrapper.get(".review-overlay").classes()).toContain("review-overlay--opening");
 
     dispatchWindowKeydown("Tab");
     await waitForUi();
-    expect(panel.classes()).toContain("staging-panel--closing");
+    expect(wrapper.get(".review-overlay").classes()).toContain("review-overlay--closing");
   });
 
   it("navigates search results with ArrowDown/ArrowUp", async () => {
@@ -141,7 +158,12 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
 
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
+    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+
+    await openReviewByPill(wrapper);
+    expect(wrapper.get(".search-main").attributes("inert")).toBe("");
+    expect(wrapper.get(".search-main").attributes("aria-hidden")).toBe("true");
     expect(wrapper.findAll(".staging-card").length).toBe(1);
   });
 
@@ -159,8 +181,13 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
 
     expect(wrapper.find(".param-overlay").exists()).toBe(false);
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
-    expect(wrapper.get(".staging-card code").text()).toContain("my-container");
+    expectQueueCount(wrapper, 1);
+    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+
+    await openReviewByPill(wrapper);
+    const command = wrapper.get(".review-card__command");
+    expect(command.attributes("title")).toContain("my-container");
+    expect(command.text()).toContain("my-container");
   });
 
   it("opens param overlay with Enter when command requires args and executes after submit", async () => {
@@ -178,7 +205,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
 
     expect(wrapper.find(".param-overlay").exists()).toBe(false);
-    expect(wrapper.get(".staging-chip__count").text()).toBe("0");
+    expectQueueCount(wrapper, 0);
   });
 
   it("keeps param overlay open when required arg is empty", async () => {
@@ -200,15 +227,16 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
+    expect(wrapper.find(".review-overlay").exists()).toBe(true);
     expect(wrapper.findAll(".staging-card--active").length).toBe(1);
 
     dispatchWindowKeydown("Delete");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("0");
+    expectQueueCount(wrapper, 0);
   });
 
   it("does not remove staging item on Delete when typing in staging input", async () => {
@@ -220,7 +248,7 @@ describe("App UI hotkeys regression", () => {
     await wrapper.get("#param-input-container").setValue("typing-guard");
     await wrapper.get(".param-dialog").trigger("submit");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
@@ -230,7 +258,7 @@ describe("App UI hotkeys regression", () => {
     dispatchElementKeydown(stagingInput, "Delete");
     await waitForUi();
 
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
   });
 
   it("clears staging queue with Ctrl+Backspace", async () => {
@@ -239,11 +267,11 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
+    expectQueueCount(wrapper, 1);
 
     dispatchWindowKeydown("Backspace", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("0");
+    expectQueueCount(wrapper, 0);
   });
 
   it("executes queue with Ctrl+Enter and keeps staged commands when execution is blocked", async () => {
@@ -256,12 +284,12 @@ describe("App UI hotkeys regression", () => {
     await focusSearchAndType(wrapper, "git");
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("2");
+    expectQueueCount(wrapper, 2);
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("2");
+    expectQueueCount(wrapper, 2);
   });
 
   it("reorders staging items with Alt+ArrowDown", async () => {
@@ -367,20 +395,25 @@ describe("App UI hotkeys regression", () => {
     await focusSearchAndType(wrapper, "git");
     expect(wrapper.findAll(".result-item").length).toBeGreaterThan(0);
 
-    const panel = wrapper.get(".staging-panel");
-    expect(panel.classes().join(" ")).toMatch(/staging-panel--(opening|open)/);
+    dispatchWindowKeydown("Tab");
+    await waitForUi();
+
+    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
 
     const input = wrapper.get("#zapcmd-search-input").element as HTMLInputElement;
     expect(input.value).toBe("");
-    expect(panel.classes().join(" ")).toMatch(/staging-panel--(opening|open)/);
+    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
 
-    expect(panel.classes().join(" ")).toMatch(/staging-panel--(closing|closed)/);
+    const overlay = wrapper.find(".review-overlay");
+    expect(
+      !overlay.exists() || overlay.classes().join(" ").match(/review-overlay--(closing|closed)/)
+    ).toBeTruthy();
   });
 
   it("closes param overlay on Escape", async () => {
@@ -415,12 +448,18 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
 
-    const panel = wrapper.get(".staging-panel");
-    expect(panel.classes().join(" ")).toMatch(/staging-panel--(opening|open)/);
+    dispatchWindowKeydown("Tab");
+    await waitForUi();
+
+    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
-    expect(panel.classes().join(" ")).toMatch(/staging-panel--(closing|closed)/);
+
+    const overlay = wrapper.find(".review-overlay");
+    expect(
+      !overlay.exists() || overlay.classes().join(" ").match(/review-overlay--(closing|closed)/)
+    ).toBeTruthy();
   });
 
   it("closes safety confirmation dialog on Escape", async () => {
@@ -464,8 +503,9 @@ describe("App UI hotkeys regression", () => {
     await wrapper.get("#param-input-port").setValue("443");
     await wrapper.get(".param-dialog").trigger("submit");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
-    expect(wrapper.get(".staging-card code").text()).toContain("443");
+    expectQueueCount(wrapper, 1);
+    await openReviewByPill(wrapper);
+    expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -474,8 +514,8 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("Escape");
     await waitForUi();
     expect(wrapper.find(".safety-overlay").exists()).toBe(false);
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
-    expect(wrapper.get(".staging-card code").text()).toContain("443");
+    expectQueueCount(wrapper, 1);
+    expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
     expect(
       (wrapper.get(".staging-card__arg input").element as HTMLInputElement).value,
     ).toBe("443");
@@ -490,8 +530,9 @@ describe("App UI hotkeys regression", () => {
     await wrapper.get("#param-input-port").setValue("443");
     await wrapper.get(".param-dialog").trigger("submit");
     await waitForUi();
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
-    expect(wrapper.get(".staging-card code").text()).toContain("443");
+    expectQueueCount(wrapper, 1);
+    await openReviewByPill(wrapper);
+    expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -500,8 +541,8 @@ describe("App UI hotkeys regression", () => {
     await wrapper.get(".safety-overlay").trigger("click");
     await waitForUi();
     expect(wrapper.find(".safety-overlay").exists()).toBe(false);
-    expect(wrapper.get(".staging-chip__count").text()).toBe("1");
-    expect(wrapper.get(".staging-card code").text()).toContain("443");
+    expectQueueCount(wrapper, 1);
+    expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
     expect(
       (wrapper.get(".staging-card__arg input").element as HTMLInputElement).value,
     ).toBe("443");
