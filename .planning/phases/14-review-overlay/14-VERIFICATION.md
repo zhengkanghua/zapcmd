@@ -9,6 +9,7 @@ key_link_score: 4/4
 requirements: [SHELL-01, SHELL-02, SHELL-03, SIZE-02, REV-01, REV-02, REV-03, VIS-03]
 human_verification_needed: false
 verifier: Codex (main context)
+phase14-correction: "Post-review UI alignment (2026-03-09): background lock moved from `.search-main` to `.result-drawer`, search input/pill are clickable to close/toggle Review, and focus returns to search input when Review closes."
 ---
 
 # Phase 14: Review Overlay 结构接入 — Verification Report
@@ -16,6 +17,12 @@ verifier: Codex (main context)
 **Phase Goal:** 将“常驻并列 staging 右栏”改为 B4 Review overlay，并建立背景锁定与更宽的 Review 阅读面板。  
 **Verified:** 2026-03-09T14:42:45.1258765+08:00  
 **Status:** passed
+
+## Phase 14 Correction Note (post-review alignment)
+
+- 本报告保留 2026-03-09T14:42 的验证轨迹；其中“Search 区 inert/aria-hidden”实现细节已在同日 UI 对齐中更正为：仅锁定结果抽屉（`.result-drawer`）。
+- Review 展开时：搜索框/队列 pill 保持可点击；点击搜索框等同点击 scrim 关闭 Review；点击 pill 继续切换；关闭后焦点回到搜索框。
+- 代码证据：`src/components/launcher/parts/LauncherSearchPanel.vue`、`src/composables/launcher/useStagingQueue/drawer.ts`、`src/__tests__/app.hotkeys.test.ts`。
 
 ## Observable Truths
 

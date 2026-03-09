@@ -49,6 +49,7 @@ export function createDrawerActions<T extends StagedCommandLike>(deps: {
     stagingStateTimer = setTimeout(() => {
       if (stagingDrawerState.value === "closing") {
         setStagingDrawerState("closed");
+        options.scheduleSearchInputFocus(false);
       }
       stagingStateTimer = null;
     }, options.transitionMs);

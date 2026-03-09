@@ -14,20 +14,29 @@ const emit = defineEmits<{
   (e: "toggle-staging"): void;
 }>();
 
+function onSearchFormPointerDown(event: PointerEvent): void {
+  if (!props.reviewOpen) {
+    return;
+  }
+
+  const target = event.target instanceof Element ? event.target : null;
+  if (target?.closest(".queue-summary-pill")) {
+    return;
+  }
+
+  event.preventDefault();
+  emit("toggle-staging");
+}
+
 function onSearchInput(event: Event): void {
   emit("query-input", (event.target as HTMLInputElement).value);
 }
 </script>
 
 <template>
-  <section
-    class="search-main"
-    data-hit-zone="interactive"
-    :inert="props.reviewOpen ? true : undefined"
-    :aria-hidden="props.reviewOpen ? 'true' : undefined"
-  >
+  <section class="search-main" data-hit-zone="interactive">
     <section class="search-capsule" aria-label="search-capsule">
-      <form class="search-form" @submit.prevent>
+      <form class="search-form" @submit.prevent @pointerdown.capture="onSearchFormPointerDown">
         <label class="search-label" for="zapcmd-search-input">{{ t("common.search") }}</label>
         <input
           id="zapcmd-search-input"
@@ -62,6 +71,8 @@ function onSearchInput(event: Event): void {
       v-if="props.drawerOpen"
       :ref="props.setDrawerRef"
       class="result-drawer"
+      :inert="props.reviewOpen ? true : undefined"
+      :aria-hidden="props.reviewOpen ? 'true' : undefined"
       :style="{ maxHeight: `${props.drawerViewportHeight}px` }"
       aria-label="result-drawer"
       data-testid="result-drawer"

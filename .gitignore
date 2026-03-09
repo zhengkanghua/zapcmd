@@ -9,6 +9,7 @@
 # .claude/
 # .codex/
 .npm-cache/
+docs/bug_img/
 
 # OS junk
 .DS_Store

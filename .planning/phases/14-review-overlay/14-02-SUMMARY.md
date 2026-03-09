@@ -27,6 +27,7 @@ key-decisions:
 patterns-established:
   - Review 内默认只展示命令摘要（`summarizeCommandForFeedback`），完整命令通过 `title` 与复制入口获取
 requirements-completed: [SHELL-02, SHELL-03, SIZE-02, REV-02, REV-03]
+phase14-correction: "Post-review UI alignment (2026-03-09): background lock moved from `.search-main` to `.result-drawer`, search input/pill are clickable to close/toggle Review, and focus returns to search input when Review closes."
 duration: 9min
 completed: 2026-03-09
 ---
@@ -34,6 +35,11 @@ completed: 2026-03-09
 # Phase 14 Plan 02: Review overlay + 背景锁定 + 队列审阅 Summary
 
 **把旧 staging 右栏迁移为 B4 Review overlay：scrim 锁背景、拖拽区不被吞、队列列表内部滚动，并提供长命令摘要与复制入口。**
+
+## Phase 14 Correction Note (post-review alignment)
+
+- 本 Summary 保留 2026-03-09 的原始执行记录；其背景锁定的 inert/aria-hidden 绑定点已在同日 UI 对齐中更正为：仅锁定结果抽屉（`.result-drawer`），不再整段禁用搜索区。
+- Review 展开时允许点击搜索框/队列 pill 触发关闭/切换；关闭后焦点回到搜索框。相关变更见 `src/components/launcher/parts/LauncherSearchPanel.vue` 与 `src/composables/launcher/useStagingQueue/drawer.ts`。
 
 ## Performance
 - **Duration:** 9 min
@@ -65,4 +71,3 @@ completed: 2026-03-09
 
 ## Next Phase Readiness
 - Review overlay 结构与背景锁定已具备；Plan 14-03 需要把回归测试从旧 staging 迁移到 overlay（并确保 `npm run check:all` 全绿）。
-

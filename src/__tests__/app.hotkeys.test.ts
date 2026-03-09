@@ -161,9 +161,10 @@ describe("App UI hotkeys regression", () => {
     expectQueueCount(wrapper, 1);
     expect(wrapper.find(".review-overlay").exists()).toBe(false);
 
+    await focusSearchAndType(wrapper, "docker");
     await openReviewByPill(wrapper);
-    expect(wrapper.get(".search-main").attributes("inert")).not.toBeUndefined();
-    expect(wrapper.get(".search-main").attributes("aria-hidden")).toBe("true");
+    expect(wrapper.get(".result-drawer").attributes("inert")).not.toBeUndefined();
+    expect(wrapper.get(".result-drawer").attributes("aria-hidden")).toBe("true");
     expect(wrapper.findAll(".staging-card").length).toBe(1);
   });
 

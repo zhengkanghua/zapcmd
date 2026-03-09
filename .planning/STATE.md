@@ -72,7 +72,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 - Windows desktop smoke 继续作为唯一 blocking desktop gate；macOS 仅保留 experimental / non-blocking probe。
 - 历史 evidence 一律采用 correction note 更正，而不是覆盖执行事实。
 - [Phase 14]: 回归测试以 pill 显式打开 Review，避免写死旧 staging 的自动打开语义
-- [Phase 14]: SearchPanel 的 inert 使用布尔绑定以满足 vue-tsc Booleanish 类型约束，并保留 aria-hidden 作为背景锁定信号
+- [Phase 14]: SearchPanel 对结果抽屉的 inert 使用布尔绑定以满足 vue-tsc Booleanish 类型约束，并保留 aria-hidden 作为背景锁定信号
 
 ### Roadmap Evolution
 

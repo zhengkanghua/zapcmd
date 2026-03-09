@@ -32,6 +32,7 @@ key-decisions:
 patterns-established:
   - App 回归统一抽象 `read/expectQueueCount + openReviewByPill`，减少选择器与交互路径分散
 requirements-completed: [SHELL-01, SHELL-02, SHELL-03, SIZE-02, REV-01, REV-02, REV-03, VIS-03]
+phase14-correction: "Post-review UI alignment (2026-03-09): background lock moved from `.search-main` to `.result-drawer`, search input/pill are clickable to close/toggle Review, focus returns to search input on close, and regression assertions follow this correction."
 duration: 16min
 completed: 2026-03-09
 ---
@@ -39,6 +40,11 @@ completed: 2026-03-09
 # Phase 14 Plan 03: 回归测试迁移 Summary
 
 **补齐并迁移自动化回归到 B4 Review overlay：App 级关键路径对齐 pill+overlay，新增组件语义回归，且 `npm run check:all` 全绿。**
+
+## Phase 14 Correction Note (post-review alignment)
+
+- 本 Summary 保留 2026-03-09 的原始执行记录；其中“背景锁定 = SearchPanel inert/aria-hidden”的绑定点已在同日 UI 对齐中更正为：锁定 `.result-drawer`，并允许搜索框/队列 pill 作为关闭/切换入口。
+- 相应回归断言已迁移为 `.result-drawer` inert/aria-hidden，并在关闭 Review 后校验焦点回到 `#zapcmd-search-input` 的行为（见 `src/__tests__/app.hotkeys.test.ts`）。
 
 ## Performance
 - **Duration:** 16 min
