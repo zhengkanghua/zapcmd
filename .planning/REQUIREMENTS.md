@@ -7,7 +7,7 @@
 
 ### Shell / Layers
 
-- [ ] **SHELL-01**: 用户打开 launcher 主窗口时只看到单焦点搜索态（不再存在常驻并列的右侧 staging 工作区）
+- [x] **SHELL-01**: 用户打开 launcher 主窗口时只看到单焦点搜索态（不再存在常驻并列的右侧 staging 工作区）
 - [ ] **SHELL-02**: 用户打开 Review overlay 后仍能看到搜索上下文，但背景不可交互（不可点击、不可滚动、不可获得焦点）
 - [ ] **SHELL-03**: 顶部拖拽区在 Search/Review 状态都可用，且不会被遮罩/overlay 吞掉
 
@@ -20,7 +20,7 @@
 
 ### Review Overlay（Queue/Review）
 
-- [ ] **REV-01**: 用户可以通过 queue summary pill（如 `3 queued`）或等价入口进入 Review overlay
+- [x] **REV-01**: 用户可以通过 queue summary pill（如 `3 queued`）或等价入口进入 Review overlay
 - [ ] **REV-02**: 用户在 Review 中可以浏览队列项，且长命令以“可读摘要”呈现（不在主列表铺完整长命令）
 - [ ] **REV-03**: 用户在 Review 中可以删除队列项、调整顺序，并能触发队列执行/清空（复用现有队列能力）
 
@@ -36,7 +36,7 @@
 
 - [ ] **VIS-01**: 主窗口采用新的颜色令牌：品牌色与成功色彻底分离，且绿色不再作为品牌主色
 - [ ] **VIS-02**: 主窗口透明度与背景噪音降低，整体观感符合“专业桌面工具面板”气质（符合 `docs/ui-redesign/04`/`11` 基线）
-- [ ] **VIS-03**: Review overlay 宽度提升到可读范围（约 `420px ~ 480px`），长命令在 Review 中不再明显拥挤
+- [x] **VIS-03**: Review overlay 宽度提升到可读范围（约 `420px ~ 480px`），长命令在 Review 中不再明显拥挤
 
 ### Regression / Verification
 
@@ -74,14 +74,14 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SHELL-01 | Phase 14 | Pending |
+| SHELL-01 | Phase 14 | Complete |
 | SHELL-02 | Phase 14 | Pending |
 | SHELL-03 | Phase 14 | Pending |
 | SIZE-01 | Phase 13 | Complete |
 | SIZE-02 | Phase 14 | Pending |
 | SIZE-03 | Phase 16 | Pending |
 | SIZE-04 | Phase 13 | Complete |
-| REV-01 | Phase 14 | Pending |
+| REV-01 | Phase 14 | Complete |
 | REV-02 | Phase 14 | Pending |
 | REV-03 | Phase 14 | Pending |
 | KEY-01 | Phase 15 | Pending |
@@ -91,7 +91,7 @@
 | KEY-05 | Phase 15 | Pending |
 | VIS-01 | Phase 16 | Pending |
 | VIS-02 | Phase 16 | Pending |
-| VIS-03 | Phase 14 | Pending |
+| VIS-03 | Phase 14 | Complete |
 | TST-01 | Phase 15 | Pending |
 | TST-02 | Phase 13 | Complete |
 

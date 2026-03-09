@@ -55,6 +55,13 @@ Plans:
 
 **Requirements:** `SHELL-01` `SHELL-02` `SHELL-03` `SIZE-02` `REV-01` `REV-02` `REV-03` `VIS-03`
 
+**Plans:** 1/3 plans executed
+
+Plans:
+- [ ] 14-01-PLAN.md — 壳层单焦点化 + pill 入口 + Review 宽度口径（2/3 clamp 420–480）+ 禁止入队自动打开
+- [ ] 14-02-PLAN.md — 背景锁定 + dim/scrim（不遮 drag strip）+ Review 内部滚动/摘要/复制 + 队列能力不回归
+- [ ] 14-03-PLAN.md — 回归测试同步：layout/sizing/hit-zones + App UI hotkeys/core-path/failure-events + 新增组件测试
+
 **Success criteria:**
 1. 搜索态为单焦点主舞台（不再存在常驻并列 staging 工作区），队列非空时以 queue summary pill 作为进入 Review 的主入口之一。
 2. Review 打开后背景可见但不可交互（不可点击/滚动/聚焦），当前唯一可交互层为 Review。

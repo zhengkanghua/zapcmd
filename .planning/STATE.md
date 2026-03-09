@@ -4,19 +4,18 @@ milestone: v2.0
 milestone_name: 主窗口 B4 UI 重构
 current_phase: 14
 current_phase_name: Review Overlay 结构接入
-current_plan: Not started
-status: planning
-stopped_at: Phase 14 context gathered
-last_updated: "2026-03-08T06:42:46.035Z"
-last_activity: 2026-03-08
+current_plan: 2
+status: executing
+stopped_at: Completed 14-01-PLAN.md
+last_updated: "2026-03-09T04:40:25.988Z"
+last_activity: 2026-03-09
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 100
+  completed_phases: 13
+  total_plans: 41
+  completed_plans: 39
+  percent: 95
 ---
-
 
 # Project State
 
@@ -32,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 **Current Phase:** 14
 **Current Phase Name:** Review Overlay 结构接入
 **Total Phases:** 4  
-**Current Plan:** Not started
-**Total Plans in Phase:** 0
-**Status:** Ready to plan Phase 14
-**Last Activity:** 2026-03-08
-**Last Activity Description:** Completed Phase 13 (floor height + sizing 口径 + 回归底座); next step is planning Phase 14
+**Current Plan:** 2
+**Total Plans in Phase:** 3
+**Status:** Ready to execute
+**Last Activity:** 2026-03-09
+**Last Activity Description:** Phase 14-01 已完成（单焦点搜索态 + pill 入口 + Review 宽度口径）；下一步执行 14-02（Review overlay 结构接入）
 
-**Progress:** [██████████] 100%
+**Progress:** [██████████] 95%
 
 ## Performance Metrics
 
@@ -61,6 +60,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 | Phase 11 P01 | 4min | 2 tasks | 2 files |
 | Phase 11 P02 | 7min | 2 tasks | 5 files |
 | Phase 11 P03 | 6min | 2 tasks | 6 files |
+| Phase 14 P01 | 13min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -77,15 +77,14 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 
 ### Pending Todos
 
-- `$gsd-plan-phase 14`：生成 Phase 14 的执行计划（Review overlay 结构接入）。
-- （可选）`$gsd-discuss-phase 14`：先补齐 Phase 14 的交互与验收口径，再进入计划生成。
+- `$gsd-execute-phase 14`：继续执行 14-02/14-03，并最终跑 `npm run check:all` 全门禁回归。
+- （可选）`$gsd-verify-work 14`：按验收矩阵补齐手动验证（scrim 关闭、背景锁定、drag strip 命中等）。
 
 ### Blockers/Concerns
 
 - 当前无阻断 blocker；重点风险集中在“窗口 resize 稳定性 + 焦点/热键契约收敛 + 回归同步更新”。
 ## Session
 
-**Last Date:** 2026-03-08T06:42:46.035Z
-**Stopped At:** Phase 14 context gathered
-**Resume File:** .planning/phases/14-review-overlay/14-CONTEXT.md
-
+**Last Date:** 2026-03-09T04:36:58.955Z
+**Stopped At:** Completed 14-01-PLAN.md
+**Resume File:** None
