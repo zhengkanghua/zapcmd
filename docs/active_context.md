@@ -113,3 +113,6 @@
 ## 补充（2026-03-09｜Phase 14 UI 对齐）
 - 队列 pill 移入搜索框右侧同排；Review overlay 的遮罩从搜索框下方覆盖结果抽屉区域（仅暗结果区）。
 - Review 展开时：结果抽屉 inert/aria-hidden 锁定；点击搜索框关闭 Review，队列 pill 可切换；关闭后焦点回到搜索框。
+
+## 补充（2026-03-09｜Phase 15 计划完成）
+- 已生成 Phase 15 的 3 个执行计划（15-01/02/03）：热键语义、Esc 分层后退、Review 初始焦点/Tab focus trap、P0 自动化回归更新。下一步：`$gsd-execute-phase 15`。
