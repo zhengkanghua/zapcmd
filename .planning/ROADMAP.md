@@ -7,14 +7,14 @@
 
 ## Next
 
-- ▶ **Phase 14: Review Overlay 结构接入** — overlay 结构 + 背景锁定 + 更宽的 Review 阅读面板
+- ▶ **Phase 15: 键盘 / 焦点 / 关闭语义收口** — toggleQueue/switchFocus/Esc/Tab 收口 + P0 自动化回归
 
 ## Progress
 
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 质量门禁与回归基线 | 1-12 | 35 | Complete | 2026-03-06 |
-| v2.0 主窗口 B4 UI 重构 | 13-16 | 3 | Phase 13 complete | - |
+| v2.0 主窗口 B4 UI 重构 | 13-16 | 6 | Phase 14 complete | - |
 
 ---
 
@@ -55,12 +55,12 @@ Plans:
 
 **Requirements:** `SHELL-01` `SHELL-02` `SHELL-03` `SIZE-02` `REV-01` `REV-02` `REV-03` `VIS-03`
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 14-01-PLAN.md — 壳层单焦点化 + pill 入口 + Review 宽度口径（2/3 clamp 420–480）+ 禁止入队自动打开
-- [ ] 14-02-PLAN.md — 背景锁定 + dim/scrim（不遮 drag strip）+ Review 内部滚动/摘要/复制 + 队列能力不回归
-- [ ] 14-03-PLAN.md — 回归测试同步：layout/sizing/hit-zones + App UI hotkeys/core-path/failure-events + 新增组件测试
+- [x] 14-01-PLAN.md — 壳层单焦点化 + pill 入口 + Review 宽度口径（2/3 clamp 420–480）+ 禁止入队自动打开
+- [x] 14-02-PLAN.md — 背景锁定 + dim/scrim（不遮 drag strip）+ Review 内部滚动/摘要/复制 + 队列能力不回归
+- [x] 14-03-PLAN.md — 回归测试同步：layout/sizing/hit-zones + App UI hotkeys/core-path/failure-events + 新增组件测试
 
 **Success criteria:**
 1. 搜索态为单焦点主舞台（不再存在常驻并列 staging 工作区），队列非空时以 queue summary pill 作为进入 Review 的主入口之一。

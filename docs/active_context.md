@@ -106,3 +106,6 @@
 
 ## 补充（2026-03-09｜Phase 14 执行进展）
 - 已完成 14-01：搜索态单列 + 队列 pill 入口；入队/会话恢复不再自动打开 Review；Review 宽度口径 `2/3 + clamp(420~480)` 通过 CSS 变量集中管理。
+
+## 补充（2026-03-09｜Phase 14-03 回归迁移）
+- 自动化回归迁移到 pill + Review overlay；新增 Review 组件级单测；`npm run check:all` 全绿，为 Phase 15 键盘/焦点收口提供稳定基线。

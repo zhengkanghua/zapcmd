@@ -4,10 +4,10 @@ milestone: v2.0
 milestone_name: 主窗口 B4 UI 重构
 current_phase: 14
 current_phase_name: Review Overlay 结构接入
-current_plan: 3
-status: verifying
-stopped_at: Completed 14-02-PLAN.md
-last_updated: "2026-03-09T06:33:24.356Z"
+current_plan: Not started
+status: completed
+stopped_at: Completed 14-03-PLAN.md
+last_updated: "2026-03-09T06:44:54.489Z"
 last_activity: 2026-03-09
 progress:
   total_phases: 4
@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 13 已完成，准备规划 Phase 14（Review overlay 结构接入）。
+**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 14 已完成（Review overlay + 回归基线）；下一步规划 Phase 15（键盘/焦点/关闭语义收口）。
 
 ## Current Position
 
@@ -35,7 +35,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 **Total Plans in Phase:** 3
 **Status:** Phase complete — ready for verification
 **Last Activity:** 2026-03-09
-**Last Activity Description:** Phase 14-01 已完成（单焦点搜索态 + pill 入口 + Review 宽度口径）；下一步执行 14-02（Review overlay 结构接入）
+**Last Activity Description:** Phase 14-03 已完成：回归测试迁移到 pill + Review overlay，新增组件回归，并通过 `npm run check:all` 全门禁
 
 **Progress:** [██████████] 100%
 
@@ -71,6 +71,8 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 - `check:all` + coverage 90% 已作为统一质量门禁固化。
 - Windows desktop smoke 继续作为唯一 blocking desktop gate；macOS 仅保留 experimental / non-blocking probe。
 - 历史 evidence 一律采用 correction note 更正，而不是覆盖执行事实。
+- [Phase 14]: 回归测试以 pill 显式打开 Review，避免写死旧 staging 的自动打开语义
+- [Phase 14]: SearchPanel 的 inert 使用布尔绑定以满足 vue-tsc Booleanish 类型约束，并保留 aria-hidden 作为背景锁定信号
 
 ### Roadmap Evolution
 
@@ -79,7 +81,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 
 ### Pending Todos
 
-- `$gsd-execute-phase 14`：继续执行 14-02/14-03，并最终跑 `npm run check:all` 全门禁回归。
+- `$gsd-plan-phase 15`：键盘/焦点/关闭语义收口（toggleQueue/switchFocus/Esc/Tab）+ P0 自动化回归。
 - （可选）`$gsd-verify-work 14`：按验收矩阵补齐手动验证（scrim 关闭、背景锁定、drag strip 命中等）。
 
 ### Blockers/Concerns
@@ -87,6 +89,6 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 - 当前无阻断 blocker；重点风险集中在“窗口 resize 稳定性 + 焦点/热键契约收敛 + 回归同步更新”。
 ## Session
 
-**Last Date:** 2026-03-09T05:09:00.614Z
-**Stopped At:** Completed 14-02-PLAN.md
+**Last Date:** 2026-03-09T06:34:16.198Z
+**Stopped At:** Completed 14-03-PLAN.md
 **Resume File:** None
