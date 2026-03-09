@@ -23,7 +23,7 @@ function onSearchInput(event: Event): void {
   <section
     class="search-main"
     data-hit-zone="interactive"
-    :inert="props.reviewOpen ? '' : undefined"
+    :inert="props.reviewOpen ? true : undefined"
     :aria-hidden="props.reviewOpen ? 'true' : undefined"
   >
     <section class="search-capsule" aria-label="search-capsule">

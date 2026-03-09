@@ -108,8 +108,7 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
     });
 
     expect(wrapper.find(".review-overlay").exists()).toBe(true);
-    expect(wrapper.get(".review-panel__empty").exists()).toBe(true);
+    expect(wrapper.find(".review-panel__empty").exists()).toBe(true);
     expect(wrapper.emitted("toggle-staging")).toBeUndefined();
   });
 });
-

@@ -61,7 +61,7 @@ describe("useLauncherSessionState", () => {
     window.localStorage.removeItem(LAUNCHER_SESSION_STORAGE_KEY);
   });
 
-  it("restores queue snapshot and drawer state from storage", () => {
+  it("restores queue snapshot but does not auto-open review drawer", () => {
     const snapshot = JSON.stringify({
       version: 1,
       stagingExpanded: true,
@@ -69,19 +69,21 @@ describe("useLauncherSessionState", () => {
     });
     const storage = createStorage(snapshot);
     const stagedCommands = ref<StagedCommand[]>([]);
+    const stagingExpanded = ref(false);
     const openStagingDrawer = vi.fn();
 
     useLauncherSessionState({
       enabled: ref(true),
       stagedCommands,
-      stagingExpanded: ref(false),
+      stagingExpanded,
       openStagingDrawer,
       storage
     });
 
     expect(stagedCommands.value).toHaveLength(1);
     expect(stagedCommands.value[0]?.id).toBe("restored");
-    expect(openStagingDrawer).toHaveBeenCalledTimes(1);
+    expect(stagingExpanded.value).toBe(false);
+    expect(openStagingDrawer).not.toHaveBeenCalled();
   });
 
   it("clears snapshot when version is mismatched", () => {

@@ -33,6 +33,7 @@ function createProps(
     activeIndex: 0,
     stagedFeedbackCommandId: null,
     stagedCommandCount: 0,
+    reviewOpen: false,
     setSearchInputRef: () => {},
     setDrawerRef: () => {},
     setResultButtonRef: () => {},

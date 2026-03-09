@@ -95,7 +95,7 @@ describe("useCommandExecution", () => {
 
     expect(harness.stagedCommands.value).toHaveLength(1);
     expect(harness.stagedCommands.value[0]?.renderedCommand).toBe("ls -la");
-    expect(harness.openStagingDrawer).toHaveBeenCalledTimes(1);
+    expect(harness.openStagingDrawer).not.toHaveBeenCalled();
     expect(harness.clearSearchQueryAndSelection).toHaveBeenCalledTimes(1);
     expect(harness.triggerStagedFeedback).toHaveBeenCalledWith("list-dir");
   });
