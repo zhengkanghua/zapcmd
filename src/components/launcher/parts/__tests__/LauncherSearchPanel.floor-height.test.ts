@@ -32,6 +32,7 @@ function createProps(
     filteredResults: [],
     activeIndex: 0,
     stagedFeedbackCommandId: null,
+    stagedCommandCount: 0,
     setSearchInputRef: () => {},
     setDrawerRef: () => {},
     setResultButtonRef: () => {},
@@ -100,4 +101,3 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
   });
 });
-
