@@ -14,7 +14,21 @@ function switchFocusWithStagingOpen<TItem>(main: MainHandlers<TItem>): void {
   if (!main.stagingExpanded.value) {
     main.openStagingDrawer();
   }
-  main.switchFocusZone();
+  if (main.focusZone.value === "search") {
+    main.switchFocusZone();
+    return;
+  }
+
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+  if (main.stagedCommands.value.length > 0) {
+    main.stagingActiveIndex.value = Math.min(
+      Math.max(0, main.stagingActiveIndex.value),
+      main.stagedCommands.value.length - 1
+    );
+    main.queuePostUpdate(() => main.ensureActiveStagingVisible());
+  }
 }
 
 export function handleMainGlobalHotkeys<TItem>(
@@ -32,6 +46,9 @@ export function handleMainGlobalHotkeys<TItem>(
     return true;
   }
   if (hotkeyMatches(event, main.normalizedToggleQueueHotkey.value)) {
+    if (main.stagingExpanded.value && main.normalizedToggleQueueHotkey.value === "Tab") {
+      return false;
+    }
     event.preventDefault();
     main.toggleStaging();
     return true;
