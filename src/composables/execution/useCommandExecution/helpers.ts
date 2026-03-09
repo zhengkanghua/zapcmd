@@ -184,12 +184,7 @@ export function appendToStaging(
   command: CommandTemplate,
   argValues?: Record<string, string>
 ): void {
-  const wasEmpty = options.stagedCommands.value.length === 0;
   options.stagedCommands.value.push(buildStagedCommand(command, argValues));
-
-  if (wasEmpty) {
-    options.openStagingDrawer();
-  }
   options.clearSearchQueryAndSelection();
   options.triggerStagedFeedback(command.id);
 

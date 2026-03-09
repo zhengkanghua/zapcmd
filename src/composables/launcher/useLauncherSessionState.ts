@@ -199,9 +199,6 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
     const restored = readLauncherSession(storage);
     if (restored && restored.stagedCommands.length > 0) {
       options.stagedCommands.value = restored.stagedCommands;
-      if (restored.stagingExpanded) {
-        options.openStagingDrawer();
-      }
     }
   }
 
