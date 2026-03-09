@@ -100,13 +100,15 @@ describe("useMainWindowShell", () => {
     expect(harness.spies.hide).not.toHaveBeenCalled();
   });
 
-  it("closes staging before hiding window", () => {
+  it("closes staging before clearing query on Escape", () => {
     const harness = createHarness();
+    harness.state.query.value = " docker ";
     harness.state.stagingExpanded.value = true;
 
     harness.shell.handleMainEscape();
 
     expect(harness.spies.closeStagingDrawer).toHaveBeenCalledTimes(1);
+    expect(harness.state.query.value).toBe(" docker ");
     expect(harness.spies.hide).not.toHaveBeenCalled();
   });
 

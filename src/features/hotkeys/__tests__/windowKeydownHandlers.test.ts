@@ -160,6 +160,18 @@ describe("windowKeydownHandlers", () => {
     expect(spies.switchFocusZone).toHaveBeenCalledTimes(1);
   });
 
+  it("does not toggle staging on Tab when Review is open and toggleQueue=Tab", () => {
+    const { handler, options, spies } = createHarness();
+    options.main.stagingExpanded.value = true;
+    options.main.normalizedToggleQueueHotkey.value = "Tab";
+    const event = new KeyboardEvent("keydown", { key: "Tab", cancelable: true });
+
+    handler(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(spies.toggleStaging).not.toHaveBeenCalled();
+  });
+
   it("moves active search result with ArrowDown", () => {
     const { handler, options, spies } = createHarness();
     options.main.focusZone.value = "search";
