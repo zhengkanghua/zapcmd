@@ -119,3 +119,6 @@
 
 ## 补充（2026-03-09｜Phase 15 执行完成待复验）
 - Phase 15 已落地：Tab/Ctrl+Tab 打开 Review、Review 内 Tab trap、Esc 先关 Review；但本容器无法跑 vitest（esbuild spawn EPERM），需本地 `npm run check:all` + 键盘 smoke（见 `.planning/phases/15-keyboard-focus-close-semantics/15-VERIFICATION.md`）。
+
+## 补充（2026-03-09｜Phase 15 门禁已通过）
+- 已在沙盒外跑通 `npm run check:all`（含回归/coverage/build/rust）；Phase 15 验证已更新为 `passed`，可推进 Phase 16（动画/视觉系统）。

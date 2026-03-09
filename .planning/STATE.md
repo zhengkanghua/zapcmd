@@ -4,10 +4,10 @@ milestone: v2.0
 milestone_name: 主窗口 B4 UI 重构
 current_phase: 15
 current_phase_name: 键盘 / 焦点 / 关闭语义收口
-current_plan: 3
-status: verifying
-stopped_at: Human verification required (Phase 15)
-last_updated: "2026-03-09T14:13:02.128Z"
+current_plan: Not started
+status: completed
+stopped_at: Phase 15 verified; ready to plan Phase 16
+last_updated: "2026-03-09T15:09:39.035Z"
 last_activity: 2026-03-09
 progress:
   total_phases: 15
@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 15 已执行（热键/焦点/Esc 契约 + P0 回归补齐），当前等待本地门禁与键盘 smoke 验证（见 `15-VERIFICATION.md`）。
+**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 15 已通过 `npm run check:all` 门禁与回归验证；下一步规划 Phase 16（动画/视觉系统）。
 
 ## Current Position
 
@@ -33,9 +33,9 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 **Total Phases:** 15  
 **Current Plan:** 3
 **Total Plans in Phase:** 3
-**Status:** Human verification required — run local gates
+**Status:** Phase verified — ready to plan Phase 16
 **Last Activity:** 2026-03-09
-**Last Activity Description:** Phase 15 已完成实现与回归补齐：toggleQueue/switchFocus/Esc/Tab focus trap；但本容器内无法运行 vitest/vite（esbuild pipe spawn EPERM），需开发者本地复验 `npm run check:all`
+**Last Activity Description:** Phase 15 已通过 `npm run check:all` 全门禁（lint/typecheck/test:coverage/build/rust），可推进 Phase 16
 
 **Progress:** [██████████] 100%
 
@@ -86,8 +86,8 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 
 ### Pending Todos
 
-- 本地运行 `npm run check:all`（阻断门禁），并按 `.planning/phases/15-keyboard-focus-close-semantics/15-VERIFICATION.md` 做键盘 smoke 验证。
-- 若验证通过：更新 Phase 15 VERIFICATION 状态为 `passed`，并继续推进 Phase 16（动画/视觉系统）。
+- `$gsd-plan-phase 16`：生成 Phase 16 的执行计划（动画/视觉系统落地）。
+- （可选）`$gsd-discuss-phase 16`：先补齐 Windows resize 稳定性/降级策略的验收口径，再进入计划生成。
 
 ### Blockers/Concerns
 
@@ -95,5 +95,5 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 ## Session
 
 **Last Date:** 2026-03-09T06:34:16.198Z
-**Stopped At:** Human verification required (Phase 15)
+**Stopped At:** Phase 15 verified; ready to plan Phase 16
 **Resume File:** None

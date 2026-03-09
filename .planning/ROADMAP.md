@@ -7,14 +7,14 @@
 
 ## Next
 
-- ▶ **Phase 15: 键盘 / 焦点 / 关闭语义收口** — toggleQueue/switchFocus/Esc/Tab 收口 + P0 自动化回归
+- ▶ **Phase 16: 动画与视觉系统落地** — 动效打磨 + 视觉系统落地 + Windows resize 稳定性与降级策略
 
 ## Progress
 
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 质量门禁与回归基线 | 1-12 | 35 | Complete | 2026-03-06 |
-| v2.0 主窗口 B4 UI 重构 | 13-16 | 6 | Phase 14 complete | - |
+| v2.0 主窗口 B4 UI 重构 | 13-16 | 6 | Phase 15 complete | - |
 
 ---
 
@@ -84,7 +84,7 @@ Plans:
 - [x] 15-02-PLAN.md — Review 初始焦点 + switchFocus 焦点落点 + Tab focus trap
 - [x] 15-03-PLAN.md — P0 回归更新：toggleQueue/switchFocus/Esc/Tab（组件+App UI）
 
-**Verification:** `.planning/phases/15-keyboard-focus-close-semantics/15-VERIFICATION.md` (`human_needed`)
+**Verification:** `.planning/phases/15-keyboard-focus-close-semantics/15-VERIFICATION.md` (`passed`)
 
 **Success criteria:**
 1. 搜索态：`toggleQueue` 打开 Review；`switchFocus` 打开 Review 并聚焦队列列表。
