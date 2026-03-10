@@ -4,6 +4,7 @@ import { useI18nText } from "../../../i18n";
 import type { LauncherSearchPanelProps } from "../types";
 import LauncherHighlightText from "./LauncherHighlightText.vue";
 import LauncherQueueSummaryPill from "./LauncherQueueSummaryPill.vue";
+import LauncherReviewOverlay from "./LauncherReviewOverlay.vue";
 
 const props = defineProps<LauncherSearchPanelProps>();
 const { t } = useI18nText();
@@ -12,6 +13,14 @@ const emit = defineEmits<{
   (e: "query-input", value: string): void;
   (e: "stage-result", command: CommandTemplate): void;
   (e: "toggle-staging"): void;
+  (e: "staging-drag-start", index: number, event: DragEvent): void;
+  (e: "staging-drag-over", index: number, event: DragEvent): void;
+  (e: "staging-drag-end"): void;
+  (e: "focus-staging-index", index: number): void;
+  (e: "remove-staged-command", id: string): void;
+  (e: "update-staged-arg", id: string, key: string, value: string): void;
+  (e: "clear-staging"): void;
+  (e: "execute-staged"): void;
 }>();
 
 function onSearchFormPointerDown(event: PointerEvent): void {
@@ -34,7 +43,11 @@ function onSearchInput(event: Event): void {
 </script>
 
 <template>
-  <section class="search-main" data-hit-zone="interactive">
+  <section
+    class="search-main"
+    data-hit-zone="interactive"
+    :style="props.reviewOpen ? { gridColumn: '1 / -1' } : undefined"
+  >
     <section class="search-capsule" aria-label="search-capsule">
       <form class="search-form" @submit.prevent @pointerdown.capture="onSearchFormPointerDown">
         <label class="search-label" for="zapcmd-search-input">{{ t("common.search") }}</label>
@@ -67,69 +80,97 @@ function onSearchInput(event: Event): void {
       </p>
     </section>
 
-    <section
-      v-if="props.drawerOpen"
-      :ref="props.setDrawerRef"
-      class="result-drawer"
-      :inert="props.reviewOpen ? true : undefined"
-      :aria-hidden="props.reviewOpen ? 'true' : undefined"
-      :style="{ maxHeight: `${props.drawerViewportHeight}px` }"
-      aria-label="result-drawer"
-      data-testid="result-drawer"
-    >
-      <p class="keyboard-hint">{{ props.keyboardHintText }}</p>
-      <ul v-if="props.filteredResults.length > 0" class="result-list">
-        <li v-for="(item, index) in props.filteredResults" :key="item.id">
-          <button
-            class="result-item"
-            type="button"
-            :class="{
-              'result-item--active': index === props.activeIndex,
-              'result-item--staged-feedback': item.id === props.stagedFeedbackCommandId
-            }"
-            :ref="(el) => props.setResultButtonRef(el, index)"
-            @click="emit('stage-result', item)"
-          >
-            <span class="result-item__content">
-              <span class="result-item__meaning">
-                <LauncherHighlightText :text="item.description" :query="props.query" />
+    <section style="position: relative">
+      <section
+        v-if="props.drawerOpen"
+        :ref="props.setDrawerRef"
+        class="result-drawer"
+        :inert="props.reviewOpen ? true : undefined"
+        :aria-hidden="props.reviewOpen ? 'true' : undefined"
+        :style="{ maxHeight: `${props.drawerViewportHeight}px` }"
+        aria-label="result-drawer"
+        data-testid="result-drawer"
+      >
+        <p class="keyboard-hint">{{ props.keyboardHintText }}</p>
+        <ul v-if="props.filteredResults.length > 0" class="result-list">
+          <li v-for="(item, index) in props.filteredResults" :key="item.id">
+            <button
+              class="result-item"
+              type="button"
+              :class="{
+                'result-item--active': index === props.activeIndex,
+                'result-item--staged-feedback': item.id === props.stagedFeedbackCommandId
+              }"
+              :ref="(el) => props.setResultButtonRef(el, index)"
+              @click="emit('stage-result', item)"
+            >
+              <span class="result-item__content">
+                <span class="result-item__meaning">
+                  <LauncherHighlightText :text="item.description" :query="props.query" />
+                </span>
+                <code class="result-item__command" :title="item.preview">
+                  <LauncherHighlightText :text="item.preview" :query="props.query" />
+                </code>
               </span>
-              <code class="result-item__command" :title="item.preview">
-                <LauncherHighlightText :text="item.preview" :query="props.query" />
-              </code>
-            </span>
-            <span class="result-item__meta">
-              <span class="result-item__folder">
-                <LauncherHighlightText :text="item.folder" :query="props.query" />
+              <span class="result-item__meta">
+                <span class="result-item__folder">
+                  <LauncherHighlightText :text="item.folder" :query="props.query" />
+                </span>
+                <span class="result-item__category">
+                  #
+                  <LauncherHighlightText :text="item.category" :query="props.query" />
+                </span>
               </span>
-              <span class="result-item__category">
-                #
-                <LauncherHighlightText :text="item.category" :query="props.query" />
-              </span>
-            </span>
-          </button>
-        </li>
-      </ul>
-      <p v-else class="drawer-empty">
-        <span class="drawer-empty__title">{{ t("launcher.noResult") }}</span>
-        <span class="drawer-empty__hint">{{ t("launcher.noResultHint") }}</span>
-      </p>
-      <div
-        v-if="props.drawerFillerHeight > 0"
-        class="result-drawer__filler"
-        :style="{ height: `${props.drawerFillerHeight}px` }"
-        aria-hidden="true"
-      ></div>
-    </section>
+            </button>
+          </li>
+        </ul>
+        <p v-else class="drawer-empty">
+          <span class="drawer-empty__title">{{ t("launcher.noResult") }}</span>
+          <span class="drawer-empty__hint">{{ t("launcher.noResultHint") }}</span>
+        </p>
+        <div
+          v-if="props.drawerFillerHeight > 0"
+          class="result-drawer__filler"
+          :style="{ height: `${props.drawerFillerHeight}px` }"
+          aria-hidden="true"
+        ></div>
+      </section>
 
-    <section
-      v-else-if="props.reviewOpen && props.drawerFloorViewportHeight > 0"
-      class="result-drawer"
-      inert
-      aria-hidden="true"
-      :style="{ height: `${props.drawerFloorViewportHeight}px` }"
-      aria-label="result-drawer-floor"
-      data-testid="result-drawer-floor"
-    ></section>
+      <section
+        v-else-if="props.reviewOpen && props.drawerFloorViewportHeight > 0"
+        class="result-drawer"
+        inert
+        aria-hidden="true"
+        :style="{ height: `${props.drawerFloorViewportHeight}px` }"
+        aria-label="result-drawer-floor"
+        data-testid="result-drawer-floor"
+      ></section>
+
+      <LauncherReviewOverlay
+        v-if="props.reviewOpen"
+        :style="{ top: 0, bottom: 0 }"
+        :staging-drawer-state="props.stagingDrawerState"
+        :staging-expanded="props.reviewOpen"
+        :staged-commands="props.stagedCommands"
+        :staging-hint-text="props.stagingHintText"
+        :staging-list-should-scroll="props.stagingListShouldScroll"
+        :staging-list-max-height="props.stagingListMaxHeight"
+        :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
+        :focus-zone="props.focusZone"
+        :staging-active-index="props.stagingActiveIndex"
+        :executing="props.executing"
+        :set-staging-panel-ref="props.setStagingPanelRef"
+        :set-staging-list-ref="props.setStagingListRef"
+        @toggle-staging="emit('toggle-staging')"
+        @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
+        @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
+        @staging-drag-end="emit('staging-drag-end')"
+        @focus-staging-index="emit('focus-staging-index', $event)"
+        @remove-staged-command="emit('remove-staged-command', $event)"
+        @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
+        @clear-staging="emit('clear-staging')"
+        @execute-staged="emit('execute-staged')"
+      />
+    </section>
   </section>
 </template>

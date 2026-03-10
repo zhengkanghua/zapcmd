@@ -7,7 +7,6 @@ import { useI18nText } from "../../i18n";
 import type { StagedCommand } from "../../features/launcher/types";
 import { useLauncherHitZones } from "../../composables/launcher/useLauncherHitZones";
 import LauncherParamOverlay from "./parts/LauncherParamOverlay.vue";
-import LauncherReviewOverlay from "./parts/LauncherReviewOverlay.vue";
 import LauncherSearchPanel from "./parts/LauncherSearchPanel.vue";
 import LauncherSafetyOverlay from "./parts/LauncherSafetyOverlay.vue";
 import type {
@@ -113,27 +112,20 @@ const { onRootPointerDown } = useLauncherHitZones({
         :staged-feedback-command-id="props.stagedFeedbackCommandId"
         :staged-command-count="props.stagedCommands.length"
         :review-open="props.stagingExpanded"
-        :set-search-input-ref="props.setSearchInputRef"
-        :set-drawer-ref="props.setDrawerRef"
-        :set-result-button-ref="props.setResultButtonRef"
-        @query-input="emit('query-input', $event)"
-        @stage-result="emit('stage-result', $event)"
-        @toggle-staging="emit('toggle-staging')"
-      />
-      <LauncherReviewOverlay
-        v-if="props.stagingExpanded"
         :staging-drawer-state="props.stagingDrawerState"
-        :staging-expanded="props.stagingExpanded"
         :staged-commands="props.stagedCommands"
         :staging-hint-text="props.stagingHintText"
         :staging-list-should-scroll="props.stagingListShouldScroll"
         :staging-list-max-height="props.stagingListMaxHeight"
-        :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
         :focus-zone="props.focusZone"
         :staging-active-index="props.stagingActiveIndex"
-        :executing="props.executing"
+        :set-search-input-ref="props.setSearchInputRef"
+        :set-drawer-ref="props.setDrawerRef"
+        :set-result-button-ref="props.setResultButtonRef"
         :set-staging-panel-ref="props.setStagingPanelRef"
         :set-staging-list-ref="props.setStagingListRef"
+        @query-input="emit('query-input', $event)"
+        @stage-result="emit('stage-result', $event)"
         @toggle-staging="emit('toggle-staging')"
         @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
         @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"

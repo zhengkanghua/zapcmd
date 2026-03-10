@@ -23,9 +23,18 @@ export interface LauncherSearchPanelProps {
   stagedFeedbackCommandId: string | null;
   stagedCommandCount: number;
   reviewOpen: boolean;
+  stagingDrawerState: StagingDrawerState;
+  stagedCommands: StagedCommand[];
+  stagingHintText: string;
+  stagingListShouldScroll: boolean;
+  stagingListMaxHeight: string;
+  focusZone: FocusZone;
+  stagingActiveIndex: number;
   setSearchInputRef: (el: ElementRefArg) => void;
   setDrawerRef: (el: ElementRefArg) => void;
   setResultButtonRef: (el: ElementRefArg, index: number) => void;
+  setStagingPanelRef: (el: ElementRefArg) => void;
+  setStagingListRef: (el: ElementRefArg) => void;
 }
 
 export interface LauncherStagingPanelProps {

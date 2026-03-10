@@ -35,9 +35,18 @@ function createProps(
     stagedFeedbackCommandId: null,
     stagedCommandCount: 0,
     reviewOpen: false,
+    stagingDrawerState: "closed",
+    stagedCommands: [],
+    stagingHintText: "",
+    stagingListShouldScroll: false,
+    stagingListMaxHeight: "0px",
+    focusZone: "search",
+    stagingActiveIndex: 0,
     setSearchInputRef: () => {},
     setDrawerRef: () => {},
     setResultButtonRef: () => {},
+    setStagingPanelRef: () => {},
+    setStagingListRef: () => {},
     ...overrides
   };
 }
