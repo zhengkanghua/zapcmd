@@ -14,6 +14,11 @@
   --ui-shadow: 0 14px 32px rgba(0, 0, 0, 0.3);
   --ui-text: #f5f5f5;
   --ui-subtle: #a1a1aa;
+  --ui-brand: #4cc9f0;
+  --ui-brand-rgb: 76, 201, 240;
+  --ui-brand-soft: rgba(var(--ui-brand-rgb), 0.16);
+  --ui-success: #2dd4bf;
+  --ui-danger: #fb7185;
   --ui-accent: #37cc8a;
   --ui-top-align-offset: 18px;
   --ui-shell-dim: rgba(11, 14, 20, 0.32);
@@ -147,6 +152,10 @@ body {
     var(--ui-bg);
 }
 
+.search-main:focus-within {
+  border-color: rgba(var(--ui-brand-rgb), 0.34);
+}
+
 .search-capsule {
   width: 100%;
   margin: 0;
@@ -166,10 +175,10 @@ body {
 .queue-summary-pill {
   height: 30px;
   padding: 0 12px;
-  border: 1px solid rgba(55, 204, 138, 0.34);
+  border: 1px solid rgba(var(--ui-brand-rgb), 0.34);
   border-radius: 999px;
-  background: rgba(55, 204, 138, 0.12);
-  color: #ccf7df;
+  background: rgba(var(--ui-brand-rgb), 0.12);
+  color: var(--ui-text);
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
@@ -179,13 +188,13 @@ body {
 }
 
 .queue-summary-pill:hover {
-  border-color: rgba(55, 204, 138, 0.44);
-  background: rgba(55, 204, 138, 0.16);
+  border-color: rgba(var(--ui-brand-rgb), 0.44);
+  background: var(--ui-brand-soft);
 }
 
 .queue-summary-pill:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 1px rgba(55, 204, 138, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(var(--ui-brand-rgb), 0.24);
 }
 
 .execution-feedback {
@@ -214,7 +223,7 @@ body {
 }
 
 .execution-feedback--success {
-  color: #a8f0ce;
+  color: var(--ui-success);
 }
 
 .execution-feedback--error {
@@ -367,14 +376,14 @@ body {
 }
 
 .result-item__category {
-  color: #a8f0ce;
-  border-color: rgba(55, 204, 138, 0.45);
+  color: rgba(var(--ui-brand-rgb), 0.9);
+  border-color: rgba(var(--ui-brand-rgb), 0.45);
 }
 
 .result-item__hl {
   padding: 0;
   background: transparent;
-  color: #8ff3c8;
+  color: var(--ui-brand);
   font-weight: 700;
 }
 
@@ -385,17 +394,17 @@ body {
 
 .result-item:focus-visible {
   outline: none;
-  background: rgba(55, 204, 138, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(55, 204, 138, 0.22);
+  background: rgba(var(--ui-brand-rgb), 0.12);
+  box-shadow: inset 0 0 0 1px rgba(var(--ui-brand-rgb), 0.22);
 }
 
 .result-item--active {
-  background: rgba(55, 204, 138, 0.16);
+  background: var(--ui-brand-soft);
 }
 
 .result-item:focus-visible::before,
 .result-item--active::before {
-  background: rgba(55, 204, 138, 0.95);
+  background: rgba(var(--ui-brand-rgb), 0.95);
 }
 
 .result-item--staged-feedback {
@@ -405,11 +414,11 @@ body {
 @keyframes staged-feedback {
   from {
     transform: scale(0.995);
-    background: rgba(55, 204, 138, 0.32);
+    background: rgba(var(--ui-brand-rgb), 0.32);
   }
   to {
     transform: scale(1);
-    background: rgba(55, 204, 138, 0.16);
+    background: var(--ui-brand-soft);
   }
 }
 
@@ -588,14 +597,14 @@ body {
 }
 
 .staging-chip--active {
-  border-color: rgba(55, 204, 138, 0.48);
-  background: linear-gradient(180deg, rgba(55, 204, 138, 0.22), rgba(24, 25, 28, var(--ui-opacity)));
+  border-color: rgba(var(--ui-brand-rgb), 0.48);
+  background: linear-gradient(180deg, rgba(var(--ui-brand-rgb), 0.22), rgba(24, 25, 28, var(--ui-opacity)));
 }
 
 .staging-chip:focus-visible {
   outline: none;
-  border-color: rgba(55, 204, 138, 0.54);
-  box-shadow: inset 0 0 0 1px rgba(55, 204, 138, 0.22);
+  border-color: rgba(var(--ui-brand-rgb), 0.54);
+  box-shadow: inset 0 0 0 1px rgba(var(--ui-brand-rgb), 0.22);
 }
 
 .staging-chip__icon {
@@ -690,8 +699,8 @@ body {
 }
 
 .staging-card--active {
-  border-color: rgba(55, 204, 138, 0.52);
-  box-shadow: inset 0 0 0 1px rgba(55, 204, 138, 0.2);
+  border-color: rgba(var(--ui-brand-rgb), 0.52);
+  box-shadow: inset 0 0 0 1px rgba(var(--ui-brand-rgb), 0.2);
 }
 
 .staging-card:active {
@@ -742,8 +751,8 @@ body {
 }
 
 .staging-card__arg input:focus-visible {
-  border-color: rgba(55, 204, 138, 0.56);
-  box-shadow: 0 0 0 1px rgba(55, 204, 138, 0.22) inset;
+  border-color: rgba(var(--ui-brand-rgb), 0.56);
+  box-shadow: 0 0 0 1px rgba(var(--ui-brand-rgb), 0.22) inset;
 }
 
 .staging-card code {
@@ -762,9 +771,9 @@ body {
 .btn-primary {
   padding: 6px 12px;
   font-size: 12px;
-  background: linear-gradient(180deg, rgba(55, 204, 138, 0.9), rgba(37, 163, 108, 0.9));
-  border-color: rgba(102, 232, 176, 0.45);
-  color: #0a2016;
+  background: linear-gradient(180deg, rgba(var(--ui-brand-rgb), 0.9), rgba(var(--ui-brand-rgb), 0.82));
+  border-color: rgba(var(--ui-brand-rgb), 0.45);
+  color: #061319;
   font-weight: 700;
 }
 
@@ -814,7 +823,7 @@ body {
 }
 
 .param-submit-hint {
-  color: #a8f0ce;
+  color: rgba(var(--ui-brand-rgb), 0.9);
 }
 
 .param-dialog label {
@@ -1199,6 +1208,15 @@ body {
   outline: none;
   border-color: rgba(55, 204, 138, 0.58);
   box-shadow: 0 0 0 1px rgba(55, 204, 138, 0.24) inset;
+}
+
+.btn-muted:focus-visible,
+.btn-primary:focus-visible,
+.btn-danger:focus-visible,
+.param-dialog button:focus-visible,
+.output-overlay button:focus-visible {
+  border-color: rgba(var(--ui-brand-rgb), 0.58);
+  box-shadow: 0 0 0 1px rgba(var(--ui-brand-rgb), 0.24) inset;
 }
 
 .settings-select__arrow {
