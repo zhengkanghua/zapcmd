@@ -73,7 +73,6 @@ completed: 2026-03-10
 
 ## 自检：通过
 
-- FOUND: `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-01-SUMMARY.md`
+- FOUND: `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-01-in-panel-overlay-structure-SUMMARY.md`
 - FOUND: `e2ad79c`（Task 1 commit）
 - FOUND: `d315e18`（Task 2 commit）
-

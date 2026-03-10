@@ -70,7 +70,6 @@ completed: 2026-03-10
 
 ## 自检：通过
 
-- FOUND: `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-02-SUMMARY.md`
+- FOUND: `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-02-remove-staging-wide-width-chain-SUMMARY.md`
 - FOUND: `335026b`（Task 1 commit）
 - FOUND: `5599093`（Task 2 commit）
-

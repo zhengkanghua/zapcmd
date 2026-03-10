@@ -118,5 +118,5 @@ Phase 17 的 sizing/布局目标成立：Review 呈现回归 in-panel overlay，
 </success_criteria>
 
 <output>
-After completion, create `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-02-SUMMARY.md`.
+After completion, create `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-02-remove-staging-wide-width-chain-SUMMARY.md`.
 </output>

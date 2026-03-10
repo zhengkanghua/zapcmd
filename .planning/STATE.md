@@ -4,17 +4,17 @@ milestone: v2.0
 milestone_name: 主窗口 B4 UI 重构
 current_phase: 17
 current_phase_name: 面板内 2/3 覆盖抽屉
-current_plan: 17-02
-status: executing
-stopped_at: Phase 17 Wave 3 pending（补齐回归测试护栏）
-last_updated: "2026-03-10T12:33:13.774Z"
+current_plan: 17-03
+status: verifying
+stopped_at: Phase 17 verification: human_needed（见 17-VERIFICATION.md）
+last_updated: "2026-03-10T12:56:42.657Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 17
-  completed_phases: 16
+  completed_phases: 17
   total_plans: 50
-  completed_plans: 49
-  percent: 98
+  completed_plans: 50
+  percent: 100
 ---
 
 # Project State
@@ -24,18 +24,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成落地与门禁（默认透明度 0.96 + `check:all` 全绿）；已生成验证报告 `16-VERIFICATION.md`（status=`human_needed`）。Phase 17（面板内 2/3 覆盖抽屉）执行中：已完成 17-01（overlay 归位到内容区）与 17-02（移除窗口变宽链路），准备执行 17-03（回归测试护栏）。
+**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成落地与门禁；验证报告 `16-VERIFICATION.md`（status=`human_needed`）待 Windows smoke。Phase 17（面板内 2/3 覆盖抽屉）已完成 3/3 plans 与自动化门禁（`npm run check:all` 全绿），当前进入人工验证：见 `17-VERIFICATION.md`。
 
 ## Current Position
 
 **Current Phase:** 17
 **Current Phase Name:** 面板内 2/3 覆盖抽屉
 **Total Phases:** 17  
-**Current Plan:** 17-02（已完成）
+**Current Plan:** 17-03（已完成）
 **Total Plans in Phase:** 3
-**Status:** Phase 17 executing（Wave 3 next）
+**Status:** Phase 17 verification: human_needed
 **Last Activity:** 2026-03-10
-**Last Activity Description:** 已切断 Review 打开导致窗口变宽链路（停用 staging-wide 两列布局 + width calculation 去除 reviewWidth 叠加），并通过相关单测
+**Last Activity Description:** Phase 17 已通过自动化门禁并生成回归护栏；等待 Windows 手动确认观感与真实窗口行为
 
 **Progress:** [█████████░] 94%
 
@@ -93,7 +93,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 ### Pending Todos
 
 - `$gsd-verify-work 16`：按 `16-VERIFICATION.md` 在 Windows 做手动 smoke（Review 开合动效时序 + resize 稳定性；brand/success 语义分离观感；默认透明度 0.96 与滑块范围 0.2~1.0）。
-- `$gsd-execute-phase 17`：继续执行 Wave 2（移除窗口变宽链路）与 Wave 3（回归测试护栏）。
+- `$gsd-verify-work 17`：按 `17-VERIFICATION.md` 在 Windows 做手动 smoke（in-panel overlay 范围 + 开合期间宽度体感稳定）。
 
 ### Blockers/Concerns
 

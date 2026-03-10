@@ -117,5 +117,5 @@ Phase 17 的回归护栏补齐：后续任何改动若让 Review 再次触发窗
 </success_criteria>
 
 <output>
-After completion, create `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-03-SUMMARY.md`.
+After completion, create `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-03-regression-tests-SUMMARY.md`.
 </output>
