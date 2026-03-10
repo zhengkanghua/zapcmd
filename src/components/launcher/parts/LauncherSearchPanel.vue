@@ -46,7 +46,6 @@ function onSearchInput(event: Event): void {
   <section
     class="search-main"
     data-hit-zone="interactive"
-    :style="props.reviewOpen ? { gridColumn: '1 / -1' } : undefined"
   >
     <section class="search-capsule" aria-label="search-capsule">
       <form class="search-form" @submit.prevent @pointerdown.capture="onSearchFormPointerDown">
@@ -148,7 +147,6 @@ function onSearchInput(event: Event): void {
 
       <LauncherReviewOverlay
         v-if="props.reviewOpen"
-        :style="{ top: 0, bottom: 0 }"
         :staging-drawer-state="props.stagingDrawerState"
         :staging-expanded="props.reviewOpen"
         :staged-commands="props.stagedCommands"
