@@ -66,9 +66,8 @@ function resolveScreenWidth(): number {
 
 function resolveSearchMainWidth(screenWidth: number): number {
   const preferred = Math.floor(screenWidth * 0.56);
-  const maxByOpenLayout =
-    Math.floor(screenWidth * 0.94) - WINDOW_GAP - REVIEW_PANEL_MAX_WIDTH_PX;
-  const upper = Math.min(WINDOW_BASE_WIDTH, maxByOpenLayout);
+  const maxByScreen = Math.floor(screenWidth * 0.94) - WINDOW_SIDE_SAFE_PAD * 2;
+  const upper = Math.min(WINDOW_BASE_WIDTH, maxByScreen);
   const lower = Math.min(WINDOW_BASE_MIN_WIDTH, upper);
   return Math.max(lower, Math.min(upper, preferred));
 }
@@ -122,7 +121,7 @@ function createStagingLayoutMetrics(options: {
 export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOptions) {
   const drawerOpen = computed(() => options.query.value.trim().length > 0);
 
-  const shellGap = computed(() => (options.stagingExpanded.value ? WINDOW_GAP : 0));
+  const shellGap = computed(() => 0);
 
   const windowHeightCap = computed(() => {
     const screenHeight = resolveScreenHeight();
@@ -156,7 +155,7 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     () =>
       searchMainWidth.value +
       shellGap.value +
-      (options.stagingExpanded.value ? reviewWidth.value : STAGING_CLOSED_WIDTH_PX) +
+      STAGING_CLOSED_WIDTH_PX +
       WINDOW_SIDE_SAFE_PAD * 2
   );
 
