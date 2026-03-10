@@ -466,6 +466,8 @@ body {
   border-radius: 0 0 var(--ui-radius) var(--ui-radius);
   background: var(--ui-shell-dim);
   cursor: pointer;
+  opacity: 1;
+  will-change: opacity;
 }
 
 .review-panel {
@@ -477,7 +479,93 @@ body {
   gap: 12px;
   position: relative;
   z-index: 1;
+  border-color: rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02) 52%, transparent),
+    var(--ui-bg);
   box-shadow: 0 22px 42px rgba(0, 0, 0, 0.42);
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  will-change: opacity, transform;
+}
+
+.review-overlay--opening .review-overlay__scrim {
+  animation: review-overlay-scrim-in 200ms ease-out both;
+}
+
+.review-overlay--opening .review-panel {
+  animation: review-overlay-panel-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.review-overlay--closing {
+  pointer-events: none;
+}
+
+.review-overlay--closing .review-overlay__scrim {
+  animation: review-overlay-scrim-out 200ms ease-in both;
+}
+
+.review-overlay--closing .review-panel {
+  animation: review-overlay-panel-out 200ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes review-overlay-scrim-in {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes review-overlay-scrim-out {
+  0% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes review-overlay-panel-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(16px, 0, 0);
+  }
+  15% {
+    opacity: 0;
+    transform: translate3d(16px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes review-overlay-panel-out {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(16px, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .review-overlay--opening .review-overlay__scrim,
+  .review-overlay--opening .review-panel,
+  .review-overlay--closing .review-overlay__scrim,
+  .review-overlay--closing .review-panel {
+    animation: none;
+  }
 }
 
 .review-panel__header {
