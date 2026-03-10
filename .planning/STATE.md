@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: 主窗口 B4 UI 重构
-current_phase: 16
-current_phase_name: 动画与视觉系统落地
-current_plan: P03
-status: verifying
-stopped_at: Phase 17 context gathered
-last_updated: "2026-03-10T10:35:42.115Z"
+current_phase: 17
+current_phase_name: 面板内 2/3 覆盖抽屉
+current_plan: 17-01
+status: executing
+stopped_at: Phase 17 Wave 2 pending（移除窗口变宽链路）
+last_updated: "2026-03-10T12:25:41.962Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 17
   completed_phases: 16
-  total_plans: 47
-  completed_plans: 47
-  percent: 94
+  total_plans: 50
+  completed_plans: 48
+  percent: 96
 ---
 
 # Project State
@@ -24,18 +24,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成落地与门禁（默认透明度 0.96 + `check:all` 全绿）；已生成验证报告 `16-VERIFICATION.md`（status=`human_needed`），同时已新增 Phase 17（面板内 2/3 覆盖抽屉）等待拆分与实现。
+**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成落地与门禁（默认透明度 0.96 + `check:all` 全绿）；已生成验证报告 `16-VERIFICATION.md`（status=`human_needed`）。Phase 17（面板内 2/3 覆盖抽屉）执行中：已完成 17-01（overlay 归位到内容区），准备执行 17-02（移除窗口变宽链路）与 17-03（回归测试）。
 
 ## Current Position
 
-**Current Phase:** 16
-**Current Phase Name:** 动画与视觉系统落地
+**Current Phase:** 17
+**Current Phase Name:** 面板内 2/3 覆盖抽屉
 **Total Phases:** 17  
-**Current Plan:** P03
+**Current Plan:** 17-01（已完成）
 **Total Plans in Phase:** 3
-**Status:** Phase 16 verification: human_needed
+**Status:** Phase 17 executing（Wave 2 next）
 **Last Activity:** 2026-03-10
-**Last Activity Description:** 已生成 `16-VERIFICATION.md`，需要 Windows 手动确认动效/resize/观感基线
+**Last Activity Description:** 已将 Review overlay 迁移为 SearchPanel 内容区内 overlay（只覆盖搜索框下方结果区），并通过相关单测
 
 **Progress:** [█████████░] 94%
 
@@ -93,7 +93,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 ### Pending Todos
 
 - `$gsd-verify-work 16`：按 `16-VERIFICATION.md` 在 Windows 做手动 smoke（Review 开合动效时序 + resize 稳定性；brand/success 语义分离观感；默认透明度 0.96 与滑块范围 0.2~1.0）。
-- `$gsd-plan-phase 17`：基于设计稿把“面板内 2/3 覆盖抽屉”拆成可执行计划，并更新回归口径。
+- `$gsd-execute-phase 17`：继续执行 Wave 2（移除窗口变宽链路）与 Wave 3（回归测试护栏）。
 
 ### Blockers/Concerns
 
