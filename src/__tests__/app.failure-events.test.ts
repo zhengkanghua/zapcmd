@@ -155,7 +155,7 @@ function buildSnapshot(
       launchAtLogin: false,
     },
     appearance: {
-      windowOpacity: 0.92,
+      windowOpacity: 0.96,
     },
     commands: {
       disabledCommandIds: [],

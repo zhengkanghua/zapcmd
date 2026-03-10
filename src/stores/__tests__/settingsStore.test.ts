@@ -199,7 +199,7 @@ describe("settingsStore migration and persistence", () => {
     });
 
     expect(migrated).toBeTruthy();
-    expect(migrated?.appearance.windowOpacity).toBe(0.92);
+    expect(migrated?.appearance.windowOpacity).toBe(0.96);
   });
 
   it("migrates versioned payload when hotkeys/general are non-record values", () => {
@@ -363,7 +363,7 @@ describe("settingsStore migration and persistence", () => {
   it("normalizeWindowOpacity clamps to min/max and falls back for invalid values", () => {
     expect(normalizeWindowOpacity(-2)).toBe(0.2);
     expect(normalizeWindowOpacity(2)).toBe(1);
-    expect(normalizeWindowOpacity(Number.NaN)).toBe(0.92);
+    expect(normalizeWindowOpacity(Number.NaN)).toBe(0.96);
   });
 
   it("uses injected adapter for hydrate and persist orchestration", () => {
@@ -461,7 +461,7 @@ describe("settingsStore migration and persistence", () => {
     expect(store.commandView.query).toBe("docker");
     expect(store.commandView.sortBy).toBe("default");
     expect(store.commandView.displayMode).toBe("list");
-    expect(store.windowOpacity).toBe(0.92);
+    expect(store.windowOpacity).toBe(0.96);
 
     const roundTrip = readSettingsFromStorage(localStorage);
     expect(roundTrip.hotkeys.launcher).toBe("Ctrl+Alt+G");
@@ -473,7 +473,7 @@ describe("settingsStore migration and persistence", () => {
     expect(roundTrip.commands.view.query).toBe("docker");
     expect(roundTrip.commands.view.sortBy).toBe("default");
     expect(roundTrip.commands.view.displayMode).toBe("list");
-    expect(roundTrip.appearance.windowOpacity).toBe(0.92);
+    expect(roundTrip.appearance.windowOpacity).toBe(0.96);
   });
 
   it("prefers current key when current and legacy payload coexist", () => {
