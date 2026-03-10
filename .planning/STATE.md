@@ -10,11 +10,11 @@ stopped_at: Phase 16 verification: human_needed（见 16-VERIFICATION.md）
 last_updated: "2026-03-10T02:43:10.409Z"
 last_activity: 2026-03-10
 progress:
-  total_phases: 16
+  total_phases: 17
   completed_phases: 16
   total_plans: 47
   completed_plans: 47
-  percent: 100
+  percent: 94
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成落地与门禁（默认透明度 0.96 + `check:all` 全绿）；已生成验证报告 `16-VERIFICATION.md`（status=`human_needed`），等待 Windows 手动 smoke 结论后再进入发布。
+**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成落地与门禁（默认透明度 0.96 + `check:all` 全绿）；已生成验证报告 `16-VERIFICATION.md`（status=`human_needed`），同时已新增 Phase 17（面板内 2/3 覆盖抽屉）等待拆分与实现。
 
 ## Current Position
 
 **Current Phase:** 16
 **Current Phase Name:** 动画与视觉系统落地
-**Total Phases:** 16  
+**Total Phases:** 17  
 **Current Plan:** P03
 **Total Plans in Phase:** 3
 **Status:** Phase 16 verification: human_needed
 **Last Activity:** 2026-03-10
 **Last Activity Description:** 已生成 `16-VERIFICATION.md`，需要 Windows 手动确认动效/resize/观感基线
 
-**Progress:** [██████████] 100%
+**Progress:** [█████████░] 94%
 
 ## Performance Metrics
 
@@ -88,10 +88,12 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 
 - v1.0 已归档到 `.planning/milestones/`。
 - v2.0 进入规划：主窗口 B4 UI 重构（见 `docs/ui-redesign/`）。
+- Phase 17 added: 面板内 2/3 覆盖抽屉（in-panel 2/3 review drawer overlay）
 
 ### Pending Todos
 
 - `$gsd-verify-work 16`：按 `16-VERIFICATION.md` 在 Windows 做手动 smoke（Review 开合动效时序 + resize 稳定性；brand/success 语义分离观感；默认透明度 0.96 与滑块范围 0.2~1.0）。
+- `$gsd-plan-phase 17`：基于设计稿把“面板内 2/3 覆盖抽屉”拆成可执行计划，并更新回归口径。
 
 ### Blockers/Concerns
 

@@ -148,3 +148,6 @@
 ## 补充（2026-03-10｜Review 打开背景修复）
 - 修复“Review 打开但 query 为空时左侧背景塌陷、看起来像右侧独立抽屉”的观感问题：在 `reviewOpen && !drawerOpen` 时渲染左侧 floor 占位，并在 `stagingExpanded=true` 下始终提供 `drawerFloorViewportHeight`；定向单测已通过。
 - 同步修复 Review 列表布局：移除列表 `minHeight`（避免卡片被拉伸出现大空隙），review 面板改为 3 行 grid 并补齐 `min-height: 0`，footer 按钮不再溢出。
+
+## 补充（2026-03-10｜Phase 17 设计落盘）
+- 已落盘“面板内 2/3 覆盖抽屉（搜索框下方三层：结果→遮罩→抽屉；点击遮罩关闭并回焦搜索框）”设计稿，并追加到 v2.0 Roadmap：见 `docs/superpowers/specs/2026-03-10-launcher-review-drawer-overlay-design.md` 与 `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-CONTEXT.md`。

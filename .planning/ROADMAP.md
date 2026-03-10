@@ -3,24 +3,25 @@
 ## Milestones
 
 - ✅ **v1.0 质量门禁与回归基线** — Phases 1-12，35 plans，shipped 2026-03-06；详情见 `.planning/milestones/v1.0-ROADMAP.md`
-- 📋 **v2.0 主窗口 B4 UI 重构** — Phases 13-16，roadmap defined 2026-03-07；设计基线见 `docs/ui-redesign/`
+- 📋 **v2.0 主窗口 B4 UI 重构** — Phases 13-17，roadmap defined 2026-03-07；设计基线见 `docs/ui-redesign/`
 
 ## Next
 
 - ▶ **v2.0 主窗口 B4 UI 重构** — 12/12 plans 完成，进入验证/发布流程
+- ▶ **Phase 17: 面板内 2/3 覆盖抽屉（in-panel 2/3 review drawer overlay）** — 设计稿已落盘，待 `$gsd-plan-phase 17` 拆分
 
 ## Progress
 
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 质量门禁与回归基线 | 1-12 | 35 | Complete | 2026-03-06 |
-| v2.0 主窗口 B4 UI 重构 | 13-16 | 12 | Complete | - |
-
----
+| v2.0 主窗口 B4 UI 重构 | 13-17 | 12 | In Progress | - |
 
 ## Milestone v2.0: 主窗口 B4 UI 重构
 
-**Status:** ✅ Complete
+**Status:** 🟡 In Progress
+
+注：Phase 13-16 已完成；Phase 17 为“抽屉呈现回归到同面板内 overlay”的外观/结构修正（待计划与执行）。
 
 本里程碑的唯一结构方案：**B4 = Overlay Review Mode with Floor Height Protection**  
 范围：只做 launcher 主窗口；`settings` 继续保持独立窗口且不纳入本轮重构。
@@ -112,3 +113,13 @@ Plans:
 1. 主窗口落地新颜色令牌：品牌色与 success 色彻底分离，且绿色不再作为品牌主色（仅用于成功/启用语义）。
 2. 主窗口透明度与背景噪音降低，整体观感符合 “专业桌面工具面板” 基线（见 `docs/ui-redesign/04`/`11`）。
 3. Review 开合时序克制：先稳定尺寸再动画；若 Windows 下动态 resize 抖动明显，启用“一次性 resize + 内部动画”的降级策略，保持体验稳定可用。
+
+### Phase 17: 面板内 2/3 覆盖抽屉（in-panel 2/3 review drawer overlay）
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 16
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run `$gsd-plan-phase 17` to break down)
