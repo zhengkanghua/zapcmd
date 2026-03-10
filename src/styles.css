@@ -7,7 +7,7 @@
   font-family: "Segoe UI", "Helvetica Neue", "Noto Sans", sans-serif;
 
   --ui-radius: 12px;
-  --ui-opacity: 0.92;
+  --ui-opacity: 0.96;
   --ui-bg: rgba(24, 25, 28, var(--ui-opacity));
   --ui-bg-soft: rgba(255, 255, 255, 0.06);
   --ui-border: rgba(255, 255, 255, 0.1);

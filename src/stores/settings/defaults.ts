@@ -65,7 +65,7 @@ export const DEFAULT_TERMINAL = "powershell";
 export const DEFAULT_LANGUAGE: AppLocale = "zh-CN";
 export const DEFAULT_AUTO_CHECK_UPDATE = true;
 export const DEFAULT_LAUNCH_AT_LOGIN = false;
-export const DEFAULT_WINDOW_OPACITY = 0.92;
+export const DEFAULT_WINDOW_OPACITY = 0.96;
 export const MIN_WINDOW_OPACITY = 0.2;
 export const MAX_WINDOW_OPACITY = 1.0;
 
