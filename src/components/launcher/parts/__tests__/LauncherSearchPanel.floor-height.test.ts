@@ -1,4 +1,5 @@
 import { mount } from "@vue/test-utils";
+import { defineComponent, nextTick, ref } from "vue";
 import { describe, expect, it } from "vitest";
 
 import type { CommandTemplate } from "../../../../features/commands/types";
@@ -133,5 +134,114 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     expect((floor.element as HTMLElement).style.height).toBe("322px");
     expect(floor.attributes("aria-hidden")).toBe("true");
     expect(floor.attributes()).toHaveProperty("inert");
+  });
+});
+
+describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () => {
+  it("Review 打开时 results drawer 仍保持 inert/aria-hidden（背景可见但不可交互）", () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        reviewOpen: true,
+        stagingDrawerState: "open",
+        stagedCommands: [
+          {
+            id: "cmd-1",
+            title: "示例命令",
+            rawPreview: "echo preview",
+            renderedCommand: "echo preview",
+            args: [],
+            argValues: {}
+          }
+        ]
+      })
+    });
+
+    const drawer = wrapper.get(".result-drawer");
+    expect(drawer.attributes()).toHaveProperty("inert");
+    expect(drawer.attributes("aria-hidden")).toBe("true");
+  });
+
+  it("Review 打开时点击 search capsule/输入区域会触发 toggle-staging（先关闭再输入）", async () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        reviewOpen: true,
+        stagingDrawerState: "open",
+        stagedCommands: [
+          {
+            id: "cmd-1",
+            title: "示例命令",
+            rawPreview: "echo preview",
+            renderedCommand: "echo preview",
+            args: [],
+            argValues: {}
+          }
+        ]
+      })
+    });
+
+    await wrapper.get(".search-form").trigger("pointerdown");
+    expect(wrapper.emitted("toggle-staging")).toHaveLength(1);
+  });
+
+  it("点击 scrim 关闭后焦点回到搜索输入框（由父层 scheduleSearchInputFocus 等价模拟）", async () => {
+    const Harness = defineComponent({
+      components: { LauncherSearchPanel },
+      setup() {
+        const reviewOpen = ref(true);
+        const searchInput = ref<HTMLInputElement | null>(null);
+        const setSearchInputRef = (el: unknown) => {
+          searchInput.value = el instanceof HTMLInputElement ? el : null;
+        };
+
+        async function onToggleStaging(): Promise<void> {
+          reviewOpen.value = false;
+          await nextTick();
+          searchInput.value?.focus();
+        }
+
+        return { reviewOpen, setSearchInputRef, onToggleStaging };
+      },
+      template: `
+        <LauncherSearchPanel
+          :query="'dock'"
+          :executing="false"
+          :execution-feedback-message="''"
+          :execution-feedback-tone="'neutral'"
+          :drawer-open="true"
+          :drawer-viewport-height="322"
+          :drawer-floor-viewport-height="322"
+          :drawer-filler-height="0"
+          :keyboard-hint-text="'hint'"
+          :filtered-results="[]"
+          :active-index="0"
+          :staged-feedback-command-id="null"
+          :staged-command-count="1"
+          :review-open="reviewOpen"
+          :staging-drawer-state="'open'"
+          :staged-commands="[{ id: 'cmd-1', title: '示例命令', rawPreview: 'echo preview', renderedCommand: 'echo preview', args: [], argValues: {} }]"
+          :staging-hint-text="'hint'"
+          :staging-list-should-scroll="true"
+          :staging-list-max-height="'200px'"
+          :focus-zone="'staging'"
+          :staging-active-index="0"
+          :set-search-input-ref="setSearchInputRef"
+          :set-drawer-ref="() => {}"
+          :set-result-button-ref="() => {}"
+          :set-staging-panel-ref="() => {}"
+          :set-staging-list-ref="() => {}"
+          @toggle-staging="onToggleStaging"
+        />
+      `
+    });
+
+    const wrapper = mount(Harness, { attachTo: document.body });
+    await nextTick();
+    await wrapper.get(".review-overlay__scrim").trigger("click");
+    await nextTick();
+
+    const input = wrapper.get('[data-testid="zapcmd-search-input"]').element as HTMLInputElement;
+    const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    expect(active).toBe(input);
+    wrapper.unmount();
   });
 });

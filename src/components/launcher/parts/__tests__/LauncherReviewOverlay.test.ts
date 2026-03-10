@@ -4,8 +4,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { summarizeCommandForFeedback } from "../../../../composables/execution/useCommandExecution/helpers";
 import type { StagedCommand } from "../../../../features/launcher/types";
-import type { LauncherReviewOverlayProps } from "../../types";
+import type { LauncherReviewOverlayProps, LauncherSearchPanelProps } from "../../types";
 import LauncherReviewOverlay from "../LauncherReviewOverlay.vue";
+import LauncherSearchPanel from "../LauncherSearchPanel.vue";
 
 function createStagedCommand(overrides: Partial<StagedCommand> = {}): StagedCommand {
   return {
@@ -39,6 +40,40 @@ function createProps(
   };
 }
 
+function createSearchPanelProps(
+  overrides: Partial<LauncherSearchPanelProps> = {}
+): LauncherSearchPanelProps {
+  return {
+    query: "",
+    executing: false,
+    executionFeedbackMessage: "",
+    executionFeedbackTone: "neutral",
+    drawerOpen: false,
+    drawerViewportHeight: 0,
+    drawerFloorViewportHeight: 322,
+    drawerFillerHeight: 0,
+    keyboardHintText: "",
+    filteredResults: [],
+    activeIndex: 0,
+    stagedFeedbackCommandId: null,
+    stagedCommandCount: 0,
+    reviewOpen: true,
+    stagingDrawerState: "open",
+    stagedCommands: [createStagedCommand()],
+    stagingHintText: "hint",
+    stagingListShouldScroll: true,
+    stagingListMaxHeight: "200px",
+    focusZone: "staging",
+    stagingActiveIndex: 0,
+    setSearchInputRef: () => {},
+    setDrawerRef: () => {},
+    setResultButtonRef: () => {},
+    setStagingPanelRef: () => {},
+    setStagingListRef: () => {},
+    ...overrides
+  };
+}
+
 const originalClipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
 afterEach(() => {
@@ -51,6 +86,16 @@ afterEach(() => {
 });
 
 describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
+  it("in-panel 结构约束：review-overlay 位于 search-main 子树内且不覆盖 search capsule", () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createSearchPanelProps()
+    });
+
+    const searchMain = wrapper.get(".search-main");
+    expect(searchMain.find(".review-overlay").exists()).toBe(true);
+    expect(wrapper.find(".search-capsule .review-overlay").exists()).toBe(false);
+  });
+
   it("根节点/遮罩/面板具备 overlay hit-zone 与 dialog 语义", () => {
     const wrapper = mount(LauncherReviewOverlay, { props: createProps() });
 
