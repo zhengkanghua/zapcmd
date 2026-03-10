@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { afterEach, describe, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { WINDOW_SIZING_CONSTANTS } from "../../launcher/useLauncherLayoutMetrics";
 import { resolveWindowSize } from "../../launcher/useWindowSizing/calculation";
@@ -184,5 +184,32 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
       windowHeightCap: windowHeightCap.value,
       drawerViewportHeight: drawerViewportHeight.value
     });
+  });
+});
+
+describe("resolveWindowSize（Phase 17 宽度不扩展）", () => {
+  it("stagingExpanded=true 时 width 不叠加 reviewWidth（窗口宽度保持稳定）", () => {
+    const baseWidth = 680;
+    const baseMinShellWidth = baseWidth + WINDOW_SIZING_CONSTANTS.windowSideSafePad * 2;
+
+    const collapsed = resolveWindowSize(
+      createBaseOptions({
+        searchMainWidth: ref(baseWidth),
+        minShellWidth: ref(baseMinShellWidth),
+        windowWidthCap: ref(2000),
+        stagingExpanded: ref(false)
+      })
+    );
+    const expanded = resolveWindowSize(
+      createBaseOptions({
+        searchMainWidth: ref(baseWidth),
+        minShellWidth: ref(baseMinShellWidth),
+        windowWidthCap: ref(2000),
+        stagingExpanded: ref(true)
+      })
+    );
+
+    expect(expanded.width).toBe(collapsed.width);
+    expect(expanded.width).toBe(baseMinShellWidth);
   });
 });

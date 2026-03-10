@@ -51,20 +51,23 @@ describe("useLauncherLayoutMetrics", () => {
 
   it("computes search width style and shell width lower bound", () => {
     setScreenSize(1600, 900);
-    const metrics = useLauncherLayoutMetrics({
-      query: ref("q"),
-      filteredResults: ref([]),
-      stagedCommands: ref([]),
-      stagingExpanded: ref(false)
-    });
+    const variants = [false, true] as const;
+    for (const stagingExpandedValue of variants) {
+      const metrics = useLauncherLayoutMetrics({
+        query: ref("q"),
+        filteredResults: ref([]),
+        stagedCommands: ref([]),
+        stagingExpanded: ref(stagingExpandedValue)
+      });
 
-    expect(metrics.searchMainWidth.value).toBe(680);
-    expect(metrics.minShellWidth.value).toBe(700);
-    expect(metrics.searchShellStyle.value["--search-main-width"]).toBe("680px");
-    expect(metrics.searchShellStyle.value["--shell-gap"]).toBe("0px");
-    expect(metrics.searchShellStyle.value["--staging-collapsed-width"]).toBe("0px");
-    expect(metrics.searchShellStyle.value["--review-width"]).toBe("453px");
-    expect(metrics.searchShellStyle.value["--staging-expanded-width"]).toBe("453px");
+      expect(metrics.searchMainWidth.value).toBe(680);
+      expect(metrics.minShellWidth.value).toBe(700);
+      expect(metrics.searchShellStyle.value["--search-main-width"]).toBe("680px");
+      expect(metrics.searchShellStyle.value["--shell-gap"]).toBe("0px");
+      expect(metrics.searchShellStyle.value["--staging-collapsed-width"]).toBe("0px");
+      expect(metrics.searchShellStyle.value["--review-width"]).toBe("453px");
+      expect(metrics.searchShellStyle.value["--staging-expanded-width"]).toBe("453px");
+    }
   });
 
   it("computes staging scroll and max height from expansion and row estimation", () => {
