@@ -291,6 +291,15 @@ function cmdVerifyArtifacts(cwd, planFilePath, raw) {
     return;
   }
 
+  const matchesPattern = (fileContent, pattern) => {
+    if (pattern === null || pattern === undefined) return true;
+    if (Array.isArray(pattern)) return pattern.every(p => matchesPattern(fileContent, p));
+    const p = String(pattern);
+    if (!p) return true;
+    if (fileContent.includes(p)) return true;
+    try { return new RegExp(p).test(fileContent); } catch { return false; }
+  };
+
   const results = [];
   for (const artifact of artifacts) {
     if (typeof artifact === 'string') continue; // skip simple string items
@@ -308,7 +317,7 @@ function cmdVerifyArtifacts(cwd, planFilePath, raw) {
       if (artifact.min_lines && lineCount < artifact.min_lines) {
         check.issues.push(`Only ${lineCount} lines, need ${artifact.min_lines}`);
       }
-      if (artifact.contains && !fileContent.includes(artifact.contains)) {
+      if (artifact.contains && !matchesPattern(fileContent, artifact.contains)) {
         check.issues.push(`Missing pattern: ${artifact.contains}`);
       }
       if (artifact.exports) {
