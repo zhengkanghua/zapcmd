@@ -119,7 +119,7 @@ Plans:
 **Goal:** 将 Review（暂存队列）从“search-shell 变宽 + 右侧独立列”的分离抽屉感，回归为同一张搜索面板内部、仅覆盖搜索框下方内容区的 2/3 抽屉式 overlay（轻 dim scrim + 右滑入 drawer），并保持既有关闭/焦点/滚轮与 reduced-motion 契约不回归。
 **Requirements**: 无新增 requirement（结构/呈现修正 + 回归护栏）
 **Depends on:** Phase 16
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 17-01-in-panel-overlay-structure-PLAN.md — DOM 归位到内容区 + scrim 范围与动效对齐
