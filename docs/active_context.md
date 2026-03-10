@@ -141,3 +141,6 @@
 
 ## 补充（2026-03-10｜Phase 16-03 执行完成）
 - 默认透明度提升至 0.96（范围仍 0.2~1.0），同步 CSS `--ui-opacity` 与回归断言，并跑通 `npm run check:all`。
+
+## 补充（2026-03-10｜Phase 16 验证）
+- 已生成 `.planning/phases/16-animation-visual-system/16-VERIFICATION.md`（status=`human_needed`，score=3/3）；需在 Windows 手动确认 Review 开合动效与 resize 体感，以及透明度/品牌色观感基线。

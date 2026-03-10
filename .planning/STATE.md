@@ -6,8 +6,8 @@ current_phase: 16
 current_phase_name: 动画与视觉系统落地
 current_plan: P03
 status: verifying
-stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-03-10T01:50:38.376Z"
+stopped_at: Phase 16 verification: human_needed（见 16-VERIFICATION.md）
+last_updated: "2026-03-10T02:43:10.409Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 16
@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成：默认透明度 0.96（范围 0.2~1.0）+ 回归断言同步，并跑通 `npm run check:all` 门禁；v2.0 全部 plans 完成，进入验证/发布流程。
+**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成落地与门禁（默认透明度 0.96 + `check:all` 全绿）；已生成验证报告 `16-VERIFICATION.md`（status=`human_needed`），等待 Windows 手动 smoke 结论后再进入发布。
 
 ## Current Position
 
@@ -33,9 +33,9 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 **Total Phases:** 16  
 **Current Plan:** P03
 **Total Plans in Phase:** 3
-**Status:** Phase 16 complete — ready for verification
+**Status:** Phase 16 verification: human_needed
 **Last Activity:** 2026-03-10
-**Last Activity Description:** 16-03 已提升默认透明度到 0.96，并同步回归断言与 `check:all` 门禁
+**Last Activity Description:** 已生成 `16-VERIFICATION.md`，需要 Windows 手动确认动效/resize/观感基线
 
 **Progress:** [██████████] 100%
 
@@ -91,7 +91,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 
 ### Pending Todos
 
-- `$gsd-verify-work`：对 v2.0 主窗口 B4 UI 做一次手动 UAT（默认透明度 0.96，滑块范围 0.2~1.0）。
+- `$gsd-verify-work 16`：按 `16-VERIFICATION.md` 在 Windows 做手动 smoke（Review 开合动效时序 + resize 稳定性；brand/success 语义分离观感；默认透明度 0.96 与滑块范围 0.2~1.0）。
 
 ### Blockers/Concerns
 
