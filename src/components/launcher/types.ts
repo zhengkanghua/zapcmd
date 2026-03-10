@@ -15,6 +15,7 @@ export interface LauncherSearchPanelProps {
   executionFeedbackTone: "neutral" | "success" | "error";
   drawerOpen: boolean;
   drawerViewportHeight: number;
+  drawerFloorViewportHeight: number;
   drawerFillerHeight: number;
   keyboardHintText: string;
   filteredResults: CommandTemplate[];

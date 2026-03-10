@@ -27,6 +27,7 @@ function createProps(
     executionFeedbackTone: "neutral",
     drawerOpen: true,
     drawerViewportHeight: 322,
+    drawerFloorViewportHeight: 322,
     drawerFillerHeight: 0,
     keyboardHintText: "hint",
     filteredResults: [],
@@ -100,5 +101,28 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     });
 
     expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
+  });
+
+  it("Review 打开但 drawerOpen=false 时渲染 floor 占位，避免左侧背景塌陷", () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        query: "",
+        drawerOpen: false,
+        drawerViewportHeight: 0,
+        drawerFillerHeight: 0,
+        reviewOpen: true,
+        drawerFloorViewportHeight: 322
+      }),
+      global: {
+        stubs: {
+          LauncherQueueSummaryPill: { template: "<button />" }
+        }
+      }
+    });
+
+    const floor = wrapper.get('[data-testid="result-drawer-floor"]');
+    expect((floor.element as HTMLElement).style.height).toBe("322px");
+    expect(floor.attributes("aria-hidden")).toBe("true");
+    expect(floor.attributes()).toHaveProperty("inert");
   });
 });

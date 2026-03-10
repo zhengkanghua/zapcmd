@@ -72,7 +72,7 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
     const list = wrapper.get(".review-list");
     expect(list.classes()).toContain("staging-list--scrollable");
     expect((list.element as HTMLElement).style.maxHeight).toBe("200px");
-    expect((list.element as HTMLElement).style.minHeight).toBe("322px");
+    expect((list.element as HTMLElement).style.minHeight).toBe("");
   });
 
   it("长命令默认显示摘要，title 保留完整命令，并支持复制按钮", async () => {

@@ -141,4 +141,17 @@ describe("useLauncherLayoutMetrics", () => {
       }
     }
   });
+
+  it("stagingExpanded=true 且 query 为空时仍提供 drawerFloorViewportHeight（用于 Review 对齐）", () => {
+    setScreenSize(1600, 900);
+    const metrics = useLauncherLayoutMetrics({
+      query: ref(""),
+      filteredResults: ref([]),
+      stagedCommands: ref([{ id: "staged-1" }]),
+      stagingExpanded: ref(true)
+    });
+
+    expect(metrics.drawerOpen.value).toBe(false);
+    expect(metrics.drawerFloorViewportHeight.value).toBe(322);
+  });
 });

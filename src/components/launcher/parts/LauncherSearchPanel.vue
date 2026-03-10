@@ -121,5 +121,15 @@ function onSearchInput(event: Event): void {
         aria-hidden="true"
       ></div>
     </section>
+
+    <section
+      v-else-if="props.reviewOpen && props.drawerFloorViewportHeight > 0"
+      class="result-drawer"
+      inert
+      aria-hidden="true"
+      :style="{ height: `${props.drawerFloorViewportHeight}px` }"
+      aria-label="result-drawer-floor"
+      data-testid="result-drawer-floor"
+    ></section>
   </section>
 </template>

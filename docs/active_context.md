@@ -144,3 +144,7 @@
 
 ## 补充（2026-03-10｜Phase 16 验证）
 - 已生成 `.planning/phases/16-animation-visual-system/16-VERIFICATION.md`（status=`human_needed`，score=3/3）；需在 Windows 手动确认 Review 开合动效与 resize 体感，以及透明度/品牌色观感基线。
+
+## 补充（2026-03-10｜Review 打开背景修复）
+- 修复“Review 打开但 query 为空时左侧背景塌陷、看起来像右侧独立抽屉”的观感问题：在 `reviewOpen && !drawerOpen` 时渲染左侧 floor 占位，并在 `stagingExpanded=true` 下始终提供 `drawerFloorViewportHeight`；定向单测已通过。
+- 同步修复 Review 列表布局：移除列表 `minHeight`（避免卡片被拉伸出现大空隙），review 面板改为 3 行 grid 并补齐 `min-height: 0`，footer 按钮不再溢出。

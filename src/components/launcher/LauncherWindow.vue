@@ -105,6 +105,7 @@ const { onRootPointerDown } = useLauncherHitZones({
         :execution-feedback-tone="props.executionFeedbackTone"
         :drawer-open="props.drawerOpen"
         :drawer-viewport-height="props.drawerViewportHeight"
+        :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
         :drawer-filler-height="props.drawerFillerHeight"
         :keyboard-hint-text="props.keyboardHintText"
         :filtered-results="props.filteredResults"

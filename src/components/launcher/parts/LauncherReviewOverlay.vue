@@ -185,8 +185,7 @@ async function copyCommand(command: string): Promise<void> {
         class="staging-list review-list"
         :class="{ 'staging-list--scrollable': props.stagingListShouldScroll }"
         :style="{
-          maxHeight: props.stagingListMaxHeight,
-          minHeight: props.drawerFloorViewportHeight > 0 ? `${props.drawerFloorViewportHeight}px` : undefined
+          maxHeight: props.stagingListMaxHeight
         }"
       >
         <li

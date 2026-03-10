@@ -189,7 +189,7 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
   });
 
   const drawerFloorVisibleRows = computed(() => {
-    if (!drawerOpen.value) {
+    if (!options.stagingExpanded.value) {
       return 0;
     }
     return Math.min(DRAWER_FLOOR_ROWS, drawerMaxRowsByHeight.value, DRAWER_DEFAULT_ROWS);
@@ -203,7 +203,7 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
   });
 
   const drawerFloorViewportHeight = computed(() => {
-    if (!drawerOpen.value) {
+    if (drawerFloorVisibleRows.value <= 0) {
       return 0;
     }
     return (
