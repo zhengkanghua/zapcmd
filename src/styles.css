@@ -634,11 +634,11 @@ body {
 }
 
 .staging-panel--opening {
-  animation: staging-panel-enter 170ms ease both;
+  animation: staging-panel-enter 200ms ease both;
 }
 
 .staging-panel--closing {
-  animation: staging-panel-exit 170ms ease both;
+  animation: staging-panel-exit 200ms ease both;
   pointer-events: none;
 }
 
