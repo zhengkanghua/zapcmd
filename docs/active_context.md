@@ -122,3 +122,15 @@
 
 ## 补充（2026-03-09｜Phase 15 门禁已通过）
 - 已在沙盒外跑通 `npm run check:all`（含回归/coverage/build/rust）；Phase 15 验证已更新为 `passed`，可推进 Phase 16（动画/视觉系统）。
+
+## 补充（2026-03-09｜Phase 16 讨论完成）
+- 视觉基线选 Beta Graphite Cyan；交互激活态统一用品牌色（不再用绿色做品牌）；success 色值先留给执行者。Review 动效：dim→滑入、滑出→去 dim，约 200ms；默认 opacity 调到 0.96（范围仍 0.2~1.0）、壁纸弱化、Review 层级高一阶；Windows 若 resize 抖动明显则降级“一次性 resize + 内部动画”。
+
+## 补充（2026-03-10｜Phase 16 规划完成）
+- 已生成 `.planning/phases/16-animation-visual-system/16-RESEARCH.md` 与 `16-01/02/03-PLAN.md`，并同步 `.planning/ROADMAP.md`；下一步：`$gsd-execute-phase 16`。
+
+## 补充（2026-03-10｜Phase 16 研究完成）
+- 已生成 `.planning/phases/16-animation-visual-system/16-RESEARCH.md`：覆盖 `SIZE-03`/`VIS-01`/`VIS-02`，梳理动效/令牌/Windows resize 降级落点与相关代码路径。
+
+## 补充（2026-03-10｜Phase 16-01 执行完成）
+- 主窗口完成 brand/success 分离：引入 `--ui-brand(#4CC9F0)` / `--ui-success(#2DD4BF)`；Queue pill、结果选中/聚焦、主按钮、focus ring、staged feedback 动画统一使用 brand；执行成功反馈仅使用 success。回归：`npm run test:run -- src/components/launcher/parts/__tests__/LauncherReviewOverlay.test.ts` 通过。

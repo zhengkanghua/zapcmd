@@ -2,20 +2,23 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: 主窗口 B4 UI 重构
-current_phase: 15
-current_phase_name: 键盘 / 焦点 / 关闭语义收口
-current_plan: Not started
-status: completed
-stopped_at: Phase 15 verified; ready to plan Phase 16
-last_updated: "2026-03-09T15:09:39.035Z"
-last_activity: 2026-03-09
+current_phase: 16
+current_phase_name: 动画与视觉系统落地
+current_plan: P02
+status: executing
+stopped_at: Completed 16-01-PLAN.md
+last_updated: "2026-03-10T00:51:17.079Z"
+last_activity: 2026-03-10
 progress:
-  total_phases: 15
+  total_phases: 16
   completed_phases: 15
-  total_plans: 44
-  completed_plans: 44
-  percent: 100
+  total_plans: 47
+  completed_plans: 45
+  percent: 96
 ---
+
+
+
 
 # Project State
 
@@ -24,20 +27,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 15 已通过 `npm run check:all` 门禁与回归验证；下一步规划 Phase 16（动画/视觉系统）。
+**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已开始执行：16-01 已完成 brand/success 分离与主窗口激活态迁移；下一步执行 16-02（Review 开合动效 + Windows resize 稳定策略）。
 
 ## Current Position
 
-**Current Phase:** 15
-**Current Phase Name:** 键盘 / 焦点 / 关闭语义收口
-**Total Phases:** 15  
-**Current Plan:** 3
+**Current Phase:** 16
+**Current Phase Name:** 动画与视觉系统落地
+**Total Phases:** 16  
+**Current Plan:** P02
 **Total Plans in Phase:** 3
-**Status:** Phase verified — ready to plan Phase 16
-**Last Activity:** 2026-03-09
-**Last Activity Description:** Phase 15 已通过 `npm run check:all` 全门禁（lint/typecheck/test:coverage/build/rust），可推进 Phase 16
+**Status:** Phase 16 executing — 16-01 complete, ready for 16-02
+**Last Activity:** 2026-03-10
+**Last Activity Description:** 16-01 已完成 brand/success 分离与主窗口激活态迁移（Graphite Cyan），并通过定向回归测试
 
-**Progress:** [██████████] 100%
+**Progress:** [██████████] 96%
 
 ## Performance Metrics
 
@@ -66,6 +69,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 | Phase 15 P01 | 25min | 3 tasks | 3 files |
 | Phase 15 P02 | 1min | 2 tasks | 1 files |
 | Phase 15 P03 | 1min | 3 tasks | 4 files |
+| Phase 16 P01 | 2min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -86,14 +90,13 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 
 ### Pending Todos
 
-- `$gsd-plan-phase 16`：生成 Phase 16 的执行计划（动画/视觉系统落地）。
-- （可选）`$gsd-discuss-phase 16`：先补齐 Windows resize 稳定性/降级策略的验收口径，再进入计划生成。
+- `$gsd-execute-phase 16`：继续执行 Phase 16 的剩余计划（16-02/16-03）。
 
 ### Blockers/Concerns
 
 - 当前无阻断 blocker；重点风险集中在“窗口 resize 稳定性 + 焦点/热键契约收敛 + 回归同步更新”。
 ## Session
 
-**Last Date:** 2026-03-09T06:34:16.198Z
-**Stopped At:** Phase 15 verified; ready to plan Phase 16
+**Last Date:** 2026-03-10T00:48:04.827Z
+**Stopped At:** Completed 16-01-PLAN.md
 **Resume File:** None

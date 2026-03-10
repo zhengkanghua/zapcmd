@@ -14,7 +14,7 @@
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 质量门禁与回归基线 | 1-12 | 35 | Complete | 2026-03-06 |
-| v2.0 主窗口 B4 UI 重构 | 13-16 | 6 | Phase 15 complete | - |
+| v2.0 主窗口 B4 UI 重构 | 13-16 | 12 | Phase 16 in progress | - |
 
 ---
 
@@ -100,6 +100,13 @@ Plans:
 **Depends on:** Phase 15
 
 **Requirements:** `SIZE-03` `VIS-01` `VIS-02`
+
+**Plans:** 1/3 plans executed
+
+Plans:
+- [x] 16-01-PLAN.md — Beta Graphite Cyan：brand/success 分离（绿色不再为品牌主色）
+- [ ] 16-02-PLAN.md — Review 开合动效（dim→panel / panel→dim）+ 200ms 对齐 + Windows resize 稳定策略
+- [ ] 16-03-PLAN.md — 默认透明度 0.96 + 回归断言同步 + `check:all` 门禁
 
 **Success criteria:**
 1. 主窗口落地新颜色令牌：品牌色与 success 色彻底分离，且绿色不再作为品牌主色（仅用于成功/启用语义）。

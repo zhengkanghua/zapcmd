@@ -34,7 +34,7 @@
 
 ### Visual System
 
-- [ ] **VIS-01**: 主窗口采用新的颜色令牌：品牌色与成功色彻底分离，且绿色不再作为品牌主色
+- [x] **VIS-01**: 主窗口采用新的颜色令牌：品牌色与成功色彻底分离，且绿色不再作为品牌主色
 - [ ] **VIS-02**: 主窗口透明度与背景噪音降低，整体观感符合“专业桌面工具面板”气质（符合 `docs/ui-redesign/04`/`11` 基线）
 - [x] **VIS-03**: Review overlay 宽度提升到可读范围（约 `420px ~ 480px`），长命令在 Review 中不再明显拥挤
 
@@ -89,7 +89,7 @@
 | KEY-03 | Phase 15 | Pending |
 | KEY-04 | Phase 15 | Pending |
 | KEY-05 | Phase 15 | Pending |
-| VIS-01 | Phase 16 | Pending |
+| VIS-01 | Phase 16 | Complete |
 | VIS-02 | Phase 16 | Pending |
 | VIS-03 | Phase 14 | Complete |
 | TST-01 | Phase 15 | Pending |
