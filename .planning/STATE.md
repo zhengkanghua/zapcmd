@@ -5,16 +5,16 @@ milestone_name: 主窗口 B4 UI 重构
 current_phase: 16
 current_phase_name: 动画与视觉系统落地
 current_plan: P03
-status: executing
-stopped_at: Completed 16-02-PLAN.md
-last_updated: "2026-03-10T01:15:01.622Z"
+status: verifying
+stopped_at: Completed 16-03-PLAN.md
+last_updated: "2026-03-10T01:50:38.376Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 16
-  completed_phases: 15
+  completed_phases: 16
   total_plans: 47
-  completed_plans: 46
-  percent: 98
+  completed_plans: 47
+  percent: 100
 ---
 
 # Project State
@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 执行中：16-02 已完成 Review 开合动效 + 200ms 对齐；下一步执行 16-03（默认透明度 0.96 + 回归断言同步 + `check:all` 门禁）。
+**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成：默认透明度 0.96（范围 0.2~1.0）+ 回归断言同步，并跑通 `npm run check:all` 门禁；v2.0 全部 plans 完成，进入验证/发布流程。
 
 ## Current Position
 
@@ -33,11 +33,11 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 **Total Phases:** 16  
 **Current Plan:** P03
 **Total Plans in Phase:** 3
-**Status:** Phase 16 executing — 16-02 complete, ready for 16-03
+**Status:** Phase 16 complete — ready for verification
 **Last Activity:** 2026-03-10
-**Last Activity Description:** 16-02 已完成 Review overlay 克制开合动效，并将 state 计时与 CSS 动效统一到 200ms
+**Last Activity Description:** 16-03 已提升默认透明度到 0.96，并同步回归断言与 `check:all` 门禁
 
-**Progress:** [██████████] 98%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 | Phase 15 P03 | 1min | 3 tasks | 4 files |
 | Phase 16 P01 | 2min | 1 tasks | 1 files |
 | Phase 16 P02 | 9min | 2 tasks | 2 files |
+| Phase 16 P03 | 10min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -90,13 +91,13 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 
 ### Pending Todos
 
-- `$gsd-execute-phase 16`：继续执行 Phase 16 的剩余计划（16-03）。
+- `$gsd-verify-work`：对 v2.0 主窗口 B4 UI 做一次手动 UAT（默认透明度 0.96，滑块范围 0.2~1.0）。
 
 ### Blockers/Concerns
 
 - 当前无阻断 blocker；重点风险集中在“窗口 resize 稳定性 + 焦点/热键契约收敛 + 回归同步更新”。
 ## Session
 
-**Last Date:** 2026-03-10T01:15:01.622Z
-**Stopped At:** Completed 16-02-PLAN.md
+**Last Date:** 2026-03-10T01:50:20.638Z
+**Stopped At:** Completed 16-03-PLAN.md
 **Resume File:** None

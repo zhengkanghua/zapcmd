@@ -7,20 +7,20 @@
 
 ## Next
 
-- ▶ **Phase 16: 动画与视觉系统落地** — 动效打磨 + 视觉系统落地 + Windows resize 稳定性与降级策略
+- ▶ **v2.0 主窗口 B4 UI 重构** — 12/12 plans 完成，进入验证/发布流程
 
 ## Progress
 
 | Milestone | Phases | Plans | Status | Shipped |
 |-----------|--------|-------|--------|---------|
 | v1.0 质量门禁与回归基线 | 1-12 | 35 | Complete | 2026-03-06 |
-| v2.0 主窗口 B4 UI 重构 | 13-16 | 12 | Phase 16 in progress | - |
+| v2.0 主窗口 B4 UI 重构 | 13-16 | 12 | Complete | - |
 
 ---
 
 ## Milestone v2.0: 主窗口 B4 UI 重构
 
-**Status:** 🚧 In progress
+**Status:** ✅ Complete
 
 本里程碑的唯一结构方案：**B4 = Overlay Review Mode with Floor Height Protection**  
 范围：只做 launcher 主窗口；`settings` 继续保持独立窗口且不纳入本轮重构。
@@ -101,12 +101,12 @@ Plans:
 
 **Requirements:** `SIZE-03` `VIS-01` `VIS-02`
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 16-01-PLAN.md — Beta Graphite Cyan：brand/success 分离（绿色不再为品牌主色）
 - [x] 16-02-PLAN.md — Review 开合动效（dim→panel / panel→dim）+ 200ms 对齐 + Windows resize 稳定策略
-- [ ] 16-03-PLAN.md — 默认透明度 0.96 + 回归断言同步 + `check:all` 门禁
+- [x] 16-03-PLAN.md — 默认透明度 0.96 + 回归断言同步 + `check:all` 门禁
 
 **Success criteria:**
 1. 主窗口落地新颜色令牌：品牌色与 success 色彻底分离，且绿色不再作为品牌主色（仅用于成功/启用语义）。

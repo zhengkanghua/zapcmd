@@ -138,3 +138,6 @@
 ## 补充（2026-03-10｜Phase 16-02 执行完成）
 - Review overlay 开合动效落地：opening dim 先出现再滑入；closing 先滑出再去 dim；总时长约 200ms，仅 `opacity/transform`。
 - `STAGING_TRANSITION_MS=200` 并同步 staging-panel 动画时长；回归：`npm run test:run -- src/composables/__tests__/launcher/useLauncherWatchers.test.ts` 通过。
+
+## 补充（2026-03-10｜Phase 16-03 执行完成）
+- 默认透明度提升至 0.96（范围仍 0.2~1.0），同步 CSS `--ui-opacity` 与回归断言，并跑通 `npm run check:all`。
