@@ -85,7 +85,6 @@ const { onRootPointerDown } = useLauncherHitZones({
     <div
       :ref="props.setSearchShellRef"
       class="search-shell"
-      :class="{ 'search-shell--staging-wide': props.stagingExpanded }"
       :style="props.searchShellStyle"
       role="application"
       :aria-label="t('app.launcherAriaLabel')"
