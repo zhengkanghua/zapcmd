@@ -15,7 +15,7 @@
 
 - [x] **SIZE-01**: 当搜索结果不足 4 条高度时，用户打开 Review 前左侧抽屉会被补足到 floor height（= “4 条结果高度 + 搜索框高度”的计算值；其中搜索框高度以 `.search-form` 容器渲染高度为准，含 padding，非 input 高度；仅 filler/spacer；无假结果数据/DOM）
 - [x] **SIZE-02**: Review overlay 的最小可视高度与 floor height 对齐，且 Review 列表在面板内部滚动（不随队列项持续拉高窗口）
-- [ ] **SIZE-03**: Review 打开/关闭涉及窗口 resize 时在 Windows 下稳定可用（允许采用“先稳定尺寸再动画”的策略，并保留降级路径）
+- [x] **SIZE-03**: Review 打开/关闭涉及窗口 resize 时在 Windows 下稳定可用（允许采用“先稳定尺寸再动画”的策略，并保留降级路径）
 - [x] **SIZE-04**: sizing/floor height 的比较与补齐不把顶部拖拽区计入内容高度
 
 ### Review Overlay（Queue/Review）
@@ -79,7 +79,7 @@
 | SHELL-03 | Phase 14 | Complete |
 | SIZE-01 | Phase 13 | Complete |
 | SIZE-02 | Phase 14 | Complete |
-| SIZE-03 | Phase 16 | Pending |
+| SIZE-03 | Phase 16 | Complete |
 | SIZE-04 | Phase 13 | Complete |
 | REV-01 | Phase 14 | Complete |
 | REV-02 | Phase 14 | Complete |

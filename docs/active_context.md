@@ -134,3 +134,7 @@
 
 ## 补充（2026-03-10｜Phase 16-01 执行完成）
 - 主窗口完成 brand/success 分离：引入 `--ui-brand(#4CC9F0)` / `--ui-success(#2DD4BF)`；Queue pill、结果选中/聚焦、主按钮、focus ring、staged feedback 动画统一使用 brand；执行成功反馈仅使用 success。回归：`npm run test:run -- src/components/launcher/parts/__tests__/LauncherReviewOverlay.test.ts` 通过。
+
+## 补充（2026-03-10｜Phase 16-02 执行完成）
+- Review overlay 开合动效落地：opening dim 先出现再滑入；closing 先滑出再去 dim；总时长约 200ms，仅 `opacity/transform`。
+- `STAGING_TRANSITION_MS=200` 并同步 staging-panel 动画时长；回归：`npm run test:run -- src/composables/__tests__/launcher/useLauncherWatchers.test.ts` 通过。

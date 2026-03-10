@@ -101,11 +101,11 @@ Plans:
 
 **Requirements:** `SIZE-03` `VIS-01` `VIS-02`
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [x] 16-01-PLAN.md — Beta Graphite Cyan：brand/success 分离（绿色不再为品牌主色）
-- [ ] 16-02-PLAN.md — Review 开合动效（dim→panel / panel→dim）+ 200ms 对齐 + Windows resize 稳定策略
+- [x] 16-02-PLAN.md — Review 开合动效（dim→panel / panel→dim）+ 200ms 对齐 + Windows resize 稳定策略
 - [ ] 16-03-PLAN.md — 默认透明度 0.96 + 回归断言同步 + `check:all` 门禁
 
 **Success criteria:**
