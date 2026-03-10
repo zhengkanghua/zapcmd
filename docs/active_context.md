@@ -151,3 +151,6 @@
 
 ## 补充（2026-03-10｜Phase 17 设计落盘）
 - 已落盘“面板内 2/3 覆盖抽屉（搜索框下方三层：结果→遮罩→抽屉；点击遮罩关闭并回焦搜索框）”设计稿，并追加到 v2.0 Roadmap：见 `docs/superpowers/specs/2026-03-10-launcher-review-drawer-overlay-design.md` 与 `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-CONTEXT.md`。
+
+## 补充（2026-03-10｜Phase 17 规划完成）
+- 已生成 Phase 17 的 `17-01/02/03-*-PLAN.md`（3 waves）并补齐 `17-RESEARCH.md`，计划已校验通过；下一步执行：`$gsd-execute-phase 17`。

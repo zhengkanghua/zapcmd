@@ -116,10 +116,12 @@ Plans:
 
 ### Phase 17: 面板内 2/3 覆盖抽屉（in-panel 2/3 review drawer overlay）
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** 将 Review（暂存队列）从“search-shell 变宽 + 右侧独立列”的分离抽屉感，回归为同一张搜索面板内部、仅覆盖搜索框下方内容区的 2/3 抽屉式 overlay（轻 dim scrim + 右滑入 drawer），并保持既有关闭/焦点/滚轮与 reduced-motion 契约不回归。
+**Requirements**: 无新增 requirement（结构/呈现修正 + 回归护栏）
 **Depends on:** Phase 16
-**Plans:** 0 plans
+**Plans:** 0/3 plans executed
 
 Plans:
-- [ ] TBD (run `$gsd-plan-phase 17` to break down)
+- [ ] 17-01-in-panel-overlay-structure-PLAN.md — DOM 归位到内容区 + scrim 范围与动效对齐
+- [ ] 17-02-remove-staging-wide-width-chain-PLAN.md — 移除窗口变宽链路（metrics + width calculation）
+- [ ] 17-03-regression-tests-PLAN.md — 回归测试：宽度不扩展 + in-panel overlay 契约
