@@ -157,3 +157,11 @@
 
 ## 补充（2026-03-10｜Phase 17 执行完成）
 - Review 已回归为“面板内容区内 2/3 overlay 抽屉”，并切断“打开导致窗口变宽”的链路；回归护栏已补齐且 `npm run check:all` 全绿。已生成 `17-VERIFICATION.md`（status=`human_needed`）待 Windows smoke。
+
+## 补充（2026-03-10｜Review 体验微调）
+- Review 体验微调（已回滚）：不再强制加深遮罩/增加 preopening 门控/调整 search-main floor 布局。
+
+## 补充（2026-03-11｜Phase 16/17 Windows 验证通过）
+- 透明度规则修正：窗口根背景永远保持透明；设置里的“窗口透明度”仅影响 UI 样式（`--ui-opacity` → `--ui-bg` 等），不改变窗口本身透明性。
+- 仅移除主窗外圈蓝色描边：删除 `.search-main:focus-within` 的蓝色 `border-color`；`npm run check:all` 全绿。
+- 去蓝色主题：`--ui-brand` 改为灰色；搜索匹配高亮单独用 `--ui-search-hl` 保持蓝色。
