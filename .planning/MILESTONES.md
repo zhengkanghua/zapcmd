@@ -1,5 +1,32 @@
 # Project Milestones: ZapCmd
 
+## v2.0 主窗口 B4 UI 重构 (Shipped: 2026-03-11)
+
+**Delivered:** 主窗口升级为 B4：单焦点搜索态 + Review overlay + floor height（无假结果 DOM）+ 新视觉系统与回归护栏，保持 `npm run check:all` 全绿。
+
+**Phases completed:** 13-17（12 plans，35 tasks）
+
+**Key accomplishments:**
+- 建立 floor height / sizing 底座，并以 filler/spacer 达成“无假结果 DOM”约束，补齐可定位回归断言（Phase 13）。
+- 将右侧常驻并列 staging 改为 Review overlay：背景锁定、可读宽度与摘要呈现（Phase 14）。
+- 收口键盘/焦点/关闭语义：toggleQueue / switchFocus / Esc 分层后退 / Review 内 Tab 循环（Phase 15）。
+- 视觉与动效系统落地：brand/success 分离、透明度与动画时序收敛，并保持窗口根背景透明规则（Phase 16）。
+- Phase 17 将 Review 呈现回归为“同面板内 2/3 overlay 抽屉”，切断“打开导致窗口变宽”的链路并补齐回归护栏。
+
+**Known gaps（accepted as tech debt）:**
+- REQUIREMENTS 中 `KEY-01~KEY-05`、`TST-01` 仍标记为 Pending（后续 v2.1+ 复核与补齐）。
+
+**Stats:**
+- 238 files changed, +21,407 / -1,930 LOC（git range: `v1.0.1..HEAD`）
+- 5 phases，12 plans，35 tasks，132 commits in milestone range
+- 6 days from milestone start to ship（2026-03-05 → 2026-03-11）
+
+**Git range:** `ffb7e92` → `00ade67`
+
+**What's next:** 进入 `$gsd-new-milestone` 开启 v2.1（需求 → roadmap → phases）。
+
+---
+
 ## v1.0 质量门禁与回归基线 (Shipped: 2026-03-06)
 
 **Delivered:** 建立以回归、覆盖率和可测试性为核心的 v1.0 质量基线，并把 macOS desktop smoke 的真实能力边界收敛到统一口径。

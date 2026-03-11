@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: 主窗口 B4 UI 重构
-current_phase: 17
-current_phase_name: 面板内 2/3 覆盖抽屉
-current_plan: 17-03
-status: verifying
-stopped_at: Phase 17 verification: human_needed（见 17-VERIFICATION.md）
-last_updated: "2026-03-10T12:56:42.657Z"
-last_activity: 2026-03-10
+current_phase: 0
+current_phase_name: —
+current_plan: —
+status: complete
+stopped_at: Milestone v2.0 已归档（见 `.planning/milestones/v2.0-ROADMAP.md`）
+last_updated: "2026-03-11T15:23:59+08:00"
+last_activity: 2026-03-11
 progress:
   total_phases: 17
   completed_phases: 17
@@ -21,23 +21,23 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-07)
+See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** 用最少的操作，快速且安全地找到并执行命令工作流，并且每次迭代都能通过自动化回归验证保持稳定。  
-**Current focus:** v2.0（主窗口 B4 UI 重构）Phase 16 已完成落地与门禁；验证报告 `16-VERIFICATION.md`（status=`human_needed`）待 Windows smoke。Phase 17（面板内 2/3 覆盖抽屉）已完成 3/3 plans 与自动化门禁（`npm run check:all` 全绿），当前进入人工验证：见 `17-VERIFICATION.md`。
+**Current focus:** v2.0 已收口并归档；下一步启动 v2.1：`$gsd-new-milestone`（需求 → roadmap → phases）。
 
 ## Current Position
 
-**Current Phase:** 17
-**Current Phase Name:** 面板内 2/3 覆盖抽屉
+**Current Phase:** —
+**Current Phase Name:** —
 **Total Phases:** 17  
-**Current Plan:** 17-03（已完成）
-**Total Plans in Phase:** 3
-**Status:** Phase 17 verification: human_needed
-**Last Activity:** 2026-03-10
-**Last Activity Description:** Phase 17 已通过自动化门禁并生成回归护栏；等待 Windows 手动确认观感与真实窗口行为
+**Current Plan:** —
+**Total Plans in Phase:** —
+**Status:** Milestone v2.0 complete（archived）
+**Last Activity:** 2026-03-11
+**Last Activity Description:** 已归档 v2.0 ROADMAP/REQUIREMENTS，并准备进入 v2.1 里程碑循环
 
-**Progress:** [█████████░] 94%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -87,19 +87,17 @@ See: .planning/PROJECT.md (updated 2026-03-07)
 ### Roadmap Evolution
 
 - v1.0 已归档到 `.planning/milestones/`。
-- v2.0 进入规划：主窗口 B4 UI 重构（见 `docs/ui-redesign/`）。
-- Phase 17 added: 面板内 2/3 覆盖抽屉（in-panel 2/3 review drawer overlay）
+- v2.0 已归档到 `.planning/milestones/`（`v2.0-ROADMAP.md` / `v2.0-REQUIREMENTS.md`）。
 
 ### Pending Todos
 
-- `$gsd-verify-work 16`：按 `16-VERIFICATION.md` 在 Windows 做手动 smoke（Review 开合动效时序 + resize 稳定性；brand/success 语义分离观感；默认透明度 0.96 与滑块范围 0.2~1.0）。
-- `$gsd-verify-work 17`：按 `17-VERIFICATION.md` 在 Windows 做手动 smoke（in-panel overlay 范围 + 开合期间宽度体感稳定）。
+- 无（进入下一里程碑：`$gsd-new-milestone`）
 
 ### Blockers/Concerns
 
 - 当前无阻断 blocker；重点风险集中在“窗口 resize 稳定性 + 焦点/热键契约收敛 + 回归同步更新”。
 ## Session
 
-**Last Date:** 2026-03-10T10:35:42.111Z
-**Stopped At:** Phase 17 context gathered
-**Resume File:** .planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-CONTEXT.md
+**Last Date:** 2026-03-11T15:23:59+08:00
+**Stopped At:** Milestone v2.0 archived
+**Resume File:** —
