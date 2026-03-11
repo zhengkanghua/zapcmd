@@ -3,6 +3,7 @@ import { nextTick, ref, watch } from "vue";
 import { useI18nText } from "../../../i18n";
 import { summarizeCommandForFeedback } from "../../../composables/execution/useCommandExecution/helpers";
 import type { ElementRefArg, LauncherReviewOverlayProps } from "../types";
+import LauncherIcon from "./LauncherIcon.vue";
 
 const props = defineProps<LauncherReviewOverlayProps>();
 const { t } = useI18nText();
@@ -137,6 +138,13 @@ function onStagingArgInput(id: string, key: string, event: Event): void {
   emit("update-staged-arg", id, key, (event.target as HTMLInputElement).value);
 }
 
+function formatCount(count: number): string {
+  if (!Number.isFinite(count) || count <= 0) {
+    return "0";
+  }
+  return count > 99 ? "99+" : String(count);
+}
+
 async function copyCommand(command: string): Promise<void> {
   try {
     if (!navigator.clipboard?.writeText) {
@@ -170,11 +178,26 @@ async function copyCommand(command: string): Promise<void> {
     >
       <header class="review-panel__header">
         <div class="review-panel__heading">
-          <h2>{{ t("launcher.queueTitle", { count: props.stagedCommands.length }) }}</h2>
+          <h2 class="review-panel__tab" :title="t('launcher.queueTitle', { count: props.stagedCommands.length })">
+            <LauncherIcon name="queue" />
+            <span aria-hidden="true">
+              {{ t("launcher.queueTitle", { count: formatCount(props.stagedCommands.length) }) }}
+            </span>
+            <span class="visually-hidden">
+              {{ t("launcher.queueTitle", { count: props.stagedCommands.length }) }}
+            </span>
+          </h2>
           <span class="review-panel__hint">{{ props.stagingHintText }}</span>
         </div>
-        <button ref="closeButtonRef" type="button" class="btn-muted btn-small" @click="closeReview">
-          {{ t("common.close") }}
+        <button
+          ref="closeButtonRef"
+          type="button"
+          class="btn-muted btn-icon btn-small"
+          :aria-label="t('common.close')"
+          :title="t('common.close')"
+          @click="closeReview"
+        >
+          <LauncherIcon name="x" />
         </button>
       </header>
 
@@ -209,19 +232,23 @@ async function copyCommand(command: string): Promise<void> {
               <div class="review-card__actions">
                 <button
                   type="button"
-                  class="btn-muted btn-small"
+                  class="btn-muted btn-icon btn-small"
                   :disabled="props.executing"
+                  :aria-label="t('common.copy')"
+                  :title="t('common.copy')"
                   @click.stop="copyCommand(cmd.renderedCommand)"
                 >
-                  {{ t("common.copy") }}
+                  <LauncherIcon name="copy" />
                 </button>
                 <button
                   type="button"
-                  class="btn-danger btn-small"
+                  class="btn-danger btn-icon btn-small"
                   :disabled="props.executing"
+                  :aria-label="t('common.remove')"
+                  :title="t('common.remove')"
                   @click.stop="emit('remove-staged-command', cmd.id)"
                 >
-                  {{ t("common.remove") }}
+                  <LauncherIcon name="x" />
                 </button>
               </div>
             </header>
@@ -245,8 +272,15 @@ async function copyCommand(command: string): Promise<void> {
       </ul>
 
       <footer class="review-panel__footer">
-        <button type="button" class="btn-muted" :disabled="props.executing" @click="emit('clear-staging')">
-          {{ t("common.clear") }}
+        <button
+          type="button"
+          class="btn-danger btn-icon"
+          :disabled="props.executing"
+          :aria-label="t('common.clear')"
+          :title="t('common.clear')"
+          @click="emit('clear-staging')"
+        >
+          <LauncherIcon name="trash" />
         </button>
         <button
           type="button"

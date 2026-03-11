@@ -84,7 +84,7 @@ function readQueueCount(wrapper: VueWrapper): number {
   if (!pill.exists()) {
     return 0;
   }
-  const match = pill.text().match(/(\d+)/);
+  const match = (pill.attributes("aria-label") ?? "").match(/(\d+)/);
   return match ? Number(match[1]) : Number.NaN;
 }
 
