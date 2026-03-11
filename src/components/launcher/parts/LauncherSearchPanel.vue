@@ -21,6 +21,7 @@ const emit = defineEmits<{
   (e: "update-staged-arg", id: string, key: string, value: string): void;
   (e: "clear-staging"): void;
   (e: "execute-staged"): void;
+  (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
 }>();
 
 function onSearchFormPointerDown(event: PointerEvent): void {
@@ -86,7 +87,15 @@ function onSearchInput(event: Event): void {
         aria-label="result-drawer"
         data-testid="result-drawer"
       >
-        <p class="keyboard-hint">{{ props.keyboardHintText }}</p>
+        <p v-if="props.keyboardHints?.length" class="keyboard-hint">
+          <span v-for="(hint, index) in props.keyboardHints" :key="index" class="keyboard-hint__item">
+            <span class="keyboard-hint__keys">
+              <kbd v-for="key in hint.keys" :key="key">{{ key }}</kbd>
+            </span>
+            <span class="keyboard-hint__action">{{ hint.action }}</span>
+            <span v-if="index < props.keyboardHints.length - 1" class="keyboard-hint__sep">·</span>
+          </span>
+        </p>
         <ul v-if="props.filteredResults.length > 0" class="result-list">
           <li v-for="(item, index) in props.filteredResults" :key="item.id">
             <button
@@ -119,10 +128,18 @@ function onSearchInput(event: Event): void {
             </button>
           </li>
         </ul>
-        <p v-else class="drawer-empty">
-          <span class="drawer-empty__title">{{ t("launcher.noResult") }}</span>
-          <span class="drawer-empty__hint">{{ t("launcher.noResultHint") }}</span>
-        </p>
+        <div v-else class="drawer-empty" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-color: transparent;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="drawer-empty__title" style="font-size: 13px; margin: 0;">{{ t("launcher.noResult") }}</span>
+            <span class="drawer-empty__hint" style="font-size: 12px; margin: 0; color: var(--ui-subtle);">{{ t("launcher.noResultHint") }}</span>
+          </div>
+          <span class="keyboard-hint" style="padding: 0; min-height: auto;">
+            <span class="keyboard-hint__item">
+              <span class="keyboard-hint__keys"><kbd>Esc</kbd></span>
+              <span class="keyboard-hint__action">{{ t("common.cancel") }}</span>
+            </span>
+          </span>
+        </div>
         <div
           v-if="props.drawerFillerHeight > 0"
           class="result-drawer__filler"
@@ -146,7 +163,7 @@ function onSearchInput(event: Event): void {
         :staging-drawer-state="props.stagingDrawerState"
         :staging-expanded="props.reviewOpen"
         :staged-commands="props.stagedCommands"
-        :staging-hint-text="props.stagingHintText"
+        :staging-hints="props.stagingHints"
         :staging-list-should-scroll="props.stagingListShouldScroll"
         :staging-list-max-height="props.stagingListMaxHeight"
         :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
@@ -164,6 +181,7 @@ function onSearchInput(event: Event): void {
         @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
         @clear-staging="emit('clear-staging')"
         @execute-staged="emit('execute-staged')"
+        @execution-feedback="(t: 'neutral' | 'success' | 'error', m: string) => emit('execution-feedback', t, m)"
       />
     </section>
   </section>

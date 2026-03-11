@@ -14,7 +14,8 @@ import type {
   FocusZone,
   LauncherSafetyDialog,
   ParamSubmitMode,
-  StagingDrawerState
+  StagingDrawerState,
+  KeyboardHint
 } from "./types";
 
 const props = defineProps<{
@@ -28,13 +29,13 @@ const props = defineProps<{
   drawerViewportHeight: number;
   drawerFloorViewportHeight: number;
   drawerFillerHeight: number;
-  keyboardHintText: string;
+  keyboardHints: KeyboardHint[];
   filteredResults: CommandTemplate[];
   activeIndex: number;
   stagedFeedbackCommandId: string | null;
   stagedCommands: StagedCommand[];
   stagingDrawerState: StagingDrawerState;
-  stagingHintText: string;
+  stagingHints: KeyboardHint[];
   stagingListShouldScroll: boolean;
   stagingListMaxHeight: string;
   focusZone: FocusZone;
@@ -73,6 +74,7 @@ const emit = defineEmits<{
   (e: "confirm-safety-execution"): void;
   (e: "cancel-safety-execution"): void;
   (e: "blank-pointerdown"): void;
+  (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
 }>();
 
 const { onRootPointerDown } = useLauncherHitZones({
@@ -105,7 +107,7 @@ const { onRootPointerDown } = useLauncherHitZones({
         :drawer-viewport-height="props.drawerViewportHeight"
         :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
         :drawer-filler-height="props.drawerFillerHeight"
-        :keyboard-hint-text="props.keyboardHintText"
+        :keyboard-hints="props.keyboardHints"
         :filtered-results="props.filteredResults"
         :active-index="props.activeIndex"
         :staged-feedback-command-id="props.stagedFeedbackCommandId"
@@ -113,7 +115,7 @@ const { onRootPointerDown } = useLauncherHitZones({
         :review-open="props.stagingExpanded"
         :staging-drawer-state="props.stagingDrawerState"
         :staged-commands="props.stagedCommands"
-        :staging-hint-text="props.stagingHintText"
+        :staging-hints="props.stagingHints"
         :staging-list-should-scroll="props.stagingListShouldScroll"
         :staging-list-max-height="props.stagingListMaxHeight"
         :focus-zone="props.focusZone"
@@ -134,20 +136,20 @@ const { onRootPointerDown } = useLauncherHitZones({
         @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
         @clear-staging="emit('clear-staging')"
         @execute-staged="emit('execute-staged')"
+        @execution-feedback="(t, m) => emit('execution-feedback', t, m)"
+      />
+      <LauncherParamOverlay
+        :pending-command="props.pendingCommand"
+        :pending-args="props.pendingArgs"
+        :pending-arg-values="props.pendingArgValues"
+        :pending-submit-hint="props.pendingSubmitHint"
+        :pending-submit-mode="props.pendingSubmitMode"
+        :set-param-input-ref="props.setParamInputRef"
+        @submit-param-input="emit('submit-param-input')"
+        @cancel-param-input="emit('cancel-param-input')"
+        @update-pending-arg="(key, value) => emit('update-pending-arg', key, value)"
       />
     </div>
-
-    <LauncherParamOverlay
-      :pending-command="props.pendingCommand"
-      :pending-args="props.pendingArgs"
-      :pending-arg-values="props.pendingArgValues"
-      :pending-submit-hint="props.pendingSubmitHint"
-      :pending-submit-mode="props.pendingSubmitMode"
-      :set-param-input-ref="props.setParamInputRef"
-      @submit-param-input="emit('submit-param-input')"
-      @cancel-param-input="emit('cancel-param-input')"
-      @update-pending-arg="(key, value) => emit('update-pending-arg', key, value)"
-    />
 
     <LauncherSafetyOverlay
       :safety-dialog="props.safetyDialog"

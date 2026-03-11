@@ -53,13 +53,13 @@ export function createAppCompositionViewModel(
     drawerViewportHeight: runtime.layoutMetrics.drawerViewportHeight,
     drawerFloorViewportHeight: runtime.layoutMetrics.drawerFloorViewportHeight,
     drawerFillerHeight: runtime.layoutMetrics.drawerFillerHeight,
-    keyboardHintText: context.hotkeyBindings.keyboardHintText,
+    keyboardHints: context.hotkeyBindings.keyboardHints,
     filteredResults: context.search.filteredResults,
     activeIndex: context.search.activeIndex,
     stagedFeedbackCommandId: context.stagedFeedback.stagedFeedbackCommandId,
     stagedCommands: context.stagedCommands,
     stagingDrawerState: runtime.stagingQueue.stagingDrawerState,
-    stagingHintText: context.hotkeyBindings.stagingHintText,
+    stagingHints: context.hotkeyBindings.stagingHints,
     stagingListShouldScroll: runtime.layoutMetrics.stagingListShouldScroll,
     stagingListMaxHeight: runtime.layoutMetrics.stagingListMaxHeight,
     focusZone: runtime.stagingQueue.focusZone,
@@ -151,6 +151,7 @@ export function createAppCompositionViewModel(
     hideMainWindow: runtime.hideMainWindow,
     saveSettings: context.settingsWindow.saveSettings,
     windowOpacity: context.windowOpacity,
-    setWindowOpacity: settingsMutationHandlers.setWindowOpacity
+    setWindowOpacity: settingsMutationHandlers.setWindowOpacity,
+    setExecutionFeedback: runtime.commandExecution.setExecutionFeedback
   };
 }

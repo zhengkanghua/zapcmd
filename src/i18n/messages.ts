@@ -13,20 +13,23 @@ export const messages = {
       clear: "清空",
       remove: "移除",
       execute: "执行",
-      search: "搜索"
+      search: "搜索",
+      copied: "已复制到剪贴板",
+      copyFailed: "复制失败"
     },
     launcher: {
       searchPlaceholder: "输入命令关键词...",
       noResult: "没有匹配到命令。",
       noResultHint: "试试更短的关键词，或按 Esc 清空后重新搜索。",
-      queueToggleAria: "切换队列，当前 {count} 项",
-      queueTitle: "队列 {count}",
-      queueEmpty: "队列为空。",
+      queueToggleAria: "切换执行流，当前 {count} 节点",
+      queueTitle: "执行流 {count}",
+      queueEmpty: "执行流为空。",
+      queueEmptyHint: "执行流暂无运行命令。",
       executeAll: "执行全部",
       executing: "执行中...",
       paramTitle: "填写参数",
       executeNow: "立即执行",
-      stageToQueue: "加入队列",
+      stageToQueue: "加入执行流",
       safetyDialogAria: "高风险命令确认"
     },
     settings: {
@@ -44,23 +47,23 @@ export const messages = {
         hint: "点击任一快捷键项后，直接按键录制。录制过程中按 Esc 可取消。",
         sectionGlobal: "全局快捷键",
         sectionSearch: "搜索区快捷键",
-        sectionQueue: "队列快捷键",
+        sectionQueue: "执行流快捷键",
         recording: "请按快捷键...",
         unset: "未设置",
         fields: {
           launcher: "唤起窗口",
-          toggleQueue: "显示/隐藏暂存区",
+          toggleQueue: "显示/隐藏执行流",
           switchFocus: "切换焦点区域",
           navigateUp: "上移选择",
           navigateDown: "下移选择",
           executeSelected: "执行当前命令",
-          stageSelected: "加入队列",
+          stageSelected: "加入执行流",
           escape: "返回/隐藏窗口",
-          executeQueue: "执行队列",
-          clearQueue: "清空队列",
-          removeQueueItem: "移除队列项",
-          reorderUp: "队列上移",
-          reorderDown: "队列下移"
+          executeQueue: "运行执行流",
+          clearQueue: "清空执行流",
+          removeQueueItem: "移除当前节点",
+          reorderUp: "节点上移",
+          reorderDown: "节点下移"
         }
       },
       general: {
@@ -200,11 +203,18 @@ export const messages = {
     hotkeyHints: {
       stagingFocus: "{switchFocus} 切焦点",
       keyboard:
-        "{navigateUp}/{navigateDown} 选择 · {executeSelected} 执行 · {stageSelected} 入队 · {toggleQueue} 显隐 · {switchFocus} 切焦点"
+        "{navigateUp}/{navigateDown} 选择 · {executeSelected} 执行 · {stageSelected} 入队 · {toggleQueue} 显隐 · {switchFocus} 切焦点",
+      actions: {
+        navigate: "选择",
+        execute: "执行",
+        stage: "加执行流",
+        toggleQueue: "执行流",
+        switchFocus: "切焦点"
+      }
     },
     runtime: {
       submitExecuteHint: "按 Enter 会立即执行此命令。",
-      submitStageHint: "按 Enter 会将此命令加入队列。"
+      submitStageHint: "按 Enter 会将此命令加入执行流。"
     },
     execution: {
       emptyCommand: "（空命令）",
@@ -213,19 +223,19 @@ export const messages = {
       failed: "执行失败：{reason}",
       failedWithNextStep: "执行失败：{reason}。下一步：{nextStep}",
       failedFallback: "请检查终端环境或命令参数。",
-      queueEmpty: "队列中没有可执行命令。",
-      queueSuccess: "已在同一终端顺序执行 {count} 条命令（首条：{firstCommand}）。",
-      queueFailed: "执行队列失败：{reason}",
-      queueFailedWithNextStep: "执行队列失败：{reason}。下一步：{nextStep}",
-      queueFailedFallback: "执行队列失败，请检查终端环境或命令参数。",
+      queueEmpty: "执行流中没有可运行命令。",
+      queueSuccess: "已在同一终端顺序执行 {count} 个节点（首个：{firstCommand}）。",
+      queueFailed: "运行执行流失败：{reason}",
+      queueFailedWithNextStep: "运行执行流失败：{reason}。下一步：{nextStep}",
+      queueFailedFallback: "运行执行流失败，请检查终端环境或命令参数。",
       blocked: "执行已拦截：{reason}",
       blockedWithNextStep: "执行已拦截：{reason}。下一步：{nextStep}",
       nextStepTerminalUnavailable: "检查并切换可用终端后重试。",
       nextStepInvalidParams: "检查必填参数与输入格式后重试。",
       nextStepBlocked: "移除高风险或注入片段后重试。",
       nextStepUnknown: "请重试；若仍失败请查看日志并反馈。",
-      safetyQueueTitle: "确认执行高风险队列",
-      safetyQueueDescription: "队列中有 {count} 条命令涉及高风险操作，请确认后执行。",
+      safetyQueueTitle: "确认运行高风险执行流",
+      safetyQueueDescription: "执行流中有 {count} 个命令涉及高风险操作，请确认后执行。",
       safetySingleTitle: "确认执行高风险命令",
       safetySingleDescription: "当前命令可能影响系统状态，请确认后执行。"
     },
@@ -269,20 +279,23 @@ export const messages = {
       clear: "Clear",
       remove: "Remove",
       execute: "Execute",
-      search: "Search"
+      search: "Search",
+      copied: "Copied to clipboard",
+      copyFailed: "Copy failed"
     },
     launcher: {
       searchPlaceholder: "Type command keywords...",
       noResult: "No matching command found.",
       noResultHint: "Try a shorter keyword, or press Esc to clear and search again.",
-      queueToggleAria: "Toggle queue, currently {count} item(s)",
-      queueTitle: "Queue {count}",
-      queueEmpty: "Queue is empty.",
+      queueToggleAria: "Toggle execution flow, currently {count} node(s)",
+      queueTitle: "Flow {count}",
+      queueEmpty: "Flow is empty.",
+      queueEmptyHint: "No commands in the flow.",
       executeAll: "Run all",
       executing: "Running...",
       paramTitle: "Fill parameters",
       executeNow: "Run now",
-      stageToQueue: "Add to queue",
+      stageToQueue: "Add to flow",
       safetyDialogAria: "High-risk command confirmation"
     },
     settings: {
@@ -301,23 +314,23 @@ export const messages = {
           "Click any hotkey field and press keys to record. Press Esc while recording to cancel.",
         sectionGlobal: "Global Hotkeys",
         sectionSearch: "Search Area Hotkeys",
-        sectionQueue: "Queue Hotkeys",
+        sectionQueue: "Flow Hotkeys",
         recording: "Press hotkey...",
         unset: "Not set",
         fields: {
           launcher: "Open launcher",
-          toggleQueue: "Show/Hide queue",
+          toggleQueue: "Show/Hide flow",
           switchFocus: "Switch focus zone",
           navigateUp: "Move selection up",
           navigateDown: "Move selection down",
           executeSelected: "Run selected command",
-          stageSelected: "Add to queue",
+          stageSelected: "Add to flow",
           escape: "Back/Hide window",
-          executeQueue: "Run queue",
-          clearQueue: "Clear queue",
-          removeQueueItem: "Remove queue item",
-          reorderUp: "Move queue item up",
-          reorderDown: "Move queue item down"
+          executeQueue: "Run flow sequence",
+          clearQueue: "Clear flow",
+          removeQueueItem: "Remove flow node",
+          reorderUp: "Move node up",
+          reorderDown: "Move node down"
         }
       },
       general: {
@@ -460,11 +473,18 @@ export const messages = {
     hotkeyHints: {
       stagingFocus: "{switchFocus} focus",
       keyboard:
-        "{navigateUp}/{navigateDown} navigate · {executeSelected} run · {stageSelected} stage · {toggleQueue} toggle queue · {switchFocus} switch focus"
+        "{navigateUp}/{navigateDown} navigate · {executeSelected} run · {stageSelected} stage · {toggleQueue} toggle queue · {switchFocus} switch focus",
+      actions: {
+        navigate: "navigate",
+        execute: "run",
+        stage: "add to flow",
+        toggleQueue: "flow",
+        switchFocus: "focus"
+      }
     },
     runtime: {
       submitExecuteHint: "Press Enter to run this command now.",
-      submitStageHint: "Press Enter to add this command to queue."
+      submitStageHint: "Press Enter to add this command to the flow."
     },
     execution: {
       emptyCommand: "(empty command)",
@@ -473,20 +493,20 @@ export const messages = {
       failed: "Execution failed: {reason}",
       failedWithNextStep: "Execution failed: {reason}. Next step: {nextStep}",
       failedFallback: "Please check terminal environment or command arguments.",
-      queueEmpty: "No executable command in queue.",
-      queueSuccess: "Executed {count} command(s) sequentially in the same terminal (first: {firstCommand}).",
-      queueFailed: "Queue execution failed: {reason}",
-      queueFailedWithNextStep: "Queue execution failed: {reason}. Next step: {nextStep}",
-      queueFailedFallback: "Queue execution failed. Check terminal environment or command arguments.",
+      queueEmpty: "No executable commands in the flow.",
+      queueSuccess: "Executed {count} node(s) sequentially in the same terminal (first: {firstCommand}).",
+      queueFailed: "Flow execution failed: {reason}",
+      queueFailedWithNextStep: "Flow execution failed: {reason}. Next step: {nextStep}",
+      queueFailedFallback: "Flow execution failed. Check terminal environment or command arguments.",
       blocked: "Execution blocked: {reason}",
       blockedWithNextStep: "Execution blocked: {reason}. Next step: {nextStep}",
       nextStepTerminalUnavailable: "Check available terminals and retry.",
       nextStepInvalidParams: "Fix required arguments or invalid input, then retry.",
       nextStepBlocked: "Remove risky or injection-like fragments, then retry.",
       nextStepUnknown: "Retry once; if it still fails, check logs and report.",
-      safetyQueueTitle: "Confirm high-risk queue execution",
+      safetyQueueTitle: "Confirm high-risk flow execution",
       safetyQueueDescription:
-        "{count} command(s) in queue involve high-risk operations. Confirm before execution.",
+        "{count} node(s) in the flow involve high-risk operations. Confirm before execution.",
       safetySingleTitle: "Confirm high-risk command execution",
       safetySingleDescription: "This command may affect system state. Confirm before execution."
     },

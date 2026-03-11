@@ -2,8 +2,13 @@ import type { ComponentPublicInstance } from "vue";
 import type { CommandArg, CommandTemplate } from "../../features/commands/commandTemplates";
 import type { StagedCommand } from "../../features/launcher/types";
 
+export interface KeyboardHint {
+  keys: string[];
+  action: string;
+}
+
 export type ParamSubmitMode = "stage" | "execute";
-export type FocusZone = "search" | "staging";
+export type FocusZone = "search" | "paging" | "results" | "staging";
 export type StagingDrawerState = "closed" | "opening" | "open" | "closing";
 
 export type ElementRefArg = Element | ComponentPublicInstance | null;
@@ -17,7 +22,7 @@ export interface LauncherSearchPanelProps {
   drawerViewportHeight: number;
   drawerFloorViewportHeight: number;
   drawerFillerHeight: number;
-  keyboardHintText: string;
+  keyboardHints: KeyboardHint[];
   filteredResults: CommandTemplate[];
   activeIndex: number;
   stagedFeedbackCommandId: string | null;
@@ -25,7 +30,7 @@ export interface LauncherSearchPanelProps {
   reviewOpen: boolean;
   stagingDrawerState: StagingDrawerState;
   stagedCommands: StagedCommand[];
-  stagingHintText: string;
+  stagingHints: KeyboardHint[];
   stagingListShouldScroll: boolean;
   stagingListMaxHeight: string;
   focusZone: FocusZone;
@@ -41,7 +46,7 @@ export interface LauncherStagingPanelProps {
   stagingDrawerState: StagingDrawerState;
   stagingExpanded: boolean;
   stagedCommands: StagedCommand[];
-  stagingHintText: string;
+  stagingHints: KeyboardHint[];
   stagingListShouldScroll: boolean;
   stagingListMaxHeight: string;
   focusZone: FocusZone;
@@ -55,7 +60,7 @@ export interface LauncherReviewOverlayProps {
   stagingDrawerState: StagingDrawerState;
   stagingExpanded: boolean;
   stagedCommands: StagedCommand[];
-  stagingHintText: string;
+  stagingHints: KeyboardHint[];
   stagingListShouldScroll: boolean;
   stagingListMaxHeight: string;
   drawerFloorViewportHeight: number;

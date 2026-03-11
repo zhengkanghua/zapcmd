@@ -62,6 +62,13 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
       switchFocus: formattedSwitchFocusHint.value
     })
   );
+  
+  const stagingHints = computed(() => [
+    {
+      keys: [formattedSwitchFocusHint.value].filter(Boolean),
+      action: t("hotkeyHints.actions.switchFocus")
+    }
+  ].filter(h => h.keys.length > 0));
   const keyboardHintText = computed(
     () =>
       t("hotkeyHints.keyboard", {
@@ -73,6 +80,29 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
         switchFocus: formattedSwitchFocusHint.value
       })
   );
+
+  const keyboardHints = computed(() => [
+    {
+      keys: [formattedNavigateUpHint.value, formattedNavigateDownHint.value].filter(Boolean),
+      action: t("hotkeyHints.actions.navigate")
+    },
+    {
+      keys: [formattedExecuteSelectedHint.value].filter(Boolean),
+      action: t("hotkeyHints.actions.execute")
+    },
+    {
+      keys: [formattedStageSelectedHint.value].filter(Boolean),
+      action: t("hotkeyHints.actions.stage")
+    },
+    {
+      keys: [formattedToggleQueueHint.value].filter(Boolean),
+      action: t("hotkeyHints.actions.toggleQueue")
+    },
+    {
+      keys: [formattedSwitchFocusHint.value].filter(Boolean),
+      action: t("hotkeyHints.actions.switchFocus")
+    }
+  ].filter(h => h.keys.length > 0));
 
   return {
     launcherHotkey,
@@ -103,6 +133,8 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
     normalizedReorderDownHotkey,
     normalizedEscapeHotkey,
     stagingHintText,
-    keyboardHintText
+    stagingHints,
+    keyboardHintText,
+    keyboardHints
   };
 }

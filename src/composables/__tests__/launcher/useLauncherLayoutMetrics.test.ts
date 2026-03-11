@@ -80,9 +80,9 @@ describe("useLauncherLayoutMetrics", () => {
       stagingExpanded
     });
 
-    expect(metrics.stagingVisibleRows.value).toBe(2);
+    expect(metrics.stagingVisibleRows.value).toBe(1);
     expect(metrics.stagingListShouldScroll.value).toBe(false);
-    expect(metrics.stagingListMaxHeight.value).toBe("200px");
+    expect(metrics.stagingListMaxHeight.value).toBe("140px");
 
     stagingExpanded.value = true;
     expect(metrics.stagingListShouldScroll.value).toBe(true);

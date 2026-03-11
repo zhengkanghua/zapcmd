@@ -15,13 +15,13 @@ const {
   drawerViewportHeight,
   drawerFloorViewportHeight,
   drawerFillerHeight,
-  keyboardHintText,
+  keyboardHints,
   filteredResults,
   activeIndex,
   stagedFeedbackCommandId,
   stagedCommands,
   stagingDrawerState,
-  stagingHintText,
+  stagingHints,
   stagingListShouldScroll,
   stagingListMaxHeight,
   focusZone,
@@ -112,7 +112,8 @@ const {
   hideMainWindow,
   saveSettings,
   windowOpacity,
-  setWindowOpacity
+  setWindowOpacity,
+  setExecutionFeedback
 } = useAppCompositionRoot();
 
 async function confirmSettings(): Promise<void> {
@@ -144,13 +145,13 @@ function navigateToSettingsError(): void {
     :drawer-viewport-height="drawerViewportHeight"
     :drawer-floor-viewport-height="drawerFloorViewportHeight"
     :drawer-filler-height="drawerFillerHeight"
-    :keyboard-hint-text="keyboardHintText"
+    :keyboard-hints="keyboardHints"
     :filtered-results="filteredResults"
     :active-index="activeIndex"
     :staged-feedback-command-id="stagedFeedbackCommandId"
     :staged-commands="stagedCommands"
     :staging-drawer-state="stagingDrawerState"
-    :staging-hint-text="stagingHintText"
+    :staging-hints="stagingHints"
     :staging-list-should-scroll="stagingListShouldScroll"
     :staging-list-max-height="stagingListMaxHeight"
     :focus-zone="focusZone"
@@ -185,6 +186,7 @@ function navigateToSettingsError(): void {
     @confirm-safety-execution="confirmSafetyExecution"
     @cancel-safety-execution="cancelSafetyExecution"
     @blank-pointerdown="hideMainWindow"
+    @execution-feedback="setExecutionFeedback"
   />
 
   <SettingsWindow

@@ -22,6 +22,7 @@ const emit = defineEmits<{
   (e: "update-staged-arg", id: string, key: string, value: string): void;
   (e: "clear-staging"): void;
   (e: "execute-staged"): void;
+  (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
 }>();
 
 function closeReview(): void {
@@ -151,8 +152,10 @@ async function copyCommand(command: string): Promise<void> {
       throw new Error("clipboard API unavailable");
     }
     await navigator.clipboard.writeText(command);
+    emit("execution-feedback", "success", t("common.copied"));
   } catch (error) {
     console.error("copy command failed:", error);
+    emit("execution-feedback", "error", t("common.copyFailed"));
   }
 }
 </script>
@@ -186,7 +189,15 @@ async function copyCommand(command: string): Promise<void> {
               {{ formatCount(props.stagedCommands.length) }}
             </span>
           </h2>
-          <span class="review-panel__hint">{{ props.stagingHintText }}</span>
+          <div v-if="props.stagingHints && props.stagingHints.length > 0" class="keyboard-hint" style="padding: 0; min-height: auto; margin-left: auto;">
+            <span v-for="(hint, index) in props.stagingHints" :key="index" class="keyboard-hint__item">
+              <span class="keyboard-hint__keys">
+                <kbd v-for="k in hint.keys" :key="k">{{ k }}</kbd>
+              </span>
+              <span class="keyboard-hint__action">{{ hint.action }}</span>
+              <span v-if="index < props.stagingHints.length - 1" class="keyboard-hint__sep">·</span>
+            </span>
+          </div>
         </div>
         <button
           ref="closeButtonRef"
@@ -200,7 +211,18 @@ async function copyCommand(command: string): Promise<void> {
         </button>
       </header>
 
-      <p v-if="props.stagedCommands.length === 0" class="review-panel__empty">{{ t("launcher.queueEmpty") }}</p>
+      <div v-if="props.stagedCommands.length === 0" class="review-panel__empty" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-color: transparent;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="review-panel__empty-title" style="font-size: 13px; color: #ececf1; font-weight: 600; margin: 0;">{{ t("launcher.queueEmpty") }}</span>
+          <span class="review-panel__empty-hint" style="font-size: 12px; margin: 0; color: var(--ui-subtle);">{{ t("launcher.queueEmptyHint") }}</span>
+        </div>
+        <span class="keyboard-hint" style="padding: 0; min-height: auto;">
+          <span class="keyboard-hint__item">
+            <span class="keyboard-hint__keys"><kbd>Esc</kbd></span>
+            <span class="keyboard-hint__action">{{ t("common.cancel") }}</span>
+          </span>
+        </span>
+      </div>
       <ul
         v-else
         :ref="setReviewListRef"
