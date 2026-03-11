@@ -636,6 +636,21 @@ body {
   cursor: default;
 }
 
+.review-panel__tab-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(14, 16, 20, 0.8);
+  background: rgba(var(--ui-brand-rgb), 0.95);
+  color: #061319;
+  font-size: 10px;
+  font-weight: 800;
+}
+
 .review-panel__hint {
   font-size: 12px;
   line-height: 1.35;
