@@ -32,6 +32,5 @@ function formatCount(count: number): string {
     <span v-if="props.count > 0" class="queue-summary-pill__badge" aria-hidden="true">
       {{ formatCount(props.count) }}
     </span>
-    <span class="visually-hidden">{{ t("launcher.queueTitle", { count: props.count }) }}</span>
   </button>
 </template>

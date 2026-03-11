@@ -178,13 +178,14 @@ async function copyCommand(command: string): Promise<void> {
     >
       <header class="review-panel__header">
         <div class="review-panel__heading">
-          <h2 class="review-panel__tab" :title="t('launcher.queueTitle', { count: props.stagedCommands.length })">
+          <h2
+            class="review-panel__tab"
+            :title="t('launcher.queueTitle', { count: props.stagedCommands.length })"
+            :aria-label="t('launcher.queueTitle', { count: props.stagedCommands.length })"
+          >
             <LauncherIcon name="queue" />
             <span aria-hidden="true">
               {{ t("launcher.queueTitle", { count: formatCount(props.stagedCommands.length) }) }}
-            </span>
-            <span class="visually-hidden">
-              {{ t("launcher.queueTitle", { count: props.stagedCommands.length }) }}
             </span>
           </h2>
           <span class="review-panel__hint">{{ props.stagingHintText }}</span>
