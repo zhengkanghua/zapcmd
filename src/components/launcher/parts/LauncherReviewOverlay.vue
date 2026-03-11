@@ -182,7 +182,6 @@ async function copyCommand(command: string): Promise<void> {
             class="review-panel__tab"
             :aria-label="t('launcher.queueTitle', { count: props.stagedCommands.length })"
           >
-            <LauncherIcon name="queue" />
             <span class="review-panel__tab-count" aria-hidden="true">
               {{ formatCount(props.stagedCommands.length) }}
             </span>
