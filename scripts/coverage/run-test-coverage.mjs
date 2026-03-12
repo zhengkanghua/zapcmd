@@ -12,7 +12,15 @@ function run(command, args, options = {}) {
 function main() {
   const forwardedArgs = process.argv.slice(2);
 
-  const vitestResult = run("vitest", ["run", "--coverage", ...forwardedArgs]);
+  const vitestResult = run("vitest", [
+    "run",
+    "--coverage",
+    "--configLoader",
+    "runner",
+    "--config",
+    "vitest.config.js",
+    ...forwardedArgs
+  ]);
   const vitestExitCode = vitestResult.status ?? 1;
 
   const reportScriptPath = fileURLToPath(

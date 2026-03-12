@@ -1,10 +1,22 @@
-import { defineConfig } from "vitest/config";
-import vue from "@vitejs/plugin-vue";
+import { configDefaults, defineConfig } from "vitest/config";
+import {
+  createNoSpawnTypeScriptPlugin,
+  createNoSpawnVueSfcPlugin
+} from "./scripts/vitest/no-spawn-vite-plugins.js";
 
 export default defineConfig({
-  plugins: [vue()],
+  esbuild: false,
+  plugins: [createNoSpawnVueSfcPlugin(), createNoSpawnTypeScriptPlugin()],
   test: {
+    pool: "threads",
     environment: "jsdom",
+    exclude: [...configDefaults.exclude, "**/.codex/**"],
+    deps: {
+      optimizer: {
+        web: { enabled: false },
+        ssr: { enabled: false }
+      }
+    },
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
