@@ -930,7 +930,7 @@ describe("App failure and event regression", () => {
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
     await wrapper.get("#param-input-container").setValue("container-a");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
@@ -979,17 +979,16 @@ describe("App failure and event regression", () => {
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
     await wrapper.get("#param-input-port").setValue("443");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
 
-    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(true);
     expect(hoisted.runMock).not.toHaveBeenCalled();
 
-    const confirmButton = wrapper.findAll(".safety-dialog footer button")[1];
-    await confirmButton.trigger("click");
+    await wrapper.get(".flow-safety-confirm").trigger("click");
     await waitForUi();
     await waitForUi();
 
@@ -1003,23 +1002,22 @@ describe("App failure and event regression", () => {
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
     await wrapper.get("#param-input-port").setValue("443");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
     expectQueueCount(wrapper, 1);
     expect(hoisted.runMock).not.toHaveBeenCalled();
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(true);
     expect(hoisted.runMock).not.toHaveBeenCalled();
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(true);
     expect(hoisted.runMock).not.toHaveBeenCalled();
 
-    const confirmButton = wrapper.findAll(".safety-dialog footer button")[1];
-    await confirmButton.trigger("click");
+    await wrapper.get(".flow-safety-confirm").trigger("click");
     await waitForUi();
     await waitForUi();
 
@@ -1032,13 +1030,13 @@ describe("App failure and event regression", () => {
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
     await wrapper.get("#param-input-container").setValue("demo; whoami");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
 
-    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(false);
     expect(hoisted.runMock).not.toHaveBeenCalled();
     expectFeedbackContract(wrapper, {
       tone: "error",
@@ -1058,13 +1056,13 @@ describe("App failure and event regression", () => {
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
     await wrapper.get("#param-input-container").setValue("demo; whoami");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
 
-    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(false);
     expect(hoisted.runMock).not.toHaveBeenCalled();
     expectFeedbackContract(wrapper, {
       tone: "error",

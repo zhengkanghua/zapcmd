@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { summarizeCommandForFeedback } from "../../../../composables/execution/useCommandExecution/helpers";
 import type { StagedCommand } from "../../../../features/launcher/types";
-import type { LauncherReviewOverlayProps, LauncherSearchPanelProps } from "../../types";
+import type { KeyboardHint, LauncherReviewOverlayProps, LauncherSearchPanelProps } from "../../types";
 import LauncherReviewOverlay from "../LauncherReviewOverlay.vue";
 import LauncherSearchPanel from "../LauncherSearchPanel.vue";
 
@@ -23,16 +23,23 @@ function createStagedCommand(overrides: Partial<StagedCommand> = {}): StagedComm
 function createProps(
   overrides: Partial<LauncherReviewOverlayProps> = {}
 ): LauncherReviewOverlayProps {
+  const stagingHints: KeyboardHint[] = [
+    {
+      keys: ["Esc"],
+      action: "返回"
+    }
+  ];
   return {
     stagingDrawerState: "open",
     stagingExpanded: true,
     stagedCommands: [createStagedCommand()],
-    stagingHintText: "hint",
+    stagingHints,
     stagingListShouldScroll: true,
     stagingListMaxHeight: "200px",
     drawerFloorViewportHeight: 322,
     focusZone: "staging",
     stagingActiveIndex: 0,
+    flowOpen: false,
     executing: false,
     setStagingPanelRef: () => {},
     setStagingListRef: () => {},
@@ -43,6 +50,18 @@ function createProps(
 function createSearchPanelProps(
   overrides: Partial<LauncherSearchPanelProps> = {}
 ): LauncherSearchPanelProps {
+  const keyboardHints: KeyboardHint[] = [
+    {
+      keys: ["Enter"],
+      action: "执行"
+    }
+  ];
+  const stagingHints: KeyboardHint[] = [
+    {
+      keys: ["Esc"],
+      action: "返回"
+    }
+  ];
   return {
     query: "",
     executing: false,
@@ -52,15 +71,16 @@ function createSearchPanelProps(
     drawerViewportHeight: 0,
     drawerFloorViewportHeight: 322,
     drawerFillerHeight: 0,
-    keyboardHintText: "",
+    keyboardHints,
     filteredResults: [],
     activeIndex: 0,
     stagedFeedbackCommandId: null,
     stagedCommandCount: 0,
+    flowOpen: false,
     reviewOpen: true,
     stagingDrawerState: "open",
     stagedCommands: [createStagedCommand()],
-    stagingHintText: "hint",
+    stagingHints,
     stagingListShouldScroll: true,
     stagingListMaxHeight: "200px",
     focusZone: "staging",
@@ -156,6 +176,26 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
     expect(wrapper.find(".review-overlay").exists()).toBe(true);
     expect(wrapper.find(".review-panel__empty").exists()).toBe(true);
     expect(wrapper.emitted("toggle-staging")).toBeUndefined();
+  });
+
+  it("Flow 打开时禁用执行队列：按钮呈现禁用态，点击只 toast 不执行", async () => {
+    const wrapper = mount(LauncherReviewOverlay, {
+      props: createProps({
+        flowOpen: true,
+        stagedCommands: [createStagedCommand()]
+      })
+    });
+
+    const executeButton = wrapper.get(".review-panel__footer .btn-primary");
+    expect(executeButton.attributes("aria-disabled")).toBe("true");
+
+    await executeButton.trigger("click");
+    expect(wrapper.emitted("execute-staged")).toBeUndefined();
+
+    const feedback = wrapper.emitted("execution-feedback");
+    expect(feedback?.length).toBe(1);
+    expect(feedback?.[0]?.[0]).toBe("neutral");
+    expect(String(feedback?.[0]?.[1] ?? "")).toContain("完成或取消当前流程");
   });
 
   it("Review 打开后会把焦点送入 review-panel 内（不滞留背景 Search）", async () => {

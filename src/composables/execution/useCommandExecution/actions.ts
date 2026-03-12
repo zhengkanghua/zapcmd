@@ -63,6 +63,10 @@ function createExecuteStagedAction(
     if (options.stagedCommands.value.length === 0 || state.executing.value) {
       return;
     }
+    if (state.pendingCommand.value !== null || state.safetyDialog.value !== null) {
+      state.setExecutionFeedback("neutral", t("execution.flowInProgress"));
+      return;
+    }
     const snapshot = [...options.stagedCommands.value];
     const queueSafety = checkQueueCommandSafety(
       snapshot.map((item) => ({
@@ -158,11 +162,16 @@ function createSingleExecutionRequester(
   };
 }
 
-export function createCommandExecutionActions(
+function createPendingCommandActions(
   options: UseCommandExecutionOptions,
-  state: CommandExecutionState
+  state: CommandExecutionState,
+  requestSingleExecution: (command: CommandTemplate, argValues?: Record<string, string>) => void
 ) {
-  const requestSingleExecution = createSingleExecutionRequester(options, state);
+  function resetPendingCommand(): void {
+    state.pendingCommand.value = null;
+    state.pendingSubmitMode.value = "stage";
+    state.pendingArgValues.value = {};
+  }
 
   function openParamInput(command: CommandTemplate, submitMode: ParamSubmitMode): void {
     const args = getCommandArgs(command);
@@ -208,24 +217,90 @@ export function createCommandExecutionActions(
     }
     const values = { ...state.pendingArgValues.value };
     const submitMode = state.pendingSubmitMode.value;
-    state.pendingCommand.value = null;
-    state.pendingSubmitMode.value = "stage";
-    state.pendingArgValues.value = {};
 
     if (submitMode === "execute") {
-      requestSingleExecution(command, values);
+      const args = getCommandArgs(command);
+      const rendered = renderCommand(command, values);
+      const safety = checkSingleCommandSafety(
+        buildSafetyInputFromTemplate(command, rendered, values, args)
+      );
+
+      if (safety.blockedMessage) {
+        state.setExecutionFeedback(
+          "error",
+          t("execution.blockedWithNextStep", {
+            reason: safety.blockedMessage,
+            nextStep: t("execution.nextStepBlocked")
+          })
+        );
+        return;
+      }
+
+      if (safety.confirmationReasons.length > 0) {
+        state.requestSafetyConfirmation(
+          {
+            mode: "single",
+            title: t("execution.safetySingleTitle"),
+            description: t("execution.safetySingleDescription"),
+            items: [
+              {
+                title: command.title,
+                renderedCommand: summarizeCommandForFeedback(rendered),
+                reasons: safety.confirmationReasons
+              }
+            ]
+          },
+          async () => {
+            resetPendingCommand();
+            await executeSingleCommand(options, state, command, values);
+          }
+        );
+        return;
+      }
+
+      resetPendingCommand();
+      void executeSingleCommand(options, state, command, values);
       return;
     }
+
+    resetPendingCommand();
     appendToStaging(options, state, command, values);
     options.scheduleSearchInputFocus(false);
   }
 
   function cancelParamInput(): void {
-    state.pendingCommand.value = null;
-    state.pendingSubmitMode.value = "stage";
-    state.pendingArgValues.value = {};
+    resetPendingCommand();
     options.scheduleSearchInputFocus(false);
   }
+
+  function updatePendingArgValue(key: string, value: string): void {
+    state.pendingArgValues.value = {
+      ...state.pendingArgValues.value,
+      [key]: value
+    };
+  }
+
+  return {
+    stageResult,
+    executeResult,
+    submitParamInput,
+    cancelParamInput,
+    updatePendingArgValue
+  };
+}
+
+export function createCommandExecutionActions(
+  options: UseCommandExecutionOptions,
+  state: CommandExecutionState
+) {
+  const requestSingleExecution = createSingleExecutionRequester(options, state);
+  const {
+    stageResult,
+    executeResult,
+    submitParamInput,
+    cancelParamInput,
+    updatePendingArgValue
+  } = createPendingCommandActions(options, state, requestSingleExecution);
 
   function removeStagedCommand(id: string): void {
     options.stagedCommands.value = options.stagedCommands.value.filter((cmd) => cmd.id !== id);
@@ -246,13 +321,6 @@ export function createCommandExecutionActions(
         renderedCommand: updateStagedRenderedCommand(cmd, nextValues)
       };
     });
-  }
-
-  function updatePendingArgValue(key: string, value: string): void {
-    state.pendingArgValues.value = {
-      ...state.pendingArgValues.value,
-      [key]: value
-    };
   }
 
   function clearStaging(): void {

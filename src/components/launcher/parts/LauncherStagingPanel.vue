@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useI18nText } from "../../../i18n";
 import type { LauncherStagingPanelProps } from "../types";
 
@@ -28,6 +29,18 @@ function onStagingDragOver(index: number, event: DragEvent): void {
 function onStagingArgInput(id: string, key: string, event: Event): void {
   emit("update-staged-arg", id, key, (event.target as HTMLInputElement).value);
 }
+
+const stagingHintText = computed(() => {
+  if (!props.stagingHints?.length) {
+    return "";
+  }
+  return props.stagingHints
+    .map((hint) => {
+      const keys = hint.keys.join("+");
+      return `${keys} ${hint.action}`;
+    })
+    .join(" · ");
+});
 </script>
 
 <template>
@@ -53,7 +66,7 @@ function onStagingArgInput(id: string, key: string, event: Event): void {
     <template v-if="props.stagingExpanded">
       <header class="staging-panel__header" data-hit-zone="drag" data-tauri-drag-region>
         <h2>{{ t("launcher.queueTitle", { count: props.stagedCommands.length }) }}</h2>
-        <span class="staging-panel__hint">{{ props.stagingHintText }}</span>
+        <span v-if="stagingHintText" class="staging-panel__hint">{{ stagingHintText }}</span>
       </header>
       <p v-if="props.stagedCommands.length === 0" class="staging-empty">{{ t("launcher.queueEmpty") }}</p>
       <ul

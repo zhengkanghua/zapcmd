@@ -17,43 +17,13 @@ export function createWindowKeydownHandler<TItem>(
       return;
     }
 
-    if (options.main.safetyDialogOpen.value) {
-      const isPlainEnter =
-        event.key === "Enter" &&
-        !event.ctrlKey &&
-        !event.metaKey &&
-        !event.altKey &&
-        !event.shiftKey;
-      if (isPlainEnter) {
-        event.preventDefault();
-        event.stopPropagation();
-        void options.main.confirmSafetyExecution();
-        return;
-      }
-      if (hotkeyMatches(event, options.main.normalizedEscapeHotkey.value)) {
-        event.preventDefault();
-        event.stopPropagation();
-        options.main.cancelSafetyExecution();
-        return;
-      }
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
-
-    if (options.main.paramDialogOpen.value) {
-      if (hotkeyMatches(event, options.main.normalizedEscapeHotkey.value)) {
-        event.preventDefault();
-        event.stopPropagation();
-        options.main.handleMainEscape();
-      }
-      return;
-    }
+    const flowOpen =
+      options.main.safetyDialogOpen.value || options.main.paramDialogOpen.value;
 
     ensureSearchFocusZone(event, options.main);
     if (
       handleMainGlobalHotkeys(event, options.main) ||
-      handleSearchZoneHotkeys(event, options.main) ||
+      (!flowOpen && handleSearchZoneHotkeys(event, options.main)) ||
       handleStagingZoneHotkeys(event, options.main)
     ) {
       return;

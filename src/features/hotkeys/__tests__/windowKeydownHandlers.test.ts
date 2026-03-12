@@ -205,16 +205,19 @@ describe("windowKeydownHandlers", () => {
     expect(spies.handleMainEscape).toHaveBeenCalledTimes(1);
   });
 
-  it("confirms safety dialog by Enter and cancels by Escape", () => {
+  it("does not globally confirm safety by Enter; Escape routes to handleMainEscape", () => {
     const { handler, options, spies } = createHarness();
     options.main.safetyDialogOpen.value = true;
 
-    handler(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
-    expect(spies.confirmSafetyExecution).toHaveBeenCalledTimes(1);
+    const enterEvent = new KeyboardEvent("keydown", { key: "Enter", cancelable: true });
+    handler(enterEvent);
+    expect(enterEvent.defaultPrevented).toBe(false);
+    expect(spies.confirmSafetyExecution).not.toHaveBeenCalled();
 
-    handler(new KeyboardEvent("keydown", { key: "Escape", cancelable: true }));
-    expect(spies.cancelSafetyExecution).toHaveBeenCalledTimes(1);
-    expect(spies.executeStaged).not.toHaveBeenCalled();
+    const escapeEvent = new KeyboardEvent("keydown", { key: "Escape", cancelable: true });
+    handler(escapeEvent);
+    expect(escapeEvent.defaultPrevented).toBe(true);
+    expect(spies.handleMainEscape).toHaveBeenCalledTimes(1);
   });
 
   it("does not confirm safety dialog on Ctrl+Enter", () => {
@@ -231,6 +234,26 @@ describe("windowKeydownHandlers", () => {
     expect(event.defaultPrevented).toBe(true);
     expect(spies.confirmSafetyExecution).not.toHaveBeenCalled();
     expect(spies.cancelSafetyExecution).not.toHaveBeenCalled();
-    expect(spies.executeStaged).not.toHaveBeenCalled();
+    expect(spies.executeStaged).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps toggle queue hotkey available when param flow is open", () => {
+    const { handler, options, spies } = createHarness();
+    options.main.paramDialogOpen.value = true;
+    options.main.normalizedToggleQueueHotkey.value = "Ctrl+Q";
+
+    handler(new KeyboardEvent("keydown", { key: "q", ctrlKey: true, cancelable: true }));
+
+    expect(spies.toggleStaging).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps toggle queue hotkey available when safety flow is open", () => {
+    const { handler, options, spies } = createHarness();
+    options.main.safetyDialogOpen.value = true;
+    options.main.normalizedToggleQueueHotkey.value = "Ctrl+Q";
+
+    handler(new KeyboardEvent("keydown", { key: "q", ctrlKey: true, cancelable: true }));
+
+    expect(spies.toggleStaging).toHaveBeenCalledTimes(1);
   });
 });

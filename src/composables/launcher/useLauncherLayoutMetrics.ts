@@ -11,11 +11,16 @@ const WINDOW_SIDE_SAFE_PAD = 10;
 const WINDOW_BASE_HEIGHT = 124;
 const WINDOW_SAFE_VERTICAL_PAD = 8;
 const WINDOW_BOTTOM_SAFE_PAD = 22;
-const DRAWER_CHROME_HEIGHT = 12;
-const DRAWER_HINT_HEIGHT = 22;
-const DRAWER_DEFAULT_ROWS = 8;
-const DRAWER_FLOOR_ROWS = 4;
-const DRAWER_ROW_HEIGHT = 72;
+export const LAUNCHER_DRAWER_CHROME_HEIGHT_PX = 12;
+export const LAUNCHER_DRAWER_HINT_HEIGHT_PX = 22;
+export const LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX =
+  LAUNCHER_DRAWER_CHROME_HEIGHT_PX + LAUNCHER_DRAWER_HINT_HEIGHT_PX;
+export const LAUNCHER_DRAWER_ROW_HEIGHT_PX = 44;
+export const LAUNCHER_DRAWER_MAX_ROWS = 10;
+export const LAUNCHER_DRAWER_FLOOR_ROWS = 6;
+const DRAWER_CHROME_HEIGHT = LAUNCHER_DRAWER_CHROME_HEIGHT_PX;
+const DRAWER_HINT_HEIGHT = LAUNCHER_DRAWER_HINT_HEIGHT_PX;
+const DRAWER_ROW_HEIGHT = LAUNCHER_DRAWER_ROW_HEIGHT_PX;
 const STAGING_CARD_EST_HEIGHT = 140;
 const STAGING_LIST_GAP = 8;
 const STAGING_CHROME_HEIGHT = 118;
@@ -48,6 +53,7 @@ interface UseLauncherLayoutMetricsOptions {
   filteredResults: Ref<unknown[]>;
   stagedCommands: Ref<unknown[]>;
   stagingExpanded: Ref<boolean>;
+  flowOpen: Ref<boolean>;
 }
 
 function resolveScreenHeight(): number {
@@ -74,6 +80,32 @@ function resolveSearchMainWidth(screenWidth: number): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+function createOverlayPanelWidths(options: {
+  searchMainWidth: Ref<number>;
+  flowOpen: Ref<boolean>;
+  stagingExpanded: Ref<boolean>;
+}) {
+  const dualDrawerMode = computed(() => options.flowOpen.value && options.stagingExpanded.value);
+  const widePanelWidth = computed(() =>
+    clamp(
+      Math.floor(options.searchMainWidth.value * REVIEW_PANEL_WIDTH_RATIO),
+      REVIEW_PANEL_MIN_WIDTH_PX,
+      REVIEW_PANEL_MAX_WIDTH_PX
+    )
+  );
+  const splitPanelWidth = computed(() => Math.floor(options.searchMainWidth.value / 2));
+  const panelWidth = computed(() =>
+    dualDrawerMode.value ? splitPanelWidth.value : widePanelWidth.value
+  );
+  const reviewWidth = computed(() => panelWidth.value);
+  const flowWidth = computed(() => panelWidth.value);
+
+  return {
+    reviewWidth,
+    flowWidth
+  };
 }
 
 function createStagingLayoutMetrics(options: {
@@ -120,9 +152,8 @@ function createStagingLayoutMetrics(options: {
 
 export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOptions) {
   const drawerOpen = computed(() => options.query.value.trim().length > 0);
-
+  const overlayOpen = computed(() => options.stagingExpanded.value || options.flowOpen.value);
   const shellGap = computed(() => 0);
-
   const windowHeightCap = computed(() => {
     const screenHeight = resolveScreenHeight();
     return Math.max(420, Math.floor(screenHeight * 0.82));
@@ -134,19 +165,19 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
   });
 
   const searchMainWidth = computed(() => resolveSearchMainWidth(resolveScreenWidth()));
-  const reviewWidth = computed(() =>
-    clamp(
-      Math.floor(searchMainWidth.value * REVIEW_PANEL_WIDTH_RATIO),
-      REVIEW_PANEL_MIN_WIDTH_PX,
-      REVIEW_PANEL_MAX_WIDTH_PX
-    )
-  );
+  const { reviewWidth, flowWidth } = createOverlayPanelWidths({
+    searchMainWidth,
+    flowOpen: options.flowOpen,
+    stagingExpanded: options.stagingExpanded
+  });
 
   const searchShellStyle = computed<Record<string, string>>(() => ({
     "--search-main-width": `${searchMainWidth.value}px`,
     "--shell-gap": `${shellGap.value}px`,
     "--shell-side-pad": `${WINDOW_SIDE_SAFE_PAD}px`,
     "--review-width": `${reviewWidth.value}px`,
+    "--flow-width": `${flowWidth.value}px`,
+    "--drawer-row-height": `${LAUNCHER_DRAWER_ROW_HEIGHT_PX}px`,
     "--staging-collapsed-width": `${STAGING_CLOSED_WIDTH_PX}px`,
     "--staging-expanded-width": `${reviewWidth.value}px`
   }));
@@ -174,24 +205,24 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
       return 0;
     }
     const rowsByResultCount = Math.max(options.filteredResults.value.length, 1);
-    return Math.min(rowsByResultCount, DRAWER_DEFAULT_ROWS, drawerMaxRowsByHeight.value);
+    return Math.min(rowsByResultCount, LAUNCHER_DRAWER_MAX_ROWS, drawerMaxRowsByHeight.value);
   });
 
   const drawerUsesFloorHeight = computed(() => {
     if (!drawerOpen.value) {
       return false;
     }
-    if (!options.stagingExpanded.value) {
+    if (!overlayOpen.value) {
       return false;
     }
-    return options.filteredResults.value.length < DRAWER_FLOOR_ROWS;
+    return options.filteredResults.value.length < LAUNCHER_DRAWER_FLOOR_ROWS;
   });
 
   const drawerFloorVisibleRows = computed(() => {
-    if (!options.stagingExpanded.value) {
+    if (!overlayOpen.value) {
       return 0;
     }
-    return Math.min(DRAWER_FLOOR_ROWS, drawerMaxRowsByHeight.value, DRAWER_DEFAULT_ROWS);
+    return Math.min(LAUNCHER_DRAWER_FLOOR_ROWS, drawerMaxRowsByHeight.value, LAUNCHER_DRAWER_MAX_ROWS);
   });
 
   const drawerNaturalViewportHeight = computed(() => {

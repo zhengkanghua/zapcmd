@@ -43,22 +43,6 @@ function createLauncherRuntime(context: AppCompositionContext) {
     openStagingDrawer: stagingQueue.openStagingDrawer
   });
 
-  const layoutMetrics = useLauncherLayoutMetrics({
-    query: context.search.query,
-    filteredResults: context.search.filteredResults,
-    stagedCommands: context.stagedCommands,
-    stagingExpanded: stagingQueue.stagingExpanded
-  });
-  const visibility = useLauncherVisibility({
-    drawerOpen: layoutMetrics.drawerOpen,
-    activeIndex: context.search.activeIndex,
-    stagingExpanded: stagingQueue.stagingExpanded,
-    stagingActiveIndex: stagingQueue.stagingActiveIndex,
-    ensureResultVisible: context.domBridge.ensureResultVisible,
-    ensureStagingVisible: context.domBridge.ensureStagingVisible
-  });
-  context.ensureActiveStagingVisibleRef.value = visibility.ensureActiveStagingVisible;
-
   const commandExecution = useCommandExecution({
     stagedCommands: context.stagedCommands,
     focusZone: stagingQueue.focusZone,
@@ -71,6 +55,26 @@ function createLauncherRuntime(context: AppCompositionContext) {
     runCommandInTerminal: context.runCommandInTerminal,
     runCommandsInTerminal: context.runCommandsInTerminal
   });
+  const flowOpen = computed(
+    () => commandExecution.pendingCommand.value !== null || commandExecution.safetyDialog.value !== null
+  );
+
+  const layoutMetrics = useLauncherLayoutMetrics({
+    query: context.search.query,
+    filteredResults: context.search.filteredResults,
+    stagedCommands: context.stagedCommands,
+    stagingExpanded: stagingQueue.stagingExpanded,
+    flowOpen
+  });
+  const visibility = useLauncherVisibility({
+    drawerOpen: layoutMetrics.drawerOpen,
+    activeIndex: context.search.activeIndex,
+    stagingExpanded: stagingQueue.stagingExpanded,
+    stagingActiveIndex: stagingQueue.stagingActiveIndex,
+    ensureResultVisible: context.domBridge.ensureResultVisible,
+    ensureStagingVisible: context.domBridge.ensureStagingVisible
+  });
+  context.ensureActiveStagingVisibleRef.value = visibility.ensureActiveStagingVisible;
   context.shouldBlockSearchInputFocusRef.value = () =>
     stagingQueue.stagingExpanded.value ||
     commandExecution.executing.value ||

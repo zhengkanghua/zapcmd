@@ -182,14 +182,14 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
     const requiredInput = wrapper.get("#param-input-container");
     await requiredInput.setValue("my-container");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
 
-    expect(wrapper.find(".param-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 1);
     expect(wrapper.find(".review-overlay").exists()).toBe(false);
 
@@ -205,15 +205,15 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
     const requiredInput = wrapper.get("#param-input-container");
     await requiredInput.setValue("exec-container");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
     await waitForUi();
 
-    expect(wrapper.find(".param-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 0);
   });
 
@@ -223,11 +223,11 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
   });
 
   it("switches to staging by Ctrl+Tab and removes selected item with Delete", async () => {
@@ -255,7 +255,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
 
     await wrapper.get("#param-input-container").setValue("typing-guard");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
     expectQueueCount(wrapper, 1);
 
@@ -427,24 +427,24 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-overlay").exists()).toBe(false);
   });
 
-  it("closes param overlay when clicking overlay background", async () => {
+  it("closes Flow drawer when clicking Search Capsule", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
-    await wrapper.get(".param-overlay").trigger("click");
+    await wrapper.get("#zapcmd-search-input").trigger("pointerdown");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-overlay").exists()).toBe(false);
   });
 
   it("closes staging panel on Escape when query is empty", async () => {
@@ -474,29 +474,33 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("Enter");
     await waitForUi();
     await wrapper.get("#param-input-port").setValue("443");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(true);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(false);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
+    expect((wrapper.get("#param-input-port").element as HTMLInputElement).value).toBe("443");
   });
 
-  it("closes safety confirmation dialog when clicking overlay background", async () => {
+  it("closes safety confirmation dialog when clicking Search Capsule", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "解除端口占用");
 
     dispatchWindowKeydown("Enter");
     await waitForUi();
     await wrapper.get("#param-input-port").setValue("443");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(true);
 
-    await wrapper.get(".safety-overlay").trigger("click");
+    await wrapper.get("#zapcmd-search-input").trigger("pointerdown");
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(false);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
+    expect((wrapper.get("#param-input-port").element as HTMLInputElement).value).toBe("443");
   });
 
   it("keeps staged queue and arg value after canceling safety dialog with Escape", async () => {
@@ -506,7 +510,7 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
     await wrapper.get("#param-input-port").setValue("443");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
     expectQueueCount(wrapper, 1);
     await openReviewByPill(wrapper);
@@ -514,11 +518,11 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(true);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 1);
     expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
     expect(
@@ -526,14 +530,14 @@ describe("App UI hotkeys regression", () => {
     ).toBe("443");
   });
 
-  it("keeps staged queue and arg value after canceling safety dialog by overlay click", async () => {
+  it("keeps staged queue and arg value after canceling safety dialog by clicking Search Capsule", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "解除端口占用");
 
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
     await wrapper.get("#param-input-port").setValue("443");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
     expectQueueCount(wrapper, 1);
     await openReviewByPill(wrapper);
@@ -541,11 +545,11 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--safety").exists()).toBe(true);
 
-    await wrapper.get(".safety-overlay").trigger("click");
+    await wrapper.get("#zapcmd-search-input").trigger("pointerdown");
     await waitForUi();
-    expect(wrapper.find(".safety-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 1);
     expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
     expect(

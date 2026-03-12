@@ -145,6 +145,29 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
   });
 
+  it("keeps param input open when pending execute requires safety confirmation and restores param on cancel", async () => {
+    const harness = createHarness();
+    const command: CommandTemplate = {
+      ...createArgCommand(),
+      dangerous: true
+    };
+
+    harness.execution.executeResult(command);
+    harness.execution.updatePendingArgValue("value", "8088");
+    harness.execution.submitParamInput();
+    await nextTick();
+
+    expect(harness.execution.safetyDialog.value?.mode).toBe("single");
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
+    expect(harness.execution.pendingArgValues.value.value).toBe("8088");
+
+    harness.execution.cancelSafetyExecution();
+    expect(harness.execution.safetyDialog.value).toBeNull();
+    expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
+    expect(harness.execution.pendingArgValues.value.value).toBe("8088");
+  });
+
   it("trims boundary arg input before single execution and keeps success feedback", async () => {
     const harness = createHarness();
     const command = createArgCommand();
@@ -221,6 +244,21 @@ describe("useCommandExecution", () => {
     expect(harness.stagedCommands.value[0]?.renderedCommand).toBe("sudo ufw allow 9527/tcp");
   });
 
+  it("blocks queue execution when param/safety flow is open (shows toast, does not run terminal)", async () => {
+    const harness = createHarness(true);
+    harness.execution.stageResult(createNoArgCommand());
+    harness.execution.executeResult(createArgCommand());
+
+    await harness.execution.executeStaged();
+
+    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.execution.executionFeedbackTone.value).toBe("neutral");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("完成或取消当前流程");
+    expect(harness.scheduleSearchInputFocus).not.toHaveBeenCalled();
+  });
+
   it("executes staged queue and clears snapshot", async () => {
     const harness = createHarness();
     const first = createNoArgCommand();
@@ -239,7 +277,8 @@ describe("useCommandExecution", () => {
     expect(harness.stagedCommands.value).toHaveLength(0);
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(false);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("2 条命令");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("2 个节点");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("首个：ls -la");
   });
 
   it("executes staged queue in one terminal call when batch runner is provided", async () => {
@@ -258,7 +297,7 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandsInTerminal).toHaveBeenCalledTimes(1);
     expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "git gc --prune=now"]);
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
-    expect(harness.execution.executionFeedbackMessage.value).toContain("首条：ls -la");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("首个：ls -la");
   });
 
   it("blocks queue execution on injection hit, keeps queue, and does not call terminal runners", async () => {

@@ -145,10 +145,10 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
     await wrapper.get("#param-input-container").setValue("my-container");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
@@ -197,10 +197,10 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     dispatchWindowKeydown("ArrowRight");
     await waitForUi();
-    expect(wrapper.find(".param-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
     await wrapper.get("#param-input-container").setValue("my-container");
-    await wrapper.get(".param-dialog").trigger("submit");
+    await wrapper.get(".flow-page--param").trigger("submit");
     await waitForUi();
 
     expectQueueCount(wrapper, 1);

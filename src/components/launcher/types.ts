@@ -27,6 +27,7 @@ export interface LauncherSearchPanelProps {
   activeIndex: number;
   stagedFeedbackCommandId: string | null;
   stagedCommandCount: number;
+  flowOpen: boolean;
   reviewOpen: boolean;
   stagingDrawerState: StagingDrawerState;
   stagedCommands: StagedCommand[];
@@ -66,6 +67,7 @@ export interface LauncherReviewOverlayProps {
   drawerFloorViewportHeight: number;
   focusZone: FocusZone;
   stagingActiveIndex: number;
+  flowOpen: boolean;
   executing: boolean;
   setStagingPanelRef: (el: ElementRefArg) => void;
   setStagingListRef: (el: ElementRefArg) => void;

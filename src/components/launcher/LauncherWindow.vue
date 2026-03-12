@@ -6,9 +6,8 @@ import type {
 import { useI18nText } from "../../i18n";
 import type { StagedCommand } from "../../features/launcher/types";
 import { useLauncherHitZones } from "../../composables/launcher/useLauncherHitZones";
-import LauncherParamOverlay from "./parts/LauncherParamOverlay.vue";
 import LauncherSearchPanel from "./parts/LauncherSearchPanel.vue";
-import LauncherSafetyOverlay from "./parts/LauncherSafetyOverlay.vue";
+import LauncherFlowDrawer from "./parts/LauncherFlowDrawer.vue";
 import type {
   ElementRefArg,
   FocusZone,
@@ -80,6 +79,20 @@ const emit = defineEmits<{
 const { onRootPointerDown } = useLauncherHitZones({
   hideMainWindow: () => emit("blank-pointerdown")
 });
+
+function onSearchCapsuleBack(): void {
+  if (props.safetyDialog) {
+    emit("cancel-safety-execution");
+    return;
+  }
+  if (props.pendingCommand) {
+    emit("cancel-param-input");
+    return;
+  }
+  if (props.stagingExpanded) {
+    emit("toggle-staging");
+  }
+}
 </script>
 
 <template>
@@ -112,6 +125,7 @@ const { onRootPointerDown } = useLauncherHitZones({
         :active-index="props.activeIndex"
         :staged-feedback-command-id="props.stagedFeedbackCommandId"
         :staged-command-count="props.stagedCommands.length"
+        :flow-open="Boolean(props.pendingCommand || props.safetyDialog)"
         :review-open="props.stagingExpanded"
         :staging-drawer-state="props.stagingDrawerState"
         :staged-commands="props.stagedCommands"
@@ -128,6 +142,7 @@ const { onRootPointerDown } = useLauncherHitZones({
         @query-input="emit('query-input', $event)"
         @stage-result="emit('stage-result', $event)"
         @toggle-staging="emit('toggle-staging')"
+        @search-capsule-back="onSearchCapsuleBack"
         @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
         @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
         @staging-drag-end="emit('staging-drag-end')"
@@ -137,25 +152,26 @@ const { onRootPointerDown } = useLauncherHitZones({
         @clear-staging="emit('clear-staging')"
         @execute-staged="emit('execute-staged')"
         @execution-feedback="(t, m) => emit('execution-feedback', t, m)"
-      />
-      <LauncherParamOverlay
-        :pending-command="props.pendingCommand"
-        :pending-args="props.pendingArgs"
-        :pending-arg-values="props.pendingArgValues"
-        :pending-submit-hint="props.pendingSubmitHint"
-        :pending-submit-mode="props.pendingSubmitMode"
-        :set-param-input-ref="props.setParamInputRef"
-        @submit-param-input="emit('submit-param-input')"
-        @cancel-param-input="emit('cancel-param-input')"
-        @update-pending-arg="(key, value) => emit('update-pending-arg', key, value)"
-      />
+      >
+        <template #content-overlays>
+          <LauncherFlowDrawer
+            :pending-command="props.pendingCommand"
+            :pending-args="props.pendingArgs"
+            :pending-arg-values="props.pendingArgValues"
+            :pending-submit-hint="props.pendingSubmitHint"
+            :pending-submit-mode="props.pendingSubmitMode"
+            :set-param-input-ref="props.setParamInputRef"
+            :safety-dialog="props.safetyDialog"
+            :review-open="props.stagingExpanded"
+            :executing="props.executing"
+            @submit-param-input="emit('submit-param-input')"
+            @cancel-param-input="emit('cancel-param-input')"
+            @update-pending-arg="(key, value) => emit('update-pending-arg', key, value)"
+            @confirm-safety-execution="emit('confirm-safety-execution')"
+            @cancel-safety-execution="emit('cancel-safety-execution')"
+          />
+        </template>
+      </LauncherSearchPanel>
     </div>
-
-    <LauncherSafetyOverlay
-      :safety-dialog="props.safetyDialog"
-      :executing="props.executing"
-      @confirm-safety-execution="emit('confirm-safety-execution')"
-      @cancel-safety-execution="emit('cancel-safety-execution')"
-    />
   </main>
 </template>

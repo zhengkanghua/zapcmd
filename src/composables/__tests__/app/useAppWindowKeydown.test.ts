@@ -123,16 +123,19 @@ describe("useAppWindowKeydown", () => {
     expect(harness.handleMainEscape).toHaveBeenCalledTimes(1);
   });
 
-  it("routes Enter/Escape to safety confirmation handlers when safety dialog is open", () => {
+  it("safety dialog 打开时不全局捕获 Enter；Escape 仍走 main escape 优先级", () => {
     const harness = createHarness();
     harness.isSettingsWindow.value = false;
     harness.commandExecution.safetyDialog.value = { title: "risk" };
 
     harness.handler(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
-    expect(harness.commandExecution.confirmSafetyExecution).toHaveBeenCalledTimes(1);
+    expect(harness.commandExecution.confirmSafetyExecution).not.toHaveBeenCalled();
 
-    harness.handler(new KeyboardEvent("keydown", { key: "Escape", cancelable: true }));
-    expect(harness.commandExecution.cancelSafetyExecution).toHaveBeenCalledTimes(1);
+    const escapeEvent = new KeyboardEvent("keydown", { key: "Escape", cancelable: true });
+    harness.handler(escapeEvent);
+    expect(escapeEvent.defaultPrevented).toBe(true);
+    expect(harness.handleMainEscape).toHaveBeenCalledTimes(1);
+    expect(harness.commandExecution.cancelSafetyExecution).not.toHaveBeenCalled();
   });
 });
 

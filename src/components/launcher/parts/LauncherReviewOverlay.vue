@@ -146,6 +146,14 @@ function formatCount(count: number): string {
   return count > 99 ? "99+" : String(count);
 }
 
+function onExecuteStagedClick(): void {
+  if (props.flowOpen) {
+    emit("execution-feedback", "neutral", t("execution.flowInProgress"));
+    return;
+  }
+  emit("execute-staged");
+}
+
 async function copyCommand(command: string): Promise<void> {
   try {
     if (!navigator.clipboard?.writeText) {
@@ -164,7 +172,7 @@ async function copyCommand(command: string): Promise<void> {
   <aside class="review-overlay" data-hit-zone="overlay" :class="`review-overlay--${props.stagingDrawerState}`">
     <button
       type="button"
-      class="review-overlay__scrim"
+      class="review-overlay__scrim drawer-scrim"
       data-hit-zone="overlay"
       :aria-label="t('common.close')"
       @click="closeReview"
@@ -307,7 +315,8 @@ async function copyCommand(command: string): Promise<void> {
           type="button"
           class="btn-primary"
           :disabled="props.executing || props.stagedCommands.length === 0"
-          @click="emit('execute-staged')"
+          :aria-disabled="props.flowOpen ? 'true' : undefined"
+          @click="onExecuteStagedClick"
         >
           {{ props.executing ? t("launcher.executing") : t("launcher.executeAll") }}
         </button>

@@ -13,6 +13,7 @@ const emit = defineEmits<{
   (e: "query-input", value: string): void;
   (e: "stage-result", command: CommandTemplate): void;
   (e: "toggle-staging"): void;
+  (e: "search-capsule-back"): void;
   (e: "staging-drag-start", index: number, event: DragEvent): void;
   (e: "staging-drag-over", index: number, event: DragEvent): void;
   (e: "staging-drag-end"): void;
@@ -25,7 +26,7 @@ const emit = defineEmits<{
 }>();
 
 function onSearchFormPointerDown(event: PointerEvent): void {
-  if (!props.reviewOpen) {
+  if (!props.reviewOpen && !props.flowOpen) {
     return;
   }
 
@@ -35,10 +36,13 @@ function onSearchFormPointerDown(event: PointerEvent): void {
   }
 
   event.preventDefault();
-  emit("toggle-staging");
+  emit("search-capsule-back");
 }
 
 function onSearchInput(event: Event): void {
+  if (props.flowOpen) {
+    return;
+  }
   emit("query-input", (event.target as HTMLInputElement).value);
 }
 </script>
@@ -56,6 +60,9 @@ function onSearchInput(event: Event): void {
           data-testid="zapcmd-search-input"
           :ref="props.setSearchInputRef"
           :disabled="props.executing"
+          :readonly="props.flowOpen"
+          :tabindex="props.flowOpen ? -1 : undefined"
+          :aria-disabled="props.flowOpen ? 'true' : undefined"
           :value="props.query"
           class="search-input"
           type="text"
@@ -81,8 +88,8 @@ function onSearchInput(event: Event): void {
         v-if="props.drawerOpen"
         :ref="props.setDrawerRef"
         class="result-drawer"
-        :inert="props.reviewOpen ? true : undefined"
-        :aria-hidden="props.reviewOpen ? 'true' : undefined"
+        :inert="props.reviewOpen || props.flowOpen ? true : undefined"
+        :aria-hidden="props.reviewOpen || props.flowOpen ? 'true' : undefined"
         :style="{ maxHeight: `${props.drawerViewportHeight}px` }"
         aria-label="result-drawer"
         data-testid="result-drawer"
@@ -149,7 +156,7 @@ function onSearchInput(event: Event): void {
       </section>
 
       <section
-        v-else-if="props.reviewOpen && props.drawerFloorViewportHeight > 0"
+        v-else-if="(props.reviewOpen || props.flowOpen) && props.drawerFloorViewportHeight > 0"
         class="result-drawer"
         inert
         aria-hidden="true"
@@ -169,6 +176,7 @@ function onSearchInput(event: Event): void {
         :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
         :focus-zone="props.focusZone"
         :staging-active-index="props.stagingActiveIndex"
+        :flow-open="props.flowOpen"
         :executing="props.executing"
         :set-staging-panel-ref="props.setStagingPanelRef"
         :set-staging-list-ref="props.setStagingListRef"
@@ -183,6 +191,8 @@ function onSearchInput(event: Event): void {
         @execute-staged="emit('execute-staged')"
         @execution-feedback="(t: 'neutral' | 'success' | 'error', m: string) => emit('execution-feedback', t, m)"
       />
+
+      <slot name="content-overlays" />
     </section>
   </section>
 </template>

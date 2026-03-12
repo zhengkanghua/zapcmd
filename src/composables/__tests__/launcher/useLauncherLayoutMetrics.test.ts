@@ -1,6 +1,12 @@
 import { ref } from "vue";
 import { afterEach, describe, expect, it } from "vitest";
-import { useLauncherLayoutMetrics } from "../../launcher/useLauncherLayoutMetrics";
+import {
+  LAUNCHER_DRAWER_FLOOR_ROWS,
+  LAUNCHER_DRAWER_MAX_ROWS,
+  LAUNCHER_DRAWER_ROW_HEIGHT_PX,
+  LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX,
+  useLauncherLayoutMetrics
+} from "../../launcher/useLauncherLayoutMetrics";
 
 const originalAvailWidthDescriptor = Object.getOwnPropertyDescriptor(window.screen, "availWidth");
 const originalAvailHeightDescriptor = Object.getOwnPropertyDescriptor(window.screen, "availHeight");
@@ -31,9 +37,9 @@ afterEach(() => {
 
 describe("useLauncherLayoutMetrics", () => {
   it("caps drawer rows and viewport height by defaults and screen height", () => {
-    setScreenSize(1600, 1000);
+    setScreenSize(1600, 2000);
     const query = ref("dock");
-    const filteredResults = ref(Array.from({ length: 10 }, (_, idx) => ({ id: idx })));
+    const filteredResults = ref(Array.from({ length: 99 }, (_, idx) => ({ id: idx })));
     const stagedCommands = ref<unknown[]>([]);
     const stagingExpanded = ref(false);
 
@@ -41,12 +47,19 @@ describe("useLauncherLayoutMetrics", () => {
       query,
       filteredResults,
       stagedCommands,
-      stagingExpanded
+      stagingExpanded,
+      flowOpen: ref(false)
     });
 
     expect(metrics.drawerOpen.value).toBe(true);
-    expect(metrics.drawerVisibleRows.value).toBe(8);
-    expect(metrics.drawerViewportHeight.value).toBe(610);
+    expect(metrics.drawerVisibleRows.value).toBe(LAUNCHER_DRAWER_MAX_ROWS);
+    expect(metrics.drawerViewportHeight.value).toBe(
+      LAUNCHER_DRAWER_MAX_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX +
+        LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX
+    );
+    expect(metrics.searchShellStyle.value["--drawer-row-height"]).toBe(
+      `${LAUNCHER_DRAWER_ROW_HEIGHT_PX}px`
+    );
   });
 
   it("computes search width style and shell width lower bound", () => {
@@ -57,7 +70,8 @@ describe("useLauncherLayoutMetrics", () => {
         query: ref("q"),
         filteredResults: ref([]),
         stagedCommands: ref([]),
-        stagingExpanded: ref(stagingExpandedValue)
+        stagingExpanded: ref(stagingExpandedValue),
+        flowOpen: ref(false)
       });
 
       expect(metrics.searchMainWidth.value).toBe(680);
@@ -70,6 +84,21 @@ describe("useLauncherLayoutMetrics", () => {
     }
   });
 
+  it("Flow + Review 并存时左右抽屉均分宽度（1/2 + 1/2）", () => {
+    setScreenSize(1600, 900);
+    const metrics = useLauncherLayoutMetrics({
+      query: ref("q"),
+      filteredResults: ref([]),
+      stagedCommands: ref([]),
+      stagingExpanded: ref(true),
+      flowOpen: ref(true)
+    });
+
+    expect(metrics.searchMainWidth.value).toBe(680);
+    expect(metrics.searchShellStyle.value["--review-width"]).toBe("340px");
+    expect(metrics.searchShellStyle.value["--flow-width"]).toBe("340px");
+  });
+
   it("computes staging scroll and max height from expansion and row estimation", () => {
     setScreenSize(1200, 600);
     const stagingExpanded = ref(false);
@@ -77,7 +106,8 @@ describe("useLauncherLayoutMetrics", () => {
       query: ref(""),
       filteredResults: ref([]),
       stagedCommands: ref(Array.from({ length: 5 }, (_, idx) => ({ id: idx }))),
-      stagingExpanded
+      stagingExpanded,
+      flowOpen: ref(false)
     });
 
     expect(metrics.stagingVisibleRows.value).toBe(1);
@@ -88,33 +118,43 @@ describe("useLauncherLayoutMetrics", () => {
     expect(metrics.stagingListShouldScroll.value).toBe(true);
   });
 
-  it("applies drawer floor height only when stagingExpanded=true and results < 4", () => {
+  it("applies drawer floor height when Flow/Review 任一抽屉打开且 results < floorRows", () => {
     setScreenSize(1600, 1000);
 
-    const floorViewportHeight = 322;
-    const viewportChromeHeight = 12 + 22;
-    const rowHeight = 72;
+    const floorRows = LAUNCHER_DRAWER_FLOOR_ROWS;
+    const viewportChromeHeight = LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX;
+    const rowHeight = LAUNCHER_DRAWER_ROW_HEIGHT_PX;
+    const floorViewportHeight = floorRows * rowHeight + viewportChromeHeight;
 
-    const counts = [0, 1, 3, 4] as const;
-    const stagingExpandedVariants = [false, true] as const;
+    const counts = [0, 1, floorRows - 1, floorRows];
+    const overlayVariants = [
+      { stagingExpanded: false, flowOpen: false },
+      { stagingExpanded: true, flowOpen: false },
+      { stagingExpanded: false, flowOpen: true },
+      { stagingExpanded: true, flowOpen: true }
+    ] as const;
 
-    for (const stagingExpandedValue of stagingExpandedVariants) {
+    for (const overlay of overlayVariants) {
       for (const resultCount of counts) {
         const query = ref("dock");
         const filteredResults = ref(Array.from({ length: resultCount }, (_, idx) => ({ id: idx })));
         const stagedCommands = ref<unknown[]>([]);
-        const stagingExpanded = ref(stagingExpandedValue);
+        const stagingExpanded = ref(overlay.stagingExpanded);
+        const flowOpen = ref(overlay.flowOpen);
 
         const metrics = useLauncherLayoutMetrics({
           query,
           filteredResults,
           stagedCommands,
-          stagingExpanded
+          stagingExpanded,
+          flowOpen
         });
 
         const naturalViewportHeight =
           Math.max(resultCount, 1) * rowHeight + viewportChromeHeight;
-        const shouldUseFloorHeight = stagingExpandedValue && resultCount < 4;
+        const shouldUseFloorHeight =
+          (overlay.stagingExpanded || overlay.flowOpen) &&
+          resultCount < floorRows;
 
         const expectedViewportHeight = shouldUseFloorHeight
           ? floorViewportHeight
@@ -125,7 +165,8 @@ describe("useLauncherLayoutMetrics", () => {
 
         const snapshot = {
           resultCount,
-          stagingExpanded: stagingExpandedValue,
+          stagingExpanded: overlay.stagingExpanded,
+          flowOpen: overlay.flowOpen,
           usesFloor: metrics.drawerUsesFloorHeight.value,
           drawerVisibleRows: metrics.drawerVisibleRows.value,
           drawerViewportHeight: metrics.drawerViewportHeight.value,
@@ -147,14 +188,35 @@ describe("useLauncherLayoutMetrics", () => {
 
   it("stagingExpanded=true 且 query 为空时仍提供 drawerFloorViewportHeight（用于 Review 对齐）", () => {
     setScreenSize(1600, 900);
+    const expectedFloorHeight =
+      LAUNCHER_DRAWER_FLOOR_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX +
+      LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX;
     const metrics = useLauncherLayoutMetrics({
       query: ref(""),
       filteredResults: ref([]),
       stagedCommands: ref([{ id: "staged-1" }]),
-      stagingExpanded: ref(true)
+      stagingExpanded: ref(true),
+      flowOpen: ref(false)
     });
 
     expect(metrics.drawerOpen.value).toBe(false);
-    expect(metrics.drawerFloorViewportHeight.value).toBe(322);
+    expect(metrics.drawerFloorViewportHeight.value).toBe(expectedFloorHeight);
+  });
+
+  it("flowOpen=true 且 query 为空时仍提供 drawerFloorViewportHeight（用于 Flow 对齐）", () => {
+    setScreenSize(1600, 900);
+    const expectedFloorHeight =
+      LAUNCHER_DRAWER_FLOOR_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX +
+      LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX;
+    const metrics = useLauncherLayoutMetrics({
+      query: ref(""),
+      filteredResults: ref([]),
+      stagedCommands: ref([]),
+      stagingExpanded: ref(false),
+      flowOpen: ref(true)
+    });
+
+    expect(metrics.drawerOpen.value).toBe(false);
+    expect(metrics.drawerFloorViewportHeight.value).toBe(expectedFloorHeight);
   });
 });
