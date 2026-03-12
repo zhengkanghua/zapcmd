@@ -363,3 +363,23 @@
 - 卡片高度截断修复：`STAGING_CARD_EST_HEIGHT` 从 96→140，让 `maxHeight` 计算为多参数卡片预留更多空间。
 - 参数弹窗加深：`.param-dialog` 背景 0.7→0.92，`.param-overlay` 加半透明遮罩 `rgba(0,0,0,0.35)`。
 - 参数弹窗遮罩修复：`LauncherParamOverlay` 移入 `.search-shell` 内，`.param-overlay` 从 `fixed` 改为 `absolute` + `blur(8px)` + `border-radius`，遮罩不再溢出到窗口透明区域；`.param-dialog` 加 `max-height + overflow-y: auto` 溢出保护。
+
+## 补充（2026-03-12｜安装 superpowers skills）
+
+- 已按 superpowers 安装文档完成：克隆到 `~/.codex/superpowers`，并在 `~/.agents/skills/superpowers` 建立 junction 指向 `skills/`；需重启 Codex 以发现技能。
+
+## 补充（2026-03-12｜superpowers 改为项目内生效）
+
+- 已将 superpowers 克隆到 `D:/own_projects/zapcmd/.codex/superpowers`，并把其 skills 以 junction 挂入 `D:/own_projects/zapcmd/.codex/skills/`（同名 `brainstorming` 已跳过，保留项目定制版）。
+
+## 补充（2026-03-12｜收敛 superpowers skills 命名空间）
+
+- 已移除项目 `D:/own_projects/zapcmd/.codex/skills/` 下 13 个摊平的 superpowers skills junction，仅保留 `D:/own_projects/zapcmd/.codex/skills/superpowers` 入口；项目自带 `brainstorming` 未改动。
+
+## 补充（2026-03-12｜superpowers 入口改为相对 symlink）
+
+- 已将 `D:/own_projects/zapcmd/.codex/skills/superpowers` 从 junction 改为目录符号链接（symlink），Target 为相对路径 `../superpowers/skills`，提升跨设备/跨路径迁移的可用性（仍需确保仓库目录一并迁移）。
+
+## 补充（2026-03-12｜superpowers 前置边界加载）
+
+- 已新增项目覆盖 skill：`.codex/skills/using-superpowers`，用于在任何 superpowers 工作流（含自动/子代理）前强制读取 `AGENTS.md` / `CLAUDE.md` / `.ai/*` 规则。
