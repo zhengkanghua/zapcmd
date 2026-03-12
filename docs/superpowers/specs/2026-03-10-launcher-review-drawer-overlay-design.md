@@ -71,6 +71,7 @@
 
 关闭入口：
 - 点击遮罩（scrim）
+- 点击 Search Capsule（搜索输入区域；queue pill 除外，避免误关）
 - 既有关闭按钮
 - 既有键盘后退语义（如 Esc：先关 Review）
 
