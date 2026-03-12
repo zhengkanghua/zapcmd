@@ -1,0 +1,5 @@
+{
+  "build": {
+    "beforeBuildCommand": "node scripts/e2e/noop-before-build.cjs"
+  }
+}
