@@ -78,6 +78,7 @@
 ## 补充（2026-03-07｜UI 方案锁定 B4）
 - 已正式收敛界面大重构主方案为 `B4 = Overlay Review Mode with Floor Height Protection`：搜索态保持动态高度；Review 态在内部 shell 中右侧滑出；结果不足时使用左侧抽屉 floor height（= 4 条结果高度 + 搜索框高度，计算值）与 filler 补高；遮罩只作用于内部圆角 shell，不做整窗遮罩；若实时 resize 抖动则退回单次 resize + 内部动画。
 ## 补充（2026-03-07｜B4 交互与状态机文档）
+
 - 已新增 `docs/ui-redesign/08-b4-interaction-state-machine.md`：明确 B4 的窗口/搜索/Review/Param/Safety 四维状态模型、层级优先级、键盘规则、焦点恢复策略，以及 `toggleQueue` / `switchFocus` 在兼容期的目标语义。
 ## 补充（2026-03-07｜B4 热键迁移表）
 - 已新增 `docs/ui-redesign/09-b4-hotkey-migration-map.md`：明确 `toggleQueue` / `switchFocus` 在 B4 第一阶段的兼容语义、Review 态下 `Tab` 回归标准焦点循环的规则，以及热键文案/测试/设置模型的收口建议。
@@ -363,6 +364,10 @@
 - 卡片高度截断修复：`STAGING_CARD_EST_HEIGHT` 从 96→140，让 `maxHeight` 计算为多参数卡片预留更多空间。
 - 参数弹窗加深：`.param-dialog` 背景 0.7→0.92，`.param-overlay` 加半透明遮罩 `rgba(0,0,0,0.35)`。
 - 参数弹窗遮罩修复：`LauncherParamOverlay` 移入 `.search-shell` 内，`.param-overlay` 从 `fixed` 改为 `absolute` + `blur(8px)` + `border-radius`，遮罩不再溢出到窗口透明区域；`.param-dialog` 加 `max-height + overflow-y: auto` 溢出保护。
+
+## 补充（2026-03-12｜弹窗替换为双抽屉导航栈设计稿）
+
+- Launcher：参数/高危从弹窗改为左侧 Flow 抽屉导航栈（左进右出），可与右侧 Review 抽屉并存；单抽屉 2/3、双抽屉 1/2+1/2。设计稿：`docs/superpowers/specs/2026-03-12-launcher-flow-drawer-nav-stack-design.md`。
 
 ## 补充（2026-03-12｜安装 superpowers skills）
 
