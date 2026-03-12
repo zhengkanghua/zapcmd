@@ -1,5 +1,7 @@
 # ZapCmd｜Launcher 抽屉式 Review（面板内 2/3 覆盖）设计稿
 
+> **弃用声明（Deprecated）**：本文件已停止维护，不作为实现依据；Launcher 抽屉相关需求统一以 `docs/superpowers/specs/2026-03-12-launcher-flow-drawer-nav-stack-design.md` 为准。
+
 日期：2026-03-10  
 状态：已与需求方对齐（待实现）  
 

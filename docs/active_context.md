@@ -388,3 +388,8 @@
 ## 补充（2026-03-12｜superpowers 前置边界加载）
 
 - 已新增项目覆盖 skill：`.codex/skills/using-superpowers`，用于在任何 superpowers 工作流（含自动/子代理）前强制读取 `AGENTS.md` / `CLAUDE.md` / `.ai/*` 规则。
+
+## 补充（2026-03-12｜Launcher Flow 抽屉落地）
+
+- 参数/高危确认改为左侧 Flow 抽屉（左进右出），与 Review 同开均分；Flow 打开禁用搜索输入，点 Search Capsule=Esc 回退；两抽屉共用 floor-height（最小 6 行：`LAUNCHER_DRAWER_FLOOR_ROWS`）与最大展示行数（10 行：`LAUNCHER_DRAWER_MAX_ROWS`），同款 scrim（滚动条隐藏）。
+- 修复 Windows 下 Vite/Vitest 配置加载：`dev/build/preview` 用 `--configLoader native`，测试用 `vitest.config.js` + no-spawn 插件。

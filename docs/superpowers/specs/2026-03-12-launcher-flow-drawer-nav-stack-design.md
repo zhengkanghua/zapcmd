@@ -2,7 +2,7 @@
 
 日期：2026-03-12  
 状态：已与需求方对齐（待实现）  
-关联：`docs/superpowers/specs/2026-03-10-launcher-review-drawer-overlay-design.md`（右侧 Review 抽屉基线）
+关联：无（本文件为本次需求唯一口径；右侧 Review 抽屉以当前实现为基线）
 
 ## 1. 背景与问题
 
