@@ -1,3 +1,4 @@
+mod animation;
 mod app_state;
 mod autostart;
 mod bounds;
