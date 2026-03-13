@@ -1,8 +1,29 @@
 # ZapCmd｜Launcher 左侧 Flow 抽屉（参数/高危）+ 右侧 Review 抽屉并存（左进右出）设计稿
 
 日期：2026-03-12  
-状态：已与需求方对齐（待实现）  
+状态：已实现 ✅（2026-03-13 更新）  
 关联：无（本文件为本次需求唯一口径；右侧 Review 抽屉以当前实现为基线）
+
+## 0. 实现状态（2026-03-13）
+
+- ✅ 参数填写、高危确认：从“居中弹窗”迁移为左侧 Flow 抽屉（导航栈），并支持“左进 / 取消左退 / 确认右退”动效。
+- ✅ 与右侧 Review 抽屉并存：单抽屉宽度 2/3；双抽屉同时打开时均分 1/2 + 1/2（并支持平滑过渡与 reduce-motion 兜底）。
+- ✅ Flow 打开时：禁用搜索输入（但 queue pill 与相关热键仍可用）；点击 Search Capsule（搜索输入区域；排除 queue pill）= 触发一次 Esc 回退（左右抽屉一致）。
+- ✅ scrim 与滚动体验：左右抽屉遮罩口径一致；滚动条隐藏但保留滚动能力。
+- ✅ 布局常量化：抽屉最小高度/最大展示行数/结果行高等统一抽离为常量，便于后续调整（避免写死 px）。
+
+**关键实现文件：**
+- `src/components/launcher/parts/LauncherFlowDrawer.vue`
+- `src/components/launcher/LauncherWindow.vue`
+- `src/components/launcher/parts/LauncherSearchPanel.vue`
+- `src/composables/launcher/useLauncherLayoutMetrics.ts`
+- `src/styles.css`
+
+**关键回归覆盖：**
+- `src/components/launcher/__tests__/LauncherWindow.flow.test.ts`
+- `src/components/launcher/parts/__tests__/LauncherFlowDrawer.test.ts`
+- `src/components/launcher/parts/__tests__/LauncherSearchPanel.floor-height.test.ts`
+- `scripts/e2e/desktop-smoke.cjs`
 
 ## 1. 背景与问题
 
@@ -257,29 +278,29 @@ Review 抽屉继续采用现有 “面板内 2/3 覆盖” 基线，但在“左
 
 ### 10.1 参数填写（Flow / Param）
 
-1. 触发需要参数的命令时不出现居中弹窗；出现左侧 Flow 抽屉（内容区内，不覆盖 Search Capsule）。
-2. 取消：抽屉向左退场并关闭；焦点回到搜索输入框。
-3. 确认加入队列：抽屉向右退场并关闭；队列计数更新；Review 状态不被强制改变。
-4. Flow 打开期间可打开 Review；两抽屉均分；两边可交互。
-5. Flow 打开期间：
+1. 触发需要参数的命令时不出现居中弹窗；出现左侧 Flow 抽屉（内容区内，不覆盖 Search Capsule）。（✅ 已实现）
+2. 取消：抽屉向左退场并关闭；焦点回到搜索输入框。（✅ 已实现）
+3. 确认加入队列：抽屉向右退场并关闭；队列计数更新；Review 状态不被强制改变。（✅ 已实现）
+4. Flow 打开期间可打开 Review；两抽屉均分；两边可交互。（✅ 已实现）
+5. Flow 打开期间：（✅ 已实现）
    - 搜索输入不允许修改 query；
    - 点击搜索输入区域触发“返回”（等同 Esc，优先退出 Flow，再退出 Review）。
 
 ### 10.2 高危确认（Flow / Safety）
 
-1. 高危确认不再以居中弹窗出现；显示为 Flow 抽屉内的 Safety 页。
-2. 从 Param 进入 Safety 后点击“取消”回到 Param（保留参数值）。
-3. 点击“确认执行”：Flow 抽屉向右退场并关闭，然后执行。
+1. 高危确认不再以居中弹窗出现；显示为 Flow 抽屉内的 Safety 页。（✅ 已实现）
+2. 从 Param 进入 Safety 后点击“取消”回到 Param（保留参数值）。（✅ 已实现）
+3. 点击“确认执行”：Flow 抽屉向右退场并关闭，然后执行。（✅ 已实现）
 
 ### 10.3 布局与动效
 
-1. 单抽屉：宽度为内容区 2/3；双抽屉：均分 1/2 + 1/2。
-2. 2/3 ↔ 1/2 切换有平滑过渡；`prefers-reduced-motion` 下无动画。
+1. 单抽屉：宽度为内容区 2/3；双抽屉：均分 1/2 + 1/2。（✅ 已实现）
+2. 2/3 ↔ 1/2 切换有平滑过渡；`prefers-reduced-motion` 下无动画。（✅ 已实现）
 
 ## 11. 补充发现（弹窗清点结果）
 
 除 Launcher 的 Param/Safety 弹窗外，项目还有一处原生弹窗：
 
-- Settings 关闭前未保存确认：`src/composables/settings/useSettingsWindow/persistence.ts` 使用 `window.confirm(...)`
+- ✅ Settings 关闭前未保存确认：已从 `window.confirm(...)` 改为 Settings Window 内置确认层（避免阻塞式原生弹窗）。
 
-建议另起一份 Settings 交互设计稿，用“路由/导航栈内确认页”替代该 confirm（避免阻塞式弹窗）。
+后续可选增强：若要把 Settings 也统一到“导航栈确认页”的交互心智，可另起 Settings 交互设计稿迭代（当前已先完成“去原生弹窗”的目标）。

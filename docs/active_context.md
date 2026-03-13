@@ -393,3 +393,7 @@
 
 - 参数/高危确认改为左侧 Flow 抽屉（左进右出），与 Review 同开均分；Flow 打开禁用搜索输入，点 Search Capsule=Esc 回退；两抽屉共用 floor-height（最小 6 行：`LAUNCHER_DRAWER_FLOOR_ROWS`）与最大展示行数（10 行：`LAUNCHER_DRAWER_MAX_ROWS`），同款 scrim（滚动条隐藏）。
 - 修复 Windows 下 Vite/Vitest 配置加载：`dev/build/preview` 用 `--configLoader native`，测试用 `vitest.config.js` + no-spawn 插件。
+
+## 补充（2026-03-13｜收尾与回归）
+
+- Settings 未保存关闭从 `window.confirm` 改为内置确认层；Flow 抽屉确认右退动效更明显；Flow 设计稿已补充“已实现”标注。
