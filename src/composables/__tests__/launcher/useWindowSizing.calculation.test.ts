@@ -48,6 +48,7 @@ function createBaseOptions(
     isTauriRuntime: () => false,
     resolveAppWindow: () => null,
     requestSetMainWindowSize: async () => {},
+    requestAnimateMainWindowSize: async () => {},
     searchShellRef: ref(null),
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),
