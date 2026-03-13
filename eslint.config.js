@@ -13,6 +13,14 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...pluginVue.configs["flat/essential"],
   {
+    files: ["vite.config.js", "vitest.config.js"],
+    languageOptions: {
+      globals: {
+        ...globals.node
+      }
+    }
+  },
+  {
     files: ["**/*.{ts,tsx,vue}"],
     languageOptions: {
       parserOptions: {

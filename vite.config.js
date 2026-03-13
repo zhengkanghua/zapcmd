@@ -6,8 +6,8 @@ import {
   createNoSpawnVueSfcPlugin
 } from "./scripts/vitest/no-spawn-vite-plugins.js";
 
-function parseEnvKeys(content: string): Record<string, string> {
-  const result: Record<string, string> = {};
+function parseEnvKeys(content) {
+  const result = {};
   for (const line of content.split("\n")) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) {
@@ -27,7 +27,7 @@ function parseEnvKeys(content: string): Record<string, string> {
   return result;
 }
 
-function readEnvKeys(): Record<string, string> {
+function readEnvKeys() {
   const base = parseEnvKeys(readFileSync(".env.keys", "utf-8"));
   const local = existsSync(".env.keys.local")
     ? parseEnvKeys(readFileSync(".env.keys.local", "utf-8"))
@@ -35,16 +35,16 @@ function readEnvKeys(): Record<string, string> {
   return { ...base, ...local };
 }
 
-function readPackageVersion(): string {
+function readPackageVersion() {
   const raw = readFileSync("package.json", "utf-8");
-  const parsed = JSON.parse(raw) as { version?: unknown };
+  const parsed = JSON.parse(raw);
   return typeof parsed.version === "string" ? parsed.version : "";
 }
 
 const envKeys = readEnvKeys();
 const appVersion = readPackageVersion();
 
-async function canUseEsbuild(): Promise<boolean> {
+async function canUseEsbuild() {
   try {
     const esbuild = await import("esbuild");
     await esbuild.transform("export const __zapcmd_esbuild_probe = 1", {
@@ -66,8 +66,8 @@ export default defineConfig(async ({ mode }) => {
 
   const nodeEnvShimPlugin = () => ({
     name: "zapcmd:node-env-shim",
-    enforce: "pre" as const,
-    transform(code: string, id: string, options?: { ssr?: boolean }) {
+    enforce: "pre",
+    transform(code, id, options) {
       if (options?.ssr === true) {
         return null;
       }
@@ -102,7 +102,7 @@ export default defineConfig(async ({ mode }) => {
       process.env.TAURI_ENV_PLATFORM === "windows" ? "chrome105" : "safari13",
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
     sourcemap: !!process.env.TAURI_DEBUG
-  } as const;
+  };
 
   return {
     plugins,
