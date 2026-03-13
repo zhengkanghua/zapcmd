@@ -5335,6 +5335,7 @@ dependencies = [
  "tauri-plugin-global-shortcut",
  "tauri-plugin-shell",
  "tauri-plugin-updater",
+ "tokio",
 ]
 
 [[package]]
