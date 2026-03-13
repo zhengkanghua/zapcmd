@@ -1,11 +1,9 @@
 import {
-  LEGACY_GENERAL_SETTINGS_STORAGE_KEY,
-  LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
   SETTINGS_STORAGE_KEY,
   createDefaultSettingsSnapshot,
   type PersistedSettingsSnapshot
 } from "./defaults";
-import { migrateLegacyStoragePayload, migrateSettingsPayload } from "./migration";
+import { migrateSettingsPayload } from "./migration";
 import { isRecord, normalizePersistedSettingsSnapshot } from "./normalization";
 
 export interface SettingsStorageAdapter {
@@ -63,14 +61,7 @@ export function createSettingsStorageAdapter(
       }
 
       const currentPayload = parseJsonRecord(storage.getItem(SETTINGS_STORAGE_KEY), parseState);
-      const migratedCurrent = migrateSettingsPayload(currentPayload);
-      if (migratedCurrent) {
-        return migratedCurrent;
-      }
-
-      const legacyHotkeysPayload = parseJsonRecord(storage.getItem(LEGACY_HOTKEY_SETTINGS_STORAGE_KEY), parseState);
-      const legacyGeneralPayload = parseJsonRecord(storage.getItem(LEGACY_GENERAL_SETTINGS_STORAGE_KEY), parseState);
-      return migrateLegacyStoragePayload({ legacyHotkeysPayload, legacyGeneralPayload });
+      return migrateSettingsPayload(currentPayload) ?? createDefaultSettingsSnapshot();
     },
     writeSettings: (snapshot: PersistedSettingsSnapshot): void => {
       if (!storage) {
@@ -79,8 +70,6 @@ export function createSettingsStorageAdapter(
 
       const normalizedSnapshot = normalizePersistedSettingsSnapshot(snapshot);
       storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(normalizedSnapshot));
-      storage.removeItem(LEGACY_HOTKEY_SETTINGS_STORAGE_KEY);
-      storage.removeItem(LEGACY_GENERAL_SETTINGS_STORAGE_KEY);
     }
   };
 }

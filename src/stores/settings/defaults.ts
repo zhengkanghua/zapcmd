@@ -1,11 +1,7 @@
 import type { AppLocale } from "../../i18n";
 
 export const SETTINGS_STORAGE_KEY = "zapcmd.settings";
-export const LEGACY_HOTKEY_SETTINGS_STORAGE_KEY = "zapcmd.settings.hotkeys";
-export const LEGACY_GENERAL_SETTINGS_STORAGE_KEY = "zapcmd.settings.general";
-export const SETTINGS_SCHEMA_VERSION = 3;
-export const SETTINGS_SCHEMA_VERSION_V2 = 2;
-export const LEGACY_SETTINGS_SCHEMA_VERSION = 1;
+export const SETTINGS_SCHEMA_VERSION = 1;
 
 export const HOTKEY_FIELD_IDS = [
   "launcher",

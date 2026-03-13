@@ -1,16 +1,10 @@
 import type { HotkeyFieldDefinition } from "../../../features/settings/types";
-import {
-  LEGACY_GENERAL_SETTINGS_STORAGE_KEY,
-  LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
-  SETTINGS_STORAGE_KEY
-} from "../../../stores/settingsStore";
+import { SETTINGS_STORAGE_KEY } from "../../../stores/settingsStore";
 
 export const SETTINGS_HASH_PREFIX = "#/settings/";
 
 export const SETTINGS_STORAGE_KEYS = [
-  SETTINGS_STORAGE_KEY,
-  LEGACY_HOTKEY_SETTINGS_STORAGE_KEY,
-  LEGACY_GENERAL_SETTINGS_STORAGE_KEY
+  SETTINGS_STORAGE_KEY
 ] as const;
 
 export const HOTKEY_DEFINITIONS: HotkeyFieldDefinition[] = [
