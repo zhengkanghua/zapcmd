@@ -59,6 +59,7 @@ interface UseAppWindowKeydownOptions<TItem> {
   stagingQueue: StagingQueueLike;
   commandExecution: CommandExecutionLike<TItem>;
   searchInputRef: Ref<HTMLInputElement | null>;
+  drawerRef: Ref<HTMLElement | null>;
   drawerOpen: Ref<boolean>;
   filteredResults: Ref<TItem[]>;
   activeIndex: Ref<number>;
@@ -92,6 +93,7 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
     main: {
       focusZone: options.stagingQueue.focusZone,
       searchInputRef: options.searchInputRef,
+      drawerRef: options.drawerRef,
       stagingExpanded: options.stagingQueue.stagingExpanded,
       openStagingDrawer: options.stagingQueue.openStagingDrawer,
       switchFocusZone: options.stagingQueue.switchFocusZone,

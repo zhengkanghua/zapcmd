@@ -41,6 +41,7 @@ const {
   setParamInputRef,
   onQueryInput,
   stageResult,
+  executeResult,
   toggleStaging,
   onStagingDragStart,
   onStagingDragOver,
@@ -174,6 +175,7 @@ function navigateToSettingsError(): void {
     :set-param-input-ref="setParamInputRef"
     @query-input="onQueryInput"
     @stage-result="stageResult"
+    @execute-result="executeResult"
     @toggle-staging="toggleStaging"
     @staging-drag-start="onStagingDragStart"
     @staging-drag-over="onStagingDragOver"

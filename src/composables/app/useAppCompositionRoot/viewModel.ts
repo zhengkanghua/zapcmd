@@ -78,7 +78,7 @@ export function createAppCompositionViewModel(
     setResultButtonRef: context.domBridge.setResultButtonRef,
     setParamInputRef: context.domBridge.setParamInputRef,
     onQueryInput: context.search.onQueryInput,
-    stageResult: runtime.commandExecution.stageResult,
+    stageResult: runtime.commandExecution.stageResult, executeResult: runtime.commandExecution.executeResult,
     toggleStaging: runtime.stagingQueue.toggleStaging,
     onStagingDragStart: runtime.stagingQueue.onStagingDragStart,
     onStagingDragOver: runtime.stagingQueue.onStagingDragOver,

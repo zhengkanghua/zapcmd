@@ -71,8 +71,14 @@ export function handleSearchZoneHotkeys<TItem>(
   event: KeyboardEvent,
   main: MainHandlers<TItem>
 ): boolean {
-  const searchInputActive = document.activeElement === main.searchInputRef.value;
-  if (main.focusZone.value !== "search" || !searchInputActive) {
+  const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const searchInput = main.searchInputRef.value;
+  const drawer = main.drawerRef.value;
+  const inSearchContext =
+    main.focusZone.value === "search" &&
+    (active === searchInput || (Boolean(drawer) && Boolean(active) && drawer?.contains(active)));
+
+  if (!inSearchContext) {
     return false;
   }
   if (!main.drawerOpen.value || main.filteredResults.value.length === 0) {

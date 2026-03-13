@@ -228,6 +228,7 @@ function bindAppRuntime(
     stagingQueue: launcherRuntime.stagingQueue,
     commandExecution: launcherRuntime.commandExecution,
     searchInputRef: context.domBridge.searchInputRef,
+    drawerRef: context.domBridge.drawerRef,
     drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
     filteredResults: context.search.filteredResults,
     activeIndex: context.search.activeIndex,

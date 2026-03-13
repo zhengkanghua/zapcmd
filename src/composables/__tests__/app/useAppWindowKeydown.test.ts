@@ -10,6 +10,7 @@ function createHarness() {
   const handleMainEscape = vi.fn();
   const searchInput = document.createElement("input");
   const searchInputRef = ref<HTMLInputElement | null>(searchInput);
+  const drawerRef = ref<HTMLElement | null>(null);
   document.body.appendChild(searchInput);
   searchInput.focus();
 
@@ -70,6 +71,7 @@ function createHarness() {
     stagingQueue,
     commandExecution,
     searchInputRef,
+    drawerRef,
     drawerOpen: ref(true),
     filteredResults: ref([{ id: "result-1" }, { id: "result-2" }]),
     activeIndex: ref(0),

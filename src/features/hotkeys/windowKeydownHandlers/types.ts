@@ -21,6 +21,7 @@ export interface SettingsHandlers {
 export interface MainHandlers<TItem> {
   focusZone: RefLike<"search" | "staging">;
   searchInputRef: RefLike<HTMLInputElement | null>;
+  drawerRef: RefLike<HTMLElement | null>;
   paramDialogOpen: RefLike<boolean>;
   stagingExpanded: RefLike<boolean>;
   openStagingDrawer: () => void;

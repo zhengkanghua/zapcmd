@@ -51,6 +51,7 @@ function createHarness() {
     main: {
       focusZone: makeRef<"search" | "staging">("search"),
       searchInputRef: makeRef<HTMLInputElement | null>(searchInput),
+      drawerRef: makeRef<HTMLElement | null>(null),
       paramDialogOpen: makeRef(false),
       stagingExpanded: makeRef(false),
       openStagingDrawer,

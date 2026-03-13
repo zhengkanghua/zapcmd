@@ -58,6 +58,7 @@ const { t } = useI18nText();
 const emit = defineEmits<{
   (e: "query-input", value: string): void;
   (e: "stage-result", command: CommandTemplate): void;
+  (e: "execute-result", command: CommandTemplate): void;
   (e: "toggle-staging"): void;
   (e: "staging-drag-start", index: number, event: DragEvent): void;
   (e: "staging-drag-over", index: number, event: DragEvent): void;
@@ -141,6 +142,7 @@ function onSearchCapsuleBack(): void {
         :set-staging-list-ref="props.setStagingListRef"
         @query-input="emit('query-input', $event)"
         @stage-result="emit('stage-result', $event)"
+        @execute-result="emit('execute-result', $event)"
         @toggle-staging="emit('toggle-staging')"
         @search-capsule-back="onSearchCapsuleBack"
         @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"

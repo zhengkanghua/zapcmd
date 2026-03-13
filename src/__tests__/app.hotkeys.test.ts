@@ -217,6 +217,32 @@ describe("App UI hotkeys regression", () => {
     expectQueueCount(wrapper, 0);
   });
 
+  it("executes selected command with Enter when result item is focused", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    const firstResult = wrapper.get(".result-item").element as HTMLElement;
+    firstResult.focus();
+    await waitForUi();
+
+    dispatchWindowKeydown("Enter");
+    await waitForUi();
+
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
+    expect(wrapper.get(".flow-param-submit").text()).toContain("立即执行");
+  });
+
+  it("executes selected command with right click (contextmenu)", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    await wrapper.get(".result-item").trigger("contextmenu");
+    await waitForUi();
+
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
+    expect(wrapper.get(".flow-param-submit").text()).toContain("立即执行");
+  });
+
   it("keeps param overlay open when required arg is empty", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");

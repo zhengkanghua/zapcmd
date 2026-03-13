@@ -12,6 +12,7 @@ const { t } = useI18nText();
 const emit = defineEmits<{
   (e: "query-input", value: string): void;
   (e: "stage-result", command: CommandTemplate): void;
+  (e: "execute-result", command: CommandTemplate): void;
   (e: "toggle-staging"): void;
   (e: "search-capsule-back"): void;
   (e: "staging-drag-start", index: number, event: DragEvent): void;
@@ -114,6 +115,7 @@ function onSearchInput(event: Event): void {
               }"
               :ref="(el) => props.setResultButtonRef(el, index)"
               @click="emit('stage-result', item)"
+              @contextmenu.prevent="emit('execute-result', item)"
             >
               <span class="result-item__content">
                 <span class="result-item__meaning">
