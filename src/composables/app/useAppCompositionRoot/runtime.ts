@@ -187,6 +187,7 @@ function bindAppRuntime(
     isTauriRuntime: context.ports.isTauriRuntime,
     resolveAppWindow: context.resolveAppWindow,
     requestSetMainWindowSize: context.ports.requestSetMainWindowSize,
+    requestAnimateMainWindowSize: context.ports.requestAnimateMainWindowSize,
     searchShellRef: context.domBridge.searchShellRef,
     stagingPanelRef: context.domBridge.stagingPanelRef,
     stagingExpanded: launcherRuntime.stagingQueue.stagingExpanded,
