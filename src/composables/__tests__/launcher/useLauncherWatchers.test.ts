@@ -28,7 +28,6 @@ function createHarness() {
   paramInputRef.value.select = selectSpy;
 
   const scheduleWindowSync = vi.fn();
-  const syncWindowSizeImmediate = vi.fn();
   const ensureActiveResultVisible = vi.fn();
 
   const scope = effectScope();
@@ -40,7 +39,6 @@ function createHarness() {
       pendingCommand,
       stagingDrawerState,
       scheduleWindowSync,
-      syncWindowSizeImmediate,
       filteredResults,
       resultButtons,
       activeIndex,
@@ -65,7 +63,6 @@ function createHarness() {
     },
     spies: {
       scheduleWindowSync,
-      syncWindowSizeImmediate,
       ensureActiveResultVisible,
       focusSpy,
       selectSpy
@@ -74,41 +71,24 @@ function createHarness() {
 }
 
 describe("useLauncherWatchers", () => {
-  it("handles staging drawer transition watcher branches", async () => {
+  it("triggers sync on every staging drawer state change", async () => {
     const harness = createHarness();
 
     harness.state.stagingDrawerState.value = "opening";
     await flushWatchers();
-    expect(harness.spies.syncWindowSizeImmediate).toHaveBeenCalledTimes(1);
+    expect(harness.spies.scheduleWindowSync).toHaveBeenCalledTimes(1);
 
     harness.state.stagingDrawerState.value = "open";
     await flushWatchers();
-    expect(harness.spies.scheduleWindowSync).toHaveBeenCalledTimes(1);
-
-    harness.state.stagingDrawerState.value = "closed";
-    await flushWatchers();
     expect(harness.spies.scheduleWindowSync).toHaveBeenCalledTimes(2);
 
-    harness.scope.stop();
-  });
-
-  it("skips layout sync while staging drawer is animating", async () => {
-    const harness = createHarness();
     harness.state.stagingDrawerState.value = "closing";
     await flushWatchers();
-    harness.spies.scheduleWindowSync.mockClear();
-
-    harness.state.drawerVisibleRows.value = 2;
-    await flushWatchers();
-    expect(harness.spies.scheduleWindowSync).not.toHaveBeenCalled();
+    expect(harness.spies.scheduleWindowSync).toHaveBeenCalledTimes(3);
 
     harness.state.stagingDrawerState.value = "closed";
     await flushWatchers();
-    harness.spies.scheduleWindowSync.mockClear();
-
-    harness.state.stagingVisibleRows.value = 1;
-    await flushWatchers();
-    expect(harness.spies.scheduleWindowSync).toHaveBeenCalledTimes(1);
+    expect(harness.spies.scheduleWindowSync).toHaveBeenCalledTimes(4);
 
     harness.scope.stop();
   });
