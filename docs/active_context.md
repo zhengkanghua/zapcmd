@@ -409,3 +409,25 @@
 - settings 验证允许 toggleQueue 为空（HotkeyFieldDefinition 新增 optional 标记）。
 - 全部 428 测试通过，`npm run check:all` 全绿。
 
+## 补充（2026-03-13｜窗口 Rust 缓动动画设计完成）
+
+- 完成窗口尺寸调整优化的 brainstorming 阶段，设计已通过 spec review。
+- 方案：Rust 端帧步进缓动动画（ease_out_cubic，120ms），智能防抖（扩展即时、收缩延迟 300ms），tokio::time::sleep 驱动。
+- 设计文档：`docs/superpowers/specs/2026-03-13-window-resize-rust-animation-design.md`
+- 下一步：新会话中执行 `/superpowers:executing-plans` 或 `/superpowers:subagent-driven-development` 实现计划。
+
+## 补充（2026-03-13｜窗口 Rust 缓动动画实现计划完成）
+
+- 完成 writing-plans 阶段，实现计划已通过 3 轮 chunk 审查并修复所有 Critical/Important 反馈。
+- 计划文档：`docs/superpowers/plans/2026-03-13-window-resize-rust-animation.md`
+- 3 Chunks / 18 Tasks：Rust 动画引擎（Task 1-5）→ 前端改造（Task 6-12）→ 测试回归+验证（Task 13-18）
+- 关键设计决策：AtomicU64 代纪计数器替代 AtomicBool 取消令牌；syncWindowSizeCore 策略模式复用双路径。
+- 下一步：新会话中执行实现计划。
+
+## 补充（2026-03-13｜窗口 Rust 缓动动画实现完成）
+
+- 已在 `feat/window-resize-rust-animation` 分支完成全部 18 Tasks（3 Chunks），`npm run check:all` 全绿。
+- Rust 端：`animation.rs` 新增 AnimationController + ease_out_cubic + 帧循环 + 智能防抖（扩展即时/收缩延迟 300ms）。
+- 前端：controller.ts 移除 72ms debounce，拆分 animate/immediate 双路径；watchers 移除 staging guard。
+- 测试：5 项 Rust 单元测试 + 全部 TS 测试回归通过（含 P0/P1/P2）。
+- 下一步：Windows 手动验收（平滑扩展/收缩/动画中断/DPI 缩放），然后合并到 main。

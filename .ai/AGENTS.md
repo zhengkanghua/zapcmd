@@ -96,6 +96,33 @@
 
 ---
 
+## 🔄 会话分段策略（个人硬门禁）
+
+superpowers 工作流中，每个阶段使用独立会话，避免上下文压缩导致信息丢失。
+
+### 阶段划分
+每个 superpowers 主干阶段为一个独立会话：
+1. **brainstorming** — 需求探索 → 设计文档
+2. **writing-plans** — 设计文档 → 实现计划
+3. **executing-plans** — 实现计划 → 代码落地（大任务可拆多个会话）
+4. **verification / code-review** — 验证 + 审查
+5. **finishing-a-development-branch** — 收尾合并
+
+### 会话结束时的交接要求
+当一个阶段完成时，**必须**：
+1. 更新短期记忆 `docs/active_context.md`（补充本阶段成果摘要）
+2. 输出一段可直接复制粘贴的**下一阶段 Prompt**，包含：
+   - 要调用的 skill 名称（如 `/superpowers:writing-plans`）
+   - 需要读取的关键文件路径（设计文档 / 实现计划 / 等）
+   - 上一阶段的关键决策（避免下一会话重复讨论）
+3. 明确告知用户"请在新会话中粘贴以上 prompt"
+
+### 会话内监控
+- 主动关注上下文消耗，若上下文不足以支撑下阶段使用，则执行上述交接流程
+- 如果用户明确要求 `continue nonstop`，可在同一会话内跨阶段，但仍需在阶段边界输出交接 prompt 作为断点备份
+
+---
+
 ## 技能（Skills）
 - 技能存放位置：`~/.codex/skills/`（个人）与 `.codex/skills/`（项目共享，可选）。
 - 开始任务前，应优先判断是否存在匹配的 superpower 或 skill。
