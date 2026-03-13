@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -d \"D:/own_projects/zapcmd/.planning/phases/\"*/ 2>/dev/null)"
+    ]
+  }
+}
