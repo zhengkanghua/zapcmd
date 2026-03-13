@@ -132,6 +132,7 @@ export function createAppCompositionViewModel(
     commandGroups: context.commandManagement.commandGroups,
     settingsError: context.settingsWindow.settingsError,
     settingsSaved: context.settingsWindow.settingsSaved,
+    settingsCloseConfirmOpen: context.settingsWindow.closeConfirmOpen, cancelSettingsCloseConfirm: context.settingsWindow.cancelCloseConfirm, discardUnsavedSettingsChanges: context.settingsWindow.discardUnsavedChanges,
     navigateSettings: context.settingsWindow.navigateSettings,
     startHotkeyRecording: context.settingsWindow.startHotkeyRecording,
     toggleTerminalDropdown: context.settingsWindow.toggleTerminalDropdown,

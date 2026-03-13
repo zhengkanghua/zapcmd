@@ -7,6 +7,8 @@ interface SettingsWindowLike {
   applyRecordedHotkey: (field: HotkeyFieldId, captured: string) => void;
   cancelHotkeyRecording: () => void;
   terminalDropdownOpen: Ref<boolean>;
+  closeConfirmOpen: Ref<boolean>;
+  cancelCloseConfirm: () => void;
   availableTerminals: Ref<Array<{ id: string }>>;
   terminalFocusIndex: Ref<number>;
   selectTerminalOption: (id: string) => void;
@@ -79,6 +81,8 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
       applyRecordedHotkey: options.settingsWindow.applyRecordedHotkey,
       cancelHotkeyRecording: options.settingsWindow.cancelHotkeyRecording,
       terminalDropdownOpen: options.settingsWindow.terminalDropdownOpen,
+      closeConfirmOpen: options.settingsWindow.closeConfirmOpen,
+      cancelCloseConfirm: options.settingsWindow.cancelCloseConfirm,
       availableTerminals: options.settingsWindow.availableTerminals,
       terminalFocusIndex: options.settingsWindow.terminalFocusIndex,
       selectTerminalOption: options.settingsWindow.selectTerminalOption,

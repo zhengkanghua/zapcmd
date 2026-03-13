@@ -412,8 +412,7 @@ describe("App settings hotkeys regression", () => {
     expect(hoisted.closeSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps settings open when cancel discard is rejected", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+  it("keeps settings open when close confirmation is canceled", async () => {
     const wrapper = await mountAppSettings();
 
     const recorder = wrapper.findAll("button.hotkey-recorder")[0];
@@ -425,14 +424,22 @@ describe("App settings hotkeys regression", () => {
     await wrapper.findAll("button.btn-muted")[0].trigger("click");
     await waitForUi();
 
-    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(wrapper.find(".settings-close-confirm").exists()).toBe(true);
     expect(hoisted.closeSpy).not.toHaveBeenCalled();
     expect(recorder.text()).toBe("Ctrl+J");
-    confirmSpy.mockRestore();
+
+    const keepEditingButton = wrapper
+      .findAll(".settings-close-confirm__footer button")
+      .find((item) => item.text() === "继续编辑");
+    expect(keepEditingButton).toBeTruthy();
+    await keepEditingButton!.trigger("click");
+    await waitForUi();
+
+    expect(wrapper.find(".settings-close-confirm").exists()).toBe(false);
+    expect(hoisted.closeSpy).not.toHaveBeenCalled();
   });
 
   it("discards unsaved changes on cancel after confirmation", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
     const wrapper = await mountAppSettings();
     const settingsStore = getSettingsStoreFromWrapper(wrapper);
     const originalHotkey = settingsStore.hotkeys.launcher;
@@ -446,9 +453,16 @@ describe("App settings hotkeys regression", () => {
     await wrapper.findAll("button.btn-muted")[0].trigger("click");
     await waitForUi();
 
-    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(wrapper.find(".settings-close-confirm").exists()).toBe(true);
+
+    const discardButton = wrapper
+      .findAll(".settings-close-confirm__footer button")
+      .find((item) => item.text() === "放弃并关闭");
+    expect(discardButton).toBeTruthy();
+    await discardButton!.trigger("click");
+    await waitForUi();
+
     expect(hoisted.closeSpy).toHaveBeenCalledTimes(1);
     expect(settingsStore.hotkeys.launcher).toBe(originalHotkey);
-    confirmSpy.mockRestore();
   });
 });

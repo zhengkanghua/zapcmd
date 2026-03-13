@@ -83,6 +83,40 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
 }
 
 describe("useSettingsWindow persistence", () => {
+  it("opens an in-app discard confirmation instead of window.confirm", () => {
+    const harness = createHarness();
+    harness.state.settingsDirty.value = true;
+
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValueOnce(true);
+
+    const allowed = harness.actions.prepareToCloseSettingsWindow();
+
+    expect(allowed).toBe(false);
+    expect(harness.state.closeConfirmOpen.value).toBe(true);
+    expect(confirmSpy).not.toHaveBeenCalled();
+
+    confirmSpy.mockRestore();
+  });
+
+  it("discards unsaved changes and closes the confirmation when requested", () => {
+    const harness = createHarness();
+    harness.state.settingsDirty.value = true;
+    harness.state.settingsError.value = "pending error";
+
+    const baseline = harness.options.settingsStore.toSnapshot();
+    harness.state.settingsBaselineSnapshot.value = baseline;
+
+    harness.actions.prepareToCloseSettingsWindow();
+    expect(harness.state.closeConfirmOpen.value).toBe(true);
+
+    harness.actions.discardUnsavedChanges();
+
+    expect(harness.settingsStore.applySnapshot).toHaveBeenCalledWith(baseline);
+    expect(harness.state.settingsDirty.value).toBe(false);
+    expect(harness.state.closeConfirmOpen.value).toBe(false);
+    expect(harness.state.settingsError.value).toBe("");
+  });
+
   it("reports launcher hotkey write failures", async () => {
     const harness = createHarness({
       isTauriRuntime: () => true

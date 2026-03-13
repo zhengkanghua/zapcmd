@@ -35,7 +35,10 @@ export const messages = {
     settings: {
       title: "设置",
       saved: "已保存",
+      unsavedDiscardTitle: "未保存的修改",
       unsavedDiscardConfirm: "当前有未保存的修改。确定放弃这些修改并关闭设置吗？",
+      unsavedDiscardKeepEditing: "继续编辑",
+      unsavedDiscardDiscard: "放弃并关闭",
       nav: {
         hotkeys: "快捷键",
         general: "通用",
@@ -302,7 +305,10 @@ export const messages = {
     settings: {
       title: "Settings",
       saved: "Saved",
+      unsavedDiscardTitle: "Unsaved changes",
       unsavedDiscardConfirm: "You have unsaved changes. Discard them and close Settings?",
+      unsavedDiscardKeepEditing: "Keep editing",
+      unsavedDiscardDiscard: "Discard & close",
       nav: {
         hotkeys: "Hotkeys",
         general: "General",

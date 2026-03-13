@@ -18,6 +18,8 @@ function createHarness() {
     applyRecordedHotkey: vi.fn(),
     cancelHotkeyRecording: vi.fn(),
     terminalDropdownOpen: ref(false),
+    closeConfirmOpen: ref(false),
+    cancelCloseConfirm: vi.fn(),
     availableTerminals: ref([{ id: "powershell" }, { id: "cmd" }]),
     terminalFocusIndex: ref(0),
     selectTerminalOption: vi.fn(),

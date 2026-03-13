@@ -13,6 +13,8 @@ export interface SettingsHandlers {
   terminalFocusIndex: RefLike<number>;
   selectTerminalOption: (id: string) => void;
   closeTerminalDropdown: () => void;
+  closeConfirmOpen: RefLike<boolean>;
+  cancelCloseConfirm: () => void;
   closeSettingsWindow: () => void;
 }
 

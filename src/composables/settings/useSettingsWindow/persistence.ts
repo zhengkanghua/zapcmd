@@ -135,6 +135,8 @@ export interface PersistenceActions {
   clearSettingsSavedTimer: () => void;
   hasUnsavedSettingsChanges: () => boolean;
   prepareToCloseSettingsWindow: () => boolean;
+  cancelCloseConfirm: () => void;
+  discardUnsavedChanges: () => void;
 }
 
 export function createPersistenceActions(deps: {
@@ -220,20 +222,25 @@ export function createPersistenceActions(deps: {
     state.settingsSaved.value = false;
 
     if (!hasUnsavedSettingsChanges(state, options)) {
+      state.closeConfirmOpen.value = false;
       clearSettingsErrorState(state);
       return true;
     }
 
-    const shouldDiscard = window.confirm(t("settings.unsavedDiscardConfirm"));
-    if (!shouldDiscard) {
-      return false;
-    }
+    state.closeConfirmOpen.value = true;
+    return false;
+  }
 
+  function cancelCloseConfirm(): void {
+    state.closeConfirmOpen.value = false;
+  }
+
+  function discardUnsavedChanges(): void {
     restoreSettingsBaseline(state, options);
     state.launchAtLoginBaseline.value = options.launchAtLogin.value;
     resetSettingsDirty(state);
     clearSettingsErrorState(state);
-    return true;
+    state.closeConfirmOpen.value = false;
   }
 
   return {
@@ -241,6 +248,8 @@ export function createPersistenceActions(deps: {
     loadSettings,
     clearSettingsSavedTimer,
     hasUnsavedSettingsChanges: () => hasUnsavedSettingsChanges(state, options),
-    prepareToCloseSettingsWindow
+    prepareToCloseSettingsWindow,
+    cancelCloseConfirm,
+    discardUnsavedChanges
   };
 }

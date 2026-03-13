@@ -81,6 +81,10 @@ export function handleSettingsWindowKeydown(
   }
 
   event.preventDefault();
+  if (settings.closeConfirmOpen.value) {
+    settings.cancelCloseConfirm();
+    return;
+  }
   if (settings.terminalDropdownOpen.value) {
     settings.closeTerminalDropdown();
     return;

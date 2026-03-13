@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nextTick, ref, watch } from "vue";
 import type { CommandManagementViewState, SettingsRoute } from "../../features/settings/types";
 import type { HotkeyFieldId } from "../../stores/settingsStore";
 import { useI18nText, type AppLocale } from "../../i18n";
@@ -25,10 +26,24 @@ type SettingsWindowProps = SettingsNavProps &
   SettingsAboutProps & {
   settingsError: string;
   settingsSaved: boolean;
+  closeConfirmOpen: boolean;
 };
 
 const props = defineProps<SettingsWindowProps>();
 const { t } = useI18nText();
+
+const keepEditingButtonRef = ref<HTMLButtonElement | null>(null);
+
+watch(
+  () => props.closeConfirmOpen,
+  async (open) => {
+    if (!open) {
+      return;
+    }
+    await nextTick();
+    keepEditingButtonRef.value?.focus();
+  }
+);
 
 const emit = defineEmits<{
   (e: "navigate", route: SettingsRoute): void;
@@ -50,6 +65,8 @@ const emit = defineEmits<{
   (e: "apply"): void;
   (e: "confirm"): void;
   (e: "navigate-to-error"): void;
+  (e: "cancel-close-confirm"): void;
+  (e: "discard-close-confirm"): void;
 }>();
 </script>
 
@@ -154,6 +171,34 @@ const emit = defineEmits<{
         />
       </section>
     </div>
+
+    <Transition name="settings-close-confirm">
+      <div v-if="props.closeConfirmOpen" class="settings-close-confirm">
+        <button
+          type="button"
+          class="settings-close-confirm__scrim"
+          :aria-label="t('common.cancel')"
+          @click="emit('cancel-close-confirm')"
+        ></button>
+        <section class="settings-close-confirm__panel" role="dialog">
+          <h2 class="settings-close-confirm__title">{{ t("settings.unsavedDiscardTitle") }}</h2>
+          <p class="settings-close-confirm__text">{{ t("settings.unsavedDiscardConfirm") }}</p>
+          <footer class="settings-close-confirm__footer">
+            <button
+              ref="keepEditingButtonRef"
+              type="button"
+              class="btn-muted"
+              @click="emit('cancel-close-confirm')"
+            >
+              {{ t("settings.unsavedDiscardKeepEditing") }}
+            </button>
+            <button type="button" class="btn-danger" @click="emit('discard-close-confirm')">
+              {{ t("settings.unsavedDiscardDiscard") }}
+            </button>
+          </footer>
+        </section>
+      </div>
+    </Transition>
 
     <p v-if="props.settingsRoute === 'hotkeys'" class="settings-hint">
       {{ t("settings.hotkeys.hint") }}

@@ -94,6 +94,9 @@ const {
   hotkeyErrorFields,
   hotkeyErrorPrimaryField,
   settingsSaved,
+  settingsCloseConfirmOpen,
+  cancelSettingsCloseConfirm,
+  discardUnsavedSettingsChanges,
   navigateSettings,
   startHotkeyRecording,
   toggleTerminalDropdown,
@@ -230,6 +233,7 @@ function navigateToSettingsError(): void {
     :command-groups="commandGroups"
     :settings-error="settingsError"
     :settings-saved="settingsSaved"
+    :close-confirm-open="settingsCloseConfirmOpen"
     :window-opacity="windowOpacity"
     @navigate="navigateSettings"
     @start-recording="startHotkeyRecording"
@@ -250,5 +254,12 @@ function navigateToSettingsError(): void {
     @apply="saveSettings"
     @confirm="confirmSettings"
     @navigate-to-error="navigateToSettingsError"
+    @cancel-close-confirm="cancelSettingsCloseConfirm"
+    @discard-close-confirm="
+      () => {
+        discardUnsavedSettingsChanges();
+        closeSettingsWindow();
+      }
+    "
   />
 </template>

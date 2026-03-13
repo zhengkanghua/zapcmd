@@ -50,6 +50,7 @@ export interface SettingsWindowState {
   terminalFocusIndex: Ref<number>;
   launchAtLoginLoading: Ref<boolean>;
   launchAtLoginBaseline: Ref<boolean | null>;
+  closeConfirmOpen: Ref<boolean>;
   settingsRoute: Ref<SettingsRoute>;
   recordingHotkeyField: Ref<HotkeyFieldId | null>;
   settingsError: Ref<string>;
@@ -70,6 +71,7 @@ export function createSettingsState(): SettingsWindowState {
     terminalFocusIndex: ref(-1),
     launchAtLoginLoading: ref(false),
     launchAtLoginBaseline: ref(null),
+    closeConfirmOpen: ref(false),
     settingsRoute: ref("hotkeys"),
     recordingHotkeyField: ref(null),
     settingsError: ref(""),
