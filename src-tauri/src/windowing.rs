@@ -41,6 +41,10 @@ pub(crate) fn set_main_window_size(
     if let Some(pos) = prev_pos {
         let _ = window.set_position(Position::Physical(pos));
     }
+    // 同步 AnimationController.current_size，避免 immediate resize 后动画起点过期
+    if let Some(ctrl) = window.app_handle().try_state::<crate::animation::AnimationController>() {
+        *ctrl.current_size.lock().unwrap() = (width, height);
+    }
     Ok(())
 }
 
