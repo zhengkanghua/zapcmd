@@ -10,8 +10,7 @@ vi.mock("../../launcher/useLauncherWatchers", () => ({
 describe("useLauncherWatcherBindings", () => {
   it("delegates watcher wiring to useLauncherWatchers", () => {
     const windowSizing = {
-      scheduleWindowSync: vi.fn(),
-      syncWindowSizeImmediate: vi.fn()
+      scheduleWindowSync: vi.fn()
     };
     const drawerOpen = ref(true);
     const drawerVisibleRows = ref(4);
@@ -56,9 +55,6 @@ describe("useLauncherWatcherBindings", () => {
       paramInputRef
     });
     expect(mocked.mock.calls[0]?.[0].scheduleWindowSync).toBe(windowSizing.scheduleWindowSync);
-    expect(mocked.mock.calls[0]?.[0].syncWindowSizeImmediate).toBe(
-      windowSizing.syncWindowSizeImmediate
-    );
   });
 });
 
