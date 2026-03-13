@@ -397,3 +397,7 @@
 ## 补充（2026-03-13｜收尾与回归）
 
 - Settings 未保存关闭从 `window.confirm` 改为内置确认层；Flow 抽屉确认右退动效更明显；Flow 设计稿已补充“已实现”标注。
+
+## 补充（2026-03-13｜Flow 动效与UI细化设计稿）
+
+- 新增 `docs/superpowers/specs/2026-03-13-launcher-flow-drawer-motion-ux-polish-design.md`：改用状态类+keyframes，关闭先退场后 emit；提示统一 `.keyboard-hint`。
