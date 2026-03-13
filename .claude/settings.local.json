@@ -1,7 +1,29 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls -d \"D:/own_projects/zapcmd/.planning/phases/\"*/ 2>/dev/null)"
+      "Bash(ls -d \"D:/own_projects/zapcmd/.planning/phases/\"*/ 2>/dev/null)",
+      "WebFetch(domain:127.0.0.1)",
+      "Bash(cd D:/own_projects/zapcmd && python3 \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"desktop launcher spotlight raycast command palette dark mode minimal\" --design-system -p \"ZapCmd\")",
+      "Bash(cd D:/own_projects/zapcmd && python3 \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"command palette launcher spotlight keyboard navigation dark\" --domain ux -n 20)",
+      "mcp__mcp-router__browser_navigate",
+      "mcp__mcp-router__browser_take_screenshot",
+      "mcp__mcp-router__browser_type",
+      "mcp__mcp-router__browser_snapshot",
+      "mcp__mcp-router__browser_fill_form",
+      "mcp__mcp-router__browser_tabs",
+      "mcp__mcp-router__browser_run_code",
+      "mcp__mcp-router__browser_click",
+      "Bash(cd D:/own_projects/zapcmd && npx vitest run src/composables/__tests__/shared/hotkeys.test.ts 2>&1)",
+      "Bash(cd D:/own_projects/zapcmd && npm run test 2>&1 | head -50)",
+      "Bash(cd D:/own_projects/zapcmd && npm run test 2>&1 | tail -120)",
+      "Bash(cd D:/own_projects/zapcmd && npm run test -- --reporter=verbose 2>&1 | grep -E \"\\(FAIL|PASS|✓|×|Tests|Test Files\\)\" | tail -20)",
+      "Bash(cd D:/own_projects/zapcmd && npm run test -- --reporter=verbose src/__tests__/app.settings-hotkeys.test.ts 2>&1 | tail -80)",
+      "Bash(cd D:/own_projects/zapcmd && npm run test -- --reporter=verbose 2>&1 | grep -E \"\\(FAIL|×|Tests|Test Files\\)\" | tail -20)",
+      "Bash(cd D:/own_projects/zapcmd && npm run test -- --reporter=verbose 2>&1 | grep -E \"\\(FAIL|×|Tests|Test Files\\)\" | tail -15)",
+      "Bash(cd D:/own_projects/zapcmd && npm run check:all 2>&1 | tail -20)",
+      "Bash(npm run:*)",
+      "Bash(cd D:/own_projects/zapcmd && npx vitest run 2>&1 | tail -60)",
+      "Bash(cd D:/own_projects/zapcmd && npm test 2>&1 | tail -5)"
     ]
   }
 }
