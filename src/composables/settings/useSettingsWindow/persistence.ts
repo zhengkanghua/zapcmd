@@ -25,7 +25,7 @@ function validateHotkeyEntries(params: {
   state: SettingsWindowState;
 }): SettingsValidationIssue | null {
   const { entries, state } = params;
-  const emptyHotkeyItem = entries.find((entry) => !entry.value);
+  const emptyHotkeyItem = entries.find((entry) => !entry.value && !entry.optional);
   if (emptyHotkeyItem) {
     return {
       message: t("settings.error.emptyHotkey", { label: emptyHotkeyItem.label }),

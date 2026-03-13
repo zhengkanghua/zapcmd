@@ -119,11 +119,11 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.find(".terminal-hint").exists()).toBe(false);
   });
 
-  it("opens Review with Tab and reserves Tab for focus traversal in Review state", async () => {
+  it("opens Review with Ctrl+Tab and reserves Tab for focus traversal in Review state", async () => {
     const wrapper = await mountApp();
     expect(wrapper.find(".review-overlay").exists()).toBe(false);
 
-    dispatchWindowKeydown("Tab");
+    dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
     expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
 
@@ -159,11 +159,11 @@ describe("App UI hotkeys regression", () => {
     expect(results[0].classes()).toContain("result-item--active");
   });
 
-  it("stages selected command with ArrowRight", async () => {
+  it("stages selected command with CmdOrCtrl+Enter", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "docker");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
@@ -176,11 +176,11 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.findAll(".staging-card").length).toBe(1);
   });
 
-  it("opens param overlay with ArrowRight when command requires args and stages after submit", async () => {
+  it("opens param overlay with CmdOrCtrl+Enter when command requires args and stages after submit", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
@@ -271,7 +271,7 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "docker");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expectQueueCount(wrapper, 1);
 
@@ -288,7 +288,7 @@ describe("App UI hotkeys regression", () => {
   it("does not remove staging item on Delete when typing in staging input", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     await wrapper.get("#param-input-container").setValue("typing-guard");
@@ -311,7 +311,7 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "docker");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expectQueueCount(wrapper, 1);
 
@@ -324,14 +324,15 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     await focusSearchAndType(wrapper, "git");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expectQueueCount(wrapper, 2);
 
+    await openReviewByPill(wrapper);
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     await waitForUi();
@@ -342,11 +343,11 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     await focusSearchAndType(wrapper, "git");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
@@ -366,11 +367,11 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     await focusSearchAndType(wrapper, "git");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
@@ -390,11 +391,11 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     await focusSearchAndType(wrapper, "git");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
@@ -435,13 +436,13 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "docker");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     await focusSearchAndType(wrapper, "git");
     expect(wrapper.findAll(".result-item").length).toBeGreaterThan(0);
 
-    dispatchWindowKeydown("Tab");
+    dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
 
     expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
@@ -487,10 +488,10 @@ describe("App UI hotkeys regression", () => {
   it("closes staging panel on Escape when query is empty", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "docker");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
-    dispatchWindowKeydown("Tab");
+    dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
 
     expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
@@ -544,7 +545,7 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "解除端口占用");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     await wrapper.get("#param-input-port").setValue("443");
     await wrapper.get(".flow-page--param").trigger("submit");
@@ -571,7 +572,7 @@ describe("App UI hotkeys regression", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "解除端口占用");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     await wrapper.get("#param-input-port").setValue("443");
     await wrapper.get(".flow-page--param").trigger("submit");

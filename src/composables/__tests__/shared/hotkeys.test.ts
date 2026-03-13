@@ -85,8 +85,8 @@ describe("formatHotkeyForHint", () => {
     expect(formatHotkeyForHint("Escape")).toBe("Esc");
   });
 
-  it("returns fallback for empty hotkey", () => {
-    expect(formatHotkeyForHint("")).toBe("-");
+  it("returns empty string for empty hotkey", () => {
+    expect(formatHotkeyForHint("")).toBe("");
   });
 });
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-export type LauncherIconName = "queue" | "x" | "copy" | "trash";
+export type LauncherIconName = "search" | "queue" | "x" | "copy" | "trash";
 
 const props = withDefaults(
   defineProps<{
@@ -29,7 +29,12 @@ const props = withDefaults(
       stroke-linecap="round"
       stroke-linejoin="round"
     >
-      <template v-if="props.name === 'queue'">
+      <template v-if="props.name === 'search'">
+        <circle cx="11" cy="11" r="7" />
+        <path d="M16 16l5 5" />
+      </template>
+
+      <template v-else-if="props.name === 'queue'">
         <circle cx="4" cy="6" r="1" />
         <circle cx="4" cy="12" r="1" />
         <circle cx="4" cy="18" r="1" />

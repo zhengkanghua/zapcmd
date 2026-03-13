@@ -143,7 +143,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
@@ -195,7 +195,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expect(wrapper.find(".flow-page--param").exists()).toBe(true);
 
@@ -204,6 +204,8 @@ describe("App 核心路径回归（Phase 3）", () => {
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
+
+    await openReviewByPill(wrapper);
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();

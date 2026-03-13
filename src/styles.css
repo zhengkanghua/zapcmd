@@ -162,10 +162,15 @@ body {
 
 .search-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
   padding: var(--search-capsule-pad);
+}
+
+.search-form__icon {
+  color: var(--ui-subtle);
+  flex-shrink: 0;
 }
 
 .queue-summary-pill {
@@ -353,12 +358,26 @@ body {
   box-shadow: none;
   padding: 6px;
   overflow: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
 
 .result-drawer::-webkit-scrollbar {
-  width: 0;
+  width: 4px;
   height: 0;
+}
+
+.result-drawer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.result-drawer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.result-drawer::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .result-drawer__filler {
@@ -553,24 +572,40 @@ kbd {
 
 .drawer-empty {
   margin: 0;
-  padding: 14px 12px;
-  display: grid;
-  gap: 4px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid transparent;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: transparent;
   color: var(--ui-subtle);
   font-size: 13px;
+}
+
+.drawer-empty__body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-empty__icon {
+  color: var(--ui-subtle);
+  flex-shrink: 0;
 }
 
 .drawer-empty__title {
   color: #ececf1;
   font-weight: 600;
+  font-size: 13px;
+  margin: 0;
 }
 
 .drawer-empty__hint {
   font-size: 12px;
   line-height: 1.45;
+  color: var(--ui-subtle);
+  margin: 0;
 }
 
 .flow-overlay {
@@ -1029,6 +1064,11 @@ kbd {
   gap: 10px;
 }
 
+.review-panel__close {
+  min-width: 32px;
+  min-height: 32px;
+}
+
 .review-panel__heading {
   display: flex;
   align-items: center;
@@ -1248,7 +1288,8 @@ kbd {
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
 
 .staging-list--scrollable {
@@ -1256,8 +1297,21 @@ kbd {
 }
 
 .staging-list--scrollable::-webkit-scrollbar {
-  width: 0;
+  width: 4px;
   height: 0;
+}
+
+.staging-list--scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.staging-list--scrollable::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.staging-list--scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .staging-card {

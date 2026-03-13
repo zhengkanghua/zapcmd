@@ -210,7 +210,7 @@ async function copyCommand(command: string): Promise<void> {
         <button
           ref="closeButtonRef"
           type="button"
-          class="btn-muted btn-icon btn-small"
+          class="btn-muted btn-icon review-panel__close"
           :aria-label="t('common.close')"
           :title="t('common.close')"
           @click="closeReview"

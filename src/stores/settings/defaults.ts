@@ -78,12 +78,12 @@ export const COMMAND_DISPLAY_MODES = ["list", "groupedByFile"] as const;
 
 const DEFAULT_HOTKEYS: HotkeySettings = {
   launcher: "Alt+V",
-  toggleQueue: "Tab",
+  toggleQueue: "",
   switchFocus: "Ctrl+Tab",
   navigateUp: "ArrowUp",
   navigateDown: "ArrowDown",
   executeSelected: "Enter",
-  stageSelected: "ArrowRight",
+  stageSelected: "CmdOrCtrl+Enter",
   escape: "Escape",
   executeQueue: "Ctrl+Enter",
   clearQueue: "Ctrl+Backspace",

@@ -19,16 +19,8 @@ function switchFocusWithStagingOpen<TItem>(main: MainHandlers<TItem>): void {
     return;
   }
 
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
-  if (main.stagedCommands.value.length > 0) {
-    main.stagingActiveIndex.value = Math.min(
-      Math.max(0, main.stagingActiveIndex.value),
-      main.stagedCommands.value.length - 1
-    );
-    main.queuePostUpdate(() => main.ensureActiveStagingVisible());
-  }
+  main.toggleStaging();
+  main.switchFocusZone();
 }
 
 export function handleMainGlobalHotkeys<TItem>(
@@ -54,6 +46,15 @@ export function handleMainGlobalHotkeys<TItem>(
     return true;
   }
   if (hotkeyMatches(event, main.normalizedExecuteQueueHotkey.value)) {
+    const flowOpen = main.safetyDialogOpen.value || main.paramDialogOpen.value;
+    if (
+      !flowOpen &&
+      !main.stagingExpanded.value &&
+      main.focusZone.value === "search" &&
+      hotkeyMatches(event, main.normalizedStageSelectedHotkey.value)
+    ) {
+      return false;
+    }
     event.preventDefault();
     void main.executeStaged();
     return true;

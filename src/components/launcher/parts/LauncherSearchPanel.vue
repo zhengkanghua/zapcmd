@@ -3,6 +3,7 @@ import type { CommandTemplate } from "../../../features/commands/commandTemplate
 import { useI18nText } from "../../../i18n";
 import type { LauncherSearchPanelProps } from "../types";
 import LauncherHighlightText from "./LauncherHighlightText.vue";
+import LauncherIcon from "./LauncherIcon.vue";
 import LauncherQueueSummaryPill from "./LauncherQueueSummaryPill.vue";
 import LauncherReviewOverlay from "./LauncherReviewOverlay.vue";
 
@@ -55,6 +56,7 @@ function onSearchInput(event: Event): void {
   >
     <section class="search-capsule" aria-label="search-capsule">
       <form class="search-form" @submit.prevent @pointerdown.capture="onSearchFormPointerDown">
+        <LauncherIcon name="search" class="search-form__icon" />
         <label class="search-label" for="zapcmd-search-input">{{ t("common.search") }}</label>
         <input
           id="zapcmd-search-input"
@@ -137,10 +139,11 @@ function onSearchInput(event: Event): void {
             </button>
           </li>
         </ul>
-        <div v-else class="drawer-empty" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-color: transparent;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="drawer-empty__title" style="font-size: 13px; margin: 0;">{{ t("launcher.noResult") }}</span>
-            <span class="drawer-empty__hint" style="font-size: 12px; margin: 0; color: var(--ui-subtle);">{{ t("launcher.noResultHint") }}</span>
+        <div v-else class="drawer-empty">
+          <div class="drawer-empty__body">
+            <LauncherIcon name="search" :size="20" class="drawer-empty__icon" />
+            <span class="drawer-empty__title">{{ t("launcher.noResult") }}</span>
+            <span class="drawer-empty__hint">{{ t("launcher.noResultHint") }}</span>
           </div>
           <span class="keyboard-hint" style="padding: 0; min-height: auto;">
             <span class="keyboard-hint__item">

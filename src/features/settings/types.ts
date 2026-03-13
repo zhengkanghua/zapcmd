@@ -6,6 +6,7 @@ export interface HotkeyFieldDefinition {
   id: HotkeyFieldId;
   label: string;
   scope: "global" | "local";
+  optional?: boolean;
 }
 
 export interface CommandManagementRow {

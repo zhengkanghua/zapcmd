@@ -350,14 +350,15 @@ describe("App failure and event regression", () => {
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     await focusSearchAndType(wrapper, "git");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expectQueueCount(wrapper, 2);
 
+    await openReviewByPill(wrapper);
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     await waitForUi();
@@ -528,11 +529,11 @@ describe("App failure and event regression", () => {
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     await focusSearchAndType(wrapper, "git");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
     expectQueueCount(wrapper, 2);
@@ -902,9 +903,10 @@ describe("App failure and event regression", () => {
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
 
+    await openReviewByPill(wrapper);
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     dispatchWindowKeydown("Enter", { ctrlKey: true });
@@ -927,7 +929,7 @@ describe("App failure and event regression", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     await wrapper.get("#param-input-container").setValue("container-a");
     await wrapper.get(".flow-page--param").trigger("submit");
@@ -999,7 +1001,7 @@ describe("App failure and event regression", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "解除端口占用");
 
-    dispatchWindowKeydown("ArrowRight");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     await wrapper.get("#param-input-port").setValue("443");
     await wrapper.get(".flow-page--param").trigger("submit");
@@ -1007,6 +1009,7 @@ describe("App failure and event regression", () => {
     expectQueueCount(wrapper, 1);
     expect(hoisted.runMock).not.toHaveBeenCalled();
 
+    await openReviewByPill(wrapper);
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expect(wrapper.find(".flow-page--safety").exists()).toBe(true);

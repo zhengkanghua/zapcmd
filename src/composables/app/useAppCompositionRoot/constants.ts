@@ -15,7 +15,7 @@ export const SETTINGS_STORAGE_KEYS = [
 
 export const HOTKEY_DEFINITIONS: HotkeyFieldDefinition[] = [
   { id: "launcher", label: "launcher", scope: "global" },
-  { id: "toggleQueue", label: "toggleQueue", scope: "local" },
+  { id: "toggleQueue", label: "toggleQueue", scope: "local", optional: true },
   { id: "switchFocus", label: "switchFocus", scope: "local" },
   { id: "navigateUp", label: "navigateUp", scope: "local" },
   { id: "navigateDown", label: "navigateDown", scope: "local" },

@@ -142,6 +142,7 @@ export function getHotkeyEntries(options: UseSettingsWindowOptions): HotkeyEntry
     id: field.id,
     label: t(`settings.hotkeys.fields.${field.id}`),
     scope: field.scope,
+    optional: field.optional,
     value: normalizeHotkey(options.getHotkeyValue(field.id))
   }));
 }

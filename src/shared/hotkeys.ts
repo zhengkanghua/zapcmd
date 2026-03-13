@@ -1,4 +1,4 @@
-const HOTKEY_MODIFIER_ORDER = ["Ctrl", "Cmd", "Alt", "Shift"] as const;
+const HOTKEY_MODIFIER_ORDER = ["CmdOrCtrl", "Ctrl", "Cmd", "Alt", "Shift"] as const;
 
 export function normalizeHotkeyKeyToken(value: string): string {
   const raw = value.trim();
@@ -9,6 +9,9 @@ export function normalizeHotkeyKeyToken(value: string): string {
   const lower = raw.toLowerCase();
   if (lower === "ctrl" || lower === "control") {
     return "Ctrl";
+  }
+  if (lower === "cmdorctrl") {
+    return "CmdOrCtrl";
   }
   if (lower === "cmd" || lower === "command" || lower === "meta") {
     return "Cmd";
@@ -77,7 +80,7 @@ export function hotkeyMatches(event: KeyboardEvent, hotkey: string): boolean {
     return false;
   }
 
-  const needsCtrl = modifiers.has("ctrl") || modifiers.has("cmd") || modifiers.has("meta");
+  const needsCtrl = modifiers.has("ctrl") || modifiers.has("cmd") || modifiers.has("meta") || modifiers.has("cmdorctrl");
   const needsMeta = modifiers.has("cmd") || modifiers.has("meta");
   const needsAlt = modifiers.has("alt") || modifiers.has("option");
   const needsShift = modifiers.has("shift");
@@ -150,13 +153,18 @@ export function normalizeHotkey(value: string): string {
 export function formatHotkeyForHint(hotkey: string): string {
   const normalized = normalizeHotkey(hotkey);
   if (!normalized) {
-    return "-";
+    return "";
   }
+
+  const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform ?? "");
 
   return normalized
     .split("+")
     .map((part) => {
       const key = normalizeHotkeyKeyToken(part);
+      if (key === "CmdOrCtrl") {
+        return isMac ? "\u2318" : "Ctrl";
+      }
       if (key === "ArrowUp") {
         return "↑";
       }
