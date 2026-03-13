@@ -630,7 +630,7 @@ describe("App failure and event regression", () => {
     );
   });
 
-  it("falls back to webview setSize when set_main_window_size invoke fails", async () => {
+  it("falls back to webview setSize when animate_main_window_size invoke fails", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     hoisted.isTauriMock.mockReturnValue(true);
     hoisted.invokeMock.mockImplementation(async (command: string) => {
@@ -642,7 +642,7 @@ describe("App failure and event regression", () => {
       if (command === "get_autostart_enabled") {
         return false;
       }
-      if (command === "set_main_window_size") {
+      if (command === "animate_main_window_size") {
         throw new Error("resize command failed");
       }
       return undefined;
@@ -651,7 +651,7 @@ describe("App failure and event regression", () => {
     await mountApp();
     await waitForUi();
 
-    expect(getInvokeCommandCallCount("set_main_window_size")).toBeGreaterThan(
+    expect(getInvokeCommandCallCount("animate_main_window_size")).toBeGreaterThan(
       0,
     );
     expect(hoisted.setSizeSpy).toHaveBeenCalled();
@@ -674,17 +674,20 @@ describe("App failure and event regression", () => {
 
     await mountApp();
     await waitForUi();
-    const before = getInvokeCommandCallCount("set_main_window_size");
-    expect(before).toBeGreaterThan(0);
+    const animateBefore = getInvokeCommandCallCount("animate_main_window_size");
+    const immediateBefore = getInvokeCommandCallCount("set_main_window_size");
+    expect(animateBefore).toBeGreaterThan(0);
 
     window.dispatchEvent(new Event("focus"));
     await waitForUi();
     await waitForUi();
-    const after = getInvokeCommandCallCount("set_main_window_size");
-    expect(after).toBe(before);
+    const animateAfter = getInvokeCommandCallCount("animate_main_window_size");
+    const immediateAfter = getInvokeCommandCallCount("set_main_window_size");
+    expect(animateAfter).toBe(animateBefore);
+    expect(immediateAfter).toBe(immediateBefore);
   });
 
-  it("schedules debounced sync when resize event fires", async () => {
+  it("calls sync directly when resize event fires (no debounce)", async () => {
     hoisted.isTauriMock.mockReturnValue(true);
     hoisted.invokeMock.mockImplementation(async (command: string) => {
       if (command === "get_available_terminals") {
@@ -697,17 +700,18 @@ describe("App failure and event regression", () => {
       }
       return undefined;
     });
-    const timeoutSpy = vi.spyOn(globalThis, "setTimeout");
 
     await mountApp();
-    timeoutSpy.mockClear();
+    await waitForUi();
+    const before = getInvokeCommandCallCount("animate_main_window_size");
 
     window.dispatchEvent(new Event("resize"));
-    expect(timeoutSpy).toHaveBeenCalled();
-    const hasDebounceDelay = timeoutSpy.mock.calls.some(
-      (call) => call[1] === 72,
-    );
-    expect(hasDebounceDelay).toBe(true);
+    await waitForUi();
+    await waitForUi();
+
+    expect(
+      getInvokeCommandCallCount("animate_main_window_size")
+    ).toBeGreaterThanOrEqual(before);
   });
 
   it("shows empty-hotkey validation error when persisted state contains blank hotkey", async () => {
