@@ -26,7 +26,6 @@ const STAGING_LIST_GAP = 8;
 const STAGING_CHROME_HEIGHT = 118;
 const STAGING_ESTIMATE_ROWS = 6;
 const STAGING_TOP_OFFSET = 18;
-const WINDOW_RESIZE_DEBOUNCE_MS = 72;
 const WINDOW_SIZE_EPSILON = 2;
 const PARAM_OVERLAY_MIN_HEIGHT = 340;
 
@@ -44,8 +43,7 @@ export const WINDOW_SIZING_CONSTANTS = {
   stagingListGap: STAGING_LIST_GAP,
   stagingTopOffset: STAGING_TOP_OFFSET,
   paramOverlayMinHeight: PARAM_OVERLAY_MIN_HEIGHT,
-  windowSizeEpsilon: WINDOW_SIZE_EPSILON,
-  windowResizeDebounceMs: WINDOW_RESIZE_DEBOUNCE_MS
+  windowSizeEpsilon: WINDOW_SIZE_EPSILON
 } as const;
 
 interface UseLauncherLayoutMetricsOptions {
