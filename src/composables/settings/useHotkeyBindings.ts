@@ -57,6 +57,8 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
   const formattedStageSelectedHint = computed(() => formatHotkeyForHint(stageSelectedHotkey.value));
   const formattedToggleQueueHint = computed(() => formatHotkeyForHint(toggleQueueHotkey.value));
   const formattedSwitchFocusHint = computed(() => formatHotkeyForHint(switchFocusHotkey.value));
+  const leftClickHint = computed(() => t("hotkeyHints.keys.leftClick"));
+  const rightClickHint = computed(() => t("hotkeyHints.keys.rightClick"));
   const stagingHintText = computed(() =>
     t("hotkeyHints.stagingFocus", {
       switchFocus: formattedSwitchFocusHint.value
@@ -87,11 +89,11 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
       action: t("hotkeyHints.actions.navigate")
     },
     {
-      keys: [formattedExecuteSelectedHint.value].filter(Boolean),
+      keys: [formattedExecuteSelectedHint.value, leftClickHint.value].filter(Boolean),
       action: t("hotkeyHints.actions.execute")
     },
     {
-      keys: [formattedStageSelectedHint.value].filter(Boolean),
+      keys: [formattedStageSelectedHint.value, rightClickHint.value].filter(Boolean),
       action: t("hotkeyHints.actions.stage")
     },
     {

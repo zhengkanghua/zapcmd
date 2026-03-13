@@ -93,7 +93,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
         <button type="button" class="btn-muted" @click="emit('cancel-param-input')">
           {{ t("common.cancel") }}
         </button>
-        <button type="submit" class="btn-primary">
+        <button type="submit" :class="props.pendingSubmitMode === 'execute' ? 'btn-success' : 'btn-stage'">
           {{ props.pendingSubmitMode === "execute" ? t("launcher.executeNow") : t("launcher.stageToQueue") }}
         </button>
       </footer>

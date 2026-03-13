@@ -401,3 +401,8 @@
 ## 补充（2026-03-13｜Flow 动效与UI细化设计稿）
 
 - 新增 `docs/superpowers/specs/2026-03-13-launcher-flow-drawer-motion-ux-polish-design.md`：改用状态类+keyframes，关闭先退场后 emit；提示统一 `.keyboard-hint`。
+
+## 补充（2026-03-13｜Flow 抽屉动效/视觉落地）
+
+- Flow 抽屉已改为状态类 + keyframes；关闭采用“延迟卸载（保留 DOM）”承载左退/右退动画；Param header 同行标题+关闭+keyboard-hint，命令名加深；`npm run check:all` 全绿。
+- 补齐执行/入队语义与按钮分色：左键/Enter=立即执行（`btn-success`），右键/→=加入执行流（`btn-stage`）；结果区热键提示合并展示鼠标左/右键；Flow Param 页 submit 按 `pendingSubmitMode` 切换文案与配色；`npm run check:all` 全绿。

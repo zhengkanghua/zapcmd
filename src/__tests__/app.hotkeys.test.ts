@@ -232,7 +232,18 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.get(".flow-param-submit").text()).toContain("立即执行");
   });
 
-  it("executes selected command with right click (contextmenu)", async () => {
+  it("executes selected command with left click", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    await wrapper.get(".result-item").trigger("click");
+    await waitForUi();
+
+    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
+    expect(wrapper.get(".flow-param-submit").text()).toContain("立即执行");
+  });
+
+  it("stages selected command with right click (contextmenu)", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
@@ -240,7 +251,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
 
     expect(wrapper.find(".flow-page--param").exists()).toBe(true);
-    expect(wrapper.get(".flow-param-submit").text()).toContain("立即执行");
+    expect(wrapper.get(".flow-param-submit").text()).toContain("加入执行流");
   });
 
   it("keeps param overlay open when required arg is empty", async () => {

@@ -114,8 +114,8 @@ function onSearchInput(event: Event): void {
                 'result-item--staged-feedback': item.id === props.stagedFeedbackCommandId
               }"
               :ref="(el) => props.setResultButtonRef(el, index)"
-              @click="emit('stage-result', item)"
-              @contextmenu.prevent="emit('execute-result', item)"
+              @click="emit('execute-result', item)"
+              @contextmenu.prevent="emit('stage-result', item)"
             >
               <span class="result-item__content">
                 <span class="result-item__meaning">

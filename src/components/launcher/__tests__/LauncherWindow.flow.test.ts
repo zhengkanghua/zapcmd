@@ -147,7 +147,7 @@ describe("LauncherWindow Flow drawer wiring", () => {
   });
 
   it("safetyDialog 模式下 Flow 事件会向上透传（cancel/confirm）", async () => {
-    const wrapper = mount(LauncherWindow, {
+    const cancelWrapper = mount(LauncherWindow, {
       props: createBaseProps({
         safetyDialog: createSafetyDialog()
       }),
@@ -157,11 +157,20 @@ describe("LauncherWindow Flow drawer wiring", () => {
         }
       }
     });
+    await cancelWrapper.get(".flow-safety-cancel").trigger("click");
+    expect(cancelWrapper.emitted("cancel-safety-execution")).toHaveLength(1);
 
-    await wrapper.get(".flow-safety-cancel").trigger("click");
-    await wrapper.get(".flow-safety-confirm").trigger("click");
-
-    expect(wrapper.emitted("cancel-safety-execution")).toHaveLength(1);
-    expect(wrapper.emitted("confirm-safety-execution")).toHaveLength(1);
+    const confirmWrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        safetyDialog: createSafetyDialog()
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: { template: "<div class='search-panel-stub'><slot name='content-overlays' /></div>" }
+        }
+      }
+    });
+    await confirmWrapper.get(".flow-safety-confirm").trigger("click");
+    expect(confirmWrapper.emitted("confirm-safety-execution")).toHaveLength(1);
   });
 });

@@ -207,6 +207,10 @@ export const messages = {
       stagingFocus: "{switchFocus} 切焦点",
       keyboard:
         "{navigateUp}/{navigateDown} 选择 · {executeSelected} 执行 · {stageSelected} 入队 · {toggleQueue} 显隐 · {switchFocus} 切焦点",
+      keys: {
+        leftClick: "左键",
+        rightClick: "右键"
+      },
       actions: {
         navigate: "选择",
         execute: "执行",
@@ -481,6 +485,10 @@ export const messages = {
       stagingFocus: "{switchFocus} focus",
       keyboard:
         "{navigateUp}/{navigateDown} navigate · {executeSelected} run · {stageSelected} stage · {toggleQueue} toggle queue · {switchFocus} switch focus",
+      keys: {
+        leftClick: "LMB",
+        rightClick: "RMB"
+      },
       actions: {
         navigate: "navigate",
         execute: "run",

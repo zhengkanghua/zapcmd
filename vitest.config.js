@@ -11,6 +11,7 @@ export default defineConfig({
     pool: "threads",
     environment: "jsdom",
     exclude: [...configDefaults.exclude, "**/.codex/**"],
+    setupFiles: ["./scripts/vitest/setup.ts"],
     deps: {
       optimizer: {
         web: { enabled: false },

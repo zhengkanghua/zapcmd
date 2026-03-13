@@ -171,17 +171,47 @@ describe("LauncherFlowDrawer", () => {
     expect(wrapper.emitted("submit-param-input")).toHaveLength(1);
   });
 
-  it("Safety 页：取消/确认分别 emit cancel/confirm-safety-execution", async () => {
+  it("Param 页：stage 模式 submit 按钮使用入队色（btn-stage）", () => {
     const wrapper = mount(LauncherFlowDrawer, {
+      props: createBaseProps({
+        pendingCommand: createCommandTemplate("cmd-1"),
+        pendingSubmitMode: "stage"
+      })
+    });
+
+    const submitButton = wrapper.get(".flow-param-submit");
+    expect(submitButton.classes()).toContain("btn-stage");
+    expect(submitButton.classes()).not.toContain("btn-success");
+  });
+
+  it("Param 页：execute 模式 submit 按钮使用执行色（btn-success）", () => {
+    const wrapper = mount(LauncherFlowDrawer, {
+      props: createBaseProps({
+        pendingCommand: createCommandTemplate("cmd-1"),
+        pendingSubmitMode: "execute"
+      })
+    });
+
+    const submitButton = wrapper.get(".flow-param-submit");
+    expect(submitButton.classes()).toContain("btn-success");
+    expect(submitButton.classes()).not.toContain("btn-stage");
+  });
+
+  it("Safety 页：取消/确认分别 emit cancel/confirm-safety-execution", async () => {
+    const cancelWrapper = mount(LauncherFlowDrawer, {
       props: createBaseProps({
         safetyDialog: createSafetyDialog()
       })
     });
+    await cancelWrapper.get(".flow-safety-cancel").trigger("click");
+    expect(cancelWrapper.emitted("cancel-safety-execution")).toHaveLength(1);
 
-    await wrapper.get(".flow-safety-cancel").trigger("click");
-    await wrapper.get(".flow-safety-confirm").trigger("click");
-
-    expect(wrapper.emitted("cancel-safety-execution")).toHaveLength(1);
-    expect(wrapper.emitted("confirm-safety-execution")).toHaveLength(1);
+    const confirmWrapper = mount(LauncherFlowDrawer, {
+      props: createBaseProps({
+        safetyDialog: createSafetyDialog()
+      })
+    });
+    await confirmWrapper.get(".flow-safety-confirm").trigger("click");
+    expect(confirmWrapper.emitted("confirm-safety-execution")).toHaveLength(1);
   });
 });
