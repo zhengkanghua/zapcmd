@@ -8,6 +8,7 @@ import {
   readLauncherHotkey,
   readRuntimePlatform,
   readAutoStartEnabled,
+  requestAnimateMainWindowSize,
   requestHideMainWindow,
   requestSetMainWindowSize,
   writeAutoStartEnabled,
@@ -60,6 +61,15 @@ describe("tauriBridge", () => {
 
     expect(invokeMock).toHaveBeenNthCalledWith(1, "hide_main_window");
     expect(invokeMock).toHaveBeenNthCalledWith(2, "set_main_window_size", {
+      width: 920,
+      height: 540
+    });
+  });
+
+  it("requests animated window resize through invoke bridge", async () => {
+    invokeMock.mockResolvedValue(undefined);
+    await requestAnimateMainWindowSize(920, 540);
+    expect(invokeMock).toHaveBeenCalledWith("animate_main_window_size", {
       width: 920,
       height: 540
     });
