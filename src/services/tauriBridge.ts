@@ -41,6 +41,10 @@ export async function requestSetMainWindowSize(width: number, height: number): P
   await invoke("set_main_window_size", { width, height });
 }
 
+export async function requestAnimateMainWindowSize(width: number, height: number): Promise<void> {
+  await invoke("animate_main_window_size", { width, height });
+}
+
 export async function readUserCommandsDir(): Promise<string> {
   return invoke<string>("get_user_commands_dir");
 }
