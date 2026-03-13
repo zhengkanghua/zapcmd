@@ -55,13 +55,23 @@ async fn animate_main_window_size(
 
 #### 1.3 帧调度
 
-- 帧间隔 ~16ms（≈60fps），使用 `std::thread::sleep` 或 `tokio::time::interval`
-- 总时长 120ms，约 7-8 帧
-- 缓动函数：`ease_out_cubic(t) = 1 - (1 - t)^3`
+- 帧间隔 ~16ms（≈60fps），使用 `tokio::time::sleep`（**不可**使用 `std::thread::sleep`，会阻塞 tokio 工作线程）
+- 总时长 120ms（约 7-8 帧）— 低于 100ms 人眼难以感知缓动，高于 150ms 感觉迟滞
+- 缓动函数：`ease_out_cubic(t) = 1 - (1 - t)^3`，声明为 `pub(crate)` 方便单元测试
 - 每帧计算插值尺寸后调用 `window.set_size(LogicalSize)`
 - 动画结束后精确设置最终目标尺寸（消除浮点误差）
 
-#### 1.4 动画中断
+#### 1.4 依赖变更
+
+`src-tauri/Cargo.toml` 需新增：
+```toml
+[dependencies]
+tokio = { version = "1", features = ["time"] }
+```
+
+> 注：Tauri 2.x 内部已使用 tokio runtime，但 `tokio::time::sleep` 等 API 需要显式依赖。
+
+#### 1.5 动画中断
 
 - 每帧检查 `cancel_token: AtomicBool`，为 true 则退出循环
 - 新目标到达时从当前实际尺寸启动新动画，取消旧动画几乎零开销
@@ -69,6 +79,13 @@ async fn animate_main_window_size(
 ### 2. 智能防抖策略：扩展即时，收缩延迟
 
 **核心原则**：窗口变大立即响应，窗口变小等 300ms 再动。
+
+Rust 端常量定义（可调参数）：
+```rust
+const ANIMATION_DURATION_MS: u64 = 120;   // 缓动动画总时长
+const ANIMATION_FRAME_MS: u64 = 16;       // 帧间隔 ≈60fps
+const SHRINK_DELAY_MS: u64 = 300;         // 收缩延迟
+```
 
 决策逻辑（每次前端调用 `animate_main_window_size` 时）：
 
@@ -118,7 +135,8 @@ export async function requestAnimateMainWindowSize(
 - `syncWindowSize` 中改调 `requestAnimateMainWindowSize`
 - 移除前端侧 72ms debounce（`WINDOW_RESIZE_DEBOUNCE_MS`），防抖已在 Rust 端
 - `scheduleWindowSync` 改为直接调用 `syncWindowSize`
-- `syncWindowSizeImmediate` 保持不变，仍调用旧的 `requestSetMainWindowSize`
+- `syncWindowSizeImmediate` 需要**拆分路径**：当前它调用 `syncWindowSize()` 内部方法，改造后 `syncWindowSize` 会走动画路径。因此 `syncWindowSizeImmediate` 需要独立实现，直接调用旧的 `requestSetMainWindowSize` 做即时跳转（用于聚焦校准等无动画场景）
+- `queuedWindowSync` 排队机制保留 — 虽然移除了 debounce，但 `syncWindowSize` 内部仍有 `await nextTick()` + `await invoke()`，排队机制防止并发调用覆盖
 
 #### 3.3 useLauncherWatchers.ts — 简化
 
@@ -138,12 +156,13 @@ src-tauri/src/
   ├── animation.rs    // 新增：AnimationController + 缓动函数 + 帧循环
   ├── windowing.rs    // 现有：保留 set_main_window_size，新增 animate 命令注册
   ├── bounds.rs       // 不变
-  └── lib.rs          // 注册新命令 + managed state
+  ├── lib.rs          // 注册新命令 + managed state + mod animation
+  └── Cargo.toml      // 新增 tokio = { version = "1", features = ["time"] }
 
 src/
   ├── services/tauriBridge.ts           // 新增 requestAnimateMainWindowSize
   ├── composables/launcher/
-  │   ├── useWindowSizing/controller.ts // 移除 debounce，改调新命令
+  │   ├── useWindowSizing/controller.ts // 移除 debounce，改调新命令，拆分 immediate 路径
   │   ├── useWindowSizing/model.ts      // 接口新增字段
   │   └── useLauncherWatchers.ts        // 移除 staging guard
   └── composables/app/
@@ -154,7 +173,7 @@ src/
 
 | 场景 | 处理方式 |
 |---|---|
-| 动画中用户拖动窗口 | 动画开始时记录位置，过程中只改大小不管位置，结束后校准一次 |
+| 动画中用户拖动窗口 | 动画开始时记录位置，过程中只改大小不管位置，结束后校准一次。若动画进行中 `move_save_token` 发生变化（说明用户拖动了窗口），帧循环跳过位置恢复，仅在动画结束时用最新的 `outer_position` 做一次校准 |
 | 窗口最小/最大尺寸 | 前端 `resolveWindowSize` 已做 clamp，Rust 保留 320x124 硬底线 |
 | 高 DPI / 多显示器 | 使用 LogicalSize，不受 DPI 缩放影响 |
 | 动画中应用退出 | Tokio runtime 自动终止任务，无资源泄漏 |
