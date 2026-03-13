@@ -8,7 +8,6 @@ interface UseLauncherWatchersOptions {
   pendingCommand: Ref<unknown>;
   stagingDrawerState: Ref<StagingDrawerState>;
   scheduleWindowSync: () => void;
-  syncWindowSizeImmediate: () => void;
   filteredResults: Ref<unknown[]>;
   resultButtons: Ref<Array<HTMLElement | null>>;
   activeIndex: Ref<number>;
@@ -26,24 +25,12 @@ function bindLayoutWatchers(options: UseLauncherWatchersOptions): void {
       options.pendingCommand
     ],
     () => {
-      if (
-        options.stagingDrawerState.value === "opening" ||
-        options.stagingDrawerState.value === "closing"
-      ) {
-        return;
-      }
       options.scheduleWindowSync();
     }
   );
 
-  watch(options.stagingDrawerState, (state) => {
-    if (state === "opening") {
-      options.syncWindowSizeImmediate();
-      return;
-    }
-    if (state === "open" || state === "closed") {
-      options.scheduleWindowSync();
-    }
+  watch(options.stagingDrawerState, () => {
+    options.scheduleWindowSync();
   });
 }
 

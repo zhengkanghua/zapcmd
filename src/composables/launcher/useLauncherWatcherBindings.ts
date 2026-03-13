@@ -4,7 +4,6 @@ import type { StagingDrawerState } from "./useStagingQueue";
 
 interface WindowSizingWatcherModule {
   scheduleWindowSync: () => void;
-  syncWindowSizeImmediate: () => void;
 }
 
 interface UseLauncherWatcherBindingsOptions {
@@ -30,7 +29,6 @@ export function useLauncherWatcherBindings(options: UseLauncherWatcherBindingsOp
     pendingCommand: options.pendingCommand,
     stagingDrawerState: options.stagingDrawerState,
     scheduleWindowSync: options.windowSizing.scheduleWindowSync,
-    syncWindowSizeImmediate: options.windowSizing.syncWindowSizeImmediate,
     filteredResults: options.filteredResults,
     resultButtons: options.resultButtons,
     activeIndex: options.activeIndex,
