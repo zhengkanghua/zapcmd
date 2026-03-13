@@ -5,7 +5,6 @@ import type { UseWindowSizingOptions, WindowSize } from "./model";
 
 interface WindowSizingState {
   lastWindowSize: WindowSize | null;
-  resizeTimer: ReturnType<typeof setTimeout> | null;
   syncingWindowSize: boolean;
   queuedWindowSync: boolean;
 }
@@ -13,7 +12,6 @@ interface WindowSizingState {
 function createWindowSizingState(): WindowSizingState {
   return {
     lastWindowSize: null,
-    resizeTimer: null,
     syncingWindowSize: false,
     queuedWindowSync: false
   };
@@ -22,7 +20,13 @@ function createWindowSizingState(): WindowSizingState {
 export function createWindowSizingController(options: UseWindowSizingOptions) {
   const state = createWindowSizingState();
 
-  async function syncWindowSize(): Promise<void> {
+  /**
+   * 核心同步逻辑 — 通过指定的 bridge 函数设置窗口尺寸
+   * @param bridge 实际的 IPC 调用函数（animate 或 immediate）
+   */
+  async function syncWindowSizeCore(
+    bridge: (width: number, height: number) => Promise<void>
+  ): Promise<void> {
     if (options.isSettingsWindow.value) {
       return;
     }
@@ -45,7 +49,7 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
       }
 
       try {
-        await options.requestSetMainWindowSize(size.width, size.height);
+        await bridge(size.width, size.height);
       } catch (error) {
         console.warn("window command resize failed", error);
         try {
@@ -65,21 +69,18 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     }
   }
 
-  function scheduleWindowSync(): void {
-    if (state.resizeTimer) {
-      clearTimeout(state.resizeTimer);
-    }
-    state.resizeTimer = setTimeout(() => {
-      state.resizeTimer = null;
-      void syncWindowSize();
-    }, options.constants.windowResizeDebounceMs);
+  /** 缓动动画路径 — 用于 watcher 触发的响应式更新 */
+  async function syncWindowSize(): Promise<void> {
+    return syncWindowSizeCore(options.requestAnimateMainWindowSize);
   }
 
+  /** 即时跳转路径 — 用于聚焦校准等无动画场景 */
   function syncWindowSizeImmediate(): void {
-    if (state.resizeTimer) {
-      clearTimeout(state.resizeTimer);
-      state.resizeTimer = null;
-    }
+    void syncWindowSizeCore(options.requestSetMainWindowSize);
+  }
+
+  /** 调度窗口同步 — 防抖已在 Rust 端，此处直接调用 */
+  function scheduleWindowSync(): void {
     void syncWindowSize();
   }
 
@@ -96,12 +97,9 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     options.scheduleSearchInputFocus(true);
   }
 
+  /** 清理 resize 定时器 — debounce 已移除，保留为空函数兼容外部调用 */
   function clearResizeTimer(): void {
-    if (!state.resizeTimer) {
-      return;
-    }
-    clearTimeout(state.resizeTimer);
-    state.resizeTimer = null;
+    // 前端 debounce 已移除（防抖在 Rust 端），此处为 no-op
   }
 
   return {
