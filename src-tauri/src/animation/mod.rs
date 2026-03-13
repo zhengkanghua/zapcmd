@@ -62,8 +62,11 @@ pub(crate) async fn animate_main_window_size(
         return Ok(());
     }
 
-    // 目标与当前一致 — 跳过
+    // 目标与当前一致 — 跳过，但仍需取消待执行的收缩延迟/动画，
+    // 否则快速切换抽屉时旧的 300ms 延迟会在之后意外触发收缩。
     if (target_w - current_w).abs() < 0.5 && (target_h - current_h).abs() < 0.5 {
+        state.animation_gen.fetch_add(1, Ordering::SeqCst);
+        state.shrink_delay_gen.fetch_add(1, Ordering::SeqCst);
         return Ok(());
     }
 
