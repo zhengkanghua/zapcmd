@@ -31,6 +31,14 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
     setWindowOpacity(value: number): void {
       markDirty();
       context.setWindowOpacity(value);
+    },
+    setTheme(value: string): void {
+      markDirty();
+      context.setTheme(value);
+    },
+    setBlurEnabled(value: boolean): void {
+      markDirty();
+      context.setBlurEnabled(value);
     }
   };
 }
@@ -152,7 +160,12 @@ export function createAppCompositionViewModel(
     hideMainWindow: runtime.hideMainWindow,
     saveSettings: context.settingsWindow.saveSettings,
     windowOpacity: context.windowOpacity,
+    theme: context.theme,
+    blurEnabled: context.blurEnabled,
+    themes: context.themeManager.themes,
     setWindowOpacity: settingsMutationHandlers.setWindowOpacity,
+    setTheme: settingsMutationHandlers.setTheme,
+    setBlurEnabled: settingsMutationHandlers.setBlurEnabled,
     setExecutionFeedback: runtime.commandExecution.setExecutionFeedback
   };
 }

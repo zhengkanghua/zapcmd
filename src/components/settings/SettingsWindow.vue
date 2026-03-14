@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
 import type { CommandManagementViewState, SettingsRoute } from "../../features/settings/types";
+import type { ThemeMeta } from "../../features/themes/themeRegistry";
 import type { HotkeyFieldId } from "../../stores/settingsStore";
 import { useI18nText, type AppLocale } from "../../i18n";
 import SettingsAppearanceSection from "./parts/SettingsAppearanceSection.vue";
@@ -58,6 +59,8 @@ const emit = defineEmits<{
   (e: "update-command-view", patch: Partial<CommandManagementViewState>): void;
   (e: "reset-command-filters"): void;
   (e: "update-opacity", value: number): void;
+  (e: "update-theme", value: string): void;
+  (e: "update-blur-enabled", value: boolean): void;
   (e: "check-update"): void;
   (e: "download-update"): void;
   (e: "open-homepage"): void;
@@ -167,7 +170,12 @@ const emit = defineEmits<{
         <SettingsAppearanceSection
           v-else
           :window-opacity="props.windowOpacity"
+          :theme="props.theme"
+          :blur-enabled="props.blurEnabled"
+          :themes="props.themes"
           @update-opacity="emit('update-opacity', $event)"
+          @update-theme="emit('update-theme', $event)"
+          @update-blur-enabled="emit('update-blur-enabled', $event)"
         />
       </section>
     </div>

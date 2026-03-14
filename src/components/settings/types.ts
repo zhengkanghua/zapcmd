@@ -19,6 +19,7 @@ import type { UpdateStatus } from "../../features/update/types";
 import type { TerminalOption } from "../../features/terminals/fallbackTerminals";
 import type { HotkeyFieldId } from "../../stores/settingsStore";
 import type { AppLocale } from "../../i18n";
+import type { ThemeMeta } from "../../features/themes/themeRegistry";
 
 export interface SettingsNavItem {
   route: SettingsRoute;
@@ -73,6 +74,9 @@ export interface SettingsCommandsProps {
 
 export interface SettingsAppearanceProps {
   windowOpacity: number;
+  theme: string;
+  blurEnabled: boolean;
+  themes: ReadonlyArray<ThemeMeta>;
 }
 
 export interface SettingsAboutProps {

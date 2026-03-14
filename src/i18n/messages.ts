@@ -168,6 +168,11 @@ export const messages = {
       },
       appearance: {
         title: "外观",
+        themeLabel: "主题",
+        blurLabel: "毛玻璃效果",
+        blurOn: "已开启",
+        blurOff: "已关闭",
+        blurHint: "关闭可降低 GPU 占用",
         opacityLabel: "窗口透明度",
         opacityHint: "调整主窗口的背景透明度，数值越小越通透。",
         opacityValue: "{value}%",
@@ -446,6 +451,11 @@ export const messages = {
       },
       appearance: {
         title: "Appearance",
+        themeLabel: "Theme",
+        blurLabel: "Glassmorphism",
+        blurOn: "On",
+        blurOff: "Off",
+        blurHint: "Disable to reduce GPU usage",
         opacityLabel: "Window opacity",
         opacityHint: "Adjust the background opacity of the main window. Lower values are more transparent.",
         opacityValue: "{value}%",

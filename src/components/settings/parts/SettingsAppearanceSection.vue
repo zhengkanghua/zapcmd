@@ -2,9 +2,20 @@
 import { computed } from "vue";
 import { useI18nText } from "../../../i18n";
 import { MIN_WINDOW_OPACITY, MAX_WINDOW_OPACITY } from "../../../stores/settingsStore";
+import type { ThemeMeta } from "../../../features/themes/themeRegistry";
 
-const props = defineProps<{ windowOpacity: number }>();
-const emit = defineEmits<{ (e: "update-opacity", value: number): void }>();
+const props = defineProps<{
+  windowOpacity: number;
+  theme: string;
+  blurEnabled: boolean;
+  themes: ReadonlyArray<ThemeMeta>;
+}>();
+
+const emit = defineEmits<{
+  (e: "update-opacity", value: number): void;
+  (e: "update-theme", value: string): void;
+  (e: "update-blur-enabled", value: boolean): void;
+}>();
 const { t } = useI18nText();
 
 const percentDisplay = computed(() =>
@@ -20,6 +31,52 @@ function onSliderInput(event: Event) {
 <template>
   <section class="settings-group">
     <h2>{{ t("settings.appearance.title") }}</h2>
+
+    <!-- 主题选择 -->
+    <div class="settings-field">
+      <label>{{ t("settings.appearance.themeLabel") }}</label>
+      <div class="theme-selector">
+        <button
+          v-for="themeMeta in props.themes"
+          :key="themeMeta.id"
+          type="button"
+          class="theme-card"
+          :class="{ 'theme-card--active': themeMeta.id === props.theme }"
+          @click="emit('update-theme', themeMeta.id)"
+        >
+          <div class="theme-card__swatches">
+            <span class="theme-card__swatch" :style="{ background: themeMeta.preview.bg }" />
+            <span class="theme-card__swatch" :style="{ background: themeMeta.preview.surface }" />
+            <span class="theme-card__swatch" :style="{ background: themeMeta.preview.accent }" />
+            <span class="theme-card__swatch" :style="{ background: themeMeta.preview.text }" />
+          </div>
+          <span class="theme-card__name">{{ themeMeta.name }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 毛玻璃开关 -->
+    <div class="settings-field">
+      <label>{{ t("settings.appearance.blurLabel") }}</label>
+      <div class="appearance-toggle-row">
+        <button
+          type="button"
+          class="appearance-toggle"
+          :class="{ 'appearance-toggle--on': props.blurEnabled }"
+          role="switch"
+          :aria-checked="props.blurEnabled"
+          @click="emit('update-blur-enabled', !props.blurEnabled)"
+        >
+          <span class="appearance-toggle__thumb" />
+        </button>
+        <span class="appearance-toggle-label">
+          {{ props.blurEnabled
+            ? t("settings.appearance.blurOn")
+            : t("settings.appearance.blurOff") }}
+        </span>
+      </div>
+      <p class="settings-hint">{{ t("settings.appearance.blurHint") }}</p>
+    </div>
 
     <div class="settings-field">
       <label>{{ t("settings.appearance.opacityLabel") }}</label>
@@ -137,5 +194,91 @@ function onSliderInput(event: Event) {
   font-size: 11px;
   color: #a1a1aa;
   font-variant-numeric: tabular-nums;
+}
+
+.theme-selector {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.theme-card:hover {
+  border-color: var(--ui-subtle);
+}
+
+.theme-card--active {
+  border-color: var(--ui-accent);
+}
+
+.theme-card__swatches {
+  display: flex;
+  gap: 4px;
+}
+
+.theme-card__swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--ui-border);
+}
+
+.theme-card__name {
+  font-size: 12px;
+  color: var(--ui-text);
+}
+
+.appearance-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.appearance-toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--ui-toggle-off);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s;
+}
+
+.appearance-toggle--on {
+  background: var(--ui-toggle-on);
+}
+
+.appearance-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ui-text);
+  transition: transform 0.2s;
+}
+
+.appearance-toggle--on .appearance-toggle__thumb {
+  transform: translateX(18px);
+}
+
+.appearance-toggle-label {
+  font-size: 13px;
+  color: var(--ui-subtle);
 }
 </style>
