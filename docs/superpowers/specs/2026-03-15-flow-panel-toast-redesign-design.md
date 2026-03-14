@@ -150,7 +150,7 @@ export const FLOW_PANEL_MAX_WIDTH = 480;
 
 **底部按钮（固定底部）：**
 - 大面积"开始执行队列"按钮，使用 `--ui-accent` 背景色
-- 队列为空时按钮禁用，使用 `--ui-surface-hover` 灰色
+- 队列为空时按钮禁用，使用 `--ui-hover` 灰色
 - 执行中显示 loading 状态
 
 ### 3.5 FlowDrawer 保留
@@ -192,20 +192,20 @@ export const FLOW_PANEL_MAX_WIDTH = 480;
 
 **参数标签（未编辑态）：**
 - 每个参数渲染为 `key: value` 紧凑标签
-- `key` 使用 `--ui-text-secondary`，`value` 使用 `--ui-accent`
+- `key` 使用 `--ui-subtle`，`value` 使用 `--ui-accent`
 - 多参数以 `flex-wrap: wrap` 水平排列
 - 鼠标悬停 value 部分显示下划线
 
 **参数标签（编辑态）：**
 - 点击 value → 原地替换为 inline 输入框，宽度自适应
-- 输入框背景使用 `--ui-surface-hover`
+- 输入框背景使用 `--ui-hover`
 - 收起条件：Enter 确认 / Esc 取消 / blur 自动确认
 - **拖拽冲突处理**：`dragstart` 事件触发时，检查是否有正在编辑的参数输入框；如果有，先取消编辑（恢复原值）再进入拖拽模式，避免未完成的输入被意外提交
 - 参数变化时命令预览实时更新
 
 **命令预览：**
-- 前缀 `>` 符号，`--ui-font-mono` 等宽字体
-- 颜色 `--ui-text-secondary`
+- 前缀 `>` 符号，等宽字体（`font-family: var(--ui-font-mono)`）
+- 颜色 `--ui-subtle`
 - 单行，超长 `text-overflow: ellipsis`
 
 ### 4.2 无参数卡片
@@ -233,8 +233,8 @@ export const FLOW_PANEL_MAX_WIDTH = 480;
 
 - **复制**（📋）：复制完整渲染命令 → toast "已复制"（复用现有 `common.copied` i18n key）
 - **删除**（✕）：移除该条命令 → toast "删除成功"
-- 默认颜色 `--ui-text-muted`
-- hover：复制 → `--ui-text-primary`，删除 → `--ui-danger`
+- 默认颜色 `--ui-dim`
+- hover：复制 → `--ui-text`，删除 → `--ui-danger`
 
 ---
 
@@ -305,7 +305,7 @@ FlowPanel 打开时：`result-drawer` 和 `search-input` 设置 `inert`（详见
 |------|------|
 | **新增** | `flowPanelLayout.ts`（宽度常量） |
 | **重构/重命名** | `LauncherReviewOverlay.vue` → git mv + 重构为 `LauncherFlowPanel.vue` |
-| **修改** | `LauncherSearchPanel.vue`、`LauncherWindow.vue`、`actions.ts`、`helpers.ts`、`messages.ts`、`viewModel.ts`、`types.ts` |
+| **修改** | `launcher/parts/LauncherSearchPanel.vue`、`launcher/LauncherWindow.vue`、`execution/useCommandExecution/actions.ts`、`execution/useCommandExecution/helpers.ts`、`i18n/messages.ts`、`app/useAppCompositionRoot/viewModel.ts`、`launcher/types.ts` |
 | **审查** | `shared.css`、`launcher.css`、`settings.css`、`animations.css` |
 | **不变** | `LauncherFlowDrawer.vue`、`useStagingQueue/*`、`useCommandExecution/state.ts` |
 
@@ -315,17 +315,17 @@ FlowPanel 打开时：`result-drawer` 和 `search-input` 设置 `inert`（详见
 
 本设计中提及的所有颜色均引用 `--ui-*` 语义变量，由主题层 `--theme-*` 映射而来：
 
-| 语义变量 | 用途 | 黑曜石主题值 |
-|----------|------|-------------|
-| `--ui-accent` | 强调色（徽标、参数值、执行按钮） | `--theme-accent` |
-| `--ui-brand` | 品牌色（neutral toast 文字颜色） | `--theme-brand` |
-| `--ui-text-primary` | 主文字（标题） | `--theme-text-primary` |
-| `--ui-text-secondary` | 次要文字（参数 key、命令预览） | `--theme-text-secondary` |
-| `--ui-text-muted` | 弱文字（按钮默认态） | `--theme-text-muted` |
-| `--ui-surface` | 卡片背景 | `--theme-surface` |
-| `--ui-surface-hover` | 输入框背景、悬停态 | `--theme-surface-hover` |
-| `--ui-danger` | 删除按钮悬停 | `--theme-danger` |
-| `--ui-success` | 成功 toast | `--theme-success` |
-| `--ui-border` | 卡片边框 | `--theme-border` |
+| 语义变量 | 用途 | 映射自（tokens.css） | 黑曜石主题值 |
+|----------|------|---------------------|-------------|
+| `--ui-accent` | 强调色（徽标、参数值、执行按钮） | `--theme-accent` | `#FBBF24` |
+| `--ui-brand` | 品牌色（neutral toast 文字颜色） | `--theme-accent` | `#FBBF24` |
+| `--ui-text` | 主文字（标题） | `--theme-text` | `#FAFAFA` |
+| `--ui-subtle` | 次要文字（参数 key、命令预览） | `--theme-text-muted` | `#A1A1AA` |
+| `--ui-dim` | 弱文字（按钮默认态） | `--theme-text-dim` | `#71717A` |
+| `--ui-surface` | 卡片背景 | `--theme-surface` | `#27272A` |
+| `--ui-hover` | 输入框背景、悬停态 | `--theme-hover` | `rgba(39,39,42,0.50)` |
+| `--ui-danger` | 删除按钮悬停 | `--theme-danger` | `#FB7185` |
+| `--ui-success` | 成功 toast | `--theme-success` | `#2DD4BF` |
+| `--ui-border` | 卡片边框 | `--theme-border` | `rgba(255,255,255,0.10)` |
 
 切换主题时所有颜色自动跟随，零硬编码。
