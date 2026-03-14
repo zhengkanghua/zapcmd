@@ -1,0 +1,36 @@
+/* ── 黑曜石主题 (Obsidian) ── */
+/* Wave 1：使用当前色值，保证视觉零差异 */
+/* Wave 3 将替换为正式黑曜石配色 */
+
+:root[data-theme="obsidian"] {
+  /* ── 材质 ── */
+  --theme-bg-rgb:       24, 25, 28;
+  --theme-surface-soft: rgba(255, 255, 255, 0.06);
+
+  /* ── 边框与阴影 ── */
+  --theme-border:       rgba(255, 255, 255, 0.1);
+  --theme-shadow:       0 14px 32px rgba(0, 0, 0, 0.3);
+
+  /* ── 文字 ── */
+  --theme-text:         #f5f5f5;
+  --theme-text-muted:   #a1a1aa;
+
+  /* ── 品牌色 ── */
+  --theme-brand:        #c7ccd3;
+  --theme-brand-rgb:    199, 204, 211;
+  --theme-brand-soft:   rgba(199, 204, 211, 0.16);
+
+  /* ── 搜索高亮 ── */
+  --theme-search-hl:     #4cc9f0;
+  --theme-search-hl-rgb: 76, 201, 240;
+
+  /* ── 状态色 ── */
+  --theme-success:      #2dd4bf;
+  --theme-danger:       #fb7185;
+
+  /* ── 强调色（设置导航等） ── */
+  --theme-accent:       #37cc8a;
+
+  /* ── 毛玻璃/遮罩 ── */
+  --theme-glass-bg:     rgba(11, 14, 20, 0.32);
+}
