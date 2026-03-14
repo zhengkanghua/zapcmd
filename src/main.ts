@@ -4,7 +4,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import { i18n, setAppLocale } from "./i18n";
 import { readSettingsFromStorage } from "./stores/settingsStore";
-import "./styles.css";
+import "./styles/index.css";
 
 const initialSettings = readSettingsFromStorage();
 setAppLocale(initialSettings.general.language);
