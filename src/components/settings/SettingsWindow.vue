@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
 import type { CommandManagementViewState, SettingsRoute } from "../../features/settings/types";
-import type { ThemeMeta } from "../../features/themes/themeRegistry";
 import type { HotkeyFieldId } from "../../stores/settingsStore";
 import { useI18nText, type AppLocale } from "../../i18n";
 import SettingsAppearanceSection from "./parts/SettingsAppearanceSection.vue";
