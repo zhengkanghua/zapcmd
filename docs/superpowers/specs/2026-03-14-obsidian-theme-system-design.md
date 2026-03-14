@@ -23,7 +23,7 @@
 
 | 决策 | 选择 | 理由 |
 |------|------|------|
-| Tailwind CSS | 彻底移除 | 项目未使用 Tailwind 工具类，仅用了 `@tailwind base` 做 Reset |
+| Tailwind CSS | 彻底移除 | 项目引入了三条 Tailwind 指令（`@tailwind base/components/utilities`）但未实际使用工具类，移除前需 grep 确认 |
 | CSS 文件结构 | 按功能模块拆分 | 2615 行单文件不可维护，拆分后职责清晰 |
 | 主题切换机制 | `data-theme` 属性 | 标准、简单、无闪烁，CSS 原生支持 |
 | CSS 变量分层 | 双层（主题 + 语义） | 最灵活，组件与主题解耦 |
@@ -93,6 +93,7 @@ src/styles/
 :root[data-theme="obsidian"] {
   /* ── 材质 ── */
   --theme-bg:           #18181B;
+  --theme-bg-rgb:       24, 24, 27;        /* rgba() 组合用 */
   --theme-bg-deep:      #09090B;
   --theme-surface:      #27272A;
   --theme-surface-soft: rgba(255,255,255, 0.06);
@@ -110,6 +111,7 @@ src/styles/
 
   /* ── 强调色（琥珀/暗金） ── */
   --theme-accent:       #FBBF24;
+  --theme-accent-rgb:   251, 191, 36;      /* rgba() 组合用 */
   --theme-accent-soft:  rgba(251,191,36, 0.16);
   --theme-accent-text:  #09090B;
 
@@ -125,12 +127,16 @@ src/styles/
 
   /* ── 搜索高亮 ── */
   --theme-search-hl:    #FBBF24;
+  --theme-search-hl-rgb: 251, 191, 36;    /* rgba() 组合用 */
 
   /* ── 毛玻璃 ── */
   --theme-blur:         24px;
   --theme-glass-bg:     rgba(24,24,27, 0.85);
 
   /* ── 设置窗口专属 ── */
+  /* 命名约定：设置窗口专属变量使用通用语义名（sidebar/input/toggle），
+     因为主窗口未来也可能有类似组件。如需真正的窗口隔离，
+     可在 settings.css 中用 .settings-window-root 内的局部覆盖实现。 */
   --theme-sidebar-bg:   rgba(24,24,27, 0.40);
   --theme-input-bg:     #09090B;
   --theme-toggle-on:    #FBBF24;
@@ -139,6 +145,10 @@ src/styles/
 ```
 
 > **注意**：以上变量列表会在实现阶段根据 `styles.css` 中实际使用的色值进行审计精简，仅保留有消费者的 token。
+
+### 3.1.1 RGB 三元组变量说明
+
+当前 `styles.css` 中大量使用 `rgba(var(--ui-brand-rgb), alpha)` 模式（30+ 处）来创建不同透明度的品牌色变体。为保证"视觉零差异"迁移，主题层必须同时提供 `--theme-*-rgb` 三元组变量（如 `--theme-accent-rgb: 251, 191, 36`），语义层映射为 `--ui-brand-rgb: var(--theme-accent-rgb)`。组件中的 `rgba(var(--ui-brand-rgb), 0.34)` 写法无需改动。
 
 ### 3.2 语义层（Semantic Layer）
 
@@ -151,8 +161,11 @@ src/styles/
   --ui-top-align-offset: 18px;
   --ui-font-mono: "Fira Code","JetBrains Mono","SF Mono",Consolas,Monaco,monospace;
 
+  /* ── 运行时动态变量（不属于主题，由 JS 控制） ── */
+  --ui-opacity: 0.96;
+
   /* ── 颜色语义映射 ── */
-  --ui-bg:          var(--theme-bg);
+  --ui-bg:          rgba(var(--theme-bg-rgb), var(--ui-opacity)); /* 动态透明度 */
   --ui-bg-deep:     var(--theme-bg-deep);
   --ui-bg-soft:     var(--theme-surface-soft);
   --ui-surface:     var(--theme-surface);
@@ -166,7 +179,9 @@ src/styles/
   --ui-subtle:      var(--theme-text-muted);
   --ui-dim:         var(--theme-text-dim);
 
+  /* 品牌色与强调色：当前指向同一源，未来主题可分别定义 */
   --ui-brand:       var(--theme-accent);
+  --ui-brand-rgb:   var(--theme-accent-rgb);   /* rgba() 组合用 */
   --ui-brand-soft:  var(--theme-accent-soft);
   --ui-accent:      var(--theme-accent);
 
@@ -174,13 +189,17 @@ src/styles/
   --ui-danger:      var(--theme-danger);
   --ui-danger-soft: var(--theme-danger-soft);
 
-  --ui-search-hl:   var(--theme-search-hl);
+  --ui-search-hl:     var(--theme-search-hl);
+  --ui-search-hl-rgb: var(--theme-search-hl-rgb); /* rgba() 组合用 */
   --ui-hover:       var(--theme-hover);
   --ui-selected:    var(--theme-selected);
   --ui-kbd:         var(--theme-kbd);
 
   --ui-blur:        var(--theme-blur);
   --ui-glass-bg:    var(--theme-glass-bg);
+
+  /* ── color-scheme（随主题变，浅色主题时切换为 light） ── */
+  color-scheme: dark;
 
   /* ── 设置窗口语义 ── */
   --ui-sidebar-bg:  var(--theme-sidebar-bg);
@@ -190,12 +209,21 @@ src/styles/
 }
 ```
 
-### 3.3 分层优势
+### 3.3 --ui-opacity 与 --ui-bg 的动态联动
+
+当前 `--ui-bg` 通过 `rgba(24, 25, 28, var(--ui-opacity))` 动态联动用户设置的窗口透明度。新架构保留此行为：
+
+- **`--ui-opacity`** 不属于主题层，作为独立的运行时变量保留在 `tokens.css` 中
+- **`--ui-bg`** 定义为 `rgba(var(--theme-bg-rgb), var(--ui-opacity))`，同时引用主题色 RGB 三元组和运行时透明度
+- `context.ts` 中通过 `document.documentElement.style.setProperty("--ui-opacity", ...)` 动态修改的机制不变
+- 同理，`styles.css:1220` 中 `rgba(24, 25, 28, var(--ui-opacity))` 改为 `rgba(var(--theme-bg-rgb), var(--ui-opacity))`
+
+### 3.4 分层优势
 
 - **新增主题**：新建 `themes/xxx.css`，定义 `--theme-*` 变量，所有组件自动适配
 - **语义灵活**：不同主题可让「品牌色」和「搜索高亮」使用不同颜色
 - **组件隔离**：组件只用 `var(--ui-text)` 等语义变量，完全不关心当前主题
-- **`--ui-opacity`**：保留现有的运行时动态 opacity 机制，作为独立的非主题变量
+- **`--ui-opacity`**：保留现有的运行时动态 opacity 机制，通过 `rgba(var(--theme-bg-rgb), var(--ui-opacity))` 联动主题色和透明度
 
 ---
 
@@ -233,25 +261,26 @@ export const DEFAULT_THEME_ID = 'obsidian';
 
 ### 4.2 主题切换 Composable
 
+以下为概念性伪代码，实际实现需参考 `context.ts` 中现有的 `settingsSyncChannel`（`ref<BroadcastChannel | null>`）使用模式：
+
 ```typescript
-// src/composables/app/useTheme.ts
+// src/composables/app/useTheme.ts（概念伪代码）
 export function useTheme(settingsStore: SettingsStore) {
   const themeId = computed(() => settingsStore.theme ?? DEFAULT_THEME_ID);
 
   function applyTheme(id: string) {
-    document.documentElement.dataset.theme = id;
+    // 校验主题 ID 有效性，无效则降级到默认主题
+    const validId = THEME_REGISTRY.some(t => t.id === id) ? id : DEFAULT_THEME_ID;
+    document.documentElement.dataset.theme = validId;
   }
 
-  // 监听 + 广播
+  // 监听 + 广播（复用 settingsSyncChannel）
   watch(themeId, (id) => {
     applyTheme(id);
-    broadcastChannel.postMessage({ type: 'theme-changed', themeId: id });
+    // 实际使用 settingsSyncChannel.value?.postMessage(...)
   }, { immediate: true });
 
-  // 接收其他窗口
-  onBroadcastMessage('theme-changed', (msg) => {
-    applyTheme(msg.themeId);
-  });
+  // 接收其他窗口的 settings-updated 消息后，从 settingsStore 读取最新 theme
 
   return { themeId, applyTheme, themes: THEME_REGISTRY };
 }
@@ -299,7 +328,8 @@ export function useTheme(settingsStore: SettingsStore) {
 <script>
   (function() {
     try {
-      var stored = JSON.parse(localStorage.getItem('zapcmd-settings') || '{}');
+      // key 必须与 SETTINGS_STORAGE_KEY ("zapcmd.settings") 一致
+      var stored = JSON.parse(localStorage.getItem('zapcmd.settings') || '{}');
       var theme = (stored && stored.theme) || 'obsidian';
       var blur = stored && stored.blurEnabled !== false;
       document.documentElement.dataset.theme = theme;
@@ -312,7 +342,7 @@ export function useTheme(settingsStore: SettingsStore) {
 </script>
 ```
 
-> **注意**：localStorage key 需与 settingsStore 的实际持久化 key 保持一致。实现时需确认具体 key 名称。
+> **注意**：localStorage key `"zapcmd.settings"` 来源于 `src/stores/settings/defaults.ts` 中的 `SETTINGS_STORAGE_KEY` 常量。如果常量值变更，此处必须同步更新。
 
 ---
 
@@ -357,7 +387,7 @@ export function useTheme(settingsStore: SettingsStore) {
 
 | # | 任务 | 说明 |
 |---|------|------|
-| 1 | 移除 Tailwind | 删除 `tailwindcss`/`autoprefixer`/`postcss` 依赖和配置文件，`@tailwind base` 替换为 `reset.css` |
+| 1 | 移除 Tailwind | 删除 `tailwindcss`/`autoprefixer`/`postcss` 依赖和配置文件。**移除前** grep 全局搜索 `.vue`/`.ts` 文件中是否有 Tailwind 工具类引用（`flex`、`p-4` 等），确认安全后再移除。将 `@tailwind base/components/utilities` 三条指令替换为 `reset.css` |
 | 2 | 拆分 styles.css | 按功能模块拆到 `src/styles/` 各文件，`index.css` 作为总入口 |
 | 3 | 提取色值为主题 | 现有 `--ui-*` 色值原样复制到 `themes/obsidian.css` 作为 `--theme-*`，`tokens.css` 中 `--ui-*` 改为引用 `--theme-*` |
 
@@ -375,7 +405,7 @@ export function useTheme(settingsStore: SettingsStore) {
 | # | 任务 | 说明 |
 |---|------|------|
 | 8 | 应用黑曜石色值 | 将 `themes/obsidian.css` 中 `--theme-*` 替换为正式黑曜石配色 |
-| 9 | 审计硬编码色值 | 搜索所有 `rgba()`/`#xxx` 硬编码色值，提升为 `--ui-*`/`--theme-*` 变量 |
+| 9 | 审计硬编码色值 | 搜索所有 `rgba()`/`#xxx` 硬编码色值，提升为 `--ui-*`/`--theme-*` 变量。**特别注意** `SettingsAppearanceSection.vue` 和 `SettingsAboutSection.vue` 的 scoped 样式中的硬编码色（如 `#37cc8a`、`#0a2016`、`rgba(24, 25, 28, ...)` 预览面板色值）需迁移到主题变量 |
 | 10 | 毛玻璃降级 | 加入 `[data-blur="off"]` 回退样式 |
 
 #### Wave 4：设置 UI + 收尾
@@ -448,6 +478,7 @@ export function useTheme(settingsStore: SettingsStore) {
 - `src/stores/settingsStore.ts` — 新增 theme/blurEnabled 字段
 - `src/stores/settings/defaults.ts` — 新增默认值
 - `src/stores/settings/migration.ts` — 新增迁移逻辑
+- `src/stores/settings/normalization.ts` — 新增 theme/blurEnabled 字段的 normalize 函数
 - `src/components/settings/parts/SettingsAppearanceSection.vue` — 外观页改造
 - `index.html` — 新增防闪烁脚本
 - `package.json` — 移除 tailwindcss/autoprefixer/postcss 依赖
