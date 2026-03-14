@@ -431,3 +431,9 @@
 - 前端：controller.ts 移除 72ms debounce，拆分 animate/immediate 双路径；watchers 移除 staging guard。
 - 测试：5 项 Rust 单元测试 + 全部 TS 测试回归通过（含 P0/P1/P2）。
 - 下一步：Windows 手动验收（平滑扩展/收缩/动画中断/DPI 缩放），然后合并到 main。
+
+## 补充（2026-03-14｜启动器 UX 三项修复）
+
+- 已完成启动器 UX 三项修复并合并到 main：搜索面板水平居中（`place-items: start center`）、搜索框防缩频闪（`flex-shrink:0 + min-height`）、操作完成后保留搜索结果并全选聚焦（`appendToStaging` 不再清空搜索，`scheduleSearchInputFocus(true)` 全选）。
+- `npm run check:all` 全绿，18/18 测试通过。
+- 待手动验证：紧凑状态打开执行流不频闪、搜索面板居中、stage/执行后搜索结果保留+全选、Esc 取消参数输入焦点回搜索框（不全选）。
