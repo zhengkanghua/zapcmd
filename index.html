@@ -1,12 +1,33 @@
 <!doctype html>
-<html lang="en" data-theme="obsidian" data-blur="on">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZapCmd</title>
+    <script>
+      (function () {
+        try {
+          var stored = JSON.parse(
+            localStorage.getItem("zapcmd.settings") || "{}"
+          );
+          var theme =
+            stored &&
+            stored.appearance &&
+            typeof stored.appearance.theme === "string"
+              ? stored.appearance.theme
+              : "obsidian";
+          var blur =
+            stored &&
+            stored.appearance &&
+            stored.appearance.blurEnabled !== false;
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.dataset.blur = blur ? "on" : "off";
+        } catch (e) {
+          document.documentElement.dataset.theme = "obsidian";
+          document.documentElement.dataset.blur = "on";
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>
