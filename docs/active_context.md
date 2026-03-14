@@ -463,3 +463,4 @@
 - 设置页新增主题选择器 + 毛玻璃开关；硬编码色值迁移到语义变量（40+ 处）。
 - 移除 Tailwind CSS 依赖（tailwindcss/autoprefixer/postcss）。
 - 待手动验证：`npm run tauri:dev` 下主题切换、跨窗口同步、毛玻璃降级效果。
+- ✅ 手动验证通过（2026-03-15）。黑曜石主题系统完整交付。
