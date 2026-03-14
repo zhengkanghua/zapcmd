@@ -74,6 +74,8 @@ body {
   justify-content: start;
   justify-items: stretch;
   align-items: start;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .search-main {
