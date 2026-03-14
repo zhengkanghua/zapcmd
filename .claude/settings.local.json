@@ -46,7 +46,12 @@
       "Bash(cd D:/AAE/a_ziliao/desktop/project/zapcmd && npx vitest run 2>&1)",
       "Bash(git add:*)",
       "Bash(npx vitest:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git rm:*)",
+      "Bash(git worktree:*)",
+      "Bash(cd \"D:\\\\AAE\\\\a_ziliao\\\\desktop\\\\project\\\\zapcmd\" && node -e \"const lock = require\\('./package-lock.json'\\); const tw = lock.packages?.['node_modules/tailwindcss']; if\\(tw\\) { console.log\\('tailwindcss in lock:', JSON.stringify\\({version: tw.version, dev: tw.dev, optional: tw.optional, peer: tw.peer}, null, 2\\)\\); } else { console.log\\('tailwindcss NOT in package-lock.json packages'\\); }\")",
+      "Bash(cd \"D:\\\\AAE\\\\a_ziliao\\\\desktop\\\\project\\\\zapcmd\" && node -e \"const lock = require\\('./package-lock.json'\\); const ap = lock.packages?.['node_modules/autoprefixer']; if\\(ap\\) { console.log\\('autoprefixer in lock:', JSON.stringify\\({version: ap.version, dev: ap.dev}, null, 2\\)\\); } else { console.log\\('autoprefixer NOT in package-lock.json packages'\\); }\")",
+      "Bash(cd \"D:\\\\AAE\\\\a_ziliao\\\\desktop\\\\project\\\\zapcmd\" && npm ls postcss 2>&1 | head -20)"
     ]
   }
 }
