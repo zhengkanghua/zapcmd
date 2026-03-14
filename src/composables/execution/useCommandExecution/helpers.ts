@@ -174,7 +174,7 @@ export async function executeSingleCommand(
     state.setExecutionFeedback("error", buildExecutionFailureFeedback(error, "single"));
   } finally {
     state.executing.value = false;
-    options.scheduleSearchInputFocus(false);
+    options.scheduleSearchInputFocus(true);
   }
 }
 
@@ -185,7 +185,7 @@ export function appendToStaging(
   argValues?: Record<string, string>
 ): void {
   options.stagedCommands.value.push(buildStagedCommand(command, argValues));
-  options.clearSearchQueryAndSelection();
+  options.scheduleSearchInputFocus(true);
   options.triggerStagedFeedback(command.id);
 
   if (options.focusZone.value === "staging") {

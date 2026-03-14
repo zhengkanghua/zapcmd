@@ -55,7 +55,7 @@ function createExecuteStagedAction(
       state.setExecutionFeedback("error", buildExecutionFailureFeedback(error, "queue"));
     } finally {
       state.executing.value = false;
-      options.scheduleSearchInputFocus(false);
+      options.scheduleSearchInputFocus(true);
     }
   }
 
@@ -265,7 +265,6 @@ function createPendingCommandActions(
 
     resetPendingCommand();
     appendToStaging(options, state, command, values);
-    options.scheduleSearchInputFocus(false);
   }
 
   function cancelParamInput(): void {

@@ -96,7 +96,8 @@ describe("useCommandExecution", () => {
     expect(harness.stagedCommands.value).toHaveLength(1);
     expect(harness.stagedCommands.value[0]?.renderedCommand).toBe("ls -la");
     expect(harness.openStagingDrawer).not.toHaveBeenCalled();
-    expect(harness.clearSearchQueryAndSelection).toHaveBeenCalledTimes(1);
+    expect(harness.clearSearchQueryAndSelection).not.toHaveBeenCalled();
+    expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.triggerStagedFeedback).toHaveBeenCalledWith("list-dir");
   });
 
@@ -140,7 +141,7 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.pendingCommand.value).toBeNull();
     expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
-    expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(false);
+    expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
   });
@@ -249,6 +250,7 @@ describe("useCommandExecution", () => {
     harness.execution.stageResult(createNoArgCommand());
     harness.execution.executeResult(createArgCommand());
 
+    harness.scheduleSearchInputFocus.mockClear();
     await harness.execution.executeStaged();
 
     expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
@@ -270,12 +272,13 @@ describe("useCommandExecution", () => {
 
     harness.execution.stageResult(first);
     harness.execution.stageResult(second);
+    harness.scheduleSearchInputFocus.mockClear();
     await harness.execution.executeStaged();
 
     expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(1, "ls -la");
     expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(2, "git gc --prune=now");
     expect(harness.stagedCommands.value).toHaveLength(0);
-    expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(false);
+    expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("2 个节点");
     expect(harness.execution.executionFeedbackMessage.value).toContain("首个：ls -la");
