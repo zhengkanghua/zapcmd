@@ -116,7 +116,12 @@ const {
   hideMainWindow,
   saveSettings,
   windowOpacity,
+  theme,
+  blurEnabled,
+  themes,
   setWindowOpacity,
+  setTheme,
+  setBlurEnabled,
   setExecutionFeedback
 } = useAppCompositionRoot();
 
@@ -237,6 +242,9 @@ function navigateToSettingsError(): void {
     :settings-saved="settingsSaved"
     :close-confirm-open="settingsCloseConfirmOpen"
     :window-opacity="windowOpacity"
+    :theme="theme"
+    :blur-enabled="blurEnabled"
+    :themes="themes"
     @navigate="navigateSettings"
     @start-recording="startHotkeyRecording"
     @toggle-terminal-dropdown="toggleTerminalDropdown"
@@ -249,6 +257,8 @@ function navigateToSettingsError(): void {
     @update-command-view="updateCommandView"
     @reset-command-filters="resetCommandFilters"
     @update-opacity="setWindowOpacity"
+    @update-theme="setTheme"
+    @update-blur-enabled="setBlurEnabled"
     @check-update="checkUpdate"
     @download-update="downloadUpdate"
     @open-homepage="openHomepage"
