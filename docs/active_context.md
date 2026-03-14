@@ -437,3 +437,29 @@
 - 已完成启动器 UX 三项修复并合并到 main：搜索面板水平居中（`place-items: start center`）、搜索框防缩频闪（`flex-shrink:0 + min-height`）、操作完成后保留搜索结果并全选聚焦（`appendToStaging` 不再清空搜索，`scheduleSearchInputFocus(true)` 全选）。
 - `npm run check:all` 全绿，18/18 测试通过。
 - 待手动验证：紧凑状态打开执行流不频闪、搜索面板居中、stage/执行后搜索结果保留+全选、Esc 取消参数输入焦点回搜索框（不全选）。
+
+## 补充（2026-03-14｜黑曜石主题系统 brainstorming 完成）
+
+- 完成 UI 大重构 brainstorming 阶段，设计已通过 spec review（2 轮）。
+- 方案：移除 Tailwind → CSS 按功能模块拆分（7 文件） → 双层变量（`--theme-*` + `--ui-*`） → `data-theme` 属性切换 → 黑曜石沉浸风首发 → 多主题架构就绪。
+- 关键设计：RGB 三元组保留 `rgba()` 兼容、`--ui-opacity` 联动保留、毛玻璃 `data-blur` 可选开关、`index.html` 防闪烁脚本。
+- 设计文档：`docs/superpowers/specs/2026-03-14-obsidian-theme-system-design.md`
+- 下一步：新会话中执行 `/superpowers:writing-plans` 创建实现计划。
+
+## 补充（2026-03-14｜黑曜石主题系统实现计划完成）
+
+- 完成 writing-plans 阶段，实现计划已通过 2 轮审查并修复全部 3 Critical + 6 Important 反馈。
+- 计划文档：`docs/superpowers/plans/2026-03-14-obsidian-theme-system.md`
+- 4 Chunks / 15 Tasks：Wave 1 架构准备（Task 1-6）→ Wave 2 主题基础设施（Task 7-10）→ Wave 3 视觉切换（Task 11-13）→ Wave 4 设置 UI + 收尾（Task 14-15）
+- 关键：双层变量（`--theme-*` → `--ui-*`）、`data-theme` 属性切换、防闪烁 localStorage 脚本、跨窗口同步复用现有 settingsSyncChannel。
+
+## 补充（2026-03-15｜黑曜石主题系统实现完成）
+
+- 15 个 Task 全部落地并合并到 main，435 测试全绿（lint + typecheck + test）。
+- CSS 模块化：2615 行 styles.css → 7 模块（reset/tokens/themes/shared/launcher/settings/animations）。
+- 双层变量架构：`--theme-*`（主题层） → `--ui-*`（语义层），`data-theme` 属性切换。
+- 新增文件：themeRegistry.ts / useTheme.ts / obsidian.css / tokens.css / reset.css 等。
+- settingsStore 扩展 theme + blurEnabled；防闪烁脚本 + context.ts 集成。
+- 设置页新增主题选择器 + 毛玻璃开关；硬编码色值迁移到语义变量（40+ 处）。
+- 移除 Tailwind CSS 依赖（tailwindcss/autoprefixer/postcss）。
+- 待手动验证：`npm run tauri:dev` 下主题切换、跨窗口同步、毛玻璃降级效果。
