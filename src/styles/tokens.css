@@ -1,0 +1,38 @@
+/* ── 语义层变量 ── */
+/* 组件只引用 --ui-* 变量，不直接使用 --theme-* */
+
+:root {
+  /* ── 基础设定（不随主题变） ── */
+  color-scheme: dark;
+  font-family: "Segoe UI", "Helvetica Neue", "Noto Sans", sans-serif;
+
+  /* ── 布局常量 ── */
+  --ui-radius:           12px;
+  --ui-top-align-offset: 18px;
+  --ui-font-mono: "Fira Code", "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
+
+  /* ── 运行时动态变量（由 JS 控制，不属于主题） ── */
+  --ui-opacity: 0.96;
+
+  /* ── 颜色语义映射 ── */
+  --ui-bg:          rgba(var(--theme-bg-rgb), var(--ui-opacity));
+  --ui-bg-soft:     var(--theme-surface-soft);
+  --ui-border:      var(--theme-border);
+  --ui-shadow:      var(--theme-shadow);
+
+  --ui-text:        var(--theme-text);
+  --ui-subtle:      var(--theme-text-muted);
+
+  --ui-brand:       var(--theme-brand);
+  --ui-brand-rgb:   var(--theme-brand-rgb);
+  --ui-brand-soft:  var(--theme-brand-soft);
+
+  --ui-search-hl:     var(--theme-search-hl);
+  --ui-search-hl-rgb: var(--theme-search-hl-rgb);
+
+  --ui-success:     var(--theme-success);
+  --ui-danger:      var(--theme-danger);
+  --ui-accent:      var(--theme-accent);
+
+  --ui-shell-dim:   var(--theme-glass-bg);
+}
