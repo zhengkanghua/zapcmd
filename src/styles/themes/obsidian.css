@@ -28,7 +28,9 @@
 
   /* ── 状态色 ── */
   --theme-success:      #2DD4BF;
+  --theme-success-rgb:  45, 212, 191;
   --theme-danger:       #FB7185;
+  --theme-danger-rgb:   251, 113, 133;
   --theme-danger-soft:  rgba(251, 113, 133, 0.10);
 
   /* ── 交互态 ── */

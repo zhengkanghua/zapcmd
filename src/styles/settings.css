@@ -6,7 +6,7 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto auto;
   gap: 12px;
-  background: rgba(10, 11, 14, 1);
+  background: var(--ui-bg-deep);
   color: var(--ui-text);
   --settings-nav-width: 200px;
 }
@@ -37,7 +37,7 @@
   border-radius: 12px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02) 52%, transparent),
-    rgba(10, 11, 14, 0.94);
+    rgba(var(--theme-bg-rgb), 0.94);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55);
   padding: 16px;
   display: grid;
@@ -160,23 +160,23 @@
 }
 
 .settings-nav__item--active {
-  border-color: rgba(55, 204, 138, 0.4);
-  color: #d8f7e8;
-  background: rgba(55, 204, 138, 0.14);
+  border-color: rgba(var(--ui-brand-rgb), 0.4);
+  color: var(--ui-text);
+  background: rgba(var(--ui-brand-rgb), 0.14);
 }
 
 .settings-nav__item--error {
-  border-color: rgba(248, 113, 113, 0.34);
-  color: #ffd3d3;
-  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(var(--ui-danger-rgb), 0.34);
+  color: var(--ui-danger);
+  background: rgba(var(--ui-danger-rgb), 0.08);
 }
 
 .settings-nav__item:focus-visible {
   outline: none;
-  border-color: rgba(55, 204, 138, 0.5);
-  color: #e5faf0;
-  background: rgba(55, 204, 138, 0.16);
-  box-shadow: inset 0 0 0 1px rgba(55, 204, 138, 0.22);
+  border-color: rgba(var(--ui-brand-rgb), 0.5);
+  color: var(--ui-text);
+  background: rgba(var(--ui-brand-rgb), 0.16);
+  box-shadow: inset 0 0 0 1px rgba(var(--ui-brand-rgb), 0.22);
 }
 
 .settings-nav__item:disabled {
@@ -266,7 +266,7 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
-  color: #d3d7de;
+  color: var(--ui-subtle);
   font-size: 15px;
   line-height: 1;
 }
@@ -277,15 +277,15 @@
 }
 
 .settings-display-mode__button:focus-visible {
-  border-color: rgba(55, 204, 138, 0.58);
-  box-shadow: 0 0 0 1px rgba(55, 204, 138, 0.24) inset;
+  border-color: rgba(var(--ui-brand-rgb), 0.58);
+  box-shadow: 0 0 0 1px rgba(var(--ui-brand-rgb), 0.24) inset;
   outline: none;
 }
 
 .settings-display-mode__button--active {
-  border-color: rgba(55, 204, 138, 0.5);
-  background: rgba(55, 204, 138, 0.18);
-  color: #ddf9ea;
+  border-color: rgba(var(--ui-brand-rgb), 0.5);
+  background: rgba(var(--ui-brand-rgb), 0.18);
+  color: var(--ui-text);
 }
 
 .settings-commands-summary {
@@ -293,7 +293,7 @@
 }
 
 .settings-summary__value {
-  color: #ebf7f1;
+  color: var(--ui-text);
   font-weight: 700;
 }
 
@@ -313,19 +313,19 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
   font-size: 11px;
-  color: #c7ccd3;
+  color: var(--ui-subtle);
   line-height: 1.6;
 }
 
 .settings-commands-chip__value {
-  color: #ebf7f1;
+  color: var(--ui-text);
   font-weight: 700;
 }
 
 .settings-commands-chip--accent {
-  border-color: rgba(55, 204, 138, 0.4);
-  color: #ccf7df;
-  background: rgba(55, 204, 138, 0.12);
+  border-color: rgba(var(--ui-brand-rgb), 0.4);
+  color: var(--ui-brand);
+  background: rgba(var(--ui-brand-rgb), 0.12);
 }
 
 .settings-commands-chip--warn {
@@ -368,8 +368,8 @@
 }
 
 .settings-select:focus-visible {
-  border-color: rgba(55, 204, 138, 0.58);
-  box-shadow: 0 0 0 1px rgba(55, 204, 138, 0.24) inset;
+  border-color: rgba(var(--ui-brand-rgb), 0.58);
+  box-shadow: 0 0 0 1px rgba(var(--ui-brand-rgb), 0.24) inset;
 }
 
 .settings-select-list__item:focus-visible,
@@ -382,8 +382,8 @@
 .param-dialog button:focus-visible,
 .output-overlay button:focus-visible {
   outline: none;
-  border-color: rgba(55, 204, 138, 0.58);
-  box-shadow: 0 0 0 1px rgba(55, 204, 138, 0.24) inset;
+  border-color: rgba(var(--ui-brand-rgb), 0.58);
+  box-shadow: 0 0 0 1px rgba(var(--ui-brand-rgb), 0.24) inset;
 }
 
 .btn-muted:focus-visible,
@@ -403,7 +403,7 @@
   top: 50%;
   transform: translateY(-52%);
   pointer-events: none;
-  color: #9fd7be;
+  color: var(--ui-accent);
   font-size: 12px;
   transition: transform 140ms ease;
 }
@@ -421,9 +421,9 @@
   margin: 0;
   padding: 6px;
   list-style: none;
-  border: 1px solid rgba(55, 204, 138, 0.28);
+  border: 1px solid rgba(var(--ui-brand-rgb), 0.28);
   border-radius: 10px;
-  background: rgba(9, 13, 17, 0.98);
+  background: var(--ui-bg-deep);
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
   max-height: 220px;
   overflow: auto;
@@ -446,8 +446,8 @@
 }
 
 .settings-select-list__item--active {
-  border-color: rgba(55, 204, 138, 0.46);
-  background: rgba(55, 204, 138, 0.14);
+  border-color: rgba(var(--ui-brand-rgb), 0.46);
+  background: rgba(var(--ui-brand-rgb), 0.14);
 }
 
 .settings-select-list__item--focused {
@@ -472,7 +472,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.03);
-  color: #d5d8de;
+  color: var(--ui-subtle);
   padding: 0 10px;
   outline: none;
 }
@@ -508,41 +508,41 @@
 }
 
 .hotkey-recorder--recording {
-  border-color: rgba(55, 204, 138, 0.56);
-  box-shadow: 0 0 0 1px rgba(55, 204, 138, 0.2) inset;
-  background: rgba(55, 204, 138, 0.12);
+  border-color: rgba(var(--ui-brand-rgb), 0.56);
+  box-shadow: 0 0 0 1px rgba(var(--ui-brand-rgb), 0.2) inset;
+  background: rgba(var(--ui-brand-rgb), 0.12);
 }
 
 .hotkey-recorder--recording::after {
   content: "录制中";
-  color: #a8f0ce;
-  border-color: rgba(55, 204, 138, 0.35);
-  background: rgba(55, 204, 138, 0.12);
+  color: var(--ui-brand);
+  border-color: rgba(var(--ui-brand-rgb), 0.35);
+  background: rgba(var(--ui-brand-rgb), 0.12);
 }
 
 .hotkey-recorder--error {
-  border-color: rgba(248, 113, 113, 0.45);
-  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(var(--ui-danger-rgb), 0.45);
+  background: rgba(var(--ui-danger-rgb), 0.08);
 }
 
 .hotkey-recorder--error::after {
   content: "存在冲突";
-  color: #ffc9c9;
-  border-color: rgba(248, 113, 113, 0.28);
-  background: rgba(248, 113, 113, 0.12);
+  color: var(--ui-danger);
+  border-color: rgba(var(--ui-danger-rgb), 0.28);
+  background: rgba(var(--ui-danger-rgb), 0.12);
 }
 
 .hotkey-recorder--error-primary {
-  border-color: rgba(248, 113, 113, 0.68);
-  box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.22) inset;
-  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(var(--ui-danger-rgb), 0.68);
+  box-shadow: 0 0 0 1px rgba(var(--ui-danger-rgb), 0.22) inset;
+  background: rgba(var(--ui-danger-rgb), 0.14);
 }
 
 .hotkey-recorder--error-primary::after {
   content: "最后修改";
-  color: #ffe2e2;
-  border-color: rgba(248, 113, 113, 0.36);
-  background: rgba(248, 113, 113, 0.18);
+  color: var(--ui-danger);
+  border-color: rgba(var(--ui-danger-rgb), 0.36);
+  background: rgba(var(--ui-danger-rgb), 0.18);
 }
 
 .settings-group--placeholder {
@@ -591,7 +591,7 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
-  color: #d3d7de;
+  color: var(--ui-subtle);
   font-size: 15px;
   line-height: 1;
   cursor: pointer;
@@ -669,7 +669,7 @@
   list-style: none;
   display: grid;
   gap: 8px;
-  color: #ffd6d6;
+  color: var(--ui-danger);
   font-size: 12px;
 }
 
@@ -679,13 +679,13 @@
   gap: 8px;
   align-items: start;
   padding: 8px 10px;
-  border: 1px solid rgba(255, 100, 100, 0.45);
+  border: 1px solid rgba(var(--ui-danger-rgb), 0.45);
   border-radius: 8px;
-  background: rgba(255, 100, 100, 0.12);
+  background: rgba(var(--ui-danger-rgb), 0.12);
 }
 
 .settings-command-issues__icon {
-  color: #ffbcbc;
+  color: var(--ui-danger);
   font-size: 14px;
   line-height: 1.2;
 }
@@ -768,11 +768,11 @@
 }
 
 .settings-command-list__badge {
-  border: 1px solid rgba(55, 204, 138, 0.4);
+  border: 1px solid rgba(var(--ui-brand-rgb), 0.4);
   border-radius: 999px;
   padding: 1px 8px;
-  color: #ccf7df;
-  background: rgba(55, 204, 138, 0.15);
+  color: var(--ui-brand);
+  background: rgba(var(--ui-brand-rgb), 0.15);
   font-size: 11px;
 }
 
@@ -827,15 +827,15 @@
 }
 
 .settings-status--loading {
-  color: #dff8ec;
-  border-color: rgba(55, 204, 138, 0.28);
-  background: rgba(55, 204, 138, 0.1);
+  color: var(--ui-brand);
+  border-color: rgba(var(--ui-brand-rgb), 0.28);
+  background: rgba(var(--ui-brand-rgb), 0.1);
 }
 
 .settings-error {
   margin: 0;
   font-size: 12px;
-  color: #ffb4b4;
+  color: var(--ui-danger);
 }
 
 .settings-error.execution-toast {
@@ -857,7 +857,7 @@
 .settings-ok {
   margin: 0;
   font-size: 12px;
-  color: #a8f0ce;
+  color: var(--ui-brand);
   animation: toast-auto-dismiss 2000ms ease both;
 }
 

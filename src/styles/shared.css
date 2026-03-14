@@ -44,7 +44,7 @@
 }
 
 .execution-feedback--neutral {
-  color: #c7ccd3;
+  color: var(--ui-brand);
 }
 
 .execution-feedback--success {
@@ -52,7 +52,7 @@
 }
 
 .execution-feedback--error {
-  color: #ffb4b4;
+  color: var(--ui-danger);
 }
 
 /* ─── visually-hidden ─── */
@@ -76,7 +76,7 @@
   padding: 2px 6px 6px;
   min-height: 20px;
   font-size: 10px;
-  color: #a1a1aa;
+  color: var(--ui-subtle);
   letter-spacing: 0.03em;
   font-weight: 500;
   display: flex;
@@ -110,13 +110,13 @@ kbd {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
   font-family: var(--ui-font-mono);
   font-size: 10px;
-  color: #d4d4db;
+  color: var(--ui-subtle);
   line-height: 1;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .keyboard-hint__action {
-  color: #99a1ad;
+  color: var(--ui-dim);
 }
 
 .keyboard-hint__sep {
@@ -141,16 +141,16 @@ kbd {
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
+  background: rgba(var(--ui-danger-rgb), 0.1);
+  border-color: rgba(var(--ui-danger-rgb), 0.2);
+  color: var(--ui-danger);
   transition: all 150ms ease;
 }
 
 .btn-danger:hover {
-  background: rgba(239, 68, 68, 0.18);
-  border-color: rgba(239, 68, 68, 0.35);
-  color: #fecaca;
+  background: rgba(var(--ui-danger-rgb), 0.18);
+  border-color: rgba(var(--ui-danger-rgb), 0.35);
+  color: var(--ui-danger);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -183,7 +183,7 @@ kbd {
   font-size: 12px;
   background: linear-gradient(180deg, rgba(var(--ui-brand-rgb), 0.9), rgba(var(--ui-brand-rgb), 0.82));
   border-color: rgba(var(--ui-brand-rgb), 0.45);
-  color: #061319;
+  color: var(--ui-accent-text);
   font-weight: 700;
 }
 
@@ -202,7 +202,7 @@ kbd {
     rgba(var(--ui-search-hl-rgb), 0.82)
   );
   border-color: rgba(var(--ui-search-hl-rgb), 0.5);
-  color: #061319;
+  color: var(--ui-accent-text);
   font-weight: 700;
 }
 
@@ -215,9 +215,9 @@ kbd {
 .btn-success {
   padding: 6px 12px;
   font-size: 12px;
-  background: linear-gradient(180deg, rgba(45, 212, 191, 0.9), rgba(45, 212, 191, 0.82));
-  border-color: rgba(45, 212, 191, 0.45);
-  color: #041312;
+  background: linear-gradient(180deg, rgba(var(--ui-success-rgb), 0.9), rgba(var(--ui-success-rgb), 0.82));
+  border-color: rgba(var(--ui-success-rgb), 0.45);
+  color: var(--ui-accent-text);
   font-weight: 700;
 }
 

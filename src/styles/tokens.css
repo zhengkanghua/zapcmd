@@ -37,8 +37,12 @@
   --ui-search-hl-rgb: var(--theme-search-hl-rgb);
 
   --ui-success:     var(--theme-success);
+  --ui-success-rgb: var(--theme-success-rgb);
   --ui-danger:      var(--theme-danger);
+  --ui-danger-rgb:  var(--theme-danger-rgb);
   --ui-danger-soft: var(--theme-danger-soft);
+
+  --ui-accent-text: var(--theme-accent-text);
 
   --ui-hover:       var(--theme-hover);
   --ui-selected:    var(--theme-selected);

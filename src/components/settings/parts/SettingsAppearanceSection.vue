@@ -43,7 +43,7 @@ function onSliderInput(event: Event) {
       <div class="appearance-preview-wrap">
         <div
           class="appearance-preview-panel"
-          :style="{ backgroundColor: `rgba(24, 25, 28, ${props.windowOpacity})` }"
+          :style="{ backgroundColor: `rgba(var(--theme-bg-rgb), ${props.windowOpacity})` }"
         >
           <span class="appearance-preview-text">ZapCmd</span>
           <span class="appearance-preview-sub">{{ percentDisplay }}</span>
@@ -76,8 +76,8 @@ function onSliderInput(event: Event) {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #37cc8a;
-  border: 2px solid #0a2016;
+  background: var(--ui-accent);
+  border: 2px solid var(--ui-bg-deep);
   cursor: grab;
 }
 
@@ -85,8 +85,8 @@ function onSliderInput(event: Event) {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #37cc8a;
-  border: 2px solid #0a2016;
+  background: var(--ui-accent);
+  border: 2px solid var(--ui-bg-deep);
   cursor: grab;
 }
 
@@ -95,7 +95,7 @@ function onSliderInput(event: Event) {
   text-align: right;
   font-size: 13px;
   font-weight: 600;
-  color: #ebf7f1;
+  color: var(--ui-text);
   font-variant-numeric: tabular-nums;
 }
 
