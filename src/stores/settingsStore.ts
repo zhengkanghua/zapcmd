@@ -11,6 +11,7 @@ import {
   type PersistedSettingsSnapshot
 } from "./settings/defaults";
 import {
+  normalizeBlurEnabled,
   normalizeBoolean,
   normalizeCommandViewState,
   normalizeDisabledCommandIds,
@@ -18,6 +19,7 @@ import {
   normalizeLanguage,
   normalizePersistedSettingsSnapshot,
   normalizeTerminalId,
+  normalizeThemeId,
   normalizeWindowOpacity
 } from "./settings/normalization";
 import {
@@ -60,6 +62,8 @@ interface SettingsState {
   disabledCommandIds: string[];
   commandView: CommandManagementViewState;
   windowOpacity: number;
+  theme: string;
+  blurEnabled: boolean;
 }
 
 function snapshotFromState(state: SettingsState): PersistedSettingsSnapshot {
@@ -77,7 +81,9 @@ function snapshotFromState(state: SettingsState): PersistedSettingsSnapshot {
       view: state.commandView
     },
     appearance: {
-      windowOpacity: state.windowOpacity
+      windowOpacity: state.windowOpacity,
+      theme: state.theme,
+      blurEnabled: state.blurEnabled
     }
   });
 }
@@ -98,7 +104,9 @@ export const useSettingsStore = defineStore("settings", {
       launchAtLogin: defaults.general.launchAtLogin,
       disabledCommandIds: defaults.commands.disabledCommandIds,
       commandView: defaults.commands.view,
-      windowOpacity: defaults.appearance.windowOpacity
+      windowOpacity: defaults.appearance.windowOpacity,
+      theme: defaults.appearance.theme,
+      blurEnabled: defaults.appearance.blurEnabled
     };
   },
   actions: {
@@ -119,6 +127,8 @@ export const useSettingsStore = defineStore("settings", {
       this.disabledCommandIds = normalized.commands.disabledCommandIds;
       this.commandView = normalized.commands.view;
       this.windowOpacity = normalized.appearance.windowOpacity;
+      this.theme = normalized.appearance.theme;
+      this.blurEnabled = normalized.appearance.blurEnabled;
     },
     setHotkey(field: HotkeyFieldId, value: string): void {
       this.hotkeys = normalizeHotkeys({ ...this.hotkeys, [field]: value });
@@ -161,6 +171,12 @@ export const useSettingsStore = defineStore("settings", {
     setWindowOpacity(value: number): void {
       this.windowOpacity = normalizeWindowOpacity(value);
     },
+    setTheme(value: string): void {
+      this.theme = normalizeThemeId(value);
+    },
+    setBlurEnabled(value: boolean): void {
+      this.blurEnabled = normalizeBlurEnabled(value);
+    },
     toSnapshot(): PersistedSettingsSnapshot {
       return snapshotFromState({
         schemaVersion: this.schemaVersion,
@@ -171,7 +187,9 @@ export const useSettingsStore = defineStore("settings", {
         launchAtLogin: this.launchAtLogin,
         disabledCommandIds: this.disabledCommandIds,
         commandView: this.commandView,
-        windowOpacity: this.windowOpacity
+        windowOpacity: this.windowOpacity,
+        theme: this.theme,
+        blurEnabled: this.blurEnabled
       });
     },
     persist(adapter?: SettingsStorageAdapter): void {

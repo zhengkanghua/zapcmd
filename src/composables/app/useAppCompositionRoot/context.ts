@@ -7,6 +7,7 @@ import { createCommandExecutor } from "../../../services/commandExecutor";
 import { useSettingsStore } from "../../../stores/settingsStore";
 import { createAppWindowResolver } from "../useAppWindowResolver";
 import { useHotkeyBindings } from "../../settings/useHotkeyBindings";
+import { useTheme } from "../useTheme";
 import { useCommandCatalog } from "../../launcher/useCommandCatalog";
 import { useLauncherDomBridge } from "../../launcher/useLauncherDomBridge";
 import { useLauncherSearch } from "../../launcher/useLauncherSearch";
@@ -90,7 +91,9 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     launchAtLogin,
     disabledCommandIds,
     commandView,
-    windowOpacity
+    windowOpacity,
+    theme,
+    blurEnabled
   } = storeToRefs(settingsStore);
   const commandCatalog = useCommandCatalog({
     isTauriRuntime: ports.isTauriRuntime,
@@ -151,6 +154,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     }
   });
   bindSettingsSideEffects({ isSettingsWindow, updateManager, language, windowOpacity });
+  const themeManager = useTheme({ themeId: theme, blurEnabled });
   const commandManagement = useCommandManagement({
     allCommandTemplates: commandCatalog.allCommandTemplates,
     disabledCommandIds,
@@ -183,17 +187,14 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     shouldBlockSearchInputFocusRef,
     scheduleSearchInputFocus,
     appVersion,
-    updateStatus: updateManager.updateStatus,
-    runtimePlatform: updateManager.runtimePlatform,
-    checkUpdate: updateManager.checkUpdate,
-    downloadUpdate: updateManager.downloadUpdate,
+    updateStatus: updateManager.updateStatus, runtimePlatform: updateManager.runtimePlatform,
+    checkUpdate: updateManager.checkUpdate, downloadUpdate: updateManager.downloadUpdate,
     openHomepage: () => openHomepageInBrowser(ports),
     ensureActiveStagingVisibleRef,
-    isSettingsWindow,
-    settingsWindow,
-    commandManagement,
-    windowOpacity,
-    ports,
-    setWindowOpacity: (value: number) => settingsStore.setWindowOpacity(value)
+    isSettingsWindow, settingsWindow, commandManagement,
+    windowOpacity, theme, blurEnabled, themeManager, ports,
+    setWindowOpacity: (value: number) => settingsStore.setWindowOpacity(value),
+    setTheme: (value: string) => settingsStore.setTheme(value),
+    setBlurEnabled: (value: boolean) => settingsStore.setBlurEnabled(value)
   };
 }

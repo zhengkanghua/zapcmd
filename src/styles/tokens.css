@@ -1,0 +1,59 @@
+/* ── 语义层变量 ── */
+/* 组件只引用 --ui-* 变量，不直接使用 --theme-* */
+
+:root {
+  /* ── 基础设定（不随主题变） ── */
+  color-scheme: dark;
+  font-family: "Segoe UI", "Helvetica Neue", "Noto Sans", sans-serif;
+
+  /* ── 布局常量 ── */
+  --ui-radius:           12px;
+  --ui-top-align-offset: 18px;
+  --ui-font-mono: "Fira Code", "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
+
+  /* ── 运行时动态变量（由 JS 控制，不属于主题） ── */
+  --ui-opacity: 0.96;
+
+  /* ── 颜色语义映射 ── */
+  --ui-bg:          rgba(var(--theme-bg-rgb), var(--ui-opacity));
+  --ui-bg-soft:     var(--theme-surface-soft);
+  --ui-bg-deep:     var(--theme-bg-deep);
+  --ui-surface:     var(--theme-surface);
+  --ui-border:      var(--theme-border);
+  --ui-border-light:var(--theme-border-light);
+  --ui-shadow:      var(--theme-shadow);
+
+  --ui-text:        var(--theme-text);
+  --ui-subtle:      var(--theme-text-muted);
+  --ui-dim:         var(--theme-text-dim);
+
+  /* 品牌色与强调色：黑曜石主题中指向同一源 */
+  --ui-brand:       var(--theme-accent);
+  --ui-brand-rgb:   var(--theme-accent-rgb);
+  --ui-brand-soft:  var(--theme-accent-soft);
+  --ui-accent:      var(--theme-accent);
+
+  --ui-search-hl:     var(--theme-search-hl);
+  --ui-search-hl-rgb: var(--theme-search-hl-rgb);
+
+  --ui-success:     var(--theme-success);
+  --ui-success-rgb: var(--theme-success-rgb);
+  --ui-danger:      var(--theme-danger);
+  --ui-danger-rgb:  var(--theme-danger-rgb);
+  --ui-danger-soft: var(--theme-danger-soft);
+
+  --ui-accent-text: var(--theme-accent-text);
+
+  --ui-hover:       var(--theme-hover);
+  --ui-selected:    var(--theme-selected);
+  --ui-kbd:         var(--theme-kbd);
+
+  --ui-blur:        var(--theme-blur);
+  --ui-glass-bg:    var(--theme-glass-bg);
+  --ui-shell-dim:   var(--theme-glass-bg);
+
+  --ui-sidebar-bg:  var(--theme-sidebar-bg);
+  --ui-input-bg:    var(--theme-input-bg);
+  --ui-toggle-on:   var(--theme-toggle-on);
+  --ui-toggle-off:  var(--theme-toggle-off);
+}

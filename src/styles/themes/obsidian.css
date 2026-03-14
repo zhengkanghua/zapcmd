@@ -1,0 +1,54 @@
+/* ── 黑曜石主题 (Obsidian) ── */
+/* 温暖深灰 + 琥珀金，长时间使用最舒适 */
+
+:root[data-theme="obsidian"] {
+  /* ── 材质 ── */
+  --theme-bg:           #18181B;
+  --theme-bg-rgb:       24, 24, 27;
+  --theme-bg-deep:      #09090B;
+  --theme-surface:      #27272A;
+  --theme-surface-soft: rgba(255, 255, 255, 0.06);
+
+  /* ── 边框与阴影 ── */
+  --theme-border:       rgba(255, 255, 255, 0.10);
+  --theme-border-light: rgba(255, 255, 255, 0.05);
+  --theme-ring:         rgba(255, 255, 255, 0.05);
+  --theme-shadow:       0 14px 32px rgba(0, 0, 0, 0.3);
+
+  /* ── 文字 ── */
+  --theme-text:         #FAFAFA;
+  --theme-text-muted:   #A1A1AA;
+  --theme-text-dim:     #71717A;
+
+  /* ── 强调色（琥珀/暗金） ── */
+  --theme-accent:       #FBBF24;
+  --theme-accent-rgb:   251, 191, 36;
+  --theme-accent-soft:  rgba(251, 191, 36, 0.16);
+  --theme-accent-text:  #09090B;
+
+  /* ── 状态色 ── */
+  --theme-success:      #2DD4BF;
+  --theme-success-rgb:  45, 212, 191;
+  --theme-danger:       #FB7185;
+  --theme-danger-rgb:   251, 113, 133;
+  --theme-danger-soft:  rgba(251, 113, 133, 0.10);
+
+  /* ── 交互态 ── */
+  --theme-hover:        rgba(39, 39, 42, 0.50);
+  --theme-selected:     rgba(39, 39, 42, 0.60);
+  --theme-kbd:          rgba(39, 39, 42, 0.80);
+
+  /* ── 搜索高亮 ── */
+  --theme-search-hl:     #FBBF24;
+  --theme-search-hl-rgb: 251, 191, 36;
+
+  /* ── 毛玻璃 ── */
+  --theme-blur:         24px;
+  --theme-glass-bg:     rgba(24, 24, 27, 0.85);
+
+  /* ── 设置窗口 ── */
+  --theme-sidebar-bg:   rgba(24, 24, 27, 0.40);
+  --theme-input-bg:     #09090B;
+  --theme-toggle-on:    #FBBF24;
+  --theme-toggle-off:   #3F3F46;
+}

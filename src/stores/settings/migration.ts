@@ -1,8 +1,10 @@
 import {
   DEFAULT_AUTO_CHECK_UPDATE,
+  DEFAULT_BLUR_ENABLED,
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_TERMINAL,
+  DEFAULT_THEME,
   HOTKEY_FIELD_IDS,
   SETTINGS_SCHEMA_VERSION,
   createDefaultSettingsSnapshot,
@@ -12,12 +14,14 @@ import {
 } from "./defaults";
 import {
   isRecord,
+  normalizeBlurEnabled,
   normalizeBoolean,
   normalizeCommandViewState,
   normalizeDisabledCommandIds,
   normalizeHotkeys,
   normalizeLanguage,
   normalizeTerminalId,
+  normalizeThemeId,
   normalizeWindowOpacity
 } from "./normalization";
 
@@ -79,11 +83,23 @@ function extractCommandViewState(payload: SettingsPayload): CommandManagementVie
   return normalizeCommandViewState(payload.commands.view);
 }
 
-function extractAppearance(payload: SettingsPayload): { windowOpacity: number } {
+function extractAppearance(payload: SettingsPayload): {
+  windowOpacity: number;
+  theme: string;
+  blurEnabled: boolean;
+} {
   if (!isRecord(payload.appearance)) {
-    return { windowOpacity: createDefaultSettingsSnapshot().appearance.windowOpacity };
+    return {
+      windowOpacity: createDefaultSettingsSnapshot().appearance.windowOpacity,
+      theme: DEFAULT_THEME,
+      blurEnabled: DEFAULT_BLUR_ENABLED
+    };
   }
-  return { windowOpacity: normalizeWindowOpacity(payload.appearance.windowOpacity) };
+  return {
+    windowOpacity: normalizeWindowOpacity(payload.appearance.windowOpacity),
+    theme: normalizeThemeId(payload.appearance.theme),
+    blurEnabled: normalizeBlurEnabled(payload.appearance.blurEnabled)
+  };
 }
 
 function createSnapshot(payload: SettingsPayload): PersistedSettingsSnapshot {

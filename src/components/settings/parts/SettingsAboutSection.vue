@@ -220,20 +220,20 @@ const updateErrorNextStep = computed(() => {
 }
 
 .about-status--loading {
-  border-color: rgba(55, 204, 138, 0.24);
-  background: rgba(55, 204, 138, 0.08);
+  border-color: rgba(var(--ui-brand-rgb), 0.24);
+  background: rgba(var(--ui-brand-rgb), 0.08);
 }
 
 .about-status--success {
-  border-color: rgba(55, 204, 138, 0.28);
-  background: rgba(55, 204, 138, 0.1);
-  color: rgba(55, 204, 138, 0.9);
+  border-color: rgba(var(--ui-brand-rgb), 0.28);
+  background: rgba(var(--ui-brand-rgb), 0.1);
+  color: rgba(var(--ui-brand-rgb), 0.9);
 }
 
 .about-status--error {
-  border-color: rgba(248, 113, 113, 0.3);
-  background: rgba(248, 113, 113, 0.08);
-  color: rgba(248, 113, 113, 0.9);
+  border-color: rgba(var(--ui-danger-rgb), 0.3);
+  background: rgba(var(--ui-danger-rgb), 0.08);
+  color: rgba(var(--ui-danger-rgb), 0.9);
 }
 
 .about-status__title {
@@ -249,7 +249,7 @@ progress {
   width: 100%;
   height: 8px;
   margin-top: 8px;
-  accent-color: #37cc8a;
+  accent-color: var(--ui-accent);
 }
 
 .about-status__label {
