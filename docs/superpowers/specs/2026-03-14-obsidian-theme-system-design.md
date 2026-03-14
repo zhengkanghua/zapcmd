@@ -2,7 +2,7 @@
 
 > **日期**: 2026-03-14
 > **范围**: UI 大重构 — 多主题架构 + 黑曜石沉浸风首发主题
-> **状态**: 待审查
+> **状态**: 已审查通过
 
 ---
 
@@ -483,3 +483,4 @@ export function useTheme(settingsStore: SettingsStore) {
 - `index.html` — 新增防闪烁脚本
 - `package.json` — 移除 tailwindcss/autoprefixer/postcss 依赖
 - `vite.config.js` — 移除 PostCSS 相关配置（如有）
+- `tsconfig.node.json` — 清理 include 中对已删除的 `tailwind.config.cjs`/`postcss.config.cjs` 的引用
