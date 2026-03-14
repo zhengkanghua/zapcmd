@@ -158,6 +158,8 @@ body {
   border: none;
   background: transparent;
   box-shadow: none;
+  flex-shrink: 0;
+  min-height: var(--search-capsule-height);
 }
 
 .search-form {
