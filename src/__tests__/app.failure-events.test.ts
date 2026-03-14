@@ -156,6 +156,8 @@ function buildSnapshot(
     },
     appearance: {
       windowOpacity: 0.96,
+      theme: "obsidian",
+      blurEnabled: true,
     },
     commands: {
       disabledCommandIds: [],
