@@ -1161,3 +1161,22 @@
     width: calc(100vw - 20px);
   }
 }
+
+/* ── 毛玻璃降级（关闭时用纯色替代） ── */
+/* 以下选择器对应实际使用 backdrop-filter 的元素 */
+[data-blur="off"] .execution-toast {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-color: var(--ui-surface);
+}
+
+[data-blur="off"] .drawer-scrim {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+[data-blur="off"] .param-dialog {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-color: var(--ui-surface);
+}

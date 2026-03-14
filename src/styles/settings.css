@@ -916,3 +916,8 @@ kbd {
   font-family: inherit;
   font-size: 12px;
 }
+
+[data-blur="off"] .settings-close-confirm__scrim {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
