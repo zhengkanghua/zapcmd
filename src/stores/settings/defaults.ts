@@ -54,6 +54,8 @@ export interface PersistedSettingsSnapshot {
   };
   appearance: {
     windowOpacity: number;
+    theme: string;
+    blurEnabled: boolean;
   };
 }
 
@@ -64,6 +66,8 @@ export const DEFAULT_LAUNCH_AT_LOGIN = false;
 export const DEFAULT_WINDOW_OPACITY = 0.96;
 export const MIN_WINDOW_OPACITY = 0.2;
 export const MAX_WINDOW_OPACITY = 1.0;
+export const DEFAULT_THEME = "obsidian";
+export const DEFAULT_BLUR_ENABLED = true;
 
 export const COMMAND_SOURCE_FILTERS = ["all", "builtin", "user"] as const;
 export const COMMAND_STATUS_FILTERS = ["all", "enabled", "disabled"] as const;
@@ -122,7 +126,9 @@ export function createDefaultSettingsSnapshot(): PersistedSettingsSnapshot {
       view: createDefaultCommandViewState()
     },
     appearance: {
-      windowOpacity: DEFAULT_WINDOW_OPACITY
+      windowOpacity: DEFAULT_WINDOW_OPACITY,
+      theme: DEFAULT_THEME,
+      blurEnabled: DEFAULT_BLUR_ENABLED
     }
   };
 }

@@ -8,9 +8,11 @@ import {
   COMMAND_SOURCE_FILTERS,
   COMMAND_STATUS_FILTERS,
   DEFAULT_AUTO_CHECK_UPDATE,
+  DEFAULT_BLUR_ENABLED,
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_TERMINAL,
+  DEFAULT_THEME,
   DEFAULT_WINDOW_OPACITY,
   HOTKEY_FIELD_IDS,
   MAX_WINDOW_OPACITY,
@@ -142,6 +144,19 @@ export function normalizeWindowOpacity(value: unknown): number {
   return Math.min(MAX_WINDOW_OPACITY, Math.max(MIN_WINDOW_OPACITY, value));
 }
 
+/** 仅做类型/格式校验。主题 ID 是否在注册表中有效由 useTheme.resolveThemeId 负责 */
+export function normalizeThemeId(value: unknown): string {
+  if (typeof value !== "string") {
+    return DEFAULT_THEME;
+  }
+  const trimmed = value.trim();
+  return trimmed || DEFAULT_THEME;
+}
+
+export function normalizeBlurEnabled(value: unknown): boolean {
+  return normalizeBoolean(value, DEFAULT_BLUR_ENABLED);
+}
+
 export function normalizePersistedSettingsSnapshot(
   snapshot: PersistedSettingsSnapshot
 ): PersistedSettingsSnapshot {
@@ -159,7 +174,9 @@ export function normalizePersistedSettingsSnapshot(
       view: normalizeCommandViewState(snapshot.commands.view)
     },
     appearance: {
-      windowOpacity: normalizeWindowOpacity(snapshot.appearance.windowOpacity)
+      windowOpacity: normalizeWindowOpacity(snapshot.appearance.windowOpacity),
+      theme: normalizeThemeId(snapshot.appearance.theme),
+      blurEnabled: normalizeBlurEnabled(snapshot.appearance.blurEnabled)
     }
   };
 }

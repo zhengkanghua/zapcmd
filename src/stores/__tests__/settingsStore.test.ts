@@ -313,6 +313,56 @@ describe("settingsStore migration and persistence", () => {
     expect(() => adapter.writeSettings(createDefaultSettingsSnapshot())).not.toThrow();
   });
 
+  it("为缺少 appearance.theme 的旧存储填充默认值 obsidian", () => {
+    const migrated = migrateSettingsPayload({
+      version: 1,
+      hotkeys: {},
+      general: {},
+      commands: {},
+      appearance: {
+        windowOpacity: 0.8,
+      },
+    });
+
+    expect(migrated).toBeTruthy();
+    expect(migrated?.appearance.theme).toBe("obsidian");
+    expect(migrated?.appearance.blurEnabled).toBe(true);
+  });
+
+  it("保留有效的 theme 值", () => {
+    const migrated = migrateSettingsPayload({
+      version: 1,
+      hotkeys: {},
+      general: {},
+      commands: {},
+      appearance: {
+        windowOpacity: 0.96,
+        theme: "obsidian",
+        blurEnabled: false,
+      },
+    });
+
+    expect(migrated?.appearance.theme).toBe("obsidian");
+    expect(migrated?.appearance.blurEnabled).toBe(false);
+  });
+
+  it("无效 theme 值回退到默认", () => {
+    const migrated = migrateSettingsPayload({
+      version: 1,
+      hotkeys: {},
+      general: {},
+      commands: {},
+      appearance: {
+        windowOpacity: 0.96,
+        theme: 123,
+        blurEnabled: "invalid",
+      },
+    });
+
+    expect(migrated?.appearance.theme).toBe("obsidian");
+    expect(migrated?.appearance.blurEnabled).toBe(true);
+  });
+
   it("normalizes dirty payload across adapter hydrate-persist round-trip", () => {
     localStorage.setItem(
       SETTINGS_STORAGE_KEY,
