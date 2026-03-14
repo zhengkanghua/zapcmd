@@ -54,7 +54,7 @@ function bindPendingCommandWatcher(options: UseLauncherWatchersOptions): void {
       return;
     }
     await nextTick();
-    options.paramInputRef.value?.focus();
+    options.paramInputRef.value?.focus({ preventScroll: true });
     options.paramInputRef.value?.select();
   });
 }

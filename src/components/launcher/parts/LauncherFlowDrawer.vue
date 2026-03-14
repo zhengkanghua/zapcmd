@@ -178,7 +178,7 @@ watch(
     if (value) {
       renderedSafetyDialog.value = value;
       await nextTick();
-      cancelButtonRef.value?.focus();
+      cancelButtonRef.value?.focus({ preventScroll: true });
       return;
     }
 
@@ -297,7 +297,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
     nextIndexRaw < 0 ? focusable.length - 1 : nextIndexRaw % focusable.length;
 
   event.preventDefault();
-  focusable[nextIndex]?.focus();
+  focusable[nextIndex]?.focus({ preventScroll: true });
 }
 </script>
 

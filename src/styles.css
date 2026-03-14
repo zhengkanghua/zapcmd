@@ -149,7 +149,7 @@ body {
 }
 
 .search-main {
-  overflow: hidden;
+  overflow: clip;
   box-shadow: none;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 60%),

@@ -45,11 +45,11 @@ function focusActiveCardOrFallback(): void {
     `[data-staging-index="${props.stagingActiveIndex}"] .staging-card`
   );
   if (activeCard) {
-    activeCard.focus();
+    activeCard.focus({ preventScroll: true });
     return;
   }
 
-  closeButtonRef.value?.focus();
+  closeButtonRef.value?.focus({ preventScroll: true });
 }
 
 watch(
@@ -103,7 +103,7 @@ function onReviewPanelKeydown(event: KeyboardEvent): void {
 
   event.preventDefault();
   event.stopPropagation();
-  focusable[nextIndex]?.focus();
+  focusable[nextIndex]?.focus({ preventScroll: true });
 }
 
 function onScrimWheel(event: WheelEvent): void {
