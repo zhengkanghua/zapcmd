@@ -50,7 +50,12 @@
 | `helpers.ts` — `appendToStaging()` | 在 push 后调用 `setExecutionFeedback("success", t("launcher.flowAdded"))` |
 | `actions.ts` — `removeStagedCommand()` | 调用 `setExecutionFeedback("neutral", t("launcher.flowRemoved"))` |
 | `actions.ts` — `clearStaging()` | 调用 `setExecutionFeedback("neutral", t("launcher.flowCleared", { n: count }))` |
-| `actions.ts` — `confirmSafetyExecution()` | 调用 `setExecutionFeedback("success", t("launcher.executionStarted"))` |
+| `helpers.ts` — `executeSingleCommand()` 执行前 | 调用 `setExecutionFeedback("success", t("launcher.executionStarted"))` |
+| `actions.ts` — `runStagedSnapshot()` 执行前 | 调用 `setExecutionFeedback("success", t("launcher.executionStarted"))` |
+
+> **注意**："开始执行" toast 在执行流程开始前触发（而非在 `state.ts` 的 `confirmSafetyExecution` 中），
+> 这样无论是直接执行还是安全确认后执行都会出现。该 toast 是过渡性反馈，
+> 会被后续的执行成功/失败 toast 自然替换（`setExecutionFeedback` 内部会先清除前一个定时器再设新值）。
 
 ### 2.4 国际化 keys
 
@@ -84,7 +89,10 @@ launcher: {
 | `settings.css` | 设置窗口 toast 样式 |
 | `animations.css` | `toast-slide-down`、`toast-auto-dismiss` 关键帧 |
 
-目标：0 处硬编码色值，全部引用 `--ui-*` 语义变量。
+目标：0 处**语义色值**硬编码，全部引用 `--ui-*` 语义变量。纯装饰性的半透明覆盖层（如毛玻璃背景的 `rgba()` 值）允许保留，不强制替换为变量。
+
+已知硬编码色值需处理：
+- `LauncherReviewOverlay.vue` 第 224 行：`color: #ececf1`（inline style）→ 迁移到 `--ui-*`
 
 ---
 
@@ -115,8 +123,10 @@ launcher: {
 
 - **宽度** = `search-shell` 宽度 × `FLOW_PANEL_WIDTH_RATIO`（默认 2/3），clamp 到 `[FLOW_PANEL_MIN_WIDTH, FLOW_PANEL_MAX_WIDTH]`
 - **高度** = `search-shell` 全高（从搜索框顶部到底部）
+- **定位模式**：`position: absolute`，right: 0，覆盖在 search-capsule + result-drawer 之上（与现有 ReviewOverlay 的 overlay 定位模式一致）。搜索框保持原宽度不变，不被缩窄
 - 右侧定位，左侧渲染半透明 scrim 遮罩
 - 宽度常量为可配置值，后续可改为 1（全宽）、3/4 等
+- **宽度降级**：当 `FLOW_PANEL_MIN_WIDTH > search-shell 宽度` 时，FlowPanel 回退到 100% 宽度（全宽模式）
 
 ### 3.3 宽度常量
 
@@ -153,7 +163,16 @@ export const FLOW_PANEL_MAX_WIDTH = 480;
 
 - FlowPanel 打开时：toast 渲染在 FlowPanel 标题栏下方（面板内部顶部）
 - FlowPanel 关闭时：toast 回到原位（search-capsule 内）
-- 渲染位置由 `flowPanelOpen` 状态决定
+- **实现机制**：在两个位置各放一个 toast 渲染槽，通过 `v-if="flowPanelOpen"` / `v-else` 控制显示。
+  FlowPanel 内部的 toast 槽接收相同的 `executionFeedbackMessage` / `executionFeedbackTone` props。
+  由于两个槽互斥显示，不会出现切换瞬间的闪烁问题。
+
+### 3.7 FlowPanel 打开时的 inert 策略
+
+- `result-drawer`（搜索结果列表）设置 `inert` + `aria-hidden`（与现有行为一致）
+- `search-input`（搜索输入框）设置 `inert`，禁止输入但不影响整个 `search-capsule`
+- `QueueSummaryPill` 保持可交互（用于关闭 FlowPanel）
+- 注意：不在 `search-capsule` 整体设置 `inert`，避免禁用 pill 按钮
 
 ---
 
@@ -181,6 +200,7 @@ export const FLOW_PANEL_MAX_WIDTH = 480;
 - 点击 value → 原地替换为 inline 输入框，宽度自适应
 - 输入框背景使用 `--ui-surface-hover`
 - 收起条件：Enter 确认 / Esc 取消 / blur 自动确认
+- **拖拽冲突处理**：`dragstart` 事件触发时，检查是否有正在编辑的参数输入框；如果有，先取消编辑（恢复原值）再进入拖拽模式，避免未完成的输入被意外提交
 - 参数变化时命令预览实时更新
 
 **命令预览：**
@@ -211,7 +231,7 @@ export const FLOW_PANEL_MAX_WIDTH = 480;
 
 ### 4.4 操作按钮
 
-- **复制**（📋）：复制完整渲染命令 → toast "已复制"
+- **复制**（📋）：复制完整渲染命令 → toast "已复制"（复用现有 `common.copied` i18n key）
 - **删除**（✕）：移除该条命令 → toast "删除成功"
 - 默认颜色 `--ui-text-muted`
 - hover：复制 → `--ui-text-primary`，删除 → `--ui-danger`
@@ -226,9 +246,13 @@ export const FLOW_PANEL_MAX_WIDTH = 480;
 | `Tab` | 卡片间循环焦点（焦点陷阱） |
 | `Enter` | 聚焦卡片时：聚焦第一个可编辑参数；聚焦执行按钮时：执行队列 |
 | `Delete` / `Backspace` | 聚焦卡片时：删除该卡片 |
-| `Ctrl+Tab` | 打开/关闭 FlowPanel（替代原 Review 切换） |
+| `Ctrl+Tab` | 保留现有 `switchFocusZone` 语义（在 search 和 staging 焦点区域切换），FlowPanel 打开时等效于关闭面板并切回搜索焦点 |
 
-FlowPanel 打开时搜索框设置 `inert`，不可交互。
+> **快捷键迁移说明**：`Ctrl+Tab` 不改变其在 `stores/settings/defaults.ts` 中的 `switchFocus` 绑定语义。
+> FlowPanel 的打开/关闭入口为 `QueueSummaryPill` 按钮和现有的 `toggleQueue` 可配置快捷键。
+> 当 FlowPanel 打开时，`Ctrl+Tab`（switchFocus）行为等效于关闭面板并将焦点切回搜索区域。
+
+FlowPanel 打开时：`result-drawer` 和 `search-input` 设置 `inert`（详见 3.7）。
 
 ---
 
@@ -242,6 +266,8 @@ FlowPanel 打开时搜索框设置 `inert`，不可交互。
 | 拖拽中卡片 | `opacity: 0.5`, `scale(1.02)` | 视觉区分 |
 | 拖拽插入线 | `2px solid var(--ui-accent)` | 即时出现 |
 | Toast | 复用 `toast-slide-down` | 现有关键帧 |
+
+所有动效在 `prefers-reduced-motion: reduce` 下时长降为 0 或跳过（与现有 FlowDrawer 的 `getPrefersReducedMotion()` 策略一致）。
 
 ---
 
@@ -277,8 +303,8 @@ FlowPanel 打开时搜索框设置 `inert`，不可交互。
 
 | 类型 | 文件 |
 |------|------|
-| **新增** | `LauncherFlowPanel.vue`、`flowPanelLayout.ts` |
-| **重构** | `LauncherReviewOverlay.vue` → 重命名为 `LauncherFlowPanel.vue` |
+| **新增** | `flowPanelLayout.ts`（宽度常量） |
+| **重构/重命名** | `LauncherReviewOverlay.vue` → git mv + 重构为 `LauncherFlowPanel.vue` |
 | **修改** | `LauncherSearchPanel.vue`、`LauncherWindow.vue`、`actions.ts`、`helpers.ts`、`messages.ts`、`viewModel.ts`、`types.ts` |
 | **审查** | `shared.css`、`launcher.css`、`settings.css`、`animations.css` |
 | **不变** | `LauncherFlowDrawer.vue`、`useStagingQueue/*`、`useCommandExecution/state.ts` |
@@ -292,6 +318,7 @@ FlowPanel 打开时搜索框设置 `inert`，不可交互。
 | 语义变量 | 用途 | 黑曜石主题值 |
 |----------|------|-------------|
 | `--ui-accent` | 强调色（徽标、参数值、执行按钮） | `--theme-accent` |
+| `--ui-brand` | 品牌色（neutral toast 文字颜色） | `--theme-brand` |
 | `--ui-text-primary` | 主文字（标题） | `--theme-text-primary` |
 | `--ui-text-secondary` | 次要文字（参数 key、命令预览） | `--theme-text-secondary` |
 | `--ui-text-muted` | 弱文字（按钮默认态） | `--theme-text-muted` |
