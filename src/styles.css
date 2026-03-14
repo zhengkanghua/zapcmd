@@ -52,7 +52,7 @@ body {
   padding-left: var(--shell-side-pad, 0);
   padding-right: var(--shell-side-pad, 0);
   display: grid;
-  place-items: start start;
+  place-items: start center;
   color: var(--ui-text);
   user-select: none;
   background: transparent;
