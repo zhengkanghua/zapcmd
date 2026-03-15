@@ -116,6 +116,20 @@ describe("useAppWindowKeydown", () => {
     expect(harness.stagingQueue.switchFocusZone).toHaveBeenCalledTimes(1);
   });
 
+  it("pendingCommand 打开时不触发搜索区 Enter 执行；Escape 仍走 main escape", () => {
+    const harness = createHarness();
+    harness.isSettingsWindow.value = false;
+    harness.commandExecution.pendingCommand.value = { id: "pending" };
+
+    harness.handler(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
+    expect(harness.commandExecution.executeResult).not.toHaveBeenCalled();
+
+    const escapeEvent = new KeyboardEvent("keydown", { key: "Escape", cancelable: true });
+    harness.handler(escapeEvent);
+    expect(escapeEvent.defaultPrevented).toBe(true);
+    expect(harness.handleMainEscape).toHaveBeenCalledTimes(1);
+  });
+
   it("routes Escape to main escape handler", () => {
     const harness = createHarness();
     harness.isSettingsWindow.value = false;

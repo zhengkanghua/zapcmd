@@ -4,13 +4,11 @@ import { isTypingElement, useMainWindowShell } from "../../launcher/useMainWindo
 
 function createHarness() {
   const isSettingsWindow = ref(false);
-  const pendingCommand = ref<unknown>(null);
-  const safetyDialog = ref<unknown>(null);
+  const navStackCanGoBack = ref(false);
+  const navStackPopPage = vi.fn();
   const query = ref("");
   const stagingExpanded = ref(false);
   const cancelHotkeyRecording = vi.fn();
-  const cancelParamInput = vi.fn();
-  const cancelSafetyExecution = vi.fn();
   const closeStagingDrawer = vi.fn();
   const requestHideMainWindow = vi.fn(async () => {});
   const close = vi.fn();
@@ -24,10 +22,8 @@ function createHarness() {
     resolveAppWindow,
     isTauriRuntime,
     requestHideMainWindow,
-    pendingCommand,
-    cancelParamInput,
-    safetyDialog,
-    cancelSafetyExecution,
+    navStackCanGoBack,
+    navStackPopPage,
     query,
     stagingExpanded,
     closeStagingDrawer
@@ -37,15 +33,13 @@ function createHarness() {
     shell,
     state: {
       isSettingsWindow,
-      pendingCommand,
-      safetyDialog,
+      navStackCanGoBack,
       query,
       stagingExpanded
     },
     spies: {
       cancelHotkeyRecording,
-      cancelParamInput,
-      cancelSafetyExecution,
+      navStackPopPage,
       closeStagingDrawer,
       requestHideMainWindow,
       close,
@@ -69,24 +63,14 @@ describe("useMainWindowShell", () => {
     expect(harness.spies.hide).not.toHaveBeenCalled();
   });
 
-  it("clears pending command first on Escape", () => {
+  it("导航栈可回退时 Escape 优先 popPage", () => {
     const harness = createHarness();
-    harness.state.pendingCommand.value = { id: "pending" };
+    harness.state.navStackCanGoBack.value = true;
 
     harness.shell.handleMainEscape();
 
-    expect(harness.spies.cancelParamInput).toHaveBeenCalledTimes(1);
+    expect(harness.spies.navStackPopPage).toHaveBeenCalledTimes(1);
     expect(harness.spies.hide).not.toHaveBeenCalled();
-  });
-
-  it("closes safety dialog first on Escape", () => {
-    const harness = createHarness();
-    harness.state.safetyDialog.value = { title: "risk" };
-
-    harness.shell.handleMainEscape();
-
-    expect(harness.spies.cancelSafetyExecution).toHaveBeenCalledTimes(1);
-    expect(harness.spies.cancelParamInput).not.toHaveBeenCalled();
   });
 
   it("clears query before toggling staging or hiding", () => {

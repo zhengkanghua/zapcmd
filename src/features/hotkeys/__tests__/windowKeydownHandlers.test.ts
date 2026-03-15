@@ -52,7 +52,7 @@ function createHarness() {
       focusZone: makeRef<"search" | "staging">("search"),
       searchInputRef: makeRef<HTMLInputElement | null>(searchInput),
       drawerRef: makeRef<HTMLElement | null>(null),
-      paramDialogOpen: makeRef(false),
+      commandPanelOpen: makeRef(false),
       stagingExpanded: makeRef(false),
       openStagingDrawer,
       switchFocusZone,
@@ -71,7 +71,6 @@ function createHarness() {
       stagingActiveIndex: makeRef(0),
       ensureActiveStagingVisible,
       removeStagedCommand,
-      safetyDialogOpen: makeRef(false),
       confirmSafetyExecution,
       cancelSafetyExecution,
       handleMainEscape,
@@ -223,7 +222,7 @@ describe("windowKeydownHandlers", () => {
 
   it("does not globally confirm safety by Enter; Escape routes to handleMainEscape", () => {
     const { handler, options, spies } = createHarness();
-    options.main.safetyDialogOpen.value = true;
+    options.main.commandPanelOpen.value = true;
 
     const enterEvent = new KeyboardEvent("keydown", { key: "Enter", cancelable: true });
     handler(enterEvent);
@@ -238,7 +237,7 @@ describe("windowKeydownHandlers", () => {
 
   it("does not confirm safety dialog on Ctrl+Enter", () => {
     const { handler, options, spies } = createHarness();
-    options.main.safetyDialogOpen.value = true;
+    options.main.commandPanelOpen.value = true;
     const event = new KeyboardEvent("keydown", {
       key: "Enter",
       ctrlKey: true,
@@ -255,7 +254,7 @@ describe("windowKeydownHandlers", () => {
 
   it("keeps toggle queue hotkey available when param flow is open", () => {
     const { handler, options, spies } = createHarness();
-    options.main.paramDialogOpen.value = true;
+    options.main.commandPanelOpen.value = true;
     options.main.normalizedToggleQueueHotkey.value = "Ctrl+Q";
 
     handler(new KeyboardEvent("keydown", { key: "q", ctrlKey: true, cancelable: true }));
@@ -265,7 +264,7 @@ describe("windowKeydownHandlers", () => {
 
   it("keeps toggle queue hotkey available when safety flow is open", () => {
     const { handler, options, spies } = createHarness();
-    options.main.safetyDialogOpen.value = true;
+    options.main.commandPanelOpen.value = true;
     options.main.normalizedToggleQueueHotkey.value = "Ctrl+Q";
 
     handler(new KeyboardEvent("keydown", { key: "q", ctrlKey: true, cancelable: true }));
