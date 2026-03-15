@@ -124,7 +124,7 @@ function onSubmit(): void {
       <button
         type="button"
         class="command-panel__queue-btn"
-        :aria-label="t('launcher.queueTitle', { count: 0 })"
+        :aria-label="t('launcher.queueToggleAria', { count: 0 })"
         @click="emit('toggle-staging')"
       >
         <LauncherIcon name="queue" />
@@ -140,7 +140,7 @@ function onSubmit(): void {
         data-testid="danger-banner"
       >
         <div class="command-panel__danger-header">
-          <span class="command-panel__danger-icon" aria-hidden="true">⚠</span>
+          <span class="command-panel__danger-icon" aria-hidden="true">!</span>
           <strong>{{ t("commandPanel.danger.title") }}</strong>
         </div>
         <p class="command-panel__danger-desc">
@@ -243,4 +243,3 @@ function onSubmit(): void {
     </footer>
   </section>
 </template>
-
