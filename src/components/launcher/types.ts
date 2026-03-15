@@ -99,3 +99,13 @@ export interface LauncherSafetyOverlayProps {
   safetyDialog: LauncherSafetyDialog | null;
   executing: boolean;
 }
+
+export interface LauncherCommandPanelProps {
+  command: CommandTemplate;
+  mode: ParamSubmitMode;
+  isDangerous: boolean;
+  pendingArgValues: Record<string, string>;
+}
+// 注：pendingArgValues 不在 spec §4.5 原始接口中。
+// 这是有意的偏离：spec §7.1 要求复用 useCommandExecution 状态，
+// 而项目架构为纯 props drilling，因此 pendingArgValues 必须作为 prop 传入。
