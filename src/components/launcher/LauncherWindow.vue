@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { provide, toRef, computed } from "vue";
 import type {
   CommandArg,
   CommandTemplate
@@ -6,8 +7,12 @@ import type {
 import { useI18nText } from "../../i18n";
 import type { StagedCommand } from "../../features/launcher/types";
 import { useLauncherHitZones } from "../../composables/launcher/useLauncherHitZones";
+import { LAUNCHER_NAV_STACK_KEY, type LauncherNavStack, type NavPage } from "../../composables/launcher/useLauncherNavStack";
+import { dismissDanger } from "../../features/security/dangerDismiss";
+import LauncherFlowPanel from "./parts/LauncherFlowPanel.vue";
+import LauncherCommandPanel from "./parts/LauncherCommandPanel.vue";
 import LauncherSearchPanel from "./parts/LauncherSearchPanel.vue";
-import LauncherFlowDrawer from "./parts/LauncherFlowDrawer.vue";
+import LauncherSafetyOverlay from "./parts/LauncherSafetyOverlay.vue";
 import type {
   ElementRefArg,
   FocusZone,
@@ -45,6 +50,12 @@ const props = defineProps<{
   pendingSubmitHint: string;
   pendingSubmitMode: ParamSubmitMode;
   safetyDialog: LauncherSafetyDialog | null;
+  navCurrentPage: NavPage;
+  navCanGoBack: boolean;
+  navPushPage: (page: NavPage) => void;
+  navPopPage: () => void;
+  navResetToSearch: () => void;
+  navStack: NavPage[];
   setSearchShellRef: (el: ElementRefArg) => void;
   setSearchInputRef: (el: ElementRefArg) => void;
   setDrawerRef: (el: ElementRefArg) => void;
@@ -70,7 +81,7 @@ const emit = defineEmits<{
   (e: "execute-staged"): void;
   (e: "submit-param-input"): void;
   (e: "cancel-param-input"): void;
-  (e: "update-pending-arg", key: string, value: string): void;
+  (e: "arg-input", key: string, value: string): void;
   (e: "confirm-safety-execution"): void;
   (e: "cancel-safety-execution"): void;
   (e: "blank-pointerdown"): void;
@@ -81,18 +92,36 @@ const { onRootPointerDown } = useLauncherHitZones({
   hideMainWindow: () => emit("blank-pointerdown")
 });
 
+const navStackProvided: LauncherNavStack = {
+  stack: toRef(props, "navStack"),
+  currentPage: computed(() => props.navCurrentPage),
+  canGoBack: computed(() => props.navCanGoBack),
+  pushPage: props.navPushPage,
+  popPage: props.navPopPage,
+  resetToSearch: props.navResetToSearch
+};
+provide(LAUNCHER_NAV_STACK_KEY, navStackProvided);
+
 function onSearchCapsuleBack(): void {
-  if (props.safetyDialog) {
-    emit("cancel-safety-execution");
-    return;
-  }
-  if (props.pendingCommand) {
-    emit("cancel-param-input");
+  if (props.navCanGoBack) {
+    props.navPopPage();
     return;
   }
   if (props.stagingExpanded) {
     emit("toggle-staging");
   }
+}
+
+function onCommandPanelSubmit(argValues: Record<string, string>, shouldDismiss: boolean): void {
+  void argValues;
+  if (shouldDismiss && props.navCurrentPage.props?.command) {
+    dismissDanger(props.navCurrentPage.props.command.id);
+  }
+  emit("submit-param-input");
+}
+
+function onCommandPanelCancel(): void {
+  emit("cancel-param-input");
 }
 </script>
 
@@ -112,68 +141,105 @@ function onSearchCapsuleBack(): void {
         aria-hidden="true"
       ></div>
 
-      <LauncherSearchPanel
-        :query="props.query"
-        :executing="props.executing"
-        :execution-feedback-message="props.executionFeedbackMessage"
-        :execution-feedback-tone="props.executionFeedbackTone"
-        :drawer-open="props.drawerOpen"
-        :drawer-viewport-height="props.drawerViewportHeight"
-        :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
-        :drawer-filler-height="props.drawerFillerHeight"
-        :keyboard-hints="props.keyboardHints"
-        :filtered-results="props.filteredResults"
-        :active-index="props.activeIndex"
-        :staged-feedback-command-id="props.stagedFeedbackCommandId"
-        :staged-command-count="props.stagedCommands.length"
-        :flow-open="Boolean(props.pendingCommand || props.safetyDialog)"
-        :review-open="props.stagingExpanded"
-        :staging-drawer-state="props.stagingDrawerState"
-        :staged-commands="props.stagedCommands"
-        :staging-hints="props.stagingHints"
-        :staging-list-should-scroll="props.stagingListShouldScroll"
-        :staging-list-max-height="props.stagingListMaxHeight"
-        :focus-zone="props.focusZone"
-        :staging-active-index="props.stagingActiveIndex"
-        :set-search-input-ref="props.setSearchInputRef"
-        :set-drawer-ref="props.setDrawerRef"
-        :set-result-button-ref="props.setResultButtonRef"
-        :set-staging-panel-ref="props.setStagingPanelRef"
-        :set-staging-list-ref="props.setStagingListRef"
-        @query-input="emit('query-input', $event)"
-        @stage-result="emit('stage-result', $event)"
-        @execute-result="emit('execute-result', $event)"
-        @toggle-staging="emit('toggle-staging')"
-        @search-capsule-back="onSearchCapsuleBack"
-        @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
-        @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
-        @staging-drag-end="emit('staging-drag-end')"
-        @focus-staging-index="emit('focus-staging-index', $event)"
-        @remove-staged-command="emit('remove-staged-command', $event)"
-        @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
-        @clear-staging="emit('clear-staging')"
-        @execute-staged="emit('execute-staged')"
-        @execution-feedback="(t, m) => emit('execution-feedback', t, m)"
-      >
-        <template #content-overlays>
-          <LauncherFlowDrawer
-            :pending-command="props.pendingCommand"
-            :pending-args="props.pendingArgs"
-            :pending-arg-values="props.pendingArgValues"
-            :pending-submit-hint="props.pendingSubmitHint"
-            :pending-submit-mode="props.pendingSubmitMode"
-            :set-param-input-ref="props.setParamInputRef"
-            :safety-dialog="props.safetyDialog"
-            :review-open="props.stagingExpanded"
+      <div class="launcher-nav-container" style="overflow: hidden; flex: 1; position: relative;">
+        <Transition name="nav-slide" mode="out-in">
+          <LauncherSearchPanel
+            v-if="props.navCurrentPage.type === 'search'"
+            key="search"
+            :query="props.query"
             :executing="props.executing"
-            @submit-param-input="emit('submit-param-input')"
-            @cancel-param-input="emit('cancel-param-input')"
-            @update-pending-arg="(key, value) => emit('update-pending-arg', key, value)"
-            @confirm-safety-execution="emit('confirm-safety-execution')"
-            @cancel-safety-execution="emit('cancel-safety-execution')"
+            :execution-feedback-message="props.executionFeedbackMessage"
+            :execution-feedback-tone="props.executionFeedbackTone"
+            :drawer-open="props.drawerOpen"
+            :drawer-viewport-height="props.drawerViewportHeight"
+            :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
+            :drawer-filler-height="props.drawerFillerHeight"
+            :keyboard-hints="props.keyboardHints"
+            :filtered-results="props.filteredResults"
+            :active-index="props.activeIndex"
+            :staged-feedback-command-id="props.stagedFeedbackCommandId"
+            :staged-command-count="props.stagedCommands.length"
+            :flow-open="props.navCurrentPage.type !== 'search'"
+            :review-open="props.stagingExpanded"
+            :staging-drawer-state="props.stagingDrawerState"
+            :staged-commands="props.stagedCommands"
+            :staging-hints="props.stagingHints"
+            :staging-list-should-scroll="props.stagingListShouldScroll"
+            :staging-list-max-height="props.stagingListMaxHeight"
+            :focus-zone="props.focusZone"
+            :staging-active-index="props.stagingActiveIndex"
+            :set-search-input-ref="props.setSearchInputRef"
+            :set-drawer-ref="props.setDrawerRef"
+            :set-result-button-ref="props.setResultButtonRef"
+            :set-staging-panel-ref="props.setStagingPanelRef"
+            :set-staging-list-ref="props.setStagingListRef"
+            @query-input="emit('query-input', $event)"
+            @stage-result="emit('stage-result', $event)"
+            @execute-result="emit('execute-result', $event)"
+            @toggle-staging="emit('toggle-staging')"
+            @search-capsule-back="onSearchCapsuleBack"
+            @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
+            @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
+            @staging-drag-end="emit('staging-drag-end')"
+            @focus-staging-index="emit('focus-staging-index', $event)"
+            @remove-staged-command="emit('remove-staged-command', $event)"
+            @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
+            @clear-staging="emit('clear-staging')"
+            @execute-staged="emit('execute-staged')"
+            @execution-feedback="(t, m) => emit('execution-feedback', t, m)"
           />
-        </template>
-      </LauncherSearchPanel>
+
+          <LauncherCommandPanel
+            v-else-if="props.navCurrentPage.type === 'command-action'"
+            key="command-action"
+            :command="props.navCurrentPage.props?.command!"
+            :mode="props.navCurrentPage.props?.mode ?? 'execute'"
+            :is-dangerous="props.navCurrentPage.props?.isDangerous ?? false"
+            :pending-arg-values="props.pendingArgValues"
+            @submit="onCommandPanelSubmit"
+            @cancel="onCommandPanelCancel"
+            @arg-input="(key, value) => emit('arg-input', key, value)"
+            @toggle-staging="emit('toggle-staging')"
+          />
+        </Transition>
+
+        <LauncherSafetyOverlay
+          v-if="props.safetyDialog"
+          :safety-dialog="props.safetyDialog"
+          :executing="props.executing"
+          @confirm-safety-execution="emit('confirm-safety-execution')"
+          @cancel-safety-execution="emit('cancel-safety-execution')"
+        />
+
+        <LauncherFlowPanel
+          v-if="props.stagingExpanded && props.navCurrentPage.type === 'command-action'"
+          :staging-drawer-state="props.stagingDrawerState"
+          :staging-expanded="props.stagingExpanded"
+          :staged-commands="props.stagedCommands"
+          :staging-hints="props.stagingHints"
+          :staging-list-should-scroll="props.stagingListShouldScroll"
+          :staging-list-max-height="props.stagingListMaxHeight"
+          :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
+          :focus-zone="props.focusZone"
+          :staging-active-index="props.stagingActiveIndex"
+          :flow-open="true"
+          :executing="props.executing"
+          :execution-feedback-message="props.executionFeedbackMessage"
+          :execution-feedback-tone="props.executionFeedbackTone"
+          :set-staging-panel-ref="props.setStagingPanelRef"
+          :set-staging-list-ref="props.setStagingListRef"
+          @toggle-staging="emit('toggle-staging')"
+          @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
+          @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
+          @staging-drag-end="emit('staging-drag-end')"
+          @focus-staging-index="emit('focus-staging-index', $event)"
+          @remove-staged-command="emit('remove-staged-command', $event)"
+          @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
+          @clear-staging="emit('clear-staging')"
+          @execute-staged="emit('execute-staged')"
+          @execution-feedback="(t: 'neutral' | 'success' | 'error', m: string) => emit('execution-feedback', t, m)"
+        />
+      </div>
     </div>
   </main>
 </template>
