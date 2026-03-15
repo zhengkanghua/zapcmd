@@ -497,3 +497,8 @@
 - 实现计划初稿：`docs/superpowers/plans/2026-03-15-command-panel-nav-stack.md`（4 Chunks / 18 Tasks）
 - **计划待修复 9C+16I**：navStack 应在 runtime.ts 创建；App.vue/viewModel.ts 遗漏；safetyDialog 队列渲染缺失；useI18n→useI18nText；测试路径。
 - 下一步：新会话中修复计划审查反馈，通过后执行。
+
+## 补充（2026-03-15｜参数面板重构实现完成）
+
+- needsPanel→navStack 推 CommandPanel；dangerDismiss 24h 免提示；单命令高危确认内嵌面板，队列安全确认保留 SafetyOverlay。
+- 热键改 `commandPanelOpen`；删除旧 FlowDrawer/ParamOverlay；回归测试适配完成；`npm run check:all` 全绿。
