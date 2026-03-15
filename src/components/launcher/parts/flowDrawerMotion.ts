@@ -1,6 +1,0 @@
-export const FLOW_DRAWER_OPEN_MS = 300;
-export const FLOW_DRAWER_SCRIM_MS = 200;
-export const FLOW_DRAWER_EXIT_LEFT_MS = 220;
-export const FLOW_DRAWER_EXIT_RIGHT_MS = 320;
-export const FLOW_DRAWER_EXIT_RIGHT_OPACITY_DELAY_MS = 60;
-
