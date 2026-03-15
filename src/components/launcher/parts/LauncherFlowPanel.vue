@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
 import { useI18nText } from "../../../i18n";
-import { summarizeCommandForFeedback } from "../../../composables/execution/useCommandExecution/helpers";
 import type { ElementRefArg, LauncherFlowPanelProps } from "../types";
 import LauncherIcon from "./LauncherIcon.vue";
 
@@ -135,8 +134,42 @@ function onStagingDragOver(index: number, event: DragEvent): void {
   emit("staging-drag-over", index, event);
 }
 
-function onStagingArgInput(id: string, key: string, event: Event): void {
-  emit("update-staged-arg", id, key, (event.target as HTMLInputElement).value);
+// --- 内联参数编辑状态 ---
+const editingParam = ref<{
+  cmdId: string;
+  argKey: string;
+  currentValue: string;
+  originalValue: string;
+} | null>(null);
+
+const paramEditInputRef = ref<HTMLInputElement | null>(null);
+
+function startParamEdit(cmdId: string, argKey: string, currentValue: string) {
+  editingParam.value = { cmdId, argKey, currentValue, originalValue: currentValue };
+  nextTick(() => paramEditInputRef.value?.focus());
+}
+
+function onParamEditInput(cmdId: string, argKey: string, value: string) {
+  if (editingParam.value) {
+    editingParam.value.currentValue = value;
+  }
+  // 实时 emit 以更新命令预览
+  emit("update-staged-arg", cmdId, argKey, value);
+}
+
+function commitParamEdit(cmdId: string, argKey: string) {
+  if (!editingParam.value) return;
+  const newValue = editingParam.value.currentValue;
+  editingParam.value = null;
+  emit("update-staged-arg", cmdId, argKey, newValue);
+}
+
+function cancelParamEdit() {
+  if (!editingParam.value) return;
+  const { cmdId, argKey, originalValue } = editingParam.value;
+  editingParam.value = null;
+  // 恢复原值
+  emit("update-staged-arg", cmdId, argKey, originalValue);
 }
 
 function formatCount(count: number): string {
@@ -287,20 +320,38 @@ async function copyCommand(command: string): Promise<void> {
                 </button>
               </div>
             </header>
-            <div v-if="cmd.args.length > 0" class="staging-card__args">
-              <div v-for="arg in cmd.args" :key="`${cmd.id}-${arg.key}`" class="staging-card__arg">
-                <label>{{ arg.label }}</label>
+            <!-- 有参数时：紧凑参数标签 -->
+            <div v-if="cmd.args.length > 0" class="flow-card__params">
+              <span
+                v-for="arg in cmd.args"
+                :key="arg.key"
+                class="flow-card__param"
+              >
+                <span class="flow-card__param-key">{{ arg.label }}:</span>
+                <!-- 未编辑态：紧凑标签 -->
+                <span
+                  v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
+                  class="flow-card__param-value"
+                  @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
+                >
+                  {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}
+                </span>
+                <!-- 编辑态：内联输入框 -->
                 <input
-                  type="text"
-                  :value="cmd.argValues[arg.key] ?? ''"
-                  :placeholder="arg.placeholder"
-                  autocomplete="off"
-                  @input="onStagingArgInput(cmd.id, arg.key, $event)"
+                  v-else
+                  class="flow-card__param-input"
+                  :value="editingParam.currentValue"
+                  @input="onParamEditInput(cmd.id, arg.key, ($event.target as HTMLInputElement).value)"
+                  @keydown.enter.stop="commitParamEdit(cmd.id, arg.key)"
+                  @keydown.escape.stop="cancelParamEdit()"
+                  @blur="commitParamEdit(cmd.id, arg.key)"
+                  ref="paramEditInputRef"
                 />
-              </div>
+              </span>
             </div>
-            <code class="flow-panel__card-command" :title="cmd.renderedCommand">
-              {{ summarizeCommandForFeedback(cmd.renderedCommand) }}
+            <!-- 无参数时：不显示参数标签行 -->
+            <code class="flow-card__command">
+              &gt; {{ cmd.renderedCommand }}
             </code>
           </article>
         </li>

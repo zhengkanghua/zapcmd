@@ -2,7 +2,6 @@ import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { summarizeCommandForFeedback } from "../../../../composables/execution/useCommandExecution/helpers";
 import type { StagedCommand } from "../../../../features/launcher/types";
 import type { KeyboardHint, LauncherFlowPanelProps, LauncherSearchPanelProps } from "../../types";
 import LauncherFlowPanel from "../LauncherFlowPanel.vue";
@@ -142,7 +141,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
     expect((list.element as HTMLElement).style.minHeight).toBe("");
   });
 
-  it("长命令默认显示摘要，title 保留完整命令，并支持复制按钮", async () => {
+  it("命令预览显示完整命令（带 > 前缀），并支持复制按钮", async () => {
     const longCommand = `echo ${"x".repeat(120)}`;
     const clipboardWriteText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
@@ -156,10 +155,10 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
       })
     });
 
-    const command = wrapper.get(".flow-panel__card-command");
-    expect(command.attributes("title")).toBe(longCommand);
-    expect(command.text()).toBe(summarizeCommandForFeedback(longCommand));
-    expect(command.text().endsWith("...")).toBe(true);
+    const command = wrapper.get(".flow-card__command");
+    // 新行为：显示 "> " + 完整命令，CSS 负责 text-overflow: ellipsis
+    expect(command.text()).toContain(longCommand);
+    expect(command.text()).toContain(">");
 
     const actions = wrapper.get(".flow-panel__card-actions");
     const buttons = actions.findAll("button");

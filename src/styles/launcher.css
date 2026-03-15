@@ -1054,6 +1054,68 @@
   margin-top: 2px;
 }
 
+/* --- flow-card 紧凑参数标签 + 内联编辑 + 命令预览 --- */
+
+.flow-card__params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 4px 0;
+}
+
+.flow-card__param {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.flow-card__param-key {
+  color: var(--ui-subtle);
+}
+
+.flow-card__param-value {
+  color: var(--ui-accent);
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.12s;
+}
+
+.flow-card__param-value:hover {
+  border-bottom-color: var(--ui-accent);
+}
+
+.flow-card__param-input {
+  background: var(--ui-hover);
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  color: var(--ui-accent);
+  font-size: 12px;
+  padding: 1px 4px;
+  outline: none;
+  width: auto;
+  min-width: 40px;
+}
+
+.flow-card__command {
+  display: block;
+  padding: 4px 0;
+  font-family: var(--ui-font-mono);
+  font-size: 11px;
+  color: var(--ui-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* prefers-reduced-motion 降级 */
+@media (prefers-reduced-motion: reduce) {
+  .flow-card__param-value,
+  .flow-card__param-input {
+    transition: none;
+  }
+}
+
 /* --- param-overlay --- */
 
 .param-overlay {
