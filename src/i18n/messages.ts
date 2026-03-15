@@ -36,6 +36,31 @@ export const messages = {
       flowCleared: "已清空 {n} 个节点",
       executionStarted: "开始执行"
     },
+    commandPanel: {
+      badge: {
+        paramInput: "参数输入",
+        dangerConfirm: "高危操作确认",
+        dangerWithParam: "高危拦截与配置"
+      },
+      danger: {
+        title: "危险操作提醒",
+        description:
+          "此命令将直接操作敏感系统资源，请确保你知道该命令的作用范围后再继续执行。",
+        dismissToday: "今日不再针对此命令进行高危提示"
+      },
+      btn: {
+        execute: "直接执行",
+        confirmExecute: "确定执行",
+        addToFlow: "+ 加入执行流",
+        cancel: "取消"
+      },
+      hint: {
+        escCancel: "按 Esc 取消返回"
+      },
+      preview: {
+        label: "实际执行"
+      }
+    },
     settings: {
       title: "设置",
       saved: "已保存",
@@ -318,6 +343,31 @@ export const messages = {
       flowRemoved: "Removed",
       flowCleared: "Cleared {n} node(s)",
       executionStarted: "Execution started"
+    },
+    commandPanel: {
+      badge: {
+        paramInput: "Parameter Input",
+        dangerConfirm: "Danger Confirmation",
+        dangerWithParam: "Danger Intercept"
+      },
+      danger: {
+        title: "Danger Warning",
+        description:
+          "This command directly operates on sensitive system resources. Make sure you understand its scope before proceeding.",
+        dismissToday: "Don't show danger warning for this command today"
+      },
+      btn: {
+        execute: "Execute",
+        confirmExecute: "Confirm Execute",
+        addToFlow: "+ Add to Flow",
+        cancel: "Cancel"
+      },
+      hint: {
+        escCancel: "Press Esc to cancel"
+      },
+      preview: {
+        label: "Actual Command"
+      }
     },
     settings: {
       title: "Settings",
