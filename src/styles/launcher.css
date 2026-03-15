@@ -77,7 +77,6 @@
 
 .search-main,
 .staging-panel,
-.review-panel,
 .flow-panel,
 .param-dialog,
 .output-overlay {
@@ -597,20 +596,24 @@
     flow-drawer-panel-out-right-opacity 260ms ease-out 60ms both;
 }
 
-/* --- review-overlay / drawer-scrim / review 动画状态类 --- */
+/* --- flow-panel-overlay / drawer-scrim / flow-panel 动画状态类 --- */
 
-.review-overlay {
+.flow-panel-overlay {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   align-items: stretch;
   width: 100%;
   min-width: 0;
   min-height: 0;
   z-index: 20;
+  pointer-events: none;
+}
+
+.flow-panel-overlay.state-open,
+.flow-panel-overlay.state-opening,
+.flow-panel-overlay.state-closing {
+  pointer-events: auto;
 }
 
 .drawer-scrim {
@@ -626,12 +629,12 @@
   will-change: opacity;
 }
 
-.review-panel {
-  width: min(var(--review-width), 100%);
+.flow-panel-overlay > .flow-panel {
+  width: min(var(--flow-panel-width, 67%), 100%);
+  min-width: min(420px, 100%);
   max-width: 100%;
-  min-width: 0;
   min-height: 0;
-  padding: 16px;
+  padding: 0;
   margin-left: auto;
   position: relative;
   z-index: 1;
@@ -643,66 +646,94 @@
   opacity: 1;
   transform: translate3d(0, 0, 0);
   will-change: opacity, transform;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
   transition: width 200ms ease;
 }
 
-.review-list {
+.flow-panel__list {
   min-height: 0;
   flex: 1;
   overflow-y: auto;
 }
 
-.review-list {
+.flow-panel__list {
   min-height: 0;
   align-content: start;
   grid-auto-rows: max-content;
 }
 
-.review-overlay--opening .review-overlay__scrim {
+.flow-panel-overlay.state-opening .flow-panel-overlay__scrim {
   animation: review-overlay-scrim-in 200ms ease-out both;
 }
 
-.review-overlay--opening .review-panel {
+.flow-panel-overlay.state-opening .flow-panel {
   animation: review-overlay-panel-in 300ms cubic-bezier(0.175, 0.885, 0.32, 1.15) both;
 }
 
-.review-overlay--closing {
+.flow-panel-overlay.state-closing {
   pointer-events: none;
 }
 
-.review-overlay--closing .review-overlay__scrim {
+.flow-panel-overlay.state-closing .flow-panel-overlay__scrim {
   animation: review-overlay-scrim-out 200ms ease-in both;
 }
 
-.review-overlay--closing .review-panel {
+.flow-panel-overlay.state-closing .flow-panel {
   animation: review-overlay-panel-out 200ms ease-in both;
 }
 
-/* --- review-panel 子元素 --- */
+/* --- flow-panel 子元素 --- */
 
-.review-panel__header {
+.flow-panel__header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ui-border);
+  -webkit-app-region: drag;
 }
 
-.review-panel__close {
+.flow-panel__header-actions {
+  display: flex;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+}
+
+.flow-panel__title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flow-panel__heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ui-text);
+  margin: 0;
+}
+
+.flow-panel__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--ui-accent);
+  color: var(--ui-accent-text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.flow-panel__close {
   min-width: 32px;
   min-height: 32px;
 }
 
-.review-panel__heading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.review-panel__tab {
+.flow-panel__tab {
   margin: 0;
   display: inline-flex;
   align-items: center;
@@ -718,7 +749,7 @@
   cursor: default;
 }
 
-.review-panel__tab-count {
+.flow-panel__tab-count {
   min-width: 18px;
   height: 18px;
   padding: 0 6px;
@@ -733,13 +764,13 @@
   font-weight: 800;
 }
 
-.review-panel__hint {
+.flow-panel__hint {
   font-size: 12px;
   line-height: 1.35;
   color: var(--ui-subtle);
 }
 
-.review-panel__empty {
+.flow-panel__empty {
   margin: 0;
   padding: 12px 10px;
   border: 1px dashed rgba(255, 255, 255, 0.16);
@@ -748,20 +779,37 @@
   font-size: 12px;
 }
 
-.review-panel__footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
+.flow-panel__footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--ui-border);
 }
 
-.review-card__actions {
+.flow-panel__execute-btn {
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  border-radius: 8px;
+  background: var(--ui-accent);
+  color: var(--ui-accent-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.flow-panel__execute-btn:disabled {
+  background: var(--ui-hover);
+  color: var(--ui-dim);
+  cursor: not-allowed;
+}
+
+.flow-panel__card-actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.review-card__command {
+.flow-panel__card-command {
   font-family: var(--ui-font-mono);
   font-size: 11.5px;
   line-height: 1.4;

@@ -152,10 +152,10 @@ describe("App 核心路径回归（Phase 3）", () => {
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
-    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
 
     await openReviewByPill(wrapper);
-    expect(wrapper.get(".review-card__command").attributes("title")).toContain("my-container");
+    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("my-container");
 
     await waitForUi();
     expect(localStorage.getItem(LAUNCHER_SESSION_STORAGE_KEY)).toBeTruthy();
@@ -165,10 +165,10 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     const restored = await mountApp();
     expectQueueCount(restored, 1);
-    expect(restored.find(".review-overlay").exists()).toBe(false);
+    expect(restored.find(".flow-panel-overlay").exists()).toBe(false);
 
     await openReviewByPill(restored);
-    expect(restored.get(".review-card__command").attributes("title")).toContain("my-container");
+    expect(restored.get(".flow-panel__card-command").attributes("title")).toContain("my-container");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();

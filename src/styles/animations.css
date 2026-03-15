@@ -174,14 +174,13 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-  .review-overlay--opening .review-overlay__scrim,
-  .review-overlay--opening .review-panel,
-  .review-overlay--closing .review-overlay__scrim,
-  .review-overlay--closing .review-panel {
+  .flow-panel-overlay.state-opening .flow-panel-overlay__scrim,
+  .flow-panel-overlay.state-opening .flow-panel,
+  .flow-panel-overlay.state-closing .flow-panel-overlay__scrim,
+  .flow-panel-overlay.state-closing .flow-panel {
     animation: none;
   }
 
-  .review-panel,
   .flow-panel {
     transition: none;
   }

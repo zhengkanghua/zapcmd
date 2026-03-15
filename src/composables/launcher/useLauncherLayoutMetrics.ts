@@ -1,11 +1,13 @@
 import { computed, type Ref } from "vue";
+import {
+  FLOW_PANEL_WIDTH_RATIO,
+  FLOW_PANEL_MIN_WIDTH,
+  FLOW_PANEL_MAX_WIDTH
+} from "../components/launcher/parts/flowPanelLayout";
 
 const WINDOW_BASE_WIDTH = 680;
 const WINDOW_BASE_MIN_WIDTH = 420;
 const STAGING_CLOSED_WIDTH_PX = 0;
-const REVIEW_PANEL_WIDTH_RATIO = 2 / 3;
-const REVIEW_PANEL_MIN_WIDTH_PX = 420;
-const REVIEW_PANEL_MAX_WIDTH_PX = 480;
 const WINDOW_GAP = 12;
 const WINDOW_SIDE_SAFE_PAD = 10;
 const WINDOW_BASE_HEIGHT = 124;
@@ -31,7 +33,7 @@ const PARAM_OVERLAY_MIN_HEIGHT = 340;
 
 export const STAGING_TRANSITION_MS = 200;
 export const WINDOW_SIZING_CONSTANTS = {
-  windowStagingWidth: REVIEW_PANEL_MAX_WIDTH_PX,
+  windowStagingWidth: FLOW_PANEL_MAX_WIDTH,
   windowStagingCollapsedWidth: STAGING_CLOSED_WIDTH_PX,
   windowGap: WINDOW_GAP,
   windowSideSafePad: WINDOW_SIDE_SAFE_PAD,
@@ -88,20 +90,20 @@ function createOverlayPanelWidths(options: {
   const dualDrawerMode = computed(() => options.flowOpen.value && options.stagingExpanded.value);
   const widePanelWidth = computed(() =>
     clamp(
-      Math.floor(options.searchMainWidth.value * REVIEW_PANEL_WIDTH_RATIO),
-      REVIEW_PANEL_MIN_WIDTH_PX,
-      REVIEW_PANEL_MAX_WIDTH_PX
+      Math.floor(options.searchMainWidth.value * FLOW_PANEL_WIDTH_RATIO),
+      FLOW_PANEL_MIN_WIDTH,
+      FLOW_PANEL_MAX_WIDTH
     )
   );
   const splitPanelWidth = computed(() => Math.floor(options.searchMainWidth.value / 2));
   const panelWidth = computed(() =>
     dualDrawerMode.value ? splitPanelWidth.value : widePanelWidth.value
   );
-  const reviewWidth = computed(() => panelWidth.value);
+  const flowPanelWidth = computed(() => panelWidth.value);
   const flowWidth = computed(() => panelWidth.value);
 
   return {
-    reviewWidth,
+    flowPanelWidth,
     flowWidth
   };
 }
@@ -163,7 +165,7 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
   });
 
   const searchMainWidth = computed(() => resolveSearchMainWidth(resolveScreenWidth()));
-  const { reviewWidth, flowWidth } = createOverlayPanelWidths({
+  const { flowPanelWidth, flowWidth } = createOverlayPanelWidths({
     searchMainWidth,
     flowOpen: options.flowOpen,
     stagingExpanded: options.stagingExpanded
@@ -173,11 +175,11 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     "--search-main-width": `${searchMainWidth.value}px`,
     "--shell-gap": `${shellGap.value}px`,
     "--shell-side-pad": `${WINDOW_SIDE_SAFE_PAD}px`,
-    "--review-width": `${reviewWidth.value}px`,
+    "--flow-panel-width": `${flowPanelWidth.value}px`,
     "--flow-width": `${flowWidth.value}px`,
     "--drawer-row-height": `${LAUNCHER_DRAWER_ROW_HEIGHT_PX}px`,
     "--staging-collapsed-width": `${STAGING_CLOSED_WIDTH_PX}px`,
-    "--staging-expanded-width": `${reviewWidth.value}px`
+    "--staging-expanded-width": `${flowPanelWidth.value}px`
   }));
 
   const minShellWidth = computed(

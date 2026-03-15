@@ -79,7 +79,7 @@ describe("useLauncherLayoutMetrics", () => {
       expect(metrics.searchShellStyle.value["--search-main-width"]).toBe("680px");
       expect(metrics.searchShellStyle.value["--shell-gap"]).toBe("0px");
       expect(metrics.searchShellStyle.value["--staging-collapsed-width"]).toBe("0px");
-      expect(metrics.searchShellStyle.value["--review-width"]).toBe("453px");
+      expect(metrics.searchShellStyle.value["--flow-panel-width"]).toBe("453px");
       expect(metrics.searchShellStyle.value["--staging-expanded-width"]).toBe("453px");
     }
   });
@@ -95,7 +95,7 @@ describe("useLauncherLayoutMetrics", () => {
     });
 
     expect(metrics.searchMainWidth.value).toBe(680);
-    expect(metrics.searchShellStyle.value["--review-width"]).toBe("340px");
+    expect(metrics.searchShellStyle.value["--flow-panel-width"]).toBe("340px");
     expect(metrics.searchShellStyle.value["--flow-width"]).toBe("340px");
   });
 

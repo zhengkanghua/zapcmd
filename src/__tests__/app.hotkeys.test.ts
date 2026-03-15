@@ -121,22 +121,22 @@ describe("App UI hotkeys regression", () => {
 
   it("opens Review with Ctrl+Tab and reserves Tab for focus traversal in Review state", async () => {
     const wrapper = await mountApp();
-    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-(opening|open)/);
 
-    const panel = wrapper.get(".review-panel").element as HTMLElement;
+    const panel = wrapper.get(".flow-panel").element as HTMLElement;
     dispatchElementKeydown(panel, "Tab");
     await waitForUi();
-    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-(opening|open)/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
-    const overlay = wrapper.find(".review-overlay");
+    const overlay = wrapper.find(".flow-panel-overlay");
     expect(
-      !overlay.exists() || overlay.classes().join(" ").match(/review-overlay--(closing|closed)/)
+      !overlay.exists() || overlay.classes().join(" ").match(/state-(closing|closed)/)
     ).toBeTruthy();
   });
 
@@ -167,7 +167,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
-    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
 
     await focusSearchAndType(wrapper, "docker");
     await openReviewByPill(wrapper);
@@ -191,10 +191,10 @@ describe("App UI hotkeys regression", () => {
 
     expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 1);
-    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
 
     await openReviewByPill(wrapper);
-    const command = wrapper.get(".review-card__command");
+    const command = wrapper.get(".flow-panel__card-command");
     expect(command.attributes("title")).toContain("my-container");
     expect(command.text()).toContain("my-container");
   });
@@ -277,7 +277,7 @@ describe("App UI hotkeys regression", () => {
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.find(".review-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(true);
     expect(wrapper.findAll(".staging-card--active").length).toBe(1);
 
     dispatchWindowKeydown("Delete");
@@ -445,7 +445,7 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
 
-    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-(opening|open)/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
@@ -453,9 +453,9 @@ describe("App UI hotkeys regression", () => {
     const input = wrapper.get("#zapcmd-search-input").element as HTMLInputElement;
     expect(input.value).toBe("git");
 
-    const overlay = wrapper.find(".review-overlay");
+    const overlay = wrapper.find(".flow-panel-overlay");
     expect(
-      !overlay.exists() || overlay.classes().join(" ").match(/review-overlay--(closing|closed)/)
+      !overlay.exists() || overlay.classes().join(" ").match(/state-(closing|closed)/)
     ).toBeTruthy();
   });
 
@@ -494,14 +494,14 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
 
-    expect(wrapper.get(".review-overlay").classes().join(" ")).toMatch(/review-overlay--(opening|open)/);
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-(opening|open)/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
 
-    const overlay = wrapper.find(".review-overlay");
+    const overlay = wrapper.find(".flow-panel-overlay");
     expect(
-      !overlay.exists() || overlay.classes().join(" ").match(/review-overlay--(closing|closed)/)
+      !overlay.exists() || overlay.classes().join(" ").match(/state-(closing|closed)/)
     ).toBeTruthy();
   });
 
@@ -552,7 +552,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expectQueueCount(wrapper, 1);
     await openReviewByPill(wrapper);
-    expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
+    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("443");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -562,7 +562,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 1);
-    expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
+    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("443");
     expect(
       (wrapper.get(".staging-card__arg input").element as HTMLInputElement).value,
     ).toBe("443");
@@ -579,7 +579,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expectQueueCount(wrapper, 1);
     await openReviewByPill(wrapper);
-    expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
+    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("443");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -589,7 +589,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 1);
-    expect(wrapper.get(".review-card__command").attributes("title")).toContain("443");
+    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("443");
     expect(
       (wrapper.get(".staging-card__arg input").element as HTMLInputElement).value,
     ).toBe("443");

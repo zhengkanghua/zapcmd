@@ -283,7 +283,7 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
 
     const wrapper = mount(Harness, { attachTo: document.body });
     await nextTick();
-    await wrapper.get(".review-overlay__scrim").trigger("click");
+    await wrapper.get(".flow-panel-overlay__scrim").trigger("click");
     await nextTick();
 
     const input = wrapper.get('[data-testid="zapcmd-search-input"]').element as HTMLInputElement;

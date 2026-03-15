@@ -169,10 +169,10 @@ async function copyCommand(command: string): Promise<void> {
 </script>
 
 <template>
-  <aside class="review-overlay" data-hit-zone="overlay" :class="`review-overlay--${props.stagingDrawerState}`">
+  <aside class="flow-panel-overlay" data-hit-zone="overlay" :class="`state-${props.stagingDrawerState}`">
     <button
       type="button"
-      class="review-overlay__scrim drawer-scrim"
+      class="flow-panel-overlay__scrim drawer-scrim"
       data-hit-zone="overlay"
       :aria-label="t('common.close')"
       @click="closeReview"
@@ -180,7 +180,7 @@ async function copyCommand(command: string): Promise<void> {
     ></button>
     <section
       :ref="setReviewPanelRef"
-      class="review-panel"
+      class="flow-panel"
       data-hit-zone="overlay"
       role="dialog"
       aria-modal="true"
@@ -227,8 +227,8 @@ async function copyCommand(command: string): Promise<void> {
 
       <div v-if="props.stagedCommands.length === 0" class="flow-panel__empty" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-color: transparent;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="review-panel__empty-title" style="font-size: 13px; color: var(--ui-text); font-weight: 600; margin: 0;">{{ t("launcher.queueEmpty") }}</span>
-          <span class="review-panel__empty-hint" style="font-size: 12px; margin: 0; color: var(--ui-subtle);">{{ t("launcher.queueEmptyHint") }}</span>
+          <span class="flow-panel__empty-title" style="font-size: 13px; color: var(--ui-text); font-weight: 600; margin: 0;">{{ t("launcher.queueEmpty") }}</span>
+          <span class="flow-panel__empty-hint" style="font-size: 12px; margin: 0; color: var(--ui-subtle);">{{ t("launcher.queueEmptyHint") }}</span>
         </div>
         <span class="keyboard-hint" style="padding: 0; min-height: auto;">
           <span class="keyboard-hint__item">
@@ -240,7 +240,7 @@ async function copyCommand(command: string): Promise<void> {
       <ul
         v-else
         :ref="setReviewListRef"
-        class="staging-list review-list"
+        class="staging-list flow-panel__list"
         :class="{ 'staging-list--scrollable': props.stagingListShouldScroll }"
         :style="{
           maxHeight: props.stagingListMaxHeight
@@ -250,7 +250,7 @@ async function copyCommand(command: string): Promise<void> {
           v-for="(cmd, index) in props.stagedCommands"
           :key="cmd.id"
           :data-staging-index="index"
-          class="review-list__item"
+          class="flow-panel__list-item"
           draggable="true"
           @dragstart="onStagingDragStart(index, $event)"
           @dragover="onStagingDragOver(index, $event)"
@@ -258,13 +258,13 @@ async function copyCommand(command: string): Promise<void> {
           @click="emit('focus-staging-index', index)"
         >
           <article
-            class="staging-card review-card"
+            class="staging-card flow-panel__card"
             :class="{ 'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex }"
             :tabindex="index === props.stagingActiveIndex ? 0 : -1"
           >
             <header class="staging-card__head">
               <h3>{{ cmd.title }}</h3>
-              <div class="review-card__actions">
+              <div class="flow-panel__card-actions">
                 <button
                   type="button"
                   class="btn-muted btn-icon btn-small"
@@ -299,7 +299,7 @@ async function copyCommand(command: string): Promise<void> {
                 />
               </div>
             </div>
-            <code class="review-card__command" :title="cmd.renderedCommand">
+            <code class="flow-panel__card-command" :title="cmd.renderedCommand">
               {{ summarizeCommandForFeedback(cmd.renderedCommand) }}
             </code>
           </article>

@@ -108,35 +108,35 @@ afterEach(() => {
 });
 
 describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
-  it("in-panel 结构约束：review-overlay 位于 search-main 子树内且不覆盖 search capsule", () => {
+  it("in-panel 结构约束：flow-panel-overlay 位于 search-main 子树内且不覆盖 search capsule", () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createSearchPanelProps()
     });
 
     const searchMain = wrapper.get(".search-main");
-    expect(searchMain.find(".review-overlay").exists()).toBe(true);
-    expect(wrapper.find(".search-capsule .review-overlay").exists()).toBe(false);
+    expect(searchMain.find(".flow-panel-overlay").exists()).toBe(true);
+    expect(wrapper.find(".search-capsule .flow-panel-overlay").exists()).toBe(false);
   });
 
   it("根节点/遮罩/面板具备 overlay hit-zone 与 dialog 语义", () => {
     const wrapper = mount(LauncherFlowPanel, { props: createProps() });
 
-    const overlay = wrapper.get(".review-overlay");
-    expect(overlay.classes()).toContain("review-overlay--open");
+    const overlay = wrapper.get(".flow-panel-overlay");
+    expect(overlay.classes()).toContain("state-open");
     expect(overlay.attributes("data-hit-zone")).toBe("overlay");
 
-    const scrim = wrapper.get(".review-overlay__scrim");
+    const scrim = wrapper.get(".flow-panel-overlay__scrim");
     expect(scrim.attributes("data-hit-zone")).toBe("overlay");
 
-    const panel = wrapper.get(".review-panel");
+    const panel = wrapper.get(".flow-panel");
     expect(panel.attributes("data-hit-zone")).toBe("overlay");
     expect(panel.attributes("role")).toBe("dialog");
     expect(panel.attributes("aria-modal")).toBe("true");
 
-    expect(wrapper.find(".review-panel__header").exists()).toBe(true);
-    expect(wrapper.find(".review-panel__footer").exists()).toBe(true);
+    expect(wrapper.find(".flow-panel__header").exists()).toBe(true);
+    expect(wrapper.find(".flow-panel__footer").exists()).toBe(true);
 
-    const list = wrapper.get(".review-list");
+    const list = wrapper.get(".flow-panel__list");
     expect(list.classes()).toContain("staging-list--scrollable");
     expect((list.element as HTMLElement).style.maxHeight).toBe("200px");
     expect((list.element as HTMLElement).style.minHeight).toBe("");
@@ -156,12 +156,12 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
       })
     });
 
-    const command = wrapper.get(".review-card__command");
+    const command = wrapper.get(".flow-panel__card-command");
     expect(command.attributes("title")).toBe(longCommand);
     expect(command.text()).toBe(summarizeCommandForFeedback(longCommand));
     expect(command.text().endsWith("...")).toBe(true);
 
-    const actions = wrapper.get(".review-card__actions");
+    const actions = wrapper.get(".flow-panel__card-actions");
     const buttons = actions.findAll("button");
     expect(buttons.length).toBe(2);
 
@@ -175,8 +175,8 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
       props: createProps({ stagedCommands: [] })
     });
 
-    expect(wrapper.find(".review-overlay").exists()).toBe(true);
-    expect(wrapper.find(".review-panel__empty").exists()).toBe(true);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(true);
+    expect(wrapper.find(".flow-panel__empty").exists()).toBe(true);
     expect(wrapper.emitted("toggle-staging")).toBeUndefined();
   });
 
@@ -188,7 +188,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
       })
     });
 
-    const executeButton = wrapper.get(".review-panel__footer .btn-primary");
+    const executeButton = wrapper.get(".flow-panel__footer .btn-primary");
     expect(executeButton.attributes("aria-disabled")).toBe("true");
 
     await executeButton.trigger("click");
@@ -200,7 +200,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
     expect(String(feedback?.[0]?.[1] ?? "")).toContain("完成或取消当前流程");
   });
 
-  it("Review 打开后会把焦点送入 review-panel 内（不滞留背景 Search）", async () => {
+  it("Review 打开后会把焦点送入 flow-panel 内（不滞留背景 Search）", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       attachTo: document.body,
       props: createProps()
@@ -208,7 +208,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
 
     await nextTick();
     await nextTick();
-    const panel = wrapper.get(".review-panel").element as HTMLElement;
+    const panel = wrapper.get(".flow-panel").element as HTMLElement;
     const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     expect(active).not.toBeNull();
     expect(panel.contains(active!)).toBe(true);
@@ -223,12 +223,12 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
 
     await nextTick();
     await nextTick();
-    const panel = wrapper.get(".review-panel").element as HTMLElement;
+    const panel = wrapper.get(".flow-panel").element as HTMLElement;
 
     const windowKeydownSpy = vi.fn();
     window.addEventListener("keydown", windowKeydownSpy);
 
-    const closeButton = wrapper.get(".review-panel__header button").element as HTMLButtonElement;
+    const closeButton = wrapper.get(".flow-panel__header button").element as HTMLButtonElement;
     closeButton.focus();
 
     const event = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });

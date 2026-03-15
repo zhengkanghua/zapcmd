@@ -539,7 +539,7 @@ describe("App failure and event regression", () => {
     await waitForUi();
 
     expectQueueCount(wrapper, 2);
-    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
     await openReviewByPill(wrapper);
 
     const rows = wrapper.findAll(".staging-list > li");
@@ -942,13 +942,13 @@ describe("App failure and event regression", () => {
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
-    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
     await openReviewByPill(wrapper);
 
-    expect(wrapper.get(".review-card__command").attributes("title")).toContain("container-a");
+    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("container-a");
     await wrapper.get(".staging-card__arg input").setValue("container-b");
     await waitForUi();
-    expect(wrapper.get(".review-card__command").attributes("title")).toContain("container-b");
+    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("container-b");
   });
 
   it("restores staged queue from launcher session snapshot", async () => {
@@ -974,7 +974,7 @@ describe("App failure and event regression", () => {
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
-    expect(wrapper.find(".review-overlay").exists()).toBe(false);
+    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
 
     await openReviewByPill(wrapper);
     expect(wrapper.findAll(".staging-card").length).toBe(1);
