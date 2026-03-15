@@ -221,7 +221,7 @@ async function copyCommand(command: string): Promise<void> {
 
       <div v-if="props.stagedCommands.length === 0" class="review-panel__empty" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-color: transparent;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="review-panel__empty-title" style="font-size: 13px; color: #ececf1; font-weight: 600; margin: 0;">{{ t("launcher.queueEmpty") }}</span>
+          <span class="review-panel__empty-title" style="font-size: 13px; color: var(--ui-text); font-weight: 600; margin: 0;">{{ t("launcher.queueEmpty") }}</span>
           <span class="review-panel__empty-hint" style="font-size: 12px; margin: 0; color: var(--ui-subtle);">{{ t("launcher.queueEmptyHint") }}</span>
         </div>
         <span class="keyboard-hint" style="padding: 0; min-height: auto;">
