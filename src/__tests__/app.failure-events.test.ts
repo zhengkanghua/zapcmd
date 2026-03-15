@@ -580,6 +580,66 @@ describe("App failure and event regression", () => {
     expect(afterTitles).toEqual([beforeTitles[1], beforeTitles[0]]);
   });
 
+  it("supports grip mousedown reorder fallback in FlowPanel", async () => {
+    const wrapper = await mountApp();
+
+    await focusSearchAndType(wrapper, "docker");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+
+    await focusSearchAndType(wrapper, "git");
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+
+    expectQueueCount(wrapper, 2);
+    await openReviewByPill(wrapper);
+
+    const beforeTitles = wrapper.findAll(".staging-card h3").map((item) => item.text());
+    expect(beforeTitles.length).toBe(2);
+
+    const grips = wrapper.findAll(".flow-card__grip");
+    expect(grips.length).toBe(2);
+
+    await grips[0].trigger("mousedown", { button: 0, buttons: 1 });
+    expect(wrapper.findAll(".staging-card")[0].classes()).toContain("staging-card--dragging");
+
+    const rows = wrapper.findAll(".staging-list > li");
+    vi.spyOn(rows[1].element, "getBoundingClientRect").mockReturnValue({
+      top: 100,
+      bottom: 200,
+      left: 0,
+      right: 0,
+      width: 0,
+      height: 100,
+      x: 0,
+      y: 100,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    // 上半区：不触发重排（避免边界抖动）
+    await rows[1].trigger("mousemove", { buttons: 1, clientY: 120 });
+    await waitForUi();
+    expect(wrapper.findAll(".staging-card h3").map((item) => item.text())).toEqual(beforeTitles);
+
+    // 下半区：触发重排
+    await rows[1].trigger("mousemove", { buttons: 1, clientY: 180 });
+    await waitForUi();
+
+    // 即使此时“命中区域”在边界来回变化，也不应抖动回原位（模拟：仍在下半区）
+    await rows[0].trigger("mousemove", { buttons: 1, clientY: 180 });
+    await waitForUi();
+
+    window.dispatchEvent(new MouseEvent("mouseup", { button: 0 }));
+    await waitForUi();
+
+    const afterTitles = wrapper.findAll(".staging-card h3").map((item) => item.text());
+    expect(afterTitles).toEqual([beforeTitles[1], beforeTitles[0]]);
+
+    expect(wrapper.findAll(".staging-card").some((card) => card.classes().includes("staging-card--dragging"))).toBe(
+      false,
+    );
+  });
+
   it("hides main window via invoke on Escape when running in tauri", async () => {
     hoisted.isTauriMock.mockReturnValue(true);
     hoisted.invokeMock.mockImplementation(async (command: string) => {

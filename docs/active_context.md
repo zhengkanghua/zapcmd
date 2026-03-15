@@ -484,3 +484,7 @@
 - Toast 双渲染槽：FlowPanel 开时 toast 在面板内，关时在搜索框内。
 - 新增 10 项组件级测试。
 - 待手动验证：`npm run tauri:dev` 下 FlowPanel 全高覆盖、紧凑参数编辑、拖拽排序、toast 反馈。
+- 修复遗留：FlowPanel 右侧未贴边（overlay 下 margin 冲突）+ 拖拽排序不生效（drag 事件绑定回 `li`）；`npm run check:all` 全绿。
+- 修复遗留：FlowPanel 在部分环境原生 drag 不触发，新增「抓手 mousedown + hover」重排兜底（不依赖 HTML5 drag），并补充回归测试；`npm run check:all` 全绿。
+- FlowPanel 拖拽体验优化：队列重排增加 move 动画（TransitionGroup）+ 拖拽中/目标卡片高亮（`staging-card--dragging/--drag-over`）；`npm run check:all` 全绿。
+- 修复抓手兜底拖拽在卡片边界处抖动：由 `mouseover` 改为 `mousemove`，并按目标卡片上下半区阈值触发重排，避免两卡片来回交换；测试覆盖，`npm run check:all` 全绿。

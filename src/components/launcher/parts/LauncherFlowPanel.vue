@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useI18nText } from "../../../i18n";
 import type { ElementRefArg, LauncherFlowPanelProps } from "../types";
 import LauncherIcon from "./LauncherIcon.vue";
@@ -10,6 +10,10 @@ const { t } = useI18nText();
 const reviewPanelRef = ref<HTMLElement | null>(null);
 const reviewListRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<HTMLButtonElement | null>(null);
+const gripReorderActive = ref(false);
+let gripReorderCleanup: (() => void) | null = null;
+const draggingCommandId = ref<string | null>(null);
+const dragOverCommandId = ref<string | null>(null);
 
 const emit = defineEmits<{
   (e: "toggle-staging"): void;
@@ -33,9 +37,21 @@ function setReviewPanelRef(el: ElementRefArg): void {
   reviewPanelRef.value = el instanceof HTMLElement ? el : null;
 }
 
+function normalizeToHTMLElement(el: ElementRefArg): HTMLElement | null {
+  if (el instanceof HTMLElement) {
+    return el;
+  }
+  if (el && typeof el === "object" && "$el" in el) {
+    const maybeElement = (el as { $el?: unknown }).$el;
+    return maybeElement instanceof HTMLElement ? maybeElement : null;
+  }
+  return null;
+}
+
 function setReviewListRef(el: ElementRefArg): void {
-  props.setStagingListRef(el);
-  reviewListRef.value = el instanceof HTMLElement ? el : null;
+  const element = normalizeToHTMLElement(el);
+  props.setStagingListRef(element);
+  reviewListRef.value = element;
 }
 
 function focusActiveCardOrFallback(): void {
@@ -126,8 +142,110 @@ function onScrimWheel(event: WheelEvent): void {
   list.scrollTop += deltaY;
 }
 
+function createSyntheticDragEvent(type: "dragstart" | "dragover"): DragEvent {
+  if (typeof DragEvent === "function") {
+    return new DragEvent(type);
+  }
+
+  return {
+    preventDefault() {},
+    dataTransfer: null
+  } as unknown as DragEvent;
+}
+
+function resetDragIndicators(): void {
+  draggingCommandId.value = null;
+  dragOverCommandId.value = null;
+}
+
+function endGripReorder(): void {
+  if (!gripReorderActive.value) {
+    return;
+  }
+  gripReorderActive.value = false;
+  gripReorderCleanup?.();
+  gripReorderCleanup = null;
+  resetDragIndicators();
+  emit("staging-drag-end");
+}
+
+function startGripReorder(index: number, event: MouseEvent): void {
+  if (event.button !== 0) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  gripReorderActive.value = true;
+  draggingCommandId.value = props.stagedCommands[index]?.id ?? null;
+  dragOverCommandId.value = draggingCommandId.value;
+  emit("staging-drag-start", index, createSyntheticDragEvent("dragstart"));
+
+  const onMouseUp = () => endGripReorder();
+  const onWindowBlur = () => endGripReorder();
+  window.addEventListener("mouseup", onMouseUp, { once: true });
+  window.addEventListener("blur", onWindowBlur, { once: true });
+
+  gripReorderCleanup = () => {
+    window.removeEventListener("mouseup", onMouseUp);
+    window.removeEventListener("blur", onWindowBlur);
+  };
+}
+
+function onGripReorderMove(index: number, event: MouseEvent): void {
+  if (!gripReorderActive.value) {
+    return;
+  }
+  if ((event.buttons & 1) === 0) {
+    endGripReorder();
+    return;
+  }
+
+  dragOverCommandId.value = props.stagedCommands[index]?.id ?? null;
+
+  const draggingId = draggingCommandId.value;
+  if (!draggingId) {
+    return;
+  }
+
+  const draggingIndex = props.stagedCommands.findIndex((cmd) => cmd.id === draggingId);
+  if (draggingIndex < 0 || draggingIndex === index) {
+    return;
+  }
+
+  const currentTarget = event.currentTarget;
+  if (!(currentTarget instanceof HTMLElement)) {
+    emit("staging-drag-over", index, createSyntheticDragEvent("dragover"));
+    return;
+  }
+
+  const rect = currentTarget.getBoundingClientRect();
+  const offsetY = event.clientY - rect.top;
+  const midY = rect.height / 2;
+  const buffer = Math.min(12, rect.height / 8);
+
+  // 只在“跨过目标卡片中线”时才触发一次 move，避免卡片边界处来回抖动。
+  if (draggingIndex < index) {
+    // 向下移动：进入下半区再重排
+    if (offsetY < midY + buffer) {
+      return;
+    }
+  } else {
+    // 向上移动：进入上半区再重排
+    if (offsetY > midY - buffer) {
+      return;
+    }
+  }
+
+  emit("staging-drag-over", index, createSyntheticDragEvent("dragover"));
+}
+
 // --- 拖拽启动时取消编辑态 ---
 function onDragStartWithEditGuard(event: DragEvent, index: number) {
+  endGripReorder();
+  draggingCommandId.value = props.stagedCommands[index]?.id ?? null;
+  dragOverCommandId.value = draggingCommandId.value;
   if (editingParam.value) {
     cancelParamEdit();
   }
@@ -135,7 +253,13 @@ function onDragStartWithEditGuard(event: DragEvent, index: number) {
 }
 
 function onStagingDragOver(index: number, event: DragEvent): void {
+  dragOverCommandId.value = props.stagedCommands[index]?.id ?? null;
   emit("staging-drag-over", index, event);
+}
+
+function onDragEnd(): void {
+  resetDragIndicators();
+  emit("staging-drag-end");
 }
 
 // --- 内联参数编辑状态 ---
@@ -183,13 +307,6 @@ function cancelParamEdit() {
   emit("update-staged-arg", cmdId, argKey, originalValue);
 }
 
-function formatCount(count: number): string {
-  if (!Number.isFinite(count) || count <= 0) {
-    return "0";
-  }
-  return count > 99 ? "99+" : String(count);
-}
-
 function onExecuteStagedClick(): void {
   if (props.flowOpen) {
     emit("execution-feedback", "neutral", t("execution.flowInProgress"));
@@ -210,6 +327,11 @@ async function copyCommand(command: string): Promise<void> {
     emit("execution-feedback", "error", t("common.copyFailed"));
   }
 }
+
+onBeforeUnmount(() => {
+  endGripReorder();
+  resetDragIndicators();
+});
 </script>
 
 <template>
@@ -278,11 +400,16 @@ async function copyCommand(command: string): Promise<void> {
           </span>
         </span>
       </div>
-      <ul
+      <TransitionGroup
         v-else
         :ref="setReviewListRef"
+        tag="ul"
+        name="flow-panel-list"
         class="staging-list flow-panel__list"
-        :class="{ 'staging-list--scrollable': props.stagingListShouldScroll }"
+        :class="{
+          'staging-list--scrollable': props.stagingListShouldScroll,
+          'flow-panel__list--grip-reordering': gripReorderActive
+        }"
         :style="{
           maxHeight: props.stagingListMaxHeight
         }"
@@ -292,19 +419,29 @@ async function copyCommand(command: string): Promise<void> {
           :key="cmd.id"
           :data-staging-index="index"
           class="flow-panel__list-item"
+          draggable="true"
+          @dragstart="onDragStartWithEditGuard($event, index)"
           @dragover="onStagingDragOver(index, $event)"
+          @dragend="onDragEnd"
+          @mousemove="onGripReorderMove(index, $event)"
           @click="emit('focus-staging-index', index)"
         >
           <article
             class="staging-card flow-panel__card"
-            :class="{ 'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex }"
+            :class="{
+              'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex,
+              'staging-card--dragging': draggingCommandId === cmd.id,
+              'staging-card--drag-over': dragOverCommandId === cmd.id && draggingCommandId !== cmd.id
+            }"
             :tabindex="index === props.stagingActiveIndex ? 0 : -1"
-            draggable="true"
-            @dragstart="onDragStartWithEditGuard($event, index)"
-            @dragend="emit('staging-drag-end')"
           >
             <!-- 拖拽手柄 -->
-            <div class="flow-card__grip" aria-hidden="true">
+            <div
+              class="flow-card__grip"
+              aria-hidden="true"
+              @mousedown="startGripReorder(index, $event)"
+              @click.stop.prevent
+            >
               <LauncherIcon name="grip" :size="12" />
             </div>
             <!-- 卡片主内容 -->
@@ -370,7 +507,7 @@ async function copyCommand(command: string): Promise<void> {
             </div>
           </article>
         </li>
-      </ul>
+      </TransitionGroup>
 
       <footer class="flow-panel__footer">
         <button
