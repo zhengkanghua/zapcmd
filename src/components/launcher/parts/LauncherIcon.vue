@@ -1,5 +1,5 @@
 <script setup lang="ts">
-export type LauncherIconName = "search" | "queue" | "x" | "copy" | "trash";
+export type LauncherIconName = "search" | "queue" | "x" | "copy" | "trash" | "grip";
 
 const props = withDefaults(
   defineProps<{
@@ -59,6 +59,15 @@ const props = withDefaults(
         <path d="M7 6l1 14h8l1-14" />
         <path d="M10 11v6" />
         <path d="M14 11v6" />
+      </template>
+
+      <template v-else-if="props.name === 'grip'">
+        <circle cx="9" cy="5" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="5" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="9" cy="12" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="12" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="9" cy="19" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="19" r="1.5" fill="currentColor" stroke="none" />
       </template>
     </g>
   </svg>

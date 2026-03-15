@@ -126,23 +126,6 @@ function onScrimWheel(event: WheelEvent): void {
   list.scrollTop += deltaY;
 }
 
-// --- 拖拽门控：mousedown 延迟 150ms 才允许拖拽 ---
-const dragReady = ref(false);
-let dragTimer: ReturnType<typeof setTimeout> | null = null;
-
-function onCardMouseDown() {
-  dragTimer = setTimeout(() => { dragReady.value = true; }, 150);
-}
-
-function onCardMouseUp() {
-  if (dragTimer) { clearTimeout(dragTimer); dragTimer = null; }
-  dragReady.value = false;
-}
-
-function onCardMouseLeave() {
-  if (dragTimer) { clearTimeout(dragTimer); dragTimer = null; }
-}
-
 // --- 拖拽启动时取消编辑态 ---
 function onDragStartWithEditGuard(event: DragEvent, index: number) {
   if (editingParam.value) {
@@ -251,9 +234,6 @@ async function copyCommand(command: string): Promise<void> {
       <header class="flow-panel__header" data-tauri-drag-region>
         <div class="flow-panel__title-group">
           <h2 class="flow-panel__heading">{{ t('launcher.queueTitle', { count: props.stagedCommands.length }) }}</h2>
-          <span class="flow-panel__count" v-if="props.stagedCommands.length > 0">
-            {{ formatCount(props.stagedCommands.length) }}
-          </span>
         </div>
         <div class="flow-panel__header-actions">
           <button
@@ -319,71 +299,75 @@ async function copyCommand(command: string): Promise<void> {
             class="staging-card flow-panel__card"
             :class="{ 'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex }"
             :tabindex="index === props.stagingActiveIndex ? 0 : -1"
-            :draggable="dragReady"
-            @mousedown="onCardMouseDown"
-            @mouseup="onCardMouseUp"
-            @mouseleave="onCardMouseLeave"
+            draggable="true"
             @dragstart="onDragStartWithEditGuard($event, index)"
-            @dragend="dragReady = false; emit('staging-drag-end')"
+            @dragend="emit('staging-drag-end')"
           >
-            <header class="staging-card__head">
-              <h3>{{ cmd.title }}</h3>
-              <div class="flow-panel__card-actions">
-                <button
-                  type="button"
-                  class="btn-muted btn-icon btn-small"
-                  :disabled="props.executing"
-                  :aria-label="t('common.copy')"
-                  :title="t('common.copy')"
-                  @click.stop="copyCommand(cmd.renderedCommand)"
-                >
-                  <LauncherIcon name="copy" />
-                </button>
-                <button
-                  type="button"
-                  class="btn-danger btn-icon btn-small"
-                  :disabled="props.executing"
-                  :aria-label="t('common.remove')"
-                  :title="t('common.remove')"
-                  @click.stop="emit('remove-staged-command', cmd.id)"
-                >
-                  <LauncherIcon name="x" />
-                </button>
-              </div>
-            </header>
-            <!-- 有参数时：紧凑参数标签 -->
-            <div v-if="cmd.args.length > 0" class="flow-card__params">
-              <span
-                v-for="arg in cmd.args"
-                :key="arg.key"
-                class="flow-card__param"
-              >
-                <span class="flow-card__param-key">{{ arg.label }}:</span>
-                <!-- 未编辑态：紧凑标签 -->
-                <span
-                  v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
-                  class="flow-card__param-value"
-                  @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
-                >
-                  {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}
-                </span>
-                <!-- 编辑态：内联输入框 -->
-                <input
-                  v-else
-                  class="flow-card__param-input"
-                  :value="editingParam.currentValue"
-                  @input="onParamEditInput(cmd.id, arg.key, ($event.target as HTMLInputElement).value)"
-                  @keydown.enter.stop="commitParamEdit(cmd.id, arg.key)"
-                  @keydown.escape.stop="cancelParamEdit()"
-                  @blur="commitParamEdit(cmd.id, arg.key)"
-                  ref="paramEditInputRef"
-                />
-              </span>
+            <!-- 拖拽手柄 -->
+            <div class="flow-card__grip" aria-hidden="true">
+              <LauncherIcon name="grip" :size="12" />
             </div>
-            <!-- 无参数时：不显示参数标签行 -->
-            <code class="flow-card__command">
-              &gt; {{ cmd.renderedCommand }}
-            </code>
+            <!-- 卡片主内容 -->
+            <div class="flow-card__body">
+              <header class="staging-card__head">
+                <h3>{{ cmd.title }}</h3>
+                <div class="flow-panel__card-actions">
+                  <button
+                    type="button"
+                    class="btn-muted btn-icon btn-small"
+                    :disabled="props.executing"
+                    :aria-label="t('common.copy')"
+                    :title="t('common.copy')"
+                    @click.stop="copyCommand(cmd.renderedCommand)"
+                  >
+                    <LauncherIcon name="copy" />
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-danger btn-icon btn-small"
+                    :disabled="props.executing"
+                    :aria-label="t('common.remove')"
+                    :title="t('common.remove')"
+                    @click.stop="emit('remove-staged-command', cmd.id)"
+                  >
+                    <LauncherIcon name="x" />
+                  </button>
+                </div>
+              </header>
+              <!-- 有参数时：紧凑参数标签（带背景区域） -->
+              <div v-if="cmd.args.length > 0" class="flow-card__params">
+                <div
+                  v-for="arg in cmd.args"
+                  :key="arg.key"
+                  class="flow-card__param"
+                >
+                  <span class="flow-card__param-key">{{ arg.label }}:</span>
+                  <!-- 未编辑态：参数值标签（带背景） -->
+                  <span
+                    v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
+                    class="flow-card__param-value"
+                    @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
+                  >
+                    {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}
+                  </span>
+                  <!-- 编辑态：内联输入框 -->
+                  <input
+                    v-else
+                    class="flow-card__param-input"
+                    :value="editingParam.currentValue"
+                    @input="onParamEditInput(cmd.id, arg.key, ($event.target as HTMLInputElement).value)"
+                    @keydown.enter.stop="commitParamEdit(cmd.id, arg.key)"
+                    @keydown.escape.stop="cancelParamEdit()"
+                    @blur="commitParamEdit(cmd.id, arg.key)"
+                    ref="paramEditInputRef"
+                  />
+                </div>
+              </div>
+              <!-- 命令预览 -->
+              <code class="flow-card__command">
+                &gt; {{ cmd.renderedCommand }}
+              </code>
+            </div>
           </article>
         </li>
       </ul>
