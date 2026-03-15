@@ -4,8 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { summarizeCommandForFeedback } from "../../../../composables/execution/useCommandExecution/helpers";
 import type { StagedCommand } from "../../../../features/launcher/types";
-import type { KeyboardHint, LauncherReviewOverlayProps, LauncherSearchPanelProps } from "../../types";
-import LauncherReviewOverlay from "../LauncherReviewOverlay.vue";
+import type { KeyboardHint, LauncherFlowPanelProps, LauncherSearchPanelProps } from "../../types";
+import LauncherFlowPanel from "../LauncherFlowPanel.vue";
 import LauncherSearchPanel from "../LauncherSearchPanel.vue";
 
 function createStagedCommand(overrides: Partial<StagedCommand> = {}): StagedCommand {
@@ -21,8 +21,8 @@ function createStagedCommand(overrides: Partial<StagedCommand> = {}): StagedComm
 }
 
 function createProps(
-  overrides: Partial<LauncherReviewOverlayProps> = {}
-): LauncherReviewOverlayProps {
+  overrides: Partial<LauncherFlowPanelProps> = {}
+): LauncherFlowPanelProps {
   const stagingHints: KeyboardHint[] = [
     {
       keys: ["Esc"],
@@ -41,6 +41,8 @@ function createProps(
     stagingActiveIndex: 0,
     flowOpen: false,
     executing: false,
+    executionFeedbackMessage: "",
+    executionFeedbackTone: "neutral",
     setStagingPanelRef: () => {},
     setStagingListRef: () => {},
     ...overrides
@@ -105,7 +107,7 @@ afterEach(() => {
   }
 });
 
-describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
+describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
   it("in-panel 结构约束：review-overlay 位于 search-main 子树内且不覆盖 search capsule", () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createSearchPanelProps()
@@ -117,7 +119,7 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
   });
 
   it("根节点/遮罩/面板具备 overlay hit-zone 与 dialog 语义", () => {
-    const wrapper = mount(LauncherReviewOverlay, { props: createProps() });
+    const wrapper = mount(LauncherFlowPanel, { props: createProps() });
 
     const overlay = wrapper.get(".review-overlay");
     expect(overlay.classes()).toContain("review-overlay--open");
@@ -148,7 +150,7 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
       value: { writeText: clipboardWriteText }
     });
 
-    const wrapper = mount(LauncherReviewOverlay, {
+    const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
         stagedCommands: [createStagedCommand({ renderedCommand: longCommand })]
       })
@@ -169,7 +171,7 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
   });
 
   it("队列为空时渲染空态且不自动关闭", async () => {
-    const wrapper = mount(LauncherReviewOverlay, {
+    const wrapper = mount(LauncherFlowPanel, {
       props: createProps({ stagedCommands: [] })
     });
 
@@ -179,7 +181,7 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
   });
 
   it("Flow 打开时禁用执行队列：按钮呈现禁用态，点击只 toast 不执行", async () => {
-    const wrapper = mount(LauncherReviewOverlay, {
+    const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
         flowOpen: true,
         stagedCommands: [createStagedCommand()]
@@ -199,7 +201,7 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
   });
 
   it("Review 打开后会把焦点送入 review-panel 内（不滞留背景 Search）", async () => {
-    const wrapper = mount(LauncherReviewOverlay, {
+    const wrapper = mount(LauncherFlowPanel, {
       attachTo: document.body,
       props: createProps()
     });
@@ -214,7 +216,7 @@ describe("LauncherReviewOverlay 组件级语义回归（Phase 14）", () => {
   });
 
   it("plain Tab 在 Review 内循环且不会冒泡到 window", async () => {
-    const wrapper = mount(LauncherReviewOverlay, {
+    const wrapper = mount(LauncherFlowPanel, {
       attachTo: document.body,
       props: createProps()
     });

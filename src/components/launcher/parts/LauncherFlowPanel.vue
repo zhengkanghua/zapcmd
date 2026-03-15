@@ -2,10 +2,10 @@
 import { nextTick, ref, watch } from "vue";
 import { useI18nText } from "../../../i18n";
 import { summarizeCommandForFeedback } from "../../../composables/execution/useCommandExecution/helpers";
-import type { ElementRefArg, LauncherReviewOverlayProps } from "../types";
+import type { ElementRefArg, LauncherFlowPanelProps } from "../types";
 import LauncherIcon from "./LauncherIcon.vue";
 
-const props = defineProps<LauncherReviewOverlayProps>();
+const props = defineProps<LauncherFlowPanelProps>();
 const { t } = useI18nText();
 
 const reviewPanelRef = ref<HTMLElement | null>(null);
