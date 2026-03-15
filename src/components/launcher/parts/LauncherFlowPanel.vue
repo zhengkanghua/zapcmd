@@ -187,39 +187,45 @@ async function copyCommand(command: string): Promise<void> {
       :aria-label="t('launcher.queueTitle', { count: props.stagedCommands.length })"
       @keydown="onReviewPanelKeydown"
     >
-      <header class="review-panel__header">
-        <div class="review-panel__heading">
-          <h2
-            class="review-panel__tab"
-            :aria-label="t('launcher.queueTitle', { count: props.stagedCommands.length })"
-          >
-            <span class="review-panel__tab-count" aria-hidden="true">
-              {{ formatCount(props.stagedCommands.length) }}
-            </span>
-          </h2>
-          <div v-if="props.stagingHints && props.stagingHints.length > 0" class="keyboard-hint" style="padding: 0; min-height: auto; margin-left: auto;">
-            <span v-for="(hint, index) in props.stagingHints" :key="index" class="keyboard-hint__item">
-              <span class="keyboard-hint__keys">
-                <kbd v-for="k in hint.keys" :key="k">{{ k }}</kbd>
-              </span>
-              <span class="keyboard-hint__action">{{ hint.action }}</span>
-              <span v-if="index < props.stagingHints.length - 1" class="keyboard-hint__sep">·</span>
-            </span>
-          </div>
+      <header class="flow-panel__header" data-tauri-drag-region>
+        <div class="flow-panel__title-group">
+          <h2 class="flow-panel__heading">{{ t('launcher.queueTitle', { count: props.stagedCommands.length }) }}</h2>
+          <span class="flow-panel__count" v-if="props.stagedCommands.length > 0">
+            {{ formatCount(props.stagedCommands.length) }}
+          </span>
         </div>
-        <button
-          ref="closeButtonRef"
-          type="button"
-          class="btn-muted btn-icon review-panel__close"
-          :aria-label="t('common.close')"
-          :title="t('common.close')"
-          @click="closeReview"
-        >
-          <LauncherIcon name="x" />
-        </button>
+        <div class="flow-panel__header-actions">
+          <button
+            type="button"
+            class="btn-icon btn-danger"
+            :aria-label="t('common.clear')"
+            :disabled="props.stagedCommands.length === 0"
+            @click="emit('clear-staging')"
+          >
+            <LauncherIcon name="trash" />
+          </button>
+          <button
+            ref="closeButtonRef"
+            type="button"
+            class="btn-icon flow-panel__close"
+            :aria-label="t('common.close')"
+            @click="closeReview"
+          >
+            <LauncherIcon name="x" />
+          </button>
+        </div>
       </header>
 
-      <div v-if="props.stagedCommands.length === 0" class="review-panel__empty" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-color: transparent;">
+      <!-- 面板内 toast 反馈 -->
+      <p
+        v-if="props.executionFeedbackMessage"
+        class="execution-feedback execution-toast"
+        :class="`execution-feedback--${props.executionFeedbackTone}`"
+      >
+        {{ props.executionFeedbackMessage }}
+      </p>
+
+      <div v-if="props.stagedCommands.length === 0" class="flow-panel__empty" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-color: transparent;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <span class="review-panel__empty-title" style="font-size: 13px; color: var(--ui-text); font-weight: 600; margin: 0;">{{ t("launcher.queueEmpty") }}</span>
           <span class="review-panel__empty-hint" style="font-size: 12px; margin: 0; color: var(--ui-subtle);">{{ t("launcher.queueEmptyHint") }}</span>
@@ -300,25 +306,15 @@ async function copyCommand(command: string): Promise<void> {
         </li>
       </ul>
 
-      <footer class="review-panel__footer">
+      <footer class="flow-panel__footer">
         <button
           type="button"
-          class="btn-danger btn-icon"
-          :disabled="props.executing"
-          :aria-label="t('common.clear')"
-          :title="t('common.clear')"
-          @click="emit('clear-staging')"
-        >
-          <LauncherIcon name="trash" />
-        </button>
-        <button
-          type="button"
-          class="btn-primary"
-          :disabled="props.executing || props.stagedCommands.length === 0"
+          class="flow-panel__execute-btn"
+          :disabled="props.stagedCommands.length === 0 || props.executing"
           :aria-disabled="props.flowOpen ? 'true' : undefined"
           @click="onExecuteStagedClick"
         >
-          {{ props.executing ? t("launcher.executing") : t("launcher.executeAll") }}
+          {{ props.executing ? t('launcher.executing') : t('launcher.executeAll') }}
         </button>
       </footer>
     </section>
