@@ -112,6 +112,17 @@ export function createAppCompositionViewModel(
   const settingsMutationHandlers = createSettingsMutationHandlers(context);
   const settingsWindowProps = createSettingsWindowProps(context);
 
+  function submitParamInput(): void {
+    runtime.commandExecution.submitParamInput();
+
+    if (
+      runtime.commandExecution.pendingCommand.value === null &&
+      runtime.navStack.canGoBack.value
+    ) {
+      runtime.navStack.popPage();
+    }
+  }
+
   return {
     isSettingsWindow: context.isSettingsWindow,
     query: context.search.query,
@@ -165,7 +176,7 @@ export function createAppCompositionViewModel(
     updateStagedArg: runtime.commandExecution.updateStagedArg,
     clearStaging: runtime.commandExecution.clearStaging,
     executeStaged: runtime.commandExecution.executeStaged,
-    submitParamInput: runtime.commandExecution.submitParamInput,
+    submitParamInput,
     cancelParamInput: runtime.commandExecution.cancelParamInput,
     updatePendingArgValue: runtime.commandExecution.updatePendingArgValue,
     confirmSafetyExecution: runtime.commandExecution.confirmSafetyExecution,

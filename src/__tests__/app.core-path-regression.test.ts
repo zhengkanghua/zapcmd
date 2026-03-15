@@ -145,10 +145,10 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
 
-    await wrapper.get("#param-input-container").setValue("my-container");
-    await wrapper.get(".flow-page--param").trigger("submit");
+    await wrapper.get(".command-panel__input").setValue("my-container");
+    await wrapper.get("[data-testid='confirm-btn']").trigger("click");
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
@@ -197,10 +197,10 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
-    expect(wrapper.find(".flow-page--param").exists()).toBe(true);
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
 
-    await wrapper.get("#param-input-container").setValue("my-container");
-    await wrapper.get(".flow-page--param").trigger("submit");
+    await wrapper.get(".command-panel__input").setValue("my-container");
+    await wrapper.get("[data-testid='confirm-btn']").trigger("click");
     await waitForUi();
 
     expectQueueCount(wrapper, 1);

@@ -38,11 +38,23 @@ function createNavStackMock() {
   };
 }
 
-function mountPanel(props: Record<string, unknown>) {
+function mountPanel(
+  props: Partial<{
+    command: CommandTemplate;
+    mode: "execute" | "stage";
+    isDangerous: boolean;
+    pendingArgValues: Record<string, string>;
+  }> = {}
+) {
   const navStack = createNavStackMock();
   return mount(LauncherCommandPanel, {
     props: {
+      command: createCommand(),
+      mode: "execute",
+      isDangerous: false,
       pendingArgValues: {},
+      executionFeedbackMessage: "",
+      executionFeedbackTone: "neutral",
       ...props
     },
     global: {
@@ -185,7 +197,9 @@ describe("LauncherCommandPanel", () => {
           command: createCommand(),
           mode: "execute",
           isDangerous: false,
-          pendingArgValues: {}
+          pendingArgValues: {},
+          executionFeedbackMessage: "",
+          executionFeedbackTone: "neutral"
         },
         global: {
           provide: { [LAUNCHER_NAV_STACK_KEY as unknown as symbol]: navStack },
@@ -213,4 +227,3 @@ describe("LauncherCommandPanel", () => {
     });
   });
 });
-

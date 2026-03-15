@@ -1,5 +1,5 @@
 import type { ComponentPublicInstance } from "vue";
-import type { CommandArg, CommandTemplate } from "../../features/commands/commandTemplates";
+import type { CommandTemplate } from "../../features/commands/commandTemplates";
 import type { StagedCommand } from "../../features/launcher/types";
 
 export interface KeyboardHint {
@@ -91,6 +91,8 @@ export interface LauncherCommandPanelProps {
   mode: ParamSubmitMode;
   isDangerous: boolean;
   pendingArgValues: Record<string, string>;
+  executionFeedbackMessage: string;
+  executionFeedbackTone: "neutral" | "success" | "error";
 }
 // 注：pendingArgValues 不在 spec §4.5 原始接口中。
 // 这是有意的偏离：spec §7.1 要求复用 useCommandExecution 状态，

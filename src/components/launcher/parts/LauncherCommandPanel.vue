@@ -135,6 +135,16 @@ function onSubmit(): void {
     <div class="command-panel__divider" />
 
     <div class="command-panel__content">
+      <p
+        v-if="props.executionFeedbackMessage"
+        class="execution-feedback execution-toast"
+        :class="`execution-feedback--${props.executionFeedbackTone}`"
+        role="status"
+        aria-live="polite"
+      >
+        {{ props.executionFeedbackMessage }}
+      </p>
+
       <div
         v-if="props.isDangerous"
         class="command-panel__danger-banner"
