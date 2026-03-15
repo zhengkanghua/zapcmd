@@ -1,8 +1,10 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vitest";
 
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import type { LauncherSafetyDialog } from "../types";
+import type { NavPage } from "../../../composables/launcher/useLauncherNavStack";
 import LauncherWindow from "../LauncherWindow.vue";
 
 function createCommandTemplate(id: string): CommandTemplate {
@@ -33,6 +35,7 @@ function createSafetyDialog(): LauncherSafetyDialog {
 }
 
 function createBaseProps(overrides: Record<string, unknown> = {}) {
+  const searchPage: NavPage = { type: "search" };
   return {
     query: "",
     executing: false,
@@ -61,6 +64,12 @@ function createBaseProps(overrides: Record<string, unknown> = {}) {
     pendingSubmitHint: "",
     pendingSubmitMode: "stage" as const,
     safetyDialog: null,
+    navCurrentPage: searchPage,
+    navCanGoBack: false,
+    navPushPage: vi.fn(),
+    navPopPage: vi.fn(),
+    navResetToSearch: vi.fn(),
+    navStack: [searchPage],
     setSearchShellRef: () => {},
     setSearchInputRef: () => {},
     setDrawerRef: () => {},
@@ -72,105 +81,85 @@ function createBaseProps(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe("LauncherWindow Flow drawer wiring", () => {
-  it("Flow 抽屉挂载在 search-main 内容区内（不覆盖 search capsule）", () => {
+describe("LauncherWindow CommandPanel wiring", () => {
+  it("search 页面渲染 SearchPanel（不渲染 CommandPanel）", () => {
     const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        pendingCommand: createCommandTemplate("cmd-1"),
-        drawerOpen: true,
-        drawerViewportHeight: 322,
-        drawerFloorViewportHeight: 322
-      }),
+      props: createBaseProps(),
       global: {
         stubs: {
-          LauncherHighlightText: { template: "<span />" },
-          LauncherIcon: { template: "<span />" }
+          LauncherSearchPanel: true,
+          LauncherFlowPanel: true,
+          LauncherCommandPanel: true,
+          LauncherSafetyOverlay: true
         }
       }
     });
 
-    const searchMain = wrapper.get(".search-main");
-    expect(searchMain.find(".flow-overlay").exists()).toBe(true);
-    expect(wrapper.find(".search-capsule .flow-overlay").exists()).toBe(false);
+    expect(wrapper.find("launcher-search-panel-stub").exists()).toBe(true);
+    expect(wrapper.find("launcher-command-panel-stub").exists()).toBe(false);
   });
 
-  it("pendingCommand 存在时渲染 Flow 抽屉（替代 ParamOverlay）", () => {
+  it("command-action 页面渲染 CommandPanel，并透传 submit/cancel 事件", async () => {
+    const command = createCommandTemplate("cmd-1");
+    const commandPage: NavPage = {
+      type: "command-action",
+      props: { command, mode: "execute", isDangerous: false }
+    };
+
     const wrapper = mount(LauncherWindow, {
       props: createBaseProps({
-        pendingCommand: createCommandTemplate("cmd-1")
+        navCurrentPage: commandPage,
+        navCanGoBack: true,
+        navStack: [{ type: "search" }, commandPage]
       }),
       global: {
         stubs: {
-          LauncherSearchPanel: { template: "<div class='search-panel-stub'><slot name='content-overlays' /></div>" },
-          LauncherParamOverlay: { template: "<div class='param-overlay-stub' />" },
-          LauncherSafetyOverlay: { template: "<div class='safety-overlay-stub' />" }
+          LauncherSearchPanel: true,
+          LauncherFlowPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherCommandPanel: {
+            template:
+              "<div><button class='stub-cancel' @click=\"$emit('cancel')\" />" +
+              "<button class='stub-submit' @click=\"$emit('submit', { value: 'x' }, false)\" /></div>"
+          }
         }
       }
     });
 
-    expect(wrapper.find(".flow-overlay").exists()).toBe(true);
-  });
+    expect(wrapper.find("launcher-search-panel-stub").exists()).toBe(false);
+    expect(wrapper.find(".stub-cancel").exists()).toBe(true);
 
-  it("pendingCommand 模式下 Flow 事件会向上透传（cancel/submit/update）", async () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        pendingCommand: createCommandTemplate("cmd-1"),
-        pendingArgs: [],
-        pendingArgValues: {}
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: { template: "<div class='search-panel-stub'><slot name='content-overlays' /></div>" }
-        }
-      }
-    });
-
-    await wrapper.get(".flow-param-cancel").trigger("click");
+    await wrapper.get(".stub-cancel").trigger("click");
     expect(wrapper.emitted("cancel-param-input")).toHaveLength(1);
+
+    await wrapper.get(".stub-submit").trigger("click");
+    expect(wrapper.emitted("submit-param-input")).toHaveLength(1);
   });
 
-  it("safetyDialog 存在时渲染 Flow 抽屉（替代 SafetyOverlay）", () => {
+  it("safetyDialog 存在时渲染 SafetyOverlay，并透传 cancel/confirm", async () => {
     const wrapper = mount(LauncherWindow, {
       props: createBaseProps({
-        safetyDialog: createSafetyDialog()
+        safetyDialog: createSafetyDialog(),
+        navCurrentPage: { type: "search" }
       }),
       global: {
         stubs: {
-          LauncherSearchPanel: { template: "<div class='search-panel-stub'><slot name='content-overlays' /></div>" },
-          LauncherParamOverlay: { template: "<div class='param-overlay-stub' />" },
-          LauncherSafetyOverlay: { template: "<div class='safety-overlay-stub' />" }
+          LauncherSearchPanel: true,
+          LauncherFlowPanel: true,
+          LauncherCommandPanel: true,
+          LauncherSafetyOverlay: {
+            template:
+              "<div><button class='stub-safety-cancel' @click=\"$emit('cancel-safety-execution')\" />" +
+              "<button class='stub-safety-confirm' @click=\"$emit('confirm-safety-execution')\" /></div>"
+          }
         }
       }
     });
 
-    expect(wrapper.find(".flow-overlay").exists()).toBe(true);
-  });
+    await wrapper.get(".stub-safety-cancel").trigger("click");
+    expect(wrapper.emitted("cancel-safety-execution")).toHaveLength(1);
 
-  it("safetyDialog 模式下 Flow 事件会向上透传（cancel/confirm）", async () => {
-    const cancelWrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        safetyDialog: createSafetyDialog()
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: { template: "<div class='search-panel-stub'><slot name='content-overlays' /></div>" }
-        }
-      }
-    });
-    await cancelWrapper.get(".flow-safety-cancel").trigger("click");
-    expect(cancelWrapper.emitted("cancel-safety-execution")).toHaveLength(1);
-
-    const confirmWrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        safetyDialog: createSafetyDialog()
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: { template: "<div class='search-panel-stub'><slot name='content-overlays' /></div>" }
-        }
-      }
-    });
-    await confirmWrapper.get(".flow-safety-confirm").trigger("click");
-    expect(confirmWrapper.emitted("confirm-safety-execution")).toHaveLength(1);
+    await wrapper.get(".stub-safety-confirm").trigger("click");
+    expect(wrapper.emitted("confirm-safety-execution")).toHaveLength(1);
   });
 });
