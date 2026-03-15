@@ -162,6 +162,7 @@ export async function executeSingleCommand(
   const rendered = renderCommand(command, argValues);
 
   try {
+    state.setExecutionFeedback("success", t("launcher.executionStarted"));
     await options.runCommandInTerminal(rendered);
     state.setExecutionFeedback(
       "success",
@@ -185,6 +186,7 @@ export function appendToStaging(
   argValues?: Record<string, string>
 ): void {
   options.stagedCommands.value.push(buildStagedCommand(command, argValues));
+  state.setExecutionFeedback("success", t("launcher.flowAdded"));
   options.scheduleSearchInputFocus(true);
   options.triggerStagedFeedback(command.id);
 
