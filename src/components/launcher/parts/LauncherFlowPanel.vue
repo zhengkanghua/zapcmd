@@ -126,7 +126,28 @@ function onScrimWheel(event: WheelEvent): void {
   list.scrollTop += deltaY;
 }
 
-function onStagingDragStart(index: number, event: DragEvent): void {
+// --- 拖拽门控：mousedown 延迟 150ms 才允许拖拽 ---
+const dragReady = ref(false);
+let dragTimer: ReturnType<typeof setTimeout> | null = null;
+
+function onCardMouseDown() {
+  dragTimer = setTimeout(() => { dragReady.value = true; }, 150);
+}
+
+function onCardMouseUp() {
+  if (dragTimer) { clearTimeout(dragTimer); dragTimer = null; }
+  dragReady.value = false;
+}
+
+function onCardMouseLeave() {
+  if (dragTimer) { clearTimeout(dragTimer); dragTimer = null; }
+}
+
+// --- 拖拽启动时取消编辑态 ---
+function onDragStartWithEditGuard(event: DragEvent, index: number) {
+  if (editingParam.value) {
+    cancelParamEdit();
+  }
   emit("staging-drag-start", index, event);
 }
 
@@ -284,16 +305,19 @@ async function copyCommand(command: string): Promise<void> {
           :key="cmd.id"
           :data-staging-index="index"
           class="flow-panel__list-item"
-          draggable="true"
-          @dragstart="onStagingDragStart(index, $event)"
           @dragover="onStagingDragOver(index, $event)"
-          @dragend="emit('staging-drag-end')"
           @click="emit('focus-staging-index', index)"
         >
           <article
             class="staging-card flow-panel__card"
             :class="{ 'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex }"
             :tabindex="index === props.stagingActiveIndex ? 0 : -1"
+            :draggable="dragReady"
+            @mousedown="onCardMouseDown"
+            @mouseup="onCardMouseUp"
+            @mouseleave="onCardMouseLeave"
+            @dragstart="onDragStartWithEditGuard($event, index)"
+            @dragend="dragReady = false; emit('staging-drag-end')"
           >
             <header class="staging-card__head">
               <h3>{{ cmd.title }}</h3>
