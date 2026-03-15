@@ -194,8 +194,7 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
 
     await openReviewByPill(wrapper);
-    const command = wrapper.get(".flow-panel__card-command");
-    expect(command.attributes("title")).toContain("my-container");
+    const command = wrapper.get(".flow-card__command");
     expect(command.text()).toContain("my-container");
   });
 
@@ -299,9 +298,14 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("Tab", { ctrlKey: true });
     await waitForUi();
 
-    const stagingInput = wrapper.get(".staging-card__arg input").element as HTMLElement;
-    stagingInput.focus();
-    dispatchElementKeydown(stagingInput, "Delete");
+    // 新 FlowPanel 使用紧凑参数标签，点击 value 后进入编辑态
+    const paramValue = wrapper.get(".flow-card__param-value");
+    await paramValue.trigger("click");
+    await waitForUi();
+
+    const paramInput = wrapper.get(".flow-card__param-input");
+    (paramInput.element as HTMLElement).focus();
+    dispatchElementKeydown(paramInput.element as HTMLElement, "Delete");
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
@@ -552,7 +556,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expectQueueCount(wrapper, 1);
     await openReviewByPill(wrapper);
-    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("443");
+    expect(wrapper.get(".flow-card__command").text()).toContain("443");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -562,10 +566,8 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 1);
-    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("443");
-    expect(
-      (wrapper.get(".staging-card__arg input").element as HTMLInputElement).value,
-    ).toBe("443");
+    expect(wrapper.get(".flow-card__command").text()).toContain("443");
+    expect(wrapper.get(".flow-card__param-value").text()).toBe("443");
   });
 
   it("keeps staged queue and arg value after canceling safety dialog by clicking Search Capsule", async () => {
@@ -579,7 +581,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expectQueueCount(wrapper, 1);
     await openReviewByPill(wrapper);
-    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("443");
+    expect(wrapper.get(".flow-card__command").text()).toContain("443");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
@@ -589,9 +591,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
     expect(wrapper.find(".flow-overlay").exists()).toBe(false);
     expectQueueCount(wrapper, 1);
-    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("443");
-    expect(
-      (wrapper.get(".staging-card__arg input").element as HTMLInputElement).value,
-    ).toBe("443");
+    expect(wrapper.get(".flow-card__command").text()).toContain("443");
+    expect(wrapper.get(".flow-card__param-value").text()).toBe("443");
   });
 });

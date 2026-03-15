@@ -163,11 +163,18 @@ const editingParam = ref<{
   originalValue: string;
 } | null>(null);
 
-const paramEditInputRef = ref<HTMLInputElement | null>(null);
+const paramEditInputRef = ref<HTMLInputElement | HTMLInputElement[] | null>(null);
 
 function startParamEdit(cmdId: string, argKey: string, currentValue: string) {
   editingParam.value = { cmdId, argKey, currentValue, originalValue: currentValue };
-  nextTick(() => paramEditInputRef.value?.focus());
+  nextTick(() => {
+    const el = paramEditInputRef.value;
+    // v-for 内的 ref 可能被收集为数组
+    const input = Array.isArray(el) ? el[0] : el;
+    if (input instanceof HTMLInputElement) {
+      input.focus();
+    }
+  });
 }
 
 function onParamEditInput(cmdId: string, argKey: string, value: string) {

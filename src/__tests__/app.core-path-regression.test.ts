@@ -155,7 +155,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
 
     await openReviewByPill(wrapper);
-    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("my-container");
+    expect(wrapper.get(".flow-card__command").text()).toContain("my-container");
 
     await waitForUi();
     expect(localStorage.getItem(LAUNCHER_SESSION_STORAGE_KEY)).toBeTruthy();
@@ -168,7 +168,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     expect(restored.find(".flow-panel-overlay").exists()).toBe(false);
 
     await openReviewByPill(restored);
-    expect(restored.get(".flow-panel__card-command").attributes("title")).toContain("my-container");
+    expect(restored.get(".flow-card__command").text()).toContain("my-container");
 
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();

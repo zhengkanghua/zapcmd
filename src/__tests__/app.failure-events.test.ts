@@ -561,12 +561,17 @@ describe("App failure and event regression", () => {
       setData: vi.fn(),
     };
 
-    await rows[0].trigger("dragstart", { dataTransfer });
+    // 新 FlowPanel 中 draggable 在 article.staging-card 上，需先 mousedown 等待 150ms 门控
+    const cards = wrapper.findAll(".staging-card");
+    await cards[0].trigger("mousedown");
+    // 等待 150ms 拖拽门控延迟
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    await cards[0].trigger("dragstart", { dataTransfer });
     await rows[1].trigger("dragover", {
       dataTransfer,
       preventDefault: vi.fn(),
     });
-    await rows[1].trigger("dragend");
+    await cards[0].trigger("dragend");
     await waitForUi();
 
     const afterTitles = wrapper
@@ -945,10 +950,17 @@ describe("App failure and event regression", () => {
     expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
     await openReviewByPill(wrapper);
 
-    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("container-a");
-    await wrapper.get(".staging-card__arg input").setValue("container-b");
+    expect(wrapper.get(".flow-card__command").text()).toContain("container-a");
+
+    // 新 FlowPanel 使用紧凑参数标签，点击 value 后进入编辑态
+    const paramValue = wrapper.get(".flow-card__param-value");
+    await paramValue.trigger("click");
     await waitForUi();
-    expect(wrapper.get(".flow-panel__card-command").attributes("title")).toContain("container-b");
+    await wrapper.get(".flow-card__param-input").setValue("container-b");
+    // Enter 确认编辑
+    await wrapper.get(".flow-card__param-input").trigger("keydown.enter");
+    await waitForUi();
+    expect(wrapper.get(".flow-card__command").text()).toContain("container-b");
   });
 
   it("restores staged queue from launcher session snapshot", async () => {
