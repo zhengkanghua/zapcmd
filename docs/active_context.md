@@ -488,3 +488,12 @@
 - 修复遗留：FlowPanel 在部分环境原生 drag 不触发，新增「抓手 mousedown + hover」重排兜底（不依赖 HTML5 drag），并补充回归测试；`npm run check:all` 全绿。
 - FlowPanel 拖拽体验优化：队列重排增加 move 动画（TransitionGroup）+ 拖拽中/目标卡片高亮（`staging-card--dragging/--drag-over`）；`npm run check:all` 全绿。
 - 修复抓手兜底拖拽在卡片边界处抖动：由 `mouseover` 改为 `mousemove`，并按目标卡片上下半区阈值触发重排，避免两卡片来回交换；测试覆盖，`npm run check:all` 全绿。
+
+## 补充（2026-03-15｜参数面板重构 brainstorming + writing-plans 进行中）
+
+- 完成 brainstorming：参数填写/高危确认从左侧抽屉改为 Raycast 风格页面推入。
+- 设计文档：`docs/superpowers/specs/2026-03-15-command-panel-nav-stack-design.md`（已通过 2 轮 spec review）
+- 关键决策：导航栈架构、三场景合一 CommandPanel、24h 免提示、FlowPanel 保持独立右侧抽屉、Esc LIFO。
+- 实现计划初稿：`docs/superpowers/plans/2026-03-15-command-panel-nav-stack.md`（4 Chunks / 18 Tasks）
+- **计划待修复 9C+16I**：navStack 应在 runtime.ts 创建；App.vue/viewModel.ts 遗漏；safetyDialog 队列渲染缺失；useI18n→useI18nText；测试路径。
+- 下一步：新会话中修复计划审查反馈，通过后执行。
