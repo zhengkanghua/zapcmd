@@ -63,6 +63,7 @@ function onSearchInput(event: Event): void {
           data-testid="zapcmd-search-input"
           :ref="props.setSearchInputRef"
           :disabled="props.executing"
+          :inert="props.reviewOpen ? true : undefined"
           :readonly="props.flowOpen"
           :tabindex="props.flowOpen ? -1 : undefined"
           :aria-disabled="props.flowOpen ? 'true' : undefined"
@@ -75,8 +76,9 @@ function onSearchInput(event: Event): void {
         />
         <LauncherQueueSummaryPill :count="props.stagedCommandCount" @toggle-staging="emit('toggle-staging')" />
       </form>
+      <!-- search-capsule 内的 toast：仅在 FlowPanel 关闭时显示 -->
       <p
-        v-if="props.executionFeedbackMessage"
+        v-if="props.executionFeedbackMessage && !props.reviewOpen"
         class="execution-feedback execution-toast"
         :class="`execution-feedback--${props.executionFeedbackTone}`"
         role="status"

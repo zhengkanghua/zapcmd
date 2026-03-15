@@ -3,7 +3,7 @@ import {
   FLOW_PANEL_WIDTH_RATIO,
   FLOW_PANEL_MIN_WIDTH,
   FLOW_PANEL_MAX_WIDTH
-} from "../components/launcher/parts/flowPanelLayout";
+} from "../../components/launcher/parts/flowPanelLayout";
 
 const WINDOW_BASE_WIDTH = 680;
 const WINDOW_BASE_MIN_WIDTH = 420;

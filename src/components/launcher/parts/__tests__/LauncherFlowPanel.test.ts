@@ -188,7 +188,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
       })
     });
 
-    const executeButton = wrapper.get(".flow-panel__footer .btn-primary");
+    const executeButton = wrapper.get(".flow-panel__footer .flow-panel__execute-btn");
     expect(executeButton.attributes("aria-disabled")).toBe("true");
 
     await executeButton.trigger("click");
