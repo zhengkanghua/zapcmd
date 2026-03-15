@@ -57,7 +57,7 @@ export interface LauncherStagingPanelProps {
   setStagingListRef: (el: ElementRefArg) => void;
 }
 
-export interface LauncherReviewOverlayProps {
+export interface LauncherFlowPanelProps {
   stagingDrawerState: StagingDrawerState;
   stagingExpanded: boolean;
   stagedCommands: StagedCommand[];
@@ -69,6 +69,8 @@ export interface LauncherReviewOverlayProps {
   stagingActiveIndex: number;
   flowOpen: boolean;
   executing: boolean;
+  executionFeedbackMessage: string;
+  executionFeedbackTone: "neutral" | "success" | "error";
   setStagingPanelRef: (el: ElementRefArg) => void;
   setStagingListRef: (el: ElementRefArg) => void;
 }
