@@ -30,7 +30,11 @@ export const messages = {
       paramTitle: "填写参数",
       executeNow: "立即执行",
       stageToQueue: "加入执行流",
-      safetyDialogAria: "高风险命令确认"
+      safetyDialogAria: "高风险命令确认",
+      flowAdded: "已加入执行流",
+      flowRemoved: "删除成功",
+      flowCleared: "已清空 {n} 个节点",
+      executionStarted: "开始执行"
     },
     settings: {
       title: "设置",
@@ -309,7 +313,11 @@ export const messages = {
       paramTitle: "Fill parameters",
       executeNow: "Run now",
       stageToQueue: "Add to flow",
-      safetyDialogAria: "High-risk command confirmation"
+      safetyDialogAria: "High-risk command confirmation",
+      flowAdded: "Added to flow",
+      flowRemoved: "Removed",
+      flowCleared: "Cleared {n} node(s)",
+      executionStarted: "Execution started"
     },
     settings: {
       title: "Settings",
