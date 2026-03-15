@@ -27,7 +27,7 @@ export interface LauncherSearchPanelProps {
   activeIndex: number;
   stagedFeedbackCommandId: string | null;
   stagedCommandCount: number;
-  flowOpen: boolean;
+  flowOpen: boolean; // 导航栈是否处于非搜索页面（CommandPanel 打开）
   reviewOpen: boolean;
   stagingDrawerState: StagingDrawerState;
   stagedCommands: StagedCommand[];

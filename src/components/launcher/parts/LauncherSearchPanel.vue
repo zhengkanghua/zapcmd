@@ -171,8 +171,6 @@ function onSearchInput(event: Event): void {
         aria-label="result-drawer-floor"
         data-testid="result-drawer-floor"
       ></section>
-
-      <slot name="content-overlays" />
     </section>
 
     <LauncherFlowPanel
