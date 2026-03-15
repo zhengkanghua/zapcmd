@@ -14,6 +14,7 @@ import { useLauncherVisibility } from "../../launcher/useLauncherVisibility";
 import { useLauncherWatcherBindings } from "../../launcher/useLauncherWatcherBindings";
 import { useLauncherSessionState } from "../../launcher/useLauncherSessionState";
 import { useCommandExecution } from "../../execution/useCommandExecution";
+import { useLauncherNavStack } from "../../launcher/useLauncherNavStack";
 import { useStagingQueue } from "../../launcher/useStagingQueue";
 import { useWindowSizing } from "../../launcher/useWindowSizing";
 import type { createAppCompositionContext } from "./context";
@@ -42,6 +43,8 @@ function createLauncherRuntime(context: AppCompositionContext) {
     stagingExpanded: stagingQueue.stagingExpanded,
     openStagingDrawer: stagingQueue.openStagingDrawer
   });
+
+  const navStack = useLauncherNavStack();
 
   const commandExecution = useCommandExecution({
     stagedCommands: context.stagedCommands,
@@ -92,6 +95,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
 
   return {
     stagingQueue,
+    navStack,
     layoutMetrics,
     visibility,
     commandExecution,

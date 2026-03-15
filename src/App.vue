@@ -32,6 +32,12 @@ const {
   pendingSubmitHint,
   pendingSubmitMode,
   safetyDialog,
+  navCurrentPage,
+  navCanGoBack,
+  navPushPage,
+  navPopPage,
+  navResetToSearch,
+  navStack,
   setSearchShellRef,
   setSearchInputRef,
   setDrawerRef,
@@ -171,6 +177,12 @@ function navigateToSettingsError(): void {
     :pending-submit-hint="pendingSubmitHint"
     :pending-submit-mode="pendingSubmitMode"
     :safety-dialog="safetyDialog"
+    :nav-current-page="navCurrentPage"
+    :nav-can-go-back="navCanGoBack"
+    :nav-push-page="navPushPage"
+    :nav-pop-page="navPopPage"
+    :nav-reset-to-search="navResetToSearch"
+    :nav-stack="navStack"
     :set-search-shell-ref="setSearchShellRef"
     :set-search-input-ref="setSearchInputRef"
     :set-drawer-ref="setDrawerRef"
@@ -192,7 +204,7 @@ function navigateToSettingsError(): void {
     @execute-staged="executeStaged"
     @submit-param-input="submitParamInput"
     @cancel-param-input="cancelParamInput"
-    @update-pending-arg="updatePendingArgValue"
+    @arg-input="updatePendingArgValue"
     @confirm-safety-execution="confirmSafetyExecution"
     @cancel-safety-execution="cancelSafetyExecution"
     @blank-pointerdown="hideMainWindow"
