@@ -1,5 +1,5 @@
 import { ref, computed, type Ref, type ComputedRef, type InjectionKey } from "vue";
-import type { CommandTemplate } from "@/features/commands/types";
+import type { CommandTemplate } from "../../features/commands/commandTemplates";
 
 export type NavPageType = "search" | "command-action";
 
@@ -47,4 +47,3 @@ export function useLauncherNavStack(): LauncherNavStack {
 
   return { stack, currentPage, canGoBack, pushPage, popPage, resetToSearch };
 }
-
