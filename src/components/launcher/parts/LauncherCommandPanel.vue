@@ -21,10 +21,11 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18nText();
-const navStack = inject(LAUNCHER_NAV_STACK_KEY);
-if (!navStack) {
+const injectedNavStack = inject(LAUNCHER_NAV_STACK_KEY);
+if (!injectedNavStack) {
   throw new Error("LauncherCommandPanel requires launcher nav stack");
 }
+const navStack = injectedNavStack;
 
 const args = computed<CommandArg[]>(() => getCommandArgs(props.command));
 const hasArgs = computed(() => args.value.length > 0);
