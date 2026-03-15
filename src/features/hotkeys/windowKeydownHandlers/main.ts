@@ -46,7 +46,7 @@ export function handleMainGlobalHotkeys<TItem>(
     return true;
   }
   if (hotkeyMatches(event, main.normalizedExecuteQueueHotkey.value)) {
-    const flowOpen = main.safetyDialogOpen.value || main.paramDialogOpen.value;
+    const flowOpen = main.commandPanelOpen.value;
     if (
       !flowOpen &&
       !main.stagingExpanded.value &&

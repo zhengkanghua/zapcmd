@@ -17,8 +17,7 @@ export function createWindowKeydownHandler<TItem>(
       return;
     }
 
-    const flowOpen =
-      options.main.safetyDialogOpen.value || options.main.paramDialogOpen.value;
+    const flowOpen = options.main.commandPanelOpen.value;
 
     ensureSearchFocusZone(event, options.main);
     if (

@@ -22,7 +22,7 @@ export interface MainHandlers<TItem> {
   focusZone: RefLike<"search" | "staging">;
   searchInputRef: RefLike<HTMLInputElement | null>;
   drawerRef: RefLike<HTMLElement | null>;
-  paramDialogOpen: RefLike<boolean>;
+  commandPanelOpen: RefLike<boolean>;
   stagingExpanded: RefLike<boolean>;
   openStagingDrawer: () => void;
   switchFocusZone: () => void;
@@ -41,7 +41,6 @@ export interface MainHandlers<TItem> {
   stagingActiveIndex: RefLike<number>;
   ensureActiveStagingVisible: () => void;
   removeStagedCommand: (id: string) => void;
-  safetyDialogOpen: RefLike<boolean>;
   confirmSafetyExecution: () => Promise<void>;
   cancelSafetyExecution: () => void;
   handleMainEscape: () => void;

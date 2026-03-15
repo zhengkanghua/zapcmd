@@ -72,8 +72,11 @@ interface UseAppWindowKeydownOptions<TItem> {
 }
 
 export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<TItem>) {
-  const safetyDialogOpen = computed(() => options.commandExecution.safetyDialog.value !== null);
-  const paramDialogOpen = computed(() => options.commandExecution.pendingCommand.value !== null);
+  const commandPanelOpen = computed(
+    () =>
+      options.commandExecution.pendingCommand.value !== null ||
+      options.commandExecution.safetyDialog.value !== null
+  );
 
   return createWindowKeydownHandler({
     isSettingsWindow: options.isSettingsWindow,
@@ -112,8 +115,7 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
       stagingActiveIndex: options.stagingQueue.stagingActiveIndex,
       ensureActiveStagingVisible: options.ensureActiveStagingVisible,
       removeStagedCommand: options.commandExecution.removeStagedCommand,
-      safetyDialogOpen,
-      paramDialogOpen,
+      commandPanelOpen,
       confirmSafetyExecution: options.commandExecution.confirmSafetyExecution,
       cancelSafetyExecution: options.commandExecution.cancelSafetyExecution,
       handleMainEscape: options.handleMainEscape,
