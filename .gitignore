@@ -9,6 +9,7 @@
 # .claude/
 # .codex/
 .npm-cache/
+.worktrees/
 docs/bug_img/
 
 # OS junk
