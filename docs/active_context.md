@@ -464,3 +464,11 @@
 - 移除 Tailwind CSS 依赖（tailwindcss/autoprefixer/postcss）。
 - 待手动验证：`npm run tauri:dev` 下主题切换、跨窗口同步、毛玻璃降级效果。
 - ✅ 手动验证通过（2026-03-15）。黑曜石主题系统完整交付。
+
+## 补充（2026-03-15｜执行流面板重构 brainstorming + writing-plans 完成）
+
+- 完成 brainstorming + writing-plans 两个阶段，设计文档和实现计划均通过 spec/plan review。
+- 设计文档：`docs/superpowers/specs/2026-03-15-flow-panel-toast-redesign-design.md`
+- 实现计划：`docs/superpowers/plans/2026-03-15-flow-panel-toast-redesign.md`
+- 方案概要：ReviewOverlay → FlowPanel（覆盖 search-main 全高）+ 卡片紧凑参数标签 + 4 项新 toast + 主题审计
+- 3 Chunks / 14 Tasks，下一步：新会话中执行实现计划。
