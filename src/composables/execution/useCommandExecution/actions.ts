@@ -33,6 +33,8 @@ function createExecuteStagedAction(
         throw new Error(t("execution.queueEmpty"));
       }
 
+      state.setExecutionFeedback("success", t("launcher.executionStarted"));
+
       if (options.runCommandsInTerminal) {
         await options.runCommandsInTerminal(commands);
       } else {
@@ -306,6 +308,7 @@ export function createCommandExecutionActions(
     if (options.stagingActiveIndex.value >= options.stagedCommands.value.length) {
       options.stagingActiveIndex.value = Math.max(0, options.stagedCommands.value.length - 1);
     }
+    state.setExecutionFeedback("neutral", t("launcher.flowRemoved"));
   }
 
   function updateStagedArg(id: string, key: string, value: string): void {
@@ -323,7 +326,11 @@ export function createCommandExecutionActions(
   }
 
   function clearStaging(): void {
+    const count = options.stagedCommands.value.length;
     options.stagedCommands.value = [];
+    if (count > 0) {
+      state.setExecutionFeedback("neutral", t("launcher.flowCleared", { n: count }));
+    }
   }
   const executeStaged = createExecuteStagedAction(options, state, clearStaging);
 
