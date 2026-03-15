@@ -212,13 +212,34 @@ function bindAppRuntime(
     resolveAppWindow: context.resolveAppWindow,
     isTauriRuntime: context.ports.isTauriRuntime,
     requestHideMainWindow: context.ports.requestHideMainWindow,
-    pendingCommand: launcherRuntime.commandExecution.pendingCommand,
-    cancelParamInput: launcherRuntime.commandExecution.cancelParamInput,
-    safetyDialog: launcherRuntime.commandExecution.safetyDialog,
-    cancelSafetyExecution: launcherRuntime.commandExecution.cancelSafetyExecution,
     query: context.search.query,
-    stagingExpanded: launcherRuntime.stagingQueue.stagingExpanded,
-    closeStagingDrawer: launcherRuntime.stagingQueue.closeStagingDrawer
+    stagingExpanded: computed(
+      () =>
+        launcherRuntime.stagingQueue.stagingExpanded.value ||
+        launcherRuntime.commandExecution.safetyDialog.value !== null
+    ),
+    closeStagingDrawer: () => {
+      if (launcherRuntime.commandExecution.safetyDialog.value !== null) {
+        launcherRuntime.commandExecution.cancelSafetyExecution();
+        return;
+      }
+      launcherRuntime.stagingQueue.closeStagingDrawer();
+    },
+    navStackCanGoBack: computed(
+      () =>
+        launcherRuntime.navStack.canGoBack.value ||
+        launcherRuntime.commandExecution.pendingCommand.value !== null
+    ),
+    navStackPopPage: () => {
+      if (launcherRuntime.commandExecution.pendingCommand.value !== null) {
+        launcherRuntime.commandExecution.cancelParamInput();
+      }
+      if (launcherRuntime.navStack.canGoBack.value) {
+        launcherRuntime.navStack.popPage();
+        return;
+      }
+      launcherRuntime.navStack.resetToSearch();
+    }
   });
   function requestCloseSettingsWindow(): void {
     if (!context.settingsWindow.prepareToCloseSettingsWindow()) {

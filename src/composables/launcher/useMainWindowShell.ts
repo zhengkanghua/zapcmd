@@ -11,10 +11,8 @@ interface UseMainWindowShellOptions {
   resolveAppWindow: () => AppWindowLike | null;
   isTauriRuntime: () => boolean;
   requestHideMainWindow: () => Promise<void>;
-  pendingCommand: Ref<unknown>;
-  cancelParamInput: () => void;
-  safetyDialog: Ref<unknown>;
-  cancelSafetyExecution: () => void;
+  navStackCanGoBack: Ref<boolean>;
+  navStackPopPage: () => void;
   query: Ref<string>;
   stagingExpanded: Ref<boolean>;
   closeStagingDrawer: () => void;
@@ -62,16 +60,12 @@ export function useMainWindowShell(options: UseMainWindowShellOptions) {
   }
 
   function handleMainEscape(): void {
-    if (options.safetyDialog.value) {
-      options.cancelSafetyExecution();
-      return;
-    }
-    if (options.pendingCommand.value) {
-      options.cancelParamInput();
-      return;
-    }
     if (options.stagingExpanded.value) {
       options.closeStagingDrawer();
+      return;
+    }
+    if (options.navStackCanGoBack.value) {
+      options.navStackPopPage();
       return;
     }
     if (options.query.value.trim().length > 0) {
