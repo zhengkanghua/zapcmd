@@ -151,9 +151,10 @@ const renderedCommand = computed(() =>
   renderCommand(props.command, pendingArgValues.value)
 )
 
-const dangerReasons = computed(() =>
-  collectConfirmationReasons(props.command, renderedCommand.value)
-)
+const dangerReasons = computed(() => {
+  const input = buildSafetyInputFromTemplate(props.command, renderedCommand.value)
+  return collectConfirmationReasons(input)
+})
 
 // push 时的 isDangerous 仅基于 command.dangerous 标记（确定可推面板）
 // 实时 dangerReasons 会随参数输入而动态更新（如用户输入 "rm -rf /"）
@@ -229,7 +230,7 @@ interface CommandPanelProps {
 - 仍然**保留** `validateArguments()` 的阻断检查（注入防护、必填校验等）。
 
 在 `requestSingleExecution()` 中：
-- 增加对 `isDangerDismissed(commandId)` 的判断。如果已免提示，跳过 `collectConfirmationReasons` 的 confirmation 弹窗（但保留 `validateArguments` 的 blocked 检查）。
+- 增加对 `isDangerDismissed(commandId)` 的判断。`isDangerDismissed` 判断位于 `confirmationReasons.length > 0` 分支内部，即先执行完整的 `checkSingleCommandSafety`（保留 blocked 检查），仅跳过 confirmation 弹窗。
 
 ---
 
