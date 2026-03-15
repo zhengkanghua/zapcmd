@@ -7,6 +7,7 @@ import {
   checkQueueCommandSafety,
   checkSingleCommandSafety
 } from "../../../features/security/commandSafety";
+import { isDangerDismissed } from "../../../features/security/dangerDismiss";
 import {
   appendToStaging,
   buildExecutionFailureFeedback,
@@ -16,6 +17,13 @@ import {
   updateStagedRenderedCommand
 } from "./helpers";
 import type { CommandExecutionState, ParamSubmitMode, UseCommandExecutionOptions } from "./model";
+
+function needsPanel(command: CommandTemplate): boolean {
+  const hasArgs = getCommandArgs(command).length > 0;
+  const isDangerous = command.dangerous === true;
+  const dismissed = isDangerDismissed(command.id);
+  return hasArgs || (isDangerous && !dismissed);
+}
 
 function createExecuteStagedAction(
   options: UseCommandExecutionOptions,
@@ -139,7 +147,7 @@ function createSingleExecutionRequester(
       return;
     }
 
-    if (safety.confirmationReasons.length > 0) {
+    if (safety.confirmationReasons.length > 0 && !isDangerDismissed(command.id)) {
       state.requestSafetyConfirmation(
         {
           mode: "single",
@@ -186,16 +194,18 @@ function createPendingCommandActions(
   }
 
   function stageResult(command: CommandTemplate): void {
-    if (getCommandArgs(command).length > 0) {
+    if (needsPanel(command)) {
       openParamInput(command, "stage");
+      options.onNeedPanel?.(command, "stage");
       return;
     }
     appendToStaging(options, state, command);
   }
 
   function executeResult(command: CommandTemplate): void {
-    if (getCommandArgs(command).length > 0) {
+    if (needsPanel(command)) {
       openParamInput(command, "execute");
+      options.onNeedPanel?.(command, "execute");
       return;
     }
     requestSingleExecution(command);
@@ -239,25 +249,7 @@ function createPendingCommandActions(
       }
 
       if (safety.confirmationReasons.length > 0) {
-        state.requestSafetyConfirmation(
-          {
-            mode: "single",
-            title: t("execution.safetySingleTitle"),
-            description: t("execution.safetySingleDescription"),
-            items: [
-              {
-                title: command.title,
-                renderedCommand: summarizeCommandForFeedback(rendered),
-                reasons: safety.confirmationReasons
-              }
-            ]
-          },
-          async () => {
-            resetPendingCommand();
-            await executeSingleCommand(options, state, command, values);
-          }
-        );
-        return;
+        // CommandPanel 已展示高危横幅，用户已确认，跳过独立 safetyDialog
       }
 
       resetPendingCommand();

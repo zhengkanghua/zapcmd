@@ -31,6 +31,7 @@ export interface UseCommandExecutionOptions {
   runCommandInTerminal: (renderedCommand: string) => Promise<void>;
   runCommandsInTerminal?: (renderedCommands: string[]) => Promise<void>;
   feedbackDurationMs?: number;
+  onNeedPanel?: (command: CommandTemplate, mode: ParamSubmitMode) => void;
 }
 
 export interface CommandExecutionState {

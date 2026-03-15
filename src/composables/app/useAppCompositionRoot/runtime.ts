@@ -56,7 +56,13 @@ function createLauncherRuntime(context: AppCompositionContext) {
     triggerStagedFeedback: context.stagedFeedback.triggerStagedFeedback,
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
     runCommandInTerminal: context.runCommandInTerminal,
-    runCommandsInTerminal: context.runCommandsInTerminal
+    runCommandsInTerminal: context.runCommandsInTerminal,
+    onNeedPanel: (command, mode) => {
+      navStack.pushPage({
+        type: "command-action",
+        props: { command, mode, isDangerous: command.dangerous === true }
+      });
+    }
   });
   const flowOpen = computed(
     () => commandExecution.pendingCommand.value !== null || commandExecution.safetyDialog.value !== null

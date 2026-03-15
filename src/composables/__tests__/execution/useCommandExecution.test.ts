@@ -1,7 +1,11 @@
 import { nextTick, ref } from "vue";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import type { StagedCommand } from "../../../features/launcher/types";
+import {
+  DANGER_DISMISS_STORAGE_KEY,
+  dismissDanger
+} from "../../../features/security/dangerDismiss";
 import { useCommandExecution } from "../../execution/useCommandExecution";
 import type { FocusZone } from "../../launcher/useStagingQueue";
 
@@ -16,6 +20,7 @@ interface Harness {
   scheduleSearchInputFocus: ReturnType<typeof vi.fn>;
   runCommandInTerminal: ReturnType<typeof vi.fn>;
   runCommandsInTerminal: ReturnType<typeof vi.fn>;
+  onNeedPanel: ReturnType<typeof vi.fn>;
   execution: ReturnType<typeof useCommandExecution>;
 }
 
@@ -57,6 +62,7 @@ function createHarness(useBatchRunner = false): Harness {
   const scheduleSearchInputFocus = vi.fn();
   const runCommandInTerminal = vi.fn(async () => {});
   const runCommandsInTerminal = vi.fn(async () => {});
+  const onNeedPanel = vi.fn();
 
   const execution = useCommandExecution({
     stagedCommands,
@@ -68,7 +74,8 @@ function createHarness(useBatchRunner = false): Harness {
     triggerStagedFeedback,
     scheduleSearchInputFocus,
     runCommandInTerminal,
-    runCommandsInTerminal: useBatchRunner ? runCommandsInTerminal : undefined
+    runCommandsInTerminal: useBatchRunner ? runCommandsInTerminal : undefined,
+    onNeedPanel
   });
 
   return {
@@ -82,11 +89,16 @@ function createHarness(useBatchRunner = false): Harness {
     scheduleSearchInputFocus,
     runCommandInTerminal,
     runCommandsInTerminal,
+    onNeedPanel,
     execution
   };
 }
 
 describe("useCommandExecution", () => {
+  beforeEach(() => {
+    localStorage.removeItem(DANGER_DISMISS_STORAGE_KEY);
+  });
+
   it("stages no-arg command and triggers queue side effects", () => {
     const harness = createHarness();
     const command = createNoArgCommand();
@@ -110,6 +122,7 @@ describe("useCommandExecution", () => {
     expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
     expect(harness.execution.pendingSubmitMode.value).toBe("stage");
     expect(harness.execution.pendingArgValues.value.value).toBe("3000");
+    expect(harness.onNeedPanel).toHaveBeenCalledWith(command, "stage");
   });
 
   it("rejects pending submit when required argument is blank", () => {
@@ -146,7 +159,29 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
   });
 
-  it("keeps param input open when pending execute requires safety confirmation and restores param on cancel", async () => {
+  it("opens command panel for dangerous no-arg command and executes on submit (skips safetyDialog)", async () => {
+    const harness = createHarness();
+    const command: CommandTemplate = {
+      ...createNoArgCommand(),
+      dangerous: true
+    };
+
+    harness.execution.executeResult(command);
+    expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
+    expect(harness.execution.pendingSubmitMode.value).toBe("execute");
+    expect(harness.onNeedPanel).toHaveBeenCalledWith(command, "execute");
+    expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+
+    harness.execution.submitParamInput();
+    await nextTick();
+
+    expect(harness.execution.safetyDialog.value).toBeNull();
+    expect(harness.execution.pendingCommand.value).toBeNull();
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la");
+  });
+
+  it("executes dangerous command from pending execute mode without opening safetyDialog", async () => {
     const harness = createHarness();
     const command: CommandTemplate = {
       ...createArgCommand(),
@@ -158,15 +193,25 @@ describe("useCommandExecution", () => {
     harness.execution.submitParamInput();
     await nextTick();
 
-    expect(harness.execution.safetyDialog.value?.mode).toBe("single");
-    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
-    expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
-    expect(harness.execution.pendingArgValues.value.value).toBe("8088");
-
-    harness.execution.cancelSafetyExecution();
     expect(harness.execution.safetyDialog.value).toBeNull();
-    expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
-    expect(harness.execution.pendingArgValues.value.value).toBe("8088");
+    expect(harness.execution.pendingCommand.value).toBeNull();
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
+  });
+
+  it("executes dismissed dangerous command directly without opening panel or safetyDialog", async () => {
+    const harness = createHarness();
+    const command: CommandTemplate = {
+      ...createNoArgCommand(),
+      dangerous: true
+    };
+
+    dismissDanger(command.id);
+    harness.execution.executeResult(command);
+    await nextTick();
+
+    expect(harness.execution.pendingCommand.value).toBeNull();
+    expect(harness.execution.safetyDialog.value).toBeNull();
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la");
   });
 
   it("trims boundary arg input before single execution and keeps success feedback", async () => {
@@ -363,23 +408,6 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
-  it("requires safety confirmation for dangerous single command", async () => {
-    const harness = createHarness();
-    const command: CommandTemplate = {
-      ...createNoArgCommand(),
-      dangerous: true
-    };
-
-    harness.execution.executeResult(command);
-    await nextTick();
-
-    expect(harness.execution.safetyDialog.value?.mode).toBe("single");
-    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
-
-    await harness.execution.confirmSafetyExecution();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la");
-  });
-
   it("requires safety confirmation for dangerous queue before execution", async () => {
     const harness = createHarness(true);
     const risky: CommandTemplate = {
@@ -390,6 +418,15 @@ describe("useCommandExecution", () => {
     };
 
     harness.execution.stageResult(risky);
+    expect(harness.execution.pendingCommand.value?.id).toBe(risky.id);
+    expect(harness.execution.pendingSubmitMode.value).toBe("stage");
+    expect(harness.onNeedPanel).toHaveBeenCalledWith(risky, "stage");
+
+    harness.execution.submitParamInput();
+    await nextTick();
+    expect(harness.execution.pendingCommand.value).toBeNull();
+    expect(harness.stagedCommands.value).toHaveLength(1);
+
     await harness.execution.executeStaged();
 
     expect(harness.execution.safetyDialog.value?.mode).toBe("queue");
