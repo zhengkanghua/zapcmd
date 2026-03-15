@@ -472,3 +472,15 @@
 - 实现计划：`docs/superpowers/plans/2026-03-15-flow-panel-toast-redesign.md`
 - 方案概要：ReviewOverlay → FlowPanel（覆盖 search-main 全高）+ 卡片紧凑参数标签 + 4 项新 toast + 主题审计
 - 3 Chunks / 14 Tasks，下一步：新会话中执行实现计划。
+
+## 补充（2026-03-15｜执行流面板重构实现完成）
+
+- 14 Task / 13 commits 全部落地并合并到 main，445 测试全绿（lint + typecheck + test + build + check:rust）。
+- Toast 补全：4 个 i18n key + 5 个触发点（入队/删除/清空/单执行/队列执行）。
+- 主题审计：修复 1 处硬编码色值（`#ececf1` → `var(--ui-text)`）。
+- FlowPanel 重构：ReviewOverlay → FlowPanel（git mv + DOM 提升到 search-main 全高覆盖）+ CSS 全面重命名 `.review-*` → `.flow-panel*`。
+- 三段式布局：标题栏（拖拽区+计数徽标+清空/关闭）/ 可滚动卡片列表 / 底部执行按钮。
+- 卡片紧凑参数：`key: value` 标签 + 点击内联编辑 + 命令预览 + mousedown 150ms 拖拽门控。
+- Toast 双渲染槽：FlowPanel 开时 toast 在面板内，关时在搜索框内。
+- 新增 10 项组件级测试。
+- 待手动验证：`npm run tauri:dev` 下 FlowPanel 全高覆盖、紧凑参数编辑、拖拽排序、toast 反馈。
