@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
 import { useI18nText } from "../../../i18n";
-import type { LauncherSafetyOverlayProps } from "../types";
+import type { LauncherSafetyDialog } from "../types";
 
-const props = defineProps<LauncherSafetyOverlayProps>();
+const props = defineProps<{
+  safetyDialog: LauncherSafetyDialog | null;
+  executing: boolean;
+}>();
 const { t } = useI18nText();
 
 const emit = defineEmits<{

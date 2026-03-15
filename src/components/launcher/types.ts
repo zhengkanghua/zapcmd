@@ -75,15 +75,6 @@ export interface LauncherFlowPanelProps {
   setStagingListRef: (el: ElementRefArg) => void;
 }
 
-export interface LauncherParamOverlayProps {
-  pendingCommand: CommandTemplate | null;
-  pendingArgs: CommandArg[];
-  pendingArgValues: Record<string, string>;
-  pendingSubmitHint: string;
-  pendingSubmitMode: ParamSubmitMode;
-  setParamInputRef: (el: ElementRefArg, index: number) => void;
-}
-
 export interface LauncherSafetyDialog {
   mode: "single" | "queue";
   title: string;
@@ -93,11 +84,6 @@ export interface LauncherSafetyDialog {
     renderedCommand: string;
     reasons: string[];
   }>;
-}
-
-export interface LauncherSafetyOverlayProps {
-  safetyDialog: LauncherSafetyDialog | null;
-  executing: boolean;
 }
 
 export interface LauncherCommandPanelProps {
