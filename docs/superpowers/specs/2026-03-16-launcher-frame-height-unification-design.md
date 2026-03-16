@@ -196,6 +196,14 @@ nextFrameHeight = clamp(
 - `search-capsule` 的位置语义变为 CommandPanel 的 header（标题/徽标/队列入口）。
 - `result-drawer` 的位置语义变为 CommandPanel 的 content（参数表单/危险提示/预览）。
 
+### 6.3 CommandPanel 固定底部操作栏与滚动区（避免遗漏）
+
+CommandPanel 与 Search 的结构差异点之一是：**CommandPanel 存在固定的底部操作栏（按钮区）**。
+
+- 规则：底部操作栏（取消/执行/加入执行流等）必须始终可见；滚动仅发生在中间内容区（参数表单/危险提示/预览）。
+- 含义：当窗口高度被 clamp 到 `frameMaxHeight` 时，CommandPanel 的“可滚动内容区”会比 Search 页的结果列表区域更小（因为 footer 占用高度）。这是符合预期的取舍；超出内容通过内容区滚动承载。
+- 实现注意：统一外框（LauncherFrame）自身应保持 `overflow: hidden`；不要让外框整体滚动，否则 footer 会被滚走。需要确保 CommandPanel 的滚动容器具备可收缩能力（例如 `min-height: 0`）以避免 flex 布局下滚动失效/溢出。
+
 ---
 
 ## 7. 影响范围（预期改动点）
@@ -227,6 +235,7 @@ nextFrameHeight = clamp(
   - 增高上限不超过 Search 页可达最大高度；
   - 超出上限时 CommandPanel 内容区滚动生效。
   - 退出 CommandPanel 返回 Search 后允许回落（且仍受 designCap 上限约束）。
+- 结构约束：CommandPanel 的 footer 不在滚动容器内（滚动容器仅为 content 区），避免“按钮跟着滚走”。
 
 建议优先落在现有测试入口，减少定位成本：
 
@@ -241,4 +250,5 @@ nextFrameHeight = clamp(
 1. 搜索结果很多（达到最大行数）→ 进入参数面板：窗口不应变得更高；参数区超长时内部滚动。
 2. 搜索结果很少（窗口较矮）→ 进入参数面板：仅在不够高时增高，且最高不超过“搜索最大高度”。
 3. 参数面板内点击任意区域不隐藏；点击真正的窗口空白区域才隐藏。
-4. Search/CommandPanel 外框圆角、边框、背景一致；FlowPanel/SafetyOverlay 在 Frame 内裁剪一致。
+4. 参数面板参数很多时：底部按钮区始终可见（不随滚动消失），仅内容区滚动。
+5. Search/CommandPanel 外框圆角、边框、背景一致；FlowPanel/SafetyOverlay 在 Frame 内裁剪一致。
