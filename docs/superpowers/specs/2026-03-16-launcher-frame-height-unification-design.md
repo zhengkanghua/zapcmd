@@ -1,7 +1,7 @@
 # 启动器统一外框（LauncherFrame）：高度口径统一 + CommandPanel 对齐修复
 
 > 日期：2026-03-16  
-> 状态：draft  
+> 状态：approved  
 > 范围：Launcher 主窗口（Search / CommandPanel / FlowPanel / SafetyOverlay）视觉规范与窗口尺寸策略修复
 >
 > 关联设计（已实现）：`docs/superpowers/specs/2026-03-15-command-panel-nav-stack-design.md`
@@ -172,6 +172,13 @@ nextFrameHeight = clamp(
   - 清理 `frameHeightBeforeEnter`（不再作为 floor）。
   - Search 页恢复现有 sizing 逻辑：窗口可以随结果变化自然回落/增长，但仍受 `designCap` 上限约束。
 - 该口径的目的：CommandPanel 内避免“缩小”，但不改变 Search 页原有的动态高度体验（只是统一了最大高度）。
+
+#### 5.3.2 边界与特殊场景口径补充（实现必须一致）
+
+- 首次进入 CommandPanel：若 `lastWindowSize` 不存在（例如应用首次同步 sizing 前），则 `frameHeightBeforeEnter` fallback 为 `WINDOW_SIZING_CONSTANTS.windowBaseHeight`。
+- CommandPanel 内切换命令（`pendingCommand: 非 null -> 非 null`）：
+  - “只增不减”仍然生效：以首次进入时记录的 `frameHeightBeforeEnter` 作为 floor（直到退出 CommandPanel）。
+  - 允许在参数变多时继续增高，但仍受 `frameMaxHeight` 上限约束；参数变少时不回落（避免二次抖动）。
 
 ---
 
