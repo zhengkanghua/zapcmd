@@ -38,6 +38,9 @@ describe("dangerDismiss", () => {
     stored["cmd-1"] = Date.now() - 25 * 60 * 60 * 1000;
     localStorage.setItem(DANGER_DISMISS_STORAGE_KEY, JSON.stringify(stored));
     expect(isDangerDismissed("cmd-1")).toBe(false);
+    // 读取时会自动清理过期记录
+    const cleaned = JSON.parse(localStorage.getItem(DANGER_DISMISS_STORAGE_KEY) ?? "{}");
+    expect(cleaned["cmd-1"]).toBeUndefined();
   });
 
   it("cleanExpiredDismissals 清理过期记录", () => {

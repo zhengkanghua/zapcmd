@@ -233,23 +233,19 @@ function createPendingCommandActions(
     if (submitMode === "execute") {
       const args = getCommandArgs(command);
       const rendered = renderCommand(command, values);
-      const safety = checkSingleCommandSafety(
+      const { blockedMessage } = checkSingleCommandSafety(
         buildSafetyInputFromTemplate(command, rendered, values, args)
       );
 
-      if (safety.blockedMessage) {
+      if (blockedMessage) {
         state.setExecutionFeedback(
           "error",
           t("execution.blockedWithNextStep", {
-            reason: safety.blockedMessage,
+            reason: blockedMessage,
             nextStep: t("execution.nextStepBlocked")
           })
         );
         return;
-      }
-
-      if (safety.confirmationReasons.length > 0) {
-        // CommandPanel 已展示高危横幅，用户已确认，跳过独立 safetyDialog
       }
 
       resetPendingCommand();

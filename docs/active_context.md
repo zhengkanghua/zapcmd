@@ -502,3 +502,4 @@
 
 - needsPanel→navStack 推 CommandPanel；dangerDismiss 24h 免提示；单命令高危确认内嵌面板，队列安全确认保留 SafetyOverlay。
 - 热键改 `commandPanelOpen`；删除旧 FlowDrawer/ParamOverlay；回归测试适配完成；`npm run check:all` 全绿。
+- 合并前对齐：dangerDismiss 读取即清理过期+启动时清理；CommandPanel 高危 stage 按钮也为红色；队列按钮 aria-count 修正；清理空判断；`npm run check:all` 全绿。

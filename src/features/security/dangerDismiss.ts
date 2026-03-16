@@ -10,23 +10,52 @@ function readDismissals(): DangerDismissMap {
     if (!raw) return {};
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      localStorage.removeItem(DANGER_DISMISS_STORAGE_KEY);
       return {};
     }
-    return parsed as DangerDismissMap;
+
+    const now = Date.now();
+    let changed = false;
+    const cleaned: DangerDismissMap = {};
+
+    for (const [id, timestamp] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof timestamp !== "number" || !Number.isFinite(timestamp)) {
+        changed = true;
+        continue;
+      }
+      if (now - timestamp >= TWENTY_FOUR_HOURS_MS) {
+        changed = true;
+        continue;
+      }
+      cleaned[id] = timestamp;
+    }
+
+    if (changed) {
+      writeDismissals(cleaned);
+    }
+
+    return cleaned;
   } catch {
+    try {
+      localStorage.removeItem(DANGER_DISMISS_STORAGE_KEY);
+    } catch {
+      // 忽略
+    }
     return {};
   }
 }
 
 function writeDismissals(map: DangerDismissMap): void {
-  localStorage.setItem(DANGER_DISMISS_STORAGE_KEY, JSON.stringify(map));
+  try {
+    localStorage.setItem(DANGER_DISMISS_STORAGE_KEY, JSON.stringify(map));
+  } catch {
+    // 忽略
+  }
 }
 
 export function isDangerDismissed(commandId: string): boolean {
   const map = readDismissals();
-  const timestamp = map[commandId];
-  if (timestamp === undefined) return false;
-  return Date.now() - timestamp < TWENTY_FOUR_HOURS_MS;
+  return map[commandId] !== undefined;
 }
 
 export function dismissDanger(commandId: string): void {
@@ -36,14 +65,5 @@ export function dismissDanger(commandId: string): void {
 }
 
 export function cleanExpiredDismissals(): void {
-  const map = readDismissals();
-  const now = Date.now();
-  const cleaned: DangerDismissMap = {};
-  for (const [id, timestamp] of Object.entries(map)) {
-    if (now - timestamp < TWENTY_FOUR_HOURS_MS) {
-      cleaned[id] = timestamp;
-    }
-  }
-  writeDismissals(cleaned);
+  void readDismissals();
 }
-

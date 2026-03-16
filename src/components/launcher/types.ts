@@ -91,6 +91,7 @@ export interface LauncherCommandPanelProps {
   mode: ParamSubmitMode;
   isDangerous: boolean;
   pendingArgValues: Record<string, string>;
+  stagedCommandCount: number;
   executionFeedbackMessage: string;
   executionFeedbackTone: "neutral" | "success" | "error";
 }

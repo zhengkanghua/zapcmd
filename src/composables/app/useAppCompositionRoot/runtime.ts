@@ -2,6 +2,7 @@ import { computed } from "vue";
 import type { CommandArg } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
 import { getCommandArgs } from "../../../features/launcher/commandRuntime";
+import { cleanExpiredDismissals } from "../../../features/security/dangerDismiss";
 import { isTypingElement, useMainWindowShell } from "../../launcher/useMainWindowShell";
 import { useAppLifecycleBridge } from "../useAppLifecycleBridge";
 import { useAppWindowKeydown } from "../useAppWindowKeydown";
@@ -45,6 +46,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
   });
 
   const navStack = useLauncherNavStack();
+  cleanExpiredDismissals();
 
   const commandExecution = useCommandExecution({
     stagedCommands: context.stagedCommands,

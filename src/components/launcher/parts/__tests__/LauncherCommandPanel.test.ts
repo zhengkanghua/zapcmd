@@ -44,6 +44,7 @@ function mountPanel(
     mode: "execute" | "stage";
     isDangerous: boolean;
     pendingArgValues: Record<string, string>;
+    stagedCommandCount: number;
   }> = {}
 ) {
   const navStack = createNavStackMock();
@@ -53,6 +54,7 @@ function mountPanel(
       mode: "execute",
       isDangerous: false,
       pendingArgValues: {},
+      stagedCommandCount: 0,
       executionFeedbackMessage: "",
       executionFeedbackTone: "neutral",
       ...props
@@ -156,6 +158,17 @@ describe("LauncherCommandPanel", () => {
       expect(wrapper.find("[data-testid='danger-banner']").exists()).toBe(true);
       expect(wrapper.find("[data-testid='param-form']").exists()).toBe(true);
     });
+
+    it("stage 模式在高危时确认按钮也为红色", () => {
+      const wrapper = mountPanel({
+        command: createCommand({ dangerous: true }),
+        mode: "stage",
+        isDangerous: true
+      });
+      const btn = wrapper.find("[data-testid='confirm-btn']");
+      expect(btn.text()).toContain("加入执行流");
+      expect(btn.classes()).toContain("command-panel__btn--danger");
+    });
   });
 
   describe("命令预览", () => {
@@ -198,6 +211,7 @@ describe("LauncherCommandPanel", () => {
           mode: "execute",
           isDangerous: false,
           pendingArgValues: {},
+          stagedCommandCount: 0,
           executionFeedbackMessage: "",
           executionFeedbackTone: "neutral"
         },

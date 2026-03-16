@@ -196,6 +196,7 @@ function onCommandPanelCancel(): void {
             :mode="props.navCurrentPage.props?.mode ?? 'execute'"
             :is-dangerous="props.navCurrentPage.props?.isDangerous ?? false"
             :pending-arg-values="props.pendingArgValues"
+            :staged-command-count="props.stagedCommands.length"
             :execution-feedback-message="props.executionFeedbackMessage"
             :execution-feedback-tone="props.executionFeedbackTone"
             @submit="onCommandPanelSubmit"

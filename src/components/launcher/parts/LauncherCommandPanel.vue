@@ -64,9 +64,7 @@ const confirmLabel = computed(() => {
   return t("commandPanel.btn.addToFlow");
 });
 
-const isDangerBtn = computed(
-  () => props.isDangerous && props.mode === "execute"
-);
+const isDangerBtn = computed(() => props.isDangerous);
 
 const dismissChecked = ref(false);
 
@@ -125,7 +123,7 @@ function onSubmit(): void {
       <button
         type="button"
         class="command-panel__queue-btn"
-        :aria-label="t('launcher.queueToggleAria', { count: 0 })"
+        :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommandCount })"
         @click="emit('toggle-staging')"
       >
         <LauncherIcon name="queue" />
