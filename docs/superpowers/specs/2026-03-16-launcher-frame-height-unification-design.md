@@ -102,7 +102,22 @@ Tauri Window（真实窗口）
 - `frameHeight`：LauncherFrame 的内容高度（Search/Command/Overlay 都在其中）。
 - `windowHeight`：真实窗口高度，`windowHeight = dragStripHeight + frameHeight`。
 - `screenCap`：屏幕允许的最高窗口高度（现有逻辑为 `screen.availHeight * 0.82`，并非设计口径）。
-- `designCap`：设计口径的最高 Frame 高度（由“搜索最大行数”定义）。
+- `designCap`：设计口径的最高 Frame 高度（由“搜索最大行数”定义，**可计算且可单测**）。
+
+#### 5.1.1 术语 ↔ 代码变量/常量对照（实现口径对齐用）
+
+| 术语 | 代码侧对应 | 备注 |
+|---|---|---|
+| `dragStripHeight` | `.shell-drag-strip` 的 `getBoundingClientRect().height`；fallback 为 `UI_TOP_ALIGN_OFFSET_PX_FALLBACK` | `src/composables/launcher/useWindowSizing/calculation.ts` |
+| `windowHeightCap`（screenCap 的实现上限） | `useLauncherLayoutMetrics().windowHeightCap` | 当前为 `screen.availHeight * 0.82` |
+| `frameHeight` | `windowHeight - dragStripHeight` | sizing 内部用 content height 表示 |
+| `frameMinHeight`（Search） | `WINDOW_SIZING_CONSTANTS.windowBaseHeight` | `src/composables/launcher/useLauncherLayoutMetrics.ts` |
+| `frameMinHeight`（Command） | `WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight` | 进入参数面板的最小内容高度 |
+| 搜索最大行数 | `LAUNCHER_DRAWER_MAX_ROWS` | 当前为 10（不在本次修改） |
+| 结果行高 | `LAUNCHER_DRAWER_ROW_HEIGHT_PX` | 当前为 44（不在本次修改） |
+| 抽屉 padding（上下） | `LAUNCHER_DRAWER_CHROME_HEIGHT_PX` | 当前为 12（与 `.result-drawer { padding: 6px }` 对齐） |
+| 抽屉 hint（键位提示区） | `LAUNCHER_DRAWER_HINT_HEIGHT_PX` | 当前为 22（与 `.keyboard-hint` 视觉口径对齐） |
+| 抽屉额外估算间距 | `DRAWER_GAP_EST_PX`（建议引入为常量） | 当前实现里是 sizing 估算中的 `+ 10` |
 
 ### 5.2 统一上限
 
@@ -110,28 +125,53 @@ Tauri Window（真实窗口）
 frameMaxHeight = min(screenCap - dragStripHeight, designCap)
 ```
 
-其中 `designCap` 的来源：当搜索结果足够多时（>= 最大行数），搜索页“搜索框 + 结果列表”的可达最大高度。
+其中 `designCap` 为**唯一、可复用的计算口径**（禁止在多个模块用不同公式各算一遍）：
+
+```
+// 注意：designCap 指的是 frameHeight（不含 dragStripHeight）
+drawerMaxViewportHeightDesign =
+  LAUNCHER_DRAWER_MAX_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX
+  + (LAUNCHER_DRAWER_CHROME_HEIGHT_PX + LAUNCHER_DRAWER_HINT_HEIGHT_PX)
+
+designCap =
+  WINDOW_SIZING_CONSTANTS.windowBaseHeight
+  + drawerMaxViewportHeightDesign
+  + DRAWER_GAP_EST_PX
+```
+
+说明：
+
+- `designCap` 的直观含义：**搜索页在“结果达到最大行数”时，搜索框 + 结果列表可达到的最大 Frame 高度**。
+- `DRAWER_GAP_EST_PX` 为现有 sizing 估算中的 `+10`，本次会将其显式命名为常量（否则口径容易漂移）。
+- 最终使用时仍需与屏幕上限结合（`screenCap`），避免小屏越界。
 
 > 直观理解：Search 页能长到多高，CommandPanel/FlowPanel/SafetyOverlay 就最多也只能长到同样高；再多内容只能内部滚动。
 
 ### 5.3 CommandPanel 进入时的“只增不减”规则
 
-进入 CommandPanel 时：
+进入 CommandPanel 时（以 `pendingCommand: null -> 非 null` 作为进入信号）：
 
-1. 记录进入前的 `frameHeightBeforeEnter`（来自当前搜索页布局结果）。
-2. 计算 CommandPanel 的 `frameHeightNeeded`（基于面板布局测量/估算，至少满足参数输入体验）。
-3. 取值：
+1. 记录进入前的 `frameHeightBeforeEnter`（来自进入前一次 `resolveWindowSize` 的结果：`lastWindowSize.height - dragStripHeight`）。
+2. 计算 CommandPanel 的 `frameHeightNeeded`（沿用现有逻辑：`max(measured, estimated)`，再 clamp 到 `frameMaxHeight`，且最小不低于 `WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight`）。
+3. 应用“只增不减”：
 
 ```
 nextFrameHeight = clamp(
   max(frameHeightBeforeEnter, frameHeightNeeded),
-  min = frameMinHeight,
+  min = WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight,
   max = frameMaxHeight
 )
 ```
 
 4. 若 `frameHeightNeeded > frameMaxHeight`：  
    不再增高，改由 CommandPanel 内容区（参数列表）启用滚动。
+
+#### 5.3.1 退出/返回 Search 时的高度回落口径（避免粘住/抖动分歧）
+
+- 当退出 CommandPanel（`pendingCommand: 非 null -> null`）并返回 Search：
+  - 清理 `frameHeightBeforeEnter`（不再作为 floor）。
+  - Search 页恢复现有 sizing 逻辑：窗口可以随结果变化自然回落/增长，但仍受 `designCap` 上限约束。
+- 该口径的目的：CommandPanel 内避免“缩小”，但不改变 Search 页原有的动态高度体验（只是统一了最大高度）。
 
 ---
 
@@ -158,11 +198,14 @@ nextFrameHeight = clamp(
   - `src/styles/launcher.css`：将 `.search-main` 的外框样式上提/复用到 LauncherFrame；对齐圆角裁剪与 overlay scrim。
   - `src/components/launcher/parts/LauncherSearchPanel.vue`：SearchPanel 内部不再承担“外框容器职责”（仅保留内容布局）。
   - `src/components/launcher/parts/LauncherCommandPanel.vue`：去除与外框冲突的背景/圆角假设，确保内容区可滚动且可被 Frame 裁剪。
+- Overlay 挂载去重（必须统一）：
+  - `src/components/launcher/LauncherWindow.vue`：FlowPanel/SafetyOverlay 最终都在 LauncherFrame 内部挂载一次（绝对定位覆盖 frame）。
+  - `src/components/launcher/parts/LauncherSearchPanel.vue`：移除 `LauncherFlowPanel` 的直接渲染（避免 Search/Command 两处挂载导致行为分裂）。
 - 点击命中：
   - `src/composables/launcher/useLauncherHitZones.ts`：规则不变，重点是统一在 LauncherFrame 标记 `interactive`。
 - 窗口尺寸：
-  - `src/composables/launcher/useLauncherLayoutMetrics.ts`：提供/暴露 `designCap`（搜索最大行数口径）给窗口 sizing。
-  - `src/composables/launcher/useWindowSizing/calculation.ts`：加入 `designCap` 参与 `frameMaxHeight`；进入 CommandPanel 时只增不减 + 超出滚动策略。
+  - `src/composables/launcher/useLauncherLayoutMetrics.ts`：定义 `designCap` 的唯一计算口径（或导出常量），并暴露给窗口 sizing 使用。
+  - `src/composables/launcher/useWindowSizing/calculation.ts`：加入 `designCap` 参与 `frameMaxHeight`；进入 CommandPanel 时只增不减 + 超出滚动策略；退出时清理 floor。
 
 ---
 
@@ -176,6 +219,13 @@ nextFrameHeight = clamp(
   - 当参数面板需要更高时才增高；
   - 增高上限不超过 Search 页可达最大高度；
   - 超出上限时 CommandPanel 内容区滚动生效。
+  - 退出 CommandPanel 返回 Search 后允许回落（且仍受 designCap 上限约束）。
+
+建议优先落在现有测试入口，减少定位成本：
+
+- 命中规则单测：`src/composables/__tests__/launcher/useLauncherHitZones.test.ts`
+- sizing 计算单测：`src/composables/__tests__/launcher/useWindowSizing.calculation.test.ts`
+- FlowPanel 结构/overlay 语义单测（需同步调整容器）：`src/components/launcher/parts/__tests__/LauncherFlowPanel.test.ts`
 
 ### 8.2 手动验收（开发环境）
 
@@ -185,4 +235,3 @@ nextFrameHeight = clamp(
 2. 搜索结果很少（窗口较矮）→ 进入参数面板：仅在不够高时增高，且最高不超过“搜索最大高度”。
 3. 参数面板内点击任意区域不隐藏；点击真正的窗口空白区域才隐藏。
 4. Search/CommandPanel 外框圆角、边框、背景一致；FlowPanel/SafetyOverlay 在 Frame 内裁剪一致。
-
