@@ -514,4 +514,5 @@
 
 ## 补充（2026-03-16｜LauncherFrame 高度/拖拽 bugfix）
 
-- 修复：进入参数面板不缩小（floor 取进入前高度，仍受 designCap 上限）；参数面板开 FlowPanel 也保持最小高度；FlowPanel 去除常驻 transform 并补 drag-region 恢复拖拽。验收：`npm run check:all`。
+- 修复：进入参数面板不缩小（floor 取进入前高度，仍受 designCap 上限）；CommandPanel 高度估算忽略搜索 drawerHeight，且 pendingCommand 禁用 layout measured height 防止误拉满；同步 `--launcher-frame-height` 让外框随窗口填充。参数面板开 FlowPanel 保持最小高度；FlowPanel 去除常驻 transform 并补 drag-region。验收：`npm run check:all`。
+- 修复补充：参数面板增高时外框底部圆角裁切（frame 高度改为基于 DOM 视口计算）；从参数面板返回后搜索框聚焦增加重试；`npm run check:all` 全绿。

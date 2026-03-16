@@ -79,7 +79,7 @@ function measureWindowContentHeightFromLayout(
 function estimateWindowContentHeight(options: UseWindowSizingOptions, frameMaxHeight: number): number {
   const { constants } = options;
   let leftHeight = constants.windowBaseHeight;
-  if (options.drawerOpen.value) {
+  if (!options.pendingCommand.value && options.drawerOpen.value) {
     leftHeight += options.drawerViewportHeight.value + DRAWER_GAP_EST_PX;
   }
 
@@ -103,11 +103,9 @@ export function resolveWindowSize(options: UseWindowSizingOptions): WindowSize {
   const dragStripHeight = resolveShellDragStripHeight(options);
   const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
   const frameMaxHeight = Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
-  const measuredContentHeight = measureWindowContentHeightFromLayout(
-    options,
-    dragStripHeight,
-    frameMaxHeight
-  );
+  const measuredContentHeight = options.pendingCommand.value
+    ? null
+    : measureWindowContentHeightFromLayout(options, dragStripHeight, frameMaxHeight);
   const width = resolveWindowWidth(options);
   const overlayMinContentHeight = resolveOverlayMinHeight(options);
   const estimatedContentHeight = estimateWindowContentHeight(options, frameMaxHeight);

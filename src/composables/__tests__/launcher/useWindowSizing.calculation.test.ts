@@ -264,6 +264,36 @@ describe("resolveWindowSize（CommandPanel floor）", () => {
     expect(size.height).not.toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
+  it("CommandPanel 时不使用 layout measured height（避免容器 fill 导致误判为需要最大高度）", () => {
+    const root = document.createElement("div");
+    const shell = document.createElement("div");
+    const dragStrip = document.createElement("div");
+    dragStrip.className = "shell-drag-strip";
+    shell.appendChild(dragStrip);
+    root.appendChild(shell);
+    document.body.appendChild(root);
+
+    mockRect(root, { top: 0, bottom: 5_000 });
+    mockRect(shell, { top: 0, bottom: 5_000 });
+    mockRect(dragStrip, {
+      top: 0,
+      bottom: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
+      height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    });
+
+    const size = resolveWindowSize(
+      createBaseOptions({
+        searchShellRef: ref(shell),
+        pendingCommand: ref({ id: "pending" }),
+        windowHeightCap: ref(10_000)
+      })
+    );
+
+    expect(size.height).toBe(
+      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+  });
+
   it("CommandPanel 内打开 FlowPanel 时有搜索页一致的最小高度（不低于 drawer floor）", () => {
     const drawerFloorViewportHeight =
       LAUNCHER_DRAWER_FLOOR_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX +

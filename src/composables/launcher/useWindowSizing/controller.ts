@@ -31,6 +31,35 @@ function resolveShellDragStripHeightFromDom(options: UseWindowSizingOptions): nu
   return UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 }
 
+function syncLauncherFrameHeightStyle(options: UseWindowSizingOptions, windowHeight: number): void {
+  const shell = options.searchShellRef.value;
+  if (!shell) {
+    return;
+  }
+
+  if (options.pendingCommand.value === null) {
+    shell.style.removeProperty("--launcher-frame-height");
+    return;
+  }
+
+  const root = shell.parentElement;
+  const frame = shell.querySelector<HTMLElement>(".launcher-frame");
+  if (root && frame) {
+    const rootRect = root.getBoundingClientRect();
+    const frameRect = frame.getBoundingClientRect();
+    if (Number.isFinite(rootRect.height) && Number.isFinite(frameRect.top) && Number.isFinite(rootRect.top)) {
+      const topOffset = Math.max(0, frameRect.top - rootRect.top);
+      const frameHeight = Math.max(0, Math.floor(rootRect.height - topOffset));
+      shell.style.setProperty("--launcher-frame-height", `${frameHeight}px`);
+      return;
+    }
+  }
+
+  const dragStripHeight = resolveShellDragStripHeightFromDom(options);
+  const fallbackHeight = Math.max(0, windowHeight - dragStripHeight);
+  shell.style.setProperty("--launcher-frame-height", `${fallbackHeight}px`);
+}
+
 export function createWindowSizingController(options: UseWindowSizingOptions) {
   const state = createWindowSizingState();
 
@@ -50,8 +79,6 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     }
 
     state.syncingWindowSize = true;
-    const preTickDragStripHeight = resolveShellDragStripHeightFromDom(options);
-    const preTickWindowSize = state.lastWindowSize ?? resolveWindowSize(options);
     await nextTick();
     try {
       const isPending = options.pendingCommand.value !== null;
@@ -59,7 +86,7 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
         const dragStripHeight = resolveShellDragStripHeightFromDom(options);
         const frameHeightBeforeEnter = state.lastWindowSize
           ? state.lastWindowSize.height - dragStripHeight
-          : Math.max(options.constants.windowBaseHeight, preTickWindowSize.height - preTickDragStripHeight);
+          : options.constants.windowBaseHeight;
         options.commandPanelFrameHeightFloor.value = frameHeightBeforeEnter;
         state.pendingCommandActive = true;
       } else if (!isPending && state.pendingCommandActive) {
@@ -70,21 +97,25 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
       const size = resolveWindowSize(options);
       const appWindow = options.resolveAppWindow();
       if (shouldSkipResize(state.lastWindowSize, size, options.constants.windowSizeEpsilon)) {
+        syncLauncherFrameHeightStyle(options, size.height);
         return;
       }
       state.lastWindowSize = size;
       if (!options.isTauriRuntime()) {
+        syncLauncherFrameHeightStyle(options, size.height);
         return;
       }
 
       try {
         await bridge(size.width, size.height);
+        syncLauncherFrameHeightStyle(options, size.height);
       } catch (error) {
         console.warn("window command resize failed", error);
         try {
           if (appWindow) {
             await appWindow.setSize(new LogicalSize(size.width, size.height));
           }
+          syncLauncherFrameHeightStyle(options, size.height);
         } catch (fallbackError) {
           console.warn("window webview resize failed", fallbackError);
         }

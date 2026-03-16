@@ -17,6 +17,8 @@ function getDefaultFrameScheduler(): FrameScheduler {
 
 export function useSearchFocus(options: UseSearchFocusOptions) {
   const scheduleFrame = options.requestFrame ?? getDefaultFrameScheduler();
+  const maxFocusRetries = 40;
+  let focusRequestToken = 0;
 
   function focusSearchInput(selectText = false): void {
     if (options.shouldBlockFocus?.()) {
@@ -33,9 +35,28 @@ export function useSearchFocus(options: UseSearchFocusOptions) {
   }
 
   function scheduleSearchInputFocus(selectText = false): void {
-    scheduleFrame(() => {
-      focusSearchInput(selectText);
-    });
+    const token = ++focusRequestToken;
+    let attempts = 0;
+
+    const attemptFocus = () => {
+      if (token !== focusRequestToken) {
+        return;
+      }
+      if (options.shouldBlockFocus?.()) {
+        return;
+      }
+      if (options.searchInputRef.value) {
+        focusSearchInput(selectText);
+        return;
+      }
+      attempts += 1;
+      if (attempts >= maxFocusRetries) {
+        return;
+      }
+      scheduleFrame(() => attemptFocus());
+    };
+
+    scheduleFrame(() => attemptFocus());
   }
 
   return {
