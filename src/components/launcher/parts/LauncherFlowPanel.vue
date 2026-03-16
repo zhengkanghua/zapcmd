@@ -354,8 +354,10 @@ onBeforeUnmount(() => {
       @keydown="onReviewPanelKeydown"
     >
       <header class="flow-panel__header" data-tauri-drag-region>
-        <div class="flow-panel__title-group">
-          <h2 class="flow-panel__heading">{{ t('launcher.queueTitle', { count: props.stagedCommands.length }) }}</h2>
+        <div class="flow-panel__title-group" data-tauri-drag-region>
+          <h2 class="flow-panel__heading" data-tauri-drag-region>
+            {{ t('launcher.queueTitle', { count: props.stagedCommands.length }) }}
+          </h2>
         </div>
         <div class="flow-panel__header-actions">
           <button

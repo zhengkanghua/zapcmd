@@ -507,3 +507,11 @@
 ## 补充（2026-03-16｜LauncherFrame 外框统一修复设计）
 
 - 确认：保留 drag-strip；drag-strip 下引入统一 LauncherFrame（Search/Command/Flow/Safety 统一圆角/边框/裁剪）；最大高度按搜索最大行数口径统一；进入 CommandPanel 不缩小仅按需增高，超出内部滚动；修复点击即隐藏。
+
+## 补充（2026-03-16｜LauncherFrame 外框统一 writing-plans 完成）
+
+- 已产出可执行实现计划：`docs/superpowers/plans/2026-03-16-launcher-frame-height-unification.md`（命中/窗口 sizing/overlay 去重/外框对齐与测试验收点齐全）。
+
+## 补充（2026-03-16｜LauncherFrame 高度/拖拽 bugfix）
+
+- 修复：进入参数面板不缩小（floor 取进入前高度，仍受 designCap 上限）；参数面板开 FlowPanel 也保持最小高度；FlowPanel 去除常驻 transform 并补 drag-region 恢复拖拽。验收：`npm run check:all`。

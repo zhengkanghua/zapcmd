@@ -1,4 +1,16 @@
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
+import {
+  DRAWER_GAP_EST_PX,
+  LAUNCHER_DRAWER_CHROME_HEIGHT_PX,
+  LAUNCHER_DRAWER_FLOOR_ROWS,
+  LAUNCHER_DRAWER_HINT_HEIGHT_PX,
+  LAUNCHER_DRAWER_ROW_HEIGHT_PX,
+  LAUNCHER_FRAME_DESIGN_CAP_PX
+} from "../useLauncherLayoutMetrics";
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
 function resolveShellDragStripHeight(options: UseWindowSizingOptions): number {
   const shell = options.searchShellRef.value;
@@ -20,6 +32,14 @@ function resolveWindowWidth(options: UseWindowSizingOptions): number {
 
 function resolveOverlayMinHeight(options: UseWindowSizingOptions): number {
   if (options.pendingCommand.value) {
+    if (options.stagingExpanded.value) {
+      const drawerFloorViewportHeightDesignPx =
+        LAUNCHER_DRAWER_FLOOR_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX +
+        (LAUNCHER_DRAWER_CHROME_HEIGHT_PX + LAUNCHER_DRAWER_HINT_HEIGHT_PX);
+      const minHeightWithFlowPanel =
+        options.constants.windowBaseHeight + drawerFloorViewportHeightDesignPx + DRAWER_GAP_EST_PX;
+      return Math.max(options.constants.paramOverlayMinHeight, minHeightWithFlowPanel);
+    }
     return options.constants.paramOverlayMinHeight;
   }
   return options.constants.windowBaseHeight;
@@ -28,7 +48,7 @@ function resolveOverlayMinHeight(options: UseWindowSizingOptions): number {
 function measureWindowContentHeightFromLayout(
   options: UseWindowSizingOptions,
   dragStripHeight: number,
-  contentHeightCap: number
+  frameMaxHeight: number
 ): number | null {
   const shell = options.searchShellRef.value;
   if (!shell) {
@@ -53,14 +73,14 @@ function measureWindowContentHeightFromLayout(
       constants.windowBottomSafePad
   );
   const contentHeight = Math.max(0, windowHeight - dragStripHeight);
-  return Math.max(constants.windowBaseHeight, Math.min(contentHeightCap, contentHeight));
+  return Math.max(constants.windowBaseHeight, Math.min(frameMaxHeight, contentHeight));
 }
 
-function estimateWindowContentHeight(options: UseWindowSizingOptions, contentHeightCap: number): number {
+function estimateWindowContentHeight(options: UseWindowSizingOptions, frameMaxHeight: number): number {
   const { constants } = options;
   let leftHeight = constants.windowBaseHeight;
   if (options.drawerOpen.value) {
-    leftHeight += options.drawerViewportHeight.value + 10;
+    leftHeight += options.drawerViewportHeight.value + DRAWER_GAP_EST_PX;
   }
 
   let rightHeight = 0;
@@ -76,28 +96,36 @@ function estimateWindowContentHeight(options: UseWindowSizingOptions, contentHei
     leftHeight = Math.max(leftHeight, constants.paramOverlayMinHeight);
   }
 
-  return Math.min(Math.max(leftHeight, rightHeight), contentHeightCap);
+  return Math.min(Math.max(leftHeight, rightHeight), frameMaxHeight);
 }
 
 export function resolveWindowSize(options: UseWindowSizingOptions): WindowSize {
   const dragStripHeight = resolveShellDragStripHeight(options);
-  const contentHeightCap = Math.max(0, options.windowHeightCap.value - dragStripHeight);
+  const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
+  const frameMaxHeight = Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
   const measuredContentHeight = measureWindowContentHeightFromLayout(
     options,
     dragStripHeight,
-    contentHeightCap
+    frameMaxHeight
   );
   const width = resolveWindowWidth(options);
   const overlayMinContentHeight = resolveOverlayMinHeight(options);
-  const estimatedContentHeight = estimateWindowContentHeight(options, contentHeightCap);
+  const estimatedContentHeight = estimateWindowContentHeight(options, frameMaxHeight);
   const sizingContentHeight =
     measuredContentHeight === null
       ? estimatedContentHeight
       : Math.max(measuredContentHeight, estimatedContentHeight);
-  const resolvedContentHeight = Math.min(
+  let resolvedContentHeight = Math.min(
     Math.max(sizingContentHeight, overlayMinContentHeight),
-    contentHeightCap
+    frameMaxHeight
   );
+  if (options.pendingCommand.value && options.commandPanelFrameHeightFloor.value !== null) {
+    resolvedContentHeight = clamp(
+      Math.max(resolvedContentHeight, options.commandPanelFrameHeightFloor.value),
+      options.constants.paramOverlayMinHeight,
+      frameMaxHeight
+    );
+  }
   return {
     width,
     height: resolvedContentHeight + dragStripHeight

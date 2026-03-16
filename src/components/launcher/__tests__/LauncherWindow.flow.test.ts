@@ -98,6 +98,26 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(wrapper.find("launcher-command-panel-stub").exists()).toBe(false);
   });
 
+  it("Search 页面 stagingExpanded=true 时 FlowPanel 由 LauncherWindow 挂载（SearchPanel 即使被 stub 也仍存在）", () => {
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: { type: "search" },
+        stagingExpanded: true,
+        stagingDrawerState: "open"
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherCommandPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherFlowPanel: true
+        }
+      }
+    });
+
+    expect(wrapper.find("launcher-flow-panel-stub").exists()).toBe(true);
+  });
+
   it("command-action 页面渲染 CommandPanel，并透传 submit/cancel 事件", async () => {
     const command = createCommandTemplate("cmd-1");
     const commandPage: NavPage = {
@@ -133,6 +153,34 @@ describe("LauncherWindow CommandPanel wiring", () => {
 
     await wrapper.get(".stub-submit").trigger("click");
     expect(wrapper.emitted("submit-param-input")).toHaveLength(1);
+  });
+
+  it("command-action 页面点击任意内容不应触发 blank-pointerdown（命中兜底）", async () => {
+    const command = createCommandTemplate("cmd-1");
+    const commandPage: NavPage = {
+      type: "command-action",
+      props: { command, mode: "execute", isDangerous: false }
+    };
+
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: commandPage,
+        navStack: [{ type: "search" }, commandPage]
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherFlowPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherCommandPanel: {
+            template: "<button class='inside-command-panel'>inside</button>"
+          }
+        }
+      }
+    });
+
+    await wrapper.get(".inside-command-panel").trigger("pointerdown");
+    expect(wrapper.emitted("blank-pointerdown")).toBeUndefined();
   });
 
   it("safetyDialog 存在时渲染 SafetyOverlay，并透传 cancel/confirm", async () => {

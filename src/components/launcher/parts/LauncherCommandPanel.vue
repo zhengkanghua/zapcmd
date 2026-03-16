@@ -97,7 +97,7 @@ function onSubmit(): void {
 
 <template>
   <section class="command-panel">
-    <header class="command-panel__header">
+    <header class="command-panel__header" data-tauri-drag-region>
       <button
         type="button"
         class="command-panel__back"
@@ -107,7 +107,7 @@ function onSubmit(): void {
         ←
       </button>
 
-      <h2 class="command-panel__title">
+      <h2 class="command-panel__title" data-tauri-drag-region>
         {{ props.command.title }}
       </h2>
 

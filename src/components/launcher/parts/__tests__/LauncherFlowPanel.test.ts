@@ -3,9 +3,8 @@ import { nextTick } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { StagedCommand } from "../../../../features/launcher/types";
-import type { KeyboardHint, LauncherFlowPanelProps, LauncherSearchPanelProps } from "../../types";
+import type { KeyboardHint, LauncherFlowPanelProps } from "../../types";
 import LauncherFlowPanel from "../LauncherFlowPanel.vue";
-import LauncherSearchPanel from "../LauncherSearchPanel.vue";
 
 function createStagedCommand(overrides: Partial<StagedCommand> = {}): StagedCommand {
   return {
@@ -48,53 +47,6 @@ function createProps(
   };
 }
 
-function createSearchPanelProps(
-  overrides: Partial<LauncherSearchPanelProps> = {}
-): LauncherSearchPanelProps {
-  const keyboardHints: KeyboardHint[] = [
-    {
-      keys: ["Enter"],
-      action: "执行"
-    }
-  ];
-  const stagingHints: KeyboardHint[] = [
-    {
-      keys: ["Esc"],
-      action: "返回"
-    }
-  ];
-  return {
-    query: "",
-    executing: false,
-    executionFeedbackMessage: "",
-    executionFeedbackTone: "neutral",
-    drawerOpen: false,
-    drawerViewportHeight: 0,
-    drawerFloorViewportHeight: 322,
-    drawerFillerHeight: 0,
-    keyboardHints,
-    filteredResults: [],
-    activeIndex: 0,
-    stagedFeedbackCommandId: null,
-    stagedCommandCount: 0,
-    flowOpen: false,
-    reviewOpen: true,
-    stagingDrawerState: "open",
-    stagedCommands: [createStagedCommand()],
-    stagingHints,
-    stagingListShouldScroll: true,
-    stagingListMaxHeight: "200px",
-    focusZone: "staging",
-    stagingActiveIndex: 0,
-    setSearchInputRef: () => {},
-    setDrawerRef: () => {},
-    setResultButtonRef: () => {},
-    setStagingPanelRef: () => {},
-    setStagingListRef: () => {},
-    ...overrides
-  };
-}
-
 const originalClipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
 afterEach(() => {
@@ -107,16 +59,6 @@ afterEach(() => {
 });
 
 describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
-  it("in-panel 结构约束：flow-panel-overlay 位于 search-main 子树内且不覆盖 search capsule", () => {
-    const wrapper = mount(LauncherSearchPanel, {
-      props: createSearchPanelProps()
-    });
-
-    const searchMain = wrapper.get(".search-main");
-    expect(searchMain.find(".flow-panel-overlay").exists()).toBe(true);
-    expect(wrapper.find(".search-capsule .flow-panel-overlay").exists()).toBe(false);
-  });
-
   it("根节点/遮罩/面板具备 overlay hit-zone 与 dialog 语义", () => {
     const wrapper = mount(LauncherFlowPanel, { props: createProps() });
 
@@ -132,7 +74,10 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
     expect(panel.attributes("role")).toBe("dialog");
     expect(panel.attributes("aria-modal")).toBe("true");
 
-    expect(wrapper.find(".flow-panel__header").exists()).toBe(true);
+    const header = wrapper.get(".flow-panel__header");
+    expect(header.attributes("data-tauri-drag-region")).toBeDefined();
+    expect(wrapper.get(".flow-panel__title-group").attributes("data-tauri-drag-region")).toBeDefined();
+    expect(wrapper.get(".flow-panel__heading").attributes("data-tauri-drag-region")).toBeDefined();
     expect(wrapper.find(".flow-panel__footer").exists()).toBe(true);
 
     const list = wrapper.get(".flow-panel__list");

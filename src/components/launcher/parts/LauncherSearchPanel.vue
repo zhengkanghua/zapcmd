@@ -5,7 +5,6 @@ import type { LauncherSearchPanelProps } from "../types";
 import LauncherHighlightText from "./LauncherHighlightText.vue";
 import LauncherIcon from "./LauncherIcon.vue";
 import LauncherQueueSummaryPill from "./LauncherQueueSummaryPill.vue";
-import LauncherFlowPanel from "./LauncherFlowPanel.vue";
 
 const props = defineProps<LauncherSearchPanelProps>();
 const { t } = useI18nText();
@@ -16,15 +15,6 @@ const emit = defineEmits<{
   (e: "execute-result", command: CommandTemplate): void;
   (e: "toggle-staging"): void;
   (e: "search-capsule-back"): void;
-  (e: "staging-drag-start", index: number, event: DragEvent): void;
-  (e: "staging-drag-over", index: number, event: DragEvent): void;
-  (e: "staging-drag-end"): void;
-  (e: "focus-staging-index", index: number): void;
-  (e: "remove-staged-command", id: string): void;
-  (e: "update-staged-arg", id: string, key: string, value: string): void;
-  (e: "clear-staging"): void;
-  (e: "execute-staged"): void;
-  (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
 }>();
 
 function onSearchFormPointerDown(event: PointerEvent): void {
@@ -50,10 +40,7 @@ function onSearchInput(event: Event): void {
 </script>
 
 <template>
-  <section
-    class="search-main"
-    data-hit-zone="interactive"
-  >
+  <section class="search-panel">
     <section class="search-capsule" aria-label="search-capsule">
       <form class="search-form" @submit.prevent @pointerdown.capture="onSearchFormPointerDown">
         <LauncherIcon name="search" class="search-form__icon" />
@@ -169,37 +156,8 @@ function onSearchInput(event: Event): void {
         aria-hidden="true"
         :style="{ height: `${props.drawerFloorViewportHeight}px` }"
         aria-label="result-drawer-floor"
-        data-testid="result-drawer-floor"
-      ></section>
-    </section>
-
-    <LauncherFlowPanel
-      v-if="props.reviewOpen"
-      :staging-drawer-state="props.stagingDrawerState"
-      :staging-expanded="props.reviewOpen"
-      :staged-commands="props.stagedCommands"
-      :staging-hints="props.stagingHints"
-      :staging-list-should-scroll="props.stagingListShouldScroll"
-      :staging-list-max-height="props.stagingListMaxHeight"
-      :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
-      :focus-zone="props.focusZone"
-      :staging-active-index="props.stagingActiveIndex"
-      :flow-open="props.flowOpen"
-      :executing="props.executing"
-      :execution-feedback-message="props.executionFeedbackMessage"
-      :execution-feedback-tone="props.executionFeedbackTone"
-      :set-staging-panel-ref="props.setStagingPanelRef"
-      :set-staging-list-ref="props.setStagingListRef"
-      @toggle-staging="emit('toggle-staging')"
-      @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
-      @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
-      @staging-drag-end="emit('staging-drag-end')"
-      @focus-staging-index="emit('focus-staging-index', $event)"
-      @remove-staged-command="emit('remove-staged-command', $event)"
-      @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
-      @clear-staging="emit('clear-staging')"
-      @execute-staged="emit('execute-staged')"
-      @execution-feedback="(t: 'neutral' | 'success' | 'error', m: string) => emit('execution-feedback', t, m)"
-    />
+         data-testid="result-drawer-floor"
+       ></section>
+     </section>
   </section>
 </template>

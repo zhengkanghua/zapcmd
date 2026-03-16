@@ -9,6 +9,7 @@ import {
   LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX
 } from "../../../../composables/launcher/useLauncherLayoutMetrics";
 import type { KeyboardHint, LauncherSearchPanelProps } from "../../types";
+import LauncherFlowPanel from "../LauncherFlowPanel.vue";
 import LauncherSearchPanel from "../LauncherSearchPanel.vue";
 
 const DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX =
@@ -35,12 +36,6 @@ function createProps(
       action: "执行"
     }
   ];
-  const stagingHints: KeyboardHint[] = [
-    {
-      keys: ["Esc"],
-      action: "返回"
-    }
-  ];
   return {
     query: "dock",
     executing: false,
@@ -57,18 +52,9 @@ function createProps(
     stagedCommandCount: 0,
     flowOpen: false,
     reviewOpen: false,
-    stagingDrawerState: "closed",
-    stagedCommands: [],
-    stagingHints,
-    stagingListShouldScroll: false,
-    stagingListMaxHeight: "0px",
-    focusZone: "search",
-    stagingActiveIndex: 0,
     setSearchInputRef: () => {},
     setDrawerRef: () => {},
     setResultButtonRef: () => {},
-    setStagingPanelRef: () => {},
-    setStagingListRef: () => {},
     ...overrides
   };
 }
@@ -186,18 +172,7 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
   it("Review 打开时 results drawer 仍保持 inert/aria-hidden（背景可见但不可交互）", () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createProps({
-        reviewOpen: true,
-        stagingDrawerState: "open",
-        stagedCommands: [
-          {
-            id: "cmd-1",
-            title: "示例命令",
-            rawPreview: "echo preview",
-            renderedCommand: "echo preview",
-            args: [],
-            argValues: {}
-          }
-        ]
+        reviewOpen: true
       })
     });
 
@@ -209,18 +184,7 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
   it("Review 打开时点击 search capsule/输入区域会触发 search-capsule-back（等同 Esc）", async () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createProps({
-        reviewOpen: true,
-        stagingDrawerState: "open",
-        stagedCommands: [
-          {
-            id: "cmd-1",
-            title: "示例命令",
-            rawPreview: "echo preview",
-            renderedCommand: "echo preview",
-            args: [],
-            argValues: {}
-          }
-        ]
+        reviewOpen: true
       })
     });
 
@@ -230,9 +194,10 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
 
   it("点击 scrim 关闭后焦点回到搜索输入框（由父层 scheduleSearchInputFocus 等价模拟）", async () => {
     const Harness = defineComponent({
-      components: { LauncherSearchPanel },
+      components: { LauncherSearchPanel, LauncherFlowPanel },
       setup() {
         const reviewOpen = ref(true);
+        const stagingDrawerState = ref<"open" | "closed">("open");
         const searchInput = ref<HTMLInputElement | null>(null);
         const drawerHeight = DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX;
         const setSearchInputRef = (el: unknown) => {
@@ -241,43 +206,57 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
 
         async function onToggleStaging(): Promise<void> {
           reviewOpen.value = false;
+          stagingDrawerState.value = "closed";
           await nextTick();
           searchInput.value?.focus();
         }
 
-        return { reviewOpen, setSearchInputRef, onToggleStaging, drawerHeight };
+        return { reviewOpen, stagingDrawerState, setSearchInputRef, onToggleStaging, drawerHeight };
       },
       template: `
-        <LauncherSearchPanel
-          :query="'dock'"
-          :executing="false"
-          :execution-feedback-message="''"
-          :execution-feedback-tone="'neutral'"
-          :drawer-open="true"
-          :drawer-viewport-height="drawerHeight"
-          :drawer-floor-viewport-height="drawerHeight"
-          :drawer-filler-height="0"
-          :keyboard-hints="[{ keys: ['Esc'], action: '返回' }]"
-          :filtered-results="[]"
-          :active-index="0"
-          :staged-feedback-command-id="null"
-          :staged-command-count="1"
-          :flow-open="false"
-          :review-open="reviewOpen"
-          :staging-drawer-state="'open'"
-          :staged-commands="[{ id: 'cmd-1', title: '示例命令', rawPreview: 'echo preview', renderedCommand: 'echo preview', args: [], argValues: {} }]"
-          :staging-hints="[{ keys: ['Esc'], action: '返回' }]"
-          :staging-list-should-scroll="true"
-          :staging-list-max-height="'200px'"
-          :focus-zone="'staging'"
-          :staging-active-index="0"
-          :set-search-input-ref="setSearchInputRef"
-          :set-drawer-ref="() => {}"
-          :set-result-button-ref="() => {}"
-          :set-staging-panel-ref="() => {}"
-          :set-staging-list-ref="() => {}"
-          @toggle-staging="onToggleStaging"
-        />
+        <div>
+          <LauncherSearchPanel
+            :query="'dock'"
+            :executing="false"
+            :execution-feedback-message="''"
+            :execution-feedback-tone="'neutral'"
+            :drawer-open="true"
+            :drawer-viewport-height="drawerHeight"
+            :drawer-floor-viewport-height="drawerHeight"
+            :drawer-filler-height="0"
+            :keyboard-hints="[{ keys: ['Esc'], action: '返回' }]"
+            :filtered-results="[]"
+            :active-index="0"
+            :staged-feedback-command-id="null"
+            :staged-command-count="1"
+            :flow-open="false"
+            :review-open="reviewOpen"
+            :set-search-input-ref="setSearchInputRef"
+            :set-drawer-ref="() => {}"
+            :set-result-button-ref="() => {}"
+            @toggle-staging="onToggleStaging"
+          />
+
+          <LauncherFlowPanel
+            v-if="reviewOpen"
+            :staging-drawer-state="stagingDrawerState"
+            :staging-expanded="reviewOpen"
+            :staged-commands="[{ id: 'cmd-1', title: '示例命令', rawPreview: 'echo preview', renderedCommand: 'echo preview', args: [], argValues: {} }]"
+            :staging-hints="[{ keys: ['Esc'], action: '返回' }]"
+            :staging-list-should-scroll="true"
+            :staging-list-max-height="'200px'"
+            :drawer-floor-viewport-height="drawerHeight"
+            :focus-zone="'staging'"
+            :staging-active-index="0"
+            :flow-open="false"
+            :executing="false"
+            :execution-feedback-message="''"
+            :execution-feedback-tone="'neutral'"
+            :set-staging-panel-ref="() => {}"
+            :set-staging-list-ref="() => {}"
+            @toggle-staging="onToggleStaging"
+          />
+        </div>
       `
     });
 
@@ -298,8 +277,7 @@ describe("LauncherSearchPanel Flow 打开时 Search Capsule 回退/禁用输入�
     const wrapper = mount(LauncherSearchPanel, {
       props: createProps({
         flowOpen: true,
-        reviewOpen: false,
-        stagingDrawerState: "closed"
+        reviewOpen: false
       }),
       global: {
         stubs: {
@@ -317,8 +295,7 @@ describe("LauncherSearchPanel Flow 打开时 Search Capsule 回退/禁用输入�
       props: createProps({
         flowOpen: true,
         query: "dock",
-        reviewOpen: false,
-        stagingDrawerState: "closed"
+        reviewOpen: false
       })
     });
 
@@ -332,8 +309,7 @@ describe("LauncherSearchPanel Flow 打开时 Search Capsule 回退/禁用输入�
         flowOpen: true,
         drawerOpen: true,
         filteredResults: [createCommandTemplate("a")],
-        reviewOpen: false,
-        stagingDrawerState: "closed"
+        reviewOpen: false
       })
     });
 

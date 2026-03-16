@@ -29,18 +29,9 @@ export interface LauncherSearchPanelProps {
   stagedCommandCount: number;
   flowOpen: boolean; // 导航栈是否处于非搜索页面（CommandPanel 打开）
   reviewOpen: boolean;
-  stagingDrawerState: StagingDrawerState;
-  stagedCommands: StagedCommand[];
-  stagingHints: KeyboardHint[];
-  stagingListShouldScroll: boolean;
-  stagingListMaxHeight: string;
-  focusZone: FocusZone;
-  stagingActiveIndex: number;
   setSearchInputRef: (el: ElementRefArg) => void;
   setDrawerRef: (el: ElementRefArg) => void;
   setResultButtonRef: (el: ElementRefArg, index: number) => void;
-  setStagingPanelRef: (el: ElementRefArg) => void;
-  setStagingListRef: (el: ElementRefArg) => void;
 }
 
 export interface LauncherStagingPanelProps {

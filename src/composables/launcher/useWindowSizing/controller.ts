@@ -1,20 +1,34 @@
 import { LogicalSize } from "@tauri-apps/api/window";
 import { nextTick } from "vue";
 import { resolveWindowSize, shouldSkipResize } from "./calculation";
-import type { UseWindowSizingOptions, WindowSize } from "./model";
+import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
 
 interface WindowSizingState {
   lastWindowSize: WindowSize | null;
   syncingWindowSize: boolean;
   queuedWindowSync: boolean;
+  pendingCommandActive: boolean;
 }
 
 function createWindowSizingState(): WindowSizingState {
   return {
     lastWindowSize: null,
     syncingWindowSize: false,
-    queuedWindowSync: false
+    queuedWindowSync: false,
+    pendingCommandActive: false
   };
+}
+
+function resolveShellDragStripHeightFromDom(options: UseWindowSizingOptions): number {
+  const shell = options.searchShellRef.value;
+  const dragStrip = shell ? shell.querySelector<HTMLElement>(".shell-drag-strip") : null;
+  if (dragStrip) {
+    const height = dragStrip.getBoundingClientRect().height;
+    if (Number.isFinite(height) && height > 0) {
+      return Math.ceil(height);
+    }
+  }
+  return UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 }
 
 export function createWindowSizingController(options: UseWindowSizingOptions) {
@@ -36,8 +50,23 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     }
 
     state.syncingWindowSize = true;
+    const preTickDragStripHeight = resolveShellDragStripHeightFromDom(options);
+    const preTickWindowSize = state.lastWindowSize ?? resolveWindowSize(options);
     await nextTick();
     try {
+      const isPending = options.pendingCommand.value !== null;
+      if (isPending && !state.pendingCommandActive) {
+        const dragStripHeight = resolveShellDragStripHeightFromDom(options);
+        const frameHeightBeforeEnter = state.lastWindowSize
+          ? state.lastWindowSize.height - dragStripHeight
+          : Math.max(options.constants.windowBaseHeight, preTickWindowSize.height - preTickDragStripHeight);
+        options.commandPanelFrameHeightFloor.value = frameHeightBeforeEnter;
+        state.pendingCommandActive = true;
+      } else if (!isPending && state.pendingCommandActive) {
+        options.commandPanelFrameHeightFloor.value = null;
+        state.pendingCommandActive = false;
+      }
+
       const size = resolveWindowSize(options);
       const appWindow = options.resolveAppWindow();
       if (shouldSkipResize(state.lastWindowSize, size, options.constants.windowSizeEpsilon)) {

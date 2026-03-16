@@ -141,7 +141,7 @@ function onCommandPanelCancel(): void {
         aria-hidden="true"
       ></div>
 
-      <div class="launcher-nav-container" style="overflow: hidden; flex: 1; position: relative;">
+      <div class="launcher-frame" data-hit-zone="interactive">
         <Transition name="nav-slide" mode="out-in">
           <LauncherSearchPanel
             v-if="props.navCurrentPage.type === 'search'"
@@ -161,32 +161,14 @@ function onCommandPanelCancel(): void {
             :staged-command-count="props.stagedCommands.length"
             :flow-open="props.navCurrentPage.type !== 'search'"
             :review-open="props.stagingExpanded"
-            :staging-drawer-state="props.stagingDrawerState"
-            :staged-commands="props.stagedCommands"
-            :staging-hints="props.stagingHints"
-            :staging-list-should-scroll="props.stagingListShouldScroll"
-            :staging-list-max-height="props.stagingListMaxHeight"
-            :focus-zone="props.focusZone"
-            :staging-active-index="props.stagingActiveIndex"
             :set-search-input-ref="props.setSearchInputRef"
             :set-drawer-ref="props.setDrawerRef"
             :set-result-button-ref="props.setResultButtonRef"
-            :set-staging-panel-ref="props.setStagingPanelRef"
-            :set-staging-list-ref="props.setStagingListRef"
             @query-input="emit('query-input', $event)"
             @stage-result="emit('stage-result', $event)"
             @execute-result="emit('execute-result', $event)"
             @toggle-staging="emit('toggle-staging')"
             @search-capsule-back="onSearchCapsuleBack"
-            @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
-            @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
-            @staging-drag-end="emit('staging-drag-end')"
-            @focus-staging-index="emit('focus-staging-index', $event)"
-            @remove-staged-command="emit('remove-staged-command', $event)"
-            @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
-            @clear-staging="emit('clear-staging')"
-            @execute-staged="emit('execute-staged')"
-            @execution-feedback="(t, m) => emit('execution-feedback', t, m)"
           />
 
           <LauncherCommandPanel
@@ -215,7 +197,7 @@ function onCommandPanelCancel(): void {
         />
 
         <LauncherFlowPanel
-          v-if="props.stagingExpanded && props.navCurrentPage.type === 'command-action'"
+          v-if="props.stagingExpanded"
           :staging-drawer-state="props.stagingDrawerState"
           :staging-expanded="props.stagingExpanded"
           :staged-commands="props.stagedCommands"
@@ -225,7 +207,7 @@ function onCommandPanelCancel(): void {
           :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
           :focus-zone="props.focusZone"
           :staging-active-index="props.stagingActiveIndex"
-          :flow-open="true"
+          :flow-open="props.navCurrentPage.type !== 'search'"
           :executing="props.executing"
           :execution-feedback-message="props.executionFeedbackMessage"
           :execution-feedback-tone="props.executionFeedbackTone"

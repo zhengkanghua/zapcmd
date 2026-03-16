@@ -1,4 +1,4 @@
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { CommandArg } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
 import { getCommandArgs } from "../../../features/launcher/commandRuntime";
@@ -193,6 +193,7 @@ function bindAppRuntime(
   context: AppCompositionContext,
   launcherRuntime: LauncherRuntime
 ) {
+  const commandPanelFrameHeightFloor = ref<number | null>(null);
   const windowSizing = useWindowSizing({
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: context.isSettingsWindow,
@@ -204,6 +205,7 @@ function bindAppRuntime(
     stagingPanelRef: context.domBridge.stagingPanelRef,
     stagingExpanded: launcherRuntime.stagingQueue.stagingExpanded,
     pendingCommand: launcherRuntime.commandExecution.pendingCommand,
+    commandPanelFrameHeightFloor,
     drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
     drawerViewportHeight: launcherRuntime.layoutMetrics.drawerViewportHeight,
     stagingVisibleRows: launcherRuntime.layoutMetrics.stagingVisibleRows,
