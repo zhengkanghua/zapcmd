@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
 import type { createAppCompositionContext } from "./context";
 import type { createAppCompositionRuntime } from "./runtime";
@@ -5,45 +6,87 @@ import type { createAppCompositionRuntime } from "./runtime";
 type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 type AppCompositionRuntime = ReturnType<typeof createAppCompositionRuntime>;
 
+const SETTINGS_SAVED_TOAST_DISMISS_DELAY_MS = 2200;
+
 function createSettingsMutationHandlers(context: AppCompositionContext) {
-  function markDirty(): void {
-    context.settingsWindow.settingsDirty.value = true;
-    context.settingsWindow.settingsSaved.value = false;
+  let settingsSavedTimer: ReturnType<typeof setTimeout> | null = null;
+  const settingsSaved = ref(false);
+
+  function clearSettingsSavedTimer(): void {
+    if (!settingsSavedTimer) {
+      return;
+    }
+    clearTimeout(settingsSavedTimer);
+    settingsSavedTimer = null;
+  }
+
+  function resetSavedToast(): void {
+    settingsSaved.value = false;
+    clearSettingsSavedTimer();
+  }
+
+  function markSavedToast(): void {
+    resetSavedToast();
+    settingsSaved.value = true;
+    settingsSavedTimer = setTimeout(() => {
+      settingsSaved.value = false;
+      settingsSavedTimer = null;
+    }, SETTINGS_SAVED_TOAST_DISMISS_DELAY_MS);
+  }
+
+  function persistImmediate(): void {
+    resetSavedToast();
+    void context.settingsWindow.persistSetting().then(() => {
+      if (!context.settingsWindow.settingsError.value) {
+        markSavedToast();
+      }
+    });
   }
 
   return {
+    settingsSaved,
+    clearSettingsSavedTimer,
     toggleCommandEnabled(commandId: string, enabled: boolean): void {
-      markDirty();
       context.commandManagement.toggleCommandEnabled(commandId, enabled);
+      persistImmediate();
     },
     setFilteredCommandsEnabled(enabled: boolean): void {
-      markDirty();
       context.commandManagement.setFilteredCommandsEnabled(enabled);
+      persistImmediate();
     },
     updateCommandView(patch: Partial<CommandManagementViewState>): void {
-      markDirty();
       context.commandManagement.updateCommandView(patch);
+      persistImmediate();
     },
     resetCommandFilters(): void {
-      markDirty();
       context.commandManagement.resetCommandFilters();
+      persistImmediate();
     },
     setWindowOpacity(value: number): void {
-      markDirty();
       context.setWindowOpacity(value);
+      persistImmediate();
     },
     setTheme(value: string): void {
-      markDirty();
       context.setTheme(value);
+      persistImmediate();
     },
     setBlurEnabled(value: boolean): void {
-      markDirty();
       context.setBlurEnabled(value);
+      persistImmediate();
+    },
+    async saveSettings(): Promise<void> {
+      resetSavedToast();
+      await context.settingsWindow.persistSetting();
+      if (!context.settingsWindow.settingsError.value) {
+        markSavedToast();
+      }
     }
   };
 }
 
 function createSettingsWindowProps(context: AppCompositionContext) {
+  const closeConfirmOpen = ref(false);
+
   return {
     settingsNavItems: context.settingsWindow.settingsNavItems,
     settingsRoute: context.settingsWindow.settingsRoute,
@@ -53,7 +96,7 @@ function createSettingsWindowProps(context: AppCompositionContext) {
     hotkeyQueueFields: context.settingsWindow.hotkeyQueueFields,
     isHotkeyRecording: context.settingsWindow.isHotkeyRecording,
     getHotkeyDisplay: context.settingsWindow.getHotkeyDisplay,
-    hotkeyErrorFields: context.settingsWindow.settingsErrorHotkeyFields,
+    hotkeyErrorFields: context.settingsWindow.settingsErrorHotkeyFieldIds,
     hotkeyErrorPrimaryField: context.settingsWindow.settingsErrorPrimaryHotkeyField,
     availableTerminals: context.settingsWindow.availableTerminals,
     terminalLoading: context.settingsWindow.terminalLoading,
@@ -83,10 +126,9 @@ function createSettingsWindowProps(context: AppCompositionContext) {
     commandSourceFileOptions: context.commandManagement.commandSourceFileOptions,
     commandGroups: context.commandManagement.commandGroups,
     settingsError: context.settingsWindow.settingsError,
-    settingsSaved: context.settingsWindow.settingsSaved,
-    settingsCloseConfirmOpen: context.settingsWindow.closeConfirmOpen,
-    cancelSettingsCloseConfirm: context.settingsWindow.cancelCloseConfirm,
-    discardUnsavedSettingsChanges: context.settingsWindow.discardUnsavedChanges,
+    settingsCloseConfirmOpen: closeConfirmOpen,
+    cancelSettingsCloseConfirm: () => {},
+    discardUnsavedSettingsChanges: () => {},
     navigateSettings: context.settingsWindow.navigateSettings,
     startHotkeyRecording: context.settingsWindow.startHotkeyRecording,
     toggleTerminalDropdown: context.settingsWindow.toggleTerminalDropdown,
@@ -94,7 +136,6 @@ function createSettingsWindowProps(context: AppCompositionContext) {
     selectLanguageOption: context.settingsWindow.selectLanguageOption,
     setAutoCheckUpdate: context.settingsWindow.setAutoCheckUpdate,
     setLaunchAtLogin: context.settingsWindow.setLaunchAtLogin,
-    saveSettings: context.settingsWindow.saveSettings,
     windowOpacity: context.windowOpacity,
     theme: context.theme,
     blurEnabled: context.blurEnabled,
@@ -182,6 +223,7 @@ export function createAppCompositionViewModel(
     confirmSafetyExecution: runtime.commandExecution.confirmSafetyExecution,
     cancelSafetyExecution: runtime.commandExecution.cancelSafetyExecution,
     ...settingsWindowProps,
+    settingsSaved: settingsMutationHandlers.settingsSaved,
     toggleCommandEnabled: settingsMutationHandlers.toggleCommandEnabled,
     setFilteredCommandsEnabled: settingsMutationHandlers.setFilteredCommandsEnabled,
     updateCommandView: settingsMutationHandlers.updateCommandView,
@@ -192,6 +234,7 @@ export function createAppCompositionViewModel(
     setWindowOpacity: settingsMutationHandlers.setWindowOpacity,
     setTheme: settingsMutationHandlers.setTheme,
     setBlurEnabled: settingsMutationHandlers.setBlurEnabled,
+    saveSettings: settingsMutationHandlers.saveSettings,
     setExecutionFeedback: runtime.commandExecution.setExecutionFeedback
   };
 }

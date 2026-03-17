@@ -1,11 +1,4 @@
-import {
-  clearSettingsErrorState,
-  hasUnsavedSettingsChanges,
-  markSettingsDirty,
-  syncSettingsBaseline,
-  type SettingsWindowState,
-  type UseSettingsWindowOptions
-} from "./model";
+import { clearSettingsErrorState, type SettingsWindowState, type UseSettingsWindowOptions } from "./model";
 
 export interface GeneralActions {
   setAutoCheckUpdate: (value: boolean) => void;
@@ -16,19 +9,19 @@ export interface GeneralActions {
 export function createGeneralActions(deps: {
   options: UseSettingsWindowOptions;
   state: SettingsWindowState;
+  persistSetting: () => Promise<void>;
+  applyAutoStartChange: (enabled: boolean) => Promise<void>;
 }): GeneralActions {
-  const { options, state } = deps;
+  const { options, state, persistSetting, applyAutoStartChange } = deps;
 
   function setAutoCheckUpdate(value: boolean): void {
     options.autoCheckUpdate.value = value;
-    markSettingsDirty(state);
     clearSettingsErrorState(state);
+    void persistSetting();
   }
 
   function setLaunchAtLogin(value: boolean): void {
-    options.launchAtLogin.value = value;
-    markSettingsDirty(state);
-    clearSettingsErrorState(state);
+    void applyAutoStartChange(value);
   }
 
   async function loadAutoStartEnabled(): Promise<void> {
@@ -46,11 +39,7 @@ export function createGeneralActions(deps: {
       const enabled = await options.readAutoStartEnabled();
       options.launchAtLogin.value = enabled;
       state.launchAtLoginBaseline.value = enabled;
-      state.settingsSaved.value = false;
       clearSettingsErrorState(state);
-      if (!hasUnsavedSettingsChanges(state, options)) {
-        syncSettingsBaseline(state, options);
-      }
     } catch (error) {
       console.error("read autostart status failed:", error);
       state.launchAtLoginBaseline.value ??= options.launchAtLogin.value;

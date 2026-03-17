@@ -29,7 +29,6 @@ interface UseAppLifecycleOptions {
   clearStagingTransitionTimer: () => void;
   clearStagedFeedbackTimer: () => void;
   clearExecutionFeedbackTimer: () => void;
-  clearSettingsSavedTimer: () => void;
   onMainReady?: () => void;
   onSettingsReady?: () => void;
 }
@@ -155,6 +154,5 @@ export function useAppLifecycle(options: UseAppLifecycleOptions): void {
     options.clearStagingTransitionTimer();
     options.clearStagedFeedbackTimer();
     options.clearExecutionFeedbackTimer();
-    options.clearSettingsSavedTimer();
   });
 }

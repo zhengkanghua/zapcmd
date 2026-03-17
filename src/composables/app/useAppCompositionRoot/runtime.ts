@@ -252,9 +252,8 @@ function bindAppRuntime(
     }
   });
   function requestCloseSettingsWindow(): void {
-    if (!context.settingsWindow.prepareToCloseSettingsWindow()) {
-      return;
-    }
+    context.settingsWindow.cancelHotkeyRecording();
+    context.settingsWindow.closeTerminalDropdown();
     closeSettingsWindowImmediately();
   }
   const onWindowKeydown = useAppWindowKeydown({
