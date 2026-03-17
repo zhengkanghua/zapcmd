@@ -3,6 +3,8 @@ import { computed } from "vue";
 import { useI18nText } from "../../../i18n";
 import { MIN_WINDOW_OPACITY, MAX_WINDOW_OPACITY } from "../../../stores/settingsStore";
 import type { ThemeMeta } from "../../../features/themes/themeRegistry";
+import SToggle from "../ui/SToggle.vue";
+import SSlider from "../ui/SSlider.vue";
 
 const props = defineProps<{
   windowOpacity: number;
@@ -22,88 +24,97 @@ const percentDisplay = computed(() =>
   t("settings.appearance.opacityValue", { value: Math.round(props.windowOpacity * 100) })
 );
 
-function onSliderInput(event: Event) {
-  const target = event.target as HTMLInputElement;
-  emit("update-opacity", Number(target.value));
-}
+const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 </script>
 
 <template>
-  <section class="settings-group">
-    <h2>{{ t("settings.appearance.title") }}</h2>
+  <section class="settings-group settings-appearance" aria-labelledby="settings-group-appearance">
+    <h2 id="settings-group-appearance">{{ t("settings.appearance.title") }}</h2>
 
-    <!-- 主题选择 -->
-    <div class="settings-field">
-      <label>{{ t("settings.appearance.themeLabel") }}</label>
-      <div class="theme-selector">
-        <button
-          v-for="themeMeta in props.themes"
-          :key="themeMeta.id"
-          type="button"
-          class="theme-card"
-          :class="{ 'theme-card--active': themeMeta.id === props.theme }"
-          @click="emit('update-theme', themeMeta.id)"
-        >
-          <div class="theme-card__swatches">
-            <span class="theme-card__swatch" :style="{ background: themeMeta.preview.bg }" />
-            <span class="theme-card__swatch" :style="{ background: themeMeta.preview.surface }" />
-            <span class="theme-card__swatch" :style="{ background: themeMeta.preview.accent }" />
-            <span class="theme-card__swatch" :style="{ background: themeMeta.preview.text }" />
+    <div class="appearance-cards">
+      <div class="appearance-card appearance-card--theme">
+        <div class="appearance-card__header">
+          <h3 class="appearance-card__title">{{ t("settings.appearance.themeLabel") }}</h3>
+        </div>
+        <div class="appearance-card__body">
+          <div class="theme-selector">
+            <button
+              v-for="themeMeta in props.themes"
+              :key="themeMeta.id"
+              type="button"
+              class="theme-card"
+              :class="{ 'theme-card--active': themeMeta.id === props.theme }"
+              @click="emit('update-theme', themeMeta.id)"
+            >
+              <div class="theme-card__swatches">
+                <span class="theme-card__swatch" :style="{ background: themeMeta.preview.bg }" />
+                <span class="theme-card__swatch" :style="{ background: themeMeta.preview.surface }" />
+                <span class="theme-card__swatch" :style="{ background: themeMeta.preview.accent }" />
+                <span class="theme-card__swatch" :style="{ background: themeMeta.preview.text }" />
+              </div>
+              <span class="theme-card__name">{{ themeMeta.name }}</span>
+            </button>
           </div>
-          <span class="theme-card__name">{{ themeMeta.name }}</span>
-        </button>
+        </div>
       </div>
-    </div>
 
-    <!-- 毛玻璃开关 -->
-    <div class="settings-field">
-      <label>{{ t("settings.appearance.blurLabel") }}</label>
-      <div class="appearance-toggle-row">
-        <button
-          type="button"
-          class="appearance-toggle"
-          :class="{ 'appearance-toggle--on': props.blurEnabled }"
-          role="switch"
-          :aria-checked="props.blurEnabled"
-          @click="emit('update-blur-enabled', !props.blurEnabled)"
-        >
-          <span class="appearance-toggle__thumb" />
-        </button>
-        <span class="appearance-toggle-label">
-          {{ props.blurEnabled
-            ? t("settings.appearance.blurOn")
-            : t("settings.appearance.blurOff") }}
-        </span>
+      <div class="appearance-card appearance-card--effects">
+        <div class="appearance-card__header">
+          <h3 class="appearance-card__title">
+            {{ t("settings.appearance.blurLabel") }} / {{ t("settings.appearance.opacityLabel") }}
+          </h3>
+        </div>
+        <div class="appearance-card__body appearance-effects">
+          <div class="appearance-row">
+            <div class="appearance-row__text">
+              <p class="appearance-row__label">{{ t("settings.appearance.blurLabel") }}</p>
+              <p class="appearance-row__hint">{{ t("settings.appearance.blurHint") }}</p>
+            </div>
+            <div class="appearance-row__control">
+              <SToggle
+                :model-value="props.blurEnabled"
+                @update:model-value="emit('update-blur-enabled', $event)"
+              />
+              <span class="appearance-row__value">
+                {{ props.blurEnabled ? t("settings.appearance.blurOn") : t("settings.appearance.blurOff") }}
+              </span>
+            </div>
+          </div>
+
+          <div class="appearance-row appearance-row--slider">
+            <div class="appearance-row__text">
+              <p class="appearance-row__label">{{ t("settings.appearance.opacityLabel") }}</p>
+              <p class="appearance-row__hint">{{ t("settings.appearance.opacityHint") }}</p>
+            </div>
+            <SSlider
+              class="appearance-row__slider"
+              :model-value="props.windowOpacity"
+              :min="MIN_WINDOW_OPACITY"
+              :max="MAX_WINDOW_OPACITY"
+              :step="0.01"
+              show-value
+              :format-value="formatOpacityValue"
+              @update:model-value="emit('update-opacity', $event)"
+            />
+          </div>
+        </div>
       </div>
-      <p class="settings-hint">{{ t("settings.appearance.blurHint") }}</p>
-    </div>
 
-    <div class="settings-field">
-      <label>{{ t("settings.appearance.opacityLabel") }}</label>
-      <div class="appearance-slider-row">
-        <input
-          type="range"
-          class="appearance-slider"
-          :min="MIN_WINDOW_OPACITY"
-          :max="MAX_WINDOW_OPACITY"
-          step="0.01"
-          :value="props.windowOpacity"
-          @input="onSliderInput"
-        />
-        <span class="appearance-slider-value">{{ percentDisplay }}</span>
-      </div>
-      <p class="settings-hint">{{ t("settings.appearance.opacityHint") }}</p>
-    </div>
-
-    <div class="settings-field">
-      <label>{{ t("settings.appearance.preview") }}</label>
-      <div class="appearance-preview-wrap">
-        <div
-          class="appearance-preview-panel"
-          :style="{ backgroundColor: `rgba(var(--theme-bg-rgb), ${props.windowOpacity})` }"
-        >
-          <span class="appearance-preview-text">ZapCmd</span>
-          <span class="appearance-preview-sub">{{ percentDisplay }}</span>
+      <div class="appearance-card appearance-card--preview">
+        <div class="appearance-card__header">
+          <h3 class="appearance-card__title">{{ t("settings.appearance.preview") }}</h3>
+          <span class="appearance-card__meta">{{ percentDisplay }}</span>
+        </div>
+        <div class="appearance-card__body">
+          <div class="appearance-preview-wrap">
+            <div
+              class="appearance-preview-panel"
+              :style="{ backgroundColor: `rgba(var(--theme-bg-rgb), ${props.windowOpacity})` }"
+            >
+              <span class="appearance-preview-text">ZapCmd</span>
+              <span class="appearance-preview-sub">{{ percentDisplay }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -111,49 +122,90 @@ function onSliderInput(event: Event) {
 </template>
 
 <style scoped>
-.appearance-slider-row {
+.appearance-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.appearance-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  display: grid;
+  gap: 10px;
+}
+
+.appearance-card__header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 12px;
 }
 
-.appearance-slider {
-  flex: 1;
-  height: 6px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 3px;
-  outline: none;
-  cursor: pointer;
+.appearance-card__title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.92);
 }
 
-.appearance-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--ui-accent);
-  border: 2px solid var(--ui-bg-deep);
-  cursor: grab;
-}
-
-.appearance-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--ui-accent);
-  border: 2px solid var(--ui-bg-deep);
-  cursor: grab;
-}
-
-.appearance-slider-value {
-  min-width: 44px;
-  text-align: right;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ui-text);
+.appearance-card__meta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ui-subtle);
   font-variant-numeric: tabular-nums;
+}
+
+.appearance-effects {
+  display: grid;
+  gap: 12px;
+}
+
+.appearance-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.appearance-row--slider {
+  align-items: start;
+}
+
+.appearance-row__text {
+  display: grid;
+  gap: 4px;
+}
+
+.appearance-row__label {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ui-subtle);
+  line-height: 1.35;
+}
+
+.appearance-row__hint {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.appearance-row__control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.appearance-row__slider {
+  min-width: 220px;
+}
+
+.appearance-row__value {
+  font-size: 12px;
+  color: var(--ui-subtle);
 }
 
 .appearance-preview-wrap {
@@ -240,45 +292,28 @@ function onSliderInput(event: Event) {
   color: var(--ui-text);
 }
 
-.appearance-toggle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+@media (min-width: 620px) {
+  .appearance-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .appearance-card--theme {
+    grid-column: 1 / -1;
+  }
 }
 
-.appearance-toggle {
-  position: relative;
-  width: 40px;
-  height: 22px;
-  border-radius: 11px;
-  background: var(--ui-toggle-off);
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: background-color 0.2s;
-}
+@media (max-width: 520px) {
+  .appearance-row {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
 
-.appearance-toggle--on {
-  background: var(--ui-toggle-on);
-}
+  .appearance-row__control {
+    justify-content: flex-start;
+  }
 
-.appearance-toggle__thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--ui-text);
-  transition: transform 0.2s;
-}
-
-.appearance-toggle--on .appearance-toggle__thumb {
-  transform: translateX(18px);
-}
-
-.appearance-toggle-label {
-  font-size: 13px;
-  color: var(--ui-subtle);
+  .appearance-row__slider {
+    min-width: 0;
+  }
 }
 </style>

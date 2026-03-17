@@ -82,106 +82,204 @@ const updateErrorNextStep = computed(() => {
 </script>
 
 <template>
-  <section class="settings-group">
-    <h2>{{ t("settings.about.title") }}</h2>
-    <p class="about-app-name">ZapCmd</p>
+  <section class="settings-group settings-about" aria-labelledby="settings-group-about">
+    <h2 id="settings-group-about">{{ t("settings.about.title") }}</h2>
 
-    <dl class="about-grid">
-      <div class="about-row">
-        <dt>{{ t("settings.about.version") }}</dt>
-        <dd>
-          <code>{{ props.appVersion || FALLBACK_TEXT }}</code>
-        </dd>
+    <header class="about-brand" data-testid="about-brand">
+      <div class="about-brand__logo" role="img" aria-label="ZapCmd logo">⚡</div>
+      <div class="about-brand__text">
+        <p class="about-brand__name">ZapCmd</p>
+        <p class="about-brand__meta">
+          <span>{{ t("settings.about.version") }}</span>
+          <code class="about-brand__version">{{ props.appVersion || FALLBACK_TEXT }}</code>
+        </p>
       </div>
-      <div class="about-row">
-        <dt>{{ t("settings.about.platform") }}</dt>
-        <dd>{{ props.runtimePlatform || FALLBACK_TEXT }}</dd>
-      </div>
-      <div class="about-row">
-        <dt>{{ t("settings.about.homepage") }}</dt>
-        <dd>
-          <code>{{ homepageUrl || FALLBACK_TEXT }}</code>
-        </dd>
-      </div>
-      <div class="about-row">
-        <dt>{{ t("settings.about.license") }}</dt>
-        <dd>MIT</dd>
-      </div>
-      <div class="about-row">
-        <dt>{{ t("settings.about.feedback") }}</dt>
-        <dd>
-          <code>{{ issuesUrl || FALLBACK_TEXT }}</code>
-        </dd>
-      </div>
-    </dl>
+    </header>
 
-    <div class="about-actions">
-      <button type="button" class="btn-muted" :disabled="!canCheckUpdate" @click="emit('check-update')">
-        {{ checkButtonLabel }}
-      </button>
-      <button
-        v-if="canDownloadUpdate"
-        type="button"
-        class="btn-primary"
-        @click="emit('download-update')"
-      >
-        {{ t("settings.about.downloadUpdate") }}
-      </button>
-      <button type="button" class="btn-muted" @click="emit('open-homepage')">
-        {{ t("settings.about.openHomepage") }}
-      </button>
-    </div>
-
-    <div v-if="props.updateStatus.state === 'error'" class="about-status about-status--error" role="status">
-      <p class="about-status__title">{{ updateErrorMessage }}</p>
-      <p class="about-status__next-step">{{ updateErrorNextStep }}</p>
-    </div>
-    <div v-else-if="props.updateStatus.state === 'checking'" class="about-status about-status--loading" role="status">
-      <p class="about-status__title">{{ t("settings.about.checking") }}</p>
-      <p class="about-status__next-step">{{ t("settings.about.checkingHint") }}</p>
-    </div>
-    <div
-      v-else-if="props.updateStatus.state === 'upToDate'"
-      class="about-status about-status--success"
-      role="status"
-    >
-      {{ t("settings.about.upToDate") }}
-    </div>
-    <div v-else-if="props.updateStatus.state === 'available'" class="about-status" role="status">
-      <p class="about-status__title">
-        {{ t("settings.about.updateAvailable", { version: props.updateStatus.version }) }}
-      </p>
-      <div v-if="props.updateStatus.body" class="about-status__body">
-        <p class="about-status__label">{{ t("settings.about.updateBody") }}</p>
-        <pre class="about-status__content">{{ props.updateStatus.body }}</pre>
+    <div class="about-cards">
+      <div class="about-card about-card--info" data-testid="about-info-card">
+        <h3 class="about-card__title">{{ t("settings.about.title") }}</h3>
+        <dl class="about-grid">
+          <div class="about-row">
+            <dt>{{ t("settings.about.version") }}</dt>
+            <dd>
+              <code>{{ props.appVersion || FALLBACK_TEXT }}</code>
+            </dd>
+          </div>
+          <div class="about-row">
+            <dt>{{ t("settings.about.platform") }}</dt>
+            <dd>{{ props.runtimePlatform || FALLBACK_TEXT }}</dd>
+          </div>
+          <div class="about-row">
+            <dt>{{ t("settings.about.homepage") }}</dt>
+            <dd>
+              <code>{{ homepageUrl || FALLBACK_TEXT }}</code>
+            </dd>
+          </div>
+          <div class="about-row">
+            <dt>{{ t("settings.about.license") }}</dt>
+            <dd>MIT</dd>
+          </div>
+          <div class="about-row">
+            <dt>{{ t("settings.about.feedback") }}</dt>
+            <dd>
+              <code>{{ issuesUrl || FALLBACK_TEXT }}</code>
+            </dd>
+          </div>
+        </dl>
       </div>
-    </div>
-    <div v-else-if="props.updateStatus.state === 'downloading'" class="about-status about-status--loading" role="status">
-      <p class="about-status__title">
-        {{ t("settings.about.downloading", { progress: props.updateStatus.progressPercent }) }}
-      </p>
-      <p class="about-status__next-step">{{ t("settings.about.downloadingHint") }}</p>
-      <progress :value="props.updateStatus.progressPercent" max="100"></progress>
-    </div>
-    <div v-else-if="props.updateStatus.state === 'installing'" class="about-status about-status--loading" role="status">
-      <p class="about-status__title">{{ t("settings.about.installing") }}</p>
-      <p class="about-status__next-step">{{ t("settings.about.installingHint") }}</p>
+
+      <div class="about-card about-card--actions" data-testid="about-actions-card">
+        <h3 class="about-card__title">{{ t("settings.about.checkUpdate") }}</h3>
+        <div class="about-actions">
+          <button
+            type="button"
+            class="btn-muted"
+            :disabled="!canCheckUpdate"
+            @click="emit('check-update')"
+          >
+            {{ checkButtonLabel }}
+          </button>
+          <button
+            v-if="canDownloadUpdate"
+            type="button"
+            class="btn-primary"
+            @click="emit('download-update')"
+          >
+            {{ t("settings.about.downloadUpdate") }}
+          </button>
+          <button type="button" class="btn-muted" @click="emit('open-homepage')">
+            {{ t("settings.about.openHomepage") }}
+          </button>
+        </div>
+
+        <div v-if="props.updateStatus.state === 'error'" class="about-status about-status--error" role="status">
+          <p class="about-status__title">{{ updateErrorMessage }}</p>
+          <p class="about-status__next-step">{{ updateErrorNextStep }}</p>
+        </div>
+        <div
+          v-else-if="props.updateStatus.state === 'checking'"
+          class="about-status about-status--loading"
+          role="status"
+        >
+          <p class="about-status__title">{{ t("settings.about.checking") }}</p>
+          <p class="about-status__next-step">{{ t("settings.about.checkingHint") }}</p>
+        </div>
+        <div
+          v-else-if="props.updateStatus.state === 'upToDate'"
+          class="about-status about-status--success"
+          role="status"
+        >
+          {{ t("settings.about.upToDate") }}
+        </div>
+        <div v-else-if="props.updateStatus.state === 'available'" class="about-status" role="status">
+          <p class="about-status__title">
+            {{ t("settings.about.updateAvailable", { version: props.updateStatus.version }) }}
+          </p>
+          <div v-if="props.updateStatus.body" class="about-status__body">
+            <p class="about-status__label">{{ t("settings.about.updateBody") }}</p>
+            <pre class="about-status__content">{{ props.updateStatus.body }}</pre>
+          </div>
+        </div>
+        <div
+          v-else-if="props.updateStatus.state === 'downloading'"
+          class="about-status about-status--loading"
+          role="status"
+        >
+          <p class="about-status__title">
+            {{ t("settings.about.downloading", { progress: props.updateStatus.progressPercent }) }}
+          </p>
+          <p class="about-status__next-step">{{ t("settings.about.downloadingHint") }}</p>
+          <progress :value="props.updateStatus.progressPercent" max="100"></progress>
+        </div>
+        <div
+          v-else-if="props.updateStatus.state === 'installing'"
+          class="about-status about-status--loading"
+          role="status"
+        >
+          <p class="about-status__title">{{ t("settings.about.installing") }}</p>
+          <p class="about-status__next-step">{{ t("settings.about.installingHint") }}</p>
+        </div>
+      </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-.about-app-name {
-  margin: 0 0 12px;
-  font-size: 13px;
-  font-weight: 700;
+.about-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.about-brand__logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.92);
+  flex-shrink: 0;
+}
+
+.about-brand__text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.about-brand__name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 750;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.about-brand__meta {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.about-brand__version {
+  font-variant-numeric: tabular-nums;
+}
+
+.about-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.about-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  display: grid;
+  gap: 10px;
+}
+
+.about-card__title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
   color: rgba(255, 255, 255, 0.92);
 }
 
 .about-grid {
   display: grid;
   gap: 10px;
-  margin: 0 0 12px;
+  margin: 0;
 }
 
 .about-row {
@@ -206,7 +304,7 @@ const updateErrorNextStep = computed(() => {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 8px;
+  margin: 0;
 }
 
 .about-status {
@@ -265,5 +363,17 @@ progress {
   border-radius: 10px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+@media (min-width: 620px) {
+  .about-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .about-card--actions {
+    position: sticky;
+    top: 8px;
+  }
 }
 </style>

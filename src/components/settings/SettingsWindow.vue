@@ -10,15 +10,7 @@ import SettingsCommandsSection from "./parts/SettingsCommandsSection.vue";
 import SettingsGeneralSection from "./parts/SettingsGeneralSection.vue";
 import SettingsHotkeysSection from "./parts/SettingsHotkeysSection.vue";
 import SSegmentNav from "./ui/SSegmentNav.vue";
-import type {
-  SettingsAboutProps,
-  SettingsAppearanceProps,
-  SettingsCommandsProps,
-  SettingsGeneralProps,
-  SettingsHotkeysProps,
-  SettingsNavItem,
-  SettingsWindowProps
-} from "./types";
+import type { SettingsWindowProps } from "./types";
 
 const props = defineProps<SettingsWindowProps>();
 const appWindow = getCurrentWindow();
