@@ -21,6 +21,8 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
+const listboxId = `s-select-listbox-${Math.random().toString(36).slice(2)}`;
+
 const triggerRef = ref<HTMLButtonElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 
@@ -156,7 +158,7 @@ function onTriggerKeydown(event: KeyboardEvent): void {
     setFocusedIndex(props.options.length - 1);
     return;
   }
-  if (event.key === "Enter") {
+  if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
     const option = props.options[focusIndex.value];
     if (option) {
@@ -214,6 +216,9 @@ onBeforeUnmount(() => {
       class="s-select__trigger"
       :disabled="props.disabled || props.options.length === 0"
       :aria-expanded="open"
+      aria-haspopup="listbox"
+      :aria-controls="open ? listboxId : undefined"
+      :aria-activedescendant="open && focusIndex >= 0 ? `${listboxId}-option-${focusIndex}` : undefined"
       @click="toggleDropdown"
       @keydown="onTriggerKeydown"
     >
@@ -233,9 +238,10 @@ onBeforeUnmount(() => {
 
     <Teleport to="body">
       <div v-if="open" ref="panelRef" class="s-select__panel" :style="panelStyle">
-        <ul class="s-select__list" role="listbox">
+        <ul :id="listboxId" class="s-select__list" role="listbox">
           <li v-for="(item, index) in props.options" :key="item.value" class="s-select__item">
             <button
+              :id="`${listboxId}-option-${index}`"
               type="button"
               role="option"
               class="s-select__option"
@@ -368,4 +374,3 @@ onBeforeUnmount(() => {
   margin-top: 2px;
 }
 </style>
-
