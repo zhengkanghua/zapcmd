@@ -520,3 +520,7 @@
 
 - 完成独立入口（`settings.html`/`src/main-settings.ts`/`src/AppSettings.vue`）与 Vite 多入口；Rust settings 窗口改指 `settings.html`（`.decorations(false)`）。新增 `SToggle/SSegmentNav/SSelect/SSlider` 及单测，`npm run check:all` 全绿。
 - 已完成 Task 11（即时保存 persistence）：重写 `useSettingsWindow/persistence` 为即时保存链路（含写入失败回滚），更新 `index.ts` 接线与单测；`npm run test:run -- src/composables/__tests__/settings/` 通过。
+
+## 补充（2026-03-17｜Settings Task 15）
+
+- 外观/关于页改为卡片布局；外观用 `SToggle` + `SSlider`（0.2-1.0，百分比显示）并保留预览；关于页新增品牌头部（⚡占位）+ 信息/操作卡片；组件单测已更新并通过。
