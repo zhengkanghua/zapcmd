@@ -26,12 +26,6 @@ export interface SettingsNavItem {
   label: string;
 }
 
-export interface SettingsNavProps {
-  settingsNavItems: SettingsNavItem[];
-  settingsRoute: SettingsRoute;
-  settingsErrorRoute: SettingsRoute | null;
-}
-
 export interface SettingsHotkeysProps {
   hotkeyGlobalFields: HotkeyFieldDefinition[];
   hotkeySearchFields: HotkeyFieldDefinition[];

@@ -1,49 +1,58 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { computed } from "vue";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { CommandManagementViewState, SettingsRoute } from "../../features/settings/types";
 import type { HotkeyFieldId } from "../../stores/settingsStore";
-import { useI18nText, type AppLocale } from "../../i18n";
+import type { AppLocale } from "../../i18n";
 import SettingsAppearanceSection from "./parts/SettingsAppearanceSection.vue";
 import SettingsAboutSection from "./parts/SettingsAboutSection.vue";
 import SettingsCommandsSection from "./parts/SettingsCommandsSection.vue";
 import SettingsGeneralSection from "./parts/SettingsGeneralSection.vue";
 import SettingsHotkeysSection from "./parts/SettingsHotkeysSection.vue";
-import SettingsNav from "./parts/SettingsNav.vue";
+import SSegmentNav from "./ui/SSegmentNav.vue";
 import type {
   SettingsAboutProps,
   SettingsAppearanceProps,
   SettingsCommandsProps,
   SettingsGeneralProps,
   SettingsHotkeysProps,
-  SettingsNavProps
+  SettingsNavItem
 } from "./types";
 
-type SettingsWindowProps = SettingsNavProps &
-  SettingsHotkeysProps &
+type SettingsWindowProps = SettingsHotkeysProps &
   SettingsCommandsProps &
   SettingsGeneralProps &
   SettingsAppearanceProps &
   SettingsAboutProps & {
-  settingsError: string;
-  settingsSaved: boolean;
-  closeConfirmOpen: boolean;
+  settingsNavItems: SettingsNavItem[];
+  settingsRoute: SettingsRoute;
 };
 
 const props = defineProps<SettingsWindowProps>();
-const { t } = useI18nText();
+const appWindow = getCurrentWindow();
+const minimizeWindow = () => appWindow.minimize();
+const toggleMaximize = () => appWindow.toggleMaximize();
+const closeWindow = () => appWindow.close();
 
-const keepEditingButtonRef = ref<HTMLButtonElement | null>(null);
+const iconByRoute: Record<SettingsRoute, string> = {
+  hotkeys: "⌨",
+  general: "⚙",
+  commands: "≡",
+  appearance: "✦",
+  about: "ℹ"
+};
 
-watch(
-  () => props.closeConfirmOpen,
-  async (open) => {
-    if (!open) {
-      return;
-    }
-    await nextTick();
-    keepEditingButtonRef.value?.focus();
-  }
+const segmentItems = computed(() =>
+  props.settingsNavItems.map((item) => ({
+    id: item.route,
+    label: item.label,
+    icon: iconByRoute[item.route] ?? "•"
+  }))
 );
+const segmentRoute = computed({
+  get: () => props.settingsRoute,
+  set: (value) => emit("navigate", value as SettingsRoute)
+});
 
 const emit = defineEmits<{
   (e: "navigate", route: SettingsRoute): void;
@@ -63,50 +72,33 @@ const emit = defineEmits<{
   (e: "check-update"): void;
   (e: "download-update"): void;
   (e: "open-homepage"): void;
-  (e: "close"): void;
-  (e: "apply"): void;
-  (e: "confirm"): void;
-  (e: "navigate-to-error"): void;
-  (e: "cancel-close-confirm"): void;
-  (e: "discard-close-confirm"): void;
 }>();
 </script>
 
 <template>
   <main class="settings-window-root">
-    <div
-      v-if="props.settingsError"
-      class="settings-error execution-feedback execution-toast execution-feedback--error"
-      role="alert"
-      aria-live="assertive"
-    >
-      <span class="settings-error__text">{{ props.settingsError }}</span>
-      <button
-        v-if="props.settingsErrorRoute && props.settingsErrorRoute !== props.settingsRoute"
-        type="button"
-        class="btn-muted settings-error__action"
-        @click="emit('navigate-to-error')"
-      >
-        {{ t("settings.error.gotoRoute", { route: t(`settings.nav.${props.settingsErrorRoute}`) }) }}
-      </button>
-    </div>
-    <p
-      v-else-if="props.settingsSaved"
-      class="settings-ok execution-feedback execution-toast execution-feedback--success"
-      role="status"
-      aria-live="polite"
-    >
-      {{ t("settings.saved") }}
-    </p>
-    <div class="settings-window__body">
-      <SettingsNav
-        :settings-nav-items="props.settingsNavItems"
-        :settings-route="props.settingsRoute"
-        :settings-error-route="props.settingsErrorRoute"
-        @navigate="emit('navigate', $event)"
-      />
+    <header class="settings-window__titlebar">
+      <div class="settings-window__drag" data-tauri-drag-region></div>
+      <div class="settings-window__controls">
+        <button type="button" class="settings-window__control" aria-label="最小化" @click="minimizeWindow">
+          —
+        </button>
+        <button type="button" class="settings-window__control" aria-label="最大化/还原" @click="toggleMaximize">
+          ▢
+        </button>
+        <button type="button" class="settings-window__control" aria-label="关闭" @click="closeWindow">
+          ✕
+        </button>
+      </div>
+    </header>
 
-      <section class="settings-content" aria-label="settings-content">
+    <SSegmentNav v-model="segmentRoute" :items="segmentItems" />
+
+    <div
+      class="settings-content"
+      :class="{ 'settings-content--full-width': props.settingsRoute === 'commands' }"
+      aria-label="settings-content"
+    >
         <SettingsHotkeysSection
           v-if="props.settingsRoute === 'hotkeys'"
           :hotkey-global-fields="props.hotkeyGlobalFields"
@@ -176,44 +168,6 @@ const emit = defineEmits<{
           @update-theme="emit('update-theme', $event)"
           @update-blur-enabled="emit('update-blur-enabled', $event)"
         />
-      </section>
     </div>
-
-    <Transition name="settings-close-confirm">
-      <div v-if="props.closeConfirmOpen" class="settings-close-confirm">
-        <button
-          type="button"
-          class="settings-close-confirm__scrim"
-          :aria-label="t('common.cancel')"
-          @click="emit('cancel-close-confirm')"
-        ></button>
-        <section class="settings-close-confirm__panel" role="dialog">
-          <h2 class="settings-close-confirm__title">{{ t("settings.unsavedDiscardTitle") }}</h2>
-          <p class="settings-close-confirm__text">{{ t("settings.unsavedDiscardConfirm") }}</p>
-          <footer class="settings-close-confirm__footer">
-            <button
-              ref="keepEditingButtonRef"
-              type="button"
-              class="btn-muted"
-              @click="emit('cancel-close-confirm')"
-            >
-              {{ t("settings.unsavedDiscardKeepEditing") }}
-            </button>
-            <button type="button" class="btn-danger" @click="emit('discard-close-confirm')">
-              {{ t("settings.unsavedDiscardDiscard") }}
-            </button>
-          </footer>
-        </section>
-      </div>
-    </Transition>
-
-    <p v-if="props.settingsRoute === 'hotkeys'" class="settings-hint">
-      {{ t("settings.hotkeys.hint") }}
-    </p>
-    <footer class="settings-window__footer">
-      <button type="button" class="btn-muted" @click="emit('close')">{{ t("common.cancel") }}</button>
-      <button type="button" class="btn-muted" @click="emit('apply')">{{ t("common.apply") }}</button>
-      <button type="button" class="btn-primary" @click="emit('confirm')">{{ t("common.confirm") }}</button>
-    </footer>
   </main>
 </template>
