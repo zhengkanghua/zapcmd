@@ -32,8 +32,7 @@ const settingsRoute = computed({
 
 const emit = defineEmits<{
   (e: "navigate", route: SettingsRoute): void;
-  (e: "start-recording", field: HotkeyFieldId): void;
-  (e: "toggle-terminal-dropdown"): void;
+  (e: "update-hotkey", field: HotkeyFieldId, value: string): void;
   (e: "select-terminal", id: string): void;
   (e: "select-language", locale: AppLocale): void;
   (e: "set-auto-check-update", value: boolean): void;
@@ -82,11 +81,10 @@ const emit = defineEmits<{
           :hotkey-global-fields="props.hotkeyGlobalFields"
           :hotkey-search-fields="props.hotkeySearchFields"
           :hotkey-queue-fields="props.hotkeyQueueFields"
-          :is-hotkey-recording="props.isHotkeyRecording"
-          :get-hotkey-display="props.getHotkeyDisplay"
+          :get-hotkey-value="props.getHotkeyValue"
           :hotkey-error-fields="props.hotkeyErrorFields"
-          :hotkey-error-primary-field="props.hotkeyErrorPrimaryField"
-          @start-recording="emit('start-recording', $event)"
+          :hotkey-error-message="props.hotkeyErrorMessage"
+          @update-hotkey="(field, value) => emit('update-hotkey', field, value)"
         />
         <SettingsGeneralSection
           v-else-if="settingsRoute === 'general'"
@@ -101,7 +99,6 @@ const emit = defineEmits<{
           :language-options="props.languageOptions"
           :auto-check-update="props.autoCheckUpdate"
           :launch-at-login="props.launchAtLogin"
-          @toggle-terminal-dropdown="emit('toggle-terminal-dropdown')"
           @select-terminal="emit('select-terminal', $event)"
           @select-language="emit('select-language', $event)"
           @set-auto-check-update="emit('set-auto-check-update', $event)"
@@ -116,6 +113,7 @@ const emit = defineEmits<{
           :command-view="props.commandView"
           :command-source-options="props.commandSourceOptions"
           :command-status-options="props.commandStatusOptions"
+          :command-category-options="props.commandCategoryOptions"
           :command-override-options="props.commandOverrideOptions"
           :command-issue-options="props.commandIssueOptions"
           :command-sort-options="props.commandSortOptions"

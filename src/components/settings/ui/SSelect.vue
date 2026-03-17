@@ -134,7 +134,13 @@ function onTriggerKeydown(event: KeyboardEvent): void {
     return;
   }
 
-  if (event.key === "Escape" || event.key === "Tab") {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    closeDropdown();
+    return;
+  }
+  if (event.key === "Tab") {
     closeDropdown();
     return;
   }

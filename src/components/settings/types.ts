@@ -39,10 +39,9 @@ export interface SettingsHotkeysProps {
   hotkeyGlobalFields: HotkeyFieldDefinition[];
   hotkeySearchFields: HotkeyFieldDefinition[];
   hotkeyQueueFields: HotkeyFieldDefinition[];
-  isHotkeyRecording: (field: HotkeyFieldId) => boolean;
-  getHotkeyDisplay: (field: HotkeyFieldId) => string;
+  getHotkeyValue: (field: HotkeyFieldId) => string;
   hotkeyErrorFields: HotkeyFieldId[];
-  hotkeyErrorPrimaryField: HotkeyFieldId | null;
+  hotkeyErrorMessage: string;
 }
 
 export interface SettingsGeneralProps {
@@ -67,6 +66,7 @@ export interface SettingsCommandsProps {
   commandView: CommandManagementViewState;
   commandSourceOptions: CommandSelectOption<CommandFilterSource>[];
   commandStatusOptions: CommandSelectOption<CommandFilterStatus>[];
+  commandCategoryOptions: CommandSelectOption<string>[];
   commandOverrideOptions: CommandSelectOption<CommandFilterOverride>[];
   commandIssueOptions: CommandSelectOption<CommandFilterIssue>[];
   commandSortOptions: CommandSelectOption<CommandSortBy>[];

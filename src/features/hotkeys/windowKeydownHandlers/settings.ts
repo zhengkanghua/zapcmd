@@ -81,6 +81,7 @@ export function handleSettingsWindowKeydown(
   }
 
   event.preventDefault();
+  event.stopPropagation();
   if (settings.terminalDropdownOpen.value) {
     settings.closeTerminalDropdown();
     return;

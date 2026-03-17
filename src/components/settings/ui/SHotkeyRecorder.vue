@@ -48,6 +48,8 @@ function onKeydown(event: KeyboardEvent): void {
   }
 
   if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
     cancelRecording();
     return;
   }
