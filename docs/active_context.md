@@ -515,3 +515,7 @@
 ## 补充（2026-03-16｜LauncherFrame 高度/拖拽 bugfix）
 
 - 修复：进入参数面板不缩小（floor 取进入前高度，仍受 designCap 上限）；参数面板开 FlowPanel 也保持最小高度；FlowPanel 去除常驻 transform 并补 drag-region 恢复拖拽。验收：`npm run check:all`。
+
+## 补充（2026-03-17｜Settings 面板重构进展）
+
+- 完成独立入口（`settings.html`/`src/main-settings.ts`/`src/AppSettings.vue`）与 Vite 多入口；Rust settings 窗口改指 `settings.html`（`.decorations(false)`）。新增 `SToggle/SSegmentNav/SSelect/SSlider` 及单测，`npm run check:all` 全绿。
