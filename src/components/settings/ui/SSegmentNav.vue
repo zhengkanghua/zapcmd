@@ -21,12 +21,18 @@ const activeIndex = computed(() =>
 );
 
 function onKeydown(e: KeyboardEvent) {
+  if (props.items.length === 0) {
+    return;
+  }
+
   const idx = activeIndex.value;
-  let next = idx;
+  const currentIndex = idx >= 0 ? idx : 0;
+
+  let next: number;
   if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-    next = (idx + 1) % props.items.length;
+    next = (currentIndex + 1) % props.items.length;
   } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-    next = (idx - 1 + props.items.length) % props.items.length;
+    next = (currentIndex - 1 + props.items.length) % props.items.length;
   } else if (e.key === "Home") {
     next = 0;
   } else if (e.key === "End") {
@@ -112,4 +118,3 @@ function onKeydown(e: KeyboardEvent) {
   font-size: 13px;
 }
 </style>
-
