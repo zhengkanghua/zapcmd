@@ -26,6 +26,15 @@ export interface SettingsNavItem {
   label: string;
 }
 
+export type SettingsWindowProps = SettingsHotkeysProps &
+  SettingsCommandsProps &
+  SettingsGeneralProps &
+  SettingsAppearanceProps &
+  SettingsAboutProps & {
+  settingsNavItems: SettingsNavItem[];
+  settingsRoute: SettingsRoute;
+};
+
 export interface SettingsHotkeysProps {
   hotkeyGlobalFields: HotkeyFieldDefinition[];
   hotkeySearchFields: HotkeyFieldDefinition[];

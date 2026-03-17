@@ -16,17 +16,9 @@ import type {
   SettingsCommandsProps,
   SettingsGeneralProps,
   SettingsHotkeysProps,
-  SettingsNavItem
+  SettingsNavItem,
+  SettingsWindowProps
 } from "./types";
-
-type SettingsWindowProps = SettingsHotkeysProps &
-  SettingsCommandsProps &
-  SettingsGeneralProps &
-  SettingsAppearanceProps &
-  SettingsAboutProps & {
-  settingsNavItems: SettingsNavItem[];
-  settingsRoute: SettingsRoute;
-};
 
 const props = defineProps<SettingsWindowProps>();
 const appWindow = getCurrentWindow();
@@ -34,22 +26,14 @@ const minimizeWindow = () => appWindow.minimize();
 const toggleMaximize = () => appWindow.toggleMaximize();
 const closeWindow = () => appWindow.close();
 
-const iconByRoute: Record<SettingsRoute, string> = {
-  hotkeys: "⌨",
-  general: "⚙",
-  commands: "≡",
-  appearance: "✦",
-  about: "ℹ"
-};
-
-const segmentItems = computed(() =>
+const navItems = computed(() =>
   props.settingsNavItems.map((item) => ({
     id: item.route,
     label: item.label,
-    icon: iconByRoute[item.route] ?? "•"
+    icon: ""
   }))
 );
-const segmentRoute = computed({
+const settingsRoute = computed({
   get: () => props.settingsRoute,
   set: (value) => emit("navigate", value as SettingsRoute)
 });
@@ -77,30 +61,32 @@ const emit = defineEmits<{
 
 <template>
   <main class="settings-window-root">
-    <header class="settings-window__titlebar">
-      <div class="settings-window__drag" data-tauri-drag-region></div>
-      <div class="settings-window__controls">
-        <button type="button" class="settings-window__control" aria-label="最小化" @click="minimizeWindow">
-          —
-        </button>
-        <button type="button" class="settings-window__control" aria-label="最大化/还原" @click="toggleMaximize">
-          ▢
-        </button>
-        <button type="button" class="settings-window__control" aria-label="关闭" @click="closeWindow">
-          ✕
+    <div class="settings-drag-region" data-tauri-drag-region>
+      <span class="settings-drag-region__title">ZapCmd Settings</span>
+      <div class="settings-drag-region__controls">
+        <button class="settings-drag-region__btn" aria-label="最小化" @click="minimizeWindow">─</button>
+        <button class="settings-drag-region__btn" aria-label="最大化" @click="toggleMaximize">□</button>
+        <button
+          class="settings-drag-region__btn settings-drag-region__btn--close"
+          aria-label="关闭"
+          @click="closeWindow"
+        >
+          ×
         </button>
       </div>
-    </header>
+    </div>
 
-    <SSegmentNav v-model="segmentRoute" :items="segmentItems" />
+    <div class="settings-nav-bar">
+      <SSegmentNav :items="navItems" v-model="settingsRoute" />
+    </div>
 
     <div
       class="settings-content"
-      :class="{ 'settings-content--full-width': props.settingsRoute === 'commands' }"
+      :class="{ 'settings-content--full-width': settingsRoute === 'commands' }"
       aria-label="settings-content"
     >
         <SettingsHotkeysSection
-          v-if="props.settingsRoute === 'hotkeys'"
+          v-if="settingsRoute === 'hotkeys'"
           :hotkey-global-fields="props.hotkeyGlobalFields"
           :hotkey-search-fields="props.hotkeySearchFields"
           :hotkey-queue-fields="props.hotkeyQueueFields"
@@ -111,7 +97,7 @@ const emit = defineEmits<{
           @start-recording="emit('start-recording', $event)"
         />
         <SettingsGeneralSection
-          v-else-if="props.settingsRoute === 'general'"
+          v-else-if="settingsRoute === 'general'"
           :available-terminals="props.availableTerminals"
           :terminal-loading="props.terminalLoading"
           :terminal-dropdown-open="props.terminalDropdownOpen"
@@ -130,7 +116,7 @@ const emit = defineEmits<{
           @set-launch-at-login="emit('set-launch-at-login', $event)"
         />
         <SettingsCommandsSection
-          v-else-if="props.settingsRoute === 'commands'"
+          v-else-if="settingsRoute === 'commands'"
           :command-rows="props.commandRows"
           :command-summary="props.commandSummary"
           :command-load-issues="props.commandLoadIssues"
@@ -150,7 +136,7 @@ const emit = defineEmits<{
           @reset-filters="emit('reset-command-filters')"
         />
         <SettingsAboutSection
-          v-else-if="props.settingsRoute === 'about'"
+          v-else-if="settingsRoute === 'about'"
           :app-version="props.appVersion"
           :runtime-platform="props.runtimePlatform"
           :update-status="props.updateStatus"
