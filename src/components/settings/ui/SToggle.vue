@@ -14,14 +14,28 @@ const emit = defineEmits<{
   "update:modelValue": [value: boolean];
 }>();
 
+let ignoreNextKeyboardClick = false;
+
 function toggle() {
   if (!props.disabled) {
     emit("update:modelValue", !props.modelValue);
   }
 }
 
+function onClick(e: MouseEvent) {
+  if (ignoreNextKeyboardClick && e.detail === 0) {
+    ignoreNextKeyboardClick = false;
+    return;
+  }
+  toggle();
+}
+
 function onKeydown(e: KeyboardEvent) {
   if (e.key === " " || e.key === "Enter") {
+    if (e.repeat) {
+      return;
+    }
+    ignoreNextKeyboardClick = true;
     e.preventDefault();
     toggle();
   }
@@ -42,7 +56,7 @@ function onKeydown(e: KeyboardEvent) {
     ]"
     :aria-checked="String(modelValue)"
     :disabled="disabled"
-    @click="toggle"
+    @click="onClick"
     @keydown="onKeydown"
   >
     <span class="s-toggle__thumb" />
@@ -74,14 +88,14 @@ function onKeydown(e: KeyboardEvent) {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--ui-text-muted, #71717a);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  background: var(--ui-dim);
+  box-shadow: 0 0 0 1px var(--ui-border-light);
   transition: transform 150ms cubic-bezier(0.33, 1, 0.68, 1), background 150ms;
 }
 
 .s-toggle--on .s-toggle__thumb {
   transform: translateX(16px);
-  background: white;
+  background: var(--ui-text);
 }
 
 .s-toggle--compact {
@@ -108,4 +122,3 @@ function onKeydown(e: KeyboardEvent) {
   box-shadow: 0 0 0 2px var(--ui-brand-soft);
 }
 </style>
-
