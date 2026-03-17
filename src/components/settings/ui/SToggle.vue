@@ -54,7 +54,7 @@ function onKeydown(e: KeyboardEvent) {
         's-toggle--disabled': disabled
       }
     ]"
-    :aria-checked="String(modelValue)"
+    :aria-checked="modelValue"
     :disabled="disabled"
     @click="onClick"
     @keydown="onKeydown"

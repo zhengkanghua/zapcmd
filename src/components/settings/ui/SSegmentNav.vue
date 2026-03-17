@@ -56,7 +56,7 @@ function onKeydown(e: KeyboardEvent) {
         's-segment-nav__tab',
         { 's-segment-nav__tab--active': modelValue === item.id }
       ]"
-      :aria-selected="String(modelValue === item.id)"
+      :aria-selected="modelValue === item.id"
       :tabindex="modelValue === item.id ? 0 : -1"
       @click="emit('update:modelValue', item.id)"
     >
