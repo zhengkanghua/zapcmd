@@ -83,14 +83,20 @@ function setSortBy(value: string): void {
 <template>
   <section class="settings-commands" aria-label="command-management">
     <div class="settings-commands-toolbar" aria-label="command-management-toolbar">
-      <input
-        class="settings-commands-toolbar__search"
-        type="search"
-        :value="props.commandView.query"
-        :placeholder="t('settings.commands.queryPlaceholder')"
-        @input="onQueryInput"
-      />
-      <div class="settings-commands-toolbar__summary" aria-label="command-management-summary" aria-live="polite">
+      <div class="settings-commands-toolbar__search-row">
+        <input
+          class="settings-commands-toolbar__search"
+          type="search"
+          :value="props.commandView.query"
+          :placeholder="t('settings.commands.queryPlaceholder')"
+          @input="onQueryInput"
+        />
+      </div>
+      <div
+        class="settings-commands-toolbar__summary settings-commands-toolbar__summary-row"
+        aria-label="command-management-summary"
+        aria-live="polite"
+      >
         <span class="settings-commands-toolbar__badge">
           {{ t("settings.commands.summaryFiltered", { filtered: props.commandFilteredCount }) }}
         </span>
@@ -233,4 +239,3 @@ function setSortBy(value: string): void {
     </ul>
   </section>
 </template>
-
