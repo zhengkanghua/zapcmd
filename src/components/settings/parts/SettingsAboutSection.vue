@@ -170,7 +170,7 @@ const updateErrorNextStep = computed(() => {
           class="about-status about-status--success"
           role="status"
         >
-          {{ t("settings.about.upToDate") }}
+          <p class="about-status__title">{{ t("settings.about.upToDate") }}</p>
         </div>
         <div v-else-if="props.updateStatus.state === 'available'" class="about-status" role="status">
           <p class="about-status__title">
@@ -210,15 +210,15 @@ const updateErrorNextStep = computed(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 14px 16px;
+  border: 1px solid var(--ui-settings-card-border);
+  border-radius: 16px;
+  background: var(--ui-settings-card-bg);
 }
 
 .about-brand__logo {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 14px;
   display: grid;
   place-items: center;
@@ -237,7 +237,7 @@ const updateErrorNextStep = computed(() => {
 
 .about-brand__name {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 750;
   color: rgba(255, 255, 255, 0.92);
 }
@@ -252,19 +252,34 @@ const updateErrorNextStep = computed(() => {
 }
 
 .about-brand__version {
+  position: relative;
+  padding-left: 10px;
   font-variant-numeric: tabular-nums;
+  color: var(--ui-accent);
+}
+
+.about-brand__version::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateY(-50%);
 }
 
 .about-cards {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .about-card {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--ui-settings-card-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--ui-settings-card-bg);
   display: grid;
   gap: 10px;
 }
@@ -309,7 +324,8 @@ const updateErrorNextStep = computed(() => {
 
 .about-status {
   margin-top: 12px;
-  padding: 10px 12px;
+  position: relative;
+  padding: 10px 12px 10px 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
@@ -317,21 +333,44 @@ const updateErrorNextStep = computed(() => {
   color: rgba(255, 255, 255, 0.85);
 }
 
+.about-status::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
 .about-status--loading {
   border-color: rgba(var(--ui-brand-rgb), 0.24);
   background: rgba(var(--ui-brand-rgb), 0.08);
 }
 
+.about-status--loading::before {
+  background: var(--ui-brand);
+}
+
 .about-status--success {
-  border-color: rgba(var(--ui-brand-rgb), 0.28);
-  background: rgba(var(--ui-brand-rgb), 0.1);
-  color: rgba(var(--ui-brand-rgb), 0.9);
+  border-color: rgba(var(--ui-success-rgb), 0.28);
+  background: rgba(var(--ui-success-rgb), 0.1);
+  color: rgba(var(--ui-success-rgb), 0.9);
+}
+
+.about-status--success::before {
+  background: var(--ui-success);
 }
 
 .about-status--error {
   border-color: rgba(var(--ui-danger-rgb), 0.3);
   background: rgba(var(--ui-danger-rgb), 0.08);
   color: rgba(var(--ui-danger-rgb), 0.9);
+}
+
+.about-status--error::before {
+  background: var(--ui-danger);
 }
 
 .about-status__title {
@@ -365,15 +404,4 @@ progress {
   word-break: break-word;
 }
 
-@media (min-width: 620px) {
-  .about-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-  }
-
-  .about-card--actions {
-    position: sticky;
-    top: 8px;
-  }
-}
 </style>

@@ -53,4 +53,15 @@
   --theme-input-bg:     #09090B;
   --theme-toggle-on:    #FBBF24;
   --theme-toggle-off:   #3F3F46;
+  --theme-settings-titlebar-bg: #0F0F11;
+  --theme-settings-topbar-bg: rgba(15, 15, 17, 0.96);
+  --theme-settings-topbar-border: rgba(255, 255, 255, 0.06);
+  --theme-settings-tab-active-bg: rgba(255, 255, 255, 0.13);
+  --theme-settings-tab-active-border: rgba(255, 255, 255, 0.10);
+  --theme-settings-card-bg: rgba(255, 255, 255, 0.035);
+  --theme-settings-card-border: rgba(255, 255, 255, 0.09);
+  --theme-settings-card-title-color: rgba(255, 255, 255, 0.38);
+  --theme-settings-row-border: rgba(255, 255, 255, 0.06);
+  --theme-settings-row-hover: rgba(255, 255, 255, 0.03);
+  --theme-settings-hint-color: rgba(255, 255, 255, 0.32);
 }
