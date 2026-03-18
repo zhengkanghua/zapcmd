@@ -8,6 +8,12 @@
 - `Commands` 改为 sticky 搜索 + 首排精简筛选 + “更多筛选”收纳 + 轻量数据列表。
 - `SSelect` 与 `SFilterChip` 计划收口为统一 `SDropdown`，并配套精修 `SToggle`。
 
+## 补充（2026-03-18｜settings 深色精修计划）
+
+- 已完成实现计划 `docs/superpowers/plans/2026-03-18-settings-general-commands-dark-polish.md`。
+- 执行顺序：先收口壳体与重复标题，再建 `SDropdown/SettingItem` 并清理旧终端下拉状态，最后重构 Commands 的 sticky toolbar 与轻量表格。
+- 计划包含 focused Vitest、`npm run check:all` 与 Windows 手动 smoke。
+
 - 完成 Phase 10：补齐 desktop-smoke 的跨平台探测基础；最终口径已由 Phase 12 更正为 Windows 继续阻断、macOS 仅保留 experimental / non-blocking probe。
 - `verify:local` 当前默认策略：Windows=质量门禁+桌面冒烟（自动补驱动），macOS=仅质量门禁；可加 `--macos-desktop-e2e-experimental` 手动探测。
 - CI Gate / Release 当前只对 Windows desktop smoke 设阻断；macOS/Linux 保留在 cross-platform smoke / bundle 路径。
