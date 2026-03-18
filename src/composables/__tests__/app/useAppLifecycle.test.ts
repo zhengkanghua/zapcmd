@@ -84,7 +84,6 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
   const clearStagingTransitionTimer = vi.fn();
   const clearStagedFeedbackTimer = vi.fn();
   const clearExecutionFeedbackTimer = vi.fn();
-  const clearSettingsSavedTimer = vi.fn();
 
   const resolveAppWindow = vi.fn(() => ({
     label: options.currentWindowLabel ?? "main",
@@ -119,8 +118,7 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
         clearResizeTimer,
         clearStagingTransitionTimer,
         clearStagedFeedbackTimer,
-        clearExecutionFeedbackTimer,
-        clearSettingsSavedTimer
+        clearExecutionFeedbackTimer
       });
 
       return () => h("div", { class: "lifecycle-harness" });
@@ -148,8 +146,7 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
       clearResizeTimer,
       clearStagingTransitionTimer,
       clearStagedFeedbackTimer,
-      clearExecutionFeedbackTimer,
-      clearSettingsSavedTimer
+      clearExecutionFeedbackTimer
     }
   };
 }
@@ -216,7 +213,6 @@ describe("useAppLifecycle", () => {
     expect(spies.clearStagingTransitionTimer).toHaveBeenCalledTimes(1);
     expect(spies.clearStagedFeedbackTimer).toHaveBeenCalledTimes(1);
     expect(spies.clearExecutionFeedbackTimer).toHaveBeenCalledTimes(1);
-    expect(spies.clearSettingsSavedTimer).toHaveBeenCalledTimes(1);
     expect(state.settingsSyncChannel.value).toBeNull();
     expect(channel.close).toHaveBeenCalledTimes(1);
   });

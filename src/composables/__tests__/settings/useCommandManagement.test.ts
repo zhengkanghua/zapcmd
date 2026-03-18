@@ -12,6 +12,7 @@ function createDefaultViewState(): CommandManagementViewState {
     query: "",
     sourceFilter: "all",
     statusFilter: "all",
+    categoryFilter: "all",
     overrideFilter: "all",
     issueFilter: "all",
     fileFilter: "all",
@@ -182,14 +183,13 @@ describe("useCommandManagement", () => {
   });
 
   it("builds source file options and groups (including unknown source)", () => {
-    const { model, refs } = createFixture();
+    const { model } = createFixture();
 
     const options = model.commandSourceFileOptions.value;
     expect(options.map((item) => item.value).sort()).toEqual([BUILTIN_PATH, USER_PATH].sort());
     const builtinOption = options.find((item) => item.value === BUILTIN_PATH);
     expect(builtinOption?.count).toBe(2);
 
-    refs.commandView.value.displayMode = "groupedByFile";
     const groupKeys = model.commandGroups.value.map((group) => group.key);
     expect(groupKeys).toContain("__unknown_source__");
   });

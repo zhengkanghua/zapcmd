@@ -11,24 +11,40 @@ export type { HotkeyFieldDefinition, SettingsRoute };
 
 export function useSettingsWindow(options: UseSettingsWindowOptions) {
   const state = createSettingsState();
-  const hotkey = createHotkeyActions({ options, state });
+  const persistenceHooks: {
+    ensureDefaultTerminal?: () => void;
+    loadAutoStartEnabled?: () => Promise<void>;
+  } = {};
+
+  const persistence = createPersistenceActions({
+    options,
+    state,
+    ensureDefaultTerminal: () => persistenceHooks.ensureDefaultTerminal?.(),
+    loadAutoStartEnabled: () => persistenceHooks.loadAutoStartEnabled?.() ?? Promise.resolve()
+  });
+  const hotkey = createHotkeyActions({
+    options,
+    state,
+    applyHotkeyChange: persistence.applyHotkeyChange
+  });
   const terminal = createTerminalActions({
     options,
     state,
-    cancelHotkeyRecording: hotkey.cancelHotkeyRecording
+    cancelHotkeyRecording: hotkey.cancelHotkeyRecording,
+    persistSetting: persistence.persistSetting
   });
-  const general = createGeneralActions({ options, state });
+  persistenceHooks.ensureDefaultTerminal = terminal.ensureDefaultTerminal;
+  const general = createGeneralActions({
+    options,
+    state,
+    persistSetting: persistence.persistSetting,
+    applyAutoStartChange: persistence.applyAutoStartChange
+  });
+  persistenceHooks.loadAutoStartEnabled = general.loadAutoStartEnabled;
   const route = createRouteActions({
     options,
     state,
     closeTerminalDropdown: terminal.closeTerminalDropdown
-  });
-  const persistence = createPersistenceActions({
-    options,
-    state,
-    ensureDefaultTerminal: terminal.ensureDefaultTerminal,
-    cancelHotkeyRecording: hotkey.cancelHotkeyRecording,
-    loadAutoStartEnabled: general.loadAutoStartEnabled
   });
   const viewModel = createSettingsViewModel({ options, state });
 

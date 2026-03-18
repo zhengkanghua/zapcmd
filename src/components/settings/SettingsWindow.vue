@@ -1,54 +1,38 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { computed } from "vue";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { CommandManagementViewState, SettingsRoute } from "../../features/settings/types";
 import type { HotkeyFieldId } from "../../stores/settingsStore";
-import { useI18nText, type AppLocale } from "../../i18n";
+import type { AppLocale } from "../../i18n";
 import SettingsAppearanceSection from "./parts/SettingsAppearanceSection.vue";
 import SettingsAboutSection from "./parts/SettingsAboutSection.vue";
 import SettingsCommandsSection from "./parts/SettingsCommandsSection.vue";
 import SettingsGeneralSection from "./parts/SettingsGeneralSection.vue";
 import SettingsHotkeysSection from "./parts/SettingsHotkeysSection.vue";
-import SettingsNav from "./parts/SettingsNav.vue";
-import type {
-  SettingsAboutProps,
-  SettingsAppearanceProps,
-  SettingsCommandsProps,
-  SettingsGeneralProps,
-  SettingsHotkeysProps,
-  SettingsNavProps
-} from "./types";
-
-type SettingsWindowProps = SettingsNavProps &
-  SettingsHotkeysProps &
-  SettingsCommandsProps &
-  SettingsGeneralProps &
-  SettingsAppearanceProps &
-  SettingsAboutProps & {
-  settingsError: string;
-  settingsSaved: boolean;
-  closeConfirmOpen: boolean;
-};
+import SSegmentNav from "./ui/SSegmentNav.vue";
+import type { SettingsWindowProps } from "./types";
 
 const props = defineProps<SettingsWindowProps>();
-const { t } = useI18nText();
+const appWindow = getCurrentWindow();
+const minimizeWindow = () => appWindow.minimize();
+const toggleMaximize = () => appWindow.toggleMaximize();
+const closeWindow = () => appWindow.close();
 
-const keepEditingButtonRef = ref<HTMLButtonElement | null>(null);
-
-watch(
-  () => props.closeConfirmOpen,
-  async (open) => {
-    if (!open) {
-      return;
-    }
-    await nextTick();
-    keepEditingButtonRef.value?.focus();
-  }
+const navItems = computed(() =>
+  props.settingsNavItems.map((item) => ({
+    id: item.id,
+    label: item.label,
+    icon: item.icon
+  }))
 );
+const settingsRoute = computed({
+  get: () => props.settingsRoute,
+  set: (value) => emit("navigate", value as SettingsRoute)
+});
 
 const emit = defineEmits<{
   (e: "navigate", route: SettingsRoute): void;
-  (e: "start-recording", field: HotkeyFieldId): void;
-  (e: "toggle-terminal-dropdown"): void;
+  (e: "update-hotkey", field: HotkeyFieldId, value: string): void;
   (e: "select-terminal", id: string): void;
   (e: "select-language", locale: AppLocale): void;
   (e: "set-auto-check-update", value: boolean): void;
@@ -63,63 +47,47 @@ const emit = defineEmits<{
   (e: "check-update"): void;
   (e: "download-update"): void;
   (e: "open-homepage"): void;
-  (e: "close"): void;
-  (e: "apply"): void;
-  (e: "confirm"): void;
-  (e: "navigate-to-error"): void;
-  (e: "cancel-close-confirm"): void;
-  (e: "discard-close-confirm"): void;
 }>();
 </script>
 
 <template>
   <main class="settings-window-root">
-    <div
-      v-if="props.settingsError"
-      class="settings-error execution-feedback execution-toast execution-feedback--error"
-      role="alert"
-      aria-live="assertive"
-    >
-      <span class="settings-error__text">{{ props.settingsError }}</span>
-      <button
-        v-if="props.settingsErrorRoute && props.settingsErrorRoute !== props.settingsRoute"
-        type="button"
-        class="btn-muted settings-error__action"
-        @click="emit('navigate-to-error')"
-      >
-        {{ t("settings.error.gotoRoute", { route: t(`settings.nav.${props.settingsErrorRoute}`) }) }}
-      </button>
+    <div class="settings-drag-region" data-tauri-drag-region>
+      <span class="settings-drag-region__title">ZapCmd Settings</span>
+      <div class="settings-drag-region__controls">
+        <button class="settings-drag-region__btn" aria-label="最小化" @click="minimizeWindow">─</button>
+        <button class="settings-drag-region__btn" aria-label="最大化" @click="toggleMaximize">□</button>
+        <button
+          class="settings-drag-region__btn settings-drag-region__btn--close"
+          aria-label="关闭"
+          @click="closeWindow"
+        >
+          ×
+        </button>
+      </div>
     </div>
-    <p
-      v-else-if="props.settingsSaved"
-      class="settings-ok execution-feedback execution-toast execution-feedback--success"
-      role="status"
-      aria-live="polite"
-    >
-      {{ t("settings.saved") }}
-    </p>
-    <div class="settings-window__body">
-      <SettingsNav
-        :settings-nav-items="props.settingsNavItems"
-        :settings-route="props.settingsRoute"
-        :settings-error-route="props.settingsErrorRoute"
-        @navigate="emit('navigate', $event)"
-      />
 
-      <section class="settings-content" aria-label="settings-content">
+    <div class="settings-nav-bar">
+      <SSegmentNav :items="navItems" v-model="settingsRoute" />
+    </div>
+
+    <div
+      class="settings-content"
+      :class="{ 'settings-content--full-width': settingsRoute === 'commands' }"
+      aria-label="settings-content"
+    >
         <SettingsHotkeysSection
-          v-if="props.settingsRoute === 'hotkeys'"
+          v-if="settingsRoute === 'hotkeys'"
           :hotkey-global-fields="props.hotkeyGlobalFields"
           :hotkey-search-fields="props.hotkeySearchFields"
           :hotkey-queue-fields="props.hotkeyQueueFields"
-          :is-hotkey-recording="props.isHotkeyRecording"
-          :get-hotkey-display="props.getHotkeyDisplay"
+          :get-hotkey-value="props.getHotkeyValue"
           :hotkey-error-fields="props.hotkeyErrorFields"
-          :hotkey-error-primary-field="props.hotkeyErrorPrimaryField"
-          @start-recording="emit('start-recording', $event)"
+          :hotkey-error-message="props.hotkeyErrorMessage"
+          @update-hotkey="(field, value) => emit('update-hotkey', field, value)"
         />
         <SettingsGeneralSection
-          v-else-if="props.settingsRoute === 'general'"
+          v-else-if="settingsRoute === 'general'"
           :available-terminals="props.availableTerminals"
           :terminal-loading="props.terminalLoading"
           :terminal-dropdown-open="props.terminalDropdownOpen"
@@ -131,14 +99,13 @@ const emit = defineEmits<{
           :language-options="props.languageOptions"
           :auto-check-update="props.autoCheckUpdate"
           :launch-at-login="props.launchAtLogin"
-          @toggle-terminal-dropdown="emit('toggle-terminal-dropdown')"
           @select-terminal="emit('select-terminal', $event)"
           @select-language="emit('select-language', $event)"
           @set-auto-check-update="emit('set-auto-check-update', $event)"
           @set-launch-at-login="emit('set-launch-at-login', $event)"
         />
         <SettingsCommandsSection
-          v-else-if="props.settingsRoute === 'commands'"
+          v-else-if="settingsRoute === 'commands'"
           :command-rows="props.commandRows"
           :command-summary="props.commandSummary"
           :command-load-issues="props.commandLoadIssues"
@@ -146,6 +113,7 @@ const emit = defineEmits<{
           :command-view="props.commandView"
           :command-source-options="props.commandSourceOptions"
           :command-status-options="props.commandStatusOptions"
+          :command-category-options="props.commandCategoryOptions"
           :command-override-options="props.commandOverrideOptions"
           :command-issue-options="props.commandIssueOptions"
           :command-sort-options="props.commandSortOptions"
@@ -158,7 +126,7 @@ const emit = defineEmits<{
           @reset-filters="emit('reset-command-filters')"
         />
         <SettingsAboutSection
-          v-else-if="props.settingsRoute === 'about'"
+          v-else-if="settingsRoute === 'about'"
           :app-version="props.appVersion"
           :runtime-platform="props.runtimePlatform"
           :update-status="props.updateStatus"
@@ -176,44 +144,6 @@ const emit = defineEmits<{
           @update-theme="emit('update-theme', $event)"
           @update-blur-enabled="emit('update-blur-enabled', $event)"
         />
-      </section>
     </div>
-
-    <Transition name="settings-close-confirm">
-      <div v-if="props.closeConfirmOpen" class="settings-close-confirm">
-        <button
-          type="button"
-          class="settings-close-confirm__scrim"
-          :aria-label="t('common.cancel')"
-          @click="emit('cancel-close-confirm')"
-        ></button>
-        <section class="settings-close-confirm__panel" role="dialog">
-          <h2 class="settings-close-confirm__title">{{ t("settings.unsavedDiscardTitle") }}</h2>
-          <p class="settings-close-confirm__text">{{ t("settings.unsavedDiscardConfirm") }}</p>
-          <footer class="settings-close-confirm__footer">
-            <button
-              ref="keepEditingButtonRef"
-              type="button"
-              class="btn-muted"
-              @click="emit('cancel-close-confirm')"
-            >
-              {{ t("settings.unsavedDiscardKeepEditing") }}
-            </button>
-            <button type="button" class="btn-danger" @click="emit('discard-close-confirm')">
-              {{ t("settings.unsavedDiscardDiscard") }}
-            </button>
-          </footer>
-        </section>
-      </div>
-    </Transition>
-
-    <p v-if="props.settingsRoute === 'hotkeys'" class="settings-hint">
-      {{ t("settings.hotkeys.hint") }}
-    </p>
-    <footer class="settings-window__footer">
-      <button type="button" class="btn-muted" @click="emit('close')">{{ t("common.cancel") }}</button>
-      <button type="button" class="btn-muted" @click="emit('apply')">{{ t("common.apply") }}</button>
-      <button type="button" class="btn-primary" @click="emit('confirm')">{{ t("common.confirm") }}</button>
-    </footer>
   </main>
 </template>

@@ -17,7 +17,6 @@ interface SettingsWindowModule {
   onSettingsHashChange: () => void;
   onGlobalPointerDown: (event: PointerEvent) => void;
   cancelHotkeyRecording: () => void;
-  clearSettingsSavedTimer: () => void;
 }
 
 interface WindowSizingModule {
@@ -81,7 +80,6 @@ export function useAppLifecycleBridge(options: UseAppLifecycleBridgeOptions): vo
     clearStagingTransitionTimer: options.queue.clearStagingTransitionTimer,
     clearStagedFeedbackTimer: options.stagedFeedback.clearStagedFeedbackTimer,
     clearExecutionFeedbackTimer: options.execution.clearExecutionFeedbackTimer,
-    clearSettingsSavedTimer: options.settingsWindow.clearSettingsSavedTimer,
     onMainReady: options.onMainReady,
     onSettingsReady: options.onSettingsReady
   });

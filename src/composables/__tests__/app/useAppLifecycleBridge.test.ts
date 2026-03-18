@@ -23,8 +23,7 @@ describe("useAppLifecycleBridge", () => {
       applySettingsRouteFromHash: vi.fn(),
       onSettingsHashChange: vi.fn(),
       onGlobalPointerDown: vi.fn(),
-      cancelHotkeyRecording: vi.fn(),
-      clearSettingsSavedTimer: vi.fn()
+      cancelHotkeyRecording: vi.fn()
     };
     const windowSizing = {
       onViewportResize: vi.fn(),

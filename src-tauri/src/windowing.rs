@@ -82,13 +82,13 @@ pub(crate) fn open_or_focus_settings_window<R: Runtime>(app: &AppHandle<R>) -> R
     let _window = tauri::WebviewWindowBuilder::new(
         app,
         SETTINGS_WINDOW_LABEL,
-        tauri::WebviewUrl::App("index.html".into()),
+        tauri::WebviewUrl::App("settings.html".into()),
     )
     .title("ZapCmd Settings")
     .inner_size(980.0, 700.0)
     .min_inner_size(760.0, 560.0)
     .resizable(true)
-    .decorations(true)
+    .decorations(false)
     .maximizable(true)
     .visible(false)
     .focused(false)

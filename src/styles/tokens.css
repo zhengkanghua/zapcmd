@@ -31,6 +31,7 @@
   --ui-brand:       var(--theme-accent);
   --ui-brand-rgb:   var(--theme-accent-rgb);
   --ui-brand-soft:  var(--theme-accent-soft);
+  --ui-brand-dim:  rgba(var(--theme-accent-rgb), 0.25);
   --ui-accent:      var(--theme-accent);
 
   --ui-search-hl:     var(--theme-search-hl);

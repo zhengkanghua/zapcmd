@@ -10,7 +10,6 @@ function createHarness() {
   const cancelHotkeyRecording = vi.fn();
   const selectTerminalOption = vi.fn();
   const closeTerminalDropdown = vi.fn();
-  const cancelCloseConfirm = vi.fn();
   const closeSettingsWindow = vi.fn();
   const openStagingDrawer = vi.fn();
   const switchFocusZone = vi.fn();
@@ -40,8 +39,6 @@ function createHarness() {
       applyRecordedHotkey,
       cancelHotkeyRecording,
       terminalDropdownOpen: makeRef(false),
-      closeConfirmOpen: makeRef(false),
-      cancelCloseConfirm,
       availableTerminals: makeRef([{ id: "powershell" }, { id: "cmd" }]),
       terminalFocusIndex: makeRef(0),
       selectTerminalOption,
@@ -98,7 +95,6 @@ function createHarness() {
       cancelHotkeyRecording,
       selectTerminalOption,
       closeTerminalDropdown,
-      cancelCloseConfirm,
       closeSettingsWindow,
       openStagingDrawer,
       switchFocusZone,
@@ -120,15 +116,13 @@ function createHarness() {
 }
 
 describe("windowKeydownHandlers", () => {
-  it("closes settings close confirmation on Escape", () => {
+  it("closes settings window on Escape", () => {
     const { handler, options, spies } = createHarness();
     options.isSettingsWindow.value = true;
-    options.settings.closeConfirmOpen.value = true;
 
     handler(new KeyboardEvent("keydown", { key: "Escape" }));
 
-    expect(spies.cancelCloseConfirm).toHaveBeenCalledTimes(1);
-    expect(spies.closeSettingsWindow).not.toHaveBeenCalled();
+    expect(spies.closeSettingsWindow).toHaveBeenCalledTimes(1);
   });
 
   it("cancels settings hotkey recording on Escape", () => {

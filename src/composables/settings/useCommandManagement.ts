@@ -35,6 +35,7 @@ const DEFAULT_VIEW_PATCH: Partial<CommandManagementViewState> = {
   query: "",
   sourceFilter: "all",
   statusFilter: "all",
+  categoryFilter: "all",
   overrideFilter: "all",
   issueFilter: "all",
   fileFilter: "all",
@@ -241,6 +242,9 @@ function createFilteredRows(
         if (view.statusFilter === "disabled" && row.enabled) {
           return false;
         }
+        if (view.categoryFilter !== "all" && row.category !== view.categoryFilter) {
+          return false;
+        }
         if (view.overrideFilter === "overridden" && !row.overridesBuiltin) {
           return false;
         }
@@ -254,6 +258,28 @@ function createFilteredRows(
       })
       .slice()
       .sort((left, right) => compareRows(left, right, view.sortBy));
+  });
+}
+
+function createCategoryOptions(rows: Readonly<Ref<CommandManagementRow[]>>) {
+  return computed<CommandSelectOption<string>[]>(() => {
+    const locale = getCurrentLocale();
+    const seen = new Set<string>();
+
+    for (const row of rows.value) {
+      const normalized = row.category.trim();
+      if (normalized.length === 0) {
+        continue;
+      }
+      seen.add(normalized);
+    }
+
+    const categories = Array.from(seen).sort((left, right) => left.localeCompare(right, locale));
+
+    return [
+      { value: "all", label: t("settings.commandFilters.categoryAll") },
+      ...categories.map((category) => ({ value: category, label: category }))
+    ];
   });
 }
 
@@ -312,8 +338,7 @@ function createCommandFilterOptions() {
       { value: "status", label: t("settings.commandFilters.sortStatus") }
     ]),
     commandDisplayModeOptions: computed<CommandSelectOption<CommandDisplayMode>[]>(() => [
-      { value: "list", label: t("settings.commandFilters.displayList") },
-      { value: "groupedByFile", label: t("settings.commandFilters.displayGroupedByFile") }
+      { value: "list", label: t("settings.commandFilters.displayList") }
     ])
   };
 }
@@ -323,6 +348,7 @@ export function useCommandManagement(options: UseCommandManagementOptions) {
   const commandSummary = createSummary(commandRowsAll);
   const commandLoadIssues = createIssueViews(options.loadIssues);
   const commandSourceFileOptions = createSourceFileOptions(commandRowsAll);
+  const commandCategoryOptions = createCategoryOptions(commandRowsAll);
   const commandRows = createFilteredRows(commandRowsAll, options.commandView);
   const commandGroups = createCommandGroups(commandRows);
   const commandFilterOptions = createCommandFilterOptions();
@@ -369,6 +395,7 @@ export function useCommandManagement(options: UseCommandManagementOptions) {
     commandView: options.commandView,
     commandSourceOptions: commandFilterOptions.commandSourceOptions,
     commandStatusOptions: commandFilterOptions.commandStatusOptions,
+    commandCategoryOptions,
     commandOverrideOptions: commandFilterOptions.commandOverrideOptions,
     commandIssueOptions: commandFilterOptions.commandIssueOptions,
     commandSortOptions: commandFilterOptions.commandSortOptions,

@@ -14,6 +14,8 @@ interface SettingsStoreLike {
   hydrateFromStorage: () => void;
   toSnapshot: () => PersistedSettingsSnapshot;
   applySnapshot: (snapshot: PersistedSettingsSnapshot) => void;
+  setHotkey: (field: HotkeyFieldId, value: string) => void;
+  setLaunchAtLogin: (value: boolean) => void;
 }
 
 export interface SettingsValidationIssue {
@@ -50,17 +52,12 @@ export interface SettingsWindowState {
   terminalFocusIndex: Ref<number>;
   launchAtLoginLoading: Ref<boolean>;
   launchAtLoginBaseline: Ref<boolean | null>;
-  closeConfirmOpen: Ref<boolean>;
   settingsRoute: Ref<SettingsRoute>;
   recordingHotkeyField: Ref<HotkeyFieldId | null>;
   settingsError: Ref<string>;
   settingsErrorRoute: Ref<SettingsRoute | null>;
-  settingsErrorHotkeyFields: Ref<HotkeyFieldId[]>;
+  settingsErrorHotkeyFieldIds: Ref<HotkeyFieldId[]>;
   settingsErrorPrimaryHotkeyField: Ref<HotkeyFieldId | null>;
-  settingsSaved: Ref<boolean>;
-  settingsDirty: Ref<boolean>;
-  lastEditedHotkeyField: Ref<HotkeyFieldId | null>;
-  settingsBaselineSnapshot: Ref<PersistedSettingsSnapshot | null>;
 }
 
 export function createSettingsState(): SettingsWindowState {
@@ -71,33 +68,19 @@ export function createSettingsState(): SettingsWindowState {
     terminalFocusIndex: ref(-1),
     launchAtLoginLoading: ref(false),
     launchAtLoginBaseline: ref(null),
-    closeConfirmOpen: ref(false),
     settingsRoute: ref("hotkeys"),
     recordingHotkeyField: ref(null),
     settingsError: ref(""),
     settingsErrorRoute: ref(null),
-    settingsErrorHotkeyFields: ref([]),
-    settingsErrorPrimaryHotkeyField: ref(null),
-    settingsSaved: ref(false),
-    settingsDirty: ref(false),
-    lastEditedHotkeyField: ref(null),
-    settingsBaselineSnapshot: ref(null)
+    settingsErrorHotkeyFieldIds: ref([]),
+    settingsErrorPrimaryHotkeyField: ref(null)
   };
 }
-
-export function markSettingsDirty(state: SettingsWindowState): void {
-  state.settingsDirty.value = true;
-  state.settingsSaved.value = false;
-}
-
-export function resetSettingsDirty(state: SettingsWindowState): void {
-  state.settingsDirty.value = false;
-}
-
+ 
 export function clearSettingsErrorState(state: SettingsWindowState): void {
   state.settingsError.value = "";
   state.settingsErrorRoute.value = null;
-  state.settingsErrorHotkeyFields.value = [];
+  state.settingsErrorHotkeyFieldIds.value = [];
   state.settingsErrorPrimaryHotkeyField.value = null;
 }
 
@@ -107,34 +90,8 @@ export function applySettingsValidationIssue(
 ): void {
   state.settingsError.value = issue.message;
   state.settingsErrorRoute.value = issue.route;
-  state.settingsErrorHotkeyFields.value = issue.hotkeyFieldIds ?? [];
+  state.settingsErrorHotkeyFieldIds.value = issue.hotkeyFieldIds ?? [];
   state.settingsErrorPrimaryHotkeyField.value = issue.primaryHotkeyField ?? null;
-}
-
-export function syncSettingsBaseline(
-  state: SettingsWindowState,
-  options: UseSettingsWindowOptions
-): void {
-  state.settingsBaselineSnapshot.value = options.settingsStore.toSnapshot();
-  resetSettingsDirty(state);
-}
-
-export function restoreSettingsBaseline(
-  state: SettingsWindowState,
-  options: UseSettingsWindowOptions
-): void {
-  if (!state.settingsBaselineSnapshot.value) {
-    return;
-  }
-  options.settingsStore.applySnapshot(state.settingsBaselineSnapshot.value);
-  resetSettingsDirty(state);
-}
-
-export function hasUnsavedSettingsChanges(
-  state: SettingsWindowState,
-  _options: UseSettingsWindowOptions
-): boolean {
-  return state.settingsDirty.value;
 }
 
 export function getHotkeyEntries(options: UseSettingsWindowOptions): HotkeyEntry[] {

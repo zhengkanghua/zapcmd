@@ -67,6 +67,7 @@ const {
   hotkeyGlobalFields,
   hotkeySearchFields,
   hotkeyQueueFields,
+  getHotkeyValue,
   isHotkeyRecording,
   getHotkeyDisplay,
   availableTerminals,
@@ -90,6 +91,7 @@ const {
   commandView,
   commandSourceOptions,
   commandStatusOptions,
+  commandCategoryOptions,
   commandOverrideOptions,
   commandIssueOptions,
   commandSortOptions,
@@ -100,12 +102,13 @@ const {
   settingsErrorRoute,
   hotkeyErrorFields,
   hotkeyErrorPrimaryField,
+  hotkeyErrorMessage,
   settingsSaved,
   settingsCloseConfirmOpen,
   cancelSettingsCloseConfirm,
   discardUnsavedSettingsChanges,
   navigateSettings,
-  startHotkeyRecording,
+  applyHotkeyChange,
   toggleTerminalDropdown,
   selectTerminalOption,
   selectLanguageOption,
@@ -219,10 +222,12 @@ function navigateToSettingsError(): void {
     :hotkey-global-fields="hotkeyGlobalFields"
     :hotkey-search-fields="hotkeySearchFields"
     :hotkey-queue-fields="hotkeyQueueFields"
+    :get-hotkey-value="getHotkeyValue"
     :is-hotkey-recording="isHotkeyRecording"
     :get-hotkey-display="getHotkeyDisplay"
     :hotkey-error-fields="hotkeyErrorFields"
     :hotkey-error-primary-field="hotkeyErrorPrimaryField"
+    :hotkey-error-message="hotkeyErrorMessage"
     :available-terminals="availableTerminals"
     :terminal-loading="terminalLoading"
     :terminal-dropdown-open="terminalDropdownOpen"
@@ -244,6 +249,7 @@ function navigateToSettingsError(): void {
     :command-view="commandView"
     :command-source-options="commandSourceOptions"
     :command-status-options="commandStatusOptions"
+    :command-category-options="commandCategoryOptions"
     :command-override-options="commandOverrideOptions"
     :command-issue-options="commandIssueOptions"
     :command-sort-options="commandSortOptions"
@@ -257,8 +263,8 @@ function navigateToSettingsError(): void {
     :theme="theme"
     :blur-enabled="blurEnabled"
     :themes="themes"
+    @update-hotkey="applyHotkeyChange"
     @navigate="navigateSettings"
-    @start-recording="startHotkeyRecording"
     @toggle-terminal-dropdown="toggleTerminalDropdown"
     @select-terminal="selectTerminalOption"
     @select-language="selectLanguageOption"

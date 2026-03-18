@@ -23,8 +23,13 @@ describe("SettingsAboutSection update error guidance", () => {
       }
     });
 
-    expect(wrapper.text()).toContain("检查更新失败");
-    expect(wrapper.text()).toContain("当前构建缺少更新权限");
+    expect(wrapper.find('[data-testid="about-brand"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="about-info-card"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="about-actions-card"]').exists()).toBe(true);
+
+    const actionsCard = wrapper.get('[data-testid="about-actions-card"]');
+    expect(actionsCard.text()).toContain("检查更新失败");
+    expect(actionsCard.text()).toContain("当前构建缺少更新权限");
   });
 
   it("keeps network guidance for generic check failures", () => {
@@ -40,7 +45,9 @@ describe("SettingsAboutSection update error guidance", () => {
       }
     });
 
-    expect(wrapper.text()).toContain("下一步：请检查网络后重试“检查更新”。");
+    expect(wrapper.get('[data-testid="about-actions-card"]').text()).toContain(
+      "下一步：请检查网络后重试“检查更新”。"
+    );
   });
 
   it("renders english permission guidance under en-US locale", () => {
@@ -58,8 +65,9 @@ describe("SettingsAboutSection update error guidance", () => {
       }
     });
 
-    expect(wrapper.text()).toContain("Update check failed");
-    expect(wrapper.text()).toContain("missing updater permission");
+    const actionsCard = wrapper.get('[data-testid="about-actions-card"]');
+    expect(actionsCard.text()).toContain("Update check failed");
+    expect(actionsCard.text()).toContain("missing updater permission");
   });
 
   it("shows loading guidance while checking for updates", () => {
@@ -73,7 +81,8 @@ describe("SettingsAboutSection update error guidance", () => {
       }
     });
 
-    expect(wrapper.find(".about-status--loading").exists()).toBe(true);
-    expect(wrapper.text()).toContain("检查中");
+    const actionsCard = wrapper.get('[data-testid="about-actions-card"]');
+    expect(actionsCard.find(".about-status--loading").exists()).toBe(true);
+    expect(actionsCard.text()).toContain("检查中");
   });
 });

@@ -31,12 +31,18 @@ describe("SettingsGeneralSection i18n", () => {
     });
 
     expect(wrapper.text()).toContain("通用");
+    expect(wrapper.text()).toContain("启动");
+    expect(wrapper.text()).toContain("终端");
+    expect(wrapper.text()).toContain("界面");
     expect(wrapper.text()).toContain("默认终端");
 
     setAppLocale("en-US");
     await nextTick();
 
     expect(wrapper.text()).toContain("General");
+    expect(wrapper.text()).toContain("Startup");
+    expect(wrapper.text()).toContain("Terminal");
+    expect(wrapper.text()).toContain("Interface");
     expect(wrapper.text()).toContain("Default terminal");
   });
 });

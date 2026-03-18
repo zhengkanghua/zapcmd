@@ -26,12 +26,13 @@ export type CommandFilterStatus = "all" | "enabled" | "disabled";
 export type CommandFilterOverride = "all" | "overridden";
 export type CommandFilterIssue = "all" | "with-issues";
 export type CommandSortBy = "default" | "title" | "category" | "source" | "status";
-export type CommandDisplayMode = "list" | "groupedByFile";
+export type CommandDisplayMode = "list";
 
 export interface CommandManagementViewState {
   query: string;
   sourceFilter: CommandFilterSource;
   statusFilter: CommandFilterStatus;
+  categoryFilter: string;
   overrideFilter: CommandFilterOverride;
   issueFilter: CommandFilterIssue;
   fileFilter: string;
@@ -74,7 +75,7 @@ export const COMMAND_STATUS_FILTERS = ["all", "enabled", "disabled"] as const;
 export const COMMAND_OVERRIDE_FILTERS = ["all", "overridden"] as const;
 export const COMMAND_ISSUE_FILTERS = ["all", "with-issues"] as const;
 export const COMMAND_SORT_OPTIONS = ["default", "title", "category", "source", "status"] as const;
-export const COMMAND_DISPLAY_MODES = ["list", "groupedByFile"] as const;
+export const COMMAND_DISPLAY_MODES = ["list"] as const;
 
 const DEFAULT_HOTKEYS: HotkeySettings = {
   launcher: "Alt+V",
@@ -96,6 +97,7 @@ const DEFAULT_COMMAND_VIEW_STATE: CommandManagementViewState = {
   query: "",
   sourceFilter: "all",
   statusFilter: "all",
+  categoryFilter: "all",
   overrideFilter: "all",
   issueFilter: "all",
   fileFilter: "all",

@@ -1,255 +1,160 @@
+import type { HotkeyFieldId } from "../../../stores/settingsStore";
+import { t } from "../../../i18n";
+import { normalizeHotkey } from "../../../shared/hotkeys";
 import {
   applySettingsValidationIssue,
   clearSettingsErrorState,
   getDuplicateHotkeyIssue,
   getHotkeyEntries,
-  hasUnsavedSettingsChanges,
-  resetSettingsDirty,
-  restoreSettingsBaseline,
-  syncSettingsBaseline,
   type HotkeyEntry,
   type SettingsValidationIssue,
   type UseSettingsWindowOptions,
   type SettingsWindowState
 } from "./model";
-import { t } from "../../../i18n";
-
-const TOAST_DISMISS_DELAY_MS = 2200;
 
 function resolveSettingsError(error: unknown, fallbackKey: string): string {
   return error instanceof Error && error.message ? error.message : t(fallbackKey);
 }
 
-function validateHotkeyEntries(params: {
-  entries: HotkeyEntry[];
-  state: SettingsWindowState;
-}): SettingsValidationIssue | null {
-  const { entries, state } = params;
-  const emptyHotkeyItem = entries.find((entry) => !entry.value && !entry.optional);
-  if (emptyHotkeyItem) {
-    return {
-      message: t("settings.error.emptyHotkey", { label: emptyHotkeyItem.label }),
-      route: "hotkeys",
-      hotkeyFieldIds: [emptyHotkeyItem.id],
-      primaryHotkeyField: emptyHotkeyItem.id
-    };
-  }
-
-  const duplicateConflict = getDuplicateHotkeyIssue(entries, state.lastEditedHotkeyField.value);
-  if (duplicateConflict) {
-    return duplicateConflict;
-  }
-
-  return null;
+function getHotkeyEntriesWithOverride(params: {
+  options: UseSettingsWindowOptions;
+  fieldId: HotkeyFieldId;
+  value: string;
+}): HotkeyEntry[] {
+  const entries = getHotkeyEntries(params.options);
+  return entries.map((entry) =>
+    entry.id === params.fieldId ? { ...entry, value: normalizeHotkey(params.value) } : entry
+  );
 }
 
-function validateTerminalSelection(params: {
-  options: UseSettingsWindowOptions;
-  state: SettingsWindowState;
+function validateSingleHotkeyChange(params: {
+  entries: HotkeyEntry[];
+  fieldId: HotkeyFieldId;
 }): SettingsValidationIssue | null {
-  if (params.state.availableTerminals.value.length === 0) {
+  const updated = params.entries.find((entry) => entry.id === params.fieldId) ?? null;
+  if (!updated) {
     return null;
   }
 
-  const terminalValid = params.state.availableTerminals.value.some(
-    (item) => item.id === params.options.defaultTerminal.value
-  );
-  if (!terminalValid) {
+  if (!updated.value && !updated.optional) {
     return {
-      message: t("settings.error.terminalUnavailable"),
-      route: "general"
+      message: t("settings.error.emptyHotkey", { label: updated.label }),
+      route: "hotkeys",
+      hotkeyFieldIds: [updated.id],
+      primaryHotkeyField: updated.id
     };
   }
 
-  return null;
+  return getDuplicateHotkeyIssue(params.entries, params.fieldId);
 }
 
-async function applyLaunchAtLogin(params: {
-  options: UseSettingsWindowOptions;
-  state: SettingsWindowState;
-  desiredLaunchAtLogin: boolean;
-}): Promise<boolean> {
-  try {
-    if (params.options.isTauriRuntime()) {
-      await params.options.writeAutoStartEnabled(params.desiredLaunchAtLogin);
-    }
-    params.state.launchAtLoginBaseline.value = params.desiredLaunchAtLogin;
-    return true;
-  } catch (error) {
-    applySettingsValidationIssue(params.state, {
-      message: resolveSettingsError(error, "settings.error.updateLaunchAtLoginFailed"),
-      route: "general"
-    });
-    return false;
-  }
-}
-
-async function applyAndPersistSettings(params: {
-  options: UseSettingsWindowOptions;
-  state: SettingsWindowState;
-  entries: HotkeyEntry[];
-  launcherHotkey: string;
-}): Promise<boolean> {
-  if (params.options.isTauriRuntime()) {
-    try {
-      await params.options.writeLauncherHotkey(params.launcherHotkey);
-    } catch (error) {
-      applySettingsValidationIssue(params.state, {
-        message: resolveSettingsError(error, "settings.error.updateLauncherHotkeyFailed"),
-        route: "hotkeys"
-      });
-      return false;
-    }
-  }
-
-  for (const entry of params.entries) {
-    params.options.setHotkeyValue(entry.id, entry.value);
-  }
-
-  try {
-    params.options.settingsStore.persist();
-  } catch (error) {
-    applySettingsValidationIssue(params.state, {
-      message: resolveSettingsError(error, "settings.error.persistSettingsFailed"),
-      route: null
-    });
-    return false;
-  }
-
-  try {
-    params.options.broadcastSettingsUpdated();
-  } catch (error) {
-    applySettingsValidationIssue(params.state, {
-      message: resolveSettingsError(error, "settings.error.broadcastSettingsFailed"),
-      route: null
-    });
-    return false;
-  }
-
-  return true;
-}
-
-export interface PersistenceActions {
-  saveSettings: () => Promise<void>;
+export interface InstantPersistenceActions {
+  persistSetting: () => Promise<void>;
   loadSettings: () => void;
-  clearSettingsSavedTimer: () => void;
-  hasUnsavedSettingsChanges: () => boolean;
-  prepareToCloseSettingsWindow: () => boolean;
-  cancelCloseConfirm: () => void;
-  discardUnsavedChanges: () => void;
+  applyHotkeyChange: (fieldId: HotkeyFieldId, value: string) => Promise<void>;
+  applyAutoStartChange: (enabled: boolean) => Promise<void>;
 }
 
 export function createPersistenceActions(deps: {
   options: UseSettingsWindowOptions;
   state: SettingsWindowState;
-  ensureDefaultTerminal: () => void;
-  cancelHotkeyRecording: () => void;
-  loadAutoStartEnabled: () => Promise<void>;
-}): PersistenceActions {
-  const { options, state, ensureDefaultTerminal, cancelHotkeyRecording, loadAutoStartEnabled } = deps;
-  let settingsSavedTimer: ReturnType<typeof setTimeout> | null = null;
+  ensureDefaultTerminal?: () => void;
+  loadAutoStartEnabled?: () => Promise<void>;
+}): InstantPersistenceActions {
+  const { options, state } = deps;
 
-  function clearSettingsSavedTimer(): void {
-    if (!settingsSavedTimer) {
-      return;
-    }
-    clearTimeout(settingsSavedTimer);
-    settingsSavedTimer = null;
-  }
-
-  function markSettingsSaved(): void {
-    state.settingsSaved.value = true;
-    clearSettingsSavedTimer();
-    settingsSavedTimer = setTimeout(() => {
-      state.settingsSaved.value = false;
-      settingsSavedTimer = null;
-    }, TOAST_DISMISS_DELAY_MS);
-  }
-
-  async function saveSettings(): Promise<void> {
+  async function persistSetting(): Promise<void> {
     clearSettingsErrorState(state);
-    state.settingsSaved.value = false;
-    cancelHotkeyRecording();
 
-    const desiredLaunchAtLogin = options.launchAtLogin.value;
-    const baselineLaunchAtLogin = state.launchAtLoginBaseline.value ?? desiredLaunchAtLogin;
-
-    const entries = getHotkeyEntries(options);
-    const validationError = validateHotkeyEntries({ entries, state });
-    if (validationError) {
-      applySettingsValidationIssue(state, validationError);
+    try {
+      options.settingsStore.persist();
+    } catch (error) {
+      applySettingsValidationIssue(state, {
+        message: resolveSettingsError(error, "settings.error.persistSettingsFailed"),
+        route: null
+      });
       return;
     }
 
-    const terminalError = validateTerminalSelection({ options, state });
-    if (terminalError) {
-      applySettingsValidationIssue(state, terminalError);
-      return;
+    try {
+      options.broadcastSettingsUpdated();
+    } catch (error) {
+      applySettingsValidationIssue(state, {
+        message: resolveSettingsError(error, "settings.error.broadcastSettingsFailed"),
+        route: null
+      });
     }
-
-    const launcher = entries.find((entry) => entry.id === "launcher")!.value;
-
-    if (desiredLaunchAtLogin !== baselineLaunchAtLogin) {
-      const updated = await applyLaunchAtLogin({ options, state, desiredLaunchAtLogin });
-      if (!updated) {
-        return;
-      }
-    }
-
-    const committed = await applyAndPersistSettings({ options, state, entries, launcherHotkey: launcher });
-    if (!committed) {
-      return;
-    }
-
-    syncSettingsBaseline(state, options);
-    markSettingsSaved();
   }
 
   function loadSettings(): void {
     options.settingsStore.hydrateFromStorage();
-    ensureDefaultTerminal();
-    syncSettingsBaseline(state, options);
-    void loadAutoStartEnabled().finally(() => {
-      if (!hasUnsavedSettingsChanges(state, options)) {
-        syncSettingsBaseline(state, options);
-      }
-    });
+    deps.ensureDefaultTerminal?.();
+    void deps.loadAutoStartEnabled?.();
+    clearSettingsErrorState(state);
   }
 
-  function prepareToCloseSettingsWindow(): boolean {
-    cancelHotkeyRecording();
-    clearSettingsSavedTimer();
-    state.settingsSaved.value = false;
+  async function applyHotkeyChange(fieldId: HotkeyFieldId, value: string): Promise<void> {
+    clearSettingsErrorState(state);
 
-    if (!hasUnsavedSettingsChanges(state, options)) {
-      state.closeConfirmOpen.value = false;
-      clearSettingsErrorState(state);
-      return true;
+    const oldValue = options.getHotkeyValue(fieldId);
+    options.setHotkeyValue(fieldId, value);
+
+    const entries = getHotkeyEntriesWithOverride({ options, fieldId, value });
+    const issue = validateSingleHotkeyChange({ entries, fieldId });
+    if (issue) {
+      applySettingsValidationIssue(state, issue);
+      return;
     }
 
-    state.closeConfirmOpen.value = true;
-    return false;
+    options.settingsStore.setHotkey(fieldId, value);
+
+    if (options.isTauriRuntime() && fieldId === "launcher") {
+      try {
+        await options.writeLauncherHotkey(value);
+      } catch (error) {
+        options.setHotkeyValue(fieldId, oldValue);
+        options.settingsStore.setHotkey(fieldId, oldValue);
+        applySettingsValidationIssue(state, {
+          message: resolveSettingsError(error, "settings.error.updateLauncherHotkeyFailed"),
+          route: "hotkeys",
+          hotkeyFieldIds: [fieldId],
+          primaryHotkeyField: fieldId
+        });
+        return;
+      }
+    }
+
+    await persistSetting();
   }
 
-  function cancelCloseConfirm(): void {
-    state.closeConfirmOpen.value = false;
-  }
-
-  function discardUnsavedChanges(): void {
-    restoreSettingsBaseline(state, options);
-    state.launchAtLoginBaseline.value = options.launchAtLogin.value;
-    resetSettingsDirty(state);
+  async function applyAutoStartChange(enabled: boolean): Promise<void> {
     clearSettingsErrorState(state);
-    state.closeConfirmOpen.value = false;
+
+    const oldValue = options.launchAtLogin.value;
+    options.launchAtLogin.value = enabled;
+    options.settingsStore.setLaunchAtLogin(enabled);
+
+    if (options.isTauriRuntime()) {
+      try {
+        await options.writeAutoStartEnabled(enabled);
+      } catch (error) {
+        options.launchAtLogin.value = oldValue;
+        options.settingsStore.setLaunchAtLogin(oldValue);
+        applySettingsValidationIssue(state, {
+          message: resolveSettingsError(error, "settings.error.updateLaunchAtLoginFailed"),
+          route: "general"
+        });
+        return;
+      }
+    }
+
+    await persistSetting();
   }
 
   return {
-    saveSettings,
+    persistSetting,
     loadSettings,
-    clearSettingsSavedTimer,
-    hasUnsavedSettingsChanges: () => hasUnsavedSettingsChanges(state, options),
-    prepareToCloseSettingsWindow,
-    cancelCloseConfirm,
-    discardUnsavedChanges
+    applyHotkeyChange,
+    applyAutoStartChange
   };
 }
