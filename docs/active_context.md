@@ -1,5 +1,13 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-18｜settings 深色精修设计）
+
+- 已完成设计稿 `docs/superpowers/specs/2026-03-18-settings-general-commands-dark-polish-design.md`。
+- 关键决策：系统标题栏仅用于原生暗色融合；WebView 内容区全部走 settings theme token。
+- `General/Appearance/About` 去掉重复页标题；`General` 重组为启动/终端/界面。
+- `Commands` 改为 sticky 搜索 + 首排精简筛选 + “更多筛选”收纳 + 轻量数据列表。
+- `SSelect` 与 `SFilterChip` 计划收口为统一 `SDropdown`，并配套精修 `SToggle`。
+
 - 完成 Phase 10：补齐 desktop-smoke 的跨平台探测基础；最终口径已由 Phase 12 更正为 Windows 继续阻断、macOS 仅保留 experimental / non-blocking probe。
 - `verify:local` 当前默认策略：Windows=质量门禁+桌面冒烟（自动补驱动），macOS=仅质量门禁；可加 `--macos-desktop-e2e-experimental` 手动探测。
 - CI Gate / Release 当前只对 Windows desktop smoke 设阻断；macOS/Linux 保留在 cross-platform smoke / bundle 路径。

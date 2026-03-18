@@ -43,3 +43,4 @@ src-tauri/bundle/
 *.deb
 *.rpm
 *.AppImage
+.superpowers/
