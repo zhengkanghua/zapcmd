@@ -194,6 +194,12 @@ describe("AppSettings hotkeys regression", () => {
     const conflicts = wrapper.findAll("button.s-hotkey-recorder.s-hotkey-recorder--conflict");
     expect(conflicts.length).toBeGreaterThanOrEqual(2);
     expect(wrapper.text()).toContain("冲突");
+
+    const focusField = wrapper
+      .findAll(".s-hotkey-recorder-field")
+      .find((item) => item.find(".s-hotkey-recorder-field__label").text() === "切换焦点区域");
+    expect(focusField).toBeTruthy();
+    expect(focusField!.get(".s-hotkey-recorder-field__conflict-text").text().toLowerCase()).toContain("ctrl+k");
   });
 
   it("supports segment navigation to appearance", async () => {
@@ -224,6 +230,8 @@ describe("AppSettings hotkeys regression", () => {
     const wasEnabled = toggle.attributes("aria-checked") === "true";
     await toggle.trigger("click");
     await waitForUi();
+
+    expect(wrapper.find(".settings-commands-toolbar__summary").exists()).toBe(true);
 
     if (wasEnabled) {
       expect(settingsStore.disabledCommandIds).toContain(commandId);
