@@ -88,7 +88,7 @@ pub(crate) fn open_or_focus_settings_window<R: Runtime>(app: &AppHandle<R>) -> R
     .inner_size(980.0, 700.0)
     .min_inner_size(760.0, 560.0)
     .resizable(true)
-    .decorations(false)
+    .decorations(true)
     .maximizable(true)
     .visible(false)
     .focused(false)

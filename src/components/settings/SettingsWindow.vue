@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { computed } from "vue";
 import type { CommandManagementViewState, SettingsRoute } from "../../features/settings/types";
 import type { HotkeyFieldId } from "../../stores/settingsStore";
 import type { AppLocale } from "../../i18n";
@@ -13,38 +12,6 @@ import SSegmentNav from "./ui/SSegmentNav.vue";
 import type { SettingsWindowProps } from "./types";
 
 const props = defineProps<SettingsWindowProps>();
-const appWindow = getCurrentWindow();
-const isMaximized = ref(false);
-
-async function minimizeWindow() {
-  await appWindow.minimize();
-}
-
-async function toggleMaximize() {
-  if (typeof appWindow.toggleMaximize === "function") {
-    await appWindow.toggleMaximize();
-    if (typeof appWindow.isMaximized === "function") {
-      isMaximized.value = await appWindow.isMaximized();
-    }
-  }
-}
-
-async function closeWindow() {
-  await appWindow.close();
-}
-
-onMounted(async () => {
-  if (typeof appWindow.isMaximized === "function") {
-    isMaximized.value = await appWindow.isMaximized();
-  }
-  if (typeof appWindow.onResized === "function") {
-    appWindow.onResized(async () => {
-      if (typeof appWindow.isMaximized === "function") {
-        isMaximized.value = await appWindow.isMaximized();
-      }
-    });
-  }
-});
 
 const navItems = computed(() =>
   props.settingsNavItems.map((item) => ({
@@ -80,27 +47,13 @@ const emit = defineEmits<{
 
 <template>
   <main class="settings-window-root">
-    <div class="settings-drag-region" data-tauri-drag-region>
-      <span class="settings-drag-region__title">ZapCmd Settings</span>
-      <div class="settings-drag-region__controls">
-        <button class="settings-drag-region__btn" aria-label="关闭" @click="closeWindow" />
-        <button class="settings-drag-region__btn" aria-label="最小化" @click="minimizeWindow" />
-        <button
-          class="settings-drag-region__btn"
-          :class="{ 'settings-drag-region__btn--maximized': isMaximized }"
-          aria-label="最大化"
-          @click="toggleMaximize"
-        />
-      </div>
-    </div>
-
-    <div class="settings-nav-bar">
+    <div class="settings-window-topbar">
       <SSegmentNav :items="navItems" v-model="settingsRoute" />
     </div>
 
     <div
       class="settings-content"
-      :class="{ 'settings-content--full-width': settingsRoute === 'commands' }"
+      :class="{ 'settings-content--commands': settingsRoute === 'commands' }"
       aria-label="settings-content"
     >
       <SettingsHotkeysSection

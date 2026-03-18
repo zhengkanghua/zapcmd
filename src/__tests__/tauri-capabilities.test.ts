@@ -30,4 +30,12 @@ describe("Tauri capabilities contract", () => {
     expect(generated.default.permissions).toContain("core:window:allow-close");
     expect(generated.default.permissions).toContain("updater:default");
   });
+
+  it("does not keep custom-titlebar-only window permissions in default capability", () => {
+    const capability = readJson<{ permissions: string[] }>("src-tauri/capabilities/default.json");
+
+    expect(capability.permissions).not.toContain("core:window:allow-toggle-maximize");
+    expect(capability.permissions).not.toContain("core:window:allow-minimize");
+    expect(capability.permissions).not.toContain("core:window:allow-is-maximized");
+  });
 });

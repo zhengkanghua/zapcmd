@@ -1,0 +1,114 @@
+import { shallowMount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vitest";
+
+import { THEME_REGISTRY } from "../../../features/themes/themeRegistry";
+import { createDefaultSettingsSnapshot, type HotkeyFieldId } from "../../../stores/settingsStore";
+import SettingsWindow from "../SettingsWindow.vue";
+import type { SettingsWindowProps } from "../types";
+
+const hoisted = vi.hoisted(() => ({
+  windowMock: {
+    close: vi.fn(),
+    minimize: vi.fn(),
+    toggleMaximize: vi.fn(),
+    isMaximized: vi.fn(async () => false),
+    onResized: vi.fn()
+  }
+}));
+
+vi.mock("@tauri-apps/api/window", () => ({
+  getCurrentWindow: vi.fn(() => hoisted.windowMock)
+}));
+
+function createSettingsWindowProps(
+  overrides: Partial<SettingsWindowProps> = {}
+): SettingsWindowProps {
+  const defaults = createDefaultSettingsSnapshot();
+  const terminalOption = {
+    id: "powershell",
+    label: "PowerShell",
+    path: "powershell.exe"
+  };
+  const getHotkeyValue = (field: HotkeyFieldId) => defaults.hotkeys[field];
+
+  return {
+    settingsNavItems: [
+      { id: "hotkeys", label: "快捷键", icon: "⌨" },
+      { id: "general", label: "通用", icon: "⚙" },
+      { id: "commands", label: "命令", icon: "☰" },
+      { id: "appearance", label: "外观", icon: "◐" },
+      { id: "about", label: "关于", icon: "ⓘ" }
+    ],
+    settingsRoute: "general",
+    hotkeyGlobalFields: [{ id: "launcher", label: "打开启动器", scope: "global" }],
+    hotkeySearchFields: [{ id: "navigateDown", label: "向下", scope: "local" }],
+    hotkeyQueueFields: [{ id: "executeQueue", label: "执行队列", scope: "local" }],
+    getHotkeyValue,
+    hotkeyErrorFields: [],
+    hotkeyErrorMessage: "",
+    availableTerminals: [terminalOption],
+    terminalLoading: false,
+    terminalDropdownOpen: false,
+    terminalFocusIndex: -1,
+    defaultTerminal: terminalOption.id,
+    selectedTerminalOption: terminalOption,
+    selectedTerminalPath: terminalOption.path,
+    language: defaults.general.language,
+    languageOptions: [
+      { value: "zh-CN", label: "简体中文" },
+      { value: "en-US", label: "English" }
+    ],
+    autoCheckUpdate: defaults.general.autoCheckUpdate,
+    launchAtLogin: defaults.general.launchAtLogin,
+    commandRows: [],
+    commandSummary: {
+      total: 0,
+      enabled: 0,
+      disabled: 0,
+      userDefined: 0,
+      overridden: 0
+    },
+    commandLoadIssues: [],
+    commandFilteredCount: 0,
+    commandView: defaults.commands.view,
+    commandSourceOptions: [],
+    commandStatusOptions: [],
+    commandCategoryOptions: [],
+    commandOverrideOptions: [],
+    commandIssueOptions: [],
+    commandSortOptions: [],
+    commandDisplayModeOptions: [],
+    commandSourceFileOptions: [],
+    commandGroups: [],
+    windowOpacity: defaults.appearance.windowOpacity,
+    theme: defaults.appearance.theme,
+    blurEnabled: defaults.appearance.blurEnabled,
+    themes: THEME_REGISTRY,
+    appVersion: "1.0.0",
+    runtimePlatform: "win32",
+    updateStatus: { state: "idle" },
+    ...overrides
+  };
+}
+
+describe("SettingsWindow stable shell", () => {
+  it("renders app topbar without custom window controls", () => {
+    const wrapper = shallowMount(SettingsWindow, {
+      props: createSettingsWindowProps({ settingsRoute: "general" })
+    });
+
+    expect(wrapper.find(".settings-window-topbar").exists()).toBe(true);
+    expect(wrapper.find(".settings-drag-region__controls").exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("ZapCmd Settings");
+  });
+
+  it("uses commands-specific content width hook only on commands route", async () => {
+    const wrapper = shallowMount(SettingsWindow, {
+      props: createSettingsWindowProps({ settingsRoute: "commands" })
+    });
+
+    expect(wrapper.get(".settings-content").classes()).toContain("settings-content--commands");
+    await wrapper.setProps({ settingsRoute: "general" });
+    expect(wrapper.get(".settings-content").classes()).not.toContain("settings-content--commands");
+  });
+});

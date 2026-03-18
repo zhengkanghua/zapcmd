@@ -124,14 +124,14 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 <style scoped>
 .appearance-cards {
   display: grid;
-  gap: 10px;
+  gap: 16px;
 }
 
 .appearance-card {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--ui-settings-card-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--ui-settings-card-bg);
   display: grid;
   gap: 10px;
 }
@@ -159,7 +159,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 
 .appearance-effects {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .appearance-row {
@@ -170,6 +170,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 }
 
 .appearance-row--slider {
+  grid-template-columns: 1fr;
   align-items: start;
 }
 
@@ -189,7 +190,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
   margin: 0;
   font-size: 11px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--ui-settings-hint);
 }
 
 .appearance-row__control {
@@ -200,7 +201,8 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 }
 
 .appearance-row__slider {
-  min-width: 220px;
+  min-width: 0;
+  width: 100%;
 }
 
 .appearance-row__value {
@@ -210,10 +212,10 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 
 .appearance-preview-wrap {
   width: 100%;
-  height: 120px;
+  height: 96px;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--ui-settings-row-border);
   background-image: repeating-conic-gradient(
     rgba(255, 255, 255, 0.08) 0% 25%,
     transparent 0% 50%
@@ -225,7 +227,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 
 .appearance-preview-panel {
   width: 70%;
-  height: 72px;
+  height: 64px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   display: flex;
@@ -250,7 +252,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 
 .theme-selector {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -260,19 +262,22 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
   align-items: center;
   gap: 8px;
   padding: 12px;
-  border: 2px solid var(--ui-border);
+  border: 1px solid var(--ui-settings-card-border);
   border-radius: var(--ui-radius);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.015);
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
 }
 
 .theme-card:hover {
-  border-color: var(--ui-subtle);
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateY(-1px);
 }
 
 .theme-card--active {
   border-color: var(--ui-accent);
+  background: rgba(var(--ui-brand-rgb), 0.08);
 }
 
 .theme-card__swatches {
@@ -295,6 +300,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 @media (min-width: 620px) {
   .appearance-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
   }
 
   .appearance-card--theme {
@@ -310,10 +316,6 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 
   .appearance-row__control {
     justify-content: flex-start;
-  }
-
-  .appearance-row__slider {
-    min-width: 0;
   }
 }
 </style>

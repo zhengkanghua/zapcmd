@@ -545,3 +545,6 @@
 ## 补充（2026-03-18｜Settings UI 精修 writing-plans 完成）
 
 - 已产出执行计划：`docs/superpowers/plans/2026-03-18-settings-ui-refinement-stable.md`。先用 contract test 锁定原生窗口壳体与 capability 收口，再做 shell 样式、5 个子页面精修与全量验证。
+## 补充（2026-03-18｜Settings UI 精修稳定版完成）
+
+- 已完成原生标题栏 + 应用 topbar 的稳定版 Settings 精修并合入 main；focused settings 55/55、`npm run check:all` 全绿。剩余仅为完整 Windows GUI 人工验收。

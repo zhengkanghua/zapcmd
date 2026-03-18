@@ -1,96 +1,33 @@
 /* ─── Settings 窗口根布局 ─── */
 
 .settings-window-root {
-  height: 100vh;
+  min-height: 100vh;
   display: grid;
-  grid-template-rows: 40px auto 1fr;
-  background: var(--ui-bg-deep);
+  grid-template-rows: 52px minmax(0, 1fr);
+  background:
+    linear-gradient(180deg, var(--ui-settings-titlebar-bg) 0, var(--ui-settings-topbar-bg) 84px, var(--ui-bg-deep) 84px),
+    var(--ui-bg-deep);
   color: var(--ui-text);
 }
 
-/* ─── 顶部拖拽区 ─── */
+/* ─── 顶栏 ─── */
 
-.settings-drag-region {
-  height: 40px;
+.settings-window-topbar {
+  height: 52px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  position: relative;
-  -webkit-app-region: drag;
-  user-select: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  justify-content: center;
+  padding: 0 24px;
+  background: var(--ui-settings-topbar-bg);
+  border-bottom: 1px solid var(--ui-settings-topbar-border);
+  box-sizing: border-box;
 }
 
-.settings-drag-region__title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.35);
-  letter-spacing: 0.3px;
-  pointer-events: none;
-}
-
-.settings-drag-region__controls {
-  display: flex;
-  gap: 8px;
-  -webkit-app-region: no-drag;
-  margin-left: auto;
-}
-
-.settings-drag-region__btn {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: filter 120ms ease;
-  flex-shrink: 0;
-}
-
-.settings-drag-region__btn:nth-child(1) {
-  background: #FF5F57;
-  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.25);
-}
-
-.settings-drag-region__btn:nth-child(2) {
-  background: #FFBD2E;
-  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2);
-}
-
-.settings-drag-region__btn:nth-child(3) {
-  background: #28C840;
-  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2);
-}
-
-.settings-drag-region__btn:hover {
-  filter: brightness(0.88);
-}
-
-.settings-drag-region__btn:active {
-  filter: brightness(0.75);
-}
-
-.settings-drag-region__btn--close:hover {
-  filter: brightness(0.88);
-}
-
-.settings-drag-region__btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--ui-brand-soft);
-}
-
-/* ─── 导航栏 ─── */
-
-.settings-nav-bar {
-  padding: 16px 24px 0;
+.settings-window-topbar > * {
+  width: 100%;
+  max-width: 720px;
   display: flex;
   justify-content: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 0;
 }
 
 /* ─── 内容区 ─── */
@@ -98,12 +35,13 @@
 .settings-content {
   min-height: 0;
   overflow-y: auto;
-  padding: 24px 40px 32px;
-  max-width: 680px;
+  padding: 24px 32px 32px;
+  max-width: 720px;
   margin: 0 auto;
   width: 100%;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  box-sizing: border-box;
 }
 
 .settings-content::-webkit-scrollbar {
@@ -115,20 +53,19 @@
 }
 
 .settings-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
 }
 
-.settings-content--full-width {
-  max-width: none;
-  padding: 24px 32px 32px;
+.settings-content--commands {
+  max-width: 1120px;
 }
 
 /* ─── Section 分组 ─── */
 
 .settings-group {
   display: grid;
-  gap: 16px;
+  gap: 20px;
 }
 
 .settings-group > h2 {
@@ -136,17 +73,16 @@
   font-size: 15px;
   font-weight: 700;
   color: var(--ui-text);
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
 }
 
 /* ─── 卡片 ─── */
 
 .settings-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: var(--ui-settings-card-bg);
+  border: 1px solid var(--ui-settings-card-border);
+  border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 16px;
 }
 
 .settings-card__title {
@@ -155,10 +91,10 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.7px;
-  color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  letter-spacing: 0.8px;
+  color: var(--ui-settings-card-title);
+  background: rgba(255, 255, 255, 0.015);
+  border-bottom: 1px solid var(--ui-settings-row-border);
 }
 
 .settings-card__row {
@@ -167,7 +103,7 @@
   align-items: center;
   gap: 16px;
   padding: 13px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--ui-settings-row-border);
   transition: background 120ms ease;
 }
 
@@ -176,26 +112,31 @@
 }
 
 .settings-card__row:hover {
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--ui-settings-row-hover);
+}
+
+.settings-hotkeys-row {
+  align-items: flex-start;
 }
 
 .settings-card__label {
+  min-width: 0;
   font-size: 13px;
   font-weight: 450;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.35;
 }
 
 .settings-card__mono {
   font-family: var(--ui-font-mono);
   font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.68);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 280px;
+  max-width: min(100%, 420px);
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--ui-settings-row-border);
   border-radius: 6px;
   padding: 3px 8px;
 }
@@ -206,7 +147,7 @@
   margin: 0;
   padding: 8px 16px 10px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--ui-settings-hint);
   line-height: 1.5;
 }
 
@@ -215,11 +156,11 @@
 .settings-status {
   margin: 0 16px 12px;
   padding: 9px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--ui-settings-row-border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--ui-settings-hint);
   line-height: 1.45;
 }
 
@@ -237,13 +178,17 @@
 }
 
 .settings-commands-toolbar {
-  display: flex;
+  display: grid;
   gap: 10px;
-  align-items: center;
+}
+
+.settings-commands-toolbar__search-row {
+  min-width: 0;
+  display: flex;
 }
 
 .settings-commands-toolbar__search {
-  flex: 1;
+  width: 100%;
   height: 36px;
   padding: 0 13px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -262,6 +207,11 @@
 .settings-commands-toolbar__search:focus-visible {
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+}
+
+.settings-commands-toolbar__summary-row {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .settings-commands-toolbar__summary {
@@ -325,10 +275,10 @@
 .settings-commands-table__header,
 .settings-commands-table__row {
   display: grid;
-  grid-template-columns: 1fr 80px 56px 44px;
+  grid-template-columns: 1fr 100px 70px 52px;
   align-items: center;
   column-gap: 12px;
-  padding: 11px 14px;
+  padding: 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
@@ -352,7 +302,7 @@
 }
 
 .settings-commands-table__row--disabled {
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .settings-commands-table__cell {
@@ -432,17 +382,20 @@
 /* ─── 响应式 ─── */
 
 @media (max-width: 760px) {
-  .settings-nav-bar {
-    padding: 12px 16px 0;
+  .settings-window-topbar {
+    padding: 0 16px;
   }
 
   .settings-content {
     padding: 16px 20px 24px;
   }
 
-  .settings-commands-toolbar {
+  .settings-hotkeys-row {
     flex-direction: column;
-    align-items: stretch;
+  }
+
+  .settings-hotkeys-row__recorder {
+    width: 100%;
   }
 
   .settings-commands-toolbar__summary {

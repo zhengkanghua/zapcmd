@@ -46,7 +46,7 @@ function onKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <nav class="s-segment-nav" role="tablist" @keydown="onKeydown">
+  <nav class="s-segment-nav" role="tablist" aria-label="Settings sections" @keydown="onKeydown">
     <button
       v-for="item in items"
       :key="item.id"
@@ -70,12 +70,13 @@ function onKeydown(e: KeyboardEvent) {
 .s-segment-nav {
   display: flex;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
   padding: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--ui-settings-topbar-border);
+  border-radius: 10px;
   width: fit-content;
+  max-width: min(100%, 640px);
   margin: 0 auto;
 }
 
@@ -83,12 +84,12 @@ function onKeydown(e: KeyboardEvent) {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 18px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 10px;
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.58);
   font-size: 13px;
   font-weight: 500;
   transition: all 130ms ease;
@@ -96,16 +97,16 @@ function onKeydown(e: KeyboardEvent) {
 }
 
 .s-segment-nav__tab:hover {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.82);
   background: rgba(255, 255, 255, 0.06);
 }
 
 .s-segment-nav__tab--active {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--ui-settings-tab-active-bg);
+  border-color: var(--ui-settings-tab-active-border);
   color: rgba(255, 255, 255, 0.95);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .s-segment-nav__tab:focus-visible {

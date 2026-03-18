@@ -57,4 +57,16 @@
   --ui-input-bg:    var(--theme-input-bg);
   --ui-toggle-on:   var(--theme-toggle-on);
   --ui-toggle-off:  var(--theme-toggle-off);
+
+  --ui-settings-titlebar-bg: var(--theme-settings-titlebar-bg);
+  --ui-settings-topbar-bg: var(--theme-settings-topbar-bg);
+  --ui-settings-topbar-border: var(--theme-settings-topbar-border);
+  --ui-settings-tab-active-bg: var(--theme-settings-tab-active-bg);
+  --ui-settings-tab-active-border: var(--theme-settings-tab-active-border);
+  --ui-settings-card-bg: var(--theme-settings-card-bg);
+  --ui-settings-card-border: var(--theme-settings-card-border);
+  --ui-settings-card-title: var(--theme-settings-card-title-color);
+  --ui-settings-row-border: var(--theme-settings-row-border);
+  --ui-settings-row-hover: var(--theme-settings-row-hover);
+  --ui-settings-hint: var(--theme-settings-hint-color);
 }

@@ -85,4 +85,22 @@ describe("SettingsAboutSection update error guidance", () => {
     expect(actionsCard.find(".about-status--loading").exists()).toBe(true);
     expect(actionsCard.text()).toContain("检查中");
   });
+
+  it("keeps success state inside the actions card with structured status content", () => {
+    const wrapper = mount(SettingsAboutSection, {
+      props: {
+        appVersion: "0.1.0",
+        runtimePlatform: "win",
+        updateStatus: {
+          state: "upToDate"
+        }
+      }
+    });
+
+    const actionsCard = wrapper.get('[data-testid="about-actions-card"]');
+    const successState = actionsCard.get(".about-status--success");
+
+    expect(actionsCard.find(".about-status--success").exists()).toBe(true);
+    expect(successState.find(".about-status__title").exists()).toBe(true);
+  });
 });

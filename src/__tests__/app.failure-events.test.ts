@@ -501,6 +501,7 @@ describe("App failure and event regression", () => {
     expect(aboutError).toContain("检查更新失败");
     expect(aboutError).toContain("下一步");
     expect(aboutError).toContain("重试");
+    expect(wrapper.get(".about-status--error .about-status__title").text()).toContain("检查更新失败");
   });
 
   it("reloads settings on storage event for tracked keys and ignores unrelated keys", async () => {
