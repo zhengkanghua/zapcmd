@@ -75,6 +75,26 @@ function toggleDropdown(): void {
   openDropdown();
 }
 
+function onKeydown(event: KeyboardEvent): void {
+  if (!open.value) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      openDropdown();
+    }
+    return;
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    closeDropdown();
+    return;
+  }
+  if (event.key === "Tab") {
+    closeDropdown();
+  }
+}
+
 function isEventInside(event: PointerEvent): boolean {
   if (!(event.target instanceof Element)) {
     return false;
@@ -139,6 +159,7 @@ onBeforeUnmount(() => {
       aria-haspopup="listbox"
       :aria-controls="open ? listboxId : undefined"
       @click="toggleDropdown"
+      @keydown="onKeydown"
     >
       <span class="s-filter-chip__label">{{ selectedOption.label }}</span>
       <span class="s-filter-chip__arrow" aria-hidden="true">⌄</span>
@@ -155,7 +176,13 @@ onBeforeUnmount(() => {
     </button>
 
     <Teleport to="body">
-      <div v-if="open" ref="panelRef" class="s-filter-chip__panel" :style="panelStyle">
+      <div
+        v-if="open"
+        ref="panelRef"
+        class="s-filter-chip__panel"
+        :style="panelStyle"
+        @keydown="onKeydown"
+      >
         <ul :id="listboxId" class="s-filter-chip__list" role="listbox">
           <li v-for="option in props.options" :key="option.value" class="s-filter-chip__item">
             <button
@@ -273,4 +300,3 @@ onBeforeUnmount(() => {
   line-height: 1;
 }
 </style>
-

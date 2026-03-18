@@ -97,6 +97,14 @@ function normalizeFileFilter(value: unknown): string {
   return normalized || "all";
 }
 
+function normalizeCategoryFilter(value: unknown): string {
+  if (typeof value !== "string") {
+    return "all";
+  }
+  const normalized = value.trim();
+  return normalized || "all";
+}
+
 function normalizeEnumValue<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
   if (typeof value !== "string") {
     return fallback;
@@ -114,6 +122,7 @@ export function normalizeCommandViewState(value: unknown): CommandManagementView
     query: normalizeQuery(value.query),
     sourceFilter: normalizeEnumValue(value.sourceFilter, COMMAND_SOURCE_FILTERS, "all"),
     statusFilter: normalizeEnumValue(value.statusFilter, COMMAND_STATUS_FILTERS, "all"),
+    categoryFilter: normalizeCategoryFilter(value.categoryFilter),
     overrideFilter: normalizeEnumValue(value.overrideFilter, COMMAND_OVERRIDE_FILTERS, "all"),
     issueFilter: normalizeEnumValue(value.issueFilter, COMMAND_ISSUE_FILTERS, "all"),
     fileFilter: normalizeFileFilter(value.fileFilter),
