@@ -51,7 +51,10 @@
       "Bash(git worktree:*)",
       "Bash(cd \"D:\\\\AAE\\\\a_ziliao\\\\desktop\\\\project\\\\zapcmd\" && node -e \"const lock = require\\('./package-lock.json'\\); const tw = lock.packages?.['node_modules/tailwindcss']; if\\(tw\\) { console.log\\('tailwindcss in lock:', JSON.stringify\\({version: tw.version, dev: tw.dev, optional: tw.optional, peer: tw.peer}, null, 2\\)\\); } else { console.log\\('tailwindcss NOT in package-lock.json packages'\\); }\")",
       "Bash(cd \"D:\\\\AAE\\\\a_ziliao\\\\desktop\\\\project\\\\zapcmd\" && node -e \"const lock = require\\('./package-lock.json'\\); const ap = lock.packages?.['node_modules/autoprefixer']; if\\(ap\\) { console.log\\('autoprefixer in lock:', JSON.stringify\\({version: ap.version, dev: ap.dev}, null, 2\\)\\); } else { console.log\\('autoprefixer NOT in package-lock.json packages'\\); }\")",
-      "Bash(cd \"D:\\\\AAE\\\\a_ziliao\\\\desktop\\\\project\\\\zapcmd\" && npm ls postcss 2>&1 | head -20)"
+      "Bash(cd \"D:\\\\AAE\\\\a_ziliao\\\\desktop\\\\project\\\\zapcmd\" && npm ls postcss 2>&1 | head -20)",
+      "Bash(cat D:/own_projects/zapcmd/src-tauri/tauri.conf.json | python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('app',{}\\).get\\('windows',[]\\) or d.get\\('tauri',{}\\).get\\('windows',[]\\), indent=2\\)\\)\" 2>/dev/null || grep -A5 'decorations\\\\|titleBarStyle\\\\|windows' D:/own_projects/zapcmd/src-tauri/tauri.conf.json | head -40)",
+      "mcp__mcp-router__browser_install",
+      "Bash(cd D:/own_projects/zapcmd/docs && python -m http.server 19876 --bind 127.0.0.1)"
     ]
   }
 }
