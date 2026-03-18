@@ -14,7 +14,9 @@ describe("SSegmentNav", () => {
     const wrapper = mount(SSegmentNav, {
       props: { items, modelValue: "hotkeys" }
     });
+    expect(wrapper.get("[role='tablist']").classes()).toContain("s-segment-nav");
     expect(wrapper.findAll("[role='tab']")).toHaveLength(3);
+    expect(wrapper.findAll("[role='tab']").every((tab) => tab.attributes("type") === "button")).toBe(true);
   });
 
   it("marks active tab with aria-selected", () => {
@@ -43,4 +45,3 @@ describe("SSegmentNav", () => {
     expect(wrapper.emitted("update:modelValue")).toEqual([["general"]]);
   });
 });
-
