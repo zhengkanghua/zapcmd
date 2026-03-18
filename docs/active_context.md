@@ -548,3 +548,5 @@
 ## 补充（2026-03-18｜Settings UI 精修稳定版完成）
 
 - 已完成原生标题栏 + 应用 topbar 的稳定版 Settings 精修并合入 main；focused settings 55/55、`npm run check:all` 全绿。剩余仅为完整 Windows GUI 人工验收。
+## 补充（2026-03-18｜Settings 二次精修设计确认）
+- 已确认仅修 settings 视觉呈现，不动业务逻辑；方向为内容区单滚动、Hotkeys 间距/录制器收紧、Select 紧凑化、终端下拉去路径。设计稿待进入 writing-plans。
