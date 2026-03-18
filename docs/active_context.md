@@ -524,3 +524,8 @@
 ## 补充（2026-03-17｜Settings Task 15）
 
 - 外观/关于页改为卡片布局；外观用 `SToggle` + `SSlider`（0.2-1.0，百分比显示）并保留预览；关于页新增品牌头部（⚡占位）+ 信息/操作卡片；组件单测已更新并通过。
+
+## 补充（2026-03-18｜Settings 面板重构收尾）
+
+- 完成 Task 19：全量门禁全绿（`npm run check:all`）。
+- 注意：沙盒内 Node/esbuild 会 `spawn EPERM`，需在沙盒外跑 `npm run check:all` / `vite build`。
