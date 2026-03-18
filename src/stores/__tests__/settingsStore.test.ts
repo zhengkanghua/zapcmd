@@ -71,7 +71,7 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.general.autoCheckUpdate).toBe(true);
     expect(migrated?.general.launchAtLogin).toBe(false);
     expect(migrated?.commands.disabledCommandIds).toEqual(["docker-ps"]);
-    expect(migrated?.commands.view.displayMode).toBe("groupedByFile");
+    expect(migrated?.commands.view.displayMode).toBe("list");
   });
 
   it("normalizes booleans, fileFilter, disabled ids, and clamps window opacity", () => {
@@ -243,7 +243,7 @@ describe("settingsStore migration and persistence", () => {
     expect(parsed.commands.disabledCommandIds).toEqual(["docker-ps"]);
     expect(parsed.commands.view.query).toBe("docker");
     expect(parsed.commands.view.sortBy).toBe("title");
-    expect(parsed.commands.view.displayMode).toBe("groupedByFile");
+    expect(parsed.commands.view.displayMode).toBe("list");
   });
 
   it("toggles command enabled state", () => {
