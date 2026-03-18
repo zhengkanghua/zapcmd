@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
+import type { HotkeyFieldId } from "../../../stores/settingsStore";
 import type { createAppCompositionContext } from "./context";
 import type { createAppCompositionRuntime } from "./runtime";
 
@@ -46,6 +47,14 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
   return {
     settingsSaved,
     clearSettingsSavedTimer,
+    applyHotkeyChange(fieldId: HotkeyFieldId, value: string): void {
+      resetSavedToast();
+      void context.settingsWindow.applyHotkeyChange(fieldId, value).then(() => {
+        if (!context.settingsWindow.settingsError.value) {
+          markSavedToast();
+        }
+      });
+    },
     toggleCommandEnabled(commandId: string, enabled: boolean): void {
       context.commandManagement.toggleCommandEnabled(commandId, enabled);
       persistImmediate();
@@ -94,10 +103,12 @@ function createSettingsWindowProps(context: AppCompositionContext) {
     hotkeyGlobalFields: context.settingsWindow.hotkeyGlobalFields,
     hotkeySearchFields: context.settingsWindow.hotkeySearchFields,
     hotkeyQueueFields: context.settingsWindow.hotkeyQueueFields,
+    getHotkeyValue: context.hotkeyBindings.getHotkeyValue,
     isHotkeyRecording: context.settingsWindow.isHotkeyRecording,
     getHotkeyDisplay: context.settingsWindow.getHotkeyDisplay,
     hotkeyErrorFields: context.settingsWindow.settingsErrorHotkeyFieldIds,
     hotkeyErrorPrimaryField: context.settingsWindow.settingsErrorPrimaryHotkeyField,
+    hotkeyErrorMessage: context.settingsWindow.settingsError,
     availableTerminals: context.settingsWindow.availableTerminals,
     terminalLoading: context.settingsWindow.terminalLoading,
     terminalDropdownOpen: context.settingsWindow.terminalDropdownOpen,
@@ -119,6 +130,7 @@ function createSettingsWindowProps(context: AppCompositionContext) {
     commandView: context.commandManagement.commandView,
     commandSourceOptions: context.commandManagement.commandSourceOptions,
     commandStatusOptions: context.commandManagement.commandStatusOptions,
+    commandCategoryOptions: context.commandManagement.commandCategoryOptions,
     commandOverrideOptions: context.commandManagement.commandOverrideOptions,
     commandIssueOptions: context.commandManagement.commandIssueOptions,
     commandSortOptions: context.commandManagement.commandSortOptions,
@@ -224,6 +236,7 @@ export function createAppCompositionViewModel(
     cancelSafetyExecution: runtime.commandExecution.cancelSafetyExecution,
     ...settingsWindowProps,
     settingsSaved: settingsMutationHandlers.settingsSaved,
+    applyHotkeyChange: settingsMutationHandlers.applyHotkeyChange,
     toggleCommandEnabled: settingsMutationHandlers.toggleCommandEnabled,
     setFilteredCommandsEnabled: settingsMutationHandlers.setFilteredCommandsEnabled,
     updateCommandView: settingsMutationHandlers.updateCommandView,

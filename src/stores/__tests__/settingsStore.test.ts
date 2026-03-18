@@ -219,7 +219,7 @@ describe("settingsStore migration and persistence", () => {
     store.setCommandViewState({
       query: "docker",
       sortBy: "title",
-      displayMode: "groupedByFile"
+      displayMode: "list"
     });
     store.persist();
 

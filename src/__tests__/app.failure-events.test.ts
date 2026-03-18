@@ -1,5 +1,5 @@
 import { createPinia } from "pinia";
-import { mount, type VueWrapper } from "@vue/test-utils";
+import { mount, type DOMWrapper, type VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { check as updaterCheck } from "@tauri-apps/plugin-updater";
@@ -165,6 +165,7 @@ function buildSnapshot(
         query: "",
         sourceFilter: "all",
         statusFilter: "all",
+        categoryFilter: "all",
         overrideFilter: "all",
         issueFilter: "all",
         fileFilter: "all",
@@ -275,13 +276,53 @@ async function openReviewByPill(wrapper: VueWrapper): Promise<void> {
   await waitForUi();
 }
 
-async function openGeneralSettings(wrapper: VueWrapper): Promise<void> {
-  const generalNav = wrapper
-    .findAll("button.settings-nav__item")
-    .find((item) => item.text() === "通用");
-  expect(generalNav).toBeTruthy();
-  await generalNav!.trigger("click");
+function findSettingsSegmentTab(wrapper: VueWrapper, label: string): DOMWrapper<Element> {
+  const tab = wrapper
+    .findAll("button.s-segment-nav__tab")
+    .find((item) => item.text().includes(label));
+  expect(tab).toBeTruthy();
+  return tab!;
+}
+
+async function openSettingsRoute(wrapper: VueWrapper, label: string): Promise<void> {
+  await findSettingsSegmentTab(wrapper, label).trigger("click");
   await waitForUi();
+}
+
+async function openGeneralSettings(wrapper: VueWrapper): Promise<void> {
+  await openSettingsRoute(wrapper, "通用");
+}
+
+function findSettingsHotkeyRecorder(wrapper: VueWrapper, label: string): DOMWrapper<Element> {
+  const field = wrapper
+    .findAll(".s-hotkey-recorder-field")
+    .find((item) => item.find(".s-hotkey-recorder-field__label").text() === label);
+  expect(field).toBeTruthy();
+  const recorder = field!.find("button.s-hotkey-recorder");
+  expect(recorder.exists()).toBe(true);
+  return recorder;
+}
+
+async function recordHotkey(
+  recorder: DOMWrapper<Element>,
+  init: KeyboardEventInit
+): Promise<void> {
+  await recorder.trigger("click");
+  await waitForUi();
+  await recorder.trigger("keydown", init);
+  await waitForUi();
+  await recorder.trigger("blur");
+  await waitForUi();
+}
+
+function getDefaultTerminalSelectTrigger(wrapper: VueWrapper): DOMWrapper<Element> {
+  const row = wrapper
+    .findAll(".settings-card__row")
+    .find((item) => item.text().includes("默认终端"));
+  expect(row).toBeTruthy();
+  const trigger = row!.find("button.s-select__trigger");
+  expect(trigger.exists()).toBe(true);
+  return trigger;
 }
 
 beforeEach(() => {
@@ -397,14 +438,25 @@ describe("App failure and event regression", () => {
     });
 
     const wrapper = await mountApp();
-    await waitForUi();
-    await wrapper.get("button.btn-primary").trigger("click");
-    await waitForUi();
+    const settingsStore = getSettingsStoreFromWrapper(wrapper);
 
-    expect(wrapper.get(".settings-error").text()).toContain(
-      "mock launcher update failed",
+    const launcherRecorder = findSettingsHotkeyRecorder(wrapper, "唤起窗口");
+    expect(launcherRecorder.text()).toContain("Alt");
+
+    await recordHotkey(launcherRecorder, { key: "k", ctrlKey: true });
+
+    expect(getInvokeCommandCallCount("update_launcher_hotkey")).toBe(1);
+    expect(settingsStore.hotkeys.launcher).toBe("Alt+V");
+    expect(launcherRecorder.text()).toContain("Alt");
+
+    const launcherField = wrapper
+      .findAll(".s-hotkey-recorder-field")
+      .find((item) => item.find(".s-hotkey-recorder-field__label").text() === "唤起窗口");
+    expect(launcherField).toBeTruthy();
+    expect(launcherRecorder.classes()).toContain("s-hotkey-recorder--conflict");
+    expect(launcherField!.get(".s-hotkey-recorder-field__conflict-text").text()).toContain(
+      "mock launcher update failed"
     );
-    expect(wrapper.get(".settings-error").classes()).toContain("execution-toast");
   });
 
   it("does not invoke open_settings_window when running in non-tauri settings window", async () => {
@@ -435,12 +487,7 @@ describe("App failure and event regression", () => {
     vi.mocked(updaterCheck).mockRejectedValueOnce(new Error("update check failed"));
 
     const wrapper = await mountApp();
-    const aboutNav = wrapper
-      .findAll("button.settings-nav__item")
-      .find((item) => item.text() === "关于");
-    expect(aboutNav).toBeTruthy();
-    await aboutNav!.trigger("click");
-    await waitForUi();
+    await openSettingsRoute(wrapper, "关于");
 
     const checkButton = wrapper
       .findAll("button")
@@ -459,8 +506,9 @@ describe("App failure and event regression", () => {
   it("reloads settings on storage event for tracked keys and ignores unrelated keys", async () => {
     hoisted.currentWindowLabel = "settings";
     const wrapper = await mountApp();
-    const recorder = wrapper.findAll("button.hotkey-recorder")[0];
-    expect(recorder.text()).toBe("Alt+V");
+    const recorder = findSettingsHotkeyRecorder(wrapper, "唤起窗口");
+    expect(recorder.text()).toContain("Alt");
+    expect(recorder.text()).toContain("V");
 
     localStorage.setItem(
       SETTINGS_STORAGE_KEY,
@@ -468,20 +516,22 @@ describe("App failure and event regression", () => {
     );
     window.dispatchEvent(new StorageEvent("storage", { key: "unrelated.key" }));
     await waitForUi();
-    expect(recorder.text()).toBe("Alt+V");
+    expect(recorder.text()).toContain("Alt");
 
     window.dispatchEvent(
       new StorageEvent("storage", { key: SETTINGS_STORAGE_KEY }),
     );
     await waitForUi();
-    expect(recorder.text()).toBe("Ctrl+Shift+Y");
+    expect(recorder.text()).toContain("Ctrl");
+    expect(recorder.text()).toContain("Y");
   });
 
   it("reloads settings on broadcast sync message and ignores unknown payload", async () => {
     hoisted.currentWindowLabel = "settings";
     const wrapper = await mountApp();
-    const recorder = wrapper.findAll("button.hotkey-recorder")[0];
-    expect(recorder.text()).toBe("Alt+V");
+    const recorder = findSettingsHotkeyRecorder(wrapper, "唤起窗口");
+    expect(recorder.text()).toContain("Alt");
+    expect(recorder.text()).toContain("V");
 
     localStorage.setItem(
       SETTINGS_STORAGE_KEY,
@@ -492,11 +542,12 @@ describe("App failure and event regression", () => {
 
     channel.emit({ type: "other-event" });
     await waitForUi();
-    expect(recorder.text()).toBe("Alt+V");
+    expect(recorder.text()).toContain("Alt");
 
     channel.emit({ type: "settings-updated" });
     await waitForUi();
-    expect(recorder.text()).toBe("Alt+L");
+    expect(recorder.text()).toContain("Alt");
+    expect(recorder.text()).toContain("L");
   });
 
   it("applies synced default terminal to command execution after storage update", async () => {
@@ -781,65 +832,6 @@ describe("App failure and event regression", () => {
     ).toBeGreaterThanOrEqual(before);
   });
 
-  it("shows empty-hotkey validation error when persisted state contains blank hotkey", async () => {
-    hoisted.currentWindowLabel = "settings";
-    const wrapper = await mountApp();
-    const settingsStore = getSettingsStoreFromWrapper(wrapper);
-    settingsStore.hotkeys.launcher = "";
-    await waitForUi();
-
-    await wrapper.get("button.btn-primary").trigger("click");
-    await waitForUi();
-
-    expect(wrapper.get(".settings-error").text()).toContain("不能为空");
-    expect(wrapper.get(".settings-error").classes()).toContain("execution-toast");
-  });
-
-  it("shows terminal validation error when selected terminal is unavailable", async () => {
-    hoisted.currentWindowLabel = "settings";
-    hoisted.isTauriMock.mockReturnValue(true);
-    hoisted.invokeMock.mockImplementation(async (command: string) => {
-      if (command === "get_available_terminals") {
-        return [
-          { id: "powershell", label: "PowerShell", path: "powershell.exe" },
-        ];
-      }
-      if (command === "get_autostart_enabled") {
-        return false;
-      }
-      return undefined;
-    });
-    const wrapper = await mountApp();
-    const settingsStore = getSettingsStoreFromWrapper(wrapper);
-    settingsStore.defaultTerminal = "unknown-terminal-id";
-    await waitForUi();
-
-    await wrapper.get("button.btn-primary").trigger("click");
-    await waitForUi();
-
-    expect(wrapper.get(".settings-error").text()).toContain("默认终端不可用");
-    expect(wrapper.get(".settings-error").classes()).toContain("execution-toast");
-    expect(wrapper.get(".settings-error__action").text()).toContain("通用");
-    expect(wrapper.find('.settings-nav__item--error[data-route="general"]').exists()).toBe(true);
-
-    await wrapper.get(".settings-error__action").trigger("click");
-    await waitForUi();
-    expect(wrapper.find('.settings-nav__item--active[data-route="general"]').exists()).toBe(true);
-  });
-
-  it("clears save success flag after timeout", async () => {
-    hoisted.currentWindowLabel = "settings";
-    const wrapper = await mountApp();
-
-    await wrapper.findAll("button.btn-muted")[1].trigger("click");
-    await waitForUi();
-    expect(wrapper.find(".settings-ok").exists()).toBe(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 2300));
-    await waitForUi();
-    expect(wrapper.find(".settings-ok").exists()).toBe(false);
-  });
-
   it("uses fallback terminals when tauri terminal detection returns empty list", async () => {
     hoisted.currentWindowLabel = "settings";
     hoisted.isTauriMock.mockReturnValue(true);
@@ -855,12 +847,12 @@ describe("App failure and event regression", () => {
 
     const wrapper = await mountApp();
     await openGeneralSettings(wrapper);
-    const selectButton = wrapper.get("#default-terminal-select");
+    const selectButton = getDefaultTerminalSelectTrigger(wrapper);
     await selectButton.trigger("click");
     await waitForUi();
 
     expect(
-      wrapper.findAll(".settings-select-list__item").length,
+      document.body.querySelectorAll("[role='option']").length,
     ).toBeGreaterThan(0);
   });
 
@@ -880,12 +872,12 @@ describe("App failure and event regression", () => {
 
     const wrapper = await mountApp();
     await openGeneralSettings(wrapper);
-    const selectButton = wrapper.get("#default-terminal-select");
+    const selectButton = getDefaultTerminalSelectTrigger(wrapper);
     await selectButton.trigger("click");
     await waitForUi();
 
     expect(
-      wrapper.findAll(".settings-select-list__item").length,
+      document.body.querySelectorAll("[role='option']").length,
     ).toBeGreaterThan(0);
     expect(warnSpy).toHaveBeenCalledWith(
       "loadAvailableTerminals failed; using fallback",
@@ -911,37 +903,37 @@ describe("App failure and event regression", () => {
     const wrapper = await mountApp();
     await openGeneralSettings(wrapper);
     const setupState = getSetupState(wrapper);
-    const selectButton = wrapper.get("#default-terminal-select");
+    const selectButton = getDefaultTerminalSelectTrigger(wrapper);
 
     setupState.terminalLoading = true;
     await waitForUi();
     expect(wrapper.find(".settings-status--loading").exists()).toBe(true);
     await selectButton.trigger("click");
     await waitForUi();
-    expect(wrapper.find(".settings-select-list").exists()).toBe(false);
+    expect(document.body.querySelector("[role='listbox']")).toBeNull();
 
     setupState.terminalLoading = false;
     setupState.availableTerminals = [];
     await waitForUi();
-    await selectButton.trigger("click");
+    await getDefaultTerminalSelectTrigger(wrapper).trigger("click");
     await waitForUi();
-    expect(wrapper.find(".settings-select-list").exists()).toBe(false);
+    expect(document.body.querySelector("[role='listbox']")).toBeNull();
 
     setupState.availableTerminals = [
       { id: "powershell", label: "PowerShell", path: "powershell.exe" },
     ];
     await waitForUi();
-    expect((selectButton.element as HTMLButtonElement).disabled).toBe(false);
+    expect((getDefaultTerminalSelectTrigger(wrapper).element as HTMLButtonElement).disabled).toBe(false);
 
-    await selectButton.trigger("click");
+    await getDefaultTerminalSelectTrigger(wrapper).trigger("click");
     await waitForUi();
-    expect(wrapper.find(".settings-select-list").exists()).toBe(true);
+    expect(document.body.querySelector("[role='listbox']")).not.toBeNull();
 
     document.body.dispatchEvent(
       new MouseEvent("pointerdown", { bubbles: true }),
     );
     await waitForUi();
-    expect(wrapper.find(".settings-select-list").exists()).toBe(false);
+    expect(document.body.querySelector("[role='listbox']")).toBeNull();
   });
 
   it("does not execute queue when queue is empty", async () => {

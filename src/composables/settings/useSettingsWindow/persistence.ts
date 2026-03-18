@@ -116,7 +116,9 @@ export function createPersistenceActions(deps: {
         options.settingsStore.setHotkey(fieldId, oldValue);
         applySettingsValidationIssue(state, {
           message: resolveSettingsError(error, "settings.error.updateLauncherHotkeyFailed"),
-          route: "hotkeys"
+          route: "hotkeys",
+          hotkeyFieldIds: [fieldId],
+          primaryHotkeyField: fieldId
         });
         return;
       }

@@ -1,10 +1,12 @@
 import { createPinia } from "pinia";
-import { mount, type VueWrapper } from "@vue/test-utils";
+import { mount, type DOMWrapper, type VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import AppSettings from "../AppSettings.vue";
 import { SETTINGS_STORAGE_KEY, useSettingsStore } from "../stores/settingsStore";
+
+type HotkeyRecorderButton = Omit<DOMWrapper<Element>, "exists">;
 
 const hoisted = vi.hoisted(() => ({
   closeSpy: vi.fn(),
@@ -58,13 +60,13 @@ function getSettingsStoreFromWrapper(wrapper: VueWrapper) {
   return useSettingsStore(vm.$pinia);
 }
 
-function findSegmentTab(wrapper: VueWrapper, label: string): VueWrapper {
+function findSegmentTab(wrapper: VueWrapper, label: string): DOMWrapper<Element> {
   const tab = wrapper.findAll(".s-segment-nav__tab").find((item) => item.text().includes(label));
   expect(tab).toBeTruthy();
   return tab!;
 }
 
-function findHotkeyRecorder(wrapper: VueWrapper, label: string): VueWrapper {
+function findHotkeyRecorder(wrapper: VueWrapper, label: string): HotkeyRecorderButton {
   const field = wrapper
     .findAll(".s-hotkey-recorder-field")
     .find((item) => item.find(".s-hotkey-recorder-field__label").text() === label);
@@ -73,7 +75,7 @@ function findHotkeyRecorder(wrapper: VueWrapper, label: string): VueWrapper {
 }
 
 async function recordHotkey(
-  recorder: VueWrapper,
+  recorder: HotkeyRecorderButton,
   init: KeyboardEventInit
 ): Promise<void> {
   await recorder.trigger("click");

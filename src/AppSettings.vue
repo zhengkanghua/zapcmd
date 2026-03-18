@@ -2,7 +2,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { currentLocale, setAppLocale } from "./i18n";
-import { useSettingsStore } from "./stores/settingsStore";
+import { useSettingsStore, type HotkeyFieldId } from "./stores/settingsStore";
 import { useTheme } from "./composables/app/useTheme";
 import { createAppCompositionRootPorts } from "./composables/app/useAppCompositionRoot/ports";
 import { fallbackTerminalOptions } from "./features/terminals/fallbackTerminals";
@@ -18,7 +18,6 @@ import { useCommandManagement } from "./composables/settings/useCommandManagemen
 import { useUpdateManager } from "./composables/update/useUpdateManager";
 import { THEME_REGISTRY } from "./features/themes/themeRegistry";
 import type { CommandManagementViewState } from "./features/settings/types";
-import type { HotkeyFieldId } from "./stores/settingsStore";
 import SettingsWindow from "./components/settings/SettingsWindow.vue";
 
 const FALLBACK_APP_VERSION = "";

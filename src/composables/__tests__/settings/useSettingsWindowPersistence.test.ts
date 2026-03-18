@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import type { HotkeyFieldDefinition } from "../../../features/settings/types";
-import { createDefaultSettingsSnapshot } from "../../../stores/settingsStore";
+import { createDefaultSettingsSnapshot, type HotkeyFieldId } from "../../../stores/settingsStore";
 import { createPersistenceActions } from "../../settings/useSettingsWindow/persistence";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
 
@@ -85,6 +85,101 @@ describe("useSettingsWindow persistence", () => {
     expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
   });
 
+  it("persists and broadcasts after applying a valid hotkey change", async () => {
+    const hotkeys: Partial<Record<HotkeyFieldId, string>> = {
+      launcher: "Alt+K"
+    };
+    const harness = createHarness({
+      getHotkeyValue: vi.fn((field: HotkeyFieldId) => hotkeys[field] ?? ""),
+      setHotkeyValue: vi.fn((field: HotkeyFieldId, value: string) => {
+        hotkeys[field] = value;
+      })
+    });
+
+    await harness.actions.applyHotkeyChange("launcher", "Alt+X");
+
+    expect(harness.settingsStore.setHotkey).toHaveBeenCalledWith("launcher", "Alt+X");
+    expect(harness.settingsStore.persist).toHaveBeenCalledTimes(1);
+    expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
+    expect(harness.state.settingsError.value).toBe("");
+  });
+
+  it("reports a validation issue when required hotkey is cleared", async () => {
+    const hotkeys: Partial<Record<HotkeyFieldId, string>> = {
+      launcher: "Alt+K"
+    };
+    const harness = createHarness({
+      getHotkeyValue: vi.fn((field: HotkeyFieldId) => hotkeys[field] ?? ""),
+      setHotkeyValue: vi.fn((field: HotkeyFieldId, value: string) => {
+        hotkeys[field] = value;
+      })
+    });
+
+    await harness.actions.applyHotkeyChange("launcher", "");
+
+    expect(harness.settingsStore.setHotkey).not.toHaveBeenCalled();
+    expect(harness.settingsStore.persist).not.toHaveBeenCalled();
+    expect(harness.options.broadcastSettingsUpdated).not.toHaveBeenCalled();
+    expect(harness.state.settingsError.value).toContain("不能为空");
+    expect(harness.state.settingsErrorRoute.value).toBe("hotkeys");
+    expect(harness.state.settingsErrorHotkeyFieldIds.value).toEqual(["launcher"]);
+    expect(harness.state.settingsErrorPrimaryHotkeyField.value).toBe("launcher");
+  });
+
+  it("reports a validation issue when duplicate hotkeys are entered", async () => {
+    const hotkeys: Partial<Record<HotkeyFieldId, string>> = {
+      launcher: "Alt+K",
+      toggleQueue: "Ctrl+K"
+    };
+    const harness = createHarness({
+      hotkeyDefinitions: [
+        { id: "launcher", label: "launcher", scope: "global" },
+        { id: "toggleQueue", label: "toggleQueue", scope: "global" }
+      ],
+      getHotkeyValue: vi.fn((field: HotkeyFieldId) => hotkeys[field] ?? ""),
+      setHotkeyValue: vi.fn((field: HotkeyFieldId, value: string) => {
+        hotkeys[field] = value;
+      })
+    });
+
+    await harness.actions.applyHotkeyChange("launcher", "Ctrl+K");
+
+    expect(harness.settingsStore.setHotkey).not.toHaveBeenCalled();
+    expect(harness.settingsStore.persist).not.toHaveBeenCalled();
+    expect(harness.options.broadcastSettingsUpdated).not.toHaveBeenCalled();
+    expect(harness.state.settingsError.value).not.toBe("");
+    expect(harness.state.settingsErrorRoute.value).toBe("hotkeys");
+    expect(harness.state.settingsErrorHotkeyFieldIds.value.sort()).toEqual(["launcher", "toggleQueue"].sort());
+    expect(harness.state.settingsErrorPrimaryHotkeyField.value).toBe("launcher");
+  });
+
+  it("captures persist failure and skips broadcasting", async () => {
+    const harness = createHarness();
+    vi.mocked(harness.settingsStore.persist).mockImplementationOnce(() => {
+      throw new Error("persist failed");
+    });
+
+    await harness.actions.persistSetting();
+
+    expect(harness.options.broadcastSettingsUpdated).not.toHaveBeenCalled();
+    expect(harness.state.settingsError.value).toBe("persist failed");
+    expect(harness.state.settingsErrorRoute.value).toBeNull();
+  });
+
+  it("captures broadcast failure after persisting", async () => {
+    const harness = createHarness();
+    vi.mocked(harness.options.broadcastSettingsUpdated).mockImplementationOnce(() => {
+      throw new Error("broadcast failed");
+    });
+
+    await harness.actions.persistSetting();
+
+    expect(harness.settingsStore.persist).toHaveBeenCalledTimes(1);
+    expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
+    expect(harness.state.settingsError.value).toBe("broadcast failed");
+    expect(harness.state.settingsErrorRoute.value).toBeNull();
+  });
+
   it("rolls back hotkey on writeLauncherHotkey failure", async () => {
     const harness = createHarness({
       isTauriRuntime: () => true
@@ -98,6 +193,8 @@ describe("useSettingsWindow persistence", () => {
     expect(harness.options.setHotkeyValue).toHaveBeenLastCalledWith("launcher", "Alt+K");
     expect(harness.settingsStore.setHotkey).toHaveBeenLastCalledWith("launcher", "Alt+K");
     expect(harness.state.settingsError.value).toBe("hotkey write failed");
+    expect(harness.state.settingsErrorHotkeyFieldIds.value).toEqual(["launcher"]);
+    expect(harness.state.settingsErrorPrimaryHotkeyField.value).toBe("launcher");
   });
 
   it("rolls back auto-start toggle on write failure", async () => {

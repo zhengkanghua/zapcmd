@@ -183,7 +183,7 @@ describe("useCommandManagement", () => {
   });
 
   it("builds source file options and groups (including unknown source)", () => {
-    const { model, refs } = createFixture();
+    const { model } = createFixture();
 
     const options = model.commandSourceFileOptions.value;
     expect(options.map((item) => item.value).sort()).toEqual([BUILTIN_PATH, USER_PATH].sort());
