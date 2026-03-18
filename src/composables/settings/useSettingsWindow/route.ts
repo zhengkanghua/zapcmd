@@ -14,12 +14,10 @@ export interface RouteActions {
 export function createRouteActions(deps: {
   options: UseSettingsWindowOptions;
   state: SettingsWindowState;
-  closeTerminalDropdown: () => void;
 }): RouteActions {
-  const { options, state, closeTerminalDropdown } = deps;
+  const { options, state } = deps;
 
   function navigateSettings(route: SettingsRoute): void {
-    closeTerminalDropdown();
     state.settingsRoute.value = route;
     if (!options.isSettingsWindow.value) {
       return;

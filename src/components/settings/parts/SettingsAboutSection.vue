@@ -82,9 +82,7 @@ const updateErrorNextStep = computed(() => {
 </script>
 
 <template>
-  <section class="settings-group settings-about" aria-labelledby="settings-group-about">
-    <h2 id="settings-group-about">{{ t("settings.about.title") }}</h2>
-
+  <section class="settings-group settings-about" aria-label="settings-about">
     <header class="about-brand" data-testid="about-brand">
       <div class="about-brand__logo" role="img" aria-label="ZapCmd logo">⚡</div>
       <div class="about-brand__text">
@@ -98,7 +96,7 @@ const updateErrorNextStep = computed(() => {
 
     <div class="about-cards">
       <div class="about-card about-card--info" data-testid="about-info-card">
-        <h3 class="about-card__title">{{ t("settings.about.title") }}</h3>
+        <h3 class="about-card__title">{{ t("settings.about.infoTitle") }}</h3>
         <dl class="about-grid">
           <div class="about-row">
             <dt>{{ t("settings.about.version") }}</dt>

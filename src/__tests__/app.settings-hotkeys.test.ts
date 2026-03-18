@@ -232,6 +232,7 @@ describe("AppSettings hotkeys regression", () => {
     await toggle.trigger("click");
     await waitForUi();
 
+    expect(wrapper.find(".settings-commands-toolbar__more-filters").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-toolbar__summary").exists()).toBe(true);
 
     if (wasEnabled) {

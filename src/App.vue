@@ -45,6 +45,7 @@ const {
   setStagingListRef,
   setResultButtonRef,
   setParamInputRef,
+  setStagingGripReorderActive,
   onQueryInput,
   stageResult,
   executeResult,
@@ -72,13 +73,10 @@ const {
   getHotkeyDisplay,
   availableTerminals,
   terminalLoading,
-  terminalDropdownOpen,
-  terminalFocusIndex,
   defaultTerminal,
   language,
   autoCheckUpdate,
   launchAtLogin,
-  selectedTerminalOption,
   selectedTerminalPath,
   languageOptions,
   appVersion,
@@ -109,7 +107,6 @@ const {
   discardUnsavedSettingsChanges,
   navigateSettings,
   applyHotkeyChange,
-  toggleTerminalDropdown,
   selectTerminalOption,
   selectLanguageOption,
   setAutoCheckUpdate,
@@ -205,6 +202,7 @@ function navigateToSettingsError(): void {
     @update-staged-arg="updateStagedArg"
     @clear-staging="clearStaging"
     @execute-staged="executeStaged"
+    @grip-reorder-active-change="setStagingGripReorderActive"
     @submit-param-input="submitParamInput"
     @cancel-param-input="cancelParamInput"
     @arg-input="updatePendingArgValue"
@@ -230,13 +228,10 @@ function navigateToSettingsError(): void {
     :hotkey-error-message="hotkeyErrorMessage"
     :available-terminals="availableTerminals"
     :terminal-loading="terminalLoading"
-    :terminal-dropdown-open="terminalDropdownOpen"
-    :terminal-focus-index="terminalFocusIndex"
     :default-terminal="defaultTerminal"
     :language="language"
     :auto-check-update="autoCheckUpdate"
     :launch-at-login="launchAtLogin"
-    :selected-terminal-option="selectedTerminalOption"
     :selected-terminal-path="selectedTerminalPath"
     :language-options="languageOptions"
     :app-version="appVersion"
@@ -265,7 +260,6 @@ function navigateToSettingsError(): void {
     :themes="themes"
     @update-hotkey="applyHotkeyChange"
     @navigate="navigateSettings"
-    @toggle-terminal-dropdown="toggleTerminalDropdown"
     @select-terminal="selectTerminalOption"
     @select-language="selectLanguageOption"
     @set-auto-check-update="setAutoCheckUpdate"

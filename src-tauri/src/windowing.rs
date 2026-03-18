@@ -1,5 +1,7 @@
 use tauri::{AppHandle, Manager, Position, Runtime, WebviewWindow};
 use tauri::{LogicalSize, PhysicalPosition};
+#[cfg(target_os = "windows")]
+use tauri::Theme;
 
 use std::sync::atomic::Ordering;
 
@@ -79,7 +81,7 @@ pub(crate) fn open_or_focus_settings_window<R: Runtime>(app: &AppHandle<R>) -> R
         return Ok(());
     }
 
-    let _window = tauri::WebviewWindowBuilder::new(
+    let builder = tauri::WebviewWindowBuilder::new(
         app,
         SETTINGS_WINDOW_LABEL,
         tauri::WebviewUrl::App("settings.html".into()),
@@ -91,9 +93,20 @@ pub(crate) fn open_or_focus_settings_window<R: Runtime>(app: &AppHandle<R>) -> R
     .decorations(true)
     .maximizable(true)
     .visible(false)
-    .focused(false)
+    .focused(false);
+
+    #[cfg(target_os = "windows")]
+    let builder = builder.theme(Some(Theme::Dark));
+
+    let window = builder
     .build()
     .map_err(|err| format!("Failed to create settings window: {}", err))?;
+
+    window
+        .show()
+        .map_err(|err| format!("Failed to show settings window: {}", err))?;
+    let _ = window.unminimize();
+    let _ = window.set_focus();
 
     Ok(())
 }

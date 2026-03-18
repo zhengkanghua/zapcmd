@@ -59,15 +59,23 @@ describe("SettingsCommandsSection layout", () => {
       }
     });
 
+    expect(wrapper.find(".settings-commands-toolbar--sticky").exists()).toBe(true);
+    expect(wrapper.find(".settings-commands-toolbar--underlap").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-toolbar__search-row").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-toolbar__search").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-toolbar__summary-row").exists()).toBe(true);
+    expect(wrapper.findAll(".settings-commands-toolbar__primary-filter")).toHaveLength(4);
+    expect(wrapper.find(".settings-commands-toolbar__more-filters").exists()).toBe(true);
+    expect(wrapper.text()).toContain("更多筛选");
+    expect(wrapper.text()).not.toContain("全部文件");
 
     const headers = wrapper
       .findAll(".settings-commands-table__header [role='columnheader']")
       .map((header) => header.text().trim());
     expect(headers).toEqual(["命令", "分类", "来源", "启用"]);
 
+    expect(wrapper.find(".settings-commands-table__container").exists()).toBe(true);
+    expect(wrapper.find(".settings-commands-table__badge").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-table__row--disabled").exists()).toBe(true);
   });
 });

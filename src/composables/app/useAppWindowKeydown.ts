@@ -6,11 +6,6 @@ interface SettingsWindowLike {
   recordingHotkeyField: Ref<HotkeyFieldId | null>;
   applyRecordedHotkey: (field: HotkeyFieldId, captured: string) => void;
   cancelHotkeyRecording: () => void;
-  terminalDropdownOpen: Ref<boolean>;
-  availableTerminals: Ref<Array<{ id: string }>>;
-  terminalFocusIndex: Ref<number>;
-  selectTerminalOption: (id: string) => void;
-  closeTerminalDropdown: () => void;
 }
 
 interface StagingQueueLike {
@@ -82,11 +77,6 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
       recordingHotkeyField: options.settingsWindow.recordingHotkeyField,
       applyRecordedHotkey: options.settingsWindow.applyRecordedHotkey,
       cancelHotkeyRecording: options.settingsWindow.cancelHotkeyRecording,
-      terminalDropdownOpen: options.settingsWindow.terminalDropdownOpen,
-      availableTerminals: options.settingsWindow.availableTerminals,
-      terminalFocusIndex: options.settingsWindow.terminalFocusIndex,
-      selectTerminalOption: options.settingsWindow.selectTerminalOption,
-      closeTerminalDropdown: options.settingsWindow.closeTerminalDropdown,
       closeSettingsWindow: options.closeSettingsWindow
     },
     main: {

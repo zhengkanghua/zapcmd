@@ -123,6 +123,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
   const stagedFeedback = useStagedFeedback({
     durationMs: 220
   });
+  const stagingGripReorderActive = ref(false);
   const shouldBlockSearchInputFocusRef = ref<() => boolean>(() => false);
   const { scheduleSearchInputFocus } = useSearchFocus({
     searchInputRef: domBridge.searchInputRef,
@@ -184,6 +185,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     runCommandInTerminal,
     runCommandsInTerminal,
     stagedFeedback,
+    stagingGripReorderActive,
     shouldBlockSearchInputFocusRef,
     scheduleSearchInputFocus,
     appVersion,

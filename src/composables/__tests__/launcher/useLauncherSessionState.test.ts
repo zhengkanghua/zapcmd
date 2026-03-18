@@ -459,4 +459,38 @@ describe("useLauncherSessionState", () => {
 
     expect(storage.setItem).not.toHaveBeenCalled();
   });
+
+  it("defers persistence while suspendPersistence is true and flushes once after resume", async () => {
+    const storage = createStorage(null);
+    const stagedCommands = ref<StagedCommand[]>([]);
+    const stagingExpanded = ref(true);
+    const suspendPersistence = ref(true);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded,
+      suspendPersistence,
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    stagedCommands.value = [createStagedCommand("a"), createStagedCommand("b")];
+    await nextTick();
+    stagedCommands.value = [createStagedCommand("b"), createStagedCommand("a")];
+    await nextTick();
+
+    expect(storage.setItem).not.toHaveBeenCalled();
+
+    suspendPersistence.value = false;
+    await nextTick();
+
+    expect(storage.setItem).toHaveBeenCalledTimes(1);
+    const payload = JSON.parse(storage.setItem.mock.calls[0]?.[1] as string) as {
+      stagedCommands: Array<{ id: string }>;
+      stagingExpanded: boolean;
+    };
+    expect(payload.stagingExpanded).toBe(true);
+    expect(payload.stagedCommands.map((item) => item.id)).toEqual(["b", "a"]);
+  });
 });

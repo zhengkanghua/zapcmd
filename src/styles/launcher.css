@@ -678,8 +678,19 @@
   transition: transform 180ms cubic-bezier(0.175, 0.885, 0.32, 1.15);
 }
 
+.flow-panel__list--grip-reordering .flow-panel-list-move {
+  transition: none;
+}
+
 .flow-panel__list--grip-reordering .flow-card__grip {
   cursor: grabbing;
+}
+
+.flow-panel__list--grip-reordering .staging-card {
+  transition:
+    border-color 120ms ease,
+    opacity 120ms ease,
+    box-shadow 150ms ease;
 }
 
 .flow-panel-overlay.state-opening .flow-panel-overlay__scrim {

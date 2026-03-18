@@ -61,6 +61,17 @@
   --ui-settings-titlebar-bg: var(--theme-settings-titlebar-bg);
   --ui-settings-topbar-bg: var(--theme-settings-topbar-bg);
   --ui-settings-topbar-border: var(--theme-settings-topbar-border);
+  --ui-settings-toolbar-bg: var(--theme-settings-toolbar-bg);
+  --ui-settings-toolbar-sticky-bg: var(--theme-settings-toolbar-sticky-bg);
+  --ui-settings-dropdown-bg: var(--theme-settings-dropdown-bg);
+  --ui-settings-dropdown-border: var(--theme-settings-dropdown-border);
+  --ui-settings-dropdown-hover: var(--theme-settings-dropdown-hover);
+  --ui-settings-badge-bg: var(--theme-settings-badge-bg);
+  --ui-settings-badge-text: var(--theme-settings-badge-text);
+  --ui-settings-focus-ring: var(--theme-settings-focus-ring);
+  --ui-settings-toggle-off: var(--theme-settings-toggle-off);
+  --ui-settings-toggle-thumb: var(--theme-settings-toggle-thumb);
+  --ui-settings-table-row-hover: var(--theme-settings-table-row-hover);
   --ui-settings-tab-active-bg: var(--theme-settings-tab-active-bg);
   --ui-settings-tab-active-border: var(--theme-settings-tab-active-border);
   --ui-settings-card-bg: var(--theme-settings-card-bg);
@@ -69,4 +80,8 @@
   --ui-settings-row-border: var(--theme-settings-row-border);
   --ui-settings-row-hover: var(--theme-settings-row-hover);
   --ui-settings-hint: var(--theme-settings-hint-color);
+  --ui-settings-z-topbar: 30;
+  --ui-settings-z-toolbar: 40;
+  --ui-settings-z-popover: 100;
+  --ui-settings-z-overlay: 110;
 }

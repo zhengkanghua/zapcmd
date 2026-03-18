@@ -41,11 +41,7 @@ export function useSettingsWindow(options: UseSettingsWindowOptions) {
     applyAutoStartChange: persistence.applyAutoStartChange
   });
   persistenceHooks.loadAutoStartEnabled = general.loadAutoStartEnabled;
-  const route = createRouteActions({
-    options,
-    state,
-    closeTerminalDropdown: terminal.closeTerminalDropdown
-  });
+  const route = createRouteActions({ options, state });
   const viewModel = createSettingsViewModel({ options, state });
 
   return {

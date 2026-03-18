@@ -56,6 +56,17 @@
   --theme-settings-titlebar-bg: #0F0F11;
   --theme-settings-topbar-bg: rgba(15, 15, 17, 0.96);
   --theme-settings-topbar-border: rgba(255, 255, 255, 0.06);
+  --theme-settings-toolbar-bg: rgba(10, 10, 12, 0.9);
+  --theme-settings-toolbar-sticky-bg: rgba(9, 9, 11, 0.92);
+  --theme-settings-dropdown-bg: rgba(18, 18, 22, 0.92);
+  --theme-settings-dropdown-border: rgba(255, 255, 255, 0.08);
+  --theme-settings-dropdown-hover: rgba(255, 255, 255, 0.06);
+  --theme-settings-badge-bg: rgba(255, 255, 255, 0.05);
+  --theme-settings-badge-text: rgba(255, 255, 255, 0.58);
+  --theme-settings-focus-ring: rgba(251, 191, 36, 0.18);
+  --theme-settings-toggle-off: #3F3F46;
+  --theme-settings-toggle-thumb: #FAFAFA;
+  --theme-settings-table-row-hover: rgba(255, 255, 255, 0.04);
   --theme-settings-tab-active-bg: rgba(255, 255, 255, 0.13);
   --theme-settings-tab-active-border: rgba(255, 255, 255, 0.10);
   --theme-settings-card-bg: rgba(255, 255, 255, 0.035);

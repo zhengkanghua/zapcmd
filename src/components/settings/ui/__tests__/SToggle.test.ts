@@ -28,7 +28,12 @@ describe("SToggle", () => {
 
   it("supports compact size via prop", () => {
     const wrapper = mount(SToggle, { props: { modelValue: true, compact: true } });
-    expect(wrapper.find(".s-toggle--compact").exists()).toBe(true);
+    const toggle = wrapper.get("[role='switch']");
+
+    expect(wrapper.classes()).toContain("s-toggle--compact");
+    expect(toggle.attributes("role")).toBe("switch");
+    expect(toggle.attributes("aria-checked")).toBe("true");
+    expect(wrapper.find(".s-toggle__track").exists()).toBe(true);
   });
 
   it("is disabled when disabled prop is true", async () => {

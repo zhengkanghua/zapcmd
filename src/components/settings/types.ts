@@ -48,10 +48,7 @@ export interface SettingsHotkeysProps {
 export interface SettingsGeneralProps {
   availableTerminals: TerminalOption[];
   terminalLoading: boolean;
-  terminalDropdownOpen: boolean;
-  terminalFocusIndex: number;
   defaultTerminal: string;
-  selectedTerminalOption: TerminalOption | null;
   selectedTerminalPath: string;
   language: AppLocale;
   languageOptions: Array<{ value: AppLocale; label: string }>;

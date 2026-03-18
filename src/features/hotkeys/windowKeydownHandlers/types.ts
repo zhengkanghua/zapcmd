@@ -8,11 +8,6 @@ export interface SettingsHandlers {
   recordingHotkeyField: RefLike<HotkeyFieldId | null>;
   applyRecordedHotkey: (field: HotkeyFieldId, captured: string) => void;
   cancelHotkeyRecording: () => void;
-  terminalDropdownOpen: RefLike<boolean>;
-  availableTerminals: RefLike<Array<{ id: string }>>;
-  terminalFocusIndex: RefLike<number>;
-  selectTerminalOption: (id: string) => void;
-  closeTerminalDropdown: () => void;
   closeSettingsWindow: () => void;
 }
 

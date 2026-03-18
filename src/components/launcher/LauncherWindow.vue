@@ -74,6 +74,7 @@ const emit = defineEmits<{
   (e: "staging-drag-start", index: number, event: DragEvent): void;
   (e: "staging-drag-over", index: number, event: DragEvent): void;
   (e: "staging-drag-end"): void;
+  (e: "grip-reorder-active-change", value: boolean): void;
   (e: "focus-staging-index", index: number): void;
   (e: "remove-staged-command", id: string): void;
   (e: "update-staged-arg", id: string, key: string, value: string): void;
@@ -217,6 +218,7 @@ function onCommandPanelCancel(): void {
           @staging-drag-start="(index, event) => emit('staging-drag-start', index, event)"
           @staging-drag-over="(index, event) => emit('staging-drag-over', index, event)"
           @staging-drag-end="emit('staging-drag-end')"
+          @grip-reorder-active-change="emit('grip-reorder-active-change', $event)"
           @focus-staging-index="emit('focus-staging-index', $event)"
           @remove-staged-command="emit('remove-staged-command', $event)"
           @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"

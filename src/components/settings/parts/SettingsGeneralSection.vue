@@ -2,7 +2,9 @@
 import { computed } from "vue";
 
 import type { SettingsGeneralProps } from "../types";
-import SSelect from "../ui/SSelect.vue";
+import SDropdown from "../ui/SDropdown.vue";
+import SettingItem from "../ui/SettingItem.vue";
+import SettingSection from "../ui/SettingSection.vue";
 import SToggle from "../ui/SToggle.vue";
 import { useI18nText, type AppLocale } from "../../../i18n";
 
@@ -59,47 +61,41 @@ function onLanguageSelect(value: string): void {
 </script>
 
 <template>
-  <section aria-label="settings-general">
-    <h2>{{ t("settings.general.title") }}</h2>
-
-    <section class="settings-card" aria-labelledby="settings-general-startup">
-      <h3 id="settings-general-startup" class="settings-card__title">
-        {{ t("settings.general.sectionStartup") }}
-      </h3>
-
-      <div class="settings-card__row">
-        <div class="settings-card__label">{{ t("settings.general.autoCheckUpdate") }}</div>
+  <section class="settings-group settings-general" aria-label="settings-general">
+    <SettingSection :label="t('settings.general.sectionStartup')" heading-id="settings-general-startup">
+      <SettingItem
+        :label="t('settings.general.autoCheckUpdate')"
+        :description="t('settings.general.autoCheckUpdateHint')"
+      >
         <SToggle
           :model-value="props.autoCheckUpdate"
           @update:model-value="emit('set-auto-check-update', $event)"
         />
-      </div>
-      <p class="settings-hint">{{ t("settings.general.autoCheckUpdateHint") }}</p>
+      </SettingItem>
 
-      <div class="settings-card__row">
-        <div class="settings-card__label">{{ t("settings.general.launchAtLogin") }}</div>
+      <SettingItem
+        :label="t('settings.general.launchAtLogin')"
+        :description="t('settings.general.launchAtLoginHint')"
+      >
         <SToggle
           :model-value="props.launchAtLogin"
           @update:model-value="emit('set-launch-at-login', $event)"
         />
-      </div>
-      <p class="settings-hint">{{ t("settings.general.launchAtLoginHint") }}</p>
-    </section>
+      </SettingItem>
+    </SettingSection>
 
-    <section class="settings-card" aria-labelledby="settings-general-terminal">
-      <h3 id="settings-general-terminal" class="settings-card__title">
-        {{ t("settings.general.sectionTerminal") }}
-      </h3>
-
-      <div class="settings-card__row">
-        <div class="settings-card__label">{{ t("settings.general.defaultTerminal") }}</div>
-        <SSelect
+    <SettingSection :label="t('settings.general.sectionTerminal')" heading-id="settings-general-terminal">
+      <SettingItem
+        :label="t('settings.general.defaultTerminal')"
+        :description="t('settings.general.terminalHint')"
+      >
+        <SDropdown
           :model-value="terminalSelectValue"
           :options="terminalSelectOptions"
           :disabled="terminalSelectDisabled"
           @update:model-value="emit('select-terminal', $event)"
         />
-      </div>
+      </SettingItem>
 
       <p
         v-if="props.terminalLoading"
@@ -110,27 +106,19 @@ function onLanguageSelect(value: string): void {
         {{ t("settings.general.terminalDetectingHint") }}
       </p>
 
-      <div class="settings-card__row">
-        <div class="settings-card__label">{{ t("settings.general.currentTerminalPath") }}</div>
+      <SettingItem :label="t('settings.general.currentTerminalPath')">
         <code class="settings-card__mono">{{ props.selectedTerminalPath }}</code>
-      </div>
+      </SettingItem>
+    </SettingSection>
 
-      <p class="settings-hint">{{ t("settings.general.terminalHint") }}</p>
-    </section>
-
-    <section class="settings-card" aria-labelledby="settings-general-interface">
-      <h3 id="settings-general-interface" class="settings-card__title">
-        {{ t("settings.general.sectionInterface") }}
-      </h3>
-
-      <div class="settings-card__row">
-        <div class="settings-card__label">{{ t("settings.general.language") }}</div>
-        <SSelect
+    <SettingSection :label="t('settings.general.sectionInterface')" heading-id="settings-general-interface">
+      <SettingItem :label="t('settings.general.language')">
+        <SDropdown
           :model-value="props.language"
           :options="props.languageOptions"
           @update:model-value="onLanguageSelect"
         />
-      </div>
-    </section>
+      </SettingItem>
+    </SettingSection>
   </section>
 </template>

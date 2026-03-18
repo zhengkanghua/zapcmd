@@ -26,6 +26,9 @@ describe("SettingsAboutSection update error guidance", () => {
     expect(wrapper.find('[data-testid="about-brand"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="about-info-card"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="about-actions-card"]').exists()).toBe(true);
+    expect(wrapper.find("#settings-group-about").exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("关于\n关于");
+    expect(wrapper.get('[data-testid="about-info-card"]').text()).not.toBe("关于");
 
     const actionsCard = wrapper.get('[data-testid="about-actions-card"]');
     expect(actionsCard.text()).toContain("检查更新失败");

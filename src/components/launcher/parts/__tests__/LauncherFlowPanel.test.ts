@@ -434,3 +434,99 @@ describe("LauncherFlowPanel Toast 渲染", () => {
     }
   });
 });
+
+describe("LauncherFlowPanel 抓手重排跟手性", () => {
+  it("通过 window mousemove 跟踪鼠标，而不是依赖列表项本身的 mousemove", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      attachTo: document.body,
+      props: createProps({
+        stagedCommands: [
+          createStagedCommand({ id: "cmd-1", title: "命令 1" }),
+          createStagedCommand({ id: "cmd-2", title: "命令 2" })
+        ]
+      })
+    });
+
+    const items = wrapper.findAll(".flow-panel__list-item");
+    expect(items).toHaveLength(2);
+
+    vi.spyOn(items[1]!.element, "getBoundingClientRect").mockReturnValue({
+      top: 100,
+      bottom: 200,
+      left: 0,
+      right: 200,
+      width: 200,
+      height: 100,
+      x: 0,
+      y: 100,
+      toJSON: () => ({})
+    } as DOMRect);
+
+    if (typeof document.elementFromPoint !== "function") {
+      Object.defineProperty(document, "elementFromPoint", {
+        configurable: true,
+        value: vi.fn()
+      });
+    }
+
+    const elementFromPointSpy = vi.spyOn(document, "elementFromPoint").mockReturnValue(items[1]!.element as Element);
+
+    await wrapper.findAll(".flow-card__grip")[0]!.trigger("mousedown", {
+      button: 0,
+      buttons: 1,
+      clientX: 80,
+      clientY: 120
+    });
+
+    window.dispatchEvent(
+      new MouseEvent("mousemove", {
+        bubbles: true,
+        buttons: 1,
+        clientX: 80,
+        clientY: 180
+      })
+    );
+    await nextTick();
+
+    const dragOverEvents = wrapper.emitted("staging-drag-over");
+    expect(dragOverEvents).toBeDefined();
+    expect(dragOverEvents?.[0]?.[0]).toBe(1);
+    expect(elementFromPointSpy).toHaveBeenCalledWith(80, 180);
+
+    window.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+    await nextTick();
+    wrapper.unmount();
+  });
+
+  it("抓手重排开始后会拦截原生 dragstart，避免与自定义重排竞争", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      attachTo: document.body,
+      props: createProps({
+        stagedCommands: [createStagedCommand({ id: "cmd-1", title: "命令 1" })]
+      })
+    });
+
+    await wrapper.find(".flow-card__grip").trigger("mousedown", {
+      button: 0,
+      buttons: 1,
+      clientX: 80,
+      clientY: 120
+    });
+
+    expect(wrapper.emitted("staging-drag-start")).toHaveLength(1);
+
+    const nativeDragStartEvent = new Event("dragstart", {
+      bubbles: true,
+      cancelable: true
+    });
+    wrapper.get(".flow-panel__list-item").element.dispatchEvent(nativeDragStartEvent);
+    await nextTick();
+
+    expect(nativeDragStartEvent.defaultPrevented).toBe(true);
+    expect(wrapper.emitted("staging-drag-start")).toHaveLength(1);
+
+    window.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+    await nextTick();
+    wrapper.unmount();
+  });
+});

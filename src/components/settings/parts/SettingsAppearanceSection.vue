@@ -28,9 +28,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 </script>
 
 <template>
-  <section class="settings-group settings-appearance" aria-labelledby="settings-group-appearance">
-    <h2 id="settings-group-appearance">{{ t("settings.appearance.title") }}</h2>
-
+  <section class="settings-group settings-appearance" aria-label="settings-appearance">
     <div class="appearance-cards">
       <div class="appearance-card appearance-card--theme">
         <div class="appearance-card__header">

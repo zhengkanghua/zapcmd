@@ -48,10 +48,7 @@ function createSettingsWindowProps(
     hotkeyErrorMessage: "",
     availableTerminals: [terminalOption],
     terminalLoading: false,
-    terminalDropdownOpen: false,
-    terminalFocusIndex: -1,
     defaultTerminal: terminalOption.id,
-    selectedTerminalOption: terminalOption,
     selectedTerminalPath: terminalOption.path,
     language: defaults.general.language,
     languageOptions: [
@@ -92,6 +89,14 @@ function createSettingsWindowProps(
 }
 
 describe("SettingsWindow stable shell", () => {
+  it("does not feed legacy terminal dropdown props into the window shell factory", () => {
+    const props = createSettingsWindowProps({ settingsRoute: "general" }) as unknown as Record<string, unknown>;
+
+    expect("terminalDropdownOpen" in props).toBe(false);
+    expect("terminalFocusIndex" in props).toBe(false);
+    expect("selectedTerminalOption" in props).toBe(false);
+  });
+
   it("renders app topbar without custom window controls", () => {
     const wrapper = shallowMount(SettingsWindow, {
       props: createSettingsWindowProps({ settingsRoute: "general" })

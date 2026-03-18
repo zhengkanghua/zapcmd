@@ -12,6 +12,7 @@ const reviewListRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<HTMLButtonElement | null>(null);
 const gripReorderActive = ref(false);
 let gripReorderCleanup: (() => void) | null = null;
+let previousBodyUserSelect = "";
 const draggingCommandId = ref<string | null>(null);
 const dragOverCommandId = ref<string | null>(null);
 
@@ -20,6 +21,7 @@ const emit = defineEmits<{
   (e: "staging-drag-start", index: number, event: DragEvent): void;
   (e: "staging-drag-over", index: number, event: DragEvent): void;
   (e: "staging-drag-end"): void;
+  (e: "grip-reorder-active-change", value: boolean): void;
   (e: "focus-staging-index", index: number): void;
   (e: "remove-staged-command", id: string): void;
   (e: "update-staged-arg", id: string, key: string, value: string): void;
@@ -163,45 +165,17 @@ function endGripReorder(): void {
     return;
   }
   gripReorderActive.value = false;
+  emit("grip-reorder-active-change", false);
+  if (typeof document !== "undefined") {
+    document.body.style.userSelect = previousBodyUserSelect;
+  }
   gripReorderCleanup?.();
   gripReorderCleanup = null;
   resetDragIndicators();
   emit("staging-drag-end");
 }
 
-function startGripReorder(index: number, event: MouseEvent): void {
-  if (event.button !== 0) {
-    return;
-  }
-
-  event.preventDefault();
-  event.stopPropagation();
-
-  gripReorderActive.value = true;
-  draggingCommandId.value = props.stagedCommands[index]?.id ?? null;
-  dragOverCommandId.value = draggingCommandId.value;
-  emit("staging-drag-start", index, createSyntheticDragEvent("dragstart"));
-
-  const onMouseUp = () => endGripReorder();
-  const onWindowBlur = () => endGripReorder();
-  window.addEventListener("mouseup", onMouseUp, { once: true });
-  window.addEventListener("blur", onWindowBlur, { once: true });
-
-  gripReorderCleanup = () => {
-    window.removeEventListener("mouseup", onMouseUp);
-    window.removeEventListener("blur", onWindowBlur);
-  };
-}
-
-function onGripReorderMove(index: number, event: MouseEvent): void {
-  if (!gripReorderActive.value) {
-    return;
-  }
-  if ((event.buttons & 1) === 0) {
-    endGripReorder();
-    return;
-  }
-
+function maybeEmitGripReorder(index: number, clientY: number, currentTarget: HTMLElement | null): void {
   dragOverCommandId.value = props.stagedCommands[index]?.id ?? null;
 
   const draggingId = draggingCommandId.value;
@@ -214,14 +188,13 @@ function onGripReorderMove(index: number, event: MouseEvent): void {
     return;
   }
 
-  const currentTarget = event.currentTarget;
-  if (!(currentTarget instanceof HTMLElement)) {
+  if (!currentTarget) {
     emit("staging-drag-over", index, createSyntheticDragEvent("dragover"));
     return;
   }
 
   const rect = currentTarget.getBoundingClientRect();
-  const offsetY = event.clientY - rect.top;
+  const offsetY = clientY - rect.top;
   const midY = rect.height / 2;
   const buffer = Math.min(12, rect.height / 8);
 
@@ -241,8 +214,85 @@ function onGripReorderMove(index: number, event: MouseEvent): void {
   emit("staging-drag-over", index, createSyntheticDragEvent("dragover"));
 }
 
+function findGripTargetItem(clientX: number, clientY: number): HTMLElement | null {
+  if (typeof document.elementFromPoint !== "function") {
+    return null;
+  }
+
+  const hit = document.elementFromPoint(clientX, clientY);
+  if (!(hit instanceof Element)) {
+    return null;
+  }
+
+  const item = hit.closest<HTMLElement>(".flow-panel__list-item");
+  if (!item || !(reviewListRef.value?.contains(item) ?? false)) {
+    return null;
+  }
+
+  return item;
+}
+
+function onWindowGripMove(event: MouseEvent): void {
+  if (!gripReorderActive.value) {
+    return;
+  }
+  if ((event.buttons & 1) === 0) {
+    endGripReorder();
+    return;
+  }
+
+  event.preventDefault();
+
+  const currentTarget = findGripTargetItem(event.clientX, event.clientY);
+  if (!currentTarget) {
+    return;
+  }
+
+  const index = Number.parseInt(currentTarget.dataset.stagingIndex ?? "", 10);
+  if (!Number.isFinite(index) || index < 0) {
+    return;
+  }
+
+  maybeEmitGripReorder(index, event.clientY, currentTarget);
+}
+
+function startGripReorder(index: number, event: MouseEvent): void {
+  if (event.button !== 0) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  gripReorderActive.value = true;
+  emit("grip-reorder-active-change", true);
+  if (typeof document !== "undefined") {
+    previousBodyUserSelect = document.body.style.userSelect;
+    document.body.style.userSelect = "none";
+  }
+  draggingCommandId.value = props.stagedCommands[index]?.id ?? null;
+  dragOverCommandId.value = draggingCommandId.value;
+  emit("staging-drag-start", index, createSyntheticDragEvent("dragstart"));
+
+  window.addEventListener("mousemove", onWindowGripMove);
+  const onMouseUp = () => endGripReorder();
+  const onWindowBlur = () => endGripReorder();
+  window.addEventListener("mouseup", onMouseUp, { once: true });
+  window.addEventListener("blur", onWindowBlur, { once: true });
+
+  gripReorderCleanup = () => {
+    window.removeEventListener("mousemove", onWindowGripMove);
+    window.removeEventListener("mouseup", onMouseUp);
+    window.removeEventListener("blur", onWindowBlur);
+  };
+}
+
 // --- 拖拽启动时取消编辑态 ---
 function onDragStartWithEditGuard(event: DragEvent, index: number) {
+  if (gripReorderActive.value) {
+    event.preventDefault();
+    return;
+  }
   endGripReorder();
   draggingCommandId.value = props.stagedCommands[index]?.id ?? null;
   dragOverCommandId.value = draggingCommandId.value;
@@ -425,7 +475,6 @@ onBeforeUnmount(() => {
           @dragstart="onDragStartWithEditGuard($event, index)"
           @dragover="onStagingDragOver(index, $event)"
           @dragend="onDragEnd"
-          @mousemove="onGripReorderMove(index, $event)"
           @click="emit('focus-staging-index', index)"
         >
           <article

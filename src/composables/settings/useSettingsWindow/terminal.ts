@@ -3,8 +3,6 @@ import { clearSettingsErrorState, type SettingsWindowState, type UseSettingsWind
 
 export interface TerminalActions {
   ensureDefaultTerminal: () => void;
-  closeTerminalDropdown: () => void;
-  toggleTerminalDropdown: () => void;
   selectTerminalOption: (id: string) => void;
   selectLanguageOption: (locale: AppLocale) => void;
   onGlobalPointerDown: (event: PointerEvent) => void;
@@ -29,32 +27,8 @@ export function createTerminalActions(deps: {
     }
   }
 
-  function closeTerminalDropdown(): void {
-    state.terminalDropdownOpen.value = false;
-    state.terminalFocusIndex.value = -1;
-  }
-
-  function toggleTerminalDropdown(): void {
-    if (state.terminalLoading.value || state.availableTerminals.value.length === 0) {
-      return;
-    }
-    if (state.terminalDropdownOpen.value) {
-      closeTerminalDropdown();
-      return;
-    }
-
-    state.terminalDropdownOpen.value = true;
-    const selectedIndex = state.availableTerminals.value.findIndex(
-      (item) => item.id === options.defaultTerminal.value
-    );
-    state.terminalFocusIndex.value = selectedIndex >= 0 ? selectedIndex : 0;
-  }
-
   function selectTerminalOption(id: string): void {
     options.defaultTerminal.value = id;
-    const selectedIndex = state.availableTerminals.value.findIndex((item) => item.id === id);
-    state.terminalFocusIndex.value = selectedIndex >= 0 ? selectedIndex : -1;
-    state.terminalDropdownOpen.value = false;
     clearSettingsErrorState(state);
     void persistSetting();
   }
@@ -70,17 +44,6 @@ export function createTerminalActions(deps: {
       if (!(event.target instanceof Element) || !event.target.closest(".hotkey-recorder")) {
         cancelHotkeyRecording();
       }
-    }
-
-    if (!state.terminalDropdownOpen.value) {
-      return;
-    }
-    if (!(event.target instanceof Element)) {
-      closeTerminalDropdown();
-      return;
-    }
-    if (!event.target.closest(".settings-select-wrap")) {
-      closeTerminalDropdown();
     }
   }
 
@@ -108,8 +71,6 @@ export function createTerminalActions(deps: {
 
   return {
     ensureDefaultTerminal,
-    closeTerminalDropdown,
-    toggleTerminalDropdown,
     selectTerminalOption,
     selectLanguageOption,
     onGlobalPointerDown,

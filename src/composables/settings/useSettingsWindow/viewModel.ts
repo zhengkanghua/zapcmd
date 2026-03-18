@@ -39,11 +39,6 @@ export function createSettingsViewModel(deps: {
         )
       )
     ),
-    selectedTerminalOption: computed(
-      () =>
-        state.availableTerminals.value.find((item) => item.id === options.defaultTerminal.value) ??
-        null
-    ),
     selectedTerminalPath: computed(() => {
       const selected = state.availableTerminals.value.find(
         (item) => item.id === options.defaultTerminal.value

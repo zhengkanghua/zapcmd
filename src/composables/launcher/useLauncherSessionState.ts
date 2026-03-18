@@ -15,6 +15,7 @@ interface UseLauncherSessionStateOptions {
   enabled: Readonly<Ref<boolean>>;
   stagedCommands: Ref<StagedCommand[]>;
   stagingExpanded: Readonly<Ref<boolean>>;
+  suspendPersistence?: Readonly<Ref<boolean>>;
   openStagingDrawer: () => void;
   storage?: Pick<Storage, "getItem" | "setItem" | "removeItem"> | null;
 }
@@ -205,9 +206,14 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
   restoring = false;
 
   watch(
-    [options.stagedCommands, options.stagingExpanded, options.enabled],
-    ([stagedCommands, stagingExpanded, enabled]) => {
-      if (!enabled || restoring) {
+    [
+      options.stagedCommands,
+      options.stagingExpanded,
+      options.enabled,
+      () => options.suspendPersistence?.value ?? false
+    ],
+    ([stagedCommands, stagingExpanded, enabled, suspendPersistence]) => {
+      if (!enabled || restoring || suspendPersistence) {
         return;
       }
       writeLauncherSession(storage, stagedCommands, stagingExpanded);

@@ -42,6 +42,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
     enabled: computed(() => !context.isSettingsWindow.value),
     stagedCommands: context.stagedCommands,
     stagingExpanded: stagingQueue.stagingExpanded,
+    suspendPersistence: context.stagingGripReorderActive,
     openStagingDrawer: stagingQueue.openStagingDrawer
   });
 
@@ -253,7 +254,6 @@ function bindAppRuntime(
   });
   function requestCloseSettingsWindow(): void {
     context.settingsWindow.cancelHotkeyRecording();
-    context.settingsWindow.closeTerminalDropdown();
     closeSettingsWindowImmediately();
   }
   const onWindowKeydown = useAppWindowKeydown({

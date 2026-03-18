@@ -317,10 +317,10 @@ async function recordHotkey(
 
 function getDefaultTerminalSelectTrigger(wrapper: VueWrapper): DOMWrapper<Element> {
   const row = wrapper
-    .findAll(".settings-card__row")
-    .find((item) => item.text().includes("默认终端"));
+    .findAll(".setting-item")
+    .find((item) => item.find(".setting-item__label").text().includes("默认终端"));
   expect(row).toBeTruthy();
-  const trigger = row!.find("button.s-select__trigger");
+  const trigger = row!.find("button.s-dropdown__trigger");
   expect(trigger.exists()).toBe(true);
   return trigger;
 }
@@ -660,26 +660,48 @@ describe("App failure and event regression", () => {
       top: 100,
       bottom: 200,
       left: 0,
-      right: 0,
-      width: 0,
+      right: 200,
+      width: 200,
       height: 100,
       x: 0,
       y: 100,
       toJSON: () => ({})
     } as DOMRect);
 
+    if (typeof document.elementFromPoint !== "function") {
+      Object.defineProperty(document, "elementFromPoint", {
+        configurable: true,
+        value: vi.fn(),
+      });
+    }
+
+    const elementFromPointSpy = vi
+      .spyOn(document, "elementFromPoint")
+      .mockReturnValue(rows[1]!.element as Element);
+
     // 上半区：不触发重排（避免边界抖动）
-    await rows[1].trigger("mousemove", { buttons: 1, clientY: 120 });
+    window.dispatchEvent(
+      new MouseEvent("mousemove", {
+        bubbles: true,
+        buttons: 1,
+        clientX: 80,
+        clientY: 120,
+      }),
+    );
     await waitForUi();
     expect(wrapper.findAll(".staging-card h3").map((item) => item.text())).toEqual(beforeTitles);
 
     // 下半区：触发重排
-    await rows[1].trigger("mousemove", { buttons: 1, clientY: 180 });
+    window.dispatchEvent(
+      new MouseEvent("mousemove", {
+        bubbles: true,
+        buttons: 1,
+        clientX: 80,
+        clientY: 180,
+      }),
+    );
     await waitForUi();
-
-    // 即使此时“命中区域”在边界来回变化，也不应抖动回原位（模拟：仍在下半区）
-    await rows[0].trigger("mousemove", { buttons: 1, clientY: 180 });
-    await waitForUi();
+    expect(elementFromPointSpy).toHaveBeenCalledWith(80, 180);
 
     window.dispatchEvent(new MouseEvent("mouseup", { button: 0 }));
     await waitForUi();

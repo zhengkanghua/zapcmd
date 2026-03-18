@@ -112,9 +112,6 @@ const {
   settingsError,
   availableTerminals,
   terminalLoading,
-  terminalDropdownOpen,
-  terminalFocusIndex,
-  selectedTerminalOption,
   selectedTerminalPath,
   languageOptions,
   navigateSettings,
@@ -313,10 +310,7 @@ onBeforeUnmount(() => {
     :hotkey-error-message="settingsError"
     :available-terminals="availableTerminals"
     :terminal-loading="terminalLoading"
-    :terminal-dropdown-open="terminalDropdownOpen"
-    :terminal-focus-index="terminalFocusIndex"
     :default-terminal="defaultTerminal"
-    :selected-terminal-option="selectedTerminalOption"
     :selected-terminal-path="selectedTerminalPath"
     :language="language"
     :language-options="languageOptions"

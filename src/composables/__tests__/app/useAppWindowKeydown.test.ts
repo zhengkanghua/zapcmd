@@ -17,12 +17,7 @@ function createHarness() {
   const settingsWindow = {
     recordingHotkeyField: ref<HotkeyFieldId | null>(null),
     applyRecordedHotkey: vi.fn(),
-    cancelHotkeyRecording: vi.fn(),
-    terminalDropdownOpen: ref(false),
-    availableTerminals: ref([{ id: "powershell" }, { id: "cmd" }]),
-    terminalFocusIndex: ref(0),
-    selectTerminalOption: vi.fn(),
-    closeTerminalDropdown: vi.fn()
+    cancelHotkeyRecording: vi.fn()
   };
 
   const stagingQueue = {
@@ -93,6 +88,15 @@ function createHarness() {
 }
 
 describe("useAppWindowKeydown", () => {
+  it("does not require legacy terminal dropdown state on settings harness", () => {
+    const harness = createHarness();
+
+    expect("terminalDropdownOpen" in harness.settingsWindow).toBe(false);
+    expect("terminalFocusIndex" in harness.settingsWindow).toBe(false);
+    expect("selectTerminalOption" in harness.settingsWindow).toBe(false);
+    expect("closeTerminalDropdown" in harness.settingsWindow).toBe(false);
+  });
+
   it("routes Escape to settings hotkey recording cancel", () => {
     const harness = createHarness();
     harness.isSettingsWindow.value = true;

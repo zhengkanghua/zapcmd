@@ -121,6 +121,7 @@ export const messages = {
       },
       about: {
         title: "关于",
+        infoTitle: "软件信息",
         version: "版本",
         platform: "运行平台",
         homepage: "项目主页",
@@ -163,6 +164,7 @@ export const messages = {
         overrideFilter: "冲突",
         issueFilter: "导入问题",
         fileFilter: "按文件筛选",
+        moreFilters: "更多筛选",
         sortLabel: "排序",
         displayMode: "展示方式",
         displayListTitle: "平铺列表",
@@ -439,6 +441,7 @@ export const messages = {
       },
       about: {
         title: "About",
+        infoTitle: "App Info",
         version: "Version",
         platform: "Platform",
         homepage: "Homepage",
@@ -482,6 +485,7 @@ export const messages = {
         overrideFilter: "Conflict",
         issueFilter: "Import issues",
         fileFilter: "Filter by file",
+        moreFilters: "More filters",
         sortLabel: "Sort",
         displayMode: "Display mode",
         displayListTitle: "Flat list",

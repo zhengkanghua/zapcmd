@@ -15,10 +15,7 @@ describe("SettingsGeneralSection i18n", () => {
       props: {
         availableTerminals: [{ id: "powershell", label: "PowerShell", path: "powershell.exe" }],
         terminalLoading: false,
-        terminalDropdownOpen: false,
-        terminalFocusIndex: -1,
         defaultTerminal: "powershell",
-        selectedTerminalOption: { id: "powershell", label: "PowerShell", path: "powershell.exe" },
         selectedTerminalPath: "powershell.exe",
         language: "zh-CN",
         languageOptions: [
@@ -30,13 +27,14 @@ describe("SettingsGeneralSection i18n", () => {
       }
     });
 
-    expect(wrapper.text()).toContain("通用");
+    expect(wrapper.text()).not.toContain("通用");
     expect(wrapper.text()).toContain("启动");
     expect(wrapper.text()).toContain("终端");
     expect(wrapper.text()).toContain("界面");
     expect(wrapper.text()).toContain("默认终端");
-    expect(wrapper.findAll(".settings-hint")).toHaveLength(3);
-    const trigger = wrapper.get(".s-select__trigger");
+    expect(wrapper.findAll(".setting-item")).toHaveLength(5);
+    expect(wrapper.find(".setting-item__description").exists()).toBe(true);
+    const trigger = wrapper.get(".s-dropdown__trigger");
     expect(trigger.text()).toContain("PowerShell");
     expect(trigger.text()).not.toContain("powershell.exe");
     const terminalPath = wrapper.get("code.settings-card__mono");
@@ -46,11 +44,10 @@ describe("SettingsGeneralSection i18n", () => {
     setAppLocale("en-US");
     await nextTick();
 
-    expect(wrapper.text()).toContain("General");
+    expect(wrapper.text()).not.toContain("General");
     expect(wrapper.text()).toContain("Startup");
     expect(wrapper.text()).toContain("Terminal");
     expect(wrapper.text()).toContain("Interface");
     expect(wrapper.text()).toContain("Default terminal");
-    expect(wrapper.findAll(".settings-hint")).toHaveLength(3);
   });
 });

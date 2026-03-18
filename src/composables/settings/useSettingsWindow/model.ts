@@ -48,8 +48,6 @@ export interface UseSettingsWindowOptions {
 export interface SettingsWindowState {
   availableTerminals: Ref<TerminalOption[]>;
   terminalLoading: Ref<boolean>;
-  terminalDropdownOpen: Ref<boolean>;
-  terminalFocusIndex: Ref<number>;
   launchAtLoginLoading: Ref<boolean>;
   launchAtLoginBaseline: Ref<boolean | null>;
   settingsRoute: Ref<SettingsRoute>;
@@ -64,8 +62,6 @@ export function createSettingsState(): SettingsWindowState {
   return {
     availableTerminals: ref([]),
     terminalLoading: ref(false),
-    terminalDropdownOpen: ref(false),
-    terminalFocusIndex: ref(-1),
     launchAtLoginLoading: ref(false),
     launchAtLoginBaseline: ref(null),
     settingsRoute: ref("hotkeys"),

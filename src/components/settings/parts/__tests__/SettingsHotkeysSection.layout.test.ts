@@ -5,7 +5,7 @@ import SettingsHotkeysSection from "../SettingsHotkeysSection.vue";
 import SHotkeyRecorder from "../../ui/SHotkeyRecorder.vue";
 
 describe("SettingsHotkeysSection layout", () => {
-  it("renders each hotkey section inside settings-card", () => {
+  it("renders external muted group titles above each hotkey card", () => {
     const wrapper = mount(SettingsHotkeysSection, {
       props: {
         hotkeyGlobalFields: [{ id: "launcher", label: "唤起窗口", scope: "global" }],
@@ -17,6 +17,10 @@ describe("SettingsHotkeysSection layout", () => {
       }
     });
 
+    const titles = wrapper.findAll(".settings-hotkeys-group__title").map((item) => item.text().trim());
+    expect(titles).toEqual(["全局快捷键", "搜索区快捷键", "执行流快捷键"]);
+    expect(wrapper.find(".settings-card__title").exists()).toBe(false);
+    expect(wrapper.findAll(".settings-hotkeys-group")).toHaveLength(3);
     expect(wrapper.findAll(".settings-card")).toHaveLength(3);
     expect(wrapper.find(".settings-hotkeys-row__label").exists()).toBe(true);
     expect(wrapper.find(".settings-hotkeys-row__recorder").exists()).toBe(true);

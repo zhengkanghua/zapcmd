@@ -15,6 +15,7 @@ describe("SettingsAppearanceSection layout", () => {
       }
     });
 
+    expect(wrapper.find("#settings-group-appearance").exists()).toBe(false);
     expect(wrapper.find(".appearance-card--theme").exists()).toBe(true);
     expect(wrapper.find(".appearance-card--effects").exists()).toBe(true);
     expect(wrapper.find(".appearance-card--preview").exists()).toBe(true);

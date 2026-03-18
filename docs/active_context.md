@@ -1,5 +1,19 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-18｜settings 通用/命令页深色精修执行）
+
+- Windows settings 标题栏显式切到 dark；General 已切到 `SettingSection/SettingItem/SDropdown/SToggle`，旧终端 dropdown 外部状态链路已删除。
+- Commands 已改为 sticky 搜索工具栏、4 个首排 ghost 筛选、“更多筛选”收纳和轻量表格；`SSelect`/`SFilterChip` 已移除。
+
+## 补充（2026-03-18｜settings bugfix 收口）
+
+- Hotkeys 分组标题改为卡片外 muted 小标题；Commands 工具栏新增 underlap sticky，上滚时会向上藏入顶部。
+- FlowPanel 抓手重排改为 `window mousemove + elementFromPoint`，并关闭重排期 move/transform 动画；settings 新建窗口后立即 `show/focus`，修复托盘首次点击无响应。
+
+## 补充（2026-03-19｜FlowPanel 跟手性二次修复）
+
+- 抓手重排期间暂停 launcher session 持久化，并拦截原生 `dragstart`，继续压低 FlowPanel 主线程阻塞与事件竞争；Hotkeys 各分组间距同步加大，靠近 General 路由节奏。
+
 ## 补充（2026-03-18｜settings 深色精修设计）
 
 - 已完成设计稿 `docs/superpowers/specs/2026-03-18-settings-general-commands-dark-polish-design.md`。

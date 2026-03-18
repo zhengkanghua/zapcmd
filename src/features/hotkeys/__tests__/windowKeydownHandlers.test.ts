@@ -8,8 +8,6 @@ function makeRef<T>(value: T): { value: T } {
 function createHarness() {
   const applyRecordedHotkey = vi.fn();
   const cancelHotkeyRecording = vi.fn();
-  const selectTerminalOption = vi.fn();
-  const closeTerminalDropdown = vi.fn();
   const closeSettingsWindow = vi.fn();
   const openStagingDrawer = vi.fn();
   const switchFocusZone = vi.fn();
@@ -38,11 +36,6 @@ function createHarness() {
       recordingHotkeyField: makeRef<"launcher" | null>(null),
       applyRecordedHotkey,
       cancelHotkeyRecording,
-      terminalDropdownOpen: makeRef(false),
-      availableTerminals: makeRef([{ id: "powershell" }, { id: "cmd" }]),
-      terminalFocusIndex: makeRef(0),
-      selectTerminalOption,
-      closeTerminalDropdown,
       closeSettingsWindow
     },
     main: {
@@ -93,8 +86,6 @@ function createHarness() {
     spies: {
       applyRecordedHotkey,
       cancelHotkeyRecording,
-      selectTerminalOption,
-      closeTerminalDropdown,
       closeSettingsWindow,
       openStagingDrawer,
       switchFocusZone,
@@ -146,17 +137,13 @@ describe("windowKeydownHandlers", () => {
     expect(spies.applyRecordedHotkey).toHaveBeenCalledWith("launcher", "Alt+V");
   });
 
-  it("supports terminal dropdown keyboard navigation and select", () => {
-    const { handler, options, spies } = createHarness();
+  it("does not require legacy terminal dropdown state in settings handlers", () => {
+    const { options, spies } = createHarness();
     options.isSettingsWindow.value = true;
-    options.settings.terminalDropdownOpen.value = true;
-    options.settings.terminalFocusIndex.value = 0;
 
-    handler(new KeyboardEvent("keydown", { key: "ArrowDown" }));
-    expect(options.settings.terminalFocusIndex.value).toBe(1);
-
-    handler(new KeyboardEvent("keydown", { key: "Enter" }));
-    expect(spies.selectTerminalOption).toHaveBeenCalledWith("cmd");
+    expect("terminalDropdownOpen" in options.settings).toBe(false);
+    expect("terminalFocusIndex" in options.settings).toBe(false);
+    expect(spies.closeSettingsWindow).not.toHaveBeenCalled();
   });
 
   it("switches focus with Ctrl+Tab in main window", () => {

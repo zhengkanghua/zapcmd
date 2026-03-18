@@ -22,59 +22,77 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
 </script>
 
 <template>
-  <section class="settings-card" aria-labelledby="settings-hotkeys-global">
-    <h2 id="settings-hotkeys-global" class="settings-card__title">
+  <section class="settings-hotkeys-group" aria-labelledby="settings-hotkeys-global">
+    <h2 id="settings-hotkeys-global" class="settings-hotkeys-group__title">
       {{ t("settings.hotkeys.sectionGlobal") }}
     </h2>
-    <div v-for="field in props.hotkeyGlobalFields" :key="field.id" class="settings-card__row settings-hotkeys-row">
-      <div class="settings-hotkeys-row__label">
-        <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
-      </div>
-      <div class="settings-hotkeys-row__recorder">
-        <SHotkeyRecorder
-          :model-value="props.getHotkeyValue(field.id)"
-          :label="t(`settings.hotkeys.fields.${field.id}`)"
-          :conflict="getFieldConflict(field.id)"
-          @update:model-value="emit('update-hotkey', field.id, $event)"
-        />
+    <div class="settings-card">
+      <div
+        v-for="field in props.hotkeyGlobalFields"
+        :key="field.id"
+        class="settings-card__row settings-hotkeys-row"
+      >
+        <div class="settings-hotkeys-row__label">
+          <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
+        </div>
+        <div class="settings-hotkeys-row__recorder">
+          <SHotkeyRecorder
+            :model-value="props.getHotkeyValue(field.id)"
+            :label="t(`settings.hotkeys.fields.${field.id}`)"
+            :conflict="getFieldConflict(field.id)"
+            @update:model-value="emit('update-hotkey', field.id, $event)"
+          />
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="settings-card" aria-labelledby="settings-hotkeys-search">
-    <h2 id="settings-hotkeys-search" class="settings-card__title">
+  <section class="settings-hotkeys-group" aria-labelledby="settings-hotkeys-search">
+    <h2 id="settings-hotkeys-search" class="settings-hotkeys-group__title">
       {{ t("settings.hotkeys.sectionSearch") }}
     </h2>
-    <div v-for="field in props.hotkeySearchFields" :key="field.id" class="settings-card__row settings-hotkeys-row">
-      <div class="settings-hotkeys-row__label">
-        <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
-      </div>
-      <div class="settings-hotkeys-row__recorder">
-        <SHotkeyRecorder
-          :model-value="props.getHotkeyValue(field.id)"
-          :label="t(`settings.hotkeys.fields.${field.id}`)"
-          :conflict="getFieldConflict(field.id)"
-          @update:model-value="emit('update-hotkey', field.id, $event)"
-        />
+    <div class="settings-card">
+      <div
+        v-for="field in props.hotkeySearchFields"
+        :key="field.id"
+        class="settings-card__row settings-hotkeys-row"
+      >
+        <div class="settings-hotkeys-row__label">
+          <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
+        </div>
+        <div class="settings-hotkeys-row__recorder">
+          <SHotkeyRecorder
+            :model-value="props.getHotkeyValue(field.id)"
+            :label="t(`settings.hotkeys.fields.${field.id}`)"
+            :conflict="getFieldConflict(field.id)"
+            @update:model-value="emit('update-hotkey', field.id, $event)"
+          />
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="settings-card" aria-labelledby="settings-hotkeys-queue">
-    <h2 id="settings-hotkeys-queue" class="settings-card__title">
+  <section class="settings-hotkeys-group" aria-labelledby="settings-hotkeys-queue">
+    <h2 id="settings-hotkeys-queue" class="settings-hotkeys-group__title">
       {{ t("settings.hotkeys.sectionQueue") }}
     </h2>
-    <div v-for="field in props.hotkeyQueueFields" :key="field.id" class="settings-card__row settings-hotkeys-row">
-      <div class="settings-hotkeys-row__label">
-        <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
-      </div>
-      <div class="settings-hotkeys-row__recorder">
-        <SHotkeyRecorder
-          :model-value="props.getHotkeyValue(field.id)"
-          :label="t(`settings.hotkeys.fields.${field.id}`)"
-          :conflict="getFieldConflict(field.id)"
-          @update:model-value="emit('update-hotkey', field.id, $event)"
-        />
+    <div class="settings-card">
+      <div
+        v-for="field in props.hotkeyQueueFields"
+        :key="field.id"
+        class="settings-card__row settings-hotkeys-row"
+      >
+        <div class="settings-hotkeys-row__label">
+          <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
+        </div>
+        <div class="settings-hotkeys-row__recorder">
+          <SHotkeyRecorder
+            :model-value="props.getHotkeyValue(field.id)"
+            :label="t(`settings.hotkeys.fields.${field.id}`)"
+            :conflict="getFieldConflict(field.id)"
+            @update:model-value="emit('update-hotkey', field.id, $event)"
+          />
+        </div>
       </div>
     </div>
   </section>
