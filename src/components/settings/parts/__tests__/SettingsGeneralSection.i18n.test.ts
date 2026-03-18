@@ -36,7 +36,11 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("界面");
     expect(wrapper.text()).toContain("默认终端");
     expect(wrapper.findAll(".settings-hint")).toHaveLength(3);
-    expect(wrapper.find("code.settings-card__mono").text()).toContain("powershell.exe");
+    const trigger = wrapper.get(".s-select__trigger");
+    expect(trigger.text()).toContain("PowerShell");
+    expect(trigger.text()).not.toContain("powershell.exe");
+    const terminalPath = wrapper.get("code.settings-card__mono");
+    expect(terminalPath.text()).toContain("powershell.exe");
     expect(wrapper.find("#settings-general-interface").exists()).toBe(true);
 
     setAppLocale("en-US");

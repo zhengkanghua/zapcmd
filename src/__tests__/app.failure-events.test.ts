@@ -929,6 +929,12 @@ describe("App failure and event regression", () => {
     await getDefaultTerminalSelectTrigger(wrapper).trigger("click");
     await waitForUi();
     expect(document.body.querySelector("[role='listbox']")).not.toBeNull();
+    const optionTexts = Array.from(document.body.querySelectorAll("[role='option']")).map(
+      (node) => node.textContent ?? "",
+    );
+    expect(optionTexts.some((text) => text.includes("PowerShell"))).toBe(true);
+    expect(optionTexts.every((text) => !text.includes("powershell.exe"))).toBe(true);
+    expect(wrapper.get("code.settings-card__mono").text()).toContain("powershell.exe");
 
     document.body.dispatchEvent(
       new MouseEvent("pointerdown", { bubbles: true }),

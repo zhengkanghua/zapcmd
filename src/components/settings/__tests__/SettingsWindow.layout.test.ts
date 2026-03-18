@@ -102,6 +102,15 @@ describe("SettingsWindow stable shell", () => {
     expect(wrapper.text()).not.toContain("ZapCmd Settings");
   });
 
+  it("keeps topbar outside the single application-level content container", () => {
+    const wrapper = shallowMount(SettingsWindow, {
+      props: createSettingsWindowProps({ settingsRoute: "general" })
+    });
+
+    expect(wrapper.find(".settings-window-topbar + .settings-content").exists()).toBe(true);
+    expect(wrapper.findAll(".settings-content")).toHaveLength(1);
+  });
+
   it("uses commands-specific content width hook only on commands route", async () => {
     const wrapper = shallowMount(SettingsWindow, {
       props: createSettingsWindowProps({ settingsRoute: "commands" })

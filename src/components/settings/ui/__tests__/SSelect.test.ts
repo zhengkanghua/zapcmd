@@ -1,7 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 
 import SSelect from "../SSelect.vue";
+
+const originalScrollIntoViewDescriptor = Object.getOwnPropertyDescriptor(
+  HTMLElement.prototype,
+  "scrollIntoView"
+);
 
 const options = [
   { value: "ps", label: "PowerShell" },
@@ -10,9 +15,49 @@ const options = [
 ];
 
 describe("SSelect", () => {
+  afterEach(() => {
+    if (originalScrollIntoViewDescriptor) {
+      Object.defineProperty(HTMLElement.prototype, "scrollIntoView", originalScrollIntoViewDescriptor);
+      return;
+    }
+
+    delete (HTMLElement.prototype as { scrollIntoView?: (arg?: unknown) => void }).scrollIntoView;
+  });
+
   it("renders selected option label", () => {
     const wrapper = mount(SSelect, { props: { modelValue: "ps", options } });
     expect(wrapper.find(".s-select__trigger").text()).toContain("PowerShell");
+  });
+
+  it("renders descriptions only when the option provides one", async () => {
+    const wrapper = mount(SSelect, {
+      props: {
+        modelValue: "ps",
+        options: [
+          { value: "ps", label: "PowerShell", description: "powershell.exe" },
+          { value: "wt", label: "Windows Terminal" }
+        ]
+      },
+      attachTo: document.body
+    });
+
+    await wrapper.find(".s-select__trigger").trigger("click");
+    const renderedOptions = Array.from(document.body.querySelectorAll(".s-select__option"));
+    expect(renderedOptions[0]?.textContent).toContain("powershell.exe");
+    expect(renderedOptions[1]?.querySelector(".s-select__description")).toBeNull();
+    wrapper.unmount();
+  });
+
+  it("keeps the trigger text label-only even when descriptions exist", () => {
+    const wrapper = mount(SSelect, {
+      props: {
+        modelValue: "ps",
+        options: [{ value: "ps", label: "PowerShell", description: "powershell.exe" }]
+      }
+    });
+
+    expect(wrapper.find(".s-select__trigger").text()).toContain("PowerShell");
+    expect(wrapper.find(".s-select__trigger").text()).not.toContain("powershell.exe");
   });
 
   it("opens dropdown on click", async () => {
@@ -55,6 +100,38 @@ describe("SSelect", () => {
     await wrapper.find(".s-select__trigger").trigger("keydown", { key: "ArrowDown" });
     await wrapper.find(".s-select__trigger").trigger("keydown", { key: "Enter" });
     expect(wrapper.emitted("update:modelValue")).toEqual([["cmd"]]);
+    wrapper.unmount();
+  });
+
+  it("scrolls the focused option into view during keyboard navigation", async () => {
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      value: scrollIntoView
+    });
+
+    const manyOptions = Array.from({ length: 30 }, (_, index) => ({
+      value: `option-${index}`,
+      label: `Option ${index}`
+    }));
+
+    const wrapper = mount(SSelect, {
+      props: {
+        modelValue: manyOptions[0]!.value,
+        options: manyOptions
+      },
+      attachTo: document.body
+    });
+
+    await wrapper.find(".s-select__trigger").trigger("click");
+    scrollIntoView.mockClear();
+
+    await wrapper.find(".s-select__trigger").trigger("keydown", { key: "End" });
+
+    const listboxId = document.body.querySelector("[role='listbox']")?.getAttribute("id");
+    const lastOption = document.getElementById(`${listboxId}-option-29`);
+    expect(scrollIntoView).toHaveBeenCalled();
+    expect(scrollIntoView.mock.instances.at(-1)).toBe(lastOption);
     wrapper.unmount();
   });
 });

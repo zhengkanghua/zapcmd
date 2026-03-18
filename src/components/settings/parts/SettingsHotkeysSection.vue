@@ -31,12 +31,12 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
         <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
       </div>
       <div class="settings-hotkeys-row__recorder">
-      <SHotkeyRecorder
-        :model-value="props.getHotkeyValue(field.id)"
-        :label="t(`settings.hotkeys.fields.${field.id}`)"
-        :conflict="getFieldConflict(field.id)"
-        @update:model-value="emit('update-hotkey', field.id, $event)"
-      />
+        <SHotkeyRecorder
+          :model-value="props.getHotkeyValue(field.id)"
+          :label="t(`settings.hotkeys.fields.${field.id}`)"
+          :conflict="getFieldConflict(field.id)"
+          @update:model-value="emit('update-hotkey', field.id, $event)"
+        />
       </div>
     </div>
   </section>
@@ -50,12 +50,12 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
         <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
       </div>
       <div class="settings-hotkeys-row__recorder">
-      <SHotkeyRecorder
-        :model-value="props.getHotkeyValue(field.id)"
-        :label="t(`settings.hotkeys.fields.${field.id}`)"
-        :conflict="getFieldConflict(field.id)"
-        @update:model-value="emit('update-hotkey', field.id, $event)"
-      />
+        <SHotkeyRecorder
+          :model-value="props.getHotkeyValue(field.id)"
+          :label="t(`settings.hotkeys.fields.${field.id}`)"
+          :conflict="getFieldConflict(field.id)"
+          @update:model-value="emit('update-hotkey', field.id, $event)"
+        />
       </div>
     </div>
   </section>
@@ -69,28 +69,18 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
         <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
       </div>
       <div class="settings-hotkeys-row__recorder">
-      <SHotkeyRecorder
-        :model-value="props.getHotkeyValue(field.id)"
-        :label="t(`settings.hotkeys.fields.${field.id}`)"
-        :conflict="getFieldConflict(field.id)"
-        @update:model-value="emit('update-hotkey', field.id, $event)"
-      />
+        <SHotkeyRecorder
+          :model-value="props.getHotkeyValue(field.id)"
+          :label="t(`settings.hotkeys.fields.${field.id}`)"
+          :conflict="getFieldConflict(field.id)"
+          @update:model-value="emit('update-hotkey', field.id, $event)"
+        />
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-.settings-hotkeys-row__label {
-  min-width: 0;
-  flex: 1 1 auto;
-  padding-top: 4px;
-}
-
-.settings-hotkeys-row__recorder {
-  width: min(100%, 320px);
-}
-
 .settings-hotkeys-row__recorder :deep(.s-hotkey-recorder-field) {
   width: 100%;
 }

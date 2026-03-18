@@ -552,3 +552,6 @@
 - 已确认仅修 settings 视觉呈现，不动业务逻辑；方向为内容区单滚动、Hotkeys 间距/录制器收紧、Select 紧凑化、终端下拉去路径。设计稿待进入 writing-plans。
 ## 补充（2026-03-18｜Settings 二次精修 writing-plans 完成）
 - 已产出执行计划：`docs/superpowers/plans/2026-03-18-settings-scroll-spacing-select-polish.md`，仅覆盖 settings.css / SSelect / General / Hotkeys 与相关回归，不改业务逻辑。
+
+## 补充（2026-03-18｜Settings 二次精修收口）
+- 已完成单滚动、终端下拉 label-only、Hotkeys 双区收口，并补上 SSelect 长列表键盘滚动守卫；focused settings 47 条与 `check:all` 全绿，待 Windows GUI 手验。
