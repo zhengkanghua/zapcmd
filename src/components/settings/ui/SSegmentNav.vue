@@ -70,10 +70,11 @@ function onKeydown(e: KeyboardEvent) {
 .s-segment-nav {
   display: flex;
   justify-content: center;
-  gap: 3px;
-  padding: 3px;
-  background: var(--ui-bg-soft);
-  border-radius: 10px;
+  gap: 2px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   width: fit-content;
   margin: 0 auto;
 }
@@ -81,28 +82,30 @@ function onKeydown(e: KeyboardEvent) {
 .s-segment-nav__tab {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
+  gap: 7px;
+  padding: 8px 18px;
   border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
-  color: var(--ui-subtle);
-  opacity: 0.55;
+  color: rgba(255, 255, 255, 0.45);
   font-size: 13px;
-  transition: all 150ms cubic-bezier(0.33, 1, 0.68, 1);
+  font-weight: 500;
+  transition: all 130ms ease;
+  white-space: nowrap;
 }
 
 .s-segment-nav__tab:hover {
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .s-segment-nav__tab--active {
-  background: var(--ui-brand-soft);
-  border-color: var(--ui-brand-dim);
-  color: var(--ui-brand);
-  opacity: 1;
-  font-weight: 500;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .s-segment-nav__tab:focus-visible {
@@ -111,7 +114,8 @@ function onKeydown(e: KeyboardEvent) {
 }
 
 .s-segment-nav__icon {
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1;
 }
 
 .s-segment-nav__label {

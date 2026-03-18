@@ -527,10 +527,14 @@
 
 - 外观/关于页改为卡片布局；外观用 `SToggle` + `SSlider`（0.2-1.0，百分比显示）并保留预览；关于页新增品牌头部（⚡占位）+ 信息/操作卡片；组件单测已更新并通过。
 
-## 补充（2026-03-18｜Settings 面板重构收尾）
+## 补充（2026-03-18｜Settings UI 精修）
 
-- 完成 Task 19：全量门禁全绿（`npm run check:all`）。
-- 注意：沙盒内 Node/esbuild 会 `spawn EPERM`，需在沙盒外跑 `npm run check:all` / `vite build`。
+- SSegmentNav：激活态改为白色高亮（`rgba(255,255,255,0.12)` 背景 + 亮白文字），对比度显著提升，更接近 Raycast 风格。
+- settings.css 全面重写：卡片改为无内边距+行内分隔线布局；`settings-card__label` 改为亮白（`rgba(255,255,255,0.88)`）；行高从 `8px 0` 升至 `13px 16px`；拖拽栏改为交通灯圆点按钮。
+- SettingsWindow.vue：窗口控制按钮改为 macOS 风格圆点（关/最小/最大化顺序），`toggleMaximize`/`isMaximized` 加防御性判断。
+- capabilities/default.json：补充 `allow-toggle-maximize`/`allow-minimize`/`allow-is-maximized` 权限，修复最大化按钮无效问题。
+- 全部 35 条 settings 回归测试通过。
+
 =======
 ## 补充（2026-03-17｜内置命令 P0）
 

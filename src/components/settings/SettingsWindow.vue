@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { CommandManagementViewState, SettingsRoute } from "../../features/settings/types";
 import type { HotkeyFieldId } from "../../stores/settingsStore";
@@ -14,9 +14,37 @@ import type { SettingsWindowProps } from "./types";
 
 const props = defineProps<SettingsWindowProps>();
 const appWindow = getCurrentWindow();
-const minimizeWindow = () => appWindow.minimize();
-const toggleMaximize = () => appWindow.toggleMaximize();
-const closeWindow = () => appWindow.close();
+const isMaximized = ref(false);
+
+async function minimizeWindow() {
+  await appWindow.minimize();
+}
+
+async function toggleMaximize() {
+  if (typeof appWindow.toggleMaximize === "function") {
+    await appWindow.toggleMaximize();
+    if (typeof appWindow.isMaximized === "function") {
+      isMaximized.value = await appWindow.isMaximized();
+    }
+  }
+}
+
+async function closeWindow() {
+  await appWindow.close();
+}
+
+onMounted(async () => {
+  if (typeof appWindow.isMaximized === "function") {
+    isMaximized.value = await appWindow.isMaximized();
+  }
+  if (typeof appWindow.onResized === "function") {
+    appWindow.onResized(async () => {
+      if (typeof appWindow.isMaximized === "function") {
+        isMaximized.value = await appWindow.isMaximized();
+      }
+    });
+  }
+});
 
 const navItems = computed(() =>
   props.settingsNavItems.map((item) => ({
@@ -55,15 +83,14 @@ const emit = defineEmits<{
     <div class="settings-drag-region" data-tauri-drag-region>
       <span class="settings-drag-region__title">ZapCmd Settings</span>
       <div class="settings-drag-region__controls">
-        <button class="settings-drag-region__btn" aria-label="最小化" @click="minimizeWindow">─</button>
-        <button class="settings-drag-region__btn" aria-label="最大化" @click="toggleMaximize">□</button>
+        <button class="settings-drag-region__btn" aria-label="关闭" @click="closeWindow" />
+        <button class="settings-drag-region__btn" aria-label="最小化" @click="minimizeWindow" />
         <button
-          class="settings-drag-region__btn settings-drag-region__btn--close"
-          aria-label="关闭"
-          @click="closeWindow"
-        >
-          ×
-        </button>
+          class="settings-drag-region__btn"
+          :class="{ 'settings-drag-region__btn--maximized': isMaximized }"
+          aria-label="最大化"
+          @click="toggleMaximize"
+        />
       </div>
     </div>
 
@@ -76,74 +103,74 @@ const emit = defineEmits<{
       :class="{ 'settings-content--full-width': settingsRoute === 'commands' }"
       aria-label="settings-content"
     >
-        <SettingsHotkeysSection
-          v-if="settingsRoute === 'hotkeys'"
-          :hotkey-global-fields="props.hotkeyGlobalFields"
-          :hotkey-search-fields="props.hotkeySearchFields"
-          :hotkey-queue-fields="props.hotkeyQueueFields"
-          :get-hotkey-value="props.getHotkeyValue"
-          :hotkey-error-fields="props.hotkeyErrorFields"
-          :hotkey-error-message="props.hotkeyErrorMessage"
-          @update-hotkey="(field, value) => emit('update-hotkey', field, value)"
-        />
-        <SettingsGeneralSection
-          v-else-if="settingsRoute === 'general'"
-          :available-terminals="props.availableTerminals"
-          :terminal-loading="props.terminalLoading"
-          :terminal-dropdown-open="props.terminalDropdownOpen"
-          :terminal-focus-index="props.terminalFocusIndex"
-          :default-terminal="props.defaultTerminal"
-          :selected-terminal-option="props.selectedTerminalOption"
-          :selected-terminal-path="props.selectedTerminalPath"
-          :language="props.language"
-          :language-options="props.languageOptions"
-          :auto-check-update="props.autoCheckUpdate"
-          :launch-at-login="props.launchAtLogin"
-          @select-terminal="emit('select-terminal', $event)"
-          @select-language="emit('select-language', $event)"
-          @set-auto-check-update="emit('set-auto-check-update', $event)"
-          @set-launch-at-login="emit('set-launch-at-login', $event)"
-        />
-        <SettingsCommandsSection
-          v-else-if="settingsRoute === 'commands'"
-          :command-rows="props.commandRows"
-          :command-summary="props.commandSummary"
-          :command-load-issues="props.commandLoadIssues"
-          :command-filtered-count="props.commandFilteredCount"
-          :command-view="props.commandView"
-          :command-source-options="props.commandSourceOptions"
-          :command-status-options="props.commandStatusOptions"
-          :command-category-options="props.commandCategoryOptions"
-          :command-override-options="props.commandOverrideOptions"
-          :command-issue-options="props.commandIssueOptions"
-          :command-sort-options="props.commandSortOptions"
-          :command-display-mode-options="props.commandDisplayModeOptions"
-          :command-source-file-options="props.commandSourceFileOptions"
-          :command-groups="props.commandGroups"
-          @toggle-command-enabled="(commandId, enabled) => emit('toggle-command-enabled', commandId, enabled)"
-          @set-filtered-enabled="emit('set-filtered-commands-enabled', $event)"
-          @update-view="emit('update-command-view', $event)"
-          @reset-filters="emit('reset-command-filters')"
-        />
-        <SettingsAboutSection
-          v-else-if="settingsRoute === 'about'"
-          :app-version="props.appVersion"
-          :runtime-platform="props.runtimePlatform"
-          :update-status="props.updateStatus"
-          @check-update="emit('check-update')"
-          @download-update="emit('download-update')"
-          @open-homepage="emit('open-homepage')"
-        />
-        <SettingsAppearanceSection
-          v-else
-          :window-opacity="props.windowOpacity"
-          :theme="props.theme"
-          :blur-enabled="props.blurEnabled"
-          :themes="props.themes"
-          @update-opacity="emit('update-opacity', $event)"
-          @update-theme="emit('update-theme', $event)"
-          @update-blur-enabled="emit('update-blur-enabled', $event)"
-        />
+      <SettingsHotkeysSection
+        v-if="settingsRoute === 'hotkeys'"
+        :hotkey-global-fields="props.hotkeyGlobalFields"
+        :hotkey-search-fields="props.hotkeySearchFields"
+        :hotkey-queue-fields="props.hotkeyQueueFields"
+        :get-hotkey-value="props.getHotkeyValue"
+        :hotkey-error-fields="props.hotkeyErrorFields"
+        :hotkey-error-message="props.hotkeyErrorMessage"
+        @update-hotkey="(field, value) => emit('update-hotkey', field, value)"
+      />
+      <SettingsGeneralSection
+        v-else-if="settingsRoute === 'general'"
+        :available-terminals="props.availableTerminals"
+        :terminal-loading="props.terminalLoading"
+        :terminal-dropdown-open="props.terminalDropdownOpen"
+        :terminal-focus-index="props.terminalFocusIndex"
+        :default-terminal="props.defaultTerminal"
+        :selected-terminal-option="props.selectedTerminalOption"
+        :selected-terminal-path="props.selectedTerminalPath"
+        :language="props.language"
+        :language-options="props.languageOptions"
+        :auto-check-update="props.autoCheckUpdate"
+        :launch-at-login="props.launchAtLogin"
+        @select-terminal="emit('select-terminal', $event)"
+        @select-language="emit('select-language', $event)"
+        @set-auto-check-update="emit('set-auto-check-update', $event)"
+        @set-launch-at-login="emit('set-launch-at-login', $event)"
+      />
+      <SettingsCommandsSection
+        v-else-if="settingsRoute === 'commands'"
+        :command-rows="props.commandRows"
+        :command-summary="props.commandSummary"
+        :command-load-issues="props.commandLoadIssues"
+        :command-filtered-count="props.commandFilteredCount"
+        :command-view="props.commandView"
+        :command-source-options="props.commandSourceOptions"
+        :command-status-options="props.commandStatusOptions"
+        :command-category-options="props.commandCategoryOptions"
+        :command-override-options="props.commandOverrideOptions"
+        :command-issue-options="props.commandIssueOptions"
+        :command-sort-options="props.commandSortOptions"
+        :command-display-mode-options="props.commandDisplayModeOptions"
+        :command-source-file-options="props.commandSourceFileOptions"
+        :command-groups="props.commandGroups"
+        @toggle-command-enabled="(commandId, enabled) => emit('toggle-command-enabled', commandId, enabled)"
+        @set-filtered-enabled="emit('set-filtered-commands-enabled', $event)"
+        @update-view="emit('update-command-view', $event)"
+        @reset-filters="emit('reset-command-filters')"
+      />
+      <SettingsAboutSection
+        v-else-if="settingsRoute === 'about'"
+        :app-version="props.appVersion"
+        :runtime-platform="props.runtimePlatform"
+        :update-status="props.updateStatus"
+        @check-update="emit('check-update')"
+        @download-update="emit('download-update')"
+        @open-homepage="emit('open-homepage')"
+      />
+      <SettingsAppearanceSection
+        v-else
+        :window-opacity="props.windowOpacity"
+        :theme="props.theme"
+        :blur-enabled="props.blurEnabled"
+        :themes="props.themes"
+        @update-opacity="emit('update-opacity', $event)"
+        @update-theme="emit('update-theme', $event)"
+        @update-blur-enabled="emit('update-blur-enabled', $event)"
+      />
     </div>
   </main>
 </template>
