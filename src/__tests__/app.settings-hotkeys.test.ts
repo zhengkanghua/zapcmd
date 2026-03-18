@@ -199,6 +199,7 @@ describe("AppSettings hotkeys regression", () => {
       .findAll(".s-hotkey-recorder-field")
       .find((item) => item.find(".s-hotkey-recorder-field__label").text() === "切换焦点区域");
     expect(focusField).toBeTruthy();
+    expect(focusField?.find(".s-hotkey-recorder-field__conflict").exists()).toBe(true);
     expect(focusField!.get(".s-hotkey-recorder-field__conflict-text").text().toLowerCase()).toContain("ctrl+k");
   });
 

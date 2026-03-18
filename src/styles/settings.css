@@ -1,9 +1,11 @@
 /* ─── Settings 窗口根布局 ─── */
 
 .settings-window-root {
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
   display: grid;
   grid-template-rows: 52px minmax(0, 1fr);
+  overflow: hidden;
   background:
     linear-gradient(180deg, var(--ui-settings-titlebar-bg) 0, var(--ui-settings-topbar-bg) 84px, var(--ui-bg-deep) 84px),
     var(--ui-bg-deep);
@@ -34,7 +36,9 @@
 
 .settings-content {
   min-height: 0;
+  height: 100%;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 24px 32px 32px;
   max-width: 720px;
   margin: 0 auto;
@@ -65,7 +69,7 @@
 
 .settings-group {
   display: grid;
-  gap: 20px;
+  gap: 24px;
 }
 
 .settings-group > h2 {
@@ -81,7 +85,7 @@
 .settings-card {
   background: var(--ui-settings-card-bg);
   border: 1px solid var(--ui-settings-card-border);
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -101,7 +105,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
   padding: 13px 16px;
   border-bottom: 1px solid var(--ui-settings-row-border);
   transition: background 120ms ease;
@@ -134,7 +138,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: min(100%, 420px);
+  max-width: min(100%, 460px);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--ui-settings-row-border);
   border-radius: 6px;
@@ -145,10 +149,21 @@
 
 .settings-hint {
   margin: 0;
-  padding: 8px 16px 10px;
+  padding: 10px 16px 12px;
   font-size: 12px;
   color: var(--ui-settings-hint);
   line-height: 1.5;
+}
+
+.settings-hotkeys-row__label {
+  min-width: 0;
+  flex: 1 1 auto;
+  padding-top: 2px;
+}
+
+.settings-hotkeys-row__recorder {
+  flex: 0 0 auto;
+  width: min(100%, 280px);
 }
 
 /* ─── 状态条 ─── */
@@ -395,6 +410,7 @@
   }
 
   .settings-hotkeys-row__recorder {
+    flex-basis: auto;
     width: 100%;
   }
 

@@ -51,6 +51,18 @@ function setFocusedIndex(index: number): void {
   focusIndex.value = bounded;
 }
 
+function syncFocusedOptionIntoView(): void {
+  if (!open.value || focusIndex.value < 0) {
+    return;
+  }
+
+  const optionId = `${listboxId}-option-${focusIndex.value}`;
+  const option = document.getElementById(optionId);
+  if (option && typeof option.scrollIntoView === "function") {
+    option.scrollIntoView({ block: "nearest" });
+  }
+}
+
 function syncPanelPosition(): void {
   const trigger = triggerRef.value;
   if (!trigger) {
@@ -191,6 +203,15 @@ watch(
   }
 );
 
+watch(focusIndex, async (index) => {
+  if (!open.value || index < 0) {
+    return;
+  }
+
+  await nextTick();
+  syncFocusedOptionIntoView();
+});
+
 watch(
   open,
   (isOpen) => {
@@ -283,11 +304,12 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
   min-width: 160px;
-  padding: 8px 10px;
-  border-radius: 8px;
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 9px;
   border: 1px solid var(--ui-border);
   background: var(--ui-input-bg);
   color: var(--ui-text);
@@ -311,6 +333,8 @@ onBeforeUnmount(() => {
 .s-select__value {
   flex: 1;
   text-align: left;
+  font-size: 12.5px;
+  line-height: 1.35;
 }
 
 .s-select__arrow {
@@ -324,9 +348,11 @@ onBeforeUnmount(() => {
 
 .s-select__list {
   margin: 0;
-  padding: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px;
   list-style: none;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--ui-border);
   background: var(--ui-surface);
   box-shadow: var(--ui-shadow);
@@ -340,11 +366,11 @@ onBeforeUnmount(() => {
 .s-select__option {
   width: 100%;
   display: grid;
-  grid-template-columns: 18px 1fr;
-  gap: 8px;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 6px;
   align-items: center;
-  padding: 8px 10px;
-  border-radius: 10px;
+  padding: 7px 8px;
+  border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--ui-text);
@@ -369,14 +395,15 @@ onBeforeUnmount(() => {
 }
 
 .s-select__label {
-  font-size: 13px;
+  font-size: 12.5px;
+  line-height: 1.35;
 }
 
 .s-select__description {
   grid-column: 2;
   color: var(--ui-subtle);
-  font-size: 11px;
+  font-size: 10.5px;
   line-height: 1.2;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 </style>

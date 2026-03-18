@@ -41,8 +41,7 @@ const terminalSelectOptions = computed(() => {
 
   return props.availableTerminals.map((item) => ({
     value: item.id,
-    label: item.label,
-    description: item.path
+    label: item.label
   }));
 });
 
