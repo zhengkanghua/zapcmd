@@ -19,9 +19,14 @@
 | 12 | `file-owner` | 修改文件所有者 | mac/linux | `chown {{owner}} {{file}}` | owner(text), file(path) | - | false | chown | 文件 file 所有者 owner |
 | 13 | `compress-tar` | 打包压缩 (tar.gz) | mac/linux | `tar -czf {{output}}.tar.gz {{input}}` | input(path), output(text) | - | false | tar | 文件 file 压缩 compress tar |
 | 14 | `extract-tar` | 解压 (tar.gz) | mac/linux | `tar -xzf {{file}}` | file(path) | - | false | tar | 文件 file 解压 extract tar |
-| 15 | `compress-zip` | ZIP 压缩 | all | `zip -r {{output}}.zip {{input}}` | input(path), output(text) | - | false | zip | 文件 file 压缩 compress zip |
-| 16 | `extract-zip` | ZIP 解压 | all | `unzip {{file}} -d {{dest}}` | file(path), dest(path, default:.) | - | false | unzip | 文件 file 解压 extract zip |
-| 17 | `watch-file` | 监听文件变化 | mac/linux | `fswatch {{path}}` | path(path) | - | false | fswatch | 文件 file 监听 watch |
-| 18 | `tail-log` | 实时查看日志 | mac/linux | `tail -f {{file}}` | file(path) | - | false | tail | 文件 file tail 日志 log 查看 show |
-| 19 | `head-file` | 查看文件前 N 行 | mac/linux | `head -n {{lines}} {{file}}` | file(path), lines(number, default:20) | - | false | head | 文件 file head 查看 show |
-| 20 | `wc-lines` | 统计文件行数 | mac/linux | `wc -l {{file}}` | file(path) | - | false | wc | 文件 file 行数 wc 行 lines |
+| 15 | `compress-zip` | ZIP 压缩 | mac/linux | `zip -r {{output}}.zip {{input}}` | input(path), output(text) | - | false | zip | 文件 file 压缩 compress zip |
+| 16 | `extract-zip` | ZIP 解压 | mac/linux | `unzip {{file}} -d {{dest}}` | file(path), dest(path, default:.) | - | false | unzip | 文件 file 解压 extract zip |
+| 17 | `compress-zip-win` | ZIP 压缩 | win | `Compress-Archive -Path "{{input}}" -DestinationPath "{{output}}.zip" -Force` | input(path), output(text) | - | false | powershell, compress-archive | 文件 file 压缩 compress zip |
+| 18 | `extract-zip-win` | ZIP 解压 | win | `Expand-Archive -Path "{{file}}" -DestinationPath "{{dest}}" -Force` | file(path), dest(path, default:.) | - | false | powershell, expand-archive | 文件 file 解压 extract zip |
+| 19 | `watch-file` | 监听文件变化 | mac/linux | `fswatch {{path}}` | path(path) | - | false | fswatch | 文件 file 监听 watch |
+| 20 | `tail-log` | 实时查看日志 | mac/linux | `tail -f {{file}}` | file(path) | - | false | tail | 文件 file tail 日志 log 查看 show |
+| 21 | `tail-log-win` | 实时查看日志 | win | `Get-Content -Path "{{file}}" -Tail {{lines}} -Wait` | file(path), lines(number, default:100) | - | false | powershell, get-content | 文件 file tail 日志 log 查看 show |
+| 22 | `head-file` | 查看文件前 N 行 | mac/linux | `head -n {{lines}} {{file}}` | file(path), lines(number, default:20) | - | false | head | 文件 file head 查看 show |
+| 23 | `head-file-win` | 查看文件前 N 行 | win | `Get-Content -Path "{{file}}" -TotalCount {{lines}}` | file(path), lines(number, default:20) | - | false | powershell, get-content | 文件 file head 查看 show |
+| 24 | `wc-lines` | 统计文件行数 | mac/linux | `wc -l {{file}}` | file(path) | - | false | wc | 文件 file 行数 wc 行 lines |
+| 25 | `wc-lines-win` | 统计文件行数 | win | `(Get-Content -Path "{{file}}" \| Measure-Object -Line).Lines` | file(path) | - | false | powershell, get-content, measure-object | 文件 file 行数 wc 行 lines |

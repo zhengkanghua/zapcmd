@@ -727,7 +727,7 @@
       ]
     },
     {
-      "id": "check-open-ports",
+      "id": "check-open-ports-mac",
       "name": "检查远程端口是否开放",
       "tags": [
         "网络",
@@ -740,7 +740,7 @@
         "port"
       ],
       "category": "network",
-      "platform": "all",
+      "platform": "mac",
       "template": "nc -zv {{host}} {{port}}",
       "adminRequired": false,
       "dangerous": false,
@@ -764,6 +764,94 @@
           "type": "binary",
           "required": true,
           "check": "binary:nc"
+        }
+      ]
+    },
+    {
+      "id": "check-open-ports-linux",
+      "name": "检查远程端口是否开放",
+      "tags": [
+        "网络",
+        "network",
+        "检查",
+        "check",
+        "open",
+        "ports",
+        "端口",
+        "port"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "nc -zv {{host}} {{port}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "nc",
+          "type": "binary",
+          "required": true,
+          "check": "binary:nc"
+        }
+      ]
+    },
+    {
+      "id": "check-open-ports-win",
+      "name": "检查远程端口是否开放",
+      "tags": [
+        "网络",
+        "network",
+        "检查",
+        "check",
+        "open",
+        "ports",
+        "端口",
+        "port"
+      ],
+      "category": "network",
+      "platform": "win",
+      "template": "Test-NetConnection -ComputerName \"{{host}}\" -Port {{port}} | Select-Object ComputerName,RemotePort,TcpTestSucceeded",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "test-netconnection",
+          "type": "binary",
+          "required": true,
+          "check": "binary:test-netconnection"
         }
       ]
     },
@@ -1074,7 +1162,7 @@
       "platform": "all",
       "template": "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -",
       "adminRequired": false,
-      "dangerous": false,
+      "dangerous": true,
       "prerequisites": [
         {
           "id": "python3",

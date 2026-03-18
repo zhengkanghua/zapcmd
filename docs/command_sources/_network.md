@@ -21,12 +21,13 @@
 | 14 | `local-ip-win` | 查看本机局域网 IP | win | `ipconfig` | - | - | false | ipconfig | 网络 network 本地 local ip 查看 show |
 | 15 | `traceroute` | 路由追踪 | mac/linux | `traceroute {{host}}` | host(text) | - | false | traceroute | 网络 network traceroute 路由追踪 |
 | 16 | `tracert-win` | 路由追踪 | win | `tracert {{host}}` | host(text) | - | false | tracert | 网络 network tracert 路由追踪 |
-| 17 | `check-open-ports` | 检查远程端口是否开放 | all | `nc -zv {{host}} {{port}}` | host(text), port(number) | - | false | nc | 网络 network 检查 check open ports 端口 port |
-| 18 | `wget-download` | 下载文件 | mac/linux | `wget -O {{filename}} {{url}}` | url(text), filename(text) | - | false | wget | 网络 network wget 下载 download 文件 file |
-| 19 | `curl-download` | 下载文件 | all | `curl -L -o {{filename}} {{url}}` | url(text), filename(text) | - | false | curl | 网络 network curl http 下载 download 文件 file |
-| 20 | `list-listening-ports` | 查看所有监听端口 | mac/linux | `netstat -tlnp` | - | - | false | netstat | 网络 network 列表 list listening ports 端口 port 查看 show |
-| 21 | `list-listening-ports-win` | 查看所有监听端口 | win | `netstat -an \| findstr LISTENING` | - | - | false | netstat, findstr | 网络 network 列表 list listening ports 端口 port 查看 show |
-| 22 | `flush-dns-mac` | 刷新 DNS 缓存 | mac | `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` | - | - | true | dscacheutil, killall | 网络 network 刷新 flush dns |
-| 23 | `flush-dns-win` | 刷新 DNS 缓存 | win | `ipconfig /flushdns` | - | - | true | ipconfig | 网络 network 刷新 flush dns |
-| 24 | `flush-dns-linux` | 刷新 DNS 缓存 | linux | `sudo systemd-resolve --flush-caches` | - | - | true | systemd-resolve | 网络 network 刷新 flush dns |
-| 25 | `speed-test` | 网络测速 | all | `curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \| python3 -` | - | - | false | python3, curl | 网络 network 测速 speed test 测试 |
+| 17 | `check-open-ports` | 检查远程端口是否开放 | mac/linux | `nc -zv {{host}} {{port}}` | host(text), port(number) | - | false | nc | 网络 network 检查 check open ports 端口 port |
+| 18 | `check-open-ports-win` | 检查远程端口是否开放 | win | `Test-NetConnection -ComputerName "{{host}}" -Port {{port}} \| Select-Object ComputerName,RemotePort,TcpTestSucceeded` | host(text), port(number) | - | false | powershell, test-netconnection | 网络 network 检查 check open ports 端口 port |
+| 19 | `wget-download` | 下载文件 | mac/linux | `wget -O {{filename}} {{url}}` | url(text), filename(text) | - | false | wget | 网络 network wget 下载 download 文件 file |
+| 20 | `curl-download` | 下载文件 | all | `curl -L -o {{filename}} {{url}}` | url(text), filename(text) | - | false | curl | 网络 network curl http 下载 download 文件 file |
+| 21 | `list-listening-ports` | 查看所有监听端口 | mac/linux | `netstat -tlnp` | - | - | false | netstat | 网络 network 列表 list listening ports 端口 port 查看 show |
+| 22 | `list-listening-ports-win` | 查看所有监听端口 | win | `netstat -an \| findstr LISTENING` | - | - | false | netstat, findstr | 网络 network 列表 list listening ports 端口 port 查看 show |
+| 23 | `flush-dns-mac` | 刷新 DNS 缓存 | mac | `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` | - | - | true | dscacheutil, killall | 网络 network 刷新 flush dns |
+| 24 | `flush-dns-win` | 刷新 DNS 缓存 | win | `ipconfig /flushdns` | - | - | true | ipconfig | 网络 network 刷新 flush dns |
+| 25 | `flush-dns-linux` | 刷新 DNS 缓存 | linux | `sudo systemd-resolve --flush-caches` | - | - | true | systemd-resolve | 网络 network 刷新 flush dns |
+| 26 | `speed-test` | 网络测速 | all | `curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \| python3 -` | - | ⚠️ | false | python3, curl | 网络 network 测速 speed test 测试 |

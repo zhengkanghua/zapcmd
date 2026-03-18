@@ -1,15 +1,22 @@
 {
   "sourceDir": "docs/command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 170,
-  "physicalCommandCount": 209,
+  "logicalCommandCount": 187,
+  "physicalCommandCount": 228,
   "generatedFiles": [
+    {
+      "file": "_database.json",
+      "sourceFile": "_database.md",
+      "category": "database",
+      "logicalCount": 8,
+      "physicalCount": 8
+    },
     {
       "file": "_dev.json",
       "sourceFile": "_dev.md",
       "category": "dev",
-      "logicalCount": 15,
-      "physicalCount": 21
+      "logicalCount": 18,
+      "physicalCount": 23
     },
     {
       "file": "_docker.json",
@@ -22,8 +29,8 @@
       "file": "_file.json",
       "sourceFile": "_file.md",
       "category": "file",
-      "logicalCount": 20,
-      "physicalCount": 34
+      "logicalCount": 25,
+      "physicalCount": 41
     },
     {
       "file": "_git.json",
@@ -36,8 +43,8 @@
       "file": "_network.json",
       "sourceFile": "_network.md",
       "category": "network",
-      "logicalCount": 25,
-      "physicalCount": 31
+      "logicalCount": 26,
+      "physicalCount": 33
     },
     {
       "file": "_package.json",

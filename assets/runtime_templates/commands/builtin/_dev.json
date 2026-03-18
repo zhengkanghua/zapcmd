@@ -279,7 +279,7 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "echo -n \"{{text}}\" | sha256sum",
+      "template": "echo -n \"{{text}}\" | shasum -a 256",
       "adminRequired": false,
       "dangerous": false,
       "args": [
@@ -298,10 +298,10 @@
           "check": "binary:echo"
         },
         {
-          "id": "sha256sum",
+          "id": "shasum",
           "type": "binary",
           "required": true,
-          "check": "binary:sha256sum"
+          "check": "binary:shasum"
         }
       ]
     },
@@ -344,7 +344,7 @@
       ]
     },
     {
-      "id": "timestamp-now",
+      "id": "timestamp-now-mac",
       "name": "当前 Unix 时间戳",
       "tags": [
         "开发",
@@ -354,7 +354,7 @@
         "now"
       ],
       "category": "dev",
-      "platform": "all",
+      "platform": "mac",
       "template": "date +%s",
       "adminRequired": false,
       "dangerous": false,
@@ -364,6 +364,54 @@
           "type": "binary",
           "required": true,
           "check": "binary:date"
+        }
+      ]
+    },
+    {
+      "id": "timestamp-now-linux",
+      "name": "当前 Unix 时间戳",
+      "tags": [
+        "开发",
+        "dev",
+        "时间戳",
+        "timestamp",
+        "now"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "date +%s",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "date",
+          "type": "binary",
+          "required": true,
+          "check": "binary:date"
+        }
+      ]
+    },
+    {
+      "id": "timestamp-now-win",
+      "name": "当前 Unix 时间戳",
+      "tags": [
+        "开发",
+        "dev",
+        "时间戳",
+        "timestamp",
+        "now"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "template": "[DateTimeOffset]::Now.ToUnixTimeSeconds()",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
         }
       ]
     },
@@ -595,7 +643,7 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "echo \"{{text}}\" | grep -oP \"{{pattern}}\"",
+      "template": "echo \"{{text}}\" | grep -oE \"{{pattern}}\"",
       "adminRequired": false,
       "dangerous": false,
       "args": [

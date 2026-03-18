@@ -903,7 +903,7 @@
       ]
     },
     {
-      "id": "compress-zip",
+      "id": "compress-zip-mac",
       "name": "ZIP 压缩",
       "tags": [
         "文件",
@@ -913,7 +913,7 @@
         "zip"
       ],
       "category": "file",
-      "platform": "all",
+      "platform": "mac",
       "template": "zip -r {{output}}.zip {{input}}",
       "adminRequired": false,
       "dangerous": false,
@@ -941,7 +941,45 @@
       ]
     },
     {
-      "id": "extract-zip",
+      "id": "compress-zip-linux",
+      "name": "ZIP 压缩",
+      "tags": [
+        "文件",
+        "file",
+        "压缩",
+        "compress",
+        "zip"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "zip -r {{output}}.zip {{input}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "input",
+          "label": "input",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "output",
+          "label": "output",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "zip",
+          "type": "binary",
+          "required": true,
+          "check": "binary:zip"
+        }
+      ]
+    },
+    {
+      "id": "extract-zip-mac",
       "name": "ZIP 解压",
       "tags": [
         "文件",
@@ -951,7 +989,7 @@
         "zip"
       ],
       "category": "file",
-      "platform": "all",
+      "platform": "mac",
       "template": "unzip {{file}} -d {{dest}}",
       "adminRequired": false,
       "dangerous": false,
@@ -976,6 +1014,134 @@
           "type": "binary",
           "required": true,
           "check": "binary:unzip"
+        }
+      ]
+    },
+    {
+      "id": "extract-zip-linux",
+      "name": "ZIP 解压",
+      "tags": [
+        "文件",
+        "file",
+        "解压",
+        "extract",
+        "zip"
+      ],
+      "category": "file",
+      "platform": "linux",
+      "template": "unzip {{file}} -d {{dest}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "dest",
+          "label": "dest",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "unzip",
+          "type": "binary",
+          "required": true,
+          "check": "binary:unzip"
+        }
+      ]
+    },
+    {
+      "id": "compress-zip-win",
+      "name": "ZIP 压缩",
+      "tags": [
+        "文件",
+        "file",
+        "压缩",
+        "compress",
+        "zip"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "Compress-Archive -Path \"{{input}}\" -DestinationPath \"{{output}}.zip\" -Force",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "input",
+          "label": "input",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "output",
+          "label": "output",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "compress-archive",
+          "type": "binary",
+          "required": true,
+          "check": "binary:compress-archive"
+        }
+      ]
+    },
+    {
+      "id": "extract-zip-win",
+      "name": "ZIP 解压",
+      "tags": [
+        "文件",
+        "file",
+        "解压",
+        "extract",
+        "zip"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "Expand-Archive -Path \"{{file}}\" -DestinationPath \"{{dest}}\" -Force",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "dest",
+          "label": "dest",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "expand-archive",
+          "type": "binary",
+          "required": true,
+          "check": "binary:expand-archive"
         }
       ]
     },
@@ -1110,6 +1276,53 @@
       ]
     },
     {
+      "id": "tail-log-win",
+      "name": "实时查看日志",
+      "tags": [
+        "文件",
+        "file",
+        "tail",
+        "日志",
+        "log",
+        "查看",
+        "show"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "Get-Content -Path \"{{file}}\" -Tail {{lines}} -Wait",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "lines",
+          "label": "lines",
+          "type": "number",
+          "required": true,
+          "default": "100"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-content",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-content"
+        }
+      ]
+    },
+    {
       "id": "head-file-mac",
       "name": "查看文件前 N 行",
       "tags": [
@@ -1188,6 +1401,51 @@
       ]
     },
     {
+      "id": "head-file-win",
+      "name": "查看文件前 N 行",
+      "tags": [
+        "文件",
+        "file",
+        "head",
+        "查看",
+        "show"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "Get-Content -Path \"{{file}}\" -TotalCount {{lines}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "lines",
+          "label": "lines",
+          "type": "number",
+          "required": true,
+          "default": "20"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-content",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-content"
+        }
+      ]
+    },
+    {
       "id": "wc-lines-mac",
       "name": "统计文件行数",
       "tags": [
@@ -1250,6 +1508,51 @@
           "type": "binary",
           "required": true,
           "check": "binary:wc"
+        }
+      ]
+    },
+    {
+      "id": "wc-lines-win",
+      "name": "统计文件行数",
+      "tags": [
+        "文件",
+        "file",
+        "行数",
+        "wc",
+        "行",
+        "lines"
+      ],
+      "category": "file",
+      "platform": "win",
+      "template": "(Get-Content -Path \"{{file}}\" | Measure-Object -Line).Lines",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        },
+        {
+          "id": "get-content",
+          "type": "binary",
+          "required": true,
+          "check": "binary:get-content"
+        },
+        {
+          "id": "measure-object",
+          "type": "binary",
+          "required": true,
+          "check": "binary:measure-object"
         }
       ]
     }

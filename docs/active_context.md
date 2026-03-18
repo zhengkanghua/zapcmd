@@ -517,6 +517,7 @@
 - 修复：进入参数面板不缩小（floor 取进入前高度，仍受 designCap 上限）；CommandPanel 高度估算忽略搜索 drawerHeight，且 pendingCommand 禁用 layout measured height 防止误拉满；同步 `--launcher-frame-height` 让外框随窗口填充。参数面板开 FlowPanel 保持最小高度；FlowPanel 去除常驻 transform 并补 drag-region。验收：`npm run check:all`。
 - 修复补充：参数面板增高时外框底部圆角裁切（frame 高度改为基于 DOM 视口计算）；从参数面板返回后搜索框聚焦增加重试；`npm run check:all` 全绿。
 
+<<<<<<< Updated upstream
 ## 补充（2026-03-17｜Settings 面板重构进展）
 
 - 完成独立入口（`settings.html`/`src/main-settings.ts`/`src/AppSettings.vue`）与 Vite 多入口；Rust settings 窗口改指 `settings.html`（`.decorations(false)`）。新增 `SToggle/SSegmentNav/SSelect/SSlider` 及单测，`npm run check:all` 全绿。
@@ -530,3 +531,8 @@
 
 - 完成 Task 19：全量门禁全绿（`npm run check:all`）。
 - 注意：沙盒内 Node/esbuild 会 `spawn EPERM`，需在沙盒外跑 `npm run check:all` / `vite build`。
+=======
+## 补充（2026-03-17｜内置命令 P0）
+
+- 修正内置命令跨平台差异（SHA256/时间戳/ZIP/端口探测），补齐 Windows 日志查看（tail/head/wc），新增 Redis 内置命令源 `_database.md`，并将 `speed-test` 标记为高危。
+>>>>>>> Stashed changes
