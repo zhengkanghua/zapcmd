@@ -22,8 +22,9 @@ import type { AppLocale } from "../../i18n";
 import type { ThemeMeta } from "../../features/themes/themeRegistry";
 
 export interface SettingsNavItem {
-  route: SettingsRoute;
+  id: SettingsRoute;
   label: string;
+  icon: string;
 }
 
 export type SettingsWindowProps = SettingsHotkeysProps &

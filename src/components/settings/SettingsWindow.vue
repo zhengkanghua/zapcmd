@@ -20,9 +20,9 @@ const closeWindow = () => appWindow.close();
 
 const navItems = computed(() =>
   props.settingsNavItems.map((item) => ({
-    id: item.route,
+    id: item.id,
     label: item.label,
-    icon: ""
+    icon: item.icon
   }))
 );
 const settingsRoute = computed({

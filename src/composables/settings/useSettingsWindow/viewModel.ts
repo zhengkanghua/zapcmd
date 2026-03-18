@@ -10,11 +10,11 @@ export function createSettingsViewModel(deps: {
 
   return {
     settingsNavItems: computed(() => [
-      { route: "hotkeys" as const, label: t("settings.nav.hotkeys") },
-      { route: "general" as const, label: t("settings.nav.general") },
-      { route: "commands" as const, label: t("settings.nav.commands") },
-      { route: "appearance" as const, label: t("settings.nav.appearance") },
-      { route: "about" as const, label: t("settings.nav.about") }
+      { id: "hotkeys" as const, label: t("settings.nav.hotkeys"), icon: "⌨" },
+      { id: "general" as const, label: t("settings.nav.general"), icon: "⚙" },
+      { id: "commands" as const, label: t("settings.nav.commands"), icon: "☰" },
+      { id: "appearance" as const, label: t("settings.nav.appearance"), icon: "✦" },
+      { id: "about" as const, label: t("settings.nav.about"), icon: "ℹ" }
     ]),
     hotkeyGlobalFields: computed(() =>
       options.hotkeyDefinitions.filter((field) => field.id === "launcher")
