@@ -125,6 +125,14 @@ beforeEach(() => {
 });
 
 describe("AppSettings hotkeys regression", () => {
+  it("requests show_settings_window_when_ready after the settings shell mounts", async () => {
+    hoisted.isTauriRuntime = true;
+
+    await mountAppSettings();
+
+    expect(hoisted.invokeSpy).toHaveBeenCalledWith("show_settings_window_when_ready");
+  });
+
   it("records and persists launcher hotkey on blur", async () => {
     const wrapper = await mountAppSettings();
     const settingsStore = getSettingsStoreFromWrapper(wrapper);
