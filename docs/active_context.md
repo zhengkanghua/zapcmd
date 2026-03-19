@@ -617,3 +617,6 @@
 
 ## 补充（2026-03-19｜Launcher 统一高度 contract 设计）
 - 已确认 Search/Command/Flow 共享同一最大高度 cap；CommandPanel 改为 header/content/footer 三段式，成功提交返回也并入统一锁高退出链路。
+
+## 补充（2026-03-19｜Launcher 统一高度 contract 实现计划）
+- 已产出计划 `docs/superpowers/plans/2026-03-19-launcher-unified-panel-height-contract.md`：先锁共享 cap/结构测试，再落地样式与 sizing，最后收口 submit 成功返回链路并完成 Tauri 手验。
