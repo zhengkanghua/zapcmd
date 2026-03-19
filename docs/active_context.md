@@ -586,3 +586,6 @@
 
 ## 补充（2026-03-19｜Settings 商业化审查 spec）
 - 已完成审查稿 `docs/superpowers/specs/2026-03-19-settings-window-commercial-review-design.md`：结论为架构基础达标，但白闪、拖拽模型不一致、Commands 视图态即时持久化仍未达商业化完成态；下一步应进入 P0/P1 修复计划。
+
+## 补充（2026-03-19｜Settings 商业化 P0/P1 实施计划）
+- 已产出计划 `docs/superpowers/plans/2026-03-19-settings-window-commercial-p0-p1.md`：P0=首帧 bootstrap+延迟显示；P1=Commands 视图态改瞬态、topbar 收口为原生标题栏下的导航壳体。
