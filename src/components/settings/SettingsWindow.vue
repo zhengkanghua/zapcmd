@@ -48,7 +48,12 @@ const emit = defineEmits<{
 <template>
   <main class="settings-window-root">
     <div class="settings-window-topbar">
-      <SSegmentNav :items="navItems" v-model="settingsRoute" />
+      <div
+        class="settings-window-topbar__nav-shell"
+        :class="{ 'settings-window-topbar__nav-shell--commands': settingsRoute === 'commands' }"
+      >
+        <SSegmentNav :items="navItems" v-model="settingsRoute" />
+      </div>
     </div>
 
     <div

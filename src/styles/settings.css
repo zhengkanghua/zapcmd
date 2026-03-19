@@ -7,7 +7,8 @@
   grid-template-rows: 52px minmax(0, 1fr);
   overflow: hidden;
   background:
-    linear-gradient(180deg, var(--ui-settings-topbar-bg) 0, var(--ui-settings-topbar-bg) 52px, var(--ui-bg-deep) 52px),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.035), transparent 48%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 28%),
     var(--ui-bg-deep);
   color: var(--ui-text);
 }
@@ -19,20 +20,32 @@
   z-index: var(--ui-settings-z-topbar);
   height: 52px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 0 24px;
-  background: var(--ui-settings-toolbar-bg);
-  border-bottom: 1px solid var(--ui-settings-topbar-border);
+  padding: 8px 24px 0;
   box-sizing: border-box;
-  backdrop-filter: blur(var(--ui-blur));
+  background: transparent;
+  border-bottom: none;
+  backdrop-filter: none;
 }
 
-.settings-window-topbar > * {
+.settings-window-topbar__nav-shell {
   width: 100%;
   max-width: 720px;
   display: flex;
   justify-content: center;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    rgba(9, 10, 11, 0.72);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(calc(var(--ui-blur) * 0.45));
+}
+
+.settings-window-topbar__nav-shell--commands {
+  max-width: 1120px;
 }
 
 /* ─── 内容区 ─── */
@@ -640,7 +653,11 @@
 
 @media (max-width: 760px) {
   .settings-window-topbar {
-    padding: 0 16px;
+    padding: 8px 16px 0;
+  }
+
+  .settings-window-topbar__nav-shell {
+    padding: 4px 8px;
   }
 
   .settings-content {
