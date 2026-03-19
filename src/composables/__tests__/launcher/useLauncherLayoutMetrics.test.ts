@@ -4,6 +4,7 @@ import {
   LAUNCHER_DRAWER_FLOOR_ROWS,
   LAUNCHER_DRAWER_MAX_ROWS,
   LAUNCHER_DRAWER_ROW_HEIGHT_PX,
+  LAUNCHER_FRAME_DESIGN_CAP_PX,
   LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX,
   useLauncherLayoutMetrics
 } from "../../launcher/useLauncherLayoutMetrics";
@@ -81,6 +82,9 @@ describe("useLauncherLayoutMetrics", () => {
       expect(metrics.searchShellStyle.value["--staging-collapsed-width"]).toBe("0px");
       expect(metrics.searchShellStyle.value["--flow-panel-width"]).toBe("453px");
       expect(metrics.searchShellStyle.value["--staging-expanded-width"]).toBe("453px");
+      expect(metrics.searchShellStyle.value["--launcher-panel-max-height"]).toBe(
+        `${LAUNCHER_FRAME_DESIGN_CAP_PX}px`
+      );
     }
   });
 

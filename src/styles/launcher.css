@@ -10,7 +10,7 @@
   padding-left: var(--shell-side-pad, 0);
   padding-right: var(--shell-side-pad, 0);
   display: grid;
-  place-items: start start;
+  place-items: start center;
   color: var(--ui-text);
   user-select: none;
   background: transparent;
@@ -41,6 +41,7 @@
   width: 100%;
   min-width: 0;
   height: var(--launcher-frame-height, auto);
+  max-height: var(--launcher-panel-max-height, none);
 }
 
 .search-panel {
@@ -430,6 +431,7 @@
 .flow-panel {
   width: min(var(--flow-width), 100%);
   max-width: 100%;
+  max-height: var(--launcher-panel-max-height, none);
   min-width: 0;
   min-height: 0;
   padding: 16px;
@@ -1374,6 +1376,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  max-height: var(--launcher-panel-max-height, none);
   min-height: 0;
   background: transparent;
   overflow: hidden;

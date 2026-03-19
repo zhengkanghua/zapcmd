@@ -182,6 +182,7 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     "--search-main-width": `${searchMainWidth.value}px`,
     "--shell-gap": `${shellGap.value}px`,
     "--shell-side-pad": `${WINDOW_SIDE_SAFE_PAD}px`,
+    "--launcher-panel-max-height": `${LAUNCHER_FRAME_DESIGN_CAP_PX}px`,
     "--flow-panel-width": `${flowPanelWidth.value}px`,
     "--flow-width": `${flowWidth.value}px`,
     "--drawer-row-height": `${LAUNCHER_DRAWER_ROW_HEIGHT_PX}px`,
