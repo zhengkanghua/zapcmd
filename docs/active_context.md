@@ -607,3 +607,5 @@
 - 用户二次复测更正：tab 默认态必须无按钮框感；hover/active 仅通过背景加深与文字提亮表达状态，不再使用可见边框或阴影。
 ## 补充（2026-03-19｜Launcher 返回高度恢复 spec）
 - 已确认方案：参数面板返回搜索页走统一退出链路，先锁住当前高度，待搜索页稳定后一次平滑回落到最终搜索高度；所有返回入口共用同一逻辑。
+## 补充（2026-03-19｜Launcher 返回高度恢复计划）
+- 已产出计划 `docs/superpowers/plans/2026-03-19-launcher-command-return-height-restore.md`：返回按钮与 Esc 收口到 `requestCommandPanelExit()`，sizing 新增退出锁高协调器，下一步执行并做 Tauri 手验。
