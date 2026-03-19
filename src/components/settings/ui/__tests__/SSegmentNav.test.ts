@@ -44,4 +44,13 @@ describe("SSegmentNav", () => {
     await tablist.trigger("keydown", { key: "ArrowRight" });
     expect(wrapper.emitted("update:modelValue")).toEqual([["general"]]);
   });
+
+  it("keeps tablist semantics without relying on a shell wrapper", () => {
+    const wrapper = mount(SSegmentNav, {
+      props: { items, modelValue: "hotkeys" }
+    });
+
+    expect(wrapper.get("[role='tablist']").classes()).toContain("s-segment-nav");
+    expect(wrapper.findAll(".s-segment-nav__tab--active")).toHaveLength(1);
+  });
 });

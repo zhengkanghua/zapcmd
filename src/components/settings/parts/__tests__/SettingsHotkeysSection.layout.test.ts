@@ -22,8 +22,9 @@ describe("SettingsHotkeysSection layout", () => {
     expect(wrapper.find(".settings-card__title").exists()).toBe(false);
     expect(wrapper.findAll(".settings-hotkeys-group")).toHaveLength(3);
     expect(wrapper.findAll(".settings-card")).toHaveLength(3);
-    expect(wrapper.find(".settings-hotkeys-row__label").exists()).toBe(true);
-    expect(wrapper.find(".settings-hotkeys-row__recorder").exists()).toBe(true);
+    expect(wrapper.findAll(".settings-hotkeys-row__label")).toHaveLength(3);
+    expect(wrapper.findAll(".settings-hotkeys-row__recorder")).toHaveLength(3);
+    expect(wrapper.text()).not.toContain("全局错误");
   });
 
   it("passes conflict text down to recorder rows instead of rendering a global banner", () => {

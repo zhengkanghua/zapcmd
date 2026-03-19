@@ -76,5 +76,24 @@ describe("SHotkeyRecorder", () => {
     expect(wrapper.find(".s-hotkey-recorder--conflict").exists()).toBe(true);
     expect(wrapper.text()).toContain("冲突");
   });
-});
 
+  it("renders a single compact key token for short hotkeys", () => {
+    const wrapper = mount(SHotkeyRecorder, {
+      props: { modelValue: "Tab", label: "切换焦点区域" },
+    });
+
+    expect(wrapper.findAll(".s-hotkey-recorder__kbd")).toHaveLength(1);
+  });
+
+  it("keeps recording hint and conflict feedback in the same field flow", async () => {
+    const wrapper = mount(SHotkeyRecorder, {
+      props: { modelValue: "", label: "执行队列", conflict: "duplicate hotkey" },
+      attachTo: document.body,
+    });
+
+    await wrapper.find(".s-hotkey-recorder").trigger("click");
+    expect(wrapper.text()).toContain("按下新的快捷键");
+    expect(wrapper.find(".s-hotkey-recorder-field__conflict").exists()).toBe(true);
+    wrapper.unmount();
+  });
+});

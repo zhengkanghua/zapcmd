@@ -106,10 +106,11 @@ describe("SettingsWindow stable shell", () => {
       props: createSettingsWindowProps({ settingsRoute: "general" })
     });
 
-    expect(wrapper.find(".settings-window-topbar").exists()).toBe(true);
-    expect(wrapper.find(".settings-window-topbar__nav-shell").exists()).toBe(true);
-    expect(wrapper.find(".settings-window-topbar").attributes("data-tauri-drag-region")).toBeUndefined();
-    expect(wrapper.find(".settings-window-topbar__nav-shell").attributes("data-tauri-drag-region")).toBeUndefined();
+    const topbar = wrapper.get(".settings-window-topbar");
+
+    expect(topbar.find(".s-segment-nav").exists()).toBe(true);
+    expect(wrapper.find(".settings-window-topbar__nav-shell").exists()).toBe(false);
+    expect(topbar.attributes("data-tauri-drag-region")).toBeUndefined();
     expect(wrapper.find(".settings-drag-region__controls").exists()).toBe(false);
     expect(wrapper.text()).not.toContain("ZapCmd Settings");
   });
@@ -121,6 +122,7 @@ describe("SettingsWindow stable shell", () => {
 
     expect(wrapper.find(".settings-window-topbar + .settings-content").exists()).toBe(true);
     expect(wrapper.findAll(".settings-content")).toHaveLength(1);
+    expect(wrapper.find(".settings-content > .settings-content__inner").exists()).toBe(true);
   });
 
   it("uses commands-specific content width hook only on commands route", async () => {
@@ -128,8 +130,8 @@ describe("SettingsWindow stable shell", () => {
       props: createSettingsWindowProps({ settingsRoute: "commands" })
     });
 
-    expect(wrapper.get(".settings-content").classes()).toContain("settings-content--commands");
+    expect(wrapper.get(".settings-content__inner").classes()).toContain("settings-content__inner--commands");
     await wrapper.setProps({ settingsRoute: "general" });
-    expect(wrapper.get(".settings-content").classes()).not.toContain("settings-content--commands");
+    expect(wrapper.get(".settings-content__inner").classes()).not.toContain("settings-content__inner--commands");
   });
 });
