@@ -234,11 +234,16 @@ describe("AppSettings hotkeys regression", () => {
     await commandsNav.trigger("click");
     await waitForUi();
 
+    const rawBeforeSearch = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    expect(rawBeforeSearch).toBeTruthy();
+
     const search = wrapper.get("input.settings-commands-toolbar__search");
     await search.setValue("docker");
     await waitForUi();
 
-    expect(localStorage.getItem(SETTINGS_STORAGE_KEY)).toBeNull();
+    const rawAfterSearch = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    expect(rawAfterSearch).toBe(rawBeforeSearch);
+    expect(rawAfterSearch).not.toContain('"view"');
 
     const firstRow = wrapper.findAll(".settings-commands-table__row")[0];
     expect(firstRow).toBeTruthy();

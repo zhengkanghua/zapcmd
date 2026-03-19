@@ -44,7 +44,6 @@ const {
   autoCheckUpdate,
   launchAtLogin,
   disabledCommandIds,
-  commandView,
   windowOpacity,
   theme,
   blurEnabled
@@ -142,10 +141,8 @@ const commandManagement = useCommandManagement({
   userCommandSourceById: commandCatalog.userCommandSourceById,
   overriddenCommandIds: commandCatalog.overriddenCommandIds,
   loadIssues: commandCatalog.loadIssues,
-  commandView,
   setCommandEnabled: settingsStore.setCommandEnabled.bind(settingsStore),
-  setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore),
-  setCommandViewState: settingsStore.setCommandViewState.bind(settingsStore)
+  setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore)
 });
 
 const {
@@ -153,6 +150,7 @@ const {
   commandSummary,
   commandLoadIssues,
   commandFilteredCount,
+  commandView,
   commandSourceOptions,
   commandStatusOptions,
   commandCategoryOptions,
@@ -196,12 +194,10 @@ function setFilteredCommandsEnabled(enabled: boolean): void {
 
 function updateCommandView(patch: Partial<CommandManagementViewState>): void {
   updateCommandViewAction(patch);
-  persistImmediate();
 }
 
 function resetCommandFilters(): void {
   resetCommandFiltersAction();
-  persistImmediate();
 }
 
 function updateOpacity(value: number): void {

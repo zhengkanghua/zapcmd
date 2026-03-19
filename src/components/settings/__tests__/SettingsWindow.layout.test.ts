@@ -2,7 +2,11 @@ import { shallowMount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 
 import { THEME_REGISTRY } from "../../../features/themes/themeRegistry";
-import { createDefaultSettingsSnapshot, type HotkeyFieldId } from "../../../stores/settingsStore";
+import {
+  createDefaultCommandViewState,
+  createDefaultSettingsSnapshot,
+  type HotkeyFieldId
+} from "../../../stores/settingsStore";
 import SettingsWindow from "../SettingsWindow.vue";
 import type { SettingsWindowProps } from "../types";
 
@@ -67,7 +71,7 @@ function createSettingsWindowProps(
     },
     commandLoadIssues: [],
     commandFilteredCount: 0,
-    commandView: defaults.commands.view,
+    commandView: createDefaultCommandViewState(),
     commandSourceOptions: [],
     commandStatusOptions: [],
     commandCategoryOptions: [],

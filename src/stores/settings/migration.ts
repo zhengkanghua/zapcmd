@@ -5,10 +5,9 @@ import {
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_TERMINAL,
   DEFAULT_THEME,
+  DEFAULT_WINDOW_OPACITY,
   HOTKEY_FIELD_IDS,
   SETTINGS_SCHEMA_VERSION,
-  createDefaultSettingsSnapshot,
-  type CommandManagementViewState,
   type HotkeySettings,
   type PersistedSettingsSnapshot
 } from "./defaults";
@@ -16,7 +15,6 @@ import {
   isRecord,
   normalizeBlurEnabled,
   normalizeBoolean,
-  normalizeCommandViewState,
   normalizeDisabledCommandIds,
   normalizeHotkeys,
   normalizeLanguage,
@@ -76,13 +74,6 @@ function extractDisabledCommandIds(payload: SettingsPayload): string[] {
   return normalizeDisabledCommandIds(payload.commands.disabledCommandIds);
 }
 
-function extractCommandViewState(payload: SettingsPayload): CommandManagementViewState {
-  if (!isRecord(payload.commands)) {
-    return createDefaultSettingsSnapshot().commands.view;
-  }
-  return normalizeCommandViewState(payload.commands.view);
-}
-
 function extractAppearance(payload: SettingsPayload): {
   windowOpacity: number;
   theme: string;
@@ -90,7 +81,7 @@ function extractAppearance(payload: SettingsPayload): {
 } {
   if (!isRecord(payload.appearance)) {
     return {
-      windowOpacity: createDefaultSettingsSnapshot().appearance.windowOpacity,
+      windowOpacity: DEFAULT_WINDOW_OPACITY,
       theme: DEFAULT_THEME,
       blurEnabled: DEFAULT_BLUR_ENABLED
     };
@@ -113,8 +104,7 @@ function createSnapshot(payload: SettingsPayload): PersistedSettingsSnapshot {
       launchAtLogin: extractLaunchAtLogin(payload)
     },
     commands: {
-      disabledCommandIds: extractDisabledCommandIds(payload),
-      view: extractCommandViewState(payload)
+      disabledCommandIds: extractDisabledCommandIds(payload)
     },
     appearance: extractAppearance(payload)
   };

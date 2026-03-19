@@ -24,8 +24,6 @@ function createDefaultViewState(): CommandManagementViewState {
 function createFixture() {
   const setCommandEnabled = vi.fn();
   const setDisabledCommandIds = vi.fn();
-  const setCommandViewState = vi.fn();
-  const commandView = ref<CommandManagementViewState>(createDefaultViewState());
 
   const allCommandTemplates = ref([
     {
@@ -87,16 +85,21 @@ function createFixture() {
     userCommandSourceById,
     overriddenCommandIds,
     loadIssues,
-    commandView,
     setCommandEnabled,
-    setDisabledCommandIds,
-    setCommandViewState
+    setDisabledCommandIds
   });
 
   return {
     model,
-    refs: { commandView, disabledCommandIds, overriddenCommandIds, loadIssues, commandSourceById, userCommandSourceById },
-    spies: { setCommandEnabled, setDisabledCommandIds, setCommandViewState }
+    refs: {
+      commandView: model.commandView,
+      disabledCommandIds,
+      overriddenCommandIds,
+      loadIssues,
+      commandSourceById,
+      userCommandSourceById
+    },
+    spies: { setCommandEnabled, setDisabledCommandIds }
   };
 }
 
@@ -220,16 +223,12 @@ describe("useCommandManagement", () => {
 
     model.updateCommandView({ query: "docker" });
     expect(model.commandView.value.query).toBe("docker");
-    expect(spies.setCommandViewState).not.toHaveBeenCalled();
 
     model.updateCommandView({ sourceFilter: "user" });
     expect(model.commandView.value.sourceFilter).toBe("user");
 
-    refs.commandView.value.query = "docker";
-    refs.commandView.value.sourceFilter = "user";
     model.resetCommandFilters();
     expect(model.commandView.value).toEqual(createDefaultViewState());
-    expect(spies.setCommandViewState).not.toHaveBeenCalled();
     expect(model.commandRows.value).toHaveLength(4);
   });
 });

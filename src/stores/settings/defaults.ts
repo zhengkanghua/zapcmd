@@ -51,7 +51,6 @@ export interface PersistedSettingsSnapshot {
   };
   commands: {
     disabledCommandIds: string[];
-    view: CommandManagementViewState;
   };
   appearance: {
     windowOpacity: number;
@@ -124,8 +123,7 @@ export function createDefaultSettingsSnapshot(): PersistedSettingsSnapshot {
       launchAtLogin: DEFAULT_LAUNCH_AT_LOGIN
     },
     commands: {
-      disabledCommandIds: [],
-      view: createDefaultCommandViewState()
+      disabledCommandIds: []
     },
     appearance: {
       windowOpacity: DEFAULT_WINDOW_OPACITY,

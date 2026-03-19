@@ -1,4 +1,4 @@
-import { computed, type Ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 import { getCurrentLocale, t } from "../../i18n";
 import type { CommandLoadIssue } from "../../features/commands/runtimeLoader";
 import type { CommandTemplate } from "../../features/commands/types";
@@ -17,6 +17,8 @@ import type {
   CommandSortBy,
   CommandSourceFileOption
 } from "../../features/settings/types";
+import { createDefaultCommandViewState } from "../../stores/settings/defaults";
+import { normalizeCommandViewState } from "../../stores/settings/normalization";
 
 interface UseCommandManagementOptions {
   allCommandTemplates: Readonly<Ref<CommandTemplate[]>>;
@@ -25,22 +27,8 @@ interface UseCommandManagementOptions {
   userCommandSourceById: Readonly<Ref<Record<string, string>>>;
   overriddenCommandIds: Readonly<Ref<string[]>>;
   loadIssues: Readonly<Ref<CommandLoadIssue[]>>;
-  commandView: Readonly<Ref<CommandManagementViewState>>;
   setCommandEnabled: (commandId: string, enabled: boolean) => void;
   setDisabledCommandIds: (ids: string[]) => void;
-  setCommandViewState: (patch: Partial<CommandManagementViewState>) => void;
-}
-
-const DEFAULT_VIEW_PATCH: Partial<CommandManagementViewState> = {
-  query: "",
-  sourceFilter: "all",
-  statusFilter: "all",
-  categoryFilter: "all",
-  overrideFilter: "all",
-  issueFilter: "all",
-  fileFilter: "all",
-  sortBy: "default",
-  displayMode: "list"
 };
 
 function normalizeText(value: string): string {
@@ -344,12 +332,13 @@ function createCommandFilterOptions() {
 }
 
 export function useCommandManagement(options: UseCommandManagementOptions) {
+  const commandView = ref<CommandManagementViewState>(createDefaultCommandViewState());
   const commandRowsAll = createAllRows(options);
   const commandSummary = createSummary(commandRowsAll);
   const commandLoadIssues = createIssueViews(options.loadIssues);
   const commandSourceFileOptions = createSourceFileOptions(commandRowsAll);
   const commandCategoryOptions = createCategoryOptions(commandRowsAll);
-  const commandRows = createFilteredRows(commandRowsAll, options.commandView);
+  const commandRows = createFilteredRows(commandRowsAll, commandView);
   const commandGroups = createCommandGroups(commandRows);
   const commandFilterOptions = createCommandFilterOptions();
 
@@ -380,11 +369,14 @@ export function useCommandManagement(options: UseCommandManagementOptions) {
   }
 
   function updateCommandView(patch: Partial<CommandManagementViewState>): void {
-    options.setCommandViewState(patch);
+    commandView.value = normalizeCommandViewState({
+      ...commandView.value,
+      ...patch
+    });
   }
 
   function resetCommandFilters(): void {
-    updateCommandView(DEFAULT_VIEW_PATCH);
+    commandView.value = createDefaultCommandViewState();
   }
 
   return {
@@ -392,7 +384,7 @@ export function useCommandManagement(options: UseCommandManagementOptions) {
     commandSummary,
     commandLoadIssues,
     commandFilteredCount,
-    commandView: options.commandView,
+    commandView,
     commandSourceOptions: commandFilterOptions.commandSourceOptions,
     commandStatusOptions: commandFilterOptions.commandStatusOptions,
     commandCategoryOptions,
