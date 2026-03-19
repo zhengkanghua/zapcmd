@@ -140,6 +140,13 @@ async function confirmSettings(): Promise<void> {
   closeSettingsWindow();
 }
 
+function handleCommandPanelSubmit(): void {
+  if (!submitParamInput()) {
+    return;
+  }
+  requestCommandPanelExit();
+}
+
 function navigateToSettingsError(): void {
   if (!settingsErrorRoute.value) {
     return;
@@ -204,7 +211,7 @@ function navigateToSettingsError(): void {
     @clear-staging="clearStaging"
     @execute-staged="executeStaged"
     @grip-reorder-active-change="setStagingGripReorderActive"
-    @submit-param-input="submitParamInput"
+    @submit-param-input="handleCommandPanelSubmit"
     @request-command-panel-exit="requestCommandPanelExit"
     @search-page-settled="notifySearchPageSettled"
     @arg-input="updatePendingArgValue"

@@ -211,10 +211,10 @@ function createPendingCommandActions(
     requestSingleExecution(command);
   }
 
-  function submitParamInput(): void {
+  function submitParamInput(): boolean {
     const command = state.pendingCommand.value;
     if (!command) {
-      return;
+      return false;
     }
     const rejection = getPendingSubmitRejection(command, state.pendingArgValues.value);
     if (rejection) {
@@ -225,7 +225,7 @@ function createPendingCommandActions(
           nextStep: rejection.nextStep
         })
       );
-      return;
+      return false;
     }
     const values = { ...state.pendingArgValues.value };
     const submitMode = state.pendingSubmitMode.value;
@@ -245,16 +245,17 @@ function createPendingCommandActions(
             nextStep: t("execution.nextStepBlocked")
           })
         );
-        return;
+        return false;
       }
 
       resetPendingCommand();
       void executeSingleCommand(options, state, command, values);
-      return;
+      return true;
     }
 
     resetPendingCommand();
     appendToStaging(options, state, command, values);
+    return true;
   }
 
   function cancelParamInput(): void {

@@ -134,8 +134,9 @@ describe("useCommandExecution", () => {
 
     harness.execution.executeResult(command);
     harness.execution.updatePendingArgValue("value", "   ");
-    harness.execution.submitParamInput();
+    const submitted = harness.execution.submitParamInput();
 
+    expect(submitted).toBe(false);
     expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
@@ -149,9 +150,10 @@ describe("useCommandExecution", () => {
 
     harness.execution.executeResult(command);
     harness.execution.updatePendingArgValue("value", "8088");
-    harness.execution.submitParamInput();
+    const submitted = harness.execution.submitParamInput();
     await nextTick();
 
+    expect(submitted).toBe(true);
     expect(harness.execution.pendingCommand.value).toBeNull();
     expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
@@ -422,8 +424,9 @@ describe("useCommandExecution", () => {
     expect(harness.execution.pendingSubmitMode.value).toBe("stage");
     expect(harness.onNeedPanel).toHaveBeenCalledWith(risky, "stage");
 
-    harness.execution.submitParamInput();
+    const submitted = harness.execution.submitParamInput();
     await nextTick();
+    expect(submitted).toBe(true);
     expect(harness.execution.pendingCommand.value).toBeNull();
     expect(harness.stagedCommands.value).toHaveLength(1);
 

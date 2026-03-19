@@ -218,7 +218,8 @@ function bindAppRuntime(
     loadSettings: context.settingsWindow.loadSettings
   });
   function requestCommandPanelExit(): void {
-    if (launcherRuntime.commandExecution.pendingCommand.value === null) {
+    const onCommandActionPage = launcherRuntime.navStack.currentPage.value.type === "command-action";
+    if (!onCommandActionPage && launcherRuntime.commandExecution.pendingCommand.value === null) {
       if (launcherRuntime.navStack.canGoBack.value) {
         launcherRuntime.navStack.popPage();
       }
@@ -226,7 +227,9 @@ function bindAppRuntime(
     }
 
     windowSizing.requestCommandPanelExit();
-    launcherRuntime.commandExecution.cancelParamInput();
+    if (launcherRuntime.commandExecution.pendingCommand.value !== null) {
+      launcherRuntime.commandExecution.cancelParamInput();
+    }
 
     if (launcherRuntime.navStack.canGoBack.value) {
       launcherRuntime.navStack.popPage();

@@ -159,15 +159,8 @@ export function createAppCompositionViewModel(
   const settingsMutationHandlers = createSettingsMutationHandlers(context);
   const settingsWindowProps = createSettingsWindowProps(context);
 
-  function submitParamInput(): void {
-    runtime.commandExecution.submitParamInput();
-
-    if (
-      runtime.commandExecution.pendingCommand.value === null &&
-      runtime.navStack.canGoBack.value
-    ) {
-      runtime.navStack.popPage();
-    }
+  function submitParamInput(): boolean {
+    return runtime.commandExecution.submitParamInput();
   }
 
   return {
