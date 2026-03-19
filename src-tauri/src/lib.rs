@@ -15,7 +15,13 @@ use bounds::handle_main_window_event;
 use command_catalog::{get_user_commands_dir, read_user_command_files};
 use hotkeys::{get_launcher_hotkey, update_launcher_hotkey};
 use terminal::{get_available_terminals, get_runtime_platform, run_command_in_terminal};
-use windowing::{hide_main_window, open_settings_window, ping, set_main_window_size};
+use windowing::{
+    hide_main_window,
+    open_settings_window,
+    ping,
+    set_main_window_size,
+    show_settings_window_when_ready,
+};
 use animation::{animate_main_window_size, AnimationController};
 use autostart::{get_autostart_enabled, set_autostart_enabled};
 
@@ -49,6 +55,7 @@ pub fn run() {
             get_launcher_hotkey,
             update_launcher_hotkey,
             open_settings_window,
+            show_settings_window_when_ready,
             hide_main_window,
             get_available_terminals,
             get_runtime_platform,

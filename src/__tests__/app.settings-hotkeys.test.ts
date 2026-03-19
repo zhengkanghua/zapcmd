@@ -38,6 +38,11 @@ async function waitForUi(): Promise<void> {
   await nextTick();
   await Promise.resolve();
   await new Promise((resolve) => setTimeout(resolve, 0));
+  if (typeof window.requestAnimationFrame === "function") {
+    await new Promise<void>((resolve) => {
+      window.requestAnimationFrame(() => resolve());
+    });
+  }
   await nextTick();
 }
 
