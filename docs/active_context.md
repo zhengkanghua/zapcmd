@@ -583,3 +583,6 @@
 
 ## 补充（2026-03-18｜Settings 二次精修收口）
 - 已完成单滚动、终端下拉 label-only、Hotkeys 双区收口，并补上 SSelect 长列表键盘滚动守卫；focused settings 47 条与 `check:all` 全绿，待 Windows GUI 手验。
+
+## 补充（2026-03-19｜Settings 商业化审查 spec）
+- 已完成审查稿 `docs/superpowers/specs/2026-03-19-settings-window-commercial-review-design.md`：结论为架构基础达标，但白闪、拖拽模型不一致、Commands 视图态即时持久化仍未达商业化完成态；下一步应进入 P0/P1 修复计划。
