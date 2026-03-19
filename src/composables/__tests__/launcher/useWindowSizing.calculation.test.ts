@@ -264,6 +264,33 @@ describe("resolveWindowSize（CommandPanel floor）", () => {
     expect(size.height).not.toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
+  it("退出锁存在时，即使 pendingCommand 已清空也保持当前锁高", () => {
+    const size = resolveWindowSize(
+      createBaseOptions({ pendingCommand: ref(null) }),
+      { commandPanelExitFrameHeightLock: 520 }
+    );
+
+    expect(size.height).toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+  });
+
+  it("ignoreCommandPanelExitLock=true 时返回最终搜索页高度，用于 restore target 采样", () => {
+    const size = resolveWindowSize(
+      createBaseOptions({
+        pendingCommand: ref(null),
+        drawerOpen: ref(false),
+        drawerViewportHeight: ref(0)
+      }),
+      {
+        commandPanelExitFrameHeightLock: 520,
+        ignoreCommandPanelExitLock: true
+      }
+    );
+
+    expect(size.height).toBe(
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+  });
+
   it("CommandPanel 时不使用 layout measured height（避免容器 fill 导致误判为需要最大高度）", () => {
     const root = document.createElement("div");
     const shell = document.createElement("div");

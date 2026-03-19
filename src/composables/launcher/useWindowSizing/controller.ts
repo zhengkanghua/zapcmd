@@ -2,6 +2,7 @@ import { LogicalSize } from "@tauri-apps/api/window";
 import { nextTick } from "vue";
 import { resolveWindowSize, shouldSkipResize } from "./calculation";
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
+import { createCommandPanelExitCoordinator } from "./commandPanelExit";
 
 interface WindowSizingState {
   lastWindowSize: WindowSize | null;
@@ -31,9 +32,21 @@ function resolveShellDragStripHeightFromDom(options: UseWindowSizingOptions): nu
   return UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 }
 
-function syncLauncherFrameHeightStyle(options: UseWindowSizingOptions, windowHeight: number): void {
+function syncLauncherFrameHeightStyle(
+  options: UseWindowSizingOptions,
+  windowHeight: number,
+  commandPanelExitFrameHeightLock: number | null = null
+): void {
   const shell = options.searchShellRef.value;
   if (!shell) {
+    return;
+  }
+
+  if (commandPanelExitFrameHeightLock !== null) {
+    shell.style.setProperty(
+      "--launcher-frame-height",
+      `${Math.max(0, Math.floor(commandPanelExitFrameHeightLock))}px`
+    );
     return;
   }
 
@@ -60,16 +73,131 @@ function syncLauncherFrameHeightStyle(options: UseWindowSizingOptions, windowHei
   shell.style.setProperty("--launcher-frame-height", `${fallbackHeight}px`);
 }
 
-export function createWindowSizingController(options: UseWindowSizingOptions) {
-  const state = createWindowSizingState();
+type ResizeBridge = (width: number, height: number) => Promise<void>;
 
-  /**
-   * 核心同步逻辑 — 通过指定的 bridge 函数设置窗口尺寸
-   * @param bridge 实际的 IPC 调用函数（animate 或 immediate）
-   */
-  async function syncWindowSizeCore(
-    bridge: (width: number, height: number) => Promise<void>
-  ): Promise<void> {
+interface ResizeStyleSyncOptions {
+  beforeSyncStyle?: () => void;
+  frameHeightLock?: number | null;
+}
+
+async function applyWindowSize(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  bridge: ResizeBridge,
+  size: WindowSize,
+  styleSyncOptions: ResizeStyleSyncOptions = {}
+): Promise<void> {
+  const syncStyle = () => {
+    styleSyncOptions.beforeSyncStyle?.();
+    syncLauncherFrameHeightStyle(
+      options,
+      size.height,
+      styleSyncOptions.frameHeightLock ?? null
+    );
+  };
+
+  if (shouldSkipResize(state.lastWindowSize, size, options.constants.windowSizeEpsilon)) {
+    state.lastWindowSize = size;
+    syncStyle();
+    return;
+  }
+
+  state.lastWindowSize = size;
+  if (!options.isTauriRuntime()) {
+    syncStyle();
+    return;
+  }
+
+  const appWindow = options.resolveAppWindow();
+  try {
+    await bridge(size.width, size.height);
+    syncStyle();
+  } catch (error) {
+    console.warn("window command resize failed", error);
+    try {
+      if (appWindow) {
+        await appWindow.setSize(new LogicalSize(size.width, size.height));
+      }
+      syncStyle();
+    } catch (fallbackError) {
+      console.warn("window webview resize failed", fallbackError);
+    }
+  }
+}
+
+function syncPendingCommandFloor(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  dragStripHeight: number
+): void {
+  const isPending = options.pendingCommand.value !== null;
+  if (isPending && !state.pendingCommandActive) {
+    const frameHeightBeforeEnter = state.lastWindowSize
+      ? state.lastWindowSize.height - dragStripHeight
+      : options.constants.windowBaseHeight;
+    options.commandPanelFrameHeightFloor.value = frameHeightBeforeEnter;
+    state.pendingCommandActive = true;
+    return;
+  }
+
+  if (!isPending && state.pendingCommandActive) {
+    options.commandPanelFrameHeightFloor.value = null;
+    state.pendingCommandActive = false;
+  }
+}
+
+async function handleSearchSettlingResize(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>,
+  bridge: ResizeBridge,
+  dragStripHeight: number
+): Promise<boolean> {
+  const snapshot = commandPanelExit.snapshot();
+  const commandPanelExitFrameHeightLock = snapshot.lockedExitFrameHeight;
+  if (snapshot.phase !== "search-settling" || commandPanelExitFrameHeightLock === null) {
+    return false;
+  }
+
+  const restoreBaseSize = resolveWindowSize(options, {
+    commandPanelExitFrameHeightLock,
+    ignoreCommandPanelExitLock: true
+  });
+  const restoreTargetFrameHeight =
+    snapshot.restoreTargetFrameHeight ??
+    Math.max(0, restoreBaseSize.height - dragStripHeight);
+  if (snapshot.restoreTargetFrameHeight === null) {
+    commandPanelExit.captureRestoreTarget(restoreTargetFrameHeight);
+  }
+
+  if (restoreTargetFrameHeight >= commandPanelExitFrameHeightLock) {
+    commandPanelExit.clear();
+    state.queuedWindowSync = true;
+    return true;
+  }
+
+  await applyWindowSize(
+    options,
+    state,
+    bridge,
+    {
+      width: restoreBaseSize.width,
+      height: restoreTargetFrameHeight + dragStripHeight
+    },
+    {
+      beforeSyncStyle: () => commandPanelExit.clear()
+    }
+  );
+  return true;
+}
+
+function createSyncWindowSizeCore(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>,
+  scheduleWindowSync: () => void
+) {
+  return async function syncWindowSizeCore(bridge: ResizeBridge): Promise<void> {
     if (options.isSettingsWindow.value) {
       return;
     }
@@ -81,45 +209,30 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     state.syncingWindowSize = true;
     await nextTick();
     try {
-      const isPending = options.pendingCommand.value !== null;
-      if (isPending && !state.pendingCommandActive) {
-        const dragStripHeight = resolveShellDragStripHeightFromDom(options);
-        const frameHeightBeforeEnter = state.lastWindowSize
-          ? state.lastWindowSize.height - dragStripHeight
-          : options.constants.windowBaseHeight;
-        options.commandPanelFrameHeightFloor.value = frameHeightBeforeEnter;
-        state.pendingCommandActive = true;
-      } else if (!isPending && state.pendingCommandActive) {
-        options.commandPanelFrameHeightFloor.value = null;
-        state.pendingCommandActive = false;
-      }
-
-      const size = resolveWindowSize(options);
-      const appWindow = options.resolveAppWindow();
-      if (shouldSkipResize(state.lastWindowSize, size, options.constants.windowSizeEpsilon)) {
-        syncLauncherFrameHeightStyle(options, size.height);
-        return;
-      }
-      state.lastWindowSize = size;
-      if (!options.isTauriRuntime()) {
-        syncLauncherFrameHeightStyle(options, size.height);
+      const dragStripHeight = resolveShellDragStripHeightFromDom(options);
+      syncPendingCommandFloor(options, state, dragStripHeight);
+      if (
+        await handleSearchSettlingResize(
+          options,
+          state,
+          commandPanelExit,
+          bridge,
+          dragStripHeight
+        )
+      ) {
         return;
       }
 
-      try {
-        await bridge(size.width, size.height);
-        syncLauncherFrameHeightStyle(options, size.height);
-      } catch (error) {
-        console.warn("window command resize failed", error);
-        try {
-          if (appWindow) {
-            await appWindow.setSize(new LogicalSize(size.width, size.height));
-          }
-          syncLauncherFrameHeightStyle(options, size.height);
-        } catch (fallbackError) {
-          console.warn("window webview resize failed", fallbackError);
+      const commandPanelExitFrameHeightLock = commandPanelExit.snapshot().lockedExitFrameHeight;
+      await applyWindowSize(
+        options,
+        state,
+        bridge,
+        resolveWindowSize(options, { commandPanelExitFrameHeightLock }),
+        {
+          frameHeightLock: commandPanelExitFrameHeightLock
         }
-      }
+      );
     } finally {
       state.syncingWindowSize = false;
       if (state.queuedWindowSync) {
@@ -127,9 +240,51 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
         scheduleWindowSync();
       }
     }
-  }
+  };
+}
+
+function createRequestCommandPanelExit(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>
+) {
+  return function requestCommandPanelExit(): void {
+    const dragStripHeight = resolveShellDragStripHeightFromDom(options);
+    const lockedFrameHeight = state.lastWindowSize
+      ? Math.max(0, state.lastWindowSize.height - dragStripHeight)
+      : options.commandPanelFrameHeightFloor.value ?? options.constants.paramOverlayMinHeight;
+    commandPanelExit.beginExit(lockedFrameHeight);
+  };
+}
+
+function createOnAppFocused(
+  options: UseWindowSizingOptions,
+  syncWindowSizeImmediate: () => void
+) {
+  return function onAppFocused(): void {
+    if (options.isSettingsWindow.value) {
+      return;
+    }
+    options.loadSettings();
+    syncWindowSizeImmediate();
+    options.scheduleSearchInputFocus(true);
+  };
+}
+
+export function createWindowSizingController(options: UseWindowSizingOptions) {
+  const state = createWindowSizingState();
+  const commandPanelExit = createCommandPanelExitCoordinator();
 
   /** 缓动动画路径 — 用于 watcher 触发的响应式更新 */
+  const scheduleWindowSync = (): void => {
+    void syncWindowSize();
+  };
+  const syncWindowSizeCore = createSyncWindowSizeCore(
+    options,
+    state,
+    commandPanelExit,
+    scheduleWindowSync
+  );
   async function syncWindowSize(): Promise<void> {
     return syncWindowSizeCore(options.requestAnimateMainWindowSize);
   }
@@ -139,23 +294,18 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     void syncWindowSizeCore(options.requestSetMainWindowSize);
   }
 
-  /** 调度窗口同步 — 防抖已在 Rust 端，此处直接调用 */
-  function scheduleWindowSync(): void {
-    void syncWindowSize();
-  }
+  const requestCommandPanelExit = createRequestCommandPanelExit(
+    options,
+    state,
+    commandPanelExit
+  );
 
-  function onViewportResize(): void {
+  const notifySearchPageSettled = (): void => {
+    commandPanelExit.markSearchSettled();
     scheduleWindowSync();
-  }
-
-  function onAppFocused(): void {
-    if (options.isSettingsWindow.value) {
-      return;
-    }
-    options.loadSettings();
-    syncWindowSizeImmediate();
-    options.scheduleSearchInputFocus(true);
-  }
+  };
+  const onViewportResize = scheduleWindowSync;
+  const onAppFocused = createOnAppFocused(options, syncWindowSizeImmediate);
 
   /** 清理 resize 定时器 — debounce 已移除，保留为空函数兼容外部调用 */
   function clearResizeTimer(): void {
@@ -165,6 +315,8 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
   return {
     onViewportResize,
     onAppFocused,
+    requestCommandPanelExit,
+    notifySearchPageSettled,
     scheduleWindowSync,
     syncWindowSize,
     syncWindowSizeImmediate,

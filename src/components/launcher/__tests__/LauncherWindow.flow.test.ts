@@ -1,4 +1,5 @@
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
@@ -149,10 +150,42 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(wrapper.find(".stub-cancel").exists()).toBe(true);
 
     await wrapper.get(".stub-cancel").trigger("click");
-    expect(wrapper.emitted("cancel-param-input")).toHaveLength(1);
+    expect(wrapper.emitted("request-command-panel-exit")).toHaveLength(1);
+    expect((wrapper.props("navPopPage") as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
 
     await wrapper.get(".stub-submit").trigger("click");
     expect(wrapper.emitted("submit-param-input")).toHaveLength(1);
+  });
+
+  it("command-action 页面点击返回时发出 request-command-panel-exit，而不是直接操作 navStack", async () => {
+    const command = createCommandTemplate("cmd-exit");
+    const commandPage: NavPage = {
+      type: "command-action",
+      props: { command, mode: "execute", isDangerous: false }
+    };
+
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: commandPage,
+        navCanGoBack: true,
+        navStack: [{ type: "search" }, commandPage]
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherFlowPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherCommandPanel: {
+            template: "<button class='stub-cancel' @click=\"$emit('cancel')\">cancel</button>"
+          }
+        }
+      }
+    });
+
+    await wrapper.get(".stub-cancel").trigger("click");
+
+    expect(wrapper.emitted("request-command-panel-exit")).toHaveLength(1);
+    expect((wrapper.props("navPopPage") as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
   });
 
   it("command-action 页面点击任意内容不应触发 blank-pointerdown（命中兜底）", async () => {
@@ -208,5 +241,39 @@ describe("LauncherWindow CommandPanel wiring", () => {
 
     await wrapper.get(".stub-safety-confirm").trigger("click");
     expect(wrapper.emitted("confirm-safety-execution")).toHaveLength(1);
+  });
+
+  it("nav-slide 切回 search 并 after-enter 后发出 search-page-settled", async () => {
+    const command = createCommandTemplate("cmd-settled");
+    const commandPage: NavPage = {
+      type: "command-action",
+      props: { command, mode: "execute", isDangerous: false }
+    };
+
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: commandPage,
+        navCanGoBack: true,
+        navStack: [{ type: "search" }, commandPage]
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherFlowPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherCommandPanel: true
+        }
+      }
+    });
+
+    await wrapper.setProps({
+      navCurrentPage: { type: "search" },
+      navCanGoBack: false,
+      navStack: [{ type: "search" }]
+    });
+    (wrapper.vm as unknown as { onNavAfterEnter: () => void }).onNavAfterEnter();
+    await nextTick();
+
+    expect(wrapper.emitted("search-page-settled")).toHaveLength(1);
   });
 });

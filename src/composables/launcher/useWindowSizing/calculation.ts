@@ -8,6 +8,11 @@ import {
   LAUNCHER_FRAME_DESIGN_CAP_PX
 } from "../useLauncherLayoutMetrics";
 
+interface ResolveWindowSizeOverrides {
+  commandPanelExitFrameHeightLock?: number | null;
+  ignoreCommandPanelExitLock?: boolean;
+}
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
@@ -99,7 +104,10 @@ function estimateWindowContentHeight(options: UseWindowSizingOptions, frameMaxHe
   return Math.min(Math.max(leftHeight, rightHeight), frameMaxHeight);
 }
 
-export function resolveWindowSize(options: UseWindowSizingOptions): WindowSize {
+export function resolveWindowSize(
+  options: UseWindowSizingOptions,
+  overrides: ResolveWindowSizeOverrides = {}
+): WindowSize {
   const dragStripHeight = resolveShellDragStripHeight(options);
   const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
   const frameMaxHeight = Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
@@ -121,6 +129,17 @@ export function resolveWindowSize(options: UseWindowSizingOptions): WindowSize {
     resolvedContentHeight = clamp(
       Math.max(resolvedContentHeight, options.commandPanelFrameHeightFloor.value),
       options.constants.paramOverlayMinHeight,
+      frameMaxHeight
+    );
+  }
+  if (
+    !overrides.ignoreCommandPanelExitLock &&
+    overrides.commandPanelExitFrameHeightLock !== null &&
+    overrides.commandPanelExitFrameHeightLock !== undefined
+  ) {
+    resolvedContentHeight = clamp(
+      Math.max(resolvedContentHeight, overrides.commandPanelExitFrameHeightLock),
+      options.constants.windowBaseHeight,
       frameMaxHeight
     );
   }

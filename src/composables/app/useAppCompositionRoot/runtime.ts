@@ -217,12 +217,36 @@ function bindAppRuntime(
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
     loadSettings: context.settingsWindow.loadSettings
   });
+  function requestCommandPanelExit(): void {
+    if (launcherRuntime.commandExecution.pendingCommand.value === null) {
+      if (launcherRuntime.navStack.canGoBack.value) {
+        launcherRuntime.navStack.popPage();
+      }
+      return;
+    }
+
+    windowSizing.requestCommandPanelExit();
+    launcherRuntime.commandExecution.cancelParamInput();
+
+    if (launcherRuntime.navStack.canGoBack.value) {
+      launcherRuntime.navStack.popPage();
+      return;
+    }
+    launcherRuntime.navStack.resetToSearch();
+  }
+
+  function notifySearchPageSettled(): void {
+    windowSizing.notifySearchPageSettled();
+  }
+
   const { closeSettingsWindow: closeSettingsWindowImmediately, hideMainWindow, handleMainEscape } = useMainWindowShell({
     isSettingsWindow: context.isSettingsWindow,
     cancelHotkeyRecording: context.settingsWindow.cancelHotkeyRecording,
     resolveAppWindow: context.resolveAppWindow,
     isTauriRuntime: context.ports.isTauriRuntime,
     requestHideMainWindow: context.ports.requestHideMainWindow,
+    commandPanelOpen: computed(() => launcherRuntime.commandExecution.pendingCommand.value !== null),
+    requestCommandPanelExit,
     query: context.search.query,
     stagingExpanded: computed(
       () =>
@@ -236,21 +260,8 @@ function bindAppRuntime(
       }
       launcherRuntime.stagingQueue.closeStagingDrawer();
     },
-    navStackCanGoBack: computed(
-      () =>
-        launcherRuntime.navStack.canGoBack.value ||
-        launcherRuntime.commandExecution.pendingCommand.value !== null
-    ),
-    navStackPopPage: () => {
-      if (launcherRuntime.commandExecution.pendingCommand.value !== null) {
-        launcherRuntime.commandExecution.cancelParamInput();
-      }
-      if (launcherRuntime.navStack.canGoBack.value) {
-        launcherRuntime.navStack.popPage();
-        return;
-      }
-      launcherRuntime.navStack.resetToSearch();
-    }
+    navStackCanGoBack: launcherRuntime.navStack.canGoBack,
+    navStackPopPage: launcherRuntime.navStack.popPage
   });
   function requestCloseSettingsWindow(): void {
     context.settingsWindow.cancelHotkeyRecording();
@@ -295,7 +306,9 @@ function bindAppRuntime(
   return {
     closeSettingsWindow: requestCloseSettingsWindow,
     forceCloseSettingsWindow: closeSettingsWindowImmediately,
-    hideMainWindow
+    hideMainWindow,
+    requestCommandPanelExit,
+    notifySearchPageSettled
   };
 }
 

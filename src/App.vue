@@ -59,7 +59,8 @@ const {
   clearStaging,
   executeStaged,
   submitParamInput,
-  cancelParamInput,
+  requestCommandPanelExit,
+  notifySearchPageSettled,
   updatePendingArgValue,
   confirmSafetyExecution,
   cancelSafetyExecution,
@@ -204,7 +205,8 @@ function navigateToSettingsError(): void {
     @execute-staged="executeStaged"
     @grip-reorder-active-change="setStagingGripReorderActive"
     @submit-param-input="submitParamInput"
-    @cancel-param-input="cancelParamInput"
+    @request-command-panel-exit="requestCommandPanelExit"
+    @search-page-settled="notifySearchPageSettled"
     @arg-input="updatePendingArgValue"
     @confirm-safety-execution="confirmSafetyExecution"
     @cancel-safety-execution="cancelSafetyExecution"
