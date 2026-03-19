@@ -595,3 +595,8 @@
 
 ## 补充（2026-03-19｜Settings 顶部/热键/滚动精修设计）
 - 已确认新设计稿：移除 topbar 外层卡片壳，改强层叠头部；Hotkeys 录制器按内容自适应；内容区滚动条隐藏且左右留白区滚轮也可滚动。
+## 补充（2026-03-19｜Settings 顶部/热键/滚动 writing-plans 完成）
+- 已产出计划 `plan/2026-03-19-settings-topbar-hotkeys-scroll-polish-implementation-plan.md`：覆盖 topbar 去壳、全宽滚动宿主、Hotkeys 录制器自适应与相关回归，不改业务逻辑。
+
+## 补充（2026-03-19｜Settings 顶部/热键/滚动 executing 完成）
+- 已完成 topbar 去 nav-shell、全宽 scroll host、Hotkeys 录制器内容自适应；focused settings 与 `npm run check:all` 全绿，业务逻辑未改。
