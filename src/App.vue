@@ -121,6 +121,7 @@ const {
   openHomepage,
   closeSettingsWindow,
   hideMainWindow,
+  notifyCommandPageSettled,
   saveSettings,
   windowOpacity,
   theme,
@@ -213,6 +214,7 @@ function navigateToSettingsError(): void {
     @grip-reorder-active-change="setStagingGripReorderActive"
     @submit-param-input="handleCommandPanelSubmit"
     @request-command-panel-exit="requestCommandPanelExit"
+    @command-page-settled="notifyCommandPageSettled"
     @search-page-settled="notifySearchPageSettled"
     @arg-input="updatePendingArgValue"
     @confirm-safety-execution="confirmSafetyExecution"

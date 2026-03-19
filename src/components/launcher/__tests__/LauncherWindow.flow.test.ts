@@ -276,4 +276,38 @@ describe("LauncherWindow CommandPanel wiring", () => {
 
     expect(wrapper.emitted("search-page-settled")).toHaveLength(1);
   });
+
+  it("nav-slide 切入 command-action 并 after-enter 后发出 command-page-settled", async () => {
+    const command = createCommandTemplate("cmd-entered");
+    const commandPage: NavPage = {
+      type: "command-action",
+      props: { command, mode: "execute", isDangerous: false }
+    };
+
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: { type: "search" },
+        navCanGoBack: false,
+        navStack: [{ type: "search" }]
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherFlowPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherCommandPanel: true
+        }
+      }
+    });
+
+    await wrapper.setProps({
+      navCurrentPage: commandPage,
+      navCanGoBack: true,
+      navStack: [{ type: "search" }, commandPage]
+    });
+    (wrapper.vm as unknown as { onNavAfterEnter: () => void }).onNavAfterEnter();
+    await nextTick();
+
+    expect(wrapper.emitted("command-page-settled")).toHaveLength(1);
+  });
 });

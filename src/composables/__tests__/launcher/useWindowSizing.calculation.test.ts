@@ -241,8 +241,38 @@ describe("resolveWindowSize（Phase 17 宽度不扩展）", () => {
   });
 });
 
-describe("resolveWindowSize（CommandPanel floor）", () => {
-  it("进入 CommandPanel 时应用 floor：只增不减（needed 小于进入前高度也不缩小）", () => {
+describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
+  it("pendingCommand 时若 .command-panel 尚未挂载，不回退到旧 search shell 高度", () => {
+    const root = document.createElement("div");
+    const shell = document.createElement("div");
+    const dragStrip = document.createElement("div");
+    dragStrip.className = "shell-drag-strip";
+    shell.appendChild(dragStrip);
+    root.appendChild(shell);
+    document.body.appendChild(root);
+
+    mockRect(root, { top: 0, bottom: 1_000 });
+    mockRect(shell, { top: 0, bottom: 430 });
+    mockRect(dragStrip, {
+      top: 0,
+      bottom: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
+      height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    });
+
+    const size = resolveWindowSize(
+      createBaseOptions({
+        searchShellRef: ref(shell),
+        pendingCommand: ref({ id: "pending" }),
+        commandPanelFrameHeightFloor: ref<number | null>(520)
+      })
+    );
+
+    expect(size.height).toBe(
+      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+  });
+
+  it("进入 CommandPanel 时不再把进入前搜索高度当作硬 floor", () => {
     const size = resolveWindowSize(
       createBaseOptions({
         pendingCommand: ref({ id: "pending" }),
@@ -250,18 +280,41 @@ describe("resolveWindowSize（CommandPanel floor）", () => {
       })
     );
 
-    expect(size.height).toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
   });
 
-  it("非 CommandPanel 时不应用 floor（避免 Search 粘住）", () => {
+  it("pendingCommand 时使用实测内容高度增长，而不是沿用旧搜索高度", () => {
+    const root = document.createElement("div");
+    const shell = document.createElement("div");
+    const dragStrip = document.createElement("div");
+    const commandPanel = document.createElement("section");
+    commandPanel.className = "command-panel";
+    dragStrip.className = "shell-drag-strip";
+    shell.appendChild(dragStrip);
+    shell.appendChild(commandPanel);
+    root.appendChild(shell);
+    document.body.appendChild(root);
+
+    mockRect(root, { top: 0, bottom: 1000 });
+    mockRect(shell, { top: 0, bottom: 430 });
+    mockRect(commandPanel, { top: UI_TOP_ALIGN_OFFSET_PX_FALLBACK, bottom: 430 });
+    mockRect(dragStrip, {
+      top: 0,
+      bottom: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
+      height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    });
+
     const size = resolveWindowSize(
       createBaseOptions({
-        pendingCommand: ref(null),
+        searchShellRef: ref(shell),
+        pendingCommand: ref({ id: "pending" }),
         commandPanelFrameHeightFloor: ref<number | null>(520)
       })
     );
 
-    expect(size.height).not.toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(460);
   });
 
   it("退出锁存在时，即使 pendingCommand 已清空也保持当前锁高", () => {
@@ -291,17 +344,21 @@ describe("resolveWindowSize（CommandPanel floor）", () => {
     );
   });
 
-  it("CommandPanel 时不使用 layout measured height（避免容器 fill 导致误判为需要最大高度）", () => {
+  it("CommandPanel 时优先使用 .command-panel 实测高度，避免 shell fill 导致误判为需要最大高度", () => {
     const root = document.createElement("div");
     const shell = document.createElement("div");
     const dragStrip = document.createElement("div");
+    const commandPanel = document.createElement("section");
+    commandPanel.className = "command-panel";
     dragStrip.className = "shell-drag-strip";
     shell.appendChild(dragStrip);
+    shell.appendChild(commandPanel);
     root.appendChild(shell);
     document.body.appendChild(root);
 
     mockRect(root, { top: 0, bottom: 5_000 });
     mockRect(shell, { top: 0, bottom: 5_000 });
+    mockRect(commandPanel, { top: UI_TOP_ALIGN_OFFSET_PX_FALLBACK, bottom: 360 });
     mockRect(dragStrip, {
       top: 0,
       bottom: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
@@ -316,9 +373,7 @@ describe("resolveWindowSize（CommandPanel floor）", () => {
       })
     );
 
-    expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
-    );
+    expect(size.height).toBe(390);
   });
 
   it("CommandPanel 内打开 FlowPanel 时有搜索页一致的最小高度（不低于 drawer floor）", () => {

@@ -63,10 +63,19 @@ function measureWindowContentHeightFromLayout(
   const { constants } = options;
   const rootRect = shell.parentElement?.getBoundingClientRect();
   const shellRect = shell.getBoundingClientRect();
+  const commandPanelRect = options.pendingCommand.value
+    ? shell.querySelector<HTMLElement>(".command-panel")?.getBoundingClientRect() ?? null
+    : null;
+  // CommandPanel 走的是 out-in 过渡：旧搜索页 leave 完成前，新面板还没挂载。
+  // 这时如果回退到 shellRect，会把上一帧搜索高度误当成参数页高度并锁住空白。
+  if (options.pendingCommand.value && commandPanelRect === null) {
+    return null;
+  }
   const stagingRect = options.stagingExpanded.value && options.stagingPanelRef.value
     ? options.stagingPanelRef.value.getBoundingClientRect()
     : null;
-  const contentBottom = stagingRect ? Math.max(shellRect.bottom, stagingRect.bottom) : shellRect.bottom;
+  const contentBottomBase = commandPanelRect?.bottom ?? shellRect.bottom;
+  const contentBottom = stagingRect ? Math.max(contentBottomBase, stagingRect.bottom) : contentBottomBase;
   const topOffset = rootRect
     ? Math.max(0, shellRect.top - rootRect.top)
     : Math.max(0, shellRect.top);
@@ -111,9 +120,11 @@ export function resolveWindowSize(
   const dragStripHeight = resolveShellDragStripHeight(options);
   const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
   const frameMaxHeight = Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
-  const measuredContentHeight = options.pendingCommand.value
-    ? null
-    : measureWindowContentHeightFromLayout(options, dragStripHeight, frameMaxHeight);
+  const measuredContentHeight = measureWindowContentHeightFromLayout(
+    options,
+    dragStripHeight,
+    frameMaxHeight
+  );
   const width = resolveWindowWidth(options);
   const overlayMinContentHeight = resolveOverlayMinHeight(options);
   const estimatedContentHeight = estimateWindowContentHeight(options, frameMaxHeight);
@@ -125,13 +136,6 @@ export function resolveWindowSize(
     Math.max(sizingContentHeight, overlayMinContentHeight),
     frameMaxHeight
   );
-  if (options.pendingCommand.value && options.commandPanelFrameHeightFloor.value !== null) {
-    resolvedContentHeight = clamp(
-      Math.max(resolvedContentHeight, options.commandPanelFrameHeightFloor.value),
-      options.constants.paramOverlayMinHeight,
-      frameMaxHeight
-    );
-  }
   if (
     !overrides.ignoreCommandPanelExitLock &&
     overrides.commandPanelExitFrameHeightLock !== null &&

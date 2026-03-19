@@ -221,6 +221,7 @@ export function createAppCompositionViewModel(
     executeStaged: runtime.commandExecution.executeStaged,
     submitParamInput,
     requestCommandPanelExit: runtime.requestCommandPanelExit,
+    notifyCommandPageSettled: runtime.notifyCommandPageSettled,
     notifySearchPageSettled: runtime.notifySearchPageSettled,
     updatePendingArgValue: runtime.commandExecution.updatePendingArgValue,
     confirmSafetyExecution: runtime.commandExecution.confirmSafetyExecution,

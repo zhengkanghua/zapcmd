@@ -304,6 +304,9 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     commandPanelExit.markSearchSettled();
     scheduleWindowSync();
   };
+  const notifyCommandPageSettled = (): void => {
+    scheduleWindowSync();
+  };
   const onViewportResize = scheduleWindowSync;
   const onAppFocused = createOnAppFocused(options, syncWindowSizeImmediate);
 
@@ -316,6 +319,7 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     onViewportResize,
     onAppFocused,
     requestCommandPanelExit,
+    notifyCommandPageSettled,
     notifySearchPageSettled,
     scheduleWindowSync,
     syncWindowSize,

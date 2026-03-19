@@ -190,6 +190,17 @@ function bindLifecycleBridge(
   });
 }
 
+function createWindowSizingSettleNotifiers(windowSizing: ReturnType<typeof useWindowSizing>) {
+  return {
+    notifySearchPageSettled(): void {
+      windowSizing.notifySearchPageSettled();
+    },
+    notifyCommandPageSettled(): void {
+      windowSizing.notifyCommandPageSettled();
+    }
+  };
+}
+
 function bindAppRuntime(
   context: AppCompositionContext,
   launcherRuntime: LauncherRuntime
@@ -217,6 +228,8 @@ function bindAppRuntime(
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
     loadSettings: context.settingsWindow.loadSettings
   });
+  const { notifySearchPageSettled, notifyCommandPageSettled } =
+    createWindowSizingSettleNotifiers(windowSizing);
   function requestCommandPanelExit(): void {
     const onCommandActionPage = launcherRuntime.navStack.currentPage.value.type === "command-action";
     if (!onCommandActionPage && launcherRuntime.commandExecution.pendingCommand.value === null) {
@@ -236,10 +249,6 @@ function bindAppRuntime(
       return;
     }
     launcherRuntime.navStack.resetToSearch();
-  }
-
-  function notifySearchPageSettled(): void {
-    windowSizing.notifySearchPageSettled();
   }
 
   const { closeSettingsWindow: closeSettingsWindowImmediately, hideMainWindow, handleMainEscape } = useMainWindowShell({
@@ -311,7 +320,8 @@ function bindAppRuntime(
     forceCloseSettingsWindow: closeSettingsWindowImmediately,
     hideMainWindow,
     requestCommandPanelExit,
-    notifySearchPageSettled
+    notifySearchPageSettled,
+    notifyCommandPageSettled
   };
 }
 

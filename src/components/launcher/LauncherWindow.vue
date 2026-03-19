@@ -82,6 +82,7 @@ const emit = defineEmits<{
   (e: "execute-staged"): void;
   (e: "submit-param-input"): void;
   (e: "request-command-panel-exit"): void;
+  (e: "command-page-settled"): void;
   (e: "search-page-settled"): void;
   (e: "arg-input", key: string, value: string): void;
   (e: "confirm-safety-execution"): void;
@@ -131,11 +132,14 @@ function onCommandPanelCancel(): void {
 }
 
 function onNavAfterEnter(): void {
-  if (props.navCurrentPage.type !== "search") {
-    return;
-  }
   void nextTick(() => {
-    emit("search-page-settled");
+    if (props.navCurrentPage.type === "search") {
+      emit("search-page-settled");
+      return;
+    }
+    if (props.navCurrentPage.type === "command-action") {
+      emit("command-page-settled");
+    }
   });
 }
 </script>

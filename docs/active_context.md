@@ -623,3 +623,6 @@
 
 ## 补充（2026-03-19｜Launcher 统一高度 contract 执行完成）
 - 已完成外框水平居中、共享 panel max-height、CommandPanel footer 内收；参数提交改为显式成功返回，成功后由 App 触发统一退出锁高。`npm run check:all` 全绿。
+
+## 补充（2026-03-19｜Launcher 参数页残留空白修正）
+- 已定位为 `nav-slide out-in` 时序问题：参数页未挂载时误读旧搜索高度。现改为缺席 `.command-panel` 时不采旧 shell 高度，并在参数页 after-enter 后补一次 sizing sync；`npm run check:all` 全绿。

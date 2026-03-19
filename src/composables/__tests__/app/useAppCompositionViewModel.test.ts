@@ -125,6 +125,7 @@ describe("createAppCompositionViewModel", () => {
       pendingArgs: ref([]),
       pendingSubmitHint: ref(""),
       requestCommandPanelExit: vi.fn(),
+      notifyCommandPageSettled: vi.fn(),
       notifySearchPageSettled: vi.fn(),
       closeSettingsWindow: vi.fn(),
       forceCloseSettingsWindow: vi.fn(),
