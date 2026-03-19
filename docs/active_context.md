@@ -626,3 +626,6 @@
 
 ## 补充（2026-03-19｜Launcher 参数页残留空白修正）
 - 已定位为 `nav-slide out-in` 时序问题：参数页未挂载时误读旧搜索高度。现改为缺席 `.command-panel` 时不采旧 shell 高度，并在参数页 after-enter 后补一次 sizing sync；`npm run check:all` 全绿。
+
+## 补充（2026-03-19｜Launcher 参数页锁高 contract 更正设计）
+- 已新增更正规格：参数页进入先继承搜索页实际高度，首次 settled 后按完整盒子高度一次锁定；footer 必须计入总高度，参数页生命周期内不再回缩或再增高，仅 content 内滚动。
