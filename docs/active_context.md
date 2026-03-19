@@ -600,3 +600,8 @@
 
 ## 补充（2026-03-19｜Settings 顶部/热键/滚动 executing 完成）
 - 已完成 topbar 去 nav-shell、全宽 scroll host、Hotkeys 录制器内容自适应；focused settings 与 `npm run check:all` 全绿，业务逻辑未改。
+
+## 补充（2026-03-19｜Settings 顶部 Tab 视觉修正）
+- 用户复测后补修顶部中线与 tab 胶囊形态：改为仅保留底部分隔线，tab 对齐 Raycast 风格圆角矩形，并拉开按钮间距与底部留白。
+## 补充（2026-03-19｜Settings 顶部 Tab 默认态去框）
+- 用户二次复测更正：tab 默认态必须无按钮框感；hover/active 仅通过背景加深与文字提亮表达状态，不再使用可见边框或阴影。

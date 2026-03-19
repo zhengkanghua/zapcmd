@@ -20,22 +20,13 @@
   z-index: var(--ui-settings-z-topbar);
   height: 52px;
   display: flex;
-  align-items: stretch;
+  align-items: flex-end;
   justify-content: center;
   padding: 0 24px;
   box-sizing: border-box;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)) top / 100% 26px no-repeat,
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
-  backdrop-filter: blur(calc(var(--ui-blur) * 0.28));
-}
-
-.settings-window-topbar::before {
-  content: "";
-  position: absolute;
-  inset: 25px 0 auto;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.01) 42%, rgba(255, 255, 255, 0));
+  backdrop-filter: blur(calc(var(--ui-blur) * 0.24));
 }
 
 .settings-window-topbar::after {

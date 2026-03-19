@@ -616,3 +616,25 @@ git commit -m "docs(plan): 补充 settings 顶部与热键精修计划"
 - 热键录制器按内容宽度自适应，空值/录制/冲突态仍稳定可点击。
 - 鼠标位于左右留白区域时，滚轮也能驱动内容滚动。
 - focused settings tests 与 `npm run check:all` 全绿。
+
+---
+
+## 增量备注（2026-03-19｜顶部 Tab 视觉修正）
+
+在实现完成后的用户实测中，新增两条必须修正的视觉验收点：
+
+1. `.settings-window-topbar` 不应再渲染中部横线，只保留底部分隔线。
+2. `SSegmentNav` 的 hover / active 形态从胶囊调整为更接近 Raycast 的圆角矩形，并显式拉开：
+   - tab 与 tab 的水平间距；
+   - tab 组与底部分隔线的垂直距离。
+
+建议为这两条补一份 CSS contract test，避免未来样式回退时只能靠人工截图比对。
+
+## 增量备注（2026-03-19｜顶部 Tab 默认态去框）
+
+用户二次复测后补充确认：
+
+1. 未选中且未 hover 的 tab 默认态不能出现按钮框感。
+2. `SSegmentNav` 的 hover / active 不再依赖 `border-color` 或额外阴影表达强调，而只通过背景色加深与文字提亮建立状态层级。
+
+建议把这条补进现有 CSS contract test，显式防止默认态边框、hover 边框色或 active 投影回归。
