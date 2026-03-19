@@ -92,6 +92,17 @@ function createSettingsWindowProps(
   };
 }
 
+function mountSettingsWindow(props: SettingsWindowProps) {
+  return shallowMount(SettingsWindow, {
+    props,
+    global: {
+      stubs: {
+        SSegmentNav: false
+      }
+    }
+  });
+}
+
 describe("SettingsWindow stable shell", () => {
   it("does not feed legacy terminal dropdown props into the window shell factory", () => {
     const props = createSettingsWindowProps({ settingsRoute: "general" }) as unknown as Record<string, unknown>;
@@ -102,9 +113,7 @@ describe("SettingsWindow stable shell", () => {
   });
 
   it("renders app topbar without custom window controls", () => {
-    const wrapper = shallowMount(SettingsWindow, {
-      props: createSettingsWindowProps({ settingsRoute: "general" })
-    });
+    const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "general" }));
 
     const topbar = wrapper.get(".settings-window-topbar");
 
@@ -116,9 +125,7 @@ describe("SettingsWindow stable shell", () => {
   });
 
   it("keeps topbar outside the single application-level content container", () => {
-    const wrapper = shallowMount(SettingsWindow, {
-      props: createSettingsWindowProps({ settingsRoute: "general" })
-    });
+    const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "general" }));
 
     expect(wrapper.find(".settings-window-topbar + .settings-content").exists()).toBe(true);
     expect(wrapper.findAll(".settings-content")).toHaveLength(1);
@@ -126,9 +133,7 @@ describe("SettingsWindow stable shell", () => {
   });
 
   it("uses commands-specific content width hook only on commands route", async () => {
-    const wrapper = shallowMount(SettingsWindow, {
-      props: createSettingsWindowProps({ settingsRoute: "commands" })
-    });
+    const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "commands" }));
 
     expect(wrapper.get(".settings-content__inner").classes()).toContain("settings-content__inner--commands");
     await wrapper.setProps({ settingsRoute: "general" });
