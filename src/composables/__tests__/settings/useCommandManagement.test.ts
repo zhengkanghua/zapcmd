@@ -218,12 +218,18 @@ describe("useCommandManagement", () => {
     model.toggleCommandEnabled("cmd-a", false);
     expect(spies.setCommandEnabled).toHaveBeenCalledWith("cmd-a", false);
 
-    model.updateCommandView({ query: "x" });
-    expect(spies.setCommandViewState).toHaveBeenCalledWith({ query: "x" });
+    model.updateCommandView({ query: "docker" });
+    expect(model.commandView.value.query).toBe("docker");
+    expect(spies.setCommandViewState).not.toHaveBeenCalled();
 
+    model.updateCommandView({ sourceFilter: "user" });
+    expect(model.commandView.value.sourceFilter).toBe("user");
+
+    refs.commandView.value.query = "docker";
+    refs.commandView.value.sourceFilter = "user";
     model.resetCommandFilters();
-    expect(spies.setCommandViewState).toHaveBeenCalledWith(createDefaultViewState());
-    refs.commandView.value.query = "";
+    expect(model.commandView.value).toEqual(createDefaultViewState());
+    expect(spies.setCommandViewState).not.toHaveBeenCalled();
     expect(model.commandRows.value).toHaveLength(4);
   });
 });

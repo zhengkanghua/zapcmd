@@ -226,13 +226,19 @@ describe("AppSettings hotkeys regression", () => {
     expect(wrapper.find(".s-slider__input").exists()).toBe(true);
   });
 
-  it("supports command route and persists disabled command ids", async () => {
+  it("keeps command search transient while persisting disabled command ids", async () => {
     const wrapper = await mountAppSettings();
     const settingsStore = getSettingsStoreFromWrapper(wrapper);
 
     const commandsNav = findSegmentTab(wrapper, "命令");
     await commandsNav.trigger("click");
     await waitForUi();
+
+    const search = wrapper.get("input.settings-commands-toolbar__search");
+    await search.setValue("docker");
+    await waitForUi();
+
+    expect(localStorage.getItem(SETTINGS_STORAGE_KEY)).toBeNull();
 
     const firstRow = wrapper.findAll(".settings-commands-table__row")[0];
     expect(firstRow).toBeTruthy();
@@ -252,6 +258,7 @@ describe("AppSettings hotkeys regression", () => {
       expect(settingsStore.disabledCommandIds).toContain(commandId);
       const persisted = readPersistedSettings() as { commands?: { disabledCommandIds?: string[] } };
       expect(persisted.commands?.disabledCommandIds).toContain(commandId);
+      expect(localStorage.getItem(SETTINGS_STORAGE_KEY)).not.toContain('"view"');
     } else {
       expect(settingsStore.disabledCommandIds).not.toContain(commandId);
     }

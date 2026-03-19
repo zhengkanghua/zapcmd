@@ -246,6 +246,37 @@ describe("settingsStore migration and persistence", () => {
     expect(parsed.commands.view.displayMode).toBe("list");
   });
 
+  it("persists commands snapshot without transient view state", () => {
+    const store = useSettingsStore();
+    store.setCommandEnabled("docker-ps", false);
+    store.persist();
+
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    expect(raw).toBeTruthy();
+    expect(raw).not.toContain('"view"');
+    expect(JSON.parse(raw as string).commands).toEqual({
+      disabledCommandIds: ["docker-ps"]
+    });
+  });
+
+  it("drops legacy commands.view during storage read round-trip", () => {
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        commands: {
+          disabledCommandIds: [],
+          view: {
+            query: "docker"
+          }
+        }
+      })
+    );
+
+    const roundTrip = readSettingsFromStorage(localStorage);
+    expect((roundTrip.commands as Record<string, unknown>).view).toBeUndefined();
+  });
+
   it("toggles command enabled state", () => {
     const store = useSettingsStore();
     store.setCommandEnabled("docker-ps", false);
