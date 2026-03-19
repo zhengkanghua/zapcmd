@@ -70,22 +70,19 @@ function onKeydown(e: KeyboardEvent) {
 .s-segment-nav {
   display: flex;
   justify-content: center;
-  gap: 4px;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--ui-settings-topbar-border);
-  border-radius: 10px;
+  gap: 6px;
   width: fit-content;
-  max-width: min(100%, 640px);
+  max-width: min(100%, 720px);
   margin: 0 auto;
+  padding: 6px 0 0;
 }
 
 .s-segment-nav__tab {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 14px;
-  border-radius: 10px;
+  padding: 7px 14px;
+  border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
@@ -98,7 +95,7 @@ function onKeydown(e: KeyboardEvent) {
 
 .s-segment-nav__tab:hover {
   color: rgba(255, 255, 255, 0.82);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .s-segment-nav__tab--active {
@@ -106,7 +103,7 @@ function onKeydown(e: KeyboardEvent) {
   border-color: var(--ui-settings-tab-active-border);
   color: rgba(255, 255, 255, 0.95);
   font-weight: 600;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
 }
 
 .s-segment-nav__tab:focus-visible {
