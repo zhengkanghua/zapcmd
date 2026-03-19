@@ -614,3 +614,6 @@
 ## 补充（2026-03-19｜Launcher 返回高度恢复实现完成）
 - 已收口 `requestCommandPanelExit + search-page-settled`，新增 exit lock/单次回落协调器；`npm run check:all` 全绿，用户手验确认返回搜索页高度抖动已修复。
 - 已合并到 `main`，`feature/launcher-command-return-height-restore` 分支与 worktree 已清理。
+
+## 补充（2026-03-19｜Launcher 统一高度 contract 设计）
+- 已确认 Search/Command/Flow 共享同一最大高度 cap；CommandPanel 改为 header/content/footer 三段式，成功提交返回也并入统一锁高退出链路。
