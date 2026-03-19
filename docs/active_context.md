@@ -589,3 +589,6 @@
 
 ## 补充（2026-03-19｜Settings 商业化 P0/P1 实施计划）
 - 已产出计划 `docs/superpowers/plans/2026-03-19-settings-window-commercial-p0-p1.md`：P0=首帧 bootstrap+延迟显示；P1=Commands 视图态改瞬态、topbar 收口为原生标题栏下的导航壳体。
+
+## 补充（2026-03-19｜Settings 商业化 P0/P1 实现完成）
+- 已完成 settings 首帧深色 bootstrap + ready-show、Commands 视图态瞬态化不落盘、topbar 收口为 nav shell；focused tests 与 `npm run check:all` 已跑通，Windows GUI 手验待人工执行。

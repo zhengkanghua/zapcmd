@@ -179,8 +179,7 @@ export function normalizePersistedSettingsSnapshot(
       launchAtLogin: normalizeBoolean(snapshot.general.launchAtLogin, DEFAULT_LAUNCH_AT_LOGIN)
     },
     commands: {
-      disabledCommandIds: normalizeDisabledCommandIds(snapshot.commands.disabledCommandIds),
-      view: normalizeCommandViewState(snapshot.commands.view)
+      disabledCommandIds: normalizeDisabledCommandIds(snapshot.commands.disabledCommandIds)
     },
     appearance: {
       windowOpacity: normalizeWindowOpacity(snapshot.appearance.windowOpacity),

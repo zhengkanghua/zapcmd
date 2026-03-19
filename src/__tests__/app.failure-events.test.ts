@@ -161,17 +161,6 @@ function buildSnapshot(
     },
     commands: {
       disabledCommandIds: [],
-      view: {
-        query: "",
-        sourceFilter: "all",
-        statusFilter: "all",
-        categoryFilter: "all",
-        overrideFilter: "all",
-        issueFilter: "all",
-        fileFilter: "all",
-        sortBy: "default",
-        displayMode: "list",
-      },
     },
   };
 }

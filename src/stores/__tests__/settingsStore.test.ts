@@ -6,7 +6,7 @@ import {
   createDefaultSettingsSnapshot
 } from "../settings/defaults";
 import { migrateSettingsPayload } from "../settings/migration";
-import { normalizeWindowOpacity } from "../settings/normalization";
+import { normalizeCommandViewState, normalizeWindowOpacity } from "../settings/normalization";
 import { createSettingsStorageAdapter, type SettingsStorageAdapter } from "../settings/storageAdapter";
 import {
   readSettingsFromStorage,
@@ -71,10 +71,10 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.general.autoCheckUpdate).toBe(true);
     expect(migrated?.general.launchAtLogin).toBe(false);
     expect(migrated?.commands.disabledCommandIds).toEqual(["docker-ps"]);
-    expect(migrated?.commands.view.displayMode).toBe("list");
+    expect((migrated?.commands as Record<string, unknown>).view).toBeUndefined();
   });
 
-  it("normalizes booleans, fileFilter, disabled ids, and clamps window opacity", () => {
+  it("normalizes booleans, disabled ids, and clamps window opacity", () => {
     const migrated = migrateSettingsPayload({
       version: 1,
       hotkeys: {},
@@ -102,38 +102,28 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.general.autoCheckUpdate).toBe(false);
     expect(migrated?.general.launchAtLogin).toBe(true);
     expect(migrated?.commands.disabledCommandIds).toEqual(["docker-ps"]);
-    expect(migrated?.commands.view.fileFilter).toBe("all");
+    expect((migrated?.commands as Record<string, unknown>).view).toBeUndefined();
     expect(migrated?.appearance.windowOpacity).toBe(1);
   });
 
   it("normalizes query/source/status/sort and display mode to safe defaults", () => {
-    const migrated = migrateSettingsPayload({
-      version: 1,
-      hotkeys: {},
-      general: {},
-      commands: {
-        disabledCommandIds: [],
-        view: {
-          query: "  docker  ",
-          sourceFilter: "invalid",
-          statusFilter: "invalid",
-          overrideFilter: "invalid",
-          issueFilter: "invalid",
-          sortBy: "invalid",
-          displayMode: "invalid"
-        }
-      },
-      appearance: {}
+    const normalized = normalizeCommandViewState({
+      query: "  docker  ",
+      sourceFilter: "invalid",
+      statusFilter: "invalid",
+      overrideFilter: "invalid",
+      issueFilter: "invalid",
+      sortBy: "invalid",
+      displayMode: "invalid"
     });
 
-    expect(migrated).toBeTruthy();
-    expect(migrated?.commands.view.query).toBe("docker");
-    expect(migrated?.commands.view.sourceFilter).toBe("all");
-    expect(migrated?.commands.view.statusFilter).toBe("all");
-    expect(migrated?.commands.view.overrideFilter).toBe("all");
-    expect(migrated?.commands.view.issueFilter).toBe("all");
-    expect(migrated?.commands.view.sortBy).toBe("default");
-    expect(migrated?.commands.view.displayMode).toBe("list");
+    expect(normalized.query).toBe("docker");
+    expect(normalized.sourceFilter).toBe("all");
+    expect(normalized.statusFilter).toBe("all");
+    expect(normalized.overrideFilter).toBe("all");
+    expect(normalized.issueFilter).toBe("all");
+    expect(normalized.sortBy).toBe("default");
+    expect(normalized.displayMode).toBe("list");
   });
 
   it("falls back to default window opacity when value is non-finite", () => {
@@ -180,20 +170,7 @@ describe("settingsStore migration and persistence", () => {
   });
 
   it("falls back to list display mode for invalid command view displayMode", () => {
-    const migrated = migrateSettingsPayload({
-      version: 1,
-      hotkeys: {},
-      general: {},
-      commands: {
-        disabledCommandIds: [],
-        view: {
-          displayMode: "table"
-        }
-      }
-    });
-
-    expect(migrated).toBeTruthy();
-    expect(migrated?.commands.view.displayMode).toBe("list");
+    expect(normalizeCommandViewState({ displayMode: "table" }).displayMode).toBe("list");
   });
 
   it("returns null for unknown schema version", () => {
@@ -216,11 +193,6 @@ describe("settingsStore migration and persistence", () => {
     store.setDefaultTerminal("wt");
     store.setLanguage("en-US");
     store.setCommandEnabled("docker-ps", false);
-    store.setCommandViewState({
-      query: "docker",
-      sortBy: "title",
-      displayMode: "list"
-    });
     store.persist();
 
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
@@ -230,20 +202,43 @@ describe("settingsStore migration and persistence", () => {
       general: { defaultTerminal: string; language: string };
       commands: {
         disabledCommandIds: string[];
-        view: {
-          query: string;
-          sortBy: string;
-          displayMode: string;
-        };
       };
     };
     expect(parsed.hotkeys.launcher).toBe("Ctrl+Shift+Z");
     expect(parsed.general.defaultTerminal).toBe("wt");
     expect(parsed.general.language).toBe("en-US");
     expect(parsed.commands.disabledCommandIds).toEqual(["docker-ps"]);
-    expect(parsed.commands.view.query).toBe("docker");
-    expect(parsed.commands.view.sortBy).toBe("title");
-    expect(parsed.commands.view.displayMode).toBe("list");
+  });
+
+  it("persists commands snapshot without transient view state", () => {
+    const store = useSettingsStore();
+    store.setCommandEnabled("docker-ps", false);
+    store.persist();
+
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    expect(raw).toBeTruthy();
+    expect(raw).not.toContain('"view"');
+    expect(JSON.parse(raw as string).commands).toEqual({
+      disabledCommandIds: ["docker-ps"]
+    });
+  });
+
+  it("drops legacy commands.view during storage read round-trip", () => {
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        commands: {
+          disabledCommandIds: [],
+          view: {
+            query: "docker"
+          }
+        }
+      })
+    );
+
+    const roundTrip = readSettingsFromStorage(localStorage);
+    expect((roundTrip.commands as Record<string, unknown>).view).toBeUndefined();
   });
 
   it("toggles command enabled state", () => {
@@ -400,9 +395,6 @@ describe("settingsStore migration and persistence", () => {
     expect(store.autoCheckUpdate).toBe(false);
     expect(store.launchAtLogin).toBe(true);
     expect(store.disabledCommandIds).toEqual(["docker-ps"]);
-    expect(store.commandView.query).toBe("docker");
-    expect(store.commandView.sortBy).toBe("default");
-    expect(store.commandView.displayMode).toBe("list");
     expect(store.windowOpacity).toBe(0.96);
 
     const roundTrip = readSettingsFromStorage(localStorage);
@@ -412,9 +404,8 @@ describe("settingsStore migration and persistence", () => {
     expect(roundTrip.general.autoCheckUpdate).toBe(false);
     expect(roundTrip.general.launchAtLogin).toBe(true);
     expect(roundTrip.commands.disabledCommandIds).toEqual(["docker-ps"]);
-    expect(roundTrip.commands.view.query).toBe("docker");
-    expect(roundTrip.commands.view.sortBy).toBe("default");
-    expect(roundTrip.commands.view.displayMode).toBe("list");
     expect(roundTrip.appearance.windowOpacity).toBe(0.96);
+    expect((roundTrip.commands as Record<string, unknown>).view).toBeUndefined();
+    expect(localStorage.getItem(SETTINGS_STORAGE_KEY)).not.toContain('"view"');
   });
 });

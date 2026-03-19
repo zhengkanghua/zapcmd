@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { currentLocale, setAppLocale } from "./i18n";
 import { useSettingsStore, type HotkeyFieldId } from "./stores/settingsStore";
@@ -44,7 +44,6 @@ const {
   autoCheckUpdate,
   launchAtLogin,
   disabledCommandIds,
-  commandView,
   windowOpacity,
   theme,
   blurEnabled
@@ -142,10 +141,8 @@ const commandManagement = useCommandManagement({
   userCommandSourceById: commandCatalog.userCommandSourceById,
   overriddenCommandIds: commandCatalog.overriddenCommandIds,
   loadIssues: commandCatalog.loadIssues,
-  commandView,
   setCommandEnabled: settingsStore.setCommandEnabled.bind(settingsStore),
-  setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore),
-  setCommandViewState: settingsStore.setCommandViewState.bind(settingsStore)
+  setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore)
 });
 
 const {
@@ -153,6 +150,7 @@ const {
   commandSummary,
   commandLoadIssues,
   commandFilteredCount,
+  commandView,
   commandSourceOptions,
   commandStatusOptions,
   commandCategoryOptions,
@@ -196,12 +194,10 @@ function setFilteredCommandsEnabled(enabled: boolean): void {
 
 function updateCommandView(patch: Partial<CommandManagementViewState>): void {
   updateCommandViewAction(patch);
-  persistImmediate();
 }
 
 function resetCommandFilters(): void {
   resetCommandFiltersAction();
-  persistImmediate();
 }
 
 function updateOpacity(value: number): void {
@@ -268,6 +264,18 @@ async function loadLauncherHotkey(): Promise<void> {
   }
 }
 
+async function showSettingsWindowWhenReady(): Promise<void> {
+  if (!ports.isTauriRuntime()) {
+    return;
+  }
+
+  try {
+    await ports.invoke("show_settings_window_when_ready");
+  } catch (error) {
+    ports.logError("show_settings_window_when_ready invoke failed", error);
+  }
+}
+
 onMounted(async () => {
   loadSettingsSetting();
   applySettingsRouteFromHash(true);
@@ -279,6 +287,12 @@ onMounted(async () => {
     settingsSyncChannel.value = new BroadcastChannel("zapcmd-settings-sync");
     settingsSyncChannel.value.addEventListener("message", onSettingsBroadcast);
   }
+
+  await nextTick();
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+  await showSettingsWindowWhenReady();
 
   void loadRuntimePlatform();
   await loadAvailableTerminalsSetting();

@@ -98,15 +98,9 @@ pub(crate) fn open_or_focus_settings_window<R: Runtime>(app: &AppHandle<R>) -> R
     #[cfg(target_os = "windows")]
     let builder = builder.theme(Some(Theme::Dark));
 
-    let window = builder
-    .build()
-    .map_err(|err| format!("Failed to create settings window: {}", err))?;
-
-    window
-        .show()
-        .map_err(|err| format!("Failed to show settings window: {}", err))?;
-    let _ = window.unminimize();
-    let _ = window.set_focus();
+    builder
+        .build()
+        .map_err(|err| format!("Failed to create settings window: {}", err))?;
 
     Ok(())
 }
@@ -118,6 +112,20 @@ pub(crate) fn open_settings_window(window: WebviewWindow) -> Result<(), String> 
         return open_or_focus_settings_window(&window.app_handle());
     }
     #[allow(unreachable_code)]
+    Ok(())
+}
+
+#[tauri::command]
+pub(crate) fn show_settings_window_when_ready(window: WebviewWindow) -> Result<(), String> {
+    #[cfg(desktop)]
+    {
+        if window.label() != SETTINGS_WINDOW_LABEL {
+            return Ok(());
+        }
+        window.show().map_err(|err| err.to_string())?;
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+    }
     Ok(())
 }
 

@@ -5,7 +5,6 @@ import {
   DEFAULT_LAUNCH_AT_LOGIN,
   SETTINGS_SCHEMA_VERSION,
   createDefaultSettingsSnapshot,
-  type CommandManagementViewState,
   type HotkeyFieldId,
   type HotkeySettings,
   type PersistedSettingsSnapshot
@@ -13,7 +12,6 @@ import {
 import {
   normalizeBlurEnabled,
   normalizeBoolean,
-  normalizeCommandViewState,
   normalizeDisabledCommandIds,
   normalizeHotkeys,
   normalizeLanguage,
@@ -34,6 +32,7 @@ export {
   MIN_WINDOW_OPACITY,
   SETTINGS_SCHEMA_VERSION,
   SETTINGS_STORAGE_KEY,
+  createDefaultCommandViewState,
   createDefaultSettingsSnapshot
 } from "./settings/defaults";
 export type {
@@ -60,7 +59,6 @@ interface SettingsState {
   autoCheckUpdate: boolean;
   launchAtLogin: boolean;
   disabledCommandIds: string[];
-  commandView: CommandManagementViewState;
   windowOpacity: number;
   theme: string;
   blurEnabled: boolean;
@@ -77,8 +75,7 @@ function snapshotFromState(state: SettingsState): PersistedSettingsSnapshot {
       launchAtLogin: state.launchAtLogin
     },
     commands: {
-      disabledCommandIds: state.disabledCommandIds,
-      view: state.commandView
+      disabledCommandIds: state.disabledCommandIds
     },
     appearance: {
       windowOpacity: state.windowOpacity,
@@ -103,7 +100,6 @@ export const useSettingsStore = defineStore("settings", {
       autoCheckUpdate: defaults.general.autoCheckUpdate,
       launchAtLogin: defaults.general.launchAtLogin,
       disabledCommandIds: defaults.commands.disabledCommandIds,
-      commandView: defaults.commands.view,
       windowOpacity: defaults.appearance.windowOpacity,
       theme: defaults.appearance.theme,
       blurEnabled: defaults.appearance.blurEnabled
@@ -125,7 +121,6 @@ export const useSettingsStore = defineStore("settings", {
       this.autoCheckUpdate = normalized.general.autoCheckUpdate;
       this.launchAtLogin = normalized.general.launchAtLogin;
       this.disabledCommandIds = normalized.commands.disabledCommandIds;
-      this.commandView = normalized.commands.view;
       this.windowOpacity = normalized.appearance.windowOpacity;
       this.theme = normalized.appearance.theme;
       this.blurEnabled = normalized.appearance.blurEnabled;
@@ -162,12 +157,6 @@ export const useSettingsStore = defineStore("settings", {
     setDisabledCommandIds(ids: string[]): void {
       this.disabledCommandIds = normalizeDisabledCommandIds(ids);
     },
-    setCommandViewState(patch: Partial<CommandManagementViewState>): void {
-      this.commandView = normalizeCommandViewState({
-        ...this.commandView,
-        ...patch
-      });
-    },
     setWindowOpacity(value: number): void {
       this.windowOpacity = normalizeWindowOpacity(value);
     },
@@ -186,7 +175,6 @@ export const useSettingsStore = defineStore("settings", {
         autoCheckUpdate: this.autoCheckUpdate,
         launchAtLogin: this.launchAtLogin,
         disabledCommandIds: this.disabledCommandIds,
-        commandView: this.commandView,
         windowOpacity: this.windowOpacity,
         theme: this.theme,
         blurEnabled: this.blurEnabled

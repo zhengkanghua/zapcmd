@@ -24,8 +24,6 @@ function createDefaultViewState(): CommandManagementViewState {
 function createFixture() {
   const setCommandEnabled = vi.fn();
   const setDisabledCommandIds = vi.fn();
-  const setCommandViewState = vi.fn();
-  const commandView = ref<CommandManagementViewState>(createDefaultViewState());
 
   const allCommandTemplates = ref([
     {
@@ -87,16 +85,21 @@ function createFixture() {
     userCommandSourceById,
     overriddenCommandIds,
     loadIssues,
-    commandView,
     setCommandEnabled,
-    setDisabledCommandIds,
-    setCommandViewState
+    setDisabledCommandIds
   });
 
   return {
     model,
-    refs: { commandView, disabledCommandIds, overriddenCommandIds, loadIssues, commandSourceById, userCommandSourceById },
-    spies: { setCommandEnabled, setDisabledCommandIds, setCommandViewState }
+    refs: {
+      commandView: model.commandView,
+      disabledCommandIds,
+      overriddenCommandIds,
+      loadIssues,
+      commandSourceById,
+      userCommandSourceById
+    },
+    spies: { setCommandEnabled, setDisabledCommandIds }
   };
 }
 
@@ -213,17 +216,19 @@ describe("useCommandManagement", () => {
   });
 
   it("supports toggle/update/reset view actions", () => {
-    const { model, refs, spies } = createFixture();
+    const { model, spies } = createFixture();
 
     model.toggleCommandEnabled("cmd-a", false);
     expect(spies.setCommandEnabled).toHaveBeenCalledWith("cmd-a", false);
 
-    model.updateCommandView({ query: "x" });
-    expect(spies.setCommandViewState).toHaveBeenCalledWith({ query: "x" });
+    model.updateCommandView({ query: "docker" });
+    expect(model.commandView.value.query).toBe("docker");
+
+    model.updateCommandView({ sourceFilter: "user" });
+    expect(model.commandView.value.sourceFilter).toBe("user");
 
     model.resetCommandFilters();
-    expect(spies.setCommandViewState).toHaveBeenCalledWith(createDefaultViewState());
-    refs.commandView.value.query = "";
+    expect(model.commandView.value).toEqual(createDefaultViewState());
     expect(model.commandRows.value).toHaveLength(4);
   });
 });

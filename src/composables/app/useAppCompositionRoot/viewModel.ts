@@ -65,11 +65,9 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
     },
     updateCommandView(patch: Partial<CommandManagementViewState>): void {
       context.commandManagement.updateCommandView(patch);
-      persistImmediate();
     },
     resetCommandFilters(): void {
       context.commandManagement.resetCommandFilters();
-      persistImmediate();
     },
     setWindowOpacity(value: number): void {
       context.setWindowOpacity(value);

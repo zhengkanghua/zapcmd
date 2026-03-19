@@ -90,7 +90,6 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     autoCheckUpdate,
     launchAtLogin,
     disabledCommandIds,
-    commandView,
     windowOpacity,
     theme,
     blurEnabled
@@ -163,10 +162,8 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     userCommandSourceById: commandCatalog.userCommandSourceById,
     overriddenCommandIds: commandCatalog.overriddenCommandIds,
     loadIssues: commandCatalog.loadIssues,
-    commandView,
     setCommandEnabled: settingsStore.setCommandEnabled.bind(settingsStore),
-    setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore),
-    setCommandViewState: settingsStore.setCommandViewState.bind(settingsStore)
+    setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore)
   });
 
   return {
