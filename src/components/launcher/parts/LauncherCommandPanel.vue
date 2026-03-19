@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, inject, nextTick, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { useI18nText } from "../../../i18n";
-import { LAUNCHER_NAV_STACK_KEY } from "../../../composables/launcher/useLauncherNavStack";
 import { getCommandArgs, renderCommand } from "../../../features/launcher/commandRuntime";
 import {
   buildSafetyInputFromTemplate,
@@ -21,11 +20,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18nText();
-const injectedNavStack = inject(LAUNCHER_NAV_STACK_KEY);
-if (!injectedNavStack) {
-  throw new Error("LauncherCommandPanel requires launcher nav stack");
-}
-const navStack = injectedNavStack;
 
 const args = computed<CommandArg[]>(() => getCommandArgs(props.command));
 const hasArgs = computed(() => args.value.length > 0);
@@ -87,7 +81,6 @@ function onArgInput(key: string, value: string): void {
 
 function onCancel(): void {
   emit("cancel");
-  navStack.popPage();
 }
 
 function onSubmit(): void {

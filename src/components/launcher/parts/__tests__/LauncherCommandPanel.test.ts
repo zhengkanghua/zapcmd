@@ -203,7 +203,7 @@ describe("LauncherCommandPanel", () => {
       expect(submitEvents![0][1]).toBe(true);
     });
 
-    it("取消按钮触发 cancel emit 和 popPage", async () => {
+    it("取消按钮只触发 cancel emit，不再直接操作 navStack", async () => {
       const navStack = createNavStackMock();
       const wrapper = mount(LauncherCommandPanel, {
         props: {
@@ -223,7 +223,7 @@ describe("LauncherCommandPanel", () => {
       const cancelBtn = wrapper.find(".command-panel__btn--cancel");
       await cancelBtn.trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
-      expect(navStack.popPage).toHaveBeenCalled();
+      expect(navStack.popPage).not.toHaveBeenCalled();
     });
 
     it("参数输入触发 arg-input emit", async () => {

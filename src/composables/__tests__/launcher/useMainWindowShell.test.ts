@@ -5,7 +5,9 @@ import { isTypingElement, useMainWindowShell } from "../../launcher/useMainWindo
 function createHarness() {
   const isSettingsWindow = ref(false);
   const navStackCanGoBack = ref(false);
+  const commandPanelOpen = ref(false);
   const navStackPopPage = vi.fn();
+  const requestCommandPanelExit = vi.fn();
   const query = ref("");
   const stagingExpanded = ref(false);
   const cancelHotkeyRecording = vi.fn();
@@ -24,6 +26,8 @@ function createHarness() {
     requestHideMainWindow,
     navStackCanGoBack,
     navStackPopPage,
+    commandPanelOpen,
+    requestCommandPanelExit,
     query,
     stagingExpanded,
     closeStagingDrawer
@@ -34,12 +38,14 @@ function createHarness() {
     state: {
       isSettingsWindow,
       navStackCanGoBack,
+      commandPanelOpen,
       query,
       stagingExpanded
     },
     spies: {
       cancelHotkeyRecording,
       navStackPopPage,
+      requestCommandPanelExit,
       closeStagingDrawer,
       requestHideMainWindow,
       close,
@@ -71,6 +77,17 @@ describe("useMainWindowShell", () => {
 
     expect(harness.spies.navStackPopPage).toHaveBeenCalledTimes(1);
     expect(harness.spies.hide).not.toHaveBeenCalled();
+  });
+
+  it("参数面板打开时 Escape 优先走 requestCommandPanelExit", () => {
+    const harness = createHarness();
+    harness.state.commandPanelOpen.value = true;
+
+    harness.shell.handleMainEscape();
+
+    expect(harness.spies.requestCommandPanelExit).toHaveBeenCalledTimes(1);
+    expect(harness.spies.navStackPopPage).not.toHaveBeenCalled();
+    expect(harness.spies.closeStagingDrawer).not.toHaveBeenCalled();
   });
 
   it("clears query before toggling staging or hiding", () => {

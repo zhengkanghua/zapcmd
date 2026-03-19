@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, toRef, computed } from "vue";
+import { computed, nextTick, provide, toRef } from "vue";
 import type {
   CommandArg,
   CommandTemplate
@@ -81,7 +81,8 @@ const emit = defineEmits<{
   (e: "clear-staging"): void;
   (e: "execute-staged"): void;
   (e: "submit-param-input"): void;
-  (e: "cancel-param-input"): void;
+  (e: "request-command-panel-exit"): void;
+  (e: "search-page-settled"): void;
   (e: "arg-input", key: string, value: string): void;
   (e: "confirm-safety-execution"): void;
   (e: "cancel-safety-execution"): void;
@@ -104,6 +105,10 @@ const navStackProvided: LauncherNavStack = {
 provide(LAUNCHER_NAV_STACK_KEY, navStackProvided);
 
 function onSearchCapsuleBack(): void {
+  if (props.navCurrentPage.type === "command-action") {
+    emit("request-command-panel-exit");
+    return;
+  }
   if (props.navCanGoBack) {
     props.navPopPage();
     return;
@@ -122,7 +127,16 @@ function onCommandPanelSubmit(argValues: Record<string, string>, shouldDismiss: 
 }
 
 function onCommandPanelCancel(): void {
-  emit("cancel-param-input");
+  emit("request-command-panel-exit");
+}
+
+function onNavAfterEnter(): void {
+  if (props.navCurrentPage.type !== "search") {
+    return;
+  }
+  void nextTick(() => {
+    emit("search-page-settled");
+  });
 }
 </script>
 
@@ -143,7 +157,7 @@ function onCommandPanelCancel(): void {
       ></div>
 
       <div class="launcher-frame" data-hit-zone="interactive">
-        <Transition name="nav-slide" mode="out-in">
+        <Transition name="nav-slide" mode="out-in" @after-enter="onNavAfterEnter">
           <LauncherSearchPanel
             v-if="props.navCurrentPage.type === 'search'"
             key="search"

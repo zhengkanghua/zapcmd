@@ -11,6 +11,8 @@ interface UseMainWindowShellOptions {
   resolveAppWindow: () => AppWindowLike | null;
   isTauriRuntime: () => boolean;
   requestHideMainWindow: () => Promise<void>;
+  commandPanelOpen: Ref<boolean>;
+  requestCommandPanelExit: () => void;
   navStackCanGoBack: Ref<boolean>;
   navStackPopPage: () => void;
   query: Ref<string>;
@@ -62,6 +64,10 @@ export function useMainWindowShell(options: UseMainWindowShellOptions) {
   function handleMainEscape(): void {
     if (options.stagingExpanded.value) {
       options.closeStagingDrawer();
+      return;
+    }
+    if (options.commandPanelOpen.value) {
+      options.requestCommandPanelExit();
       return;
     }
     if (options.navStackCanGoBack.value) {

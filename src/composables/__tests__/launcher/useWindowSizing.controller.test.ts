@@ -23,6 +23,53 @@ function createDomRect(partial: Partial<DOMRect>): DOMRect {
   } as DOMRect;
 }
 
+function createExitHarness() {
+  const drawerOpen = ref(false);
+  const drawerViewportHeight = ref(0);
+  const pendingCommand = ref<unknown>({ id: "pending" });
+  const commandPanelFrameHeightFloor = ref<number | null>(520);
+
+  const requestAnimateMainWindowSize = vi.fn<
+    UseWindowSizingOptions["requestAnimateMainWindowSize"]
+  >(async (_width, _height) => {});
+
+  const controller = createWindowSizingController({
+    constants: WINDOW_SIZING_CONSTANTS,
+    isSettingsWindow: ref(false),
+    isTauriRuntime: () => true,
+    resolveAppWindow: () => null,
+    requestSetMainWindowSize: async () => {},
+    requestAnimateMainWindowSize,
+    searchShellRef: ref(null),
+    stagingPanelRef: ref(null),
+    stagingExpanded: ref(false),
+    pendingCommand,
+    commandPanelFrameHeightFloor,
+    drawerOpen,
+    drawerViewportHeight,
+    stagingVisibleRows: ref(0),
+    searchMainWidth: ref(680),
+    minShellWidth: ref(0),
+    windowWidthCap: ref(2000),
+    windowHeightCap: ref(2000),
+    scheduleSearchInputFocus: () => {},
+    loadSettings: () => {}
+  });
+
+  return {
+    controller,
+    state: {
+      drawerOpen,
+      drawerViewportHeight,
+      pendingCommand,
+      commandPanelFrameHeightFloor
+    },
+    spies: {
+      requestAnimateMainWindowSize
+    }
+  };
+}
+
 describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
   it("进入 CommandPanel 时若 lastWindowSize 为空：不应把窗口直接拉到 designCap（fallback 为 baseHeight）", async () => {
     const drawerOpen = ref(true);
@@ -133,5 +180,32 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
     expect(shell.style.getPropertyValue("--launcher-frame-height")).toBe("304px");
 
     root.remove();
+  });
+
+  it("requestCommandPanelExit 后，搜索页稳定前不会被临时小高度拉低；稳定后只动画回落一次", async () => {
+    const harness = createExitHarness();
+
+    await harness.controller.syncWindowSize();
+    harness.spies.requestAnimateMainWindowSize.mockClear();
+
+    harness.controller.requestCommandPanelExit();
+    harness.state.pendingCommand.value = null;
+    harness.state.drawerOpen.value = false;
+    harness.state.drawerViewportHeight.value = 0;
+
+    await harness.controller.syncWindowSize();
+    expect(harness.spies.requestAnimateMainWindowSize).not.toHaveBeenCalledWith(
+      expect.any(Number),
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+
+    harness.controller.notifySearchPageSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
   });
 });
