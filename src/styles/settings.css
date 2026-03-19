@@ -216,7 +216,7 @@
 
 .settings-hotkeys-row__recorder {
   flex: 0 0 auto;
-  width: min(100%, 280px);
+  max-width: min(100%, 280px);
 }
 
 .settings-hotkeys-group {
@@ -660,8 +660,8 @@
   }
 
   .settings-hotkeys-row__recorder {
-    flex-basis: auto;
     width: 100%;
+    max-width: 100%;
   }
 
   .settings-commands-toolbar__summary-row {

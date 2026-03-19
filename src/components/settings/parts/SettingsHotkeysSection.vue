@@ -100,7 +100,8 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
 
 <style scoped>
 .settings-hotkeys-row__recorder :deep(.s-hotkey-recorder-field) {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
 }
 
 .settings-hotkeys-row__recorder :deep(.s-hotkey-recorder-field__label) {
@@ -114,9 +115,9 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
   border: 0;
 }
 
-.settings-hotkeys-row__recorder :deep(.s-hotkey-recorder) {
-  justify-self: stretch;
-  inline-size: 100%;
+.settings-hotkeys-row__recorder {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .settings-hotkeys-row__recorder :deep(.s-hotkey-recorder-field__conflict) {

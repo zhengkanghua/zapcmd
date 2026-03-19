@@ -122,9 +122,11 @@ function onBlur(): void {
 }
 
 .s-hotkey-recorder {
-  height: 34px;
+  min-height: 34px;
   justify-self: start;
-  inline-size: min(100%, 280px);
+  inline-size: fit-content;
+  min-inline-size: 92px;
+  max-inline-size: min(100%, 280px);
   border: 1px solid var(--ui-border);
   border-radius: 8px;
   background: var(--ui-input-bg);
@@ -173,6 +175,7 @@ function onBlur(): void {
 .s-hotkey-recorder__keys {
   display: inline-flex;
   align-items: center;
+  max-width: 100%;
   gap: 4px;
 }
 
