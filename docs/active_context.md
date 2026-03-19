@@ -586,3 +586,6 @@
 
 ## 补充（2026-03-19｜Settings 商业化审查 spec）
 - 已完成审查稿 `docs/superpowers/specs/2026-03-19-settings-window-commercial-review-design.md`：结论为架构基础达标，但白闪、拖拽模型不一致、Commands 视图态即时持久化仍未达商业化完成态；下一步应进入 P0/P1 修复计划。
+
+## 补充（2026-03-19｜Settings 商业化 P0/P1 实现完成）
+- 已完成 settings 首帧深色 bootstrap + ready-show、Commands 视图态瞬态化不落盘、topbar 收口为 nav shell；focused tests 与 `npm run check:all` 已跑通，Windows GUI 手验待人工执行。

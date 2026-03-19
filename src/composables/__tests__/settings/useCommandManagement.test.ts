@@ -216,7 +216,7 @@ describe("useCommandManagement", () => {
   });
 
   it("supports toggle/update/reset view actions", () => {
-    const { model, refs, spies } = createFixture();
+    const { model, spies } = createFixture();
 
     model.toggleCommandEnabled("cmd-a", false);
     expect(spies.setCommandEnabled).toHaveBeenCalledWith("cmd-a", false);

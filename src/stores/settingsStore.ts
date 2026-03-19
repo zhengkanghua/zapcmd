@@ -4,9 +4,7 @@ import {
   DEFAULT_AUTO_CHECK_UPDATE,
   DEFAULT_LAUNCH_AT_LOGIN,
   SETTINGS_SCHEMA_VERSION,
-  createDefaultCommandViewState,
   createDefaultSettingsSnapshot,
-  type CommandManagementViewState,
   type HotkeyFieldId,
   type HotkeySettings,
   type PersistedSettingsSnapshot
