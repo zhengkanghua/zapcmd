@@ -592,3 +592,6 @@
 
 ## 补充（2026-03-19｜Settings 商业化 P0/P1 实现完成）
 - 已完成 settings 首帧深色 bootstrap + ready-show、Commands 视图态瞬态化不落盘、topbar 收口为 nav shell；focused tests 与 `npm run check:all` 已跑通，Windows GUI 手验待人工执行。
+
+## 补充（2026-03-19｜Settings 顶部/热键/滚动精修设计）
+- 已确认新设计稿：移除 topbar 外层卡片壳，改强层叠头部；Hotkeys 录制器按内容自适应；内容区滚动条隐藏且左右留白区滚轮也可滚动。
