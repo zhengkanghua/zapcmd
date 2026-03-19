@@ -620,3 +620,6 @@
 
 ## 补充（2026-03-19｜Launcher 统一高度 contract 实现计划）
 - 已产出计划 `docs/superpowers/plans/2026-03-19-launcher-unified-panel-height-contract.md`：先锁共享 cap/结构测试，再落地样式与 sizing，最后收口 submit 成功返回链路并完成 Tauri 手验。
+
+## 补充（2026-03-19｜Launcher 统一高度 contract 执行完成）
+- 已完成外框水平居中、共享 panel max-height、CommandPanel footer 内收；参数提交改为显式成功返回，成功后由 App 触发统一退出锁高。`npm run check:all` 全绿。
