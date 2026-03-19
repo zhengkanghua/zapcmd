@@ -107,6 +107,9 @@ describe("SettingsWindow stable shell", () => {
     });
 
     expect(wrapper.find(".settings-window-topbar").exists()).toBe(true);
+    expect(wrapper.find(".settings-window-topbar__nav-shell").exists()).toBe(true);
+    expect(wrapper.find(".settings-window-topbar").attributes("data-tauri-drag-region")).toBeUndefined();
+    expect(wrapper.find(".settings-window-topbar__nav-shell").attributes("data-tauri-drag-region")).toBeUndefined();
     expect(wrapper.find(".settings-drag-region__controls").exists()).toBe(false);
     expect(wrapper.text()).not.toContain("ZapCmd Settings");
   });
