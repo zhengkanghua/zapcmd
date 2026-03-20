@@ -12,6 +12,11 @@ import {
   type UseWindowSizingOptions
 } from "../../launcher/useWindowSizing/model";
 
+const SEARCH_SHELL_MARGIN_TOP_PX = 8;
+const SEARCH_SHELL_BREATHING_BOTTOM_PX = 8;
+const SEARCH_SHELL_OUTER_CHROME_PX =
+  SEARCH_SHELL_MARGIN_TOP_PX + SEARCH_SHELL_BREATHING_BOTTOM_PX;
+
 function mockRect(
   element: Element,
   rect: {
@@ -114,7 +119,7 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     sharedPanelMaxHeight: Ref<number>;
   };
 
-  it("搜索页窗口高度只由 searchPanelEffectiveHeight + drag strip 决定，不吃底部 breathing", () => {
+  it("搜索页窗口高度会补回 search-shell 外围 chrome，但 searchPanelEffectiveHeight 仍不含这些留白", () => {
     const root = document.createElement("div");
     const shell = document.createElement("div");
     const dragStrip = document.createElement("div");
@@ -143,7 +148,11 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     } as UseWindowSizingOptions & FutureSearchPanelFields;
     const size = resolveWindowSize(options);
 
-    expect(size.height).toBe(SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      SEARCH_CAPSULE_HEIGHT_PX +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("searchPanelEffectiveHeight 超过 sharedPanelMaxHeight 时只 clamp 到 sharedPanelMaxHeight", () => {
@@ -160,7 +169,9 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     } as UseWindowSizingOptions & FutureSearchPanelFields;
     const size = resolveWindowSize(options);
 
-    expect(size.height).toBe(524 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      524 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("measured 与 estimated 口径一致：不把 drag strip 计入 content height", () => {
@@ -196,7 +207,10 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     const measured = resolveWindowSize(measuredOptions);
 
     const expectedContentHeight = SEARCH_CAPSULE_HEIGHT_PX + drawerViewportHeight.value;
-    const expectedWindowHeight = expectedContentHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
+    const expectedWindowHeight =
+      expectedContentHeight +
+      UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+      SEARCH_SHELL_OUTER_CHROME_PX;
 
     assertHeight("estimated", estimated.height, expectedWindowHeight, {
       dragStripHeight: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
@@ -235,7 +249,10 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     const size = resolveWindowSize(options);
 
     const expectedContentHeight = SEARCH_CAPSULE_HEIGHT_PX + drawerViewportHeight.value;
-    const expectedWindowHeight = expectedContentHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
+    const expectedWindowHeight =
+      expectedContentHeight +
+      UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+      SEARCH_SHELL_OUTER_CHROME_PX;
 
     assertHeight("max(measured, estimated)", size.height, expectedWindowHeight, {
       dragStripHeight: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
@@ -276,7 +293,11 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
       })
     );
 
-    expect(size.height).toBe(LAUNCHER_FRAME_DESIGN_CAP_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      LAUNCHER_FRAME_DESIGN_CAP_PX +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 });
 
@@ -333,7 +354,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 
@@ -345,7 +368,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 
@@ -378,7 +403,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       })
     );
 
-    expect(size.height).toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("退出锁存在时，即使 pendingCommand 已清空也保持当前锁高", () => {
@@ -387,7 +414,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       { commandPanelExitFrameHeightLock: 520 }
     );
 
-    expect(size.height).toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("ignoreCommandPanelExitLock=true 时返回最终搜索页高度，用于 restore target 采样", () => {
@@ -404,7 +433,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      SEARCH_CAPSULE_HEIGHT_PX +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 
@@ -440,7 +471,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      SEARCH_CAPSULE_HEIGHT_PX +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 
@@ -474,7 +507,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       })
     );
 
-    expect(size.height).toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("stagingExpanded 不会在缺少 Flow session 时自动抬高搜索高度", () => {
@@ -490,7 +525,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 
@@ -505,7 +542,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       })
     );
 
-    expect(size.height).toBe(inheritedHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      inheritedHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("stagingExpanded 且 Flow 已锁高时优先使用 flowPanelLockedHeight", () => {
@@ -521,7 +560,9 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      Math.min(lockedHeight, LAUNCHER_FRAME_DESIGN_CAP_PX) + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      Math.min(lockedHeight, LAUNCHER_FRAME_DESIGN_CAP_PX) +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 });

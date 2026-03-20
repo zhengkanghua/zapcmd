@@ -12,6 +12,11 @@ import {
   type UseWindowSizingOptions
 } from "../../launcher/useWindowSizing/model";
 
+const SEARCH_SHELL_MARGIN_TOP_PX = 8;
+const SEARCH_SHELL_BREATHING_BOTTOM_PX = 8;
+const SEARCH_SHELL_OUTER_CHROME_PX =
+  SEARCH_SHELL_MARGIN_TOP_PX + SEARCH_SHELL_BREATHING_BOTTOM_PX;
+
 type PanelHeightHarnessOverrides = Partial<UseWindowSizingOptions>;
 
 function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) {
@@ -374,7 +379,9 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
     const lastCall = requestAnimateMainWindowSize.mock.calls.at(-1);
     expect(commandPanelInheritedHeight.value).toBe(SEARCH_CAPSULE_HEIGHT_PX);
     expect(lastCall?.[1]).toBe(
-      SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      SEARCH_CAPSULE_HEIGHT_PX +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 });
@@ -440,7 +447,7 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
     await controller.syncWindowSize();
 
     expect(requestAnimateMainWindowSize).toHaveBeenCalled();
-    expect(shell.style.getPropertyValue("--launcher-frame-height")).toBe("304px");
+    expect(shell.style.getPropertyValue("--launcher-frame-height")).toBe("296px");
 
     root.remove();
   });
@@ -459,7 +466,9 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
     await harness.controller.syncWindowSize();
     expect(harness.spies.requestAnimateMainWindowSize).not.toHaveBeenCalledWith(
       expect.any(Number),
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
 
     harness.controller.notifySearchPageSettled();
@@ -467,7 +476,9 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
 
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
   });
@@ -505,7 +516,9 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
     await harness.controller.syncWindowSize();
     expect(harness.spies.requestAnimateMainWindowSize).not.toHaveBeenCalledWith(
       expect.any(Number),
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
 
     harness.controller.notifySearchPageSettled();
@@ -515,7 +528,9 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
 
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
   });
@@ -556,7 +571,9 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
 
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 });
@@ -583,7 +600,9 @@ describe("createWindowSizingController（Flow 会话）", () => {
     expect(harness.state.flowPanelInheritedHeight.value).toBe(280);
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
     const firstResizeCall = harness.spies.requestAnimateMainWindowSize.mock.calls[0];
-    expect(firstResizeCall?.[1]).toBe(280 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(firstResizeCall?.[1]).toBe(
+      280 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("搜索 -> Flow：先继承搜索当前高度，settled 后仅在不足时补高一次", async () => {
@@ -598,7 +617,9 @@ describe("createWindowSizingController（Flow 会话）", () => {
 
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      SEARCH_CAPSULE_HEIGHT_PX +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
 
     harness.controller.notifyFlowPanelSettled();
@@ -607,7 +628,9 @@ describe("createWindowSizingController（Flow 会话）", () => {
     expect(harness.state.flowPanelLockedHeight.value).toBe(expectedFlowMinHeight);
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      expectedFlowMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      expectedFlowMinHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 
@@ -618,7 +641,9 @@ describe("createWindowSizingController（Flow 会话）", () => {
     await harness.controller.syncWindowSize();
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      harness.lastFrameHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      harness.lastFrameHeight +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
     harness.spies.requestAnimateMainWindowSize.mockClear();
 
@@ -687,7 +712,9 @@ describe("createWindowSizingController（Flow 会话）", () => {
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      LAUNCHER_FRAME_DESIGN_CAP_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      LAUNCHER_FRAME_DESIGN_CAP_PX +
+        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+        SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 });
@@ -714,7 +741,9 @@ describe("createWindowSizingController（Command settled 锁高）", () => {
     expect(harness.state.commandPanelInheritedHeight.value).toBe(300);
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
     const firstResizeCall = harness.spies.requestAnimateMainWindowSize.mock.calls[0];
-    expect(firstResizeCall?.[1]).toBe(300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(firstResizeCall?.[1]).toBe(
+      300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("Search -> Command 首帧先继承 searchPanelEffectiveHeight，不够完整盒子时才补高", async () => {
@@ -739,7 +768,9 @@ describe("createWindowSizingController（Command settled 锁高）", () => {
     expect(harness.state.commandPanelLockedHeight.value).toBeNull();
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
     const firstResizeCall = harness.spies.requestAnimateMainWindowSize.mock.calls[0];
-    expect(firstResizeCall?.[1]).toBe(300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(firstResizeCall?.[1]).toBe(
+      300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
 
     const commandShell = buildCommandPanelShellForLock({
       headerHeight: 52,
@@ -756,7 +787,9 @@ describe("createWindowSizingController（Command settled 锁高）", () => {
     expect(harness.state.commandPanelLockedHeight.value).toBe(354);
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(2);
     const secondResizeCall = harness.spies.requestAnimateMainWindowSize.mock.calls[1];
-    expect(secondResizeCall?.[1]).toBe(354 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(secondResizeCall?.[1]).toBe(
+      354 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
   });
 
   it("notifyCommandPageSettled 首次写入 commandPanelLockedHeight，再次通知不覆写已锁高度", async () => {

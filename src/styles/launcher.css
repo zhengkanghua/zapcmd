@@ -21,9 +21,10 @@
   --search-input-height: 38px;
   --search-capsule-height: calc(var(--search-input-height) + var(--search-capsule-pad) * 2);
   --launcher-shell-breathing-bottom: 8px;
+  --launcher-shell-margin-top: 8px;
   width: max-content;
   max-width: 100%;
-  margin-top: 8px;
+  margin-top: var(--launcher-shell-margin-top);
   padding-bottom: var(--launcher-shell-breathing-bottom);
   position: relative;
   display: grid;

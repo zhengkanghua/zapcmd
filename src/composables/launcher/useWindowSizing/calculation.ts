@@ -1,6 +1,11 @@
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
 import { clampSearchPanelHeight, resolvePanelHeight } from "./panelHeightContract";
-import { DRAWER_GAP_EST_PX, SEARCH_CAPSULE_HEIGHT_PX } from "../useLauncherLayoutMetrics";
+import {
+  DRAWER_GAP_EST_PX,
+  LAUNCHER_SHELL_BREATHING_BOTTOM_PX,
+  LAUNCHER_SHELL_MARGIN_TOP_PX,
+  SEARCH_CAPSULE_HEIGHT_PX
+} from "../useLauncherLayoutMetrics";
 
 interface ResolveWindowSizeOverrides {
   commandPanelExitFrameHeightLock?: number | null;
@@ -30,8 +35,17 @@ function resolveWindowWidth(options: UseWindowSizingOptions): number {
   return Math.max(options.minShellWidth.value, Math.min(options.windowWidthCap.value, width));
 }
 
+export function resolveWindowChromeHeight(dragStripHeight: number): number {
+  return (
+    dragStripHeight + LAUNCHER_SHELL_MARGIN_TOP_PX + LAUNCHER_SHELL_BREATHING_BOTTOM_PX
+  );
+}
+
 function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
-  const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
+  const screenCapFrame = Math.max(
+    0,
+    options.windowHeightCap.value - resolveWindowChromeHeight(dragStripHeight)
+  );
   return Math.min(screenCapFrame, options.sharedPanelMaxHeight.value);
 }
 
@@ -51,18 +65,24 @@ function measureWindowContentHeightFromLayout(
     return null;
   }
 
-  const rootRect = shell.parentElement?.getBoundingClientRect();
   const shellRect = shell.getBoundingClientRect();
-  const topOffset = rootRect
-    ? Math.max(0, shellRect.top - rootRect.top)
-    : Math.max(0, shellRect.top);
-  const windowHeight = Math.ceil(
-    topOffset +
-      shellRect.height +
-      options.constants.windowSafeVerticalPad +
-      options.constants.windowBottomSafePad
-  );
-  const contentHeight = Math.max(0, windowHeight - dragStripHeight);
+  const rootRect = shell.parentElement?.getBoundingClientRect();
+  const contentHeight = rootRect
+    ? Math.ceil(
+        Math.max(
+          0,
+          rootRect.height -
+            Math.max(0, shellRect.top - rootRect.top) -
+            dragStripHeight -
+            LAUNCHER_SHELL_BREATHING_BOTTOM_PX
+        )
+      )
+    : Math.ceil(
+        Math.max(
+          0,
+          shellRect.height - dragStripHeight - LAUNCHER_SHELL_BREATHING_BOTTOM_PX
+        )
+      );
   return clampSearchPanelHeight({
     panelMaxHeight: frameMaxHeight,
     naturalPanelHeight: Math.max(SEARCH_CAPSULE_HEIGHT_PX, contentHeight)
@@ -196,7 +216,7 @@ export function resolveWindowSize(
 
   return {
     width,
-    height: resolvedFrameHeight + dragStripHeight
+    height: resolvedFrameHeight + resolveWindowChromeHeight(dragStripHeight)
   };
 }
 

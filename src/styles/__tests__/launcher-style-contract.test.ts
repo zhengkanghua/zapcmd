@@ -65,6 +65,14 @@ describe("launcher.css contract", () => {
     expectSelectorRuleContains(".search-shell", /padding-bottom:\s*var\(/);
   });
 
+  it("Search shell 顶部外层空白通过独立 token 声明，避免与 frame 高度口径漂移", () => {
+    expectSelectorRuleContains(".search-shell", /--launcher-shell-margin-top/);
+    expectSelectorRuleContains(
+      ".search-shell",
+      /margin-top:\s*var\(--launcher-shell-margin-top(?:\s*,\s*[^)]+)?\)/
+    );
+  });
+
   it("CommandPanel / FlowPanel 三段式与滚动 contract", () => {
     expectSelectorRuleContains(".command-panel", /height:\s*100%/);
     expectSelectorRuleContains(

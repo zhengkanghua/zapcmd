@@ -2,6 +2,7 @@ import { LogicalSize } from "@tauri-apps/api/window";
 import { nextTick } from "vue";
 import {
   resolveWindowSize,
+  resolveWindowChromeHeight,
   shouldSkipResize
 } from "./calculation";
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
@@ -22,7 +23,10 @@ import {
   resolveCommandPanelMinHeight,
   resolveFlowPanelMinHeight
 } from "./panelMeasurement";
-import { LAUNCHER_FRAME_DESIGN_CAP_PX, SEARCH_CAPSULE_HEIGHT_PX } from "../useLauncherLayoutMetrics";
+import {
+  LAUNCHER_SHELL_BREATHING_BOTTOM_PX,
+  SEARCH_CAPSULE_HEIGHT_PX
+} from "../useLauncherLayoutMetrics";
 
 interface WindowSizingState {
   lastWindowSize: WindowSize | null;
@@ -111,8 +115,11 @@ function resolveCommandPanelEntryHeight(options: UseWindowSizingOptions): number
 }
 
 function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
-  const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
-  return Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
+  const screenCapFrame = Math.max(
+    0,
+    options.windowHeightCap.value - resolveWindowChromeHeight(dragStripHeight)
+  );
+  return Math.min(screenCapFrame, options.sharedPanelMaxHeight.value);
 }
 
 function syncLauncherFrameHeightStyle(
@@ -145,14 +152,17 @@ function syncLauncherFrameHeightStyle(
     const frameRect = frame.getBoundingClientRect();
     if (Number.isFinite(rootRect.height) && Number.isFinite(frameRect.top) && Number.isFinite(rootRect.top)) {
       const topOffset = Math.max(0, frameRect.top - rootRect.top);
-      const frameHeight = Math.max(0, Math.floor(rootRect.height - topOffset));
+      const frameHeight = Math.max(
+        0,
+        Math.floor(rootRect.height - topOffset - LAUNCHER_SHELL_BREATHING_BOTTOM_PX)
+      );
       shell.style.setProperty("--launcher-frame-height", `${frameHeight}px`);
       return;
     }
   }
 
   const dragStripHeight = resolveShellDragStripHeightFromDom(options);
-  const fallbackHeight = Math.max(0, windowHeight - dragStripHeight);
+  const fallbackHeight = Math.max(0, windowHeight - resolveWindowChromeHeight(dragStripHeight));
   shell.style.setProperty("--launcher-frame-height", `${fallbackHeight}px`);
 }
 
@@ -364,7 +374,7 @@ async function handleSearchSettlingResize(
   });
   const restoreTargetFrameHeight =
     snapshot.restoreTargetFrameHeight ??
-    Math.max(0, restoreBaseSize.height - dragStripHeight);
+    Math.max(0, restoreBaseSize.height - resolveWindowChromeHeight(dragStripHeight));
   if (snapshot.restoreTargetFrameHeight === null) {
     commandPanelExit.captureRestoreTarget(restoreTargetFrameHeight);
   }
@@ -381,7 +391,7 @@ async function handleSearchSettlingResize(
     bridge,
     {
       width: restoreBaseSize.width,
-      height: restoreTargetFrameHeight + dragStripHeight
+      height: restoreTargetFrameHeight + resolveWindowChromeHeight(dragStripHeight)
     },
     {
       beforeSyncStyle: () => finalizeCommandPanelExit(options, state, commandPanelExit)
@@ -451,7 +461,7 @@ function createRequestCommandPanelExit(
   return function requestCommandPanelExit(): void {
     const dragStripHeight = resolveShellDragStripHeightFromDom(options);
     const lockedFrameHeight = state.lastWindowSize
-      ? Math.max(0, state.lastWindowSize.height - dragStripHeight)
+      ? Math.max(0, state.lastWindowSize.height - resolveWindowChromeHeight(dragStripHeight))
       : options.commandPanelLockedHeight.value ??
         options.commandPanelInheritedHeight.value ??
         options.constants.paramOverlayMinHeight;

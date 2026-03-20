@@ -19,6 +19,10 @@ export const SEARCH_INPUT_HEIGHT_PX = 38;
 export const SEARCH_CAPSULE_PAD_PX = 12;
 export const SEARCH_CAPSULE_HEIGHT_PX =
   SEARCH_INPUT_HEIGHT_PX + SEARCH_CAPSULE_PAD_PX * 2;
+export const LAUNCHER_SHELL_MARGIN_TOP_PX = 8;
+export const LAUNCHER_SHELL_BREATHING_BOTTOM_PX = 8;
+export const LAUNCHER_SHELL_VERTICAL_CHROME_PX =
+  LAUNCHER_SHELL_MARGIN_TOP_PX + LAUNCHER_SHELL_BREATHING_BOTTOM_PX;
 const WINDOW_SAFE_VERTICAL_PAD = 8;
 const WINDOW_BOTTOM_SAFE_PAD = 22;
 export const LAUNCHER_DRAWER_CHROME_HEIGHT_PX = 12;
@@ -148,6 +152,8 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     "--shell-gap": `${shellGap.value}px`,
     "--shell-side-pad": `${WINDOW_SIDE_SAFE_PAD}px`,
     "--launcher-panel-max-height": `${LAUNCHER_FRAME_DESIGN_CAP_PX}px`,
+    "--launcher-shell-margin-top": `${LAUNCHER_SHELL_MARGIN_TOP_PX}px`,
+    "--launcher-shell-breathing-bottom": `${LAUNCHER_SHELL_BREATHING_BOTTOM_PX}px`,
     "--flow-panel-width": `${flowPanelWidth.value}px`,
     "--flow-width": `${flowWidth.value}px`,
     "--drawer-row-height": `${LAUNCHER_DRAWER_ROW_HEIGHT_PX}px`,
