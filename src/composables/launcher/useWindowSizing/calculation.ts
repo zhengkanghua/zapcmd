@@ -1,12 +1,6 @@
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
-import {
-  DRAWER_GAP_EST_PX,
-  LAUNCHER_DRAWER_CHROME_HEIGHT_PX,
-  LAUNCHER_DRAWER_FLOOR_ROWS,
-  LAUNCHER_DRAWER_HINT_HEIGHT_PX,
-  LAUNCHER_DRAWER_ROW_HEIGHT_PX,
-  LAUNCHER_FRAME_DESIGN_CAP_PX
-} from "../useLauncherLayoutMetrics";
+import { clampSearchPanelHeight, resolvePanelHeight } from "./panelHeightContract";
+import { DRAWER_GAP_EST_PX, LAUNCHER_FRAME_DESIGN_CAP_PX } from "../useLauncherLayoutMetrics";
 
 interface ResolveWindowSizeOverrides {
   commandPanelExitFrameHeightLock?: number | null;
@@ -35,19 +29,9 @@ function resolveWindowWidth(options: UseWindowSizingOptions): number {
   return Math.max(options.minShellWidth.value, Math.min(options.windowWidthCap.value, width));
 }
 
-function resolveOverlayMinHeight(options: UseWindowSizingOptions): number {
-  if (options.pendingCommand.value) {
-    if (options.stagingExpanded.value) {
-      const drawerFloorViewportHeightDesignPx =
-        LAUNCHER_DRAWER_FLOOR_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX +
-        (LAUNCHER_DRAWER_CHROME_HEIGHT_PX + LAUNCHER_DRAWER_HINT_HEIGHT_PX);
-      const minHeightWithFlowPanel =
-        options.constants.windowBaseHeight + drawerFloorViewportHeightDesignPx + DRAWER_GAP_EST_PX;
-      return Math.max(options.constants.paramOverlayMinHeight, minHeightWithFlowPanel);
-    }
-    return options.constants.paramOverlayMinHeight;
-  }
-  return options.constants.windowBaseHeight;
+function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
+  const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
+  return Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
 }
 
 function measureWindowContentHeightFromLayout(
@@ -60,57 +44,97 @@ function measureWindowContentHeightFromLayout(
     return null;
   }
 
-  const { constants } = options;
-  const rootRect = shell.parentElement?.getBoundingClientRect();
-  const shellRect = shell.getBoundingClientRect();
-  const commandPanelRect = options.pendingCommand.value
-    ? shell.querySelector<HTMLElement>(".command-panel")?.getBoundingClientRect() ?? null
-    : null;
-  // CommandPanel 走的是 out-in 过渡：旧搜索页 leave 完成前，新面板还没挂载。
-  // 这时如果回退到 shellRect，会把上一帧搜索高度误当成参数页高度并锁住空白。
-  if (options.pendingCommand.value && commandPanelRect === null) {
+  // Command / Flow 高度统一走 session；这里仅用于 Search 自然高度采样。
+  // nav-slide out-in 期间新面板未挂载时，绝不能回退到旧 shell 高度污染会话。
+  if (options.pendingCommand.value !== null) {
     return null;
   }
-  const stagingRect = options.stagingExpanded.value && options.stagingPanelRef.value
-    ? options.stagingPanelRef.value.getBoundingClientRect()
-    : null;
-  const contentBottomBase = commandPanelRect?.bottom ?? shellRect.bottom;
-  const contentBottom = stagingRect ? Math.max(contentBottomBase, stagingRect.bottom) : contentBottomBase;
+
+  const rootRect = shell.parentElement?.getBoundingClientRect();
+  const shellRect = shell.getBoundingClientRect();
   const topOffset = rootRect
     ? Math.max(0, shellRect.top - rootRect.top)
     : Math.max(0, shellRect.top);
-
   const windowHeight = Math.ceil(
     topOffset +
-      (contentBottom - shellRect.top) +
-      constants.windowSafeVerticalPad +
-      constants.windowBottomSafePad
+      shellRect.height +
+      options.constants.windowSafeVerticalPad +
+      options.constants.windowBottomSafePad
   );
   const contentHeight = Math.max(0, windowHeight - dragStripHeight);
-  return Math.max(constants.windowBaseHeight, Math.min(frameMaxHeight, contentHeight));
+  return clampSearchPanelHeight({
+    panelMaxHeight: frameMaxHeight,
+    naturalPanelHeight: Math.max(options.constants.windowBaseHeight, contentHeight)
+  });
 }
 
 function estimateWindowContentHeight(options: UseWindowSizingOptions, frameMaxHeight: number): number {
-  const { constants } = options;
-  let leftHeight = constants.windowBaseHeight;
-  if (!options.pendingCommand.value && options.drawerOpen.value) {
-    leftHeight += options.drawerViewportHeight.value + DRAWER_GAP_EST_PX;
+  let naturalPanelHeight = options.constants.windowBaseHeight;
+  if (options.pendingCommand.value === null && options.drawerOpen.value) {
+    naturalPanelHeight += options.drawerViewportHeight.value + DRAWER_GAP_EST_PX;
+  }
+  return clampSearchPanelHeight({
+    panelMaxHeight: frameMaxHeight,
+    naturalPanelHeight
+  });
+}
+
+function resolveSearchPanelFrameHeight(
+  options: UseWindowSizingOptions,
+  dragStripHeight: number,
+  frameMaxHeight: number
+): number {
+  const measuredContentHeight = measureWindowContentHeightFromLayout(
+    options,
+    dragStripHeight,
+    frameMaxHeight
+  );
+  const estimatedContentHeight = estimateWindowContentHeight(options, frameMaxHeight);
+  return measuredContentHeight === null
+    ? estimatedContentHeight
+    : Math.max(measuredContentHeight, estimatedContentHeight);
+}
+
+export function resolveCommandPanelFrameHeight(
+  options: UseWindowSizingOptions,
+  panelMaxHeight: number
+): number | null {
+  if (options.pendingCommand.value === null) {
+    return null;
   }
 
-  let rightHeight = 0;
-  if (options.stagingExpanded.value) {
-    const panelHeight = options.stagingPanelRef.value
-      ? Math.ceil(options.stagingPanelRef.value.getBoundingClientRect().height)
-      : constants.stagingChromeHeight +
-        options.stagingVisibleRows.value * constants.stagingCardEstHeight +
-        Math.max(options.stagingVisibleRows.value - 1, 0) * constants.stagingListGap;
-    rightHeight = panelHeight;
-  }
-  if (options.pendingCommand.value) {
-    leftHeight = Math.max(leftHeight, constants.paramOverlayMinHeight);
+  const inheritedPanelHeight =
+    options.commandPanelLockedHeight.value ?? options.commandPanelInheritedHeight.value;
+  if (inheritedPanelHeight === null) {
+    return null;
   }
 
-  return Math.min(Math.max(leftHeight, rightHeight), frameMaxHeight);
+  return resolvePanelHeight({
+    panelMaxHeight,
+    inheritedPanelHeight,
+    panelMinHeight: options.constants.paramOverlayMinHeight
+  });
+}
+
+export function resolveFlowPanelFrameHeight(
+  options: UseWindowSizingOptions,
+  panelMaxHeight: number
+): number | null {
+  if (!options.stagingExpanded.value) {
+    return null;
+  }
+
+  const inheritedPanelHeight =
+    options.flowPanelLockedHeight.value ?? options.flowPanelInheritedHeight.value;
+  if (inheritedPanelHeight === null) {
+    return null;
+  }
+
+  return resolvePanelHeight({
+    panelMaxHeight,
+    inheritedPanelHeight,
+    panelMinHeight: 0
+  });
 }
 
 export function resolveWindowSize(
@@ -118,38 +142,33 @@ export function resolveWindowSize(
   overrides: ResolveWindowSizeOverrides = {}
 ): WindowSize {
   const dragStripHeight = resolveShellDragStripHeight(options);
-  const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
-  const frameMaxHeight = Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
-  const measuredContentHeight = measureWindowContentHeightFromLayout(
-    options,
-    dragStripHeight,
-    frameMaxHeight
-  );
+  const frameMaxHeight = resolveFrameMaxHeight(options, dragStripHeight);
   const width = resolveWindowWidth(options);
-  const overlayMinContentHeight = resolveOverlayMinHeight(options);
-  const estimatedContentHeight = estimateWindowContentHeight(options, frameMaxHeight);
-  const sizingContentHeight =
-    measuredContentHeight === null
-      ? estimatedContentHeight
-      : Math.max(measuredContentHeight, estimatedContentHeight);
-  let resolvedContentHeight = Math.min(
-    Math.max(sizingContentHeight, overlayMinContentHeight),
-    frameMaxHeight
-  );
+  const searchFrameHeight = resolveSearchPanelFrameHeight(options, dragStripHeight, frameMaxHeight);
+  const commandFrameHeight = resolveCommandPanelFrameHeight(options, frameMaxHeight);
+  const flowFrameHeight = resolveFlowPanelFrameHeight(options, frameMaxHeight);
+  const leftFrameHeight =
+    options.pendingCommand.value === null
+      ? searchFrameHeight
+      : commandFrameHeight ?? options.constants.paramOverlayMinHeight;
+  const rightFrameHeight = flowFrameHeight ?? 0;
+  let resolvedFrameHeight = Math.max(leftFrameHeight, rightFrameHeight);
+
   if (
     !overrides.ignoreCommandPanelExitLock &&
     overrides.commandPanelExitFrameHeightLock !== null &&
     overrides.commandPanelExitFrameHeightLock !== undefined
   ) {
-    resolvedContentHeight = clamp(
-      Math.max(resolvedContentHeight, overrides.commandPanelExitFrameHeightLock),
+    resolvedFrameHeight = clamp(
+      Math.max(resolvedFrameHeight, overrides.commandPanelExitFrameHeightLock),
       options.constants.windowBaseHeight,
       frameMaxHeight
     );
   }
+
   return {
     width,
-    height: resolvedContentHeight + dragStripHeight
+    height: resolvedFrameHeight + dragStripHeight
   };
 }
 

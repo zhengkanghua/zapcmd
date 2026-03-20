@@ -1,22 +1,59 @@
 import { LogicalSize } from "@tauri-apps/api/window";
 import { nextTick } from "vue";
-import { resolveWindowSize, shouldSkipResize } from "./calculation";
+import {
+  resolveCommandPanelFrameHeight,
+  resolveFlowPanelFrameHeight,
+  resolveWindowSize,
+  shouldSkipResize
+} from "./calculation";
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
 import { createCommandPanelExitCoordinator } from "./commandPanelExit";
+import {
+  beginCommandPanelSession,
+  beginFlowPanelSession,
+  clearCommandPanelSession,
+  clearFlowPanelSession,
+  lockCommandPanelHeight,
+  lockFlowPanelHeight,
+  type PanelHeightSession
+} from "./panelHeightSession";
+import { LAUNCHER_FRAME_DESIGN_CAP_PX } from "../useLauncherLayoutMetrics";
 
 interface WindowSizingState {
   lastWindowSize: WindowSize | null;
   syncingWindowSize: boolean;
   queuedWindowSync: boolean;
   pendingCommandActive: boolean;
+  flowPanelActive: boolean;
+  pendingCommandSettled: boolean;
+  flowPanelSettled: boolean;
 }
 
-function createWindowSizingState(): WindowSizingState {
+function createWindowSizingState(options: UseWindowSizingOptions): WindowSizingState {
+  const pendingCommandActive =
+    options.pendingCommand.value !== null &&
+    (options.commandPanelInheritedHeight.value !== null ||
+      options.commandPanelLockedHeight.value !== null);
+  const flowPanelActive =
+    options.stagingExpanded.value &&
+    (options.flowPanelInheritedHeight.value !== null || options.flowPanelLockedHeight.value !== null);
   return {
     lastWindowSize: null,
     syncingWindowSize: false,
     queuedWindowSync: false,
-    pendingCommandActive: false
+    pendingCommandActive,
+    flowPanelActive,
+    pendingCommandSettled: pendingCommandActive && options.commandPanelLockedHeight.value !== null,
+    flowPanelSettled: flowPanelActive && options.flowPanelLockedHeight.value !== null
+  };
+}
+
+function createPanelHeightSessionView(options: UseWindowSizingOptions): PanelHeightSession {
+  return {
+    commandPanelInheritedHeight: options.commandPanelInheritedHeight,
+    commandPanelLockedHeight: options.commandPanelLockedHeight,
+    flowPanelInheritedHeight: options.flowPanelInheritedHeight,
+    flowPanelLockedHeight: options.flowPanelLockedHeight
   };
 }
 
@@ -30,6 +67,31 @@ function resolveShellDragStripHeightFromDom(options: UseWindowSizingOptions): nu
     }
   }
   return UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
+}
+
+function resolveLastFrameHeight(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  dragStripHeight: number
+): number {
+  if (state.lastWindowSize) {
+    return Math.max(0, state.lastWindowSize.height - dragStripHeight);
+  }
+
+  if (options.pendingCommand.value !== null) {
+    return (
+      options.commandPanelLockedHeight.value ??
+      options.commandPanelInheritedHeight.value ??
+      options.constants.paramOverlayMinHeight
+    );
+  }
+
+  return options.constants.windowBaseHeight;
+}
+
+function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
+  const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
+  return Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
 }
 
 function syncLauncherFrameHeightStyle(
@@ -125,24 +187,59 @@ async function applyWindowSize(
   }
 }
 
-function syncPendingCommandFloor(
+function syncPanelHeightSessions(
   options: UseWindowSizingOptions,
   state: WindowSizingState,
   dragStripHeight: number
 ): void {
-  const isPending = options.pendingCommand.value !== null;
-  if (isPending && !state.pendingCommandActive) {
-    const frameHeightBeforeEnter = state.lastWindowSize
-      ? state.lastWindowSize.height - dragStripHeight
-      : options.constants.windowBaseHeight;
-    options.commandPanelFrameHeightFloor.value = frameHeightBeforeEnter;
+  const session = createPanelHeightSessionView(options);
+  const pendingCommandActive = options.pendingCommand.value !== null;
+  const flowPanelActive = options.stagingExpanded.value;
+
+  if (pendingCommandActive && !state.pendingCommandActive) {
+    beginCommandPanelSession(session, resolveLastFrameHeight(options, state, dragStripHeight));
     state.pendingCommandActive = true;
-    return;
+    state.pendingCommandSettled = false;
   }
 
-  if (!isPending && state.pendingCommandActive) {
-    options.commandPanelFrameHeightFloor.value = null;
+  if (!pendingCommandActive && state.pendingCommandActive) {
+    clearCommandPanelSession(session);
     state.pendingCommandActive = false;
+    state.pendingCommandSettled = false;
+  }
+
+  if (flowPanelActive && !state.flowPanelActive) {
+    beginFlowPanelSession(session, resolveLastFrameHeight(options, state, dragStripHeight));
+    state.flowPanelActive = true;
+    state.flowPanelSettled = false;
+  }
+
+  if (!flowPanelActive && state.flowPanelActive) {
+    clearFlowPanelSession(session);
+    state.flowPanelActive = false;
+    state.flowPanelSettled = false;
+  }
+}
+
+function lockSettledPanelHeights(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  dragStripHeight: number
+): void {
+  const session = createPanelHeightSessionView(options);
+  const frameMaxHeight = resolveFrameMaxHeight(options, dragStripHeight);
+
+  if (state.pendingCommandActive && state.pendingCommandSettled) {
+    const commandFrameHeight =
+      resolveCommandPanelFrameHeight(options, frameMaxHeight) ?? options.constants.paramOverlayMinHeight;
+    lockCommandPanelHeight(session, commandFrameHeight);
+  }
+
+  if (state.flowPanelActive && state.flowPanelSettled) {
+    const flowFrameHeight = resolveFlowPanelFrameHeight(options, frameMaxHeight);
+    if (flowFrameHeight !== null) {
+      lockFlowPanelHeight(session, flowFrameHeight);
+    }
   }
 }
 
@@ -210,7 +307,8 @@ function createSyncWindowSizeCore(
     await nextTick();
     try {
       const dragStripHeight = resolveShellDragStripHeightFromDom(options);
-      syncPendingCommandFloor(options, state, dragStripHeight);
+      syncPanelHeightSessions(options, state, dragStripHeight);
+      lockSettledPanelHeights(options, state, dragStripHeight);
       if (
         await handleSearchSettlingResize(
           options,
@@ -252,7 +350,9 @@ function createRequestCommandPanelExit(
     const dragStripHeight = resolveShellDragStripHeightFromDom(options);
     const lockedFrameHeight = state.lastWindowSize
       ? Math.max(0, state.lastWindowSize.height - dragStripHeight)
-      : options.commandPanelFrameHeightFloor.value ?? options.constants.paramOverlayMinHeight;
+      : options.commandPanelLockedHeight.value ??
+        options.commandPanelInheritedHeight.value ??
+        options.constants.paramOverlayMinHeight;
     commandPanelExit.beginExit(lockedFrameHeight);
   };
 }
@@ -272,10 +372,10 @@ function createOnAppFocused(
 }
 
 export function createWindowSizingController(options: UseWindowSizingOptions) {
-  const state = createWindowSizingState();
+  const state = createWindowSizingState(options);
   const commandPanelExit = createCommandPanelExitCoordinator();
 
-  /** 缓动动画路径 — 用于 watcher 触发的响应式更新 */
+  /** 缓动动画路径，用于 watcher 触发的响应式更新。 */
   const scheduleWindowSync = (): void => {
     void syncWindowSize();
   };
@@ -289,7 +389,7 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     return syncWindowSizeCore(options.requestAnimateMainWindowSize);
   }
 
-  /** 即时跳转路径 — 用于聚焦校准等无动画场景 */
+  /** 即时跳转路径，用于聚焦校准等无动画场景。 */
   function syncWindowSizeImmediate(): void {
     void syncWindowSizeCore(options.requestSetMainWindowSize);
   }
@@ -305,14 +405,19 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     scheduleWindowSync();
   };
   const notifyCommandPageSettled = (): void => {
+    state.pendingCommandSettled = true;
+    scheduleWindowSync();
+  };
+  const notifyFlowPanelSettled = (): void => {
+    state.flowPanelSettled = true;
     scheduleWindowSync();
   };
   const onViewportResize = scheduleWindowSync;
   const onAppFocused = createOnAppFocused(options, syncWindowSizeImmediate);
 
-  /** 清理 resize 定时器 — debounce 已移除，保留为空函数兼容外部调用 */
+  /** 清理 resize 定时器，debounce 已移除，保留为空函数兼容外部调用。 */
   function clearResizeTimer(): void {
-    // 前端 debounce 已移除（防抖在 Rust 端），此处为 no-op
+    // 前端 debounce 已移除（防抖在 Rust 端），此处为 no-op。
   }
 
   return {
@@ -320,6 +425,7 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     onAppFocused,
     requestCommandPanelExit,
     notifyCommandPageSettled,
+    notifyFlowPanelSettled,
     notifySearchPageSettled,
     scheduleWindowSync,
     syncWindowSize,

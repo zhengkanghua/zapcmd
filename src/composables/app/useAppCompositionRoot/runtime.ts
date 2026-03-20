@@ -11,6 +11,7 @@ import {
   WINDOW_SIZING_CONSTANTS,
   useLauncherLayoutMetrics
 } from "../../launcher/useLauncherLayoutMetrics";
+import { createPanelHeightSession } from "../../launcher/useWindowSizing/panelHeightSession";
 import { useLauncherVisibility } from "../../launcher/useLauncherVisibility";
 import { useLauncherWatcherBindings } from "../../launcher/useLauncherWatcherBindings";
 import { useLauncherSessionState } from "../../launcher/useLauncherSessionState";
@@ -197,6 +198,9 @@ function createWindowSizingSettleNotifiers(windowSizing: ReturnType<typeof useWi
     },
     notifyCommandPageSettled(): void {
       windowSizing.notifyCommandPageSettled();
+    },
+    notifyFlowPanelSettled(): void {
+      windowSizing.notifyFlowPanelSettled();
     }
   };
 }
@@ -205,7 +209,7 @@ function bindAppRuntime(
   context: AppCompositionContext,
   launcherRuntime: LauncherRuntime
 ) {
-  const commandPanelFrameHeightFloor = ref<number | null>(null);
+  const panelHeightSession = createPanelHeightSession();
   const windowSizing = useWindowSizing({
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: context.isSettingsWindow,
@@ -217,10 +221,12 @@ function bindAppRuntime(
     stagingPanelRef: context.domBridge.stagingPanelRef,
     stagingExpanded: launcherRuntime.stagingQueue.stagingExpanded,
     pendingCommand: launcherRuntime.commandExecution.pendingCommand,
-    commandPanelFrameHeightFloor,
+    commandPanelInheritedHeight: panelHeightSession.commandPanelInheritedHeight,
+    commandPanelLockedHeight: panelHeightSession.commandPanelLockedHeight,
+    flowPanelInheritedHeight: panelHeightSession.flowPanelInheritedHeight,
+    flowPanelLockedHeight: panelHeightSession.flowPanelLockedHeight,
     drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
     drawerViewportHeight: launcherRuntime.layoutMetrics.drawerViewportHeight,
-    stagingVisibleRows: launcherRuntime.layoutMetrics.stagingVisibleRows,
     searchMainWidth: launcherRuntime.layoutMetrics.searchMainWidth,
     minShellWidth: launcherRuntime.layoutMetrics.minShellWidth,
     windowWidthCap: launcherRuntime.layoutMetrics.windowWidthCap,
@@ -228,7 +234,7 @@ function bindAppRuntime(
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
     loadSettings: context.settingsWindow.loadSettings
   });
-  const { notifySearchPageSettled, notifyCommandPageSettled } =
+  const { notifySearchPageSettled, notifyCommandPageSettled, notifyFlowPanelSettled } =
     createWindowSizingSettleNotifiers(windowSizing);
   function requestCommandPanelExit(): void {
     const onCommandActionPage = launcherRuntime.navStack.currentPage.value.type === "command-action";
@@ -321,7 +327,8 @@ function bindAppRuntime(
     hideMainWindow,
     requestCommandPanelExit,
     notifySearchPageSettled,
-    notifyCommandPageSettled
+    notifyCommandPageSettled,
+    notifyFlowPanelSettled
   };
 }
 

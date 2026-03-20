@@ -39,10 +39,12 @@ export interface UseWindowSizingOptions {
   stagingPanelRef: Ref<HTMLElement | null>;
   stagingExpanded: Ref<boolean>;
   pendingCommand: Ref<unknown>;
-  commandPanelFrameHeightFloor: Ref<number | null>;
+  commandPanelInheritedHeight: Ref<number | null>;
+  commandPanelLockedHeight: Ref<number | null>;
+  flowPanelInheritedHeight: Ref<number | null>;
+  flowPanelLockedHeight: Ref<number | null>;
   drawerOpen: Ref<boolean>;
   drawerViewportHeight: Ref<number>;
-  stagingVisibleRows: Ref<number>;
   searchMainWidth: Ref<number>;
   minShellWidth: Ref<number>;
   windowWidthCap: Ref<number>;

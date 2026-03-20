@@ -1,12 +1,8 @@
-import { ref, type Ref } from "vue";
+import { ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   DRAWER_GAP_EST_PX,
-  LAUNCHER_DRAWER_CHROME_HEIGHT_PX,
-  LAUNCHER_DRAWER_FLOOR_ROWS,
-  LAUNCHER_DRAWER_HINT_HEIGHT_PX,
-  LAUNCHER_DRAWER_ROW_HEIGHT_PX,
   LAUNCHER_FRAME_DESIGN_CAP_PX,
   WINDOW_SIZING_CONSTANTS
 } from "../../launcher/useLauncherLayoutMetrics";
@@ -15,15 +11,6 @@ import {
   UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
   type UseWindowSizingOptions
 } from "../../launcher/useWindowSizing/model";
-
-type PanelHeightOverrides = {
-  commandPanelInheritedHeight?: Ref<number | null>;
-  commandPanelLockedHeight?: Ref<number | null>;
-  flowPanelInheritedHeight?: Ref<number | null>;
-  flowPanelLockedHeight?: Ref<number | null>;
-};
-
-type PanelHeightTestOptions = UseWindowSizingOptions & PanelHeightOverrides;
 
 function mockRect(
   element: Element,
@@ -57,8 +44,8 @@ function mockRect(
 }
 
 function createBaseOptions(
-  overrides: Partial<PanelHeightTestOptions> = {}
-): PanelHeightTestOptions {
+  overrides: Partial<UseWindowSizingOptions> = {}
+): UseWindowSizingOptions {
   return {
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: ref(false),
@@ -70,10 +57,12 @@ function createBaseOptions(
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),
     pendingCommand: ref<unknown>(null),
-    commandPanelFrameHeightFloor: ref<number | null>(null),
+    commandPanelInheritedHeight: ref<number | null>(null),
+    commandPanelLockedHeight: ref<number | null>(null),
+    flowPanelInheritedHeight: ref<number | null>(null),
+    flowPanelLockedHeight: ref<number | null>(null),
     drawerOpen: ref(false),
     drawerViewportHeight: ref(0),
-    stagingVisibleRows: ref(0),
     searchMainWidth: ref(680),
     minShellWidth: ref(0),
     windowWidthCap: ref(2000),
@@ -271,8 +260,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     const size = resolveWindowSize(
       createBaseOptions({
         searchShellRef: ref(shell),
-        pendingCommand: ref({ id: "pending" }),
-        commandPanelFrameHeightFloor: ref<number | null>(520)
+        pendingCommand: ref({ id: "pending" })
       })
     );
 
@@ -281,11 +269,10 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
   });
 
-  it("进入 CommandPanel 时不再把进入前搜索高度当作硬 floor", () => {
+  it("pendingCommand 未采集 session 高度时回退到参数页最小高度", () => {
     const size = resolveWindowSize(
       createBaseOptions({
-        pendingCommand: ref({ id: "pending" }),
-        commandPanelFrameHeightFloor: ref<number | null>(520)
+        pendingCommand: ref({ id: "pending" })
       })
     );
 
@@ -294,7 +281,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
   });
 
-  it("pendingCommand 时使用实测内容高度增长，而不是沿用旧搜索高度", () => {
+  it("pendingCommand 时即使 .command-panel 已挂载，也只消费 session 高度", () => {
     const root = document.createElement("div");
     const shell = document.createElement("div");
     const dragStrip = document.createElement("div");
@@ -319,11 +306,11 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       createBaseOptions({
         searchShellRef: ref(shell),
         pendingCommand: ref({ id: "pending" }),
-        commandPanelFrameHeightFloor: ref<number | null>(520)
+        commandPanelInheritedHeight: ref<number | null>(520)
       })
     );
 
-    expect(size.height).toBe(460);
+    expect(size.height).toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
   it("退出锁存在时，即使 pendingCommand 已清空也保持当前锁高", () => {
@@ -353,7 +340,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
   });
 
-  it("CommandPanel 时优先使用 .command-panel 实测高度，避免 shell fill 导致误判为需要最大高度", () => {
+  it("CommandPanel 不读取 .command-panel 实测高度，避免 shell fill 污染会话", () => {
     const root = document.createElement("div");
     const shell = document.createElement("div");
     const dragStrip = document.createElement("div");
@@ -378,20 +365,15 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       createBaseOptions({
         searchShellRef: ref(shell),
         pendingCommand: ref({ id: "pending" }),
+        commandPanelInheritedHeight: ref<number | null>(520),
         windowHeightCap: ref(10_000)
       })
     );
 
-    expect(size.height).toBe(390);
+    expect(size.height).toBe(520 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
-  it("CommandPanel 内打开 FlowPanel 时有搜索页一致的最小高度（不低于 drawer floor）", () => {
-    const drawerFloorViewportHeight =
-      LAUNCHER_DRAWER_FLOOR_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX +
-      (LAUNCHER_DRAWER_CHROME_HEIGHT_PX + LAUNCHER_DRAWER_HINT_HEIGHT_PX);
-    const expectedMinContentHeight =
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + drawerFloorViewportHeight + DRAWER_GAP_EST_PX;
-
+  it("stagingExpanded 不会在缺少 Flow session 时自动抬高搜索高度", () => {
     const size = resolveWindowSize(
       createBaseOptions({
         searchShellRef: ref(null),
@@ -399,12 +381,13 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
         drawerViewportHeight: ref(0),
         stagingExpanded: ref(true),
         stagingPanelRef: ref(null),
-        stagingVisibleRows: ref(0),
         pendingCommand: ref({ id: "pending" })
       })
     );
 
-    expect(size.height).toBe(expectedMinContentHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
   });
 
   it("pendingCommand 未锁高时沿用 commandPanelInheritedHeight", () => {
@@ -428,7 +411,6 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       createBaseOptions({
         stagingExpanded: ref(true),
         stagingPanelRef: ref(null),
-        stagingVisibleRows: ref(0),
         flowPanelInheritedHeight: ref<number | null>(420),
         flowPanelLockedHeight
       })

@@ -9,16 +9,17 @@ import {
 } from "../../launcher/useWindowSizing/model";
 
 type PanelHeightSessionRefs = {
+  commandPanelInheritedHeight: Ref<number | null>;
   commandPanelLockedHeight: Ref<number | null>;
   flowPanelInheritedHeight: Ref<number | null>;
   flowPanelLockedHeight: Ref<number | null>;
 };
 
-type PanelHeightHarnessOverrides = Partial<UseWindowSizingOptions> &
-  Partial<PanelHeightSessionRefs>;
+type PanelHeightHarnessOverrides = Partial<UseWindowSizingOptions>;
 
 function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) {
   const {
+    commandPanelInheritedHeight = ref<number | null>(null),
     commandPanelLockedHeight = ref<number | null>(null),
     flowPanelInheritedHeight = ref<number | null>(null),
     flowPanelLockedHeight = ref<number | null>(null),
@@ -39,10 +40,12 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),
     pendingCommand: ref<unknown>({ id: "pending" }),
-    commandPanelFrameHeightFloor: ref<number | null>(null),
+    commandPanelInheritedHeight: ref<number | null>(null),
+    commandPanelLockedHeight: ref<number | null>(null),
+    flowPanelInheritedHeight: ref<number | null>(null),
+    flowPanelLockedHeight: ref<number | null>(null),
     drawerOpen: ref(false),
     drawerViewportHeight: ref(0),
-    stagingVisibleRows: ref(0),
     searchMainWidth: ref(680),
     minShellWidth: ref(0),
     windowWidthCap: ref(2000),
@@ -54,15 +57,17 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
   const options = {
     ...baseOptions,
     ...restOverrides,
+    commandPanelInheritedHeight,
     commandPanelLockedHeight,
     flowPanelInheritedHeight,
     flowPanelLockedHeight
-  } as UseWindowSizingOptions & PanelHeightSessionRefs;
+  };
 
   return {
     controller: createWindowSizingController(options),
     options,
     state: {
+      commandPanelInheritedHeight,
       commandPanelLockedHeight,
       flowPanelInheritedHeight,
       flowPanelLockedHeight
@@ -83,9 +88,9 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
   );
   const pendingCommand = ref<unknown>(null);
   const stagingExpanded = ref(false);
-  const stagingVisibleRows = ref(0);
 
   const harness = createWindowSizingHarness({
+    commandPanelInheritedHeight: ref<number | null>(null),
     commandPanelLockedHeight: ref<number | null>(null),
     flowPanelInheritedHeight: ref<number | null>(null),
     flowPanelLockedHeight: ref<number | null>(null),
@@ -93,7 +98,6 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
     drawerViewportHeight,
     pendingCommand,
     stagingExpanded,
-    stagingVisibleRows,
     stagingPanelRef: ref(null)
   });
   return {
@@ -104,19 +108,20 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
       drawerOpen,
       drawerViewportHeight,
       pendingCommand,
-      stagingExpanded,
-      stagingVisibleRows
+      stagingExpanded
     }
   };
 }
 
 function createCommandAndFlowHarness() {
+  const commandPanelInheritedHeight = ref<number | null>(560);
   const commandPanelLockedHeight = ref<number | null>(560);
   const flowPanelInheritedHeight = ref<number | null>(420);
   const flowPanelLockedHeight = ref<number | null>(608);
   const stagingExpanded = ref(true);
   const pendingCommand = ref<unknown>({ id: "pending" });
   const harness = createWindowSizingHarness({
+    commandPanelInheritedHeight,
     commandPanelLockedHeight,
     flowPanelInheritedHeight,
     flowPanelLockedHeight,
@@ -157,7 +162,10 @@ function createExitHarness() {
   const drawerOpen = ref(false);
   const drawerViewportHeight = ref(0);
   const pendingCommand = ref<unknown>({ id: "pending" });
-  const commandPanelFrameHeightFloor = ref<number | null>(520);
+  const commandPanelInheritedHeight = ref<number | null>(520);
+  const commandPanelLockedHeight = ref<number | null>(null);
+  const flowPanelInheritedHeight = ref<number | null>(null);
+  const flowPanelLockedHeight = ref<number | null>(null);
 
   const requestAnimateMainWindowSize = vi.fn<
     UseWindowSizingOptions["requestAnimateMainWindowSize"]
@@ -174,10 +182,12 @@ function createExitHarness() {
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),
     pendingCommand,
-    commandPanelFrameHeightFloor,
+    commandPanelInheritedHeight,
+    commandPanelLockedHeight,
+    flowPanelInheritedHeight,
+    flowPanelLockedHeight,
     drawerOpen,
     drawerViewportHeight,
-    stagingVisibleRows: ref(0),
     searchMainWidth: ref(680),
     minShellWidth: ref(0),
     windowWidthCap: ref(2000),
@@ -192,7 +202,10 @@ function createExitHarness() {
       drawerOpen,
       drawerViewportHeight,
       pendingCommand,
-      commandPanelFrameHeightFloor
+      commandPanelInheritedHeight,
+      commandPanelLockedHeight,
+      flowPanelInheritedHeight,
+      flowPanelLockedHeight
     },
     spies: {
       requestAnimateMainWindowSize
@@ -205,7 +218,10 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
     const drawerOpen = ref(true);
     const drawerViewportHeight = ref(5_000);
     const pendingCommand = ref<unknown>({ id: "pending" });
-    const commandPanelFrameHeightFloor = ref<number | null>(null);
+    const commandPanelInheritedHeight = ref<number | null>(null);
+    const commandPanelLockedHeight = ref<number | null>(null);
+    const flowPanelInheritedHeight = ref<number | null>(null);
+    const flowPanelLockedHeight = ref<number | null>(null);
 
     const requestAnimateMainWindowSize = vi.fn<
       UseWindowSizingOptions["requestAnimateMainWindowSize"]
@@ -222,10 +238,12 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
       stagingPanelRef: ref(null),
       stagingExpanded: ref(false),
       pendingCommand,
-      commandPanelFrameHeightFloor,
+      commandPanelInheritedHeight,
+      commandPanelLockedHeight,
+      flowPanelInheritedHeight,
+      flowPanelLockedHeight,
       drawerOpen,
       drawerViewportHeight,
-      stagingVisibleRows: ref(0),
       searchMainWidth: ref(680),
       minShellWidth: ref(0),
       windowWidthCap: ref(2000),
@@ -292,10 +310,12 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
       stagingPanelRef: ref(null),
       stagingExpanded: ref(false),
       pendingCommand: ref<unknown>({ id: "pending" }),
-      commandPanelFrameHeightFloor: ref<number | null>(null),
+      commandPanelInheritedHeight: ref<number | null>(null),
+      commandPanelLockedHeight: ref<number | null>(null),
+      flowPanelInheritedHeight: ref<number | null>(null),
+      flowPanelLockedHeight: ref<number | null>(null),
       drawerOpen: ref(false),
       drawerViewportHeight: ref(0),
-      stagingVisibleRows: ref(0),
       searchMainWidth: ref(680),
       minShellWidth: ref(0),
       windowWidthCap: ref(2000),
@@ -382,18 +402,14 @@ describe("createWindowSizingController（Flow 会话）", () => {
     );
     harness.spies.requestAnimateMainWindowSize.mockClear();
 
-    // 切换到 Command + Flow，并显式提供“旧列表估算”输入
+    // 切换到 Command + Flow，预期仍先沿用当前 frame height，直到各自 settled。
     harness.state.pendingCommand.value = { id: "pending" };
     harness.state.drawerOpen.value = false;
     harness.state.drawerViewportHeight.value = 0;
-    harness.state.stagingVisibleRows.value = 6;
     harness.state.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
 
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
-      expect.any(Number),
-      harness.lastFrameHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
-    );
+    expect(harness.spies.requestAnimateMainWindowSize).not.toHaveBeenCalled();
     expect(harness.state.flowPanelInheritedHeight.value).toBe(harness.lastFrameHeight);
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
   });
