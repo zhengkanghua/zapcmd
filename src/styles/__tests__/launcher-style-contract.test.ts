@@ -7,6 +7,42 @@ const launcherCss = readFileSync(
   "utf8"
 );
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getSelectorRuleBodies(selector: string): string[] {
+  const selectorPattern = escapeRegExp(selector);
+  const ruleRegex = new RegExp(
+    `(?:^|\\n)\\s*${selectorPattern}\\s*\\{([\\s\\S]*?)\\}`,
+    "g"
+  );
+  const bodies: string[] = [];
+  for (const match of launcherCss.matchAll(ruleRegex)) {
+    if (typeof match[1] === "string") {
+      bodies.push(match[1]);
+    }
+  }
+  return bodies;
+}
+
+function expectSelectorRuleContains(selector: string, declaration: RegExp): void {
+  const blocks = getSelectorRuleBodies(selector);
+  expect(
+    blocks.length,
+    `未找到选择器规则块: ${selector}`
+  ).toBeGreaterThan(0);
+
+  const declarationRegex = new RegExp(
+    declaration.source,
+    declaration.flags.replaceAll("g", "")
+  );
+  expect(
+    blocks.some((block) => declarationRegex.test(block)),
+    `${selector} 规则块内缺少声明: ${declaration.source}`
+  ).toBe(true);
+}
+
 describe("launcher.css contract", () => {
   it("launcher-root 在窗口中水平居中主视觉盒子", () => {
     expect(launcherCss).toMatch(/\.launcher-root\s*\{[\s\S]*place-items:\s*start center;/);
@@ -20,21 +56,24 @@ describe("launcher.css contract", () => {
   });
 
   it("CommandPanel / FlowPanel 三段式与滚动 contract", () => {
-    expect(launcherCss).toMatch(/\.command-panel\s*\{[\s\S]*height:\s*100%/);
-    expect(launcherCss).toMatch(
-      /\.command-panel\s*\{[\s\S]*grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\)\s+auto/
+    expectSelectorRuleContains(".command-panel", /height:\s*100%/);
+    expectSelectorRuleContains(
+      ".command-panel",
+      /grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\)\s+auto/
     );
 
-    expect(launcherCss).toMatch(/\.flow-panel\s*\{[\s\S]*height:\s*100%/);
-    expect(launcherCss).toMatch(
-      /\.flow-panel\s*\{[\s\S]*grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\)\s+auto/
+    expectSelectorRuleContains(".flow-panel", /height:\s*100%/);
+    expectSelectorRuleContains(
+      ".flow-panel",
+      /grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\)\s+auto/
     );
 
-    expect(launcherCss).toMatch(/\.flow-panel__body\s*\{[\s\S]*min-height:\s*0/);
-    expect(launcherCss).toMatch(/\.flow-panel__body\s*\{[\s\S]*overflow-y:\s*auto/);
-    expect(launcherCss).toMatch(
-      /\.flow-panel--has-list\s+\.flow-panel__body\s*\{[\s\S]*overflow:\s*hidden/
+    expectSelectorRuleContains(".flow-panel__body", /min-height:\s*0/);
+    expectSelectorRuleContains(".flow-panel__body", /overflow-y:\s*auto/);
+    expectSelectorRuleContains(
+      ".flow-panel--has-list .flow-panel__body",
+      /overflow:\s*hidden/
     );
-    expect(launcherCss).toMatch(/\.flow-panel__list\s*\{[\s\S]*overflow-y:\s*auto/);
+    expectSelectorRuleContains(".flow-panel__list", /overflow-y:\s*auto/);
   });
 });

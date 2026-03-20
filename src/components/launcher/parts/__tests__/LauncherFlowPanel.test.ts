@@ -101,9 +101,12 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
       props: createProps({ stagingDrawerState: "open" })
     });
 
+    // 首帧 mount 同步阶段不应立即发出，必须在 mounted/nextTick 后补发。
+    expect(wrapper.emitted("flow-panel-settled")).toBeUndefined();
+
     await nextTick();
 
-    expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+    expect(wrapper.emitted("flow-panel-settled") ?? []).toHaveLength(1);
     wrapper.unmount();
   });
 
