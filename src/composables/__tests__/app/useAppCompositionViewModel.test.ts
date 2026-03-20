@@ -126,6 +126,7 @@ describe("createAppCompositionViewModel", () => {
       pendingSubmitHint: ref(""),
       requestCommandPanelExit: vi.fn(),
       notifyCommandPageSettled: vi.fn(),
+      notifyFlowPanelSettled: vi.fn(),
       notifySearchPageSettled: vi.fn(),
       closeSettingsWindow: vi.fn(),
       forceCloseSettingsWindow: vi.fn(),
@@ -136,6 +137,10 @@ describe("createAppCompositionViewModel", () => {
       context as never,
       runtime as never
     );
+
+    expect(viewModel.notifyFlowPanelSettled).toBeTypeOf("function");
+    expect("drawerFloorViewportHeight" in viewModel).toBe(false);
+    expect("stagingListMaxHeight" in viewModel).toBe(false);
 
     const submitted = viewModel.submitParamInput();
 

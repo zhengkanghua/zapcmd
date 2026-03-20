@@ -44,7 +44,6 @@ describe("useLauncherWatcherBindings", () => {
     expect(mocked.mock.calls[0]?.[0]).toMatchObject({
       drawerOpen,
       drawerVisibleRows,
-      stagingVisibleRows,
       pendingCommand,
       stagingDrawerState,
       filteredResults,
@@ -54,8 +53,8 @@ describe("useLauncherWatcherBindings", () => {
       ensureActiveResultVisible,
       paramInputRef
     });
+    expect(mocked.mock.calls[0]?.[0]).not.toHaveProperty("stagingVisibleRows");
     expect(mocked.mock.calls[0]?.[0].scheduleWindowSync).toBe(windowSizing.scheduleWindowSync);
   });
 });
-
 

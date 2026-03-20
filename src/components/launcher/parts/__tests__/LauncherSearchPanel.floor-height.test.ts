@@ -80,7 +80,7 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     }
   });
 
-  it("drawerFillerHeight > 0 时渲染 filler，且 aria-hidden 且不进入 <ul>", () => {
+  it("drawerOpen=true 时不再渲染 filler，避免人为补高 Search", () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createProps({
         filteredResults: [createCommandTemplate("a")],
@@ -93,34 +93,10 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
       }
     });
 
-    const filler = wrapper.get(".result-drawer__filler");
-    expect(filler.attributes("aria-hidden")).toBe("true");
-    expect(wrapper.find(".result-list .result-drawer__filler").exists()).toBe(false);
-
-    const drawer = wrapper.get(".result-drawer");
-    const lastChild = drawer.element.lastElementChild as HTMLElement | null;
-    expect(lastChild?.classList.contains("result-drawer__filler")).toBe(true);
-
-    expect(filler.findAll("button, a, input, textarea, select, [tabindex]")).toHaveLength(0);
-  });
-
-  it("drawerFillerHeight = 0 时不渲染 filler，避免污染 DOM", () => {
-    const wrapper = mount(LauncherSearchPanel, {
-      props: createProps({
-        filteredResults: [createCommandTemplate("a")],
-        drawerFillerHeight: 0
-      }),
-      global: {
-        stubs: {
-          LauncherHighlightText: { template: "<span />" }
-        }
-      }
-    });
-
     expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
   });
 
-  it("Review 打开但 drawerOpen=false 时渲染 floor 占位，避免左侧背景塌陷", () => {
+  it("drawerOpen=false 时不再渲染 result-drawer-floor 占位", () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createProps({
         query: "",
@@ -137,34 +113,8 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
       }
     });
 
-    const floor = wrapper.get('[data-testid="result-drawer-floor"]');
-    expect((floor.element as HTMLElement).style.height).toBe(`${DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX}px`);
-    expect(floor.attributes("aria-hidden")).toBe("true");
-    expect(floor.attributes()).toHaveProperty("inert");
-  });
-
-  it("Flow 打开但 drawerOpen=false 时渲染 floor 占位，避免左侧背景塌陷", () => {
-    const wrapper = mount(LauncherSearchPanel, {
-      props: createProps({
-        query: "",
-        drawerOpen: false,
-        drawerViewportHeight: 0,
-        drawerFillerHeight: 0,
-        flowOpen: true,
-        reviewOpen: false,
-        drawerFloorViewportHeight: DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX
-      }),
-      global: {
-        stubs: {
-          LauncherQueueSummaryPill: { template: "<button />" }
-        }
-      }
-    });
-
-    const floor = wrapper.get('[data-testid="result-drawer-floor"]');
-    expect((floor.element as HTMLElement).style.height).toBe(`${DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX}px`);
-    expect(floor.attributes("aria-hidden")).toBe("true");
-    expect(floor.attributes()).toHaveProperty("inert");
+    expect(wrapper.find('[data-testid="result-drawer-floor"]').exists()).toBe(false);
+    expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
   });
 });
 
@@ -243,9 +193,6 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
             :staging-expanded="reviewOpen"
             :staged-commands="[{ id: 'cmd-1', title: '示例命令', rawPreview: 'echo preview', renderedCommand: 'echo preview', args: [], argValues: {} }]"
             :staging-hints="[{ keys: ['Esc'], action: '返回' }]"
-            :staging-list-should-scroll="true"
-            :staging-list-max-height="'200px'"
-            :drawer-floor-viewport-height="drawerHeight"
             :focus-zone="'staging'"
             :staging-active-index="0"
             :flow-open="false"

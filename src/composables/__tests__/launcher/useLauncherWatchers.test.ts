@@ -71,6 +71,17 @@ function createHarness() {
 }
 
 describe("useLauncherWatchers", () => {
+  it("不再因为 stagingVisibleRows 变化触发外框 resize", async () => {
+    const harness = createHarness();
+
+    harness.spies.scheduleWindowSync.mockClear();
+    harness.state.stagingVisibleRows.value = 3;
+    await flushWatchers();
+
+    expect(harness.spies.scheduleWindowSync).not.toHaveBeenCalled();
+    harness.scope.stop();
+  });
+
   it("triggers sync on every staging drawer state change", async () => {
     const harness = createHarness();
 
@@ -117,5 +128,4 @@ describe("useLauncherWatchers", () => {
     harness.scope.stop();
   });
 });
-
 

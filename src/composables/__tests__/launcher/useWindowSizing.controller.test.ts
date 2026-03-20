@@ -482,6 +482,23 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
 });
 
 describe("createWindowSizingController（Flow 会话）", () => {
+  it("搜索 -> Flow：先继承搜索当前高度，settled 后仅在不足时补高一次", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: 124 });
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      124 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).not.toBeNull();
+  });
+
   it("Flow 打开时继承当前 frame height，未 settled 前不读旧列表估算", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 420 });
 
@@ -537,6 +554,29 @@ describe("createWindowSizingController（Flow 会话）", () => {
     expect(harness.state.commandPanelLockedHeight.value).toBe(560);
     expect(harness.state.flowPanelInheritedHeight.value).toBeNull();
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
+  });
+
+  it("Command -> Flow -> 关闭 Flow：恢复 commandPanelLockedHeight 语义", async () => {
+    const harness = createCommandAndFlowHarness();
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelLockedHeight.value).toBe(560);
+    expect(harness.state.flowPanelLockedHeight.value).not.toBeNull();
+
+    harness.state.stagingExpanded.value = false;
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelLockedHeight.value).toBe(560);
+    expect(harness.state.flowPanelInheritedHeight.value).toBeNull();
+    expect(harness.state.flowPanelLockedHeight.value).toBeNull();
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      560 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
   });
 });
 
