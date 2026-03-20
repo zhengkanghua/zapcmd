@@ -337,6 +337,7 @@ function createDomRect(partial: Partial<DOMRect>): DOMRect {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.useRealTimers();
   document.body.innerHTML = "";
 });
 
@@ -974,6 +975,47 @@ describe("createWindowSizingController（Flow 会话）", () => {
     await harness.controller.syncWindowSize();
 
     expect(harness.state.flowPanelLockedHeight.value).toBe(harness.lastFrameHeight);
+  });
+
+  it("Flow settled 后在短时观察窗口内允许按最新实测继续补高，稳定后冻结", async () => {
+    vi.useFakeTimers();
+
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [96, 124, 180]
+    });
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(364);
+
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [96, 160, 180]
+    });
+    harness.controller.notifyFlowPanelHeightChange();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(400);
+
+    vi.runOnlyPendingTimers();
+
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [96, 200, 180]
+    });
+    harness.controller.notifyFlowPanelHeightChange();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(400);
+    harness.controller.clearResizeTimer();
   });
 
   it("Flow 关闭时只清 Flow 状态，不污染 command 锁高", async () => {

@@ -6,6 +6,48 @@ import type { StagedCommand } from "../../../../features/launcher/types";
 import type { KeyboardHint, LauncherFlowPanelProps } from "../../types";
 import LauncherFlowPanel from "../LauncherFlowPanel.vue";
 
+class ResizeObserverMock {
+  static instances: ResizeObserverMock[] = [];
+
+  static reset(): void {
+    ResizeObserverMock.instances = [];
+  }
+
+  readonly observe = vi.fn((element: Element) => {
+    this.targets.add(element);
+  });
+
+  readonly unobserve = vi.fn((element: Element) => {
+    this.targets.delete(element);
+  });
+
+  readonly disconnect = vi.fn(() => {
+    this.targets.clear();
+  });
+
+  private readonly targets = new Set<Element>();
+
+  constructor(private readonly callback: ResizeObserverCallback) {
+    ResizeObserverMock.instances.push(this);
+  }
+
+  trigger(): void {
+    const entries = Array.from(this.targets).map((target) => {
+      const rect =
+        target instanceof HTMLElement
+          ? target.getBoundingClientRect()
+          : ({ width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0, x: 0, y: 0 } as DOMRect);
+      return {
+        target,
+        contentRect: rect
+      } as ResizeObserverEntry;
+    });
+    this.callback(entries, this as unknown as ResizeObserver);
+  }
+}
+
+const originalResizeObserver = globalThis.ResizeObserver;
+
 function createStagedCommand(overrides: Partial<StagedCommand> = {}): StagedCommand {
   return {
     id: "cmd-1",
@@ -74,6 +116,14 @@ function mockScrollable(
 const originalClipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
 afterEach(() => {
+  vi.useRealTimers();
+  ResizeObserverMock.reset();
+  if (originalResizeObserver) {
+    globalThis.ResizeObserver = originalResizeObserver;
+  } else {
+    // @ts-expect-error - 测试环境可能原本没有 ResizeObserver
+    delete globalThis.ResizeObserver;
+  }
   if (originalClipboardDescriptor) {
     Object.defineProperty(navigator, "clipboard", originalClipboardDescriptor);
   } else {
@@ -150,6 +200,35 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     await nextTick();
 
     expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it("open 后短时观察前两张卡片尺寸变化，发出 flow-panel-height-change；稳定后停止观察", async () => {
+    vi.useFakeTimers();
+    globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        stagedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
+      })
+    });
+
+    await nextTick();
+    await nextTick();
+
+    expect(wrapper.emitted("flow-panel-settled") ?? []).toHaveLength(1);
+    expect(ResizeObserverMock.instances).toHaveLength(1);
+
+    ResizeObserverMock.instances[0]!.trigger();
+    await Promise.resolve();
+
+    expect(wrapper.emitted("flow-panel-height-change") ?? []).toHaveLength(1);
+
+    vi.runOnlyPendingTimers();
+    ResizeObserverMock.instances[0]!.trigger();
+    await Promise.resolve();
+
+    expect(wrapper.emitted("flow-panel-height-change") ?? []).toHaveLength(1);
     wrapper.unmount();
   });
 

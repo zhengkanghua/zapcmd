@@ -15,6 +15,7 @@ import {
   clearFlowPanelSession,
   lockCommandPanelHeight,
   lockFlowPanelHeight,
+  raiseFlowPanelHeight,
   type PanelHeightSession
 } from "./panelHeightSession";
 import {
@@ -36,7 +37,13 @@ interface WindowSizingState {
   flowPanelActive: boolean;
   pendingCommandSettled: boolean;
   flowPanelSettled: boolean;
+  flowPanelObservationActive: boolean;
+  flowPanelObservationIdleTimer: ReturnType<typeof setTimeout> | null;
+  flowPanelObservationMaxTimer: ReturnType<typeof setTimeout> | null;
 }
+
+const FLOW_PANEL_OBSERVATION_IDLE_MS = 96;
+const FLOW_PANEL_OBSERVATION_MAX_MS = 640;
 
 function createWindowSizingState(options: UseWindowSizingOptions): WindowSizingState {
   const pendingCommandActive =
@@ -53,7 +60,10 @@ function createWindowSizingState(options: UseWindowSizingOptions): WindowSizingS
     pendingCommandActive,
     flowPanelActive,
     pendingCommandSettled: pendingCommandActive && options.commandPanelLockedHeight.value !== null,
-    flowPanelSettled: flowPanelActive && options.flowPanelLockedHeight.value !== null
+    flowPanelSettled: flowPanelActive && options.flowPanelLockedHeight.value !== null,
+    flowPanelObservationActive: false,
+    flowPanelObservationIdleTimer: null,
+    flowPanelObservationMaxTimer: null
   };
 }
 
@@ -256,12 +266,14 @@ function syncPanelHeightSessions(
     beginFlowPanelSession(session, resolveCurrentPanelEffectiveHeight(options));
     state.flowPanelActive = true;
     state.flowPanelSettled = false;
+    stopFlowPanelObservation(state);
   }
 
   if (!flowPanelActive && state.flowPanelActive) {
     clearFlowPanelSession(session);
     state.flowPanelActive = false;
     state.flowPanelSettled = false;
+    stopFlowPanelObservation(state);
   }
 }
 
@@ -321,11 +333,7 @@ function maybeLockFlowPanelHeight(
   state: WindowSizingState,
   frameMaxHeight: number
 ): void {
-  if (
-    !state.flowPanelActive ||
-    !state.flowPanelSettled ||
-    options.flowPanelLockedHeight.value !== null
-  ) {
+  if (!state.flowPanelActive || !state.flowPanelSettled) {
     return;
   }
 
@@ -336,16 +344,68 @@ function maybeLockFlowPanelHeight(
     fallbackMinHeight: resolveFlowPanelFallbackMinHeight(options),
     measuredMinHeight
   });
+  const resolvedFlowPanelHeight = resolvePanelHeight({
+    panelMaxHeight: frameMaxHeight,
+    inheritedPanelHeight:
+      options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
+    panelMinHeight
+  });
 
-  lockFlowPanelHeight(
+  if (options.flowPanelLockedHeight.value === null) {
+    lockFlowPanelHeight(createPanelHeightSessionView(options), resolvedFlowPanelHeight);
+    return;
+  }
+
+  if (!state.flowPanelObservationActive) {
+    return;
+  }
+
+  raiseFlowPanelHeight(
     createPanelHeightSessionView(options),
     resolvePanelHeight({
       panelMaxHeight: frameMaxHeight,
-      inheritedPanelHeight:
-        options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
+      inheritedPanelHeight: options.flowPanelLockedHeight.value,
       panelMinHeight
     })
   );
+}
+
+function clearFlowPanelObservationIdleTimer(state: WindowSizingState): void {
+  if (state.flowPanelObservationIdleTimer === null) {
+    return;
+  }
+  clearTimeout(state.flowPanelObservationIdleTimer);
+  state.flowPanelObservationIdleTimer = null;
+}
+
+function clearFlowPanelObservationMaxTimer(state: WindowSizingState): void {
+  if (state.flowPanelObservationMaxTimer === null) {
+    return;
+  }
+  clearTimeout(state.flowPanelObservationMaxTimer);
+  state.flowPanelObservationMaxTimer = null;
+}
+
+function stopFlowPanelObservation(state: WindowSizingState): void {
+  state.flowPanelObservationActive = false;
+  clearFlowPanelObservationIdleTimer(state);
+  clearFlowPanelObservationMaxTimer(state);
+}
+
+function refreshFlowPanelObservationIdleTimer(state: WindowSizingState): void {
+  clearFlowPanelObservationIdleTimer(state);
+  state.flowPanelObservationIdleTimer = setTimeout(() => {
+    stopFlowPanelObservation(state);
+  }, FLOW_PANEL_OBSERVATION_IDLE_MS);
+}
+
+function beginFlowPanelObservation(state: WindowSizingState): void {
+  stopFlowPanelObservation(state);
+  state.flowPanelObservationActive = true;
+  refreshFlowPanelObservationIdleTimer(state);
+  state.flowPanelObservationMaxTimer = setTimeout(() => {
+    stopFlowPanelObservation(state);
+  }, FLOW_PANEL_OBSERVATION_MAX_MS);
 }
 
 function finalizeCommandPanelExit(
@@ -536,14 +596,22 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
   };
   const notifyFlowPanelSettled = (): void => {
     state.flowPanelSettled = true;
+    beginFlowPanelObservation(state);
+    scheduleWindowSync();
+  };
+  const notifyFlowPanelHeightChange = (): void => {
+    if (!state.flowPanelActive || !state.flowPanelSettled || !state.flowPanelObservationActive) {
+      return;
+    }
+    refreshFlowPanelObservationIdleTimer(state);
     scheduleWindowSync();
   };
   const onViewportResize = scheduleWindowSync;
   const onAppFocused = createOnAppFocused(options, syncWindowSizeImmediate);
 
-  /** 清理 resize 定时器，debounce 已移除，保留为空函数兼容外部调用。 */
+  /** 清理 FlowPanel 观察窗口定时器，避免窗口卸载后遗留异步回调。 */
   function clearResizeTimer(): void {
-    // 前端 debounce 已移除（防抖在 Rust 端），此处为 no-op。
+    stopFlowPanelObservation(state);
   }
 
   return {
@@ -551,6 +619,7 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     onAppFocused,
     requestCommandPanelExit,
     notifyCommandPageSettled,
+    notifyFlowPanelHeightChange,
     notifyFlowPanelSettled,
     notifySearchPageSettled,
     scheduleWindowSync,

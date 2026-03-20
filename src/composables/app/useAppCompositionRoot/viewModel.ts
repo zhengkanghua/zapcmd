@@ -218,6 +218,7 @@ export function createAppCompositionViewModel(
     submitParamInput,
     requestCommandPanelExit: runtime.requestCommandPanelExit,
     notifyCommandPageSettled: runtime.notifyCommandPageSettled,
+    notifyFlowPanelHeightChange: runtime.notifyFlowPanelHeightChange,
     notifyFlowPanelSettled: runtime.notifyFlowPanelSettled,
     notifySearchPageSettled: runtime.notifySearchPageSettled,
     updatePendingArgValue: runtime.commandExecution.updatePendingArgValue,

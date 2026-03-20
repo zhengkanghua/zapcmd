@@ -143,6 +143,30 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
   });
 
+  it("FlowPanel 发出 flow-panel-height-change 时，LauncherWindow 向上透传同名事件", async () => {
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: { type: "search" },
+        stagingExpanded: true,
+        stagingDrawerState: "open"
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherCommandPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherFlowPanel: {
+            template:
+              "<button class='stub-flow-height-change' @click=\"$emit('flow-panel-height-change')\">flow height change</button>"
+          }
+        }
+      }
+    });
+
+    await wrapper.get(".stub-flow-height-change").trigger("click");
+    expect(wrapper.emitted("flow-panel-height-change")).toHaveLength(1);
+  });
+
   it("command-action 页面渲染 CommandPanel，并透传 submit/cancel 事件", async () => {
     const command = createCommandTemplate("cmd-1");
     const commandPage: NavPage = {

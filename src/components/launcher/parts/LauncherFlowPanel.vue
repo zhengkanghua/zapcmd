@@ -15,8 +15,15 @@ const gripReorderActive = ref(false);
 const flowPanelSettledEmitted = ref(false);
 let gripReorderCleanup: (() => void) | null = null;
 let previousBodyUserSelect = "";
+let flowPanelHeightObserver: ResizeObserver | null = null;
+let flowPanelHeightIdleTimer: ReturnType<typeof setTimeout> | null = null;
+let flowPanelHeightMaxTimer: ReturnType<typeof setTimeout> | null = null;
+let flowPanelHeightChangeQueued = false;
 const draggingCommandId = ref<string | null>(null);
 const dragOverCommandId = ref<string | null>(null);
+
+const FLOW_PANEL_HEIGHT_OBSERVATION_IDLE_MS = 96;
+const FLOW_PANEL_HEIGHT_OBSERVATION_MAX_MS = 640;
 
 const emit = defineEmits<{
   (e: "toggle-staging"): void;
@@ -30,6 +37,7 @@ const emit = defineEmits<{
   (e: "clear-staging"): void;
   (e: "execute-staged"): void;
   (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
+  (e: "flow-panel-height-change"): void;
   (e: "flow-panel-settled"): void;
 }>();
 
@@ -84,6 +92,126 @@ async function emitFlowPanelSettledOnce(): Promise<void> {
 
   flowPanelSettledEmitted.value = true;
   emit("flow-panel-settled");
+  beginFlowPanelHeightObservation();
+}
+
+function clearFlowPanelHeightIdleTimer(): void {
+  if (flowPanelHeightIdleTimer === null) {
+    return;
+  }
+  clearTimeout(flowPanelHeightIdleTimer);
+  flowPanelHeightIdleTimer = null;
+}
+
+function clearFlowPanelHeightMaxTimer(): void {
+  if (flowPanelHeightMaxTimer === null) {
+    return;
+  }
+  clearTimeout(flowPanelHeightMaxTimer);
+  flowPanelHeightMaxTimer = null;
+}
+
+function stopFlowPanelHeightObservation(): void {
+  clearFlowPanelHeightIdleTimer();
+  clearFlowPanelHeightMaxTimer();
+  flowPanelHeightObserver?.disconnect();
+  flowPanelHeightObserver = null;
+  flowPanelHeightChangeQueued = false;
+}
+
+function scheduleFlowPanelHeightChangeEmit(): void {
+  if (flowPanelHeightChangeQueued || props.stagingDrawerState !== "open") {
+    return;
+  }
+  flowPanelHeightChangeQueued = true;
+  void Promise.resolve().then(() => {
+    flowPanelHeightChangeQueued = false;
+    if (props.stagingDrawerState !== "open" || flowPanelHeightObserver === null) {
+      return;
+    }
+    emit("flow-panel-height-change");
+  });
+}
+
+function refreshFlowPanelHeightIdleTimer(): void {
+  clearFlowPanelHeightIdleTimer();
+  flowPanelHeightIdleTimer = setTimeout(() => {
+    stopFlowPanelHeightObservation();
+  }, FLOW_PANEL_HEIGHT_OBSERVATION_IDLE_MS);
+}
+
+function resolveFlowPanelHeightObservationTargets(): HTMLElement[] {
+  const panel = reviewPanelRef.value;
+  if (!panel) {
+    return [];
+  }
+
+  const targets: HTMLElement[] = [];
+  const header = panel.querySelector<HTMLElement>(".flow-panel__header");
+  const footer = panel.querySelector<HTMLElement>(".flow-panel__footer");
+  if (header) {
+    targets.push(header);
+  }
+  if (footer) {
+    targets.push(footer);
+  }
+
+  const emptyState = panel.querySelector<HTMLElement>(".flow-panel__empty");
+  if (emptyState) {
+    targets.push(emptyState);
+    return targets;
+  }
+
+  const listItems = Array.from(panel.querySelectorAll<HTMLElement>(".flow-panel__list-item")).slice(0, 2);
+  targets.push(...listItems);
+  return targets;
+}
+
+function bindFlowPanelHeightObservationTargets(): void {
+  if (!flowPanelHeightObserver) {
+    return;
+  }
+  flowPanelHeightObserver.disconnect();
+  for (const target of resolveFlowPanelHeightObservationTargets()) {
+    flowPanelHeightObserver.observe(target);
+  }
+}
+
+function beginFlowPanelHeightObservation(): void {
+  stopFlowPanelHeightObservation();
+  if (props.stagingDrawerState !== "open" || typeof ResizeObserver !== "function") {
+    return;
+  }
+
+  flowPanelHeightObserver = new ResizeObserver(() => {
+    if (props.stagingDrawerState !== "open") {
+      return;
+    }
+    scheduleFlowPanelHeightChangeEmit();
+    refreshFlowPanelHeightIdleTimer();
+  });
+  bindFlowPanelHeightObservationTargets();
+  refreshFlowPanelHeightIdleTimer();
+  flowPanelHeightMaxTimer = setTimeout(() => {
+    stopFlowPanelHeightObservation();
+  }, FLOW_PANEL_HEIGHT_OBSERVATION_MAX_MS);
+}
+
+async function refreshFlowPanelHeightObservationTargets(emitChange = false): Promise<void> {
+  if (!flowPanelHeightObserver || props.stagingDrawerState !== "open") {
+    return;
+  }
+
+  await nextTick();
+  if (!flowPanelHeightObserver || props.stagingDrawerState !== "open") {
+    return;
+  }
+
+  bindFlowPanelHeightObservationTargets();
+  if (emitChange) {
+    refreshFlowPanelHeightIdleTimer();
+    scheduleFlowPanelHeightChangeEmit();
+  }
 }
 
 watch(
@@ -103,6 +231,7 @@ watch(
   (state, previousState) => {
     if (state !== "open") {
       flowPanelSettledEmitted.value = false;
+      stopFlowPanelHeightObservation();
       return;
     }
 
@@ -111,6 +240,16 @@ watch(
     }
 
     void emitFlowPanelSettledOnce();
+  }
+);
+
+watch(
+  () => props.stagedCommands.slice(0, 2).map((cmd) => cmd.id).join("|"),
+  () => {
+    if (props.stagingDrawerState !== "open") {
+      return;
+    }
+    void refreshFlowPanelHeightObservationTargets(true);
   }
 );
 
@@ -428,6 +567,7 @@ async function copyCommand(command: string): Promise<void> {
 }
 
 onBeforeUnmount(() => {
+  stopFlowPanelHeightObservation();
   endGripReorder();
   resetDragIndicators();
 });

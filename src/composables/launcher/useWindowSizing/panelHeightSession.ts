@@ -57,6 +57,19 @@ export function lockFlowPanelHeight(
   session.flowPanelLockedHeight.value = lockedHeight;
 }
 
+/**
+ * FlowPanel 在短时观察窗口内只允许向上补高，避免实测回落导致窗口来回抖动。
+ */
+export function raiseFlowPanelHeight(
+  session: PanelHeightSession,
+  lockedHeight: number
+): void {
+  const currentLockedHeight = session.flowPanelLockedHeight.value;
+  if (currentLockedHeight === null || lockedHeight > currentLockedHeight) {
+    session.flowPanelLockedHeight.value = lockedHeight;
+  }
+}
+
 export function clearFlowPanelSession(session: PanelHeightSession): void {
   session.flowPanelInheritedHeight.value = null;
   session.flowPanelLockedHeight.value = null;

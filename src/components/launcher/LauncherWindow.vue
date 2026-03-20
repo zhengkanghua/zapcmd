@@ -79,6 +79,7 @@ const emit = defineEmits<{
   (e: "submit-param-input"): void;
   (e: "request-command-panel-exit"): void;
   (e: "command-page-settled"): void;
+  (e: "flow-panel-height-change"): void;
   (e: "search-page-settled"): void;
   (e: "flow-panel-settled"): void;
   (e: "arg-input", key: string, value: string): void;
@@ -234,6 +235,7 @@ function onNavAfterEnter(): void {
           @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
           @clear-staging="emit('clear-staging')"
           @execute-staged="emit('execute-staged')"
+          @flow-panel-height-change="emit('flow-panel-height-change')"
           @flow-panel-settled="emit('flow-panel-settled')"
           @execution-feedback="(t: 'neutral' | 'success' | 'error', m: string) => emit('execution-feedback', t, m)"
         />

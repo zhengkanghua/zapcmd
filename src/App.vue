@@ -118,6 +118,7 @@ const {
   closeSettingsWindow,
   hideMainWindow,
   notifyCommandPageSettled,
+  notifyFlowPanelHeightChange,
   notifyFlowPanelSettled,
   saveSettings,
   windowOpacity,
@@ -208,6 +209,7 @@ function navigateToSettingsError(): void {
     @submit-param-input="handleCommandPanelSubmit"
     @request-command-panel-exit="requestCommandPanelExit"
     @command-page-settled="notifyCommandPageSettled"
+    @flow-panel-height-change="notifyFlowPanelHeightChange"
     @flow-panel-settled="notifyFlowPanelSettled"
     @search-page-settled="notifySearchPageSettled"
     @arg-input="updatePendingArgValue"

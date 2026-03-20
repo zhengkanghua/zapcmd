@@ -126,6 +126,7 @@ describe("createAppCompositionViewModel", () => {
       pendingSubmitHint: ref(""),
       requestCommandPanelExit: vi.fn(),
       notifyCommandPageSettled: vi.fn(),
+      notifyFlowPanelHeightChange: vi.fn(),
       notifyFlowPanelSettled: vi.fn(),
       notifySearchPageSettled: vi.fn(),
       closeSettingsWindow: vi.fn(),
@@ -139,6 +140,7 @@ describe("createAppCompositionViewModel", () => {
     );
 
     expect(viewModel.notifyFlowPanelSettled).toBeTypeOf("function");
+    expect(viewModel.notifyFlowPanelHeightChange).toBeTypeOf("function");
     expect("drawerFloorViewportHeight" in viewModel).toBe(false);
     expect("stagingListMaxHeight" in viewModel).toBe(false);
 

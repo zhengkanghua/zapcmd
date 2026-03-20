@@ -6,7 +6,8 @@ import {
   clearFlowPanelSession,
   createPanelHeightSession,
   lockCommandPanelHeight,
-  lockFlowPanelHeight
+  lockFlowPanelHeight,
+  raiseFlowPanelHeight
 } from "../../launcher/useWindowSizing/panelHeightSession";
 
 describe("panelHeightSession", () => {
@@ -54,5 +55,17 @@ describe("panelHeightSession", () => {
     lockFlowPanelHeight(session, 680);
 
     expect(session.flowPanelLockedHeight.value).toBe(620);
+  });
+
+  it("Flow 观察窗口内只允许向上抬高已锁高度，不能向下回退", () => {
+    const session = createPanelHeightSession();
+    beginCommandPanelSession(session, 420);
+    beginFlowPanelSession(session, 560);
+
+    lockFlowPanelHeight(session, 620);
+    raiseFlowPanelHeight(session, 680);
+    raiseFlowPanelHeight(session, 640);
+
+    expect(session.flowPanelLockedHeight.value).toBe(680);
   });
 });

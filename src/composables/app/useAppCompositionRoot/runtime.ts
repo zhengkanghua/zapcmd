@@ -199,6 +199,9 @@ function createWindowSizingSettleNotifiers(windowSizing: ReturnType<typeof useWi
     notifyCommandPageSettled(): void {
       windowSizing.notifyCommandPageSettled();
     },
+    notifyFlowPanelHeightChange(): void {
+      windowSizing.notifyFlowPanelHeightChange();
+    },
     notifyFlowPanelSettled(): void {
       windowSizing.notifyFlowPanelSettled();
     }
@@ -246,7 +249,12 @@ function bindAppRuntime(
   const windowSizing = useWindowSizing(
     createWindowSizingOptions(context, launcherRuntime, panelHeightSession)
   );
-  const { notifySearchPageSettled, notifyCommandPageSettled, notifyFlowPanelSettled } =
+  const {
+    notifySearchPageSettled,
+    notifyCommandPageSettled,
+    notifyFlowPanelHeightChange,
+    notifyFlowPanelSettled
+  } =
     createWindowSizingSettleNotifiers(windowSizing);
   function requestCommandPanelExit(): void {
     const onCommandActionPage = launcherRuntime.navStack.currentPage.value.type === "command-action";
@@ -339,6 +347,7 @@ function bindAppRuntime(
     requestCommandPanelExit,
     notifySearchPageSettled,
     notifyCommandPageSettled,
+    notifyFlowPanelHeightChange,
     notifyFlowPanelSettled
   };
 }
