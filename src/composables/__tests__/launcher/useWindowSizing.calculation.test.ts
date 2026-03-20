@@ -340,6 +340,42 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
   });
 
+  it("search-settling 恢复目标采样可显式跳过旧 shell 实测高度", () => {
+    const root = document.createElement("div");
+    const shell = document.createElement("div");
+    const dragStrip = document.createElement("div");
+    dragStrip.className = "shell-drag-strip";
+    shell.appendChild(dragStrip);
+    root.appendChild(shell);
+    document.body.appendChild(root);
+
+    mockRect(root, { top: 0, bottom: 1_000 });
+    mockRect(shell, { top: 0, bottom: 430 });
+    mockRect(dragStrip, {
+      top: 0,
+      bottom: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
+      height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    });
+
+    const size = resolveWindowSize(
+      createBaseOptions({
+        searchShellRef: ref(shell),
+        pendingCommand: ref(null),
+        drawerOpen: ref(false),
+        drawerViewportHeight: ref(0)
+      }),
+      {
+        commandPanelExitFrameHeightLock: 520,
+        ignoreCommandPanelExitLock: true,
+        ignoreMeasuredSearchPanelHeight: true
+      }
+    );
+
+    expect(size.height).toBe(
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+  });
+
   it("CommandPanel 不读取 .command-panel 实测高度，避免 shell fill 污染会话", () => {
     const root = document.createElement("div");
     const shell = document.createElement("div");

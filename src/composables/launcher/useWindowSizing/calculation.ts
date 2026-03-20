@@ -5,6 +5,7 @@ import { DRAWER_GAP_EST_PX, LAUNCHER_FRAME_DESIGN_CAP_PX } from "../useLauncherL
 interface ResolveWindowSizeOverrides {
   commandPanelExitFrameHeightLock?: number | null;
   ignoreCommandPanelExitLock?: boolean;
+  ignoreMeasuredSearchPanelHeight?: boolean;
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -82,13 +83,16 @@ function estimateWindowContentHeight(options: UseWindowSizingOptions, frameMaxHe
 function resolveSearchPanelFrameHeight(
   options: UseWindowSizingOptions,
   dragStripHeight: number,
-  frameMaxHeight: number
+  frameMaxHeight: number,
+  overrides: ResolveWindowSizeOverrides
 ): number {
-  const measuredContentHeight = measureWindowContentHeightFromLayout(
-    options,
-    dragStripHeight,
-    frameMaxHeight
-  );
+  const measuredContentHeight = overrides.ignoreMeasuredSearchPanelHeight
+    ? null
+    : measureWindowContentHeightFromLayout(
+        options,
+        dragStripHeight,
+        frameMaxHeight
+      );
   const estimatedContentHeight = estimateWindowContentHeight(options, frameMaxHeight);
   return measuredContentHeight === null
     ? estimatedContentHeight
@@ -144,7 +148,12 @@ export function resolveWindowSize(
   const dragStripHeight = resolveShellDragStripHeight(options);
   const frameMaxHeight = resolveFrameMaxHeight(options, dragStripHeight);
   const width = resolveWindowWidth(options);
-  const searchFrameHeight = resolveSearchPanelFrameHeight(options, dragStripHeight, frameMaxHeight);
+  const searchFrameHeight = resolveSearchPanelFrameHeight(
+    options,
+    dragStripHeight,
+    frameMaxHeight,
+    overrides
+  );
   const commandFrameHeight = resolveCommandPanelFrameHeight(options, frameMaxHeight);
   const flowFrameHeight = resolveFlowPanelFrameHeight(options, frameMaxHeight);
   const leftFrameHeight =

@@ -171,7 +171,7 @@ function createExitHarness() {
     UseWindowSizingOptions["requestAnimateMainWindowSize"]
   >(async (_width, _height) => {});
 
-  const controller = createWindowSizingController({
+  const options: UseWindowSizingOptions = {
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: ref(false),
     isTauriRuntime: () => true,
@@ -194,10 +194,12 @@ function createExitHarness() {
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
     loadSettings: () => {}
-  });
+  };
+  const controller = createWindowSizingController(options);
 
   return {
     controller,
+    options,
     state: {
       drawerOpen,
       drawerViewportHeight,
@@ -359,6 +361,24 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
   });
 
+  it("requestCommandPanelExit 的恢复链路完成前保留 Command session，完成后再清理", async () => {
+    const harness = createExitHarness();
+
+    await harness.controller.syncWindowSize();
+    harness.controller.requestCommandPanelExit();
+    harness.state.pendingCommand.value = null;
+
+    await harness.controller.syncWindowSize();
+    expect(harness.state.commandPanelInheritedHeight.value).toBe(520);
+    expect(harness.state.commandPanelLockedHeight.value).toBeNull();
+
+    harness.controller.notifySearchPageSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelInheritedHeight.value).toBeNull();
+    expect(harness.state.commandPanelLockedHeight.value).toBeNull();
+  });
+
   it("重复 requestCommandPanelExit 不会产生额外回落动画（幂等）", async () => {
     const harness = createExitHarness();
 
@@ -387,6 +407,46 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
       WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
     );
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
+  });
+
+  it("search-settling 恢复目标不会读取旧 shell 实测高度", async () => {
+    const root = document.createElement("main");
+    const shell = document.createElement("div");
+    const dragStrip = document.createElement("div");
+    dragStrip.className = "shell-drag-strip";
+    shell.appendChild(dragStrip);
+    root.appendChild(shell);
+    document.body.appendChild(root);
+
+    vi.spyOn(root, "getBoundingClientRect").mockReturnValue(
+      createDomRect({ top: 0, bottom: 1_000, height: 1_000 })
+    );
+    vi.spyOn(shell, "getBoundingClientRect").mockReturnValue(
+      createDomRect({ top: 0, bottom: 430, height: 430 })
+    );
+    vi.spyOn(dragStrip, "getBoundingClientRect").mockReturnValue(
+      createDomRect({ top: 0, bottom: UI_TOP_ALIGN_OFFSET_PX_FALLBACK, height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK })
+    );
+
+    const harness = createExitHarness();
+    harness.options.searchShellRef.value = shell;
+
+    await harness.controller.syncWindowSize();
+    harness.spies.requestAnimateMainWindowSize.mockClear();
+
+    harness.controller.requestCommandPanelExit();
+    harness.state.pendingCommand.value = null;
+    harness.state.drawerOpen.value = false;
+    harness.state.drawerViewportHeight.value = 0;
+
+    await harness.controller.syncWindowSize();
+    harness.controller.notifySearchPageSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
   });
 });
 

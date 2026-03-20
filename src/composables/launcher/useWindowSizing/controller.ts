@@ -190,7 +190,8 @@ async function applyWindowSize(
 function syncPanelHeightSessions(
   options: UseWindowSizingOptions,
   state: WindowSizingState,
-  dragStripHeight: number
+  dragStripHeight: number,
+  commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>
 ): void {
   const session = createPanelHeightSessionView(options);
   const pendingCommandActive = options.pendingCommand.value !== null;
@@ -203,6 +204,9 @@ function syncPanelHeightSessions(
   }
 
   if (!pendingCommandActive && state.pendingCommandActive) {
+    if (commandPanelExit.snapshot().phase !== "idle") {
+      return;
+    }
     clearCommandPanelSession(session);
     state.pendingCommandActive = false;
     state.pendingCommandSettled = false;
@@ -229,7 +233,7 @@ function lockSettledPanelHeights(
   const session = createPanelHeightSessionView(options);
   const frameMaxHeight = resolveFrameMaxHeight(options, dragStripHeight);
 
-  if (state.pendingCommandActive && state.pendingCommandSettled) {
+  if (options.pendingCommand.value !== null && state.pendingCommandActive && state.pendingCommandSettled) {
     const commandFrameHeight =
       resolveCommandPanelFrameHeight(options, frameMaxHeight) ?? options.constants.paramOverlayMinHeight;
     lockCommandPanelHeight(session, commandFrameHeight);
@@ -241,6 +245,21 @@ function lockSettledPanelHeights(
       lockFlowPanelHeight(session, flowFrameHeight);
     }
   }
+}
+
+function finalizeCommandPanelExit(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>
+): void {
+  commandPanelExit.clear();
+  if (options.pendingCommand.value !== null) {
+    return;
+  }
+
+  clearCommandPanelSession(createPanelHeightSessionView(options));
+  state.pendingCommandActive = false;
+  state.pendingCommandSettled = false;
 }
 
 async function handleSearchSettlingResize(
@@ -258,7 +277,9 @@ async function handleSearchSettlingResize(
 
   const restoreBaseSize = resolveWindowSize(options, {
     commandPanelExitFrameHeightLock,
-    ignoreCommandPanelExitLock: true
+    ignoreCommandPanelExitLock: true,
+    // nav-slide out-in 期间可能还残留旧 search shell；恢复目标采样必须只走安全口径。
+    ignoreMeasuredSearchPanelHeight: true
   });
   const restoreTargetFrameHeight =
     snapshot.restoreTargetFrameHeight ??
@@ -268,7 +289,7 @@ async function handleSearchSettlingResize(
   }
 
   if (restoreTargetFrameHeight >= commandPanelExitFrameHeightLock) {
-    commandPanelExit.clear();
+    finalizeCommandPanelExit(options, state, commandPanelExit);
     state.queuedWindowSync = true;
     return true;
   }
@@ -282,7 +303,7 @@ async function handleSearchSettlingResize(
       height: restoreTargetFrameHeight + dragStripHeight
     },
     {
-      beforeSyncStyle: () => commandPanelExit.clear()
+      beforeSyncStyle: () => finalizeCommandPanelExit(options, state, commandPanelExit)
     }
   );
   return true;
@@ -307,7 +328,7 @@ function createSyncWindowSizeCore(
     await nextTick();
     try {
       const dragStripHeight = resolveShellDragStripHeightFromDom(options);
-      syncPanelHeightSessions(options, state, dragStripHeight);
+      syncPanelHeightSessions(options, state, dragStripHeight, commandPanelExit);
       lockSettledPanelHeights(options, state, dragStripHeight);
       if (
         await handleSearchSettlingResize(
