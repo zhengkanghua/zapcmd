@@ -113,6 +113,37 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
   };
 }
 
+function createCommandHarness({ lastFrameHeight = 520 } = {}) {
+  const drawerOpen = ref(true);
+  const drawerViewportHeight = ref(
+    Math.max(
+      0,
+      lastFrameHeight - WINDOW_SIZING_CONSTANTS.windowBaseHeight - DRAWER_GAP_EST_PX
+    )
+  );
+  const pendingCommand = ref<unknown>(null);
+
+  const harness = createWindowSizingHarness({
+    commandPanelInheritedHeight: ref<number | null>(null),
+    commandPanelLockedHeight: ref<number | null>(null),
+    flowPanelInheritedHeight: ref<number | null>(null),
+    flowPanelLockedHeight: ref<number | null>(null),
+    drawerOpen,
+    drawerViewportHeight,
+    pendingCommand
+  });
+  return {
+    ...harness,
+    lastFrameHeight,
+    state: {
+      ...harness.state,
+      drawerOpen,
+      drawerViewportHeight,
+      pendingCommand
+    }
+  };
+}
+
 function createCommandAndFlowHarness() {
   const commandPanelInheritedHeight = ref<number | null>(560);
   const commandPanelLockedHeight = ref<number | null>(560);
@@ -474,6 +505,29 @@ describe("createWindowSizingController（Flow 会话）", () => {
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
   });
 
+  it("notifyFlowPanelSettled 首次写入 flowPanelLockedHeight，再次通知不覆写已锁高度", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: 420 });
+
+    await harness.controller.syncWindowSize();
+    harness.state.drawerOpen.value = false;
+    harness.state.drawerViewportHeight.value = 0;
+    harness.state.stagingExpanded.value = true;
+
+    await harness.controller.syncWindowSize();
+    expect(harness.state.flowPanelLockedHeight.value).toBeNull();
+
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(harness.lastFrameHeight);
+
+    harness.state.flowPanelInheritedHeight.value = 640;
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(harness.lastFrameHeight);
+  });
+
   it("Flow 关闭时只清 Flow 状态，不污染 command 锁高", async () => {
     const harness = createCommandAndFlowHarness();
 
@@ -483,5 +537,30 @@ describe("createWindowSizingController（Flow 会话）", () => {
     expect(harness.state.commandPanelLockedHeight.value).toBe(560);
     expect(harness.state.flowPanelInheritedHeight.value).toBeNull();
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
+  });
+});
+
+describe("createWindowSizingController（Command settled 锁高）", () => {
+  it("notifyCommandPageSettled 首次写入 commandPanelLockedHeight，再次通知不覆写已锁高度", async () => {
+    const harness = createCommandHarness({ lastFrameHeight: 520 });
+
+    await harness.controller.syncWindowSize();
+    harness.state.pendingCommand.value = { id: "pending" };
+    harness.state.drawerOpen.value = false;
+    harness.state.drawerViewportHeight.value = 0;
+
+    await harness.controller.syncWindowSize();
+    expect(harness.state.commandPanelLockedHeight.value).toBeNull();
+
+    harness.controller.notifyCommandPageSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelLockedHeight.value).toBe(harness.lastFrameHeight);
+
+    harness.state.commandPanelInheritedHeight.value = 680;
+    harness.controller.notifyCommandPageSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelLockedHeight.value).toBe(harness.lastFrameHeight);
   });
 });
