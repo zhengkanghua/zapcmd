@@ -11,6 +11,11 @@ import {
   useSettingsStore,
 } from "../stores/settingsStore";
 import { LAUNCHER_SESSION_STORAGE_KEY } from "../composables/launcher/useLauncherSessionState";
+import {
+  SEARCH_CAPSULE_HEIGHT_PX,
+  WINDOW_SIZING_CONSTANTS
+} from "../composables/launcher/useLauncherLayoutMetrics";
+import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK } from "../composables/launcher/useWindowSizing/model";
 import App from "../App.vue";
 
 const hoisted = vi.hoisted(() => ({
@@ -208,6 +213,12 @@ function getSettingsStoreFromWrapper(wrapper: VueWrapper) {
 function getInvokeCommandCallCount(command: string): number {
   return hoisted.invokeMock.mock.calls.filter((call) => call[0] === command)
     .length;
+}
+
+function getInvokeCommandCalls(command: string): Array<[string, Record<string, unknown> | undefined]> {
+  return hoisted.invokeMock.mock.calls.filter(
+    (call): call is [string, Record<string, unknown> | undefined] => call[0] === command
+  );
 }
 
 function expectFeedbackContract(
@@ -786,6 +797,111 @@ describe("App failure and event regression", () => {
     );
     expect(hoisted.setSizeSpy).toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
+  });
+
+  it("FlowPanel 因最小高度被补高后，关闭时会恢复到打开前的 Search 高度", async () => {
+    hoisted.isTauriMock.mockReturnValue(true);
+    hoisted.invokeMock.mockImplementation(async (command: string) => {
+      if (command === "get_available_terminals") {
+        return [
+          { id: "powershell", label: "PowerShell", path: "powershell.exe" },
+        ];
+      }
+      if (command === "get_autostart_enabled") {
+        return false;
+      }
+      return undefined;
+    });
+
+    const wrapper = await mountApp();
+    await waitForUi();
+
+    const searchWindowHeight =
+      SEARCH_CAPSULE_HEIGHT_PX +
+      UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+      16;
+    const frameMaxHeight = Math.max(420, Math.floor(window.screen.availHeight * 0.82)) -
+      (UI_TOP_ALIGN_OFFSET_PX_FALLBACK + 16);
+    const flowPanelMinHeight =
+      Math.min(
+        frameMaxHeight,
+        WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
+          WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
+          WINDOW_SIZING_CONSTANTS.stagingListGap,
+      ) +
+      UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+      16;
+
+    const baselineAnimateCount = getInvokeCommandCallCount("animate_main_window_size");
+
+    dispatchWindowKeydown("Tab", { ctrlKey: true });
+    await waitForUi();
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await waitForUi();
+
+    const openCalls = getInvokeCommandCalls("animate_main_window_size").slice(
+      baselineAnimateCount,
+    );
+    expect(openCalls.length).toBeGreaterThan(0);
+    expect(openCalls.at(-1)?.[1]).toMatchObject({ height: flowPanelMinHeight });
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
+
+    dispatchWindowKeydown("Escape");
+    await waitForUi();
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await waitForUi();
+
+    const allCalls = getInvokeCommandCalls("animate_main_window_size");
+    expect(allCalls.at(-1)?.[1]).toMatchObject({ height: searchWindowHeight });
+  });
+
+  it("FlowPanel 在 Command 上补高后，关闭时会恢复到打开前的 Command 高度", async () => {
+    hoisted.isTauriMock.mockReturnValue(true);
+    hoisted.invokeMock.mockImplementation(async (command: string) => {
+      if (command === "get_available_terminals") {
+        return [
+          { id: "powershell", label: "PowerShell", path: "powershell.exe" },
+        ];
+      }
+      if (command === "get_autostart_enabled") {
+        return false;
+      }
+      return undefined;
+    });
+
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+    dispatchWindowKeydown("Enter");
+    await waitForUi();
+    await waitForUi();
+
+    const commandHeight = Number(
+      getInvokeCommandCalls("animate_main_window_size").at(-1)?.[1]?.height,
+    );
+    expect(commandHeight).toBeGreaterThan(0);
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
+
+    dispatchWindowKeydown("Tab", { ctrlKey: true });
+    await waitForUi();
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await waitForUi();
+
+    const flowOpenHeight = Number(
+      getInvokeCommandCalls("animate_main_window_size").at(-1)?.[1]?.height,
+    );
+    expect(flowOpenHeight).toBeGreaterThan(commandHeight);
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
+
+    dispatchWindowKeydown("Escape");
+    await waitForUi();
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await waitForUi();
+
+    const restoredHeight = Number(
+      getInvokeCommandCalls("animate_main_window_size").at(-1)?.[1]?.height,
+    );
+    expect(restoredHeight).toBe(commandHeight);
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
   });
 
   it("skips duplicate window resize command when size has not changed", async () => {

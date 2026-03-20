@@ -125,7 +125,8 @@ function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight:
 function syncLauncherFrameHeightStyle(
   options: UseWindowSizingOptions,
   windowHeight: number,
-  commandPanelExitFrameHeightLock: number | null = null
+  commandPanelExitFrameHeightLock: number | null = null,
+  preferWindowHeight = false
 ): void {
   const shell = options.searchShellRef.value;
   if (!shell) {
@@ -145,6 +146,13 @@ function syncLauncherFrameHeightStyle(
     return;
   }
 
+  const dragStripHeight = resolveShellDragStripHeightFromDom(options);
+  const fallbackHeight = Math.max(0, windowHeight - resolveWindowChromeHeight(dragStripHeight));
+  if (preferWindowHeight) {
+    shell.style.setProperty("--launcher-frame-height", `${fallbackHeight}px`);
+    return;
+  }
+
   const root = shell.parentElement;
   const frame = shell.querySelector<HTMLElement>(".launcher-frame");
   if (root && frame) {
@@ -161,8 +169,6 @@ function syncLauncherFrameHeightStyle(
     }
   }
 
-  const dragStripHeight = resolveShellDragStripHeightFromDom(options);
-  const fallbackHeight = Math.max(0, windowHeight - resolveWindowChromeHeight(dragStripHeight));
   shell.style.setProperty("--launcher-frame-height", `${fallbackHeight}px`);
 }
 
@@ -171,6 +177,7 @@ type ResizeBridge = (width: number, height: number) => Promise<void>;
 interface ResizeStyleSyncOptions {
   beforeSyncStyle?: () => void;
   frameHeightLock?: number | null;
+  preferWindowHeight?: boolean;
 }
 
 async function applyWindowSize(
@@ -185,7 +192,8 @@ async function applyWindowSize(
     syncLauncherFrameHeightStyle(
       options,
       size.height,
-      styleSyncOptions.frameHeightLock ?? null
+      styleSyncOptions.frameHeightLock ?? null,
+      styleSyncOptions.preferWindowHeight ?? false
     );
   };
 
@@ -419,8 +427,12 @@ function createSyncWindowSizeCore(
     await nextTick();
     try {
       const dragStripHeight = resolveShellDragStripHeightFromDom(options);
+      const hadActiveFlowPanel = state.flowPanelActive;
       syncPanelHeightSessions(options, state, commandPanelExit);
       lockSettledPanelHeights(options, state, dragStripHeight);
+      const preferWindowHeightForLauncherFrame =
+        options.pendingCommand.value !== null &&
+        (options.stagingExpanded.value || hadActiveFlowPanel);
       if (
         await handleSearchSettlingResize(
           options,
@@ -440,7 +452,8 @@ function createSyncWindowSizeCore(
         bridge,
         resolveWindowSize(options, { commandPanelExitFrameHeightLock }),
         {
-          frameHeightLock: commandPanelExitFrameHeightLock
+          frameHeightLock: commandPanelExitFrameHeightLock,
+          preferWindowHeight: preferWindowHeightForLauncherFrame
         }
       );
     } finally {

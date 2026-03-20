@@ -21,6 +21,10 @@
 
 - 修复 Search 总窗口高度遗漏 shell top/bottom chrome 的回归；继承高度仍不带 breathing，restore/lock/style 同步统一减完整 chrome；`check:all`绿。
 
+## 补充（2026-03-20｜Flow over Command 高度样式同步修复）
+
+- 修复 Command 上打开/关闭 Flow 时 `--launcher-frame-height` 误吃旧 DOM 高度，改为在 Flow 活跃或刚关闭时按目标窗口高度同步；新增 Search/Command 恢复回归，`check:all` 绿。
+
 ## 补充（2026-03-18｜settings 通用/命令页深色精修执行）
 
 - Windows settings 标题栏显式切到 dark；General 已切到 `SettingSection/SettingItem/SDropdown/SToggle`，旧终端 dropdown 外部状态链路已删除。
