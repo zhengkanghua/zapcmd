@@ -149,6 +149,22 @@ describe("useLauncherLayoutMetrics", () => {
     );
   });
 
+  it("query 非空时 searchPanelEffectiveHeight 等于 searchCapsuleHeight + drawerViewportHeight（无额外 gap）", () => {
+    setScreenSize(1440, 900);
+    const metrics = useLauncherLayoutMetrics({
+      query: ref("dock"),
+      filteredResults: ref([{ id: "r1" }, { id: "r2" }, { id: "r3" }]),
+      stagedCommands: ref([]),
+      stagingExpanded: ref(false),
+      flowOpen: ref(false)
+    });
+
+    expect(metrics.drawerOpen.value).toBe(true);
+    expect(metrics.searchPanelEffectiveHeight.value).toBe(
+      metrics.searchCapsuleHeight.value + metrics.drawerViewportHeight.value
+    );
+  });
+
   it("sharedPanelMaxHeight 与 stagingExpanded/flowOpen 无关，只取搜索最大结果口径", () => {
     setScreenSize(1600, 900);
     const variants = [

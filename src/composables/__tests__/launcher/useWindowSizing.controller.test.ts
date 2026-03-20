@@ -1,7 +1,10 @@
 import { ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { DRAWER_GAP_EST_PX, WINDOW_SIZING_CONSTANTS } from "../../launcher/useLauncherLayoutMetrics";
+import {
+  LAUNCHER_FRAME_DESIGN_CAP_PX,
+  WINDOW_SIZING_CONSTANTS
+} from "../../launcher/useLauncherLayoutMetrics";
 import { createWindowSizingController } from "../../launcher/useWindowSizing/controller";
 import {
   UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
@@ -39,6 +42,8 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
     flowPanelLockedHeight: ref<number | null>(null),
     drawerOpen: ref(false),
     drawerViewportHeight: ref(0),
+    searchPanelEffectiveHeight: ref(WINDOW_SIZING_CONSTANTS.windowBaseHeight),
+    sharedPanelMaxHeight: ref(LAUNCHER_FRAME_DESIGN_CAP_PX),
     searchMainWidth: ref(680),
     minShellWidth: ref(0),
     windowWidthCap: ref(2000),
@@ -72,13 +77,9 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
 }
 
 function createFlowHarness({ lastFrameHeight = 420 } = {}) {
-  const drawerOpen = ref(true);
-  const drawerViewportHeight = ref(
-    Math.max(
-      0,
-      lastFrameHeight - WINDOW_SIZING_CONSTANTS.windowBaseHeight - DRAWER_GAP_EST_PX
-    )
-  );
+  const drawerOpen = ref(false);
+  const drawerViewportHeight = ref(0);
+  const searchPanelEffectiveHeight = ref(lastFrameHeight);
   const pendingCommand = ref<unknown>(null);
   const stagingExpanded = ref(false);
 
@@ -89,6 +90,7 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
     flowPanelLockedHeight: ref<number | null>(null),
     drawerOpen,
     drawerViewportHeight,
+    searchPanelEffectiveHeight,
     pendingCommand,
     stagingExpanded,
     stagingPanelRef: ref(null)
@@ -100,6 +102,7 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
       ...harness.state,
       drawerOpen,
       drawerViewportHeight,
+      searchPanelEffectiveHeight,
       pendingCommand,
       stagingExpanded
     }
@@ -107,13 +110,9 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
 }
 
 function createCommandHarness({ lastFrameHeight = 520 } = {}) {
-  const drawerOpen = ref(true);
-  const drawerViewportHeight = ref(
-    Math.max(
-      0,
-      lastFrameHeight - WINDOW_SIZING_CONSTANTS.windowBaseHeight - DRAWER_GAP_EST_PX
-    )
-  );
+  const drawerOpen = ref(false);
+  const drawerViewportHeight = ref(0);
+  const searchPanelEffectiveHeight = ref(lastFrameHeight);
   const pendingCommand = ref<unknown>(null);
 
   const harness = createWindowSizingHarness({
@@ -123,6 +122,7 @@ function createCommandHarness({ lastFrameHeight = 520 } = {}) {
     flowPanelLockedHeight: ref<number | null>(null),
     drawerOpen,
     drawerViewportHeight,
+    searchPanelEffectiveHeight,
     pendingCommand
   });
   return {
@@ -132,6 +132,7 @@ function createCommandHarness({ lastFrameHeight = 520 } = {}) {
       ...harness.state,
       drawerOpen,
       drawerViewportHeight,
+      searchPanelEffectiveHeight,
       pendingCommand
     }
   };
@@ -212,6 +213,8 @@ function createExitHarness() {
     flowPanelLockedHeight,
     drawerOpen,
     drawerViewportHeight,
+    searchPanelEffectiveHeight: ref(WINDOW_SIZING_CONSTANTS.windowBaseHeight),
+    sharedPanelMaxHeight: ref(LAUNCHER_FRAME_DESIGN_CAP_PX),
     searchMainWidth: ref(680),
     minShellWidth: ref(0),
     windowWidthCap: ref(2000),
@@ -270,6 +273,8 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
       flowPanelLockedHeight,
       drawerOpen,
       drawerViewportHeight,
+      searchPanelEffectiveHeight: ref(WINDOW_SIZING_CONSTANTS.windowBaseHeight),
+      sharedPanelMaxHeight: ref(LAUNCHER_FRAME_DESIGN_CAP_PX),
       searchMainWidth: ref(680),
       minShellWidth: ref(0),
       windowWidthCap: ref(2000),
@@ -342,6 +347,8 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
       flowPanelLockedHeight: ref<number | null>(null),
       drawerOpen: ref(false),
       drawerViewportHeight: ref(0),
+      searchPanelEffectiveHeight: ref(WINDOW_SIZING_CONSTANTS.windowBaseHeight),
+      sharedPanelMaxHeight: ref(LAUNCHER_FRAME_DESIGN_CAP_PX),
       searchMainWidth: ref(680),
       minShellWidth: ref(0),
       windowWidthCap: ref(2000),

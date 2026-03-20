@@ -2,7 +2,6 @@ import { computed, ref, type Ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
-  DRAWER_GAP_EST_PX,
   LAUNCHER_FRAME_DESIGN_CAP_PX,
   WINDOW_SIZING_CONSTANTS
 } from "../../launcher/useLauncherLayoutMetrics";
@@ -81,11 +80,7 @@ function createBaseOptions(
       if (!resolved.drawerOpen.value || resolved.drawerViewportHeight.value <= 0) {
         return resolved.constants.windowBaseHeight;
       }
-      return (
-        resolved.constants.windowBaseHeight +
-        resolved.drawerViewportHeight.value +
-        DRAWER_GAP_EST_PX
-      );
+      return resolved.constants.windowBaseHeight + resolved.drawerViewportHeight.value;
     });
   }
   if (!("sharedPanelMaxHeight" in overrides)) {
@@ -200,7 +195,7 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     const measured = resolveWindowSize(measuredOptions);
 
     const expectedContentHeight =
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + drawerViewportHeight.value + DRAWER_GAP_EST_PX;
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + drawerViewportHeight.value;
     const expectedWindowHeight = expectedContentHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 
     assertHeight("estimated", estimated.height, expectedWindowHeight, {
@@ -240,7 +235,7 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     const size = resolveWindowSize(options);
 
     const expectedContentHeight =
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + drawerViewportHeight.value + DRAWER_GAP_EST_PX;
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + drawerViewportHeight.value;
     const expectedWindowHeight = expectedContentHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 
     assertHeight("max(measured, estimated)", size.height, expectedWindowHeight, {
@@ -282,7 +277,6 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
       })
     );
 
-    expect(DRAWER_GAP_EST_PX).toBeGreaterThan(0);
     expect(size.height).toBe(LAUNCHER_FRAME_DESIGN_CAP_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 });
