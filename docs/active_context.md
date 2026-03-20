@@ -15,7 +15,7 @@
 
 ## 补充（2026-03-20｜launcher search effective height Task 6）
 
-- `plans/2026-03-20-launcher-search-effective-height-inheritance-and-panel-contract.md`：Search breathing token；替代`2026-03-20-launcher-command-flow-height-contract-correction.md`；`check:all`绿。
+- docs/superpowers/plans/2026-03-20-launcher-search-effective-height-inheritance-and-panel-contract.md：breathing token；替代2026-03-20-launcher-command-flow-height-contract-correction.md；`check:all`绿。
 
 ## 补充（2026-03-18｜settings 通用/命令页深色精修执行）
 
