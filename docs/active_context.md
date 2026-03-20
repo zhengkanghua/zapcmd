@@ -642,3 +642,5 @@
 - 已产出实现计划 `docs/superpowers/plans/2026-03-19-launcher-command-panel-height-lock.md`：拆分 `entrySearchFrameHeight/commandPanelLockedFrameHeight`，新增完整盒子测量 helper，保留现有退出锁高恢复链路。
 ## 补充（2026-03-20｜Launcher 面板高度 contract brainstorming 完成）
 - 已确认设计稿 `docs/superpowers/specs/2026-03-20-launcher-command-flow-height-contract-correction-design.md`：全局只统一最高高度；Search 最低=搜索框；Command/Flow 各自独立最小高度并首次锁高；Command 完整盒子含 footer；Flow 最低按空态或前 2 张异高卡片实时测量。重点风险已写入设计并要求在 planning/实现中显式处理。
+## 补充（2026-03-20｜Launcher 搜索有效高度继承设计）
+- 已确认新规：搜索有效高度仅=搜索框+结果区，不含拖拽区/底部呼吸留白；Command 进入先继承该有效高度，不够再补高；三面板共享最高高度仍取搜索页最大结果态。见 `docs/superpowers/specs/2026-03-20-launcher-search-effective-height-inheritance-design.md`。
