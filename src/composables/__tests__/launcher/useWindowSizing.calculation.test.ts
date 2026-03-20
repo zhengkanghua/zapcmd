@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   LAUNCHER_FRAME_DESIGN_CAP_PX,
+  SEARCH_CAPSULE_HEIGHT_PX,
   WINDOW_SIZING_CONSTANTS
 } from "../../launcher/useLauncherLayoutMetrics";
 import { resolveWindowSize } from "../../launcher/useWindowSizing/calculation";
@@ -78,9 +79,9 @@ function createBaseOptions(
   if (!("searchPanelEffectiveHeight" in overrides)) {
     resolved.searchPanelEffectiveHeight = computed(() => {
       if (!resolved.drawerOpen.value || resolved.drawerViewportHeight.value <= 0) {
-        return resolved.constants.windowBaseHeight;
+        return SEARCH_CAPSULE_HEIGHT_PX;
       }
-      return resolved.constants.windowBaseHeight + resolved.drawerViewportHeight.value;
+      return SEARCH_CAPSULE_HEIGHT_PX + resolved.drawerViewportHeight.value;
     });
   }
   if (!("sharedPanelMaxHeight" in overrides)) {
@@ -137,12 +138,12 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
         drawerOpen: ref(false),
         drawerViewportHeight: ref(0)
       }),
-      searchPanelEffectiveHeight: ref(124),
-      sharedPanelMaxHeight: ref(598)
+      searchPanelEffectiveHeight: ref(SEARCH_CAPSULE_HEIGHT_PX),
+      sharedPanelMaxHeight: ref(524)
     } as UseWindowSizingOptions & FutureSearchPanelFields;
     const size = resolveWindowSize(options);
 
-    expect(size.height).toBe(124 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
   it("searchPanelEffectiveHeight 超过 sharedPanelMaxHeight 时只 clamp 到 sharedPanelMaxHeight", () => {
@@ -155,11 +156,11 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
         windowHeightCap: ref(10_000)
       }),
       searchPanelEffectiveHeight: ref(700),
-      sharedPanelMaxHeight: ref(598)
+      sharedPanelMaxHeight: ref(524)
     } as UseWindowSizingOptions & FutureSearchPanelFields;
     const size = resolveWindowSize(options);
 
-    expect(size.height).toBe(598 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(524 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
   it("measured 与 estimated 口径一致：不把 drag strip 计入 content height", () => {
@@ -194,8 +195,7 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     });
     const measured = resolveWindowSize(measuredOptions);
 
-    const expectedContentHeight =
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + drawerViewportHeight.value;
+    const expectedContentHeight = SEARCH_CAPSULE_HEIGHT_PX + drawerViewportHeight.value;
     const expectedWindowHeight = expectedContentHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 
     assertHeight("estimated", estimated.height, expectedWindowHeight, {
@@ -234,8 +234,7 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     });
     const size = resolveWindowSize(options);
 
-    const expectedContentHeight =
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + drawerViewportHeight.value;
+    const expectedContentHeight = SEARCH_CAPSULE_HEIGHT_PX + drawerViewportHeight.value;
     const expectedWindowHeight = expectedContentHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 
     assertHeight("max(measured, estimated)", size.height, expectedWindowHeight, {
@@ -405,7 +404,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
     );
   });
 
@@ -441,7 +440,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
     );
   });
 

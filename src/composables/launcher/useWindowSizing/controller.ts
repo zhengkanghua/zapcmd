@@ -22,7 +22,7 @@ import {
   resolveCommandPanelMinHeight,
   resolveFlowPanelMinHeight
 } from "./panelMeasurement";
-import { LAUNCHER_FRAME_DESIGN_CAP_PX } from "../useLauncherLayoutMetrics";
+import { LAUNCHER_FRAME_DESIGN_CAP_PX, SEARCH_CAPSULE_HEIGHT_PX } from "../useLauncherLayoutMetrics";
 
 interface WindowSizingState {
   lastWindowSize: WindowSize | null;
@@ -79,7 +79,7 @@ function resolveSearchPanelEffectiveHeight(options: UseWindowSizingOptions): num
   if (Number.isFinite(effectiveHeight) && effectiveHeight > 0) {
     return effectiveHeight;
   }
-  return options.constants.windowBaseHeight;
+  return SEARCH_CAPSULE_HEIGHT_PX;
 }
 
 /**

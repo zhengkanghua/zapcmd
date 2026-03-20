@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   LAUNCHER_FRAME_DESIGN_CAP_PX,
+  SEARCH_CAPSULE_HEIGHT_PX,
   WINDOW_SIZING_CONSTANTS
 } from "../../launcher/useLauncherLayoutMetrics";
 import { createWindowSizingController } from "../../launcher/useWindowSizing/controller";
@@ -42,7 +43,7 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
     flowPanelLockedHeight: ref<number | null>(null),
     drawerOpen: ref(false),
     drawerViewportHeight: ref(0),
-    searchPanelEffectiveHeight: ref(WINDOW_SIZING_CONSTANTS.windowBaseHeight),
+    searchPanelEffectiveHeight: ref(SEARCH_CAPSULE_HEIGHT_PX),
     sharedPanelMaxHeight: ref(LAUNCHER_FRAME_DESIGN_CAP_PX),
     searchMainWidth: ref(680),
     minShellWidth: ref(0),
@@ -351,7 +352,7 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
       flowPanelLockedHeight,
       drawerOpen,
       drawerViewportHeight,
-      searchPanelEffectiveHeight: ref(WINDOW_SIZING_CONSTANTS.windowBaseHeight),
+      searchPanelEffectiveHeight: ref(SEARCH_CAPSULE_HEIGHT_PX),
       sharedPanelMaxHeight: ref(LAUNCHER_FRAME_DESIGN_CAP_PX),
       searchMainWidth: ref(680),
       minShellWidth: ref(0),
@@ -371,9 +372,9 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
 
     expect(requestAnimateMainWindowSize).toHaveBeenCalled();
     const lastCall = requestAnimateMainWindowSize.mock.calls.at(-1);
-    expect(commandPanelInheritedHeight.value).toBe(WINDOW_SIZING_CONSTANTS.windowBaseHeight);
+    expect(commandPanelInheritedHeight.value).toBe(SEARCH_CAPSULE_HEIGHT_PX);
     expect(lastCall?.[1]).toBe(
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
     );
   });
 });
@@ -586,20 +587,28 @@ describe("createWindowSizingController（Flow 会话）", () => {
   });
 
   it("搜索 -> Flow：先继承搜索当前高度，settled 后仅在不足时补高一次", async () => {
-    const harness = createFlowHarness({ lastFrameHeight: 124 });
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    const expectedFlowMinHeight =
+      WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
+      WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
+      WINDOW_SIZING_CONSTANTS.stagingListGap;
 
     harness.state.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
 
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      124 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      SEARCH_CAPSULE_HEIGHT_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
     );
 
     harness.controller.notifyFlowPanelSettled();
     await harness.controller.syncWindowSize();
 
-    expect(harness.state.flowPanelLockedHeight.value).not.toBeNull();
+    expect(harness.state.flowPanelLockedHeight.value).toBe(expectedFlowMinHeight);
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      expectedFlowMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
   });
 
   it("Flow 打开时继承当前 frame height，未 settled 前不读旧列表估算", async () => {
@@ -678,7 +687,7 @@ describe("createWindowSizingController（Flow 会话）", () => {
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      560 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      LAUNCHER_FRAME_DESIGN_CAP_PX + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
     );
   });
 });

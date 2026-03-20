@@ -1,6 +1,6 @@
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
 import { clampSearchPanelHeight, resolvePanelHeight } from "./panelHeightContract";
-import { DRAWER_GAP_EST_PX } from "../useLauncherLayoutMetrics";
+import { DRAWER_GAP_EST_PX, SEARCH_CAPSULE_HEIGHT_PX } from "../useLauncherLayoutMetrics";
 
 interface ResolveWindowSizeOverrides {
   commandPanelExitFrameHeightLock?: number | null;
@@ -65,12 +65,12 @@ function measureWindowContentHeightFromLayout(
   const contentHeight = Math.max(0, windowHeight - dragStripHeight);
   return clampSearchPanelHeight({
     panelMaxHeight: frameMaxHeight,
-    naturalPanelHeight: Math.max(options.constants.windowBaseHeight, contentHeight)
+    naturalPanelHeight: Math.max(SEARCH_CAPSULE_HEIGHT_PX, contentHeight)
   });
 }
 
 function estimateWindowContentHeight(options: UseWindowSizingOptions, frameMaxHeight: number): number {
-  let naturalPanelHeight = options.constants.windowBaseHeight;
+  let naturalPanelHeight = SEARCH_CAPSULE_HEIGHT_PX;
   if (
     options.pendingCommand.value === null &&
     options.drawerOpen.value &&
@@ -92,10 +92,7 @@ function resolveSearchPanelFrameHeight(
 ): number {
   const safeSearchPanelHeight = clampSearchPanelHeight({
     panelMaxHeight: frameMaxHeight,
-    naturalPanelHeight: Math.max(
-      options.constants.windowBaseHeight,
-      options.searchPanelEffectiveHeight.value
-    )
+    naturalPanelHeight: Math.max(0, options.searchPanelEffectiveHeight.value)
   });
   if (Number.isFinite(safeSearchPanelHeight) && safeSearchPanelHeight > 0) {
     return safeSearchPanelHeight;

@@ -59,25 +59,25 @@ describe("panelHeightContract", () => {
   it("searchPanelEffectiveHeight 只等于 searchCapsuleHeight + resultDrawerEffectiveHeight", () => {
     expect(
       resolveSearchPanelEffectiveHeight({
-        searchCapsuleHeight: 124,
+        searchCapsuleHeight: 62,
         resultDrawerEffectiveHeight: 0
       })
-    ).toBe(124);
+    ).toBe(62);
 
     expect(
       resolveSearchPanelEffectiveHeight({
-        searchCapsuleHeight: 124,
-        resultDrawerEffectiveHeight: 336
+        searchCapsuleHeight: 62,
+        resultDrawerEffectiveHeight: 274
       })
-    ).toBe(460);
+    ).toBe(336);
   });
 
   it("sharedPanelMaxHeight 只等于 searchCapsuleHeight + maxSearchResultsViewportHeight", () => {
     expect(
       resolveSharedPanelMaxHeight({
-        searchCapsuleHeight: 124,
-        maxSearchResultsViewportHeight: 474
+        searchCapsuleHeight: 62,
+        maxSearchResultsViewportHeight: 462
       })
-    ).toBe(598);
+    ).toBe(524);
   });
 });

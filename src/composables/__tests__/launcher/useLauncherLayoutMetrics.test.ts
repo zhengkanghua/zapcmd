@@ -6,7 +6,7 @@ import {
   LAUNCHER_DRAWER_ROW_HEIGHT_PX,
   LAUNCHER_FRAME_DESIGN_CAP_PX,
   LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX,
-  WINDOW_SIZING_CONSTANTS,
+  SEARCH_CAPSULE_HEIGHT_PX,
   useLauncherLayoutMetrics
 } from "../../launcher/useLauncherLayoutMetrics";
 
@@ -144,9 +144,8 @@ describe("useLauncherLayoutMetrics", () => {
     });
 
     expect(metrics.drawerOpen.value).toBe(false);
-    expect(metrics.searchPanelEffectiveHeight.value).toBe(
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight
-    );
+    expect(metrics.searchCapsuleHeight.value).toBe(SEARCH_CAPSULE_HEIGHT_PX);
+    expect(metrics.searchPanelEffectiveHeight.value).toBe(SEARCH_CAPSULE_HEIGHT_PX);
   });
 
   it("query 非空时 searchPanelEffectiveHeight 等于 searchCapsuleHeight + drawerViewportHeight（无额外 gap）", () => {
@@ -184,7 +183,7 @@ describe("useLauncherLayoutMetrics", () => {
       });
 
       expect(metrics.sharedPanelMaxHeight.value).toBe(
-        WINDOW_SIZING_CONSTANTS.windowBaseHeight + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
+        SEARCH_CAPSULE_HEIGHT_PX + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
       );
     }
   });
@@ -200,7 +199,7 @@ describe("useLauncherLayoutMetrics", () => {
     });
 
     expect(metrics.sharedPanelMaxHeight.value).toBe(
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
+      SEARCH_CAPSULE_HEIGHT_PX + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
     );
   });
 });

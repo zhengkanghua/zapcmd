@@ -15,6 +15,10 @@ const STAGING_CLOSED_WIDTH_PX = 0;
 const WINDOW_GAP = 12;
 const WINDOW_SIDE_SAFE_PAD = 10;
 const WINDOW_BASE_HEIGHT = 124;
+export const SEARCH_INPUT_HEIGHT_PX = 38;
+export const SEARCH_CAPSULE_PAD_PX = 12;
+export const SEARCH_CAPSULE_HEIGHT_PX =
+  SEARCH_INPUT_HEIGHT_PX + SEARCH_CAPSULE_PAD_PX * 2;
 const WINDOW_SAFE_VERTICAL_PAD = 8;
 const WINDOW_BOTTOM_SAFE_PAD = 22;
 export const LAUNCHER_DRAWER_CHROME_HEIGHT_PX = 12;
@@ -57,7 +61,7 @@ export const LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX =
   (LAUNCHER_DRAWER_CHROME_HEIGHT_PX + LAUNCHER_DRAWER_HINT_HEIGHT_PX);
 // 语义上等同 sharedPanelMaxHeight：Search 胶囊区 + 结果抽屉最大 viewport。
 export const LAUNCHER_FRAME_DESIGN_CAP_PX =
-  WINDOW_SIZING_CONSTANTS.windowBaseHeight + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX;
+  SEARCH_CAPSULE_HEIGHT_PX + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX;
 
 interface UseLauncherLayoutMetricsOptions {
   query: Ref<string>;
@@ -183,7 +187,7 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     }
     return drawerVisibleRows.value * DRAWER_ROW_HEIGHT + DRAWER_CHROME_HEIGHT + DRAWER_HINT_HEIGHT;
   });
-  const searchCapsuleHeight = computed(() => WINDOW_SIZING_CONSTANTS.windowBaseHeight);
+  const searchCapsuleHeight = computed(() => SEARCH_CAPSULE_HEIGHT_PX);
   const searchPanelEffectiveHeight = computed(() =>
     resolveSearchPanelEffectiveHeight({
       searchCapsuleHeight: searchCapsuleHeight.value,
