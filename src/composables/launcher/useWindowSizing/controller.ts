@@ -74,24 +74,51 @@ function resolveShellDragStripHeightFromDom(options: UseWindowSizingOptions): nu
   return UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
 }
 
-function resolveLastFrameHeight(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState,
-  dragStripHeight: number
-): number {
-  if (state.lastWindowSize) {
-    return Math.max(0, state.lastWindowSize.height - dragStripHeight);
+function resolveSearchPanelEffectiveHeight(options: UseWindowSizingOptions): number {
+  const effectiveHeight = options.searchPanelEffectiveHeight.value;
+  if (Number.isFinite(effectiveHeight) && effectiveHeight > 0) {
+    return effectiveHeight;
   }
+  return options.constants.windowBaseHeight;
+}
 
+/**
+ * 解析当前左/右面板用于会话继承的“有效高度”。
+ * Search 来源必须只认 searchPanelEffectiveHeight，避免 breathing 污染 Command / Flow 入口基线。
+ */
+function resolveCurrentPanelEffectiveHeight(options: UseWindowSizingOptions): number {
   if (options.pendingCommand.value !== null) {
     return (
       options.commandPanelLockedHeight.value ??
       options.commandPanelInheritedHeight.value ??
-      options.constants.paramOverlayMinHeight
+      resolveSearchPanelEffectiveHeight(options)
     );
   }
 
-  return options.constants.windowBaseHeight;
+  if (options.stagingExpanded.value) {
+    return (
+      options.flowPanelLockedHeight.value ??
+      options.flowPanelInheritedHeight.value ??
+      resolveSearchPanelEffectiveHeight(options)
+    );
+  }
+
+  return resolveSearchPanelEffectiveHeight(options);
+}
+
+function resolveCommandPanelEntryHeight(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState
+): number {
+  if (state.lastWindowSize !== null) {
+    return resolveSearchPanelEffectiveHeight(options);
+  }
+
+  return (
+    options.commandPanelLockedHeight.value ??
+    options.commandPanelInheritedHeight.value ??
+    options.constants.paramOverlayMinHeight
+  );
 }
 
 function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
@@ -195,7 +222,6 @@ async function applyWindowSize(
 function syncPanelHeightSessions(
   options: UseWindowSizingOptions,
   state: WindowSizingState,
-  dragStripHeight: number,
   commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>
 ): void {
   const session = createPanelHeightSessionView(options);
@@ -203,7 +229,7 @@ function syncPanelHeightSessions(
   const flowPanelActive = options.stagingExpanded.value;
 
   if (pendingCommandActive && !state.pendingCommandActive) {
-    beginCommandPanelSession(session, resolveLastFrameHeight(options, state, dragStripHeight));
+    beginCommandPanelSession(session, resolveCommandPanelEntryHeight(options, state));
     state.pendingCommandActive = true;
     state.pendingCommandSettled = false;
   }
@@ -218,7 +244,7 @@ function syncPanelHeightSessions(
   }
 
   if (flowPanelActive && !state.flowPanelActive) {
-    beginFlowPanelSession(session, resolveLastFrameHeight(options, state, dragStripHeight));
+    beginFlowPanelSession(session, resolveCurrentPanelEffectiveHeight(options));
     state.flowPanelActive = true;
     state.flowPanelSettled = false;
   }
@@ -394,7 +420,7 @@ function createSyncWindowSizeCore(
     await nextTick();
     try {
       const dragStripHeight = resolveShellDragStripHeightFromDom(options);
-      syncPanelHeightSessions(options, state, dragStripHeight, commandPanelExit);
+      syncPanelHeightSessions(options, state, commandPanelExit);
       lockSettledPanelHeights(options, state, dragStripHeight);
       if (
         await handleSearchSettlingResize(

@@ -130,6 +130,11 @@ export function resolveCommandPanelFrameHeight(
     return null;
   }
 
+  if (options.commandPanelLockedHeight.value === null) {
+    // Search -> Command 首帧先保留继承高度，等 settled 后再按完整盒子最小值补高。
+    return Math.min(panelMaxHeight, inheritedPanelHeight);
+  }
+
   return resolvePanelHeight({
     panelMaxHeight,
     inheritedPanelHeight,
