@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, type Ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -44,9 +44,9 @@ function mockRect(
 }
 
 function createBaseOptions(
-  overrides: Partial<UseWindowSizingOptions> & Record<string, unknown> = {}
+  overrides: Partial<UseWindowSizingOptions> = {}
 ): UseWindowSizingOptions {
-  const baseOptions: UseWindowSizingOptions = {
+  return {
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: ref(false),
     isTauriRuntime: () => false,
@@ -68,11 +68,8 @@ function createBaseOptions(
     windowWidthCap: ref(2000),
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
-    loadSettings: () => {}
-  };
-  return {
-    ...baseOptions,
-    ...(overrides as Partial<UseWindowSizingOptions>)
+    loadSettings: () => {},
+    ...overrides
   };
 }
 
@@ -95,6 +92,11 @@ afterEach(() => {
 });
 
 describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
+  type FutureSearchPanelFields = {
+    searchPanelEffectiveHeight: Ref<number>;
+    sharedPanelMaxHeight: Ref<number>;
+  };
+
   it("搜索页窗口高度只由 searchPanelEffectiveHeight + drag strip 决定，不吃底部 breathing", () => {
     const root = document.createElement("div");
     const shell = document.createElement("div");
@@ -121,7 +123,7 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
       }),
       searchPanelEffectiveHeight: ref(124),
       sharedPanelMaxHeight: ref(598)
-    } as UseWindowSizingOptions;
+    } as UseWindowSizingOptions & FutureSearchPanelFields;
     const size = resolveWindowSize(options);
 
     expect(size.height).toBe(124 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
@@ -138,7 +140,7 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
       }),
       searchPanelEffectiveHeight: ref(700),
       sharedPanelMaxHeight: ref(598)
-    } as UseWindowSizingOptions;
+    } as UseWindowSizingOptions & FutureSearchPanelFields;
     const size = resolveWindowSize(options);
 
     expect(size.height).toBe(598 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
