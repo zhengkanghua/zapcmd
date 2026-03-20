@@ -53,9 +53,6 @@ export interface LauncherFlowPanelProps {
   stagingExpanded: boolean;
   stagedCommands: StagedCommand[];
   stagingHints: KeyboardHint[];
-  stagingListShouldScroll: boolean;
-  stagingListMaxHeight: string;
-  drawerFloorViewportHeight: number;
   focusZone: FocusZone;
   stagingActiveIndex: number;
   flowOpen: boolean;

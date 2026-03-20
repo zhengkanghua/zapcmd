@@ -32,9 +32,6 @@ function createProps(
     stagingExpanded: true,
     stagedCommands: [createStagedCommand()],
     stagingHints,
-    stagingListShouldScroll: true,
-    stagingListMaxHeight: "200px",
-    drawerFloorViewportHeight: 322,
     focusZone: "staging",
     stagingActiveIndex: 0,
     flowOpen: false,
@@ -171,9 +168,8 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
     expect(wrapper.find(".flow-panel__footer").exists()).toBe(true);
 
     const list = wrapper.get(".flow-panel__list");
-    expect(list.classes()).toContain("staging-list--scrollable");
-    expect((list.element as HTMLElement).style.maxHeight).toBe("200px");
-    expect((list.element as HTMLElement).style.minHeight).toBe("");
+    expect(list.classes()).not.toContain("staging-list--scrollable");
+    expect((list.element as HTMLElement).style.maxHeight).toBe("");
   });
 
   it("命令预览显示完整命令（带 > 前缀），并支持复制按钮", async () => {

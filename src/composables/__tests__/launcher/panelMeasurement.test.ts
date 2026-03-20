@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  resolveCommandPanelMinHeight,
+  resolveFlowPanelMinHeight,
   measureCommandPanelFullNaturalHeight,
   measureFlowPanelMinHeight
 } from "../../launcher/useWindowSizing/panelMeasurement";
@@ -142,6 +144,38 @@ afterEach(() => {
 });
 
 describe("panelMeasurement", () => {
+  it("CommandPanel fallback min height 只在实测不足时兜底", () => {
+    expect(
+      resolveCommandPanelMinHeight({
+        fallbackMinHeight: 340,
+        fullNaturalHeight: 354
+      })
+    ).toBe(354);
+
+    expect(
+      resolveCommandPanelMinHeight({
+        fallbackMinHeight: 340,
+        fullNaturalHeight: null
+      })
+    ).toBe(340);
+  });
+
+  it("FlowPanel fallback min height 只在实测不足时兜底", () => {
+    expect(
+      resolveFlowPanelMinHeight({
+        fallbackMinHeight: 320,
+        measuredMinHeight: 370
+      })
+    ).toBe(370);
+
+    expect(
+      resolveFlowPanelMinHeight({
+        fallbackMinHeight: 320,
+        measuredMinHeight: null
+      })
+    ).toBe(320);
+  });
+
   it("CommandPanel 完整盒子高度包含 header + content + footer + divider", () => {
     const shell = buildCommandShell({
       headerHeight: 52,

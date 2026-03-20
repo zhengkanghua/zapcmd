@@ -91,39 +91,40 @@ function onSubmit(): void {
 <template>
   <section class="command-panel">
     <header class="command-panel__header" data-tauri-drag-region>
-      <button
-        type="button"
-        class="command-panel__back"
-        :aria-label="t('commandPanel.btn.cancel')"
-        @click="onCancel"
-      >
-        ←
-      </button>
+      <div class="command-panel__header-main" data-tauri-drag-region>
+        <button
+          type="button"
+          class="command-panel__back"
+          :aria-label="t('commandPanel.btn.cancel')"
+          @click="onCancel"
+        >
+          ←
+        </button>
 
-      <h2 class="command-panel__title" data-tauri-drag-region>
-        {{ props.command.title }}
-      </h2>
+        <h2 class="command-panel__title" data-tauri-drag-region>
+          {{ props.command.title }}
+        </h2>
 
-      <span
-        class="command-panel__badge"
-        :class="{ 'command-panel__badge--danger': props.isDangerous }"
-      >
-        {{ badge }}
-      </span>
+        <span
+          class="command-panel__badge"
+          :class="{ 'command-panel__badge--danger': props.isDangerous }"
+        >
+          {{ badge }}
+        </span>
 
-      <div class="command-panel__header-spacer" />
+        <div class="command-panel__header-spacer" />
 
-      <button
-        type="button"
-        class="command-panel__queue-btn"
-        :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommandCount })"
-        @click="emit('toggle-staging')"
-      >
-        <LauncherIcon name="queue" />
-      </button>
+        <button
+          type="button"
+          class="command-panel__queue-btn"
+          :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommandCount })"
+          @click="emit('toggle-staging')"
+        >
+          <LauncherIcon name="queue" />
+        </button>
+      </div>
+      <div class="command-panel__divider command-panel__divider--header" />
     </header>
-
-    <div class="command-panel__divider" />
 
     <div class="command-panel__content">
       <p
@@ -218,30 +219,31 @@ function onSubmit(): void {
       </ul>
     </div>
 
-    <div class="command-panel__divider" />
-
     <footer class="command-panel__footer">
-      <span class="command-panel__hint">
-        {{ t("commandPanel.hint.escCancel") }}
-      </span>
+      <div class="command-panel__divider command-panel__divider--footer" />
+      <div class="command-panel__footer-main">
+        <span class="command-panel__hint">
+          {{ t("commandPanel.hint.escCancel") }}
+        </span>
 
-      <button
-        type="button"
-        class="command-panel__btn command-panel__btn--cancel"
-        @click="onCancel"
-      >
-        {{ t("commandPanel.btn.cancel") }}
-      </button>
+        <button
+          type="button"
+          class="command-panel__btn command-panel__btn--cancel"
+          @click="onCancel"
+        >
+          {{ t("commandPanel.btn.cancel") }}
+        </button>
 
-      <button
-        type="button"
-        class="command-panel__btn command-panel__btn--confirm"
-        :class="{ 'command-panel__btn--danger': isDangerBtn }"
-        data-testid="confirm-btn"
-        @click="onSubmit"
-      >
-        {{ confirmLabel }}
-      </button>
+        <button
+          type="button"
+          class="command-panel__btn command-panel__btn--confirm"
+          :class="{ 'command-panel__btn--danger': isDangerBtn }"
+          data-testid="confirm-btn"
+          @click="onSubmit"
+        >
+          {{ confirmLabel }}
+        </button>
+      </div>
     </footer>
   </section>
 </template>

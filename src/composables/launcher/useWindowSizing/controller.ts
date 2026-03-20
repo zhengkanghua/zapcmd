@@ -1,13 +1,12 @@
 import { LogicalSize } from "@tauri-apps/api/window";
 import { nextTick } from "vue";
 import {
-  resolveCommandPanelFrameHeight,
-  resolveFlowPanelFrameHeight,
   resolveWindowSize,
   shouldSkipResize
 } from "./calculation";
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
 import { createCommandPanelExitCoordinator } from "./commandPanelExit";
+import { resolvePanelHeight } from "./panelHeightContract";
 import {
   beginCommandPanelSession,
   beginFlowPanelSession,
@@ -17,6 +16,12 @@ import {
   lockFlowPanelHeight,
   type PanelHeightSession
 } from "./panelHeightSession";
+import {
+  measureCommandPanelFullNaturalHeight,
+  measureFlowPanelMinHeight,
+  resolveCommandPanelMinHeight,
+  resolveFlowPanelMinHeight
+} from "./panelMeasurement";
 import { LAUNCHER_FRAME_DESIGN_CAP_PX } from "../useLauncherLayoutMetrics";
 
 interface WindowSizingState {
@@ -230,21 +235,82 @@ function lockSettledPanelHeights(
   state: WindowSizingState,
   dragStripHeight: number
 ): void {
-  const session = createPanelHeightSessionView(options);
   const frameMaxHeight = resolveFrameMaxHeight(options, dragStripHeight);
+  maybeLockCommandPanelHeight(options, state, frameMaxHeight);
+  maybeLockFlowPanelHeight(options, state, frameMaxHeight);
+}
 
-  if (options.pendingCommand.value !== null && state.pendingCommandActive && state.pendingCommandSettled) {
-    const commandFrameHeight =
-      resolveCommandPanelFrameHeight(options, frameMaxHeight) ?? options.constants.paramOverlayMinHeight;
-    lockCommandPanelHeight(session, commandFrameHeight);
+function resolveFlowPanelFallbackMinHeight(options: UseWindowSizingOptions): number {
+  return (
+    options.constants.stagingChromeHeight +
+    options.constants.stagingCardEstHeight * 2 +
+    options.constants.stagingListGap
+  );
+}
+
+function maybeLockCommandPanelHeight(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  frameMaxHeight: number
+): void {
+  if (
+    options.pendingCommand.value === null ||
+    !state.pendingCommandActive ||
+    !state.pendingCommandSettled ||
+    options.commandPanelLockedHeight.value !== null
+  ) {
+    return;
   }
 
-  if (state.flowPanelActive && state.flowPanelSettled) {
-    const flowFrameHeight = resolveFlowPanelFrameHeight(options, frameMaxHeight);
-    if (flowFrameHeight !== null) {
-      lockFlowPanelHeight(session, flowFrameHeight);
-    }
+  const fullNaturalHeight = options.searchShellRef.value
+    ? measureCommandPanelFullNaturalHeight(options.searchShellRef.value)
+    : null;
+  const panelMinHeight = resolveCommandPanelMinHeight({
+    fallbackMinHeight: options.constants.paramOverlayMinHeight,
+    fullNaturalHeight
+  });
+
+  lockCommandPanelHeight(
+    createPanelHeightSessionView(options),
+    resolvePanelHeight({
+      panelMaxHeight: frameMaxHeight,
+      inheritedPanelHeight:
+        options.commandPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
+      panelMinHeight
+    })
+  );
+}
+
+function maybeLockFlowPanelHeight(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState,
+  frameMaxHeight: number
+): void {
+  if (
+    !state.flowPanelActive ||
+    !state.flowPanelSettled ||
+    options.flowPanelLockedHeight.value !== null
+  ) {
+    return;
   }
+
+  const measuredMinHeight = options.stagingPanelRef.value
+    ? measureFlowPanelMinHeight(options.stagingPanelRef.value)
+    : null;
+  const panelMinHeight = resolveFlowPanelMinHeight({
+    fallbackMinHeight: resolveFlowPanelFallbackMinHeight(options),
+    measuredMinHeight
+  });
+
+  lockFlowPanelHeight(
+    createPanelHeightSessionView(options),
+    resolvePanelHeight({
+      panelMaxHeight: frameMaxHeight,
+      inheritedPanelHeight:
+        options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
+      panelMinHeight
+    })
+  );
 }
 
 function finalizeCommandPanelExit(

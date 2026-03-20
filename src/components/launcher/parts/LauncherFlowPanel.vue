@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useI18nText } from "../../../i18n";
 import type { ElementRefArg, LauncherFlowPanelProps } from "../types";
 import LauncherIcon from "./LauncherIcon.vue";
@@ -8,9 +8,11 @@ const props = defineProps<LauncherFlowPanelProps>();
 const { t } = useI18nText();
 
 const reviewPanelRef = ref<HTMLElement | null>(null);
+const reviewBodyRef = ref<HTMLElement | null>(null);
 const reviewListRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<HTMLButtonElement | null>(null);
 const gripReorderActive = ref(false);
+const flowPanelSettledEmitted = ref(false);
 let gripReorderCleanup: (() => void) | null = null;
 let previousBodyUserSelect = "";
 const draggingCommandId = ref<string | null>(null);
@@ -28,6 +30,7 @@ const emit = defineEmits<{
   (e: "clear-staging"): void;
   (e: "execute-staged"): void;
   (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
+  (e: "flow-panel-settled"): void;
 }>();
 
 function closeReview(): void {
@@ -69,6 +72,20 @@ function focusActiveCardOrFallback(): void {
   closeButtonRef.value?.focus({ preventScroll: true });
 }
 
+async function emitFlowPanelSettledOnce(): Promise<void> {
+  if (flowPanelSettledEmitted.value) {
+    return;
+  }
+
+  await nextTick();
+  if (flowPanelSettledEmitted.value || props.stagingDrawerState !== "open") {
+    return;
+  }
+
+  flowPanelSettledEmitted.value = true;
+  emit("flow-panel-settled");
+}
+
 watch(
   () => props.stagingExpanded,
   async (expanded) => {
@@ -80,6 +97,36 @@ watch(
   },
   { immediate: true }
 );
+
+watch(
+  () => props.stagingDrawerState,
+  (state, previousState) => {
+    if (state !== "open") {
+      flowPanelSettledEmitted.value = false;
+      return;
+    }
+
+    if (previousState === "open") {
+      return;
+    }
+
+    void emitFlowPanelSettledOnce();
+  }
+);
+
+onMounted(() => {
+  if (props.stagingDrawerState === "open") {
+    flowPanelSettledEmitted.value = false;
+    void emitFlowPanelSettledOnce();
+  }
+});
+
+function resolveReviewScrollContainer(): HTMLElement | null {
+  if (props.stagedCommands.length > 0) {
+    return reviewListRef.value;
+  }
+  return reviewBodyRef.value;
+}
 
 function onReviewPanelKeydown(event: KeyboardEvent): void {
   if (event.key !== "Tab") {
@@ -124,8 +171,8 @@ function onReviewPanelKeydown(event: KeyboardEvent): void {
 }
 
 function onScrimWheel(event: WheelEvent): void {
-  const list = reviewListRef.value;
-  if (!list) {
+  const scrollContainer = resolveReviewScrollContainer();
+  if (!scrollContainer) {
     return;
   }
 
@@ -134,14 +181,16 @@ function onScrimWheel(event: WheelEvent): void {
     return;
   }
 
-  const atTop = list.scrollTop <= 0;
-  const atBottom = Math.ceil(list.scrollTop + list.clientHeight) >= list.scrollHeight;
+  const atTop = scrollContainer.scrollTop <= 0;
+  const atBottom =
+    Math.ceil(scrollContainer.scrollTop + scrollContainer.clientHeight) >=
+    scrollContainer.scrollHeight;
   if ((deltaY < 0 && atTop) || (deltaY > 0 && atBottom)) {
     return;
   }
 
   event.preventDefault();
-  list.scrollTop += deltaY;
+  scrollContainer.scrollTop += deltaY;
 }
 
 function createSyntheticDragEvent(type: "dragstart" | "dragover"): DragEvent {
@@ -397,6 +446,7 @@ onBeforeUnmount(() => {
     <section
       :ref="setReviewPanelRef"
       class="flow-panel"
+      :class="{ 'flow-panel--has-list': props.stagedCommands.length > 0 }"
       data-hit-zone="overlay"
       role="dialog"
       aria-modal="true"
@@ -431,134 +481,123 @@ onBeforeUnmount(() => {
         </div>
       </header>
 
-      <!-- 面板内 toast 反馈 -->
-      <p
-        v-if="props.executionFeedbackMessage"
-        class="execution-feedback execution-toast"
-        :class="`execution-feedback--${props.executionFeedbackTone}`"
-      >
-        {{ props.executionFeedbackMessage }}
-      </p>
-
-      <div v-if="props.stagedCommands.length === 0" class="flow-panel__empty" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-color: transparent;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="flow-panel__empty-title" style="font-size: 13px; color: var(--ui-text); font-weight: 600; margin: 0;">{{ t("launcher.queueEmpty") }}</span>
-          <span class="flow-panel__empty-hint" style="font-size: 12px; margin: 0; color: var(--ui-subtle);">{{ t("launcher.queueEmptyHint") }}</span>
-        </div>
-        <span class="keyboard-hint" style="padding: 0; min-height: auto;">
-          <span class="keyboard-hint__item">
-            <span class="keyboard-hint__keys"><kbd>Esc</kbd></span>
-            <span class="keyboard-hint__action">{{ t("common.cancel") }}</span>
-          </span>
-        </span>
-      </div>
-      <TransitionGroup
-        v-else
-        :ref="setReviewListRef"
-        tag="ul"
-        name="flow-panel-list"
-        class="staging-list flow-panel__list"
-        :class="{
-          'staging-list--scrollable': props.stagingListShouldScroll,
-          'flow-panel__list--grip-reordering': gripReorderActive
-        }"
-        :style="{
-          maxHeight: props.stagingListMaxHeight
-        }"
-      >
-        <li
-          v-for="(cmd, index) in props.stagedCommands"
-          :key="cmd.id"
-          :data-staging-index="index"
-          class="flow-panel__list-item"
-          draggable="true"
-          @dragstart="onDragStartWithEditGuard($event, index)"
-          @dragover="onStagingDragOver(index, $event)"
-          @dragend="onDragEnd"
-          @click="emit('focus-staging-index', index)"
+      <section ref="reviewBodyRef" class="flow-panel__body">
+        <p
+          v-if="props.executionFeedbackMessage"
+          class="execution-feedback execution-toast"
+          :class="`execution-feedback--${props.executionFeedbackTone}`"
         >
-          <article
-            class="staging-card flow-panel__card"
-            :class="{
-              'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex,
-              'staging-card--dragging': draggingCommandId === cmd.id,
-              'staging-card--drag-over': dragOverCommandId === cmd.id && draggingCommandId !== cmd.id
-            }"
-            :tabindex="index === props.stagingActiveIndex ? 0 : -1"
+          {{ props.executionFeedbackMessage }}
+        </p>
+
+        <div v-if="props.stagedCommands.length === 0" class="flow-panel__empty">
+          <div class="flow-panel__empty-copy">
+            <span class="flow-panel__empty-title">{{ t("launcher.queueEmpty") }}</span>
+            <span class="flow-panel__empty-hint">{{ t("launcher.queueEmptyHint") }}</span>
+          </div>
+          <span class="keyboard-hint flow-panel__empty-shortcut">
+            <span class="keyboard-hint__item">
+              <span class="keyboard-hint__keys"><kbd>Esc</kbd></span>
+              <span class="keyboard-hint__action">{{ t("common.cancel") }}</span>
+            </span>
+          </span>
+        </div>
+        <TransitionGroup
+          v-else
+          :ref="setReviewListRef"
+          tag="ul"
+          name="flow-panel-list"
+          class="staging-list flow-panel__list"
+          :class="{ 'flow-panel__list--grip-reordering': gripReorderActive }"
+        >
+          <li
+            v-for="(cmd, index) in props.stagedCommands"
+            :key="cmd.id"
+            :data-staging-index="index"
+            class="flow-panel__list-item"
+            draggable="true"
+            @dragstart="onDragStartWithEditGuard($event, index)"
+            @dragover="onStagingDragOver(index, $event)"
+            @dragend="onDragEnd"
+            @click="emit('focus-staging-index', index)"
           >
-            <!-- 拖拽手柄 -->
-            <div
-              class="flow-card__grip"
-              aria-hidden="true"
-              @mousedown="startGripReorder(index, $event)"
-              @click.stop.prevent
+            <article
+              class="staging-card flow-panel__card"
+              :class="{
+                'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex,
+                'staging-card--dragging': draggingCommandId === cmd.id,
+                'staging-card--drag-over': dragOverCommandId === cmd.id && draggingCommandId !== cmd.id
+              }"
+              :tabindex="index === props.stagingActiveIndex ? 0 : -1"
             >
-              <LauncherIcon name="grip" :size="12" />
-            </div>
-            <!-- 卡片主内容 -->
-            <div class="flow-card__body">
-              <header class="staging-card__head">
-                <h3>{{ cmd.title }}</h3>
-                <div class="flow-panel__card-actions">
-                  <button
-                    type="button"
-                    class="btn-muted btn-icon btn-small"
-                    :disabled="props.executing"
-                    :aria-label="t('common.copy')"
-                    :title="t('common.copy')"
-                    @click.stop="copyCommand(cmd.renderedCommand)"
-                  >
-                    <LauncherIcon name="copy" />
-                  </button>
-                  <button
-                    type="button"
-                    class="btn-danger btn-icon btn-small"
-                    :disabled="props.executing"
-                    :aria-label="t('common.remove')"
-                    :title="t('common.remove')"
-                    @click.stop="emit('remove-staged-command', cmd.id)"
-                  >
-                    <LauncherIcon name="x" />
-                  </button>
-                </div>
-              </header>
-              <!-- 有参数时：紧凑参数标签（带背景区域） -->
-              <div v-if="cmd.args.length > 0" class="flow-card__params">
-                <div
-                  v-for="arg in cmd.args"
-                  :key="arg.key"
-                  class="flow-card__param"
-                >
-                  <span class="flow-card__param-key">{{ arg.label }}:</span>
-                  <!-- 未编辑态：参数值标签（带背景） -->
-                  <span
-                    v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
-                    class="flow-card__param-value"
-                    @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
-                  >
-                    {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}
-                  </span>
-                  <!-- 编辑态：内联输入框 -->
-                  <input
-                    v-else
-                    class="flow-card__param-input"
-                    :value="editingParam.currentValue"
-                    @input="onParamEditInput(cmd.id, arg.key, ($event.target as HTMLInputElement).value)"
-                    @keydown.enter.stop="commitParamEdit(cmd.id, arg.key)"
-                    @keydown.escape.stop="cancelParamEdit()"
-                    @blur="commitParamEdit(cmd.id, arg.key)"
-                    ref="paramEditInputRef"
-                  />
-                </div>
+              <div
+                class="flow-card__grip"
+                aria-hidden="true"
+                @mousedown="startGripReorder(index, $event)"
+                @click.stop.prevent
+              >
+                <LauncherIcon name="grip" :size="12" />
               </div>
-              <!-- 命令预览 -->
-              <code class="flow-card__command">
-                &gt; {{ cmd.renderedCommand }}
-              </code>
-            </div>
-          </article>
-        </li>
-      </TransitionGroup>
+              <div class="flow-card__body">
+                <header class="staging-card__head">
+                  <h3>{{ cmd.title }}</h3>
+                  <div class="flow-panel__card-actions">
+                    <button
+                      type="button"
+                      class="btn-muted btn-icon btn-small"
+                      :disabled="props.executing"
+                      :aria-label="t('common.copy')"
+                      :title="t('common.copy')"
+                      @click.stop="copyCommand(cmd.renderedCommand)"
+                    >
+                      <LauncherIcon name="copy" />
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-danger btn-icon btn-small"
+                      :disabled="props.executing"
+                      :aria-label="t('common.remove')"
+                      :title="t('common.remove')"
+                      @click.stop="emit('remove-staged-command', cmd.id)"
+                    >
+                      <LauncherIcon name="x" />
+                    </button>
+                  </div>
+                </header>
+                <div v-if="cmd.args.length > 0" class="flow-card__params">
+                  <div
+                    v-for="arg in cmd.args"
+                    :key="arg.key"
+                    class="flow-card__param"
+                  >
+                    <span class="flow-card__param-key">{{ arg.label }}:</span>
+                    <span
+                      v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
+                      class="flow-card__param-value"
+                      @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
+                    >
+                      {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}
+                    </span>
+                    <input
+                      v-else
+                      class="flow-card__param-input"
+                      :value="editingParam.currentValue"
+                      @input="onParamEditInput(cmd.id, arg.key, ($event.target as HTMLInputElement).value)"
+                      @keydown.enter.stop="commitParamEdit(cmd.id, arg.key)"
+                      @keydown.escape.stop="cancelParamEdit()"
+                      @blur="commitParamEdit(cmd.id, arg.key)"
+                      ref="paramEditInputRef"
+                    />
+                  </div>
+                </div>
+                <code class="flow-card__command">
+                  &gt; {{ cmd.renderedCommand }}
+                </code>
+              </div>
+            </article>
+          </li>
+        </TransitionGroup>
+      </section>
 
       <footer class="flow-panel__footer">
         <button

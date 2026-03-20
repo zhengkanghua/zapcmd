@@ -84,6 +84,7 @@ const emit = defineEmits<{
   (e: "request-command-panel-exit"): void;
   (e: "command-page-settled"): void;
   (e: "search-page-settled"): void;
+  (e: "flow-panel-settled"): void;
   (e: "arg-input", key: string, value: string): void;
   (e: "confirm-safety-execution"): void;
   (e: "cancel-safety-execution"): void;
@@ -221,9 +222,6 @@ function onNavAfterEnter(): void {
           :staging-expanded="props.stagingExpanded"
           :staged-commands="props.stagedCommands"
           :staging-hints="props.stagingHints"
-          :staging-list-should-scroll="props.stagingListShouldScroll"
-          :staging-list-max-height="props.stagingListMaxHeight"
-          :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
           :focus-zone="props.focusZone"
           :staging-active-index="props.stagingActiveIndex"
           :flow-open="props.navCurrentPage.type !== 'search'"
@@ -242,6 +240,7 @@ function onNavAfterEnter(): void {
           @update-staged-arg="(id, key, value) => emit('update-staged-arg', id, key, value)"
           @clear-staging="emit('clear-staging')"
           @execute-staged="emit('execute-staged')"
+          @flow-panel-settled="emit('flow-panel-settled')"
           @execution-feedback="(t: 'neutral' | 'success' | 'error', m: string) => emit('execution-feedback', t, m)"
         />
       </div>
