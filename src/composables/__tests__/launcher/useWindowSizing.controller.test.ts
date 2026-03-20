@@ -204,6 +204,51 @@ function buildCommandPanelShellForLock(input: {
   return shell;
 }
 
+function buildFlowPanelShellForLock(input: {
+  headerHeight: number;
+  footerHeight: number;
+  cardHeights: number[];
+}): HTMLElement {
+  const shell = document.createElement("div");
+  const panel = document.createElement("section");
+  panel.className = "flow-panel";
+
+  const header = document.createElement("header");
+  header.className = "flow-panel__header";
+  mockElementHeight(header, input.headerHeight);
+
+  const body = document.createElement("div");
+  body.className = "flow-panel__body";
+
+  const list = document.createElement("ul");
+  list.className = "flow-panel__list";
+  input.cardHeights.forEach((height, index) => {
+    const item = document.createElement("li");
+    item.className = "flow-panel__list-item";
+    item.dataset.stagingIndex = String(index);
+
+    const card = document.createElement("article");
+    card.className = "flow-panel__card staging-card";
+    mockElementHeight(card, height, height);
+
+    item.appendChild(card);
+    list.appendChild(item);
+  });
+  body.appendChild(list);
+
+  const footer = document.createElement("footer");
+  footer.className = "flow-panel__footer";
+  mockElementHeight(footer, input.footerHeight);
+
+  panel.appendChild(header);
+  panel.appendChild(body);
+  panel.appendChild(footer);
+  shell.appendChild(panel);
+  document.body.appendChild(shell);
+
+  return panel;
+}
+
 async function seedLegacyLastWindowSizeViaEstimatedFallback(input: {
   drawerOpen: { value: boolean };
   drawerViewportHeight: { value: number };
@@ -728,6 +773,26 @@ describe("createWindowSizingController（Flow 会话）", () => {
       expectedFlowMinHeight +
         UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
         SEARCH_SHELL_OUTER_CHROME_PX
+    );
+  });
+
+  it("搜索 -> Flow settled 后若已有真实卡片实测，则按 header + 前两张卡片 + footer 精准锁高", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [96, 124, 180]
+    });
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(332);
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      332 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 

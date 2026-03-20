@@ -40,12 +40,15 @@ export function resolveCommandPanelMinHeight(
 }
 
 /**
- * FlowPanel 最低高度优先使用空态 / 前两张真实卡片实测；实测缺失时退回静态兜底。
+ * FlowPanel 最低高度有实测时直接采用真实值；只有实测缺失时才退回静态兜底。
  */
 export function resolveFlowPanelMinHeight(
   options: ResolveFlowPanelMinHeightOptions
 ): number {
-  return Math.max(options.fallbackMinHeight, options.measuredMinHeight ?? 0);
+  if (Number.isFinite(options.measuredMinHeight) && (options.measuredMinHeight ?? 0) > 0) {
+    return options.measuredMinHeight as number;
+  }
+  return options.fallbackMinHeight;
 }
 
 /**

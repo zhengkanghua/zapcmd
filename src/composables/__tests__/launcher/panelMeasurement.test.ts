@@ -160,13 +160,20 @@ describe("panelMeasurement", () => {
     ).toBe(340);
   });
 
-  it("FlowPanel fallback min height 只在实测不足时兜底", () => {
+  it("FlowPanel 只有测不到 DOM 时才回退兜底；有实测时直接采用真实最小高度", () => {
     expect(
       resolveFlowPanelMinHeight({
         fallbackMinHeight: 320,
-        measuredMinHeight: 370
+        measuredMinHeight: 260
       })
-    ).toBe(370);
+    ).toBe(260);
+
+    expect(
+      resolveFlowPanelMinHeight({
+        fallbackMinHeight: 320,
+        measuredMinHeight: 0
+      })
+    ).toBe(320);
 
     expect(
       resolveFlowPanelMinHeight({
