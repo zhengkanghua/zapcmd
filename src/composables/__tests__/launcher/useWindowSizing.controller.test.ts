@@ -1,5 +1,5 @@
 import { ref, type Ref } from "vue";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { WINDOW_SIZING_CONSTANTS } from "../../launcher/useLauncherLayoutMetrics";
 import { createWindowSizingController } from "../../launcher/useWindowSizing/controller";
@@ -74,14 +74,54 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
 }
 
 function createFlowHarness({ lastFrameHeight = 420 } = {}) {
+  const root = document.createElement("main");
+  const shell = document.createElement("div");
+  shell.className = "search-shell";
+  root.appendChild(shell);
+
+  const dragStrip = document.createElement("div");
+  dragStrip.className = "shell-drag-strip";
+  shell.appendChild(dragStrip);
+
+  const commandPanel = document.createElement("section");
+  commandPanel.className = "command-panel";
+  shell.appendChild(commandPanel);
+  document.body.appendChild(root);
+
+  // 由 calculation 公式反推：contentHeight = commandPanelBottom + 12（top=0, safePad=30, dragStrip=18）
+  const commandPanelBottom = Math.max(0, lastFrameHeight - 12);
+  vi.spyOn(root, "getBoundingClientRect").mockReturnValue(
+    createDomRect({ top: 0, bottom: 1_200, height: 1_200 })
+  );
+  vi.spyOn(shell, "getBoundingClientRect").mockReturnValue(
+    createDomRect({ top: 0, bottom: commandPanelBottom })
+  );
+  vi.spyOn(commandPanel, "getBoundingClientRect").mockReturnValue(
+    createDomRect({
+      top: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
+      bottom: commandPanelBottom
+    })
+  );
+  vi.spyOn(dragStrip, "getBoundingClientRect").mockReturnValue(
+    createDomRect({ height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK })
+  );
+
   const harness = createWindowSizingHarness({
     commandPanelLockedHeight: ref<number | null>(null),
     flowPanelInheritedHeight: ref<number | null>(null),
-    flowPanelLockedHeight: ref<number | null>(null)
+    flowPanelLockedHeight: ref<number | null>(null),
+    searchShellRef: ref(shell),
+    pendingCommand: ref<unknown>({ id: "pending" }),
+    stagingExpanded: ref(false),
+    stagingVisibleRows: ref(0)
   });
   return {
     ...harness,
-    lastFrameHeight
+    lastFrameHeight,
+    state: {
+      ...harness.state,
+      stagingVisibleRows: harness.options.stagingVisibleRows
+    }
   };
 }
 
@@ -122,6 +162,11 @@ function createDomRect(partial: Partial<DOMRect>): DOMRect {
     ...partial
   } as DOMRect;
 }
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  document.body.innerHTML = "";
+});
 
 function createExitHarness() {
   const drawerOpen = ref(false);
@@ -342,9 +387,19 @@ describe("createWindowSizingController（Flow 会话）", () => {
   it("Flow 打开时继承当前 frame height，未 settled 前不读旧列表估算", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 420 });
 
+    // 先同步一次，显式构造“当前 frame height = 420”的前置条件
+    await harness.controller.syncWindowSize();
+    harness.spies.requestAnimateMainWindowSize.mockClear();
+
+    // 构造“旧列表估算”输入（stagingPanelRef 缺失时会退回 stagingVisibleRows 估算）
+    harness.state.stagingVisibleRows.value = 6;
     harness.options.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
 
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      harness.lastFrameHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
     expect(harness.state.flowPanelInheritedHeight.value).toBe(harness.lastFrameHeight);
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
   });
