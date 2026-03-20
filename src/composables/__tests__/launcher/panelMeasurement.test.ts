@@ -176,15 +176,15 @@ describe("panelMeasurement", () => {
     ).toBe(320);
   });
 
-  it("CommandPanel 完整盒子高度包含 header + content + footer + divider", () => {
+  it("CommandPanel 完整盒子高度包含 header + content + footer + 两个 divider", () => {
     const shell = buildCommandShell({
       headerHeight: 52,
       contentScrollHeight: 240,
       footerHeight: 60,
-      dividerHeights: [1, 1]
+      dividerHeights: [3, 7]
     });
 
-    expect(measureCommandPanelFullNaturalHeight(shell)).toBe(354);
+    expect(measureCommandPanelFullNaturalHeight(shell)).toBe(362);
   });
 
   it("CommandPanel 缺少关键节点时返回 null，不读取残缺 DOM", () => {

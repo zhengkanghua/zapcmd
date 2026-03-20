@@ -71,10 +71,19 @@ describe("LauncherCommandPanel", () => {
     it("保留 header + 2 个 divider + content + footer 完整骨架", () => {
       const wrapper = mountPanel();
 
-      expect(wrapper.find(".command-panel__header").exists()).toBe(true);
+      const panel = wrapper.get(".command-panel");
+      const directChildren = panel.element.children;
+
+      expect(directChildren).toHaveLength(3);
+      expect(directChildren[0]?.classList.contains("command-panel__header")).toBe(true);
+      expect(directChildren[1]?.classList.contains("command-panel__content")).toBe(true);
+      expect(directChildren[2]?.classList.contains("command-panel__footer")).toBe(true);
+
+      expect(wrapper.find(".command-panel__divider--header").exists()).toBe(true);
+      expect(wrapper.find(".command-panel__divider--footer").exists()).toBe(true);
       expect(wrapper.findAll(".command-panel__divider")).toHaveLength(2);
-      expect(wrapper.find(".command-panel__content").exists()).toBe(true);
-      expect(wrapper.find(".command-panel__footer").exists()).toBe(true);
+      expect(wrapper.find(".command-panel__footer .command-panel__btn--cancel").exists()).toBe(true);
+      expect(wrapper.find(".command-panel__footer [data-testid='confirm-btn']").exists()).toBe(true);
     });
   });
 

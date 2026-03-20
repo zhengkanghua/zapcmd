@@ -138,6 +138,66 @@ function createCommandHarness({ lastFrameHeight = 520 } = {}) {
   };
 }
 
+function mockElementHeight(element: HTMLElement, height: number, scrollHeight = height): void {
+  Object.defineProperty(element, "offsetHeight", {
+    configurable: true,
+    value: height
+  });
+  Object.defineProperty(element, "clientHeight", {
+    configurable: true,
+    value: height
+  });
+  Object.defineProperty(element, "scrollHeight", {
+    configurable: true,
+    value: scrollHeight
+  });
+  Object.defineProperty(element, "getBoundingClientRect", {
+    configurable: true,
+    value: () => createDomRect({ height })
+  });
+}
+
+function buildCommandPanelShellForLock(input: {
+  headerHeight: number;
+  contentScrollHeight: number;
+  footerHeight: number;
+  dividerHeights: [number, number];
+}): HTMLElement {
+  const shell = document.createElement("div");
+  const panel = document.createElement("section");
+  panel.className = "command-panel";
+
+  const header = document.createElement("header");
+  header.className = "command-panel__header";
+  mockElementHeight(header, input.headerHeight);
+
+  const dividerTop = document.createElement("div");
+  dividerTop.className = "command-panel__divider";
+  mockElementHeight(dividerTop, input.dividerHeights[0]);
+
+  const content = document.createElement("div");
+  content.className = "command-panel__content";
+  mockElementHeight(content, input.contentScrollHeight, input.contentScrollHeight);
+
+  const dividerBottom = document.createElement("div");
+  dividerBottom.className = "command-panel__divider";
+  mockElementHeight(dividerBottom, input.dividerHeights[1]);
+
+  const footer = document.createElement("footer");
+  footer.className = "command-panel__footer";
+  mockElementHeight(footer, input.footerHeight);
+
+  panel.appendChild(header);
+  panel.appendChild(dividerTop);
+  panel.appendChild(content);
+  panel.appendChild(dividerBottom);
+  panel.appendChild(footer);
+  shell.appendChild(panel);
+  document.body.appendChild(shell);
+
+  return shell;
+}
+
 function createCommandAndFlowHarness() {
   const commandPanelInheritedHeight = ref<number | null>(560);
   const commandPanelLockedHeight = ref<number | null>(560);
@@ -482,6 +542,31 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
 });
 
 describe("createWindowSizingController（Flow 会话）", () => {
+  it("Search -> Flow 继续跟随当前 Search 有效高度，不携带 breathing", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: 0 });
+
+    // 旧口径残留：先用估算高度（包含 breathing gap）seed lastWindowSize。
+    harness.state.drawerOpen.value = true;
+    harness.state.drawerViewportHeight.value = 200;
+    harness.state.searchPanelEffectiveHeight.value = Number.NaN;
+    await harness.controller.syncWindowSize();
+
+    harness.spies.requestAnimateMainWindowSize.mockClear();
+
+    // 新口径：Search 有效高度不含 breathing。
+    harness.state.searchPanelEffectiveHeight.value = 280;
+    harness.state.drawerOpen.value = false;
+    harness.state.drawerViewportHeight.value = 0;
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelInheritedHeight.value).toBe(280);
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      280 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+  });
+
   it("搜索 -> Flow：先继承搜索当前高度，settled 后仅在不足时补高一次", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 124 });
 
@@ -581,6 +666,75 @@ describe("createWindowSizingController（Flow 会话）", () => {
 });
 
 describe("createWindowSizingController（Command settled 锁高）", () => {
+  it("搜索页底部呼吸留白不进入 commandPanelInheritedHeight", async () => {
+    const harness = createCommandHarness({ lastFrameHeight: 0 });
+
+    // 旧口径残留：先用估算高度（包含 breathing gap）seed lastWindowSize。
+    harness.state.drawerOpen.value = true;
+    harness.state.drawerViewportHeight.value = 200;
+    harness.state.searchPanelEffectiveHeight.value = Number.NaN;
+    await harness.controller.syncWindowSize();
+
+    harness.spies.requestAnimateMainWindowSize.mockClear();
+
+    // 新口径：Search 有效高度不含 breathing。
+    harness.state.searchPanelEffectiveHeight.value = 300;
+    harness.state.pendingCommand.value = { id: "pending" };
+    harness.state.drawerOpen.value = false;
+    harness.state.drawerViewportHeight.value = 0;
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelInheritedHeight.value).toBe(300);
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+  });
+
+  it("Search -> Command 首帧先继承 searchPanelEffectiveHeight，不够完整盒子时才补高", async () => {
+    const harness = createCommandHarness({ lastFrameHeight: 0 });
+
+    // 旧口径残留：先用估算高度（包含 breathing gap）seed lastWindowSize。
+    harness.state.drawerOpen.value = true;
+    harness.state.drawerViewportHeight.value = 200;
+    harness.state.searchPanelEffectiveHeight.value = Number.NaN;
+    await harness.controller.syncWindowSize();
+
+    harness.spies.requestAnimateMainWindowSize.mockClear();
+
+    // Search -> Command 首帧：必须先继承 Search 有效高度。
+    harness.state.searchPanelEffectiveHeight.value = 300;
+    harness.state.pendingCommand.value = { id: "pending" };
+    harness.state.drawerOpen.value = false;
+    harness.state.drawerViewportHeight.value = 0;
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelInheritedHeight.value).toBe(300);
+    expect(harness.state.commandPanelLockedHeight.value).toBeNull();
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+
+    const commandShell = buildCommandPanelShellForLock({
+      headerHeight: 52,
+      contentScrollHeight: 240,
+      footerHeight: 60,
+      dividerHeights: [1, 1]
+    });
+    harness.options.searchShellRef.value = commandShell;
+
+    // settled 后：只在完整盒子更高时补高（52 + 240 + 60 + 1 + 1 = 354）。
+    harness.controller.notifyCommandPageSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelLockedHeight.value).toBe(354);
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      354 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+  });
+
   it("notifyCommandPageSettled 首次写入 commandPanelLockedHeight，再次通知不覆写已锁高度", async () => {
     const harness = createCommandHarness({ lastFrameHeight: 520 });
 

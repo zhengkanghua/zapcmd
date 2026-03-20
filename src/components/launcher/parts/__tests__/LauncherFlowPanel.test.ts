@@ -44,6 +44,33 @@ function createProps(
   };
 }
 
+function mockScrollable(
+  element: HTMLElement,
+  options: {
+    clientHeight: number;
+    scrollHeight: number;
+    scrollTop?: number;
+  }
+): void {
+  Object.defineProperty(element, "clientHeight", {
+    configurable: true,
+    value: options.clientHeight
+  });
+  Object.defineProperty(element, "scrollHeight", {
+    configurable: true,
+    value: options.scrollHeight
+  });
+
+  let scrollTop = options.scrollTop ?? 0;
+  Object.defineProperty(element, "scrollTop", {
+    configurable: true,
+    get: () => scrollTop,
+    set: (value: number) => {
+      scrollTop = value;
+    }
+  });
+}
+
 const originalClipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
 afterEach(() => {
@@ -124,6 +151,39 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 
     expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
     wrapper.unmount();
+  });
+
+  it("body/list 保持单一滚动宿主：空态滚 body，列表态滚 list", async () => {
+    const emptyWrapper = mount(LauncherFlowPanel, {
+      props: createProps({ stagedCommands: [] })
+    });
+    const emptyScrim = emptyWrapper.get(".flow-panel-overlay__scrim");
+    const emptyBody = emptyWrapper.get(".flow-panel__body").element as HTMLElement;
+    mockScrollable(emptyBody, { clientHeight: 180, scrollHeight: 420, scrollTop: 40 });
+
+    emptyScrim.element.dispatchEvent(
+      new WheelEvent("wheel", { deltaY: 30, bubbles: true, cancelable: true })
+    );
+    expect(emptyBody.scrollTop).toBe(70);
+    emptyWrapper.unmount();
+
+    const listWrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        stagedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
+      })
+    });
+    const listScrim = listWrapper.get(".flow-panel-overlay__scrim");
+    const listBody = listWrapper.get(".flow-panel__body").element as HTMLElement;
+    const list = listWrapper.get(".flow-panel__list").element as HTMLElement;
+    mockScrollable(listBody, { clientHeight: 200, scrollHeight: 200, scrollTop: 0 });
+    mockScrollable(list, { clientHeight: 160, scrollHeight: 360, scrollTop: 20 });
+
+    listScrim.element.dispatchEvent(
+      new WheelEvent("wheel", { deltaY: 40, bubbles: true, cancelable: true })
+    );
+    expect(list.scrollTop).toBe(60);
+    expect(listBody.scrollTop).toBe(0);
+    listWrapper.unmount();
   });
 
   it("列表态挂载 flow-panel--has-list，空态不挂载该 modifier", () => {
