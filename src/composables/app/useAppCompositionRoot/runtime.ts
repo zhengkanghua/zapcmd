@@ -205,12 +205,12 @@ function createWindowSizingSettleNotifiers(windowSizing: ReturnType<typeof useWi
   };
 }
 
-function bindAppRuntime(
+function createWindowSizingOptions(
   context: AppCompositionContext,
-  launcherRuntime: LauncherRuntime
-) {
-  const panelHeightSession = createPanelHeightSession();
-  const windowSizing = useWindowSizing({
+  launcherRuntime: LauncherRuntime,
+  panelHeightSession: ReturnType<typeof createPanelHeightSession>
+): Parameters<typeof useWindowSizing>[0] {
+  return {
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: context.isSettingsWindow,
     isTauriRuntime: context.ports.isTauriRuntime,
@@ -235,7 +235,17 @@ function bindAppRuntime(
     windowHeightCap: launcherRuntime.layoutMetrics.windowHeightCap,
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
     loadSettings: context.settingsWindow.loadSettings
-  });
+  };
+}
+
+function bindAppRuntime(
+  context: AppCompositionContext,
+  launcherRuntime: LauncherRuntime
+) {
+  const panelHeightSession = createPanelHeightSession();
+  const windowSizing = useWindowSizing(
+    createWindowSizingOptions(context, launcherRuntime, panelHeightSession)
+  );
   const { notifySearchPageSettled, notifyCommandPageSettled, notifyFlowPanelSettled } =
     createWindowSizingSettleNotifiers(windowSizing);
   function requestCommandPanelExit(): void {

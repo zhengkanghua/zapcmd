@@ -17,6 +17,10 @@
 
 - 按 `docs/superpowers/plans/2026-03-20-launcher-search-effective-height-inheritance-and-panel-contract.md` 收口 `.search-shell` breathing token（8px），并 supersede 旧 `2026-03-20-launcher-command-flow-height-contract-correction.md`；9 项 launcher 定向测试全绿，`check:all` 仍卡既有 `runtime.ts` lint。
 
+## 补充（2026-03-20｜launcher search effective height lint 收口）
+
+- `runtime.ts` 抽出 `createWindowSizingOptions()`，仅收口 `bindAppRuntime` 行数门禁，不改行为；`npm run check:all` 已全绿，GUI 手验仍受当前终端环境限制。
+
 ## 补充（2026-03-18｜settings 通用/命令页深色精修执行）
 
 - Windows settings 标题栏显式切到 dark；General 已切到 `SettingSection/SettingItem/SDropdown/SToggle`，旧终端 dropdown 外部状态链路已删除。
