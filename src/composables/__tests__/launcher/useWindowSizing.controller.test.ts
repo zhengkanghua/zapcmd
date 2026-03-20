@@ -198,6 +198,24 @@ function buildCommandPanelShellForLock(input: {
   return shell;
 }
 
+async function seedLegacyLastWindowSizeViaEstimatedFallback(input: {
+  drawerOpen: { value: boolean };
+  drawerViewportHeight: { value: number };
+  searchPanelEffectiveHeight: { value: number };
+  syncWindowSize: () => Promise<void>;
+  clearAnimateSpy: () => void;
+  drawerViewportHeightForSeed?: number;
+}): Promise<void> {
+  const drawerViewportHeightForSeed = input.drawerViewportHeightForSeed ?? 200;
+
+  input.drawerOpen.value = true;
+  input.drawerViewportHeight.value = drawerViewportHeightForSeed;
+  // 用 NaN 强制走估算 fallback 路径，复现旧口径把 breathing 带入 lastWindowSize 的污染。
+  input.searchPanelEffectiveHeight.value = Number.NaN;
+  await input.syncWindowSize();
+  input.clearAnimateSpy();
+}
+
 function createCommandAndFlowHarness() {
   const commandPanelInheritedHeight = ref<number | null>(560);
   const commandPanelLockedHeight = ref<number | null>(560);
@@ -545,13 +563,13 @@ describe("createWindowSizingController（Flow 会话）", () => {
   it("Search -> Flow 继续跟随当前 Search 有效高度，不携带 breathing", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 0 });
 
-    // 旧口径残留：先用估算高度（包含 breathing gap）seed lastWindowSize。
-    harness.state.drawerOpen.value = true;
-    harness.state.drawerViewportHeight.value = 200;
-    harness.state.searchPanelEffectiveHeight.value = Number.NaN;
-    await harness.controller.syncWindowSize();
-
-    harness.spies.requestAnimateMainWindowSize.mockClear();
+    await seedLegacyLastWindowSizeViaEstimatedFallback({
+      drawerOpen: harness.state.drawerOpen,
+      drawerViewportHeight: harness.state.drawerViewportHeight,
+      searchPanelEffectiveHeight: harness.state.searchPanelEffectiveHeight,
+      syncWindowSize: () => harness.controller.syncWindowSize(),
+      clearAnimateSpy: () => harness.spies.requestAnimateMainWindowSize.mockClear()
+    });
 
     // 新口径：Search 有效高度不含 breathing。
     harness.state.searchPanelEffectiveHeight.value = 280;
@@ -561,10 +579,9 @@ describe("createWindowSizingController（Flow 会话）", () => {
     await harness.controller.syncWindowSize();
 
     expect(harness.state.flowPanelInheritedHeight.value).toBe(280);
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
-      expect.any(Number),
-      280 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
-    );
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
+    const firstResizeCall = harness.spies.requestAnimateMainWindowSize.mock.calls[0];
+    expect(firstResizeCall?.[1]).toBe(280 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
   it("搜索 -> Flow：先继承搜索当前高度，settled 后仅在不足时补高一次", async () => {
@@ -669,13 +686,13 @@ describe("createWindowSizingController（Command settled 锁高）", () => {
   it("搜索页底部呼吸留白不进入 commandPanelInheritedHeight", async () => {
     const harness = createCommandHarness({ lastFrameHeight: 0 });
 
-    // 旧口径残留：先用估算高度（包含 breathing gap）seed lastWindowSize。
-    harness.state.drawerOpen.value = true;
-    harness.state.drawerViewportHeight.value = 200;
-    harness.state.searchPanelEffectiveHeight.value = Number.NaN;
-    await harness.controller.syncWindowSize();
-
-    harness.spies.requestAnimateMainWindowSize.mockClear();
+    await seedLegacyLastWindowSizeViaEstimatedFallback({
+      drawerOpen: harness.state.drawerOpen,
+      drawerViewportHeight: harness.state.drawerViewportHeight,
+      searchPanelEffectiveHeight: harness.state.searchPanelEffectiveHeight,
+      syncWindowSize: () => harness.controller.syncWindowSize(),
+      clearAnimateSpy: () => harness.spies.requestAnimateMainWindowSize.mockClear()
+    });
 
     // 新口径：Search 有效高度不含 breathing。
     harness.state.searchPanelEffectiveHeight.value = 300;
@@ -685,22 +702,21 @@ describe("createWindowSizingController（Command settled 锁高）", () => {
     await harness.controller.syncWindowSize();
 
     expect(harness.state.commandPanelInheritedHeight.value).toBe(300);
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
-      expect.any(Number),
-      300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
-    );
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
+    const firstResizeCall = harness.spies.requestAnimateMainWindowSize.mock.calls[0];
+    expect(firstResizeCall?.[1]).toBe(300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
   it("Search -> Command 首帧先继承 searchPanelEffectiveHeight，不够完整盒子时才补高", async () => {
     const harness = createCommandHarness({ lastFrameHeight: 0 });
 
-    // 旧口径残留：先用估算高度（包含 breathing gap）seed lastWindowSize。
-    harness.state.drawerOpen.value = true;
-    harness.state.drawerViewportHeight.value = 200;
-    harness.state.searchPanelEffectiveHeight.value = Number.NaN;
-    await harness.controller.syncWindowSize();
-
-    harness.spies.requestAnimateMainWindowSize.mockClear();
+    await seedLegacyLastWindowSizeViaEstimatedFallback({
+      drawerOpen: harness.state.drawerOpen,
+      drawerViewportHeight: harness.state.drawerViewportHeight,
+      searchPanelEffectiveHeight: harness.state.searchPanelEffectiveHeight,
+      syncWindowSize: () => harness.controller.syncWindowSize(),
+      clearAnimateSpy: () => harness.spies.requestAnimateMainWindowSize.mockClear()
+    });
 
     // Search -> Command 首帧：必须先继承 Search 有效高度。
     harness.state.searchPanelEffectiveHeight.value = 300;
@@ -711,10 +727,9 @@ describe("createWindowSizingController（Command settled 锁高）", () => {
 
     expect(harness.state.commandPanelInheritedHeight.value).toBe(300);
     expect(harness.state.commandPanelLockedHeight.value).toBeNull();
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
-      expect.any(Number),
-      300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
-    );
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
+    const firstResizeCall = harness.spies.requestAnimateMainWindowSize.mock.calls[0];
+    expect(firstResizeCall?.[1]).toBe(300 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
 
     const commandShell = buildCommandPanelShellForLock({
       headerHeight: 52,
@@ -729,10 +744,9 @@ describe("createWindowSizingController（Command settled 锁高）", () => {
     await harness.controller.syncWindowSize();
 
     expect(harness.state.commandPanelLockedHeight.value).toBe(354);
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
-      expect.any(Number),
-      354 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
-    );
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(2);
+    const secondResizeCall = harness.spies.requestAnimateMainWindowSize.mock.calls[1];
+    expect(secondResizeCall?.[1]).toBe(354 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
   it("notifyCommandPageSettled 首次写入 commandPanelLockedHeight，再次通知不覆写已锁高度", async () => {
