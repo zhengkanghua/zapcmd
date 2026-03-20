@@ -12,9 +12,10 @@ function mockElementHeight(
   options: {
     height: number;
     scrollHeight?: number;
+    top?: number;
   }
 ): void {
-  const { height, scrollHeight = height } = options;
+  const { height, scrollHeight = height, top = 0 } = options;
   Object.defineProperty(element, "offsetHeight", {
     configurable: true,
     value: height
@@ -31,14 +32,14 @@ function mockElementHeight(
     configurable: true,
     value: () =>
       ({
-        top: 0,
-        bottom: height,
+        top,
+        bottom: top + height,
         left: 0,
         right: 0,
         width: 0,
         height,
         x: 0,
-        y: 0,
+        y: top,
         toJSON: () => ({})
       }) as DOMRect
   });
@@ -92,6 +93,7 @@ function buildFlowShell(input: {
   footerHeight: number;
   emptyStateHeight?: number;
   cardHeights?: number[];
+  itemHeights?: number[];
 }): HTMLElement {
   const shell = document.createElement("div");
   const panel = document.createElement("section");
@@ -103,6 +105,10 @@ function buildFlowShell(input: {
 
   const body = document.createElement("div");
   body.className = "flow-panel__body";
+  body.style.paddingTop = "12px";
+  body.style.paddingBottom = "12px";
+  body.style.paddingLeft = "16px";
+  body.style.paddingRight = "16px";
 
   if (typeof input.emptyStateHeight === "number") {
     const empty = document.createElement("div");
@@ -114,15 +120,22 @@ function buildFlowShell(input: {
   if (input.cardHeights?.length) {
     const list = document.createElement("ul");
     list.className = "flow-panel__list";
+    list.style.display = "flex";
+    list.style.flexDirection = "column";
+    list.style.rowGap = "8px";
+    let currentTop = 0;
     input.cardHeights.forEach((height, index) => {
       const item = document.createElement("li");
       item.className = "flow-panel__list-item";
       item.dataset.stagingIndex = String(index);
+      const itemHeight = input.itemHeights?.[index] ?? height;
+      mockElementHeight(item, { height: itemHeight, top: currentTop });
       const card = document.createElement("article");
       card.className = "flow-panel__card staging-card";
       mockElementHeight(card, { height });
       item.appendChild(card);
       list.appendChild(item);
+      currentTop += itemHeight + 8;
     });
     body.appendChild(list);
   }
@@ -214,17 +227,28 @@ describe("panelMeasurement", () => {
       cardHeights: [110, 148]
     });
 
-    expect(measureFlowPanelMinHeight(shell)).toBe(208);
+    expect(measureFlowPanelMinHeight(shell)).toBe(232);
   });
 
-  it("FlowPanel 非空态按前 2 张真实异高卡片求和", () => {
+  it("FlowPanel 非空态按前 2 张真实异高卡片 + body padding + 卡片间距 求和", () => {
     const shell = buildFlowShell({
       headerHeight: 52,
       footerHeight: 60,
       cardHeights: [110, 148]
     });
 
-    expect(measureFlowPanelMinHeight(shell)).toBe(370);
+    expect(measureFlowPanelMinHeight(shell)).toBe(402);
+  });
+
+  it("FlowPanel 最小高度应按前两张 list-item 的真实排版跨度测量，不能只加内层 card 盒子", () => {
+    const shell = buildFlowShell({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220],
+      itemHeights: [170, 222]
+    });
+
+    expect(measureFlowPanelMinHeight(shell)).toBe(536);
   });
 
   it("目标面板 DOM 缺席时返回 null，不回退读取旧面板高度", () => {

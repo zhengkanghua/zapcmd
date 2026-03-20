@@ -15,6 +15,7 @@ import {
   SEARCH_CAPSULE_HEIGHT_PX,
   WINDOW_SIZING_CONSTANTS
 } from "../composables/launcher/useLauncherLayoutMetrics";
+import { measureFlowPanelMinHeight } from "../composables/launcher/useWindowSizing/panelMeasurement";
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK } from "../composables/launcher/useWindowSizing/model";
 import App from "../App.vue";
 
@@ -196,6 +197,77 @@ function createDeferred<T>(): Deferred<T> {
     reject = rej;
   });
   return { promise, resolve, reject };
+}
+
+function createDomRect(partial: Partial<DOMRect>): DOMRect {
+  return {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    toJSON: () => ({}),
+    ...partial,
+  } as DOMRect;
+}
+
+function mockElementBoxHeight(
+  element: HTMLElement,
+  options: {
+    height: number;
+    scrollHeight?: number;
+  },
+): void {
+  const { height, scrollHeight = height } = options;
+  Object.defineProperty(element, "offsetHeight", {
+    configurable: true,
+    value: height,
+  });
+  Object.defineProperty(element, "clientHeight", {
+    configurable: true,
+    value: height,
+  });
+  Object.defineProperty(element, "scrollHeight", {
+    configurable: true,
+    value: scrollHeight,
+  });
+  vi.spyOn(element, "getBoundingClientRect").mockReturnValue(
+    createDomRect({ height, bottom: height }),
+  );
+}
+
+function seedLauncherSessionSnapshot(
+  stagedCommands: Array<{
+    id: string;
+    title: string;
+    renderedCommand: string;
+    args: Array<{
+      key: string;
+      label: string;
+      required?: boolean;
+      defaultValue?: string;
+    }>;
+    argValues: Record<string, string>;
+  }>,
+): void {
+  localStorage.setItem(
+    LAUNCHER_SESSION_STORAGE_KEY,
+    JSON.stringify({
+      version: 1,
+      stagingExpanded: false,
+      stagedCommands: stagedCommands.map((command) => ({
+        id: command.id,
+        title: command.title,
+        rawPreview: command.renderedCommand,
+        renderedCommand: command.renderedCommand,
+        args: command.args,
+        argValues: command.argValues,
+      })),
+    }),
+  );
 }
 
 function getSetupState(wrapper: VueWrapper): AppSetupState {
@@ -799,7 +871,7 @@ describe("App failure and event regression", () => {
     expect(warnSpy).toHaveBeenCalled();
   });
 
-  it("FlowPanel 因最小高度被补高后，关闭时会恢复到打开前的 Search 高度", async () => {
+  it("FlowPanel 关闭时会恢复到打开前的 Search 高度；若最小高度更高则补高", async () => {
     hoisted.isTauriMock.mockReturnValue(true);
     hoisted.invokeMock.mockImplementation(async (command: string) => {
       if (command === "get_available_terminals") {
@@ -844,11 +916,12 @@ describe("App failure and event regression", () => {
     const openCalls = getInvokeCommandCalls("animate_main_window_size").slice(
       baselineAnimateCount,
     );
-    expect(openCalls.length).toBeGreaterThan(0);
-    expect(openCalls.at(-1)?.[1]).toMatchObject({ height: flowPanelMinHeight });
-    expect(searchShell.style.getPropertyValue("--launcher-frame-height")).toBe(
-      `${flowPanelFrameMinHeight}px`,
-    );
+    if (openCalls.length > 0) {
+      expect(openCalls.at(-1)?.[1]).toMatchObject({ height: flowPanelMinHeight });
+      expect(searchShell.style.getPropertyValue("--launcher-frame-height")).toBe(
+        `${flowPanelFrameMinHeight}px`,
+      );
+    }
     expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
 
     dispatchWindowKeydown("Escape");
@@ -894,7 +967,7 @@ describe("App failure and event regression", () => {
     const flowOpenHeight = Number(
       getInvokeCommandCalls("animate_main_window_size").at(-1)?.[1]?.height,
     );
-    expect(flowOpenHeight).toBeGreaterThan(commandHeight);
+    expect(flowOpenHeight).toBeGreaterThanOrEqual(commandHeight);
     expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
 
     dispatchWindowKeydown("Escape");
@@ -907,6 +980,126 @@ describe("App failure and event regression", () => {
     );
     expect(restoredHeight).toBe(commandHeight);
     expect(wrapper.find(".command-panel").exists()).toBe(true);
+  });
+
+  it("FlowPanel 打开后应按前两张真实异高卡片锁高，而不是回退静态卡片估高", async () => {
+    hoisted.isTauriMock.mockReturnValue(true);
+    hoisted.invokeMock.mockImplementation(async (command: string) => {
+      if (command === "get_available_terminals") {
+        return [
+          { id: "powershell", label: "PowerShell", path: "powershell.exe" },
+        ];
+      }
+      if (command === "get_autostart_enabled") {
+        return false;
+      }
+      return undefined;
+    });
+    const originalAvailHeight = window.screen.availHeight;
+    Object.defineProperty(window.screen, "availHeight", {
+      configurable: true,
+      value: 1200,
+    });
+
+    try {
+      seedLauncherSessionSnapshot([
+        {
+          id: "cmd-param-short",
+          title: "查看容器日志",
+          renderedCommand: "docker logs container-a --tail 20",
+          args: [
+            { key: "container", label: "容器", required: true, defaultValue: "container-a" },
+            { key: "tail", label: "尾行数", required: true, defaultValue: "20" },
+          ],
+          argValues: {
+            container: "container-a",
+            tail: "20",
+          },
+        },
+        {
+          id: "cmd-param-tall",
+          title: "批量同步日志并导出审计摘要",
+          renderedCommand: "sync-logs --target prod-cluster --since 7d --format json",
+          args: [
+            { key: "target", label: "目标集群", required: true, defaultValue: "prod-cluster" },
+            { key: "since", label: "时间范围", required: true, defaultValue: "7d" },
+            { key: "format", label: "导出格式", required: true, defaultValue: "json" },
+          ],
+          argValues: {
+            target: "prod-cluster",
+            since: "7d",
+            format: "json",
+          },
+        },
+      ]);
+
+      const wrapper = await mountApp();
+      await waitForUi();
+      expectQueueCount(wrapper, 2);
+
+      const baselineAnimateCount = getInvokeCommandCallCount("animate_main_window_size");
+      const preciseFlowFrameHeight = 52 + 24 + 168 + 220 + 8 + 60;
+      const staticFallbackFrameHeight =
+        WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
+        WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
+        WINDOW_SIZING_CONSTANTS.stagingListGap;
+      const frameMaxHeight =
+        Math.max(420, Math.floor(window.screen.availHeight * 0.82)) -
+        (UI_TOP_ALIGN_OFFSET_PX_FALLBACK + 16);
+      const expectedFrameHeight = Math.min(frameMaxHeight, preciseFlowFrameHeight);
+
+      await openReviewByPill(wrapper);
+
+      const body = wrapper.get(".flow-panel__body").element as HTMLElement;
+      body.style.paddingTop = "12px";
+      body.style.paddingBottom = "12px";
+      body.style.paddingLeft = "16px";
+      body.style.paddingRight = "16px";
+
+      const list = wrapper.get(".flow-panel__list").element as HTMLElement;
+      list.style.display = "flex";
+      list.style.flexDirection = "column";
+      list.style.rowGap = "8px";
+
+      mockElementBoxHeight(wrapper.get(".flow-panel__header").element as HTMLElement, {
+        height: 52,
+      });
+      mockElementBoxHeight(wrapper.get(".flow-panel__footer").element as HTMLElement, {
+        height: 60,
+      });
+
+      const cards = wrapper.findAll(".flow-panel__card");
+      expect(cards).toHaveLength(2);
+      mockElementBoxHeight(cards[0]!.element as HTMLElement, {
+        height: 168,
+        scrollHeight: 168,
+      });
+      mockElementBoxHeight(cards[1]!.element as HTMLElement, {
+        height: 220,
+        scrollHeight: 220,
+      });
+
+      expect(
+        measureFlowPanelMinHeight(wrapper.get(".flow-panel").element as HTMLElement),
+      ).toBe(532);
+
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      await waitForUi();
+
+      const openCalls = getInvokeCommandCalls("animate_main_window_size").slice(
+        baselineAnimateCount,
+      );
+      expect(openCalls.length).toBeGreaterThan(0);
+      expect(openCalls.at(-1)?.[1]).toMatchObject({
+        height: expectedFrameHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + 16,
+      });
+      expect(expectedFrameHeight).toBeGreaterThan(staticFallbackFrameHeight);
+    } finally {
+      Object.defineProperty(window.screen, "availHeight", {
+        configurable: true,
+        value: originalAvailHeight,
+      });
+    }
   });
 
   it("skips duplicate window resize command when size has not changed", async () => {

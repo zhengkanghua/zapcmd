@@ -208,6 +208,7 @@ function buildFlowPanelShellForLock(input: {
   headerHeight: number;
   footerHeight: number;
   cardHeights: number[];
+  itemHeights?: number[];
 }): HTMLElement {
   const shell = document.createElement("div");
   const panel = document.createElement("section");
@@ -219,13 +220,39 @@ function buildFlowPanelShellForLock(input: {
 
   const body = document.createElement("div");
   body.className = "flow-panel__body";
+  body.style.paddingTop = "12px";
+  body.style.paddingBottom = "12px";
+  body.style.paddingLeft = "16px";
+  body.style.paddingRight = "16px";
 
   const list = document.createElement("ul");
   list.className = "flow-panel__list";
+  list.style.display = "flex";
+  list.style.flexDirection = "column";
+  list.style.rowGap = "8px";
+  let currentTop = 0;
   input.cardHeights.forEach((height, index) => {
     const item = document.createElement("li");
     item.className = "flow-panel__list-item";
     item.dataset.stagingIndex = String(index);
+    const itemHeight = input.itemHeights?.[index] ?? height;
+    const itemTop = currentTop;
+    Object.defineProperty(item, "offsetHeight", {
+      configurable: true,
+      value: itemHeight
+    });
+    Object.defineProperty(item, "clientHeight", {
+      configurable: true,
+      value: itemHeight
+    });
+    Object.defineProperty(item, "scrollHeight", {
+      configurable: true,
+      value: itemHeight
+    });
+    Object.defineProperty(item, "getBoundingClientRect", {
+      configurable: true,
+      value: () => createDomRect({ top: itemTop, bottom: itemTop + itemHeight, height: itemHeight })
+    });
 
     const card = document.createElement("article");
     card.className = "flow-panel__card staging-card";
@@ -233,6 +260,7 @@ function buildFlowPanelShellForLock(input: {
 
     item.appendChild(card);
     list.appendChild(item);
+    currentTop += itemHeight + 8;
   });
   body.appendChild(list);
 
@@ -789,10 +817,31 @@ describe("createWindowSizingController（Flow 会话）", () => {
     harness.controller.notifyFlowPanelSettled();
     await harness.controller.syncWindowSize();
 
-    expect(harness.state.flowPanelLockedHeight.value).toBe(332);
+    expect(harness.state.flowPanelLockedHeight.value).toBe(364);
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
-      332 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+      364 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
+  });
+
+  it("搜索 -> Flow settled 后若 list-item 外层高于内层 card，则按前两项真实排版跨度锁高", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220, 180],
+      itemHeights: [170, 222, 180]
+    });
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(536);
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      536 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 

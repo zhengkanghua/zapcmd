@@ -8,6 +8,9 @@ interface ResolveFlowPanelMinHeightOptions {
   measuredMinHeight: number | null;
 }
 
+const FLOW_PANEL_BODY_VERTICAL_PADDING_FALLBACK_PX = 24;
+const FLOW_PANEL_LIST_GAP_FALLBACK_PX = 8;
+
 function measureElementBoxHeight(element: HTMLElement, useScrollHeight = false): number {
   const candidates = [
     element.getBoundingClientRect().height,
@@ -28,6 +31,56 @@ function queryPanel(shell: HTMLElement, selector: string): HTMLElement | null {
     return shell;
   }
   return shell.querySelector<HTMLElement>(selector);
+}
+
+function parsePixelValue(value: string): number {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function measureVerticalPadding(element: HTMLElement, fallback = 0): number {
+  const style = globalThis.getComputedStyle?.(element);
+  const resolved =
+    parsePixelValue(style?.paddingTop ?? "") + parsePixelValue(style?.paddingBottom ?? "");
+  if (resolved > 0) {
+    return Math.ceil(resolved);
+  }
+  return fallback;
+}
+
+function measureVerticalGap(element: HTMLElement, fallback = 0): number {
+  const style = globalThis.getComputedStyle?.(element);
+  const rowGap = parsePixelValue(style?.rowGap ?? "");
+  const gap = parsePixelValue(style?.gap ?? "");
+  const resolved = rowGap || gap;
+  if (resolved > 0) {
+    return Math.ceil(resolved);
+  }
+  return fallback;
+}
+
+function measureFlowListItemsSpan(listItems: HTMLElement[]): number {
+  if (listItems.length === 0) {
+    return 0;
+  }
+
+  if (listItems.length === 1) {
+    return measureElementBoxHeight(listItems[0]!);
+  }
+
+  const firstRect = listItems[0]!.getBoundingClientRect();
+  const secondRect = listItems[1]!.getBoundingClientRect();
+  if (
+    Number.isFinite(firstRect.top) &&
+    Number.isFinite(firstRect.bottom) &&
+    Number.isFinite(secondRect.top) &&
+    Number.isFinite(secondRect.bottom) &&
+    secondRect.bottom > firstRect.top
+  ) {
+    return Math.ceil(secondRect.bottom - firstRect.top);
+  }
+
+  return listItems.reduce((total, item) => total + measureElementBoxHeight(item), 0);
 }
 
 /**
@@ -98,14 +151,20 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
   }
 
   const emptyState = body.querySelector<HTMLElement>(".flow-panel__empty");
+  const bodyVerticalPadding = measureVerticalPadding(
+    body,
+    FLOW_PANEL_BODY_VERTICAL_PADDING_FALLBACK_PX
+  );
   if (emptyState) {
     return (
       measureElementBoxHeight(header) +
+      bodyVerticalPadding +
       measureElementBoxHeight(emptyState, true) +
       measureElementBoxHeight(footer)
     );
   }
 
+  const list = body.querySelector<HTMLElement>(".flow-panel__list");
   const listItems = Array.from(body.querySelectorAll<HTMLElement>(".flow-panel__list-item")).slice(0, 2);
   if (listItems.length === 0) {
     return null;
@@ -115,6 +174,15 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
     const card = item.querySelector<HTMLElement>(".flow-panel__card, .staging-card") ?? item;
     return total + measureElementBoxHeight(card, true);
   }, 0);
+  const interCardGap =
+    Math.max(0, listItems.length - 1) *
+    measureVerticalGap(list ?? body, FLOW_PANEL_LIST_GAP_FALLBACK_PX);
+  const listItemsSpanHeight = measureFlowListItemsSpan(listItems);
 
-  return measureElementBoxHeight(header) + cardHeight + measureElementBoxHeight(footer);
+  return (
+    measureElementBoxHeight(header) +
+    bodyVerticalPadding +
+    Math.max(listItemsSpanHeight, cardHeight + interCardGap) +
+    measureElementBoxHeight(footer)
+  );
 }
