@@ -18,6 +18,7 @@ describe("panelHeightSession", () => {
     beginFlowPanelSession(session, 560);
 
     expect(session.commandPanelLockedHeight.value).toBe(560);
+    expect(session.flowPanelLockedHeight.value).toBeNull();
   });
 
   it("首次 lock 后再次 lock 不会覆写已锁高度", () => {
@@ -42,5 +43,16 @@ describe("panelHeightSession", () => {
     expect(session.flowPanelInheritedHeight.value).toBeNull();
     expect(session.flowPanelLockedHeight.value).toBeNull();
     expect(session.commandPanelLockedHeight.value).toBe(560);
+  });
+
+  it("Flow 首次 lock 后再次 lock 不会覆写已锁高度", () => {
+    const session = createPanelHeightSession();
+    beginCommandPanelSession(session, 420);
+    beginFlowPanelSession(session, 560);
+
+    lockFlowPanelHeight(session, 620);
+    lockFlowPanelHeight(session, 680);
+
+    expect(session.flowPanelLockedHeight.value).toBe(620);
   });
 });

@@ -1,7 +1,7 @@
 import { ref, type Ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { WINDOW_SIZING_CONSTANTS } from "../../launcher/useLauncherLayoutMetrics";
+import { DRAWER_GAP_EST_PX, WINDOW_SIZING_CONSTANTS } from "../../launcher/useLauncherLayoutMetrics";
 import { createWindowSizingController } from "../../launcher/useWindowSizing/controller";
 import {
   UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
@@ -74,53 +74,38 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
 }
 
 function createFlowHarness({ lastFrameHeight = 420 } = {}) {
-  const root = document.createElement("main");
-  const shell = document.createElement("div");
-  shell.className = "search-shell";
-  root.appendChild(shell);
-
-  const dragStrip = document.createElement("div");
-  dragStrip.className = "shell-drag-strip";
-  shell.appendChild(dragStrip);
-
-  const commandPanel = document.createElement("section");
-  commandPanel.className = "command-panel";
-  shell.appendChild(commandPanel);
-  document.body.appendChild(root);
-
-  // 由 calculation 公式反推：contentHeight = commandPanelBottom + 12（top=0, safePad=30, dragStrip=18）
-  const commandPanelBottom = Math.max(0, lastFrameHeight - 12);
-  vi.spyOn(root, "getBoundingClientRect").mockReturnValue(
-    createDomRect({ top: 0, bottom: 1_200, height: 1_200 })
+  const drawerOpen = ref(true);
+  const drawerViewportHeight = ref(
+    Math.max(
+      0,
+      lastFrameHeight - WINDOW_SIZING_CONSTANTS.windowBaseHeight - DRAWER_GAP_EST_PX
+    )
   );
-  vi.spyOn(shell, "getBoundingClientRect").mockReturnValue(
-    createDomRect({ top: 0, bottom: commandPanelBottom })
-  );
-  vi.spyOn(commandPanel, "getBoundingClientRect").mockReturnValue(
-    createDomRect({
-      top: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
-      bottom: commandPanelBottom
-    })
-  );
-  vi.spyOn(dragStrip, "getBoundingClientRect").mockReturnValue(
-    createDomRect({ height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK })
-  );
+  const pendingCommand = ref<unknown>(null);
+  const stagingExpanded = ref(false);
+  const stagingVisibleRows = ref(0);
 
   const harness = createWindowSizingHarness({
     commandPanelLockedHeight: ref<number | null>(null),
     flowPanelInheritedHeight: ref<number | null>(null),
     flowPanelLockedHeight: ref<number | null>(null),
-    searchShellRef: ref(shell),
-    pendingCommand: ref<unknown>({ id: "pending" }),
-    stagingExpanded: ref(false),
-    stagingVisibleRows: ref(0)
+    drawerOpen,
+    drawerViewportHeight,
+    pendingCommand,
+    stagingExpanded,
+    stagingVisibleRows,
+    stagingPanelRef: ref(null)
   });
   return {
     ...harness,
     lastFrameHeight,
     state: {
       ...harness.state,
-      stagingVisibleRows: harness.options.stagingVisibleRows
+      drawerOpen,
+      drawerViewportHeight,
+      pendingCommand,
+      stagingExpanded,
+      stagingVisibleRows
     }
   };
 }
@@ -354,7 +339,7 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenCalledTimes(1);
   });
 
-  it("requestCommandPanelExit 继续复用 search-page-settled 单次回落链路", async () => {
+  it("重复 requestCommandPanelExit 不会产生额外回落动画（幂等）", async () => {
     const harness = createExitHarness();
 
     await harness.controller.syncWindowSize();
@@ -374,6 +359,8 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
 
     harness.controller.notifySearchPageSettled();
     await harness.controller.syncWindowSize();
+    harness.controller.notifySearchPageSettled();
+    await harness.controller.syncWindowSize();
 
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
@@ -387,13 +374,20 @@ describe("createWindowSizingController（Flow 会话）", () => {
   it("Flow 打开时继承当前 frame height，未 settled 前不读旧列表估算", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 420 });
 
-    // 先同步一次，显式构造“当前 frame height = 420”的前置条件
+    // 先用搜索页口径 seed 上一帧高度（420），确保前置条件来自公开 sizing 输入
     await harness.controller.syncWindowSize();
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      harness.lastFrameHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
     harness.spies.requestAnimateMainWindowSize.mockClear();
 
-    // 构造“旧列表估算”输入（stagingPanelRef 缺失时会退回 stagingVisibleRows 估算）
+    // 切换到 Command + Flow，并显式提供“旧列表估算”输入
+    harness.state.pendingCommand.value = { id: "pending" };
+    harness.state.drawerOpen.value = false;
+    harness.state.drawerViewportHeight.value = 0;
     harness.state.stagingVisibleRows.value = 6;
-    harness.options.stagingExpanded.value = true;
+    harness.state.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
 
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(

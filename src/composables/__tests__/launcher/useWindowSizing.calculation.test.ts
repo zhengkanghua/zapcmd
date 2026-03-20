@@ -17,9 +17,9 @@ import {
 } from "../../launcher/useWindowSizing/model";
 
 type PanelHeightOverrides = {
-  commandPanelInheritedHeight?: Ref<number>;
+  commandPanelInheritedHeight?: Ref<number | null>;
   commandPanelLockedHeight?: Ref<number | null>;
-  flowPanelInheritedHeight?: Ref<number>;
+  flowPanelInheritedHeight?: Ref<number | null>;
   flowPanelLockedHeight?: Ref<number | null>;
 };
 
@@ -408,7 +408,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
   });
 
   it("pendingCommand 未锁高时沿用 commandPanelInheritedHeight", () => {
-    const commandPanelInheritedHeight = ref(520);
+    const commandPanelInheritedHeight = ref<number | null>(520);
     const size = resolveWindowSize(
       createBaseOptions({
         pendingCommand: ref({ id: "pending" }),
@@ -429,7 +429,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
         stagingExpanded: ref(true),
         stagingPanelRef: ref(null),
         stagingVisibleRows: ref(0),
-        flowPanelInheritedHeight: ref(420),
+        flowPanelInheritedHeight: ref<number | null>(420),
         flowPanelLockedHeight
       })
     );
