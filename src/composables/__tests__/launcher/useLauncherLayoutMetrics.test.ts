@@ -188,4 +188,29 @@ describe("useLauncherLayoutMetrics", () => {
       );
     }
   });
+
+  it("sharedPanelMaxHeight 不包含 shell bottom breathing", () => {
+    setScreenSize(1600, 900);
+    const metrics = useLauncherLayoutMetrics({
+      query: ref("dock"),
+      filteredResults: ref(Array.from({ length: 99 }, (_, idx) => ({ id: idx }))),
+      stagedCommands: ref(Array.from({ length: 12 }, (_, idx) => ({ id: idx }))),
+      stagingExpanded: ref(true),
+      flowOpen: ref(true)
+    });
+
+    const breathingBottom = Number.parseInt(
+      metrics.searchShellStyle.value["--launcher-shell-breathing-bottom"],
+      10
+    );
+    expect(Number.isFinite(breathingBottom)).toBe(true);
+    expect(metrics.sharedPanelMaxHeight.value).toBe(
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
+    );
+    expect(metrics.sharedPanelMaxHeight.value).not.toBe(
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight +
+        LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX +
+        breathingBottom
+    );
+  });
 });

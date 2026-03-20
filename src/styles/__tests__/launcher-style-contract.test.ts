@@ -55,6 +55,16 @@ describe("launcher.css contract", () => {
     expect(launcherCss).toMatch(/\.flow-panel[\s\S]*max-height:\s*var\(--launcher-panel-max-height/);
   });
 
+  it("Search shell breathing 与 shared panel max-height 解耦：search-shell 独立消费 bottom breathing token", () => {
+    expect(launcherCss).toMatch(/--launcher-panel-max-height/);
+    expectSelectorRuleContains(
+      ".search-shell",
+      /padding-bottom:\s*var\(--launcher-shell-breathing-bottom(?:\s*,\s*[^)]+)?\)/
+    );
+    expectSelectorRuleContains(".search-shell", /--launcher-shell-breathing-bottom/);
+    expectSelectorRuleContains(".search-shell", /padding-bottom:\s*var\(/);
+  });
+
   it("CommandPanel / FlowPanel 三段式与滚动 contract", () => {
     expectSelectorRuleContains(".command-panel", /height:\s*100%/);
     expectSelectorRuleContains(

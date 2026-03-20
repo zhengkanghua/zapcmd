@@ -1,4 +1,6 @@
 import { mount } from "@vue/test-utils";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { defineComponent, nextTick, ref } from "vue";
 import { describe, expect, it } from "vitest";
 
@@ -14,6 +16,7 @@ import LauncherSearchPanel from "../LauncherSearchPanel.vue";
 
 const DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX =
   LAUNCHER_DRAWER_FLOOR_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX + LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX;
+const launcherCss = readFileSync(path.resolve(process.cwd(), "src/styles/launcher.css"), "utf8");
 
 function createCommandTemplate(id: string): CommandTemplate {
   return {
@@ -91,7 +94,14 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
       }
     });
 
+    const drawer = wrapper.get('[data-testid="result-drawer"]');
+    expect(drawer.attributes("style")).toContain("max-height: 24px;");
     expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
+    expect(wrapper.find('[data-testid="result-drawer-floor"]').exists()).toBe(false);
+  });
+
+  it("SearchPanel contract 不再允许保留 .result-drawer__filler 样式钩子", () => {
+    expect(launcherCss).not.toMatch(/\.result-drawer__filler\s*\{/);
   });
 
   it("drawerOpen=false 时不再渲染 result-drawer-floor 占位", () => {
