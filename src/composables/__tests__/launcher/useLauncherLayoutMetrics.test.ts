@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { ref } from "vue";
 import { afterEach, describe, expect, it } from "vitest";
 import {
@@ -9,6 +11,11 @@ import {
   WINDOW_SIZING_CONSTANTS,
   useLauncherLayoutMetrics
 } from "../../launcher/useLauncherLayoutMetrics";
+
+const useLauncherLayoutMetricsSource = readFileSync(
+  path.resolve(process.cwd(), "src/composables/launcher/useLauncherLayoutMetrics.ts"),
+  "utf8"
+);
 
 const originalAvailWidthDescriptor = Object.getOwnPropertyDescriptor(window.screen, "availWidth");
 const originalAvailHeightDescriptor = Object.getOwnPropertyDescriptor(window.screen, "availHeight");
@@ -199,18 +206,18 @@ describe("useLauncherLayoutMetrics", () => {
       flowOpen: ref(true)
     });
 
-    const breathingBottom = Number.parseInt(
-      metrics.searchShellStyle.value["--launcher-shell-breathing-bottom"],
-      10
-    );
-    expect(Number.isFinite(breathingBottom)).toBe(true);
     expect(metrics.sharedPanelMaxHeight.value).toBe(
       WINDOW_SIZING_CONSTANTS.windowBaseHeight + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
     );
-    expect(metrics.sharedPanelMaxHeight.value).not.toBe(
-      WINDOW_SIZING_CONSTANTS.windowBaseHeight +
-        LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX +
-        breathingBottom
+  });
+
+  it("sharedPanelMaxHeight 应作为 --launcher-panel-max-height 的唯一口径，防止后续混入 shell breathing", () => {
+    expect(useLauncherLayoutMetricsSource).toMatch(/const sharedPanelMaxHeight = computed\(/);
+    expect(useLauncherLayoutMetricsSource).toMatch(
+      /"--launcher-panel-max-height":\s*`\$\{sharedPanelMaxHeight\.value\}px`/
+    );
+    expect(useLauncherLayoutMetricsSource).not.toMatch(
+      /"--launcher-panel-max-height":\s*`\$\{LAUNCHER_FRAME_DESIGN_CAP_PX\}px`/
     );
   });
 });
