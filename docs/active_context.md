@@ -13,6 +13,10 @@
 
 - Task 6 已删 Search floor/filler 与 Flow 列表高度职责，补齐 App→LauncherWindow→Flow settled 接线；`npm run check:all` 全绿，残留仅 VTU Transition warn。
 
+## 补充（2026-03-20｜launcher search effective height Task 6）
+
+- 按 `docs/superpowers/plans/2026-03-20-launcher-search-effective-height-inheritance-and-panel-contract.md` 收口 `.search-shell` breathing token（8px），并 supersede 旧 `2026-03-20-launcher-command-flow-height-contract-correction.md`；9 项 launcher 定向测试全绿，`check:all` 仍卡既有 `runtime.ts` lint。
+
 ## 补充（2026-03-18｜settings 通用/命令页深色精修执行）
 
 - Windows settings 标题栏显式切到 dark；General 已切到 `SettingSection/SettingItem/SDropdown/SToggle`，旧终端 dropdown 外部状态链路已删除。
