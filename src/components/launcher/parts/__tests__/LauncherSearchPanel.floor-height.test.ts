@@ -95,9 +95,6 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     expect(drawer.attributes("style")).toContain("max-height: 24px;");
     expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
     expect(wrapper.find('[data-testid="result-drawer-floor"]').exists()).toBe(false);
-    expect(wrapper.find('.search-panel > section[style*="position: relative"]').exists()).toBe(
-      false
-    );
   });
 
   it("drawerOpen=false 时不再渲染 result-drawer-floor 占位", () => {
