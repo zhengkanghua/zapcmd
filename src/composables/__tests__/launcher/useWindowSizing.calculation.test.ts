@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, type Ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -15,6 +15,15 @@ import {
   UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
   type UseWindowSizingOptions
 } from "../../launcher/useWindowSizing/model";
+
+type PanelHeightOverrides = {
+  commandPanelInheritedHeight?: Ref<number>;
+  commandPanelLockedHeight?: Ref<number | null>;
+  flowPanelInheritedHeight?: Ref<number>;
+  flowPanelLockedHeight?: Ref<number | null>;
+};
+
+type PanelHeightTestOptions = UseWindowSizingOptions & PanelHeightOverrides;
 
 function mockRect(
   element: Element,
@@ -48,8 +57,8 @@ function mockRect(
 }
 
 function createBaseOptions(
-  overrides: Partial<UseWindowSizingOptions> = {}
-): UseWindowSizingOptions {
+  overrides: Partial<PanelHeightTestOptions> = {}
+): PanelHeightTestOptions {
   return {
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: ref(false),
@@ -396,5 +405,35 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(expectedMinContentHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+  });
+
+  it("pendingCommand 未锁高时沿用 commandPanelInheritedHeight", () => {
+    const commandPanelInheritedHeight = ref(520);
+    const size = resolveWindowSize(
+      createBaseOptions({
+        pendingCommand: ref({ id: "pending" }),
+        commandPanelInheritedHeight,
+        commandPanelLockedHeight: ref<number | null>(null)
+      })
+    );
+
+    expect(size.height).toBe(
+      commandPanelInheritedHeight.value + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
+  });
+
+  it("stagingExpanded 且 Flow 已锁高时优先使用 flowPanelLockedHeight", () => {
+    const flowPanelLockedHeight = ref<number | null>(608);
+    const size = resolveWindowSize(
+      createBaseOptions({
+        stagingExpanded: ref(true),
+        stagingPanelRef: ref(null),
+        stagingVisibleRows: ref(0),
+        flowPanelInheritedHeight: ref(420),
+        flowPanelLockedHeight
+      })
+    );
+
+    expect(size.height).toBe(flowPanelLockedHeight.value + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 });
