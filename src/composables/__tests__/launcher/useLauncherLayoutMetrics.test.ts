@@ -2,9 +2,11 @@ import { ref } from "vue";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   LAUNCHER_DRAWER_MAX_ROWS,
+  LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX,
   LAUNCHER_DRAWER_ROW_HEIGHT_PX,
   LAUNCHER_FRAME_DESIGN_CAP_PX,
   LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX,
+  WINDOW_SIZING_CONSTANTS,
   useLauncherLayoutMetrics
 } from "../../launcher/useLauncherLayoutMetrics";
 
@@ -129,5 +131,45 @@ describe("useLauncherLayoutMetrics", () => {
 
     expect("drawerFloorViewportHeight" in metrics).toBe(false);
     expect("drawerFillerHeight" in metrics).toBe(false);
+  });
+
+  it("query 为空时 searchPanelEffectiveHeight 仅为 searchCapsuleHeight", () => {
+    setScreenSize(1440, 900);
+    const metrics = useLauncherLayoutMetrics({
+      query: ref(""),
+      filteredResults: ref([{ id: "r1" }, { id: "r2" }]),
+      stagedCommands: ref([{ id: "s1" }]),
+      stagingExpanded: ref(true),
+      flowOpen: ref(true)
+    });
+
+    expect(metrics.drawerOpen.value).toBe(false);
+    expect(metrics.searchPanelEffectiveHeight.value).toBe(
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight
+    );
+  });
+
+  it("sharedPanelMaxHeight 与 stagingExpanded/flowOpen 无关，只取搜索最大结果口径", () => {
+    setScreenSize(1600, 900);
+    const variants = [
+      { stagingExpanded: false, flowOpen: false },
+      { stagingExpanded: true, flowOpen: false },
+      { stagingExpanded: false, flowOpen: true },
+      { stagingExpanded: true, flowOpen: true }
+    ] as const;
+
+    for (const variant of variants) {
+      const metrics = useLauncherLayoutMetrics({
+        query: ref("dock"),
+        filteredResults: ref(Array.from({ length: 99 }, (_, idx) => ({ id: idx }))),
+        stagedCommands: ref(Array.from({ length: 12 }, (_, idx) => ({ id: idx }))),
+        stagingExpanded: ref(variant.stagingExpanded),
+        flowOpen: ref(variant.flowOpen)
+      });
+
+      expect(metrics.sharedPanelMaxHeight.value).toBe(
+        WINDOW_SIZING_CONSTANTS.windowBaseHeight + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
+      );
+    }
   });
 });

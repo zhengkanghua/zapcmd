@@ -44,9 +44,9 @@ function mockRect(
 }
 
 function createBaseOptions(
-  overrides: Partial<UseWindowSizingOptions> = {}
+  overrides: Partial<UseWindowSizingOptions> & Record<string, unknown> = {}
 ): UseWindowSizingOptions {
-  return {
+  const baseOptions: UseWindowSizingOptions = {
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: ref(false),
     isTauriRuntime: () => false,
@@ -68,8 +68,11 @@ function createBaseOptions(
     windowWidthCap: ref(2000),
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
-    loadSettings: () => {},
-    ...overrides
+    loadSettings: () => {}
+  };
+  return {
+    ...baseOptions,
+    ...(overrides as Partial<UseWindowSizingOptions>)
   };
 }
 
@@ -92,6 +95,55 @@ afterEach(() => {
 });
 
 describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
+  it("搜索页窗口高度只由 searchPanelEffectiveHeight + drag strip 决定，不吃底部 breathing", () => {
+    const root = document.createElement("div");
+    const shell = document.createElement("div");
+    const dragStrip = document.createElement("div");
+    dragStrip.className = "shell-drag-strip";
+    shell.appendChild(dragStrip);
+    root.appendChild(shell);
+    document.body.appendChild(root);
+
+    mockRect(root, { top: 0, bottom: 1_000 });
+    mockRect(shell, { top: 0, bottom: 460 });
+    mockRect(dragStrip, {
+      top: 0,
+      bottom: UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
+      height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    });
+
+    const options = {
+      ...createBaseOptions({
+        searchShellRef: ref(shell),
+        pendingCommand: ref(null),
+        drawerOpen: ref(false),
+        drawerViewportHeight: ref(0)
+      }),
+      searchPanelEffectiveHeight: ref(124),
+      sharedPanelMaxHeight: ref(598)
+    } as UseWindowSizingOptions;
+    const size = resolveWindowSize(options);
+
+    expect(size.height).toBe(124 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+  });
+
+  it("searchPanelEffectiveHeight 超过 sharedPanelMaxHeight 时只 clamp 到 sharedPanelMaxHeight", () => {
+    const options = {
+      ...createBaseOptions({
+        searchShellRef: ref(null),
+        pendingCommand: ref(null),
+        drawerOpen: ref(false),
+        drawerViewportHeight: ref(0),
+        windowHeightCap: ref(10_000)
+      }),
+      searchPanelEffectiveHeight: ref(700),
+      sharedPanelMaxHeight: ref(598)
+    } as UseWindowSizingOptions;
+    const size = resolveWindowSize(options);
+
+    expect(size.height).toBe(598 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+  });
+
   it("measured 与 estimated 口径一致：不把 drag strip 计入 content height", () => {
     const windowHeightCap = ref(1000);
     const drawerViewportHeight = ref(400);

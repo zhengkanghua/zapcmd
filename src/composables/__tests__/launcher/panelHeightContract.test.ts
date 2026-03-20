@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { clampSearchPanelHeight, resolvePanelHeight } from "../../launcher/useWindowSizing/panelHeightContract";
+import {
+  clampSearchPanelHeight,
+  resolvePanelHeight,
+  resolveSearchPanelEffectiveHeight,
+  resolveSharedPanelMaxHeight
+} from "../../launcher/useWindowSizing/panelHeightContract";
 
 describe("panelHeightContract", () => {
   it("resolvePanelHeight 在 inherited 低于 min 时返回 min", () => {
@@ -49,5 +54,30 @@ describe("panelHeightContract", () => {
         naturalPanelHeight: 820
       })
     ).toBe(640);
+  });
+
+  it("searchPanelEffectiveHeight 只等于 searchCapsuleHeight + resultDrawerEffectiveHeight", () => {
+    expect(
+      resolveSearchPanelEffectiveHeight({
+        searchCapsuleHeight: 124,
+        resultDrawerEffectiveHeight: 0
+      })
+    ).toBe(124);
+
+    expect(
+      resolveSearchPanelEffectiveHeight({
+        searchCapsuleHeight: 124,
+        resultDrawerEffectiveHeight: 336
+      })
+    ).toBe(460);
+  });
+
+  it("sharedPanelMaxHeight 只等于 searchCapsuleHeight + maxSearchResultsViewportHeight", () => {
+    expect(
+      resolveSharedPanelMaxHeight({
+        searchCapsuleHeight: 124,
+        maxSearchResultsViewportHeight: 474
+      })
+    ).toBe(598);
   });
 });
