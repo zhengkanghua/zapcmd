@@ -12,7 +12,6 @@ async function flushWatchers(): Promise<void> {
 function createHarness() {
   const drawerOpen = ref(false);
   const drawerVisibleRows = ref(0);
-  const stagingVisibleRows = ref(0);
   const pendingCommand = ref<unknown>(null);
   const stagingDrawerState = ref<StagingDrawerState>("closed");
   const filteredResults = ref<unknown[]>([]);
@@ -35,7 +34,6 @@ function createHarness() {
     useLauncherWatchers({
       drawerOpen,
       drawerVisibleRows,
-      stagingVisibleRows,
       pendingCommand,
       stagingDrawerState,
       scheduleWindowSync,
@@ -53,7 +51,6 @@ function createHarness() {
     state: {
       drawerOpen,
       drawerVisibleRows,
-      stagingVisibleRows,
       pendingCommand,
       stagingDrawerState,
       filteredResults,
@@ -71,14 +68,10 @@ function createHarness() {
 }
 
 describe("useLauncherWatchers", () => {
-  it("不再因为 stagingVisibleRows 变化触发外框 resize", async () => {
+  it("不再暴露 stagingVisibleRows 旧状态", async () => {
     const harness = createHarness();
 
-    harness.spies.scheduleWindowSync.mockClear();
-    harness.state.stagingVisibleRows.value = 3;
-    await flushWatchers();
-
-    expect(harness.spies.scheduleWindowSync).not.toHaveBeenCalled();
+    expect("stagingVisibleRows" in harness.state).toBe(false);
     harness.scope.stop();
   });
 
@@ -128,4 +121,3 @@ describe("useLauncherWatchers", () => {
     harness.scope.stop();
   });
 });
-

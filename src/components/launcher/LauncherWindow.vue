@@ -31,8 +31,6 @@ const props = defineProps<{
   stagingExpanded: boolean;
   drawerOpen: boolean;
   drawerViewportHeight: number;
-  drawerFloorViewportHeight: number;
-  drawerFillerHeight: number;
   keyboardHints: KeyboardHint[];
   filteredResults: CommandTemplate[];
   activeIndex: number;
@@ -40,8 +38,6 @@ const props = defineProps<{
   stagedCommands: StagedCommand[];
   stagingDrawerState: StagingDrawerState;
   stagingHints: KeyboardHint[];
-  stagingListShouldScroll: boolean;
-  stagingListMaxHeight: string;
   focusZone: FocusZone;
   stagingActiveIndex: number;
   pendingCommand: CommandTemplate | null;
@@ -172,8 +168,6 @@ function onNavAfterEnter(): void {
             :execution-feedback-tone="props.executionFeedbackTone"
             :drawer-open="props.drawerOpen"
             :drawer-viewport-height="props.drawerViewportHeight"
-            :drawer-floor-viewport-height="props.drawerFloorViewportHeight"
-            :drawer-filler-height="props.drawerFillerHeight"
             :keyboard-hints="props.keyboardHints"
             :filtered-results="props.filteredResults"
             :active-index="props.activeIndex"

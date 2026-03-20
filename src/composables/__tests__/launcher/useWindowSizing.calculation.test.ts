@@ -427,7 +427,8 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
   });
 
   it("pendingCommand 未锁高时沿用 commandPanelInheritedHeight", () => {
-    const commandPanelInheritedHeight = ref<number | null>(520);
+    const inheritedHeight = 520;
+    const commandPanelInheritedHeight = ref<number | null>(inheritedHeight);
     const size = resolveWindowSize(
       createBaseOptions({
         pendingCommand: ref({ id: "pending" }),
@@ -436,13 +437,12 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       })
     );
 
-    expect(size.height).toBe(
-      commandPanelInheritedHeight.value + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
-    );
+    expect(size.height).toBe(inheritedHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 
   it("stagingExpanded 且 Flow 已锁高时优先使用 flowPanelLockedHeight", () => {
-    const flowPanelLockedHeight = ref<number | null>(608);
+    const lockedHeight = 608;
+    const flowPanelLockedHeight = ref<number | null>(lockedHeight);
     const size = resolveWindowSize(
       createBaseOptions({
         stagingExpanded: ref(true),
@@ -452,6 +452,6 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       })
     );
 
-    expect(size.height).toBe(flowPanelLockedHeight.value + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(lockedHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
   });
 });

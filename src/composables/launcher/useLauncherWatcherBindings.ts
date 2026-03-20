@@ -9,7 +9,6 @@ interface WindowSizingWatcherModule {
 interface UseLauncherWatcherBindingsOptions {
   drawerOpen: Ref<boolean>;
   drawerVisibleRows: Ref<number>;
-  stagingVisibleRows: Ref<number>;
   pendingCommand: Ref<unknown>;
   stagingDrawerState: Ref<StagingDrawerState>;
   filteredResults: Ref<unknown[]>;
@@ -25,7 +24,6 @@ export function useLauncherWatcherBindings(options: UseLauncherWatcherBindingsOp
   useLauncherWatchers({
     drawerOpen: options.drawerOpen,
     drawerVisibleRows: options.drawerVisibleRows,
-    stagingVisibleRows: options.stagingVisibleRows,
     pendingCommand: options.pendingCommand,
     stagingDrawerState: options.stagingDrawerState,
     scheduleWindowSync: options.windowSizing.scheduleWindowSync,

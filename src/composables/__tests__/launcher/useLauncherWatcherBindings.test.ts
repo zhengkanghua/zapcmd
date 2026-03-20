@@ -14,7 +14,6 @@ describe("useLauncherWatcherBindings", () => {
     };
     const drawerOpen = ref(true);
     const drawerVisibleRows = ref(4);
-    const stagingVisibleRows = ref(2);
     const pendingCommand = ref<unknown>(null);
     const stagingDrawerState = ref<"closed" | "opening" | "open" | "closing">("open");
     const filteredResults = ref<unknown[]>([]);
@@ -27,7 +26,6 @@ describe("useLauncherWatcherBindings", () => {
     useLauncherWatcherBindings({
       drawerOpen,
       drawerVisibleRows,
-      stagingVisibleRows,
       pendingCommand,
       stagingDrawerState,
       filteredResults,
@@ -57,4 +55,3 @@ describe("useLauncherWatcherBindings", () => {
     expect(mocked.mock.calls[0]?.[0].scheduleWindowSync).toBe(windowSizing.scheduleWindowSync);
   });
 });
-

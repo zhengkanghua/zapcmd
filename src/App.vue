@@ -13,8 +13,6 @@ const {
   stagingExpanded,
   drawerOpen,
   drawerViewportHeight,
-  drawerFloorViewportHeight,
-  drawerFillerHeight,
   keyboardHints,
   filteredResults,
   activeIndex,
@@ -22,8 +20,6 @@ const {
   stagedCommands,
   stagingDrawerState,
   stagingHints,
-  stagingListShouldScroll,
-  stagingListMaxHeight,
   focusZone,
   stagingActiveIndex,
   pendingCommand,
@@ -122,6 +118,7 @@ const {
   closeSettingsWindow,
   hideMainWindow,
   notifyCommandPageSettled,
+  notifyFlowPanelSettled,
   saveSettings,
   windowOpacity,
   theme,
@@ -167,8 +164,6 @@ function navigateToSettingsError(): void {
     :staging-expanded="stagingExpanded"
     :drawer-open="drawerOpen"
     :drawer-viewport-height="drawerViewportHeight"
-    :drawer-floor-viewport-height="drawerFloorViewportHeight"
-    :drawer-filler-height="drawerFillerHeight"
     :keyboard-hints="keyboardHints"
     :filtered-results="filteredResults"
     :active-index="activeIndex"
@@ -176,8 +171,6 @@ function navigateToSettingsError(): void {
     :staged-commands="stagedCommands"
     :staging-drawer-state="stagingDrawerState"
     :staging-hints="stagingHints"
-    :staging-list-should-scroll="stagingListShouldScroll"
-    :staging-list-max-height="stagingListMaxHeight"
     :focus-zone="focusZone"
     :staging-active-index="stagingActiveIndex"
     :pending-command="pendingCommand"
@@ -215,6 +208,7 @@ function navigateToSettingsError(): void {
     @submit-param-input="handleCommandPanelSubmit"
     @request-command-panel-exit="requestCommandPanelExit"
     @command-page-settled="notifyCommandPageSettled"
+    @flow-panel-settled="notifyFlowPanelSettled"
     @search-page-settled="notifySearchPageSettled"
     @arg-input="updatePendingArgValue"
     @confirm-safety-execution="confirmSafetyExecution"

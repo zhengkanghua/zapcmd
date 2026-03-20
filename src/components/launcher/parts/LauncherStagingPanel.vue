@@ -73,8 +73,6 @@ const stagingHintText = computed(() => {
         v-else
         :ref="props.setStagingListRef"
         class="staging-list"
-        :class="{ 'staging-list--scrollable': props.stagingListShouldScroll }"
-        :style="{ maxHeight: props.stagingListMaxHeight }"
       >
         <li
           v-for="(cmd, index) in props.stagedCommands"

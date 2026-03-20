@@ -71,7 +71,11 @@ function measureWindowContentHeightFromLayout(
 
 function estimateWindowContentHeight(options: UseWindowSizingOptions, frameMaxHeight: number): number {
   let naturalPanelHeight = options.constants.windowBaseHeight;
-  if (options.pendingCommand.value === null && options.drawerOpen.value) {
+  if (
+    options.pendingCommand.value === null &&
+    options.drawerOpen.value &&
+    options.drawerViewportHeight.value > 0
+  ) {
     naturalPanelHeight += options.drawerViewportHeight.value + DRAWER_GAP_EST_PX;
   }
   return clampSearchPanelHeight({

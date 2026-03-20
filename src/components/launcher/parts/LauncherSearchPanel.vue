@@ -141,23 +141,7 @@ function onSearchInput(event: Event): void {
             </span>
           </span>
         </div>
-        <div
-          v-if="props.drawerFillerHeight > 0"
-          class="result-drawer__filler"
-          :style="{ height: `${props.drawerFillerHeight}px` }"
-          aria-hidden="true"
-        ></div>
       </section>
-
-      <section
-        v-else-if="(props.reviewOpen || props.flowOpen) && props.drawerFloorViewportHeight > 0"
-        class="result-drawer"
-        inert
-        aria-hidden="true"
-        :style="{ height: `${props.drawerFloorViewportHeight}px` }"
-        aria-label="result-drawer-floor"
-         data-testid="result-drawer-floor"
-       ></section>
-     </section>
+    </section>
   </section>
 </template>

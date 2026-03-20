@@ -43,8 +43,6 @@ function createProps(
     executionFeedbackTone: "neutral",
     drawerOpen: true,
     drawerViewportHeight: DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX,
-    drawerFloorViewportHeight: DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX,
-    drawerFillerHeight: 0,
     keyboardHints,
     filteredResults: [],
     activeIndex: 0,
@@ -84,7 +82,7 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createProps({
         filteredResults: [createCommandTemplate("a")],
-        drawerFillerHeight: 24
+        drawerViewportHeight: 24
       }),
       global: {
         stubs: {
@@ -102,9 +100,7 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
         query: "",
         drawerOpen: false,
         drawerViewportHeight: 0,
-        drawerFillerHeight: 0,
-        reviewOpen: true,
-        drawerFloorViewportHeight: DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX
+        reviewOpen: true
       }),
       global: {
         stubs: {
@@ -172,8 +168,6 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
             :execution-feedback-tone="'neutral'"
             :drawer-open="true"
             :drawer-viewport-height="drawerHeight"
-            :drawer-floor-viewport-height="drawerHeight"
-            :drawer-filler-height="0"
             :keyboard-hints="[{ keys: ['Esc'], action: '返回' }]"
             :filtered-results="[]"
             :active-index="0"

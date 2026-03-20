@@ -1,4 +1,4 @@
-import { ref, type Ref } from "vue";
+import { ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { DRAWER_GAP_EST_PX, WINDOW_SIZING_CONSTANTS } from "../../launcher/useLauncherLayoutMetrics";
@@ -7,13 +7,6 @@ import {
   UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
   type UseWindowSizingOptions
 } from "../../launcher/useWindowSizing/model";
-
-type PanelHeightSessionRefs = {
-  commandPanelInheritedHeight: Ref<number | null>;
-  commandPanelLockedHeight: Ref<number | null>;
-  flowPanelInheritedHeight: Ref<number | null>;
-  flowPanelLockedHeight: Ref<number | null>;
-};
 
 type PanelHeightHarnessOverrides = Partial<UseWindowSizingOptions>;
 

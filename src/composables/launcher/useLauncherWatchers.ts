@@ -4,7 +4,6 @@ import type { StagingDrawerState } from "./useStagingQueue";
 interface UseLauncherWatchersOptions {
   drawerOpen: Ref<boolean>;
   drawerVisibleRows: Ref<number>;
-  stagingVisibleRows: Ref<number>;
   pendingCommand: Ref<unknown>;
   stagingDrawerState: Ref<StagingDrawerState>;
   scheduleWindowSync: () => void;
@@ -21,7 +20,6 @@ function bindLayoutWatchers(options: UseLauncherWatchersOptions): void {
     [
       options.drawerOpen,
       options.drawerVisibleRows,
-      options.stagingVisibleRows,
       options.pendingCommand
     ],
     () => {

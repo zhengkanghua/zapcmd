@@ -5,6 +5,10 @@
 - 已完成计划 `docs/superpowers/plans/2026-03-20-launcher-command-flow-height-contract-correction.md`，并通过 3 个 chunk reviewer。
 - 关键决策：仅共享 `panelMaxHeight`；Search 去 floor；Command/Flow 分离 inherited/locked，并拆成规则层、测量层、会话层执行。
 
+## 补充（2026-03-20｜launcher 高度 contract 收口）
+
+- Task 6 已删 Search floor/filler 与 Flow 列表高度职责，补齐 App→LauncherWindow→Flow settled 接线；`npm run check:all` 全绿，残留仅 VTU Transition warn。
+
 ## 补充（2026-03-18｜settings 通用/命令页深色精修执行）
 
 - Windows settings 标题栏显式切到 dark；General 已切到 `SettingSection/SettingItem/SDropdown/SToggle`，旧终端 dropdown 外部状态链路已删除。

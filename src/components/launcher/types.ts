@@ -20,8 +20,6 @@ export interface LauncherSearchPanelProps {
   executionFeedbackTone: "neutral" | "success" | "error";
   drawerOpen: boolean;
   drawerViewportHeight: number;
-  drawerFloorViewportHeight: number;
-  drawerFillerHeight: number;
   keyboardHints: KeyboardHint[];
   filteredResults: CommandTemplate[];
   activeIndex: number;
@@ -39,8 +37,6 @@ export interface LauncherStagingPanelProps {
   stagingExpanded: boolean;
   stagedCommands: StagedCommand[];
   stagingHints: KeyboardHint[];
-  stagingListShouldScroll: boolean;
-  stagingListMaxHeight: string;
   focusZone: FocusZone;
   stagingActiveIndex: number;
   executing: boolean;

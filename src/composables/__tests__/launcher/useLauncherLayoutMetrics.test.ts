@@ -1,7 +1,6 @@
 import { ref } from "vue";
 import { afterEach, describe, expect, it } from "vitest";
 import {
-  LAUNCHER_DRAWER_FLOOR_ROWS,
   LAUNCHER_DRAWER_MAX_ROWS,
   LAUNCHER_DRAWER_ROW_HEIGHT_PX,
   LAUNCHER_FRAME_DESIGN_CAP_PX,

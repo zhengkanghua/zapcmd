@@ -1,4 +1,4 @@
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type { CommandArg } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
 import { getCommandArgs } from "../../../features/launcher/commandRuntime";
@@ -309,7 +309,6 @@ function bindAppRuntime(
   useLauncherWatcherBindings({
     drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
     drawerVisibleRows: launcherRuntime.layoutMetrics.drawerVisibleRows,
-    stagingVisibleRows: launcherRuntime.layoutMetrics.stagingVisibleRows,
     pendingCommand: launcherRuntime.commandExecution.pendingCommand,
     stagingDrawerState: launcherRuntime.stagingQueue.stagingDrawerState,
     filteredResults: context.search.filteredResults,
