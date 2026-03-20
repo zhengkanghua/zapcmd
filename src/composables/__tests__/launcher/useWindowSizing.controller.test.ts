@@ -321,7 +321,7 @@ function createExitHarness() {
 }
 
 describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
-  it("进入 CommandPanel 时若 lastWindowSize 为空：不应把窗口直接拉到 designCap（fallback 为 baseHeight）", async () => {
+  it("进入 CommandPanel 时若 lastWindowSize 为空：首帧仍继承 searchPanelEffectiveHeight，而不是回退到 paramOverlayMinHeight", async () => {
     const drawerOpen = ref(true);
     const drawerViewportHeight = ref(5_000);
     const pendingCommand = ref<unknown>({ id: "pending" });
@@ -361,7 +361,7 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
       loadSettings: () => {}
     });
 
-    // 在 nextTick 前切换到“参数面板”布局：抽走 drawer（高度应被 floor 挡住）
+    // 在 nextTick 前切换到“参数面板”布局：Search -> Command 冷启动时应沿用 Search 有效高度。
     queueMicrotask(() => {
       drawerOpen.value = false;
       drawerViewportHeight.value = 0;
@@ -371,8 +371,9 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
 
     expect(requestAnimateMainWindowSize).toHaveBeenCalled();
     const lastCall = requestAnimateMainWindowSize.mock.calls.at(-1);
+    expect(commandPanelInheritedHeight.value).toBe(WINDOW_SIZING_CONSTANTS.windowBaseHeight);
     expect(lastCall?.[1]).toBe(
-      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+      WINDOW_SIZING_CONSTANTS.windowBaseHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
     );
   });
 });

@@ -106,19 +106,8 @@ function resolveCurrentPanelEffectiveHeight(options: UseWindowSizingOptions): nu
   return resolveSearchPanelEffectiveHeight(options);
 }
 
-function resolveCommandPanelEntryHeight(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState
-): number {
-  if (state.lastWindowSize !== null) {
-    return resolveSearchPanelEffectiveHeight(options);
-  }
-
-  return (
-    options.commandPanelLockedHeight.value ??
-    options.commandPanelInheritedHeight.value ??
-    options.constants.paramOverlayMinHeight
-  );
+function resolveCommandPanelEntryHeight(options: UseWindowSizingOptions): number {
+  return resolveSearchPanelEffectiveHeight(options);
 }
 
 function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
@@ -229,7 +218,7 @@ function syncPanelHeightSessions(
   const flowPanelActive = options.stagingExpanded.value;
 
   if (pendingCommandActive && !state.pendingCommandActive) {
-    beginCommandPanelSession(session, resolveCommandPanelEntryHeight(options, state));
+    beginCommandPanelSession(session, resolveCommandPanelEntryHeight(options));
     state.pendingCommandActive = true;
     state.pendingCommandSettled = false;
   }
