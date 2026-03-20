@@ -5,6 +5,10 @@
 - 已完成计划 `docs/superpowers/plans/2026-03-20-launcher-command-flow-height-contract-correction.md`，并通过 3 个 chunk reviewer。
 - 关键决策：仅共享 `panelMaxHeight`；Search 去 floor；Command/Flow 分离 inherited/locked，并拆成规则层、测量层、会话层执行。
 
+## 补充（2026-03-20｜launcher search effective height 合并计划）
+
+- 新增计划 `docs/superpowers/plans/2026-03-20-launcher-search-effective-height-inheritance-and-panel-contract.md`，覆盖 `searchPanelEffectiveHeight/sharedPanelMaxHeight`、Search→Command 去 breathing 继承，并 supersede 旧的 2026-03-20 高度 contract 计划。
+
 ## 补充（2026-03-20｜launcher 高度 contract 收口）
 
 - Task 6 已删 Search floor/filler 与 Flow 列表高度职责，补齐 App→LauncherWindow→Flow settled 接线；`npm run check:all` 全绿，残留仅 VTU Transition warn。
