@@ -18,4 +18,23 @@ describe("launcher.css contract", () => {
     expect(launcherCss).toMatch(/\.command-panel[\s\S]*max-height:\s*var\(--launcher-panel-max-height/);
     expect(launcherCss).toMatch(/\.flow-panel[\s\S]*max-height:\s*var\(--launcher-panel-max-height/);
   });
+
+  it("CommandPanel / FlowPanel 三段式与滚动 contract", () => {
+    expect(launcherCss).toMatch(/\.command-panel\s*\{[\s\S]*height:\s*100%/);
+    expect(launcherCss).toMatch(
+      /\.command-panel\s*\{[\s\S]*grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\)\s+auto/
+    );
+
+    expect(launcherCss).toMatch(/\.flow-panel\s*\{[\s\S]*height:\s*100%/);
+    expect(launcherCss).toMatch(
+      /\.flow-panel\s*\{[\s\S]*grid-template-rows:\s*auto\s+minmax\(0,\s*1fr\)\s+auto/
+    );
+
+    expect(launcherCss).toMatch(/\.flow-panel__body\s*\{[\s\S]*min-height:\s*0/);
+    expect(launcherCss).toMatch(/\.flow-panel__body\s*\{[\s\S]*overflow-y:\s*auto/);
+    expect(launcherCss).toMatch(
+      /\.flow-panel--has-list\s+\.flow-panel__body\s*\{[\s\S]*overflow:\s*hidden/
+    );
+    expect(launcherCss).toMatch(/\.flow-panel__list\s*\{[\s\S]*overflow-y:\s*auto/);
+  });
 });

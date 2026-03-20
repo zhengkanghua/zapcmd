@@ -119,6 +119,30 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(wrapper.find("launcher-flow-panel-stub").exists()).toBe(true);
   });
 
+  it("FlowPanel 发出 flow-panel-settled 时，LauncherWindow 向上透传同名事件", async () => {
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: { type: "search" },
+        stagingExpanded: true,
+        stagingDrawerState: "open"
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherCommandPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherFlowPanel: {
+            template:
+              "<button class='stub-flow-settled' @click=\"$emit('flow-panel-settled')\">flow settled</button>"
+          }
+        }
+      }
+    });
+
+    await wrapper.get(".stub-flow-settled").trigger("click");
+    expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+  });
+
   it("command-action 页面渲染 CommandPanel，并透传 submit/cancel 事件", async () => {
     const command = createCommandTemplate("cmd-1");
     const commandPage: NavPage = {

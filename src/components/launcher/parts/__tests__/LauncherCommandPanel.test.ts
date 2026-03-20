@@ -67,6 +67,17 @@ function mountPanel(
 }
 
 describe("LauncherCommandPanel", () => {
+  describe("结构 contract", () => {
+    it("保留 header + 2 个 divider + content + footer 完整骨架", () => {
+      const wrapper = mountPanel();
+
+      expect(wrapper.find(".command-panel__header").exists()).toBe(true);
+      expect(wrapper.findAll(".command-panel__divider")).toHaveLength(2);
+      expect(wrapper.find(".command-panel__content").exists()).toBe(true);
+      expect(wrapper.find(".command-panel__footer").exists()).toBe(true);
+    });
+  });
+
   describe("场景 1：有参数 + 非高危", () => {
     it("显示参数输入徽标", () => {
       const wrapper = mountPanel({

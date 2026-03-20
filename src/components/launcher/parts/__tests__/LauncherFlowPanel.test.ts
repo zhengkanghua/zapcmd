@@ -58,6 +58,93 @@ afterEach(() => {
   }
 });
 
+describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
+  it("FlowPanel 采用 header + body + footer 三段式，空态与列表态都挂在 body 内", () => {
+    const emptyWrapper = mount(LauncherFlowPanel, {
+      props: createProps({ stagedCommands: [] })
+    });
+    expect(emptyWrapper.find(".flow-panel__header").exists()).toBe(true);
+    expect(emptyWrapper.find(".flow-panel__body").exists()).toBe(true);
+    expect(emptyWrapper.find(".flow-panel__footer").exists()).toBe(true);
+    expect(emptyWrapper.find(".flow-panel__body .flow-panel__empty").exists()).toBe(true);
+    expect(emptyWrapper.find(".flow-panel__body .flow-panel__list").exists()).toBe(false);
+    emptyWrapper.unmount();
+
+    const listWrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        stagedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
+      })
+    });
+    expect(listWrapper.find(".flow-panel__header").exists()).toBe(true);
+    expect(listWrapper.find(".flow-panel__body").exists()).toBe(true);
+    expect(listWrapper.find(".flow-panel__footer").exists()).toBe(true);
+    expect(listWrapper.find(".flow-panel__body .flow-panel__list").exists()).toBe(true);
+    expect(listWrapper.find(".flow-panel__body .flow-panel__empty").exists()).toBe(false);
+    listWrapper.unmount();
+  });
+
+  it("stagingDrawerState 从 opening -> open 时发出一次 flow-panel-settled", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({ stagingDrawerState: "opening" })
+    });
+    expect(wrapper.emitted("flow-panel-settled")).toBeUndefined();
+
+    await wrapper.setProps({ stagingDrawerState: "open" });
+    await nextTick();
+
+    expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it("组件首帧即 open 时，mounted 后补发一次 flow-panel-settled", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({ stagingDrawerState: "open" })
+    });
+
+    await nextTick();
+
+    expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it("同一轮 open 生命周期不会重复发出 flow-panel-settled", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({ stagingDrawerState: "opening" })
+    });
+
+    await wrapper.setProps({ stagingDrawerState: "open" });
+    await nextTick();
+    expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+
+    await wrapper.setProps({
+      stagingDrawerState: "open",
+      stagingActiveIndex: 1
+    });
+    await nextTick();
+
+    expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it("列表态挂载 flow-panel--has-list，空态不挂载该 modifier", () => {
+    const listWrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        stagedCommands: [createStagedCommand()]
+      })
+    });
+    expect(listWrapper.get(".flow-panel").classes()).toContain("flow-panel--has-list");
+    listWrapper.unmount();
+
+    const emptyWrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        stagedCommands: []
+      })
+    });
+    expect(emptyWrapper.get(".flow-panel").classes()).not.toContain("flow-panel--has-list");
+    emptyWrapper.unmount();
+  });
+});
+
 describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
   it("根节点/遮罩/面板具备 overlay hit-zone 与 dialog 语义", () => {
     const wrapper = mount(LauncherFlowPanel, { props: createProps() });
