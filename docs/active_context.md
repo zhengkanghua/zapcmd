@@ -631,3 +631,5 @@
 - 已新增更正规格：参数页进入先继承搜索页实际高度，首次 settled 后按完整盒子高度一次锁定；footer 必须计入总高度，参数页生命周期内不再回缩或再增高，仅 content 内滚动。
 ## 补充（2026-03-19｜Launcher 参数页锁高更正规划完成）
 - 已产出实现计划 `docs/superpowers/plans/2026-03-19-launcher-command-panel-height-lock.md`：拆分 `entrySearchFrameHeight/commandPanelLockedFrameHeight`，新增完整盒子测量 helper，保留现有退出锁高恢复链路。
+## 补充（2026-03-20｜Launcher 面板高度 contract brainstorming 完成）
+- 已确认设计稿 `docs/superpowers/specs/2026-03-20-launcher-command-flow-height-contract-correction-design.md`：全局只统一最高高度；Search 最低=搜索框；Command/Flow 各自独立最小高度并首次锁高；Command 完整盒子含 footer；Flow 最低按空态或前 2 张异高卡片实时测量。重点风险已写入设计并要求在 planning/实现中显式处理。
