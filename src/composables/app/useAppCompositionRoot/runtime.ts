@@ -227,6 +227,8 @@ function bindAppRuntime(
     flowPanelLockedHeight: panelHeightSession.flowPanelLockedHeight,
     drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
     drawerViewportHeight: launcherRuntime.layoutMetrics.drawerViewportHeight,
+    searchPanelEffectiveHeight: launcherRuntime.layoutMetrics.searchPanelEffectiveHeight,
+    sharedPanelMaxHeight: launcherRuntime.layoutMetrics.sharedPanelMaxHeight,
     searchMainWidth: launcherRuntime.layoutMetrics.searchMainWidth,
     minShellWidth: launcherRuntime.layoutMetrics.minShellWidth,
     windowWidthCap: launcherRuntime.layoutMetrics.windowWidthCap,

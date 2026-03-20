@@ -45,6 +45,8 @@ export interface UseWindowSizingOptions {
   flowPanelLockedHeight: Ref<number | null>;
   drawerOpen: Ref<boolean>;
   drawerViewportHeight: Ref<number>;
+  searchPanelEffectiveHeight: Ref<number>;
+  sharedPanelMaxHeight: Ref<number>;
   searchMainWidth: Ref<number>;
   minShellWidth: Ref<number>;
   windowWidthCap: Ref<number>;

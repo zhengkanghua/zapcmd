@@ -1,6 +1,6 @@
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
 import { clampSearchPanelHeight, resolvePanelHeight } from "./panelHeightContract";
-import { DRAWER_GAP_EST_PX, LAUNCHER_FRAME_DESIGN_CAP_PX } from "../useLauncherLayoutMetrics";
+import { DRAWER_GAP_EST_PX } from "../useLauncherLayoutMetrics";
 
 interface ResolveWindowSizeOverrides {
   commandPanelExitFrameHeightLock?: number | null;
@@ -32,7 +32,7 @@ function resolveWindowWidth(options: UseWindowSizingOptions): number {
 
 function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
   const screenCapFrame = Math.max(0, options.windowHeightCap.value - dragStripHeight);
-  return Math.min(screenCapFrame, LAUNCHER_FRAME_DESIGN_CAP_PX);
+  return Math.min(screenCapFrame, options.sharedPanelMaxHeight.value);
 }
 
 function measureWindowContentHeightFromLayout(
@@ -90,6 +90,18 @@ function resolveSearchPanelFrameHeight(
   frameMaxHeight: number,
   overrides: ResolveWindowSizeOverrides
 ): number {
+  const safeSearchPanelHeight = clampSearchPanelHeight({
+    panelMaxHeight: frameMaxHeight,
+    naturalPanelHeight: Math.max(
+      options.constants.windowBaseHeight,
+      options.searchPanelEffectiveHeight.value
+    )
+  });
+  if (Number.isFinite(safeSearchPanelHeight) && safeSearchPanelHeight > 0) {
+    return safeSearchPanelHeight;
+  }
+
+  // 仅在兼容兜底时才读取 measured/estimated，避免 Search 高度被 DOM 时序主导。
   const measuredContentHeight = overrides.ignoreMeasuredSearchPanelHeight
     ? null
     : measureWindowContentHeightFromLayout(
@@ -98,9 +110,10 @@ function resolveSearchPanelFrameHeight(
         frameMaxHeight
       );
   const estimatedContentHeight = estimateWindowContentHeight(options, frameMaxHeight);
-  return measuredContentHeight === null
-    ? estimatedContentHeight
-    : Math.max(measuredContentHeight, estimatedContentHeight);
+  if (measuredContentHeight !== null) {
+    return measuredContentHeight;
+  }
+  return estimatedContentHeight;
 }
 
 export function resolveCommandPanelFrameHeight(

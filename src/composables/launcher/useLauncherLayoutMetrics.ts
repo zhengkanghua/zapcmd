@@ -4,6 +4,10 @@ import {
   FLOW_PANEL_MIN_WIDTH,
   FLOW_PANEL_MAX_WIDTH
 } from "../../components/launcher/parts/flowPanelLayout";
+import {
+  resolveSearchPanelEffectiveHeight,
+  resolveSharedPanelMaxHeight
+} from "./useWindowSizing/panelHeightContract";
 
 const WINDOW_BASE_WIDTH = 680;
 const WINDOW_BASE_MIN_WIDTH = 420;
@@ -51,8 +55,9 @@ export const WINDOW_SIZING_CONSTANTS = {
 export const LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX =
   LAUNCHER_DRAWER_MAX_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX +
   (LAUNCHER_DRAWER_CHROME_HEIGHT_PX + LAUNCHER_DRAWER_HINT_HEIGHT_PX);
+// 语义上等同 sharedPanelMaxHeight：Search 胶囊区 + 结果抽屉最大 viewport。
 export const LAUNCHER_FRAME_DESIGN_CAP_PX =
-  WINDOW_SIZING_CONSTANTS.windowBaseHeight + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX + DRAWER_GAP_EST_PX;
+  WINDOW_SIZING_CONSTANTS.windowBaseHeight + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX;
 
 interface UseLauncherLayoutMetricsOptions {
   query: Ref<string>;
@@ -178,6 +183,19 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     }
     return drawerVisibleRows.value * DRAWER_ROW_HEIGHT + DRAWER_CHROME_HEIGHT + DRAWER_HINT_HEIGHT;
   });
+  const searchCapsuleHeight = computed(() => WINDOW_SIZING_CONSTANTS.windowBaseHeight);
+  const searchPanelEffectiveHeight = computed(() =>
+    resolveSearchPanelEffectiveHeight({
+      searchCapsuleHeight: searchCapsuleHeight.value,
+      resultDrawerEffectiveHeight: drawerNaturalViewportHeight.value
+    })
+  );
+  const sharedPanelMaxHeight = computed(() =>
+    resolveSharedPanelMaxHeight({
+      searchCapsuleHeight: searchCapsuleHeight.value,
+      maxSearchResultsViewportHeight: LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
+    })
+  );
 
   return {
     drawerOpen,
@@ -187,6 +205,9 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
     searchShellStyle,
     minShellWidth,
     drawerVisibleRows,
-    drawerViewportHeight: drawerNaturalViewportHeight
+    drawerViewportHeight: drawerNaturalViewportHeight,
+    searchCapsuleHeight,
+    searchPanelEffectiveHeight,
+    sharedPanelMaxHeight
   };
 }

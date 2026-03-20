@@ -1,4 +1,4 @@
-import { ref, type Ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -46,7 +46,7 @@ function mockRect(
 function createBaseOptions(
   overrides: Partial<UseWindowSizingOptions> = {}
 ): UseWindowSizingOptions {
-  return {
+  const baseOptions: UseWindowSizingOptions = {
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: ref(false),
     isTauriRuntime: () => false,
@@ -63,14 +63,35 @@ function createBaseOptions(
     flowPanelLockedHeight: ref<number | null>(null),
     drawerOpen: ref(false),
     drawerViewportHeight: ref(0),
+    searchPanelEffectiveHeight: ref(WINDOW_SIZING_CONSTANTS.windowBaseHeight),
+    sharedPanelMaxHeight: ref(LAUNCHER_FRAME_DESIGN_CAP_PX),
     searchMainWidth: ref(680),
     minShellWidth: ref(0),
     windowWidthCap: ref(2000),
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
-    loadSettings: () => {},
+    loadSettings: () => {}
+  };
+  const resolved = {
+    ...baseOptions,
     ...overrides
   };
+  if (!("searchPanelEffectiveHeight" in overrides)) {
+    resolved.searchPanelEffectiveHeight = computed(() => {
+      if (!resolved.drawerOpen.value || resolved.drawerViewportHeight.value <= 0) {
+        return resolved.constants.windowBaseHeight;
+      }
+      return (
+        resolved.constants.windowBaseHeight +
+        resolved.drawerViewportHeight.value +
+        DRAWER_GAP_EST_PX
+      );
+    });
+  }
+  if (!("sharedPanelMaxHeight" in overrides)) {
+    resolved.sharedPanelMaxHeight = ref(LAUNCHER_FRAME_DESIGN_CAP_PX);
+  }
+  return resolved;
 }
 
 function assertHeight(
@@ -506,6 +527,8 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
       })
     );
 
-    expect(size.height).toBe(lockedHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK);
+    expect(size.height).toBe(
+      Math.min(lockedHeight, LAUNCHER_FRAME_DESIGN_CAP_PX) + UI_TOP_ALIGN_OFFSET_PX_FALLBACK
+    );
   });
 });
