@@ -731,6 +731,55 @@ describe("createWindowSizingController（Flow 会话）", () => {
     );
   });
 
+  it("Search -> Flow 补高后，search-shell 必须同步 launcher-frame height", async () => {
+    const root = document.createElement("main");
+    const shell = document.createElement("div");
+    shell.className = "search-shell";
+    root.appendChild(shell);
+
+    const dragStrip = document.createElement("div");
+    dragStrip.className = "shell-drag-strip";
+    shell.appendChild(dragStrip);
+
+    const frame = document.createElement("div");
+    frame.className = "launcher-frame";
+    shell.appendChild(frame);
+
+    document.body.appendChild(root);
+
+    vi.spyOn(root, "getBoundingClientRect").mockImplementation(() =>
+      createDomRect({
+        top: 0,
+        height:
+          SEARCH_CAPSULE_HEIGHT_PX +
+          UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
+          SEARCH_SHELL_OUTER_CHROME_PX
+      })
+    );
+    vi.spyOn(frame, "getBoundingClientRect").mockReturnValue(
+      createDomRect({ top: 26, height: SEARCH_CAPSULE_HEIGHT_PX })
+    );
+    vi.spyOn(dragStrip, "getBoundingClientRect").mockReturnValue(
+      createDomRect({ height: UI_TOP_ALIGN_OFFSET_PX_FALLBACK })
+    );
+
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    harness.options.searchShellRef.value = shell;
+    const expectedFlowMinHeight =
+      WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
+      WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
+      WINDOW_SIZING_CONSTANTS.stagingListGap;
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(shell.style.getPropertyValue("--launcher-frame-height")).toBe(
+      `${expectedFlowMinHeight}px`
+    );
+  });
+
   it("搜索 -> Flow 因最小高度被补高后，关闭 Flow 会恢复到打开前的 Search 高度", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 280 });
     const expectedFlowMinHeight =

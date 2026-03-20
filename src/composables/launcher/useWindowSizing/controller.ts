@@ -141,7 +141,9 @@ function syncLauncherFrameHeightStyle(
     return;
   }
 
-  if (options.pendingCommand.value === null) {
+  const shouldKeepFrameHeightStyle =
+    options.pendingCommand.value !== null || options.stagingExpanded.value || preferWindowHeight;
+  if (!shouldKeepFrameHeightStyle) {
     shell.style.removeProperty("--launcher-frame-height");
     return;
   }
@@ -431,8 +433,7 @@ function createSyncWindowSizeCore(
       syncPanelHeightSessions(options, state, commandPanelExit);
       lockSettledPanelHeights(options, state, dragStripHeight);
       const preferWindowHeightForLauncherFrame =
-        options.pendingCommand.value !== null &&
-        (options.stagingExpanded.value || hadActiveFlowPanel);
+        options.stagingExpanded.value || hadActiveFlowPanel;
       if (
         await handleSearchSettlingResize(
           options,

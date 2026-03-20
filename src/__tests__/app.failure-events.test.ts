@@ -816,19 +816,21 @@ describe("App failure and event regression", () => {
     const wrapper = await mountApp();
     await waitForUi();
 
+    const searchShell = wrapper.get(".search-shell").element as HTMLElement;
     const searchWindowHeight =
       SEARCH_CAPSULE_HEIGHT_PX +
       UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
       16;
     const frameMaxHeight = Math.max(420, Math.floor(window.screen.availHeight * 0.82)) -
       (UI_TOP_ALIGN_OFFSET_PX_FALLBACK + 16);
+    const flowPanelFrameMinHeight = Math.min(
+      frameMaxHeight,
+      WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
+        WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
+        WINDOW_SIZING_CONSTANTS.stagingListGap,
+    );
     const flowPanelMinHeight =
-      Math.min(
-        frameMaxHeight,
-        WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
-          WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
-          WINDOW_SIZING_CONSTANTS.stagingListGap,
-      ) +
+      flowPanelFrameMinHeight +
       UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
       16;
 
@@ -844,6 +846,9 @@ describe("App failure and event regression", () => {
     );
     expect(openCalls.length).toBeGreaterThan(0);
     expect(openCalls.at(-1)?.[1]).toMatchObject({ height: flowPanelMinHeight });
+    expect(searchShell.style.getPropertyValue("--launcher-frame-height")).toBe(
+      `${flowPanelFrameMinHeight}px`,
+    );
     expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
 
     dispatchWindowKeydown("Escape");
