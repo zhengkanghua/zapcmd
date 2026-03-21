@@ -7,6 +7,7 @@ import SettingItem from "../ui/SettingItem.vue";
 import SettingSection from "../ui/SettingSection.vue";
 import SToggle from "../ui/SToggle.vue";
 import { useI18nText, type AppLocale } from "../../../i18n";
+import type { TerminalReusePolicy } from "../../../stores/settingsStore";
 
 const props = defineProps<SettingsGeneralProps>();
 const { t } = useI18nText();
@@ -17,6 +18,7 @@ const emit = defineEmits<{
   (e: "set-auto-check-update", value: boolean): void;
   (e: "set-launch-at-login", value: boolean): void;
   (e: "set-always-elevated-terminal", value: boolean): void;
+  (e: "set-terminal-reuse-policy", value: TerminalReusePolicy): void;
 }>();
 
 const terminalSelectDisabled = computed(
@@ -56,8 +58,30 @@ const terminalSelectValue = computed(() => {
   return terminalSelectOptions.value[0]?.value ?? "";
 });
 
+const terminalReusePolicyOptions = computed(() => [
+  {
+    value: "never",
+    label: t("settings.general.terminalReusePolicyNever"),
+    description: t("settings.general.terminalReusePolicyNeverHint")
+  },
+  {
+    value: "normal-only",
+    label: t("settings.general.terminalReusePolicyNormalOnly"),
+    description: t("settings.general.terminalReusePolicyNormalOnlyHint")
+  },
+  {
+    value: "normal-and-elevated",
+    label: t("settings.general.terminalReusePolicyNormalAndElevated"),
+    description: t("settings.general.terminalReusePolicyNormalAndElevatedHint")
+  }
+]);
+
 function onLanguageSelect(value: string): void {
   emit("select-language", value as AppLocale);
+}
+
+function onTerminalReusePolicySelect(value: string): void {
+  emit("set-terminal-reuse-policy", value as TerminalReusePolicy);
 }
 </script>
 
@@ -112,6 +136,29 @@ function onLanguageSelect(value: string): void {
       </SettingItem>
 
       <SettingItem
+        :label="t('settings.general.terminalReusePolicy')"
+        :description="t('settings.general.terminalReusePolicyHint')"
+      >
+        <div class="settings-general__reuse-policy">
+          <SDropdown
+            :model-value="props.terminalReusePolicy"
+            :options="terminalReusePolicyOptions"
+            @update:model-value="onTerminalReusePolicySelect"
+          />
+          <ul class="settings-general__reuse-policy-list" aria-label="terminal-reuse-policy-hints">
+            <li
+              v-for="item in terminalReusePolicyOptions"
+              :key="item.value"
+              class="settings-general__reuse-policy-item"
+            >
+              <strong>{{ item.label }}</strong>
+              <span>{{ item.description }}</span>
+            </li>
+          </ul>
+        </div>
+      </SettingItem>
+
+      <SettingItem
         v-if="props.showAlwaysElevatedTerminal"
         :label="t('settings.general.alwaysElevatedTerminal')"
         :description="t('settings.general.alwaysElevatedTerminalHint')"
@@ -134,3 +181,31 @@ function onLanguageSelect(value: string): void {
     </SettingSection>
   </section>
 </template>
+
+<style scoped>
+.settings-general__reuse-policy {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-general__reuse-policy-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.settings-general__reuse-policy-item {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ui-subtle);
+}
+
+.settings-general__reuse-policy-item strong {
+  color: var(--ui-text);
+  font-weight: 600;
+}
+</style>

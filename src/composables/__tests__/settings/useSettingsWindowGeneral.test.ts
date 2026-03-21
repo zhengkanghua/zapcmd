@@ -6,7 +6,14 @@ import { createDefaultSettingsSnapshot, type HotkeyFieldId } from "../../../stor
 import { createGeneralActions } from "../../settings/useSettingsWindow/general";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
 
-function createOptions(overrides: Partial<UseSettingsWindowOptions> = {}): UseSettingsWindowOptions {
+type GeneralTestOptions = UseSettingsWindowOptions & {
+  terminalReusePolicy: { value: string };
+  settingsStore: UseSettingsWindowOptions["settingsStore"] & {
+    setTerminalReusePolicy: ReturnType<typeof vi.fn>;
+  };
+};
+
+function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTestOptions {
   const baseSnapshot = createDefaultSettingsSnapshot();
   const settingsStore = {
     persist: vi.fn(),
@@ -15,7 +22,8 @@ function createOptions(overrides: Partial<UseSettingsWindowOptions> = {}): UseSe
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
     setLaunchAtLogin: vi.fn(),
-    setAlwaysElevatedTerminal: vi.fn()
+    setAlwaysElevatedTerminal: vi.fn(),
+    setTerminalReusePolicy: vi.fn()
   };
 
   const hotkeyDefinitions: HotkeyFieldDefinition[] = [
@@ -27,6 +35,7 @@ function createOptions(overrides: Partial<UseSettingsWindowOptions> = {}): UseSe
     hotkeyDefinitions,
     isSettingsWindow: ref(true),
     defaultTerminal: ref("powershell"),
+    terminalReusePolicy: ref("never"),
     language: ref("zh-CN"),
     autoCheckUpdate: ref(true),
     launchAtLogin: ref(false),
@@ -68,5 +77,26 @@ describe("useSettingsWindow general actions", () => {
     expect(persistSetting).toHaveBeenCalledTimes(1);
     expect(state.settingsError.value).toBe("");
     expect(state.settingsErrorRoute.value).toBeNull();
+  });
+
+  it("setTerminalReusePolicy persists immediately", () => {
+    const options = createOptions();
+    const state = createSettingsState();
+    const persistSetting = vi.fn(async () => {});
+    const applyAutoStartChange = vi.fn(async () => {});
+    const actions = createGeneralActions({
+      options,
+      state,
+      persistSetting,
+      applyAutoStartChange
+    }) as ReturnType<typeof createGeneralActions> & {
+      setTerminalReusePolicy?: (value: string) => void;
+    };
+
+    actions.setTerminalReusePolicy?.("normal-only");
+
+    expect(options.terminalReusePolicy.value).toBe("normal-only");
+    expect(options.settingsStore.setTerminalReusePolicy).toHaveBeenCalledWith("normal-only");
+    expect(persistSetting).toHaveBeenCalledTimes(1);
   });
 });

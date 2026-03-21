@@ -13,17 +13,20 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_TERMINAL,
+  DEFAULT_TERMINAL_REUSE_POLICY,
   DEFAULT_THEME,
   DEFAULT_WINDOW_OPACITY,
   HOTKEY_FIELD_IDS,
   MAX_WINDOW_OPACITY,
   MIN_WINDOW_OPACITY,
   SETTINGS_SCHEMA_VERSION,
+  TERMINAL_REUSE_POLICIES,
   createDefaultCommandViewState,
   createDefaultHotkeys,
   type CommandManagementViewState,
   type HotkeySettings,
-  type PersistedSettingsSnapshot
+  type PersistedSettingsSnapshot,
+  type TerminalReusePolicy
 } from "./defaults";
 
 type RecordValue = Record<string, unknown>;
@@ -38,6 +41,10 @@ export function normalizeTerminalId(value: unknown): string {
   }
   const trimmed = value.trim();
   return trimmed || DEFAULT_TERMINAL;
+}
+
+export function normalizeTerminalReusePolicy(value: unknown): TerminalReusePolicy {
+  return normalizeEnumValue(value, TERMINAL_REUSE_POLICIES, DEFAULT_TERMINAL_REUSE_POLICY);
 }
 
 export function normalizeLanguage(value: unknown): AppLocale {
@@ -175,6 +182,7 @@ export function normalizePersistedSettingsSnapshot(
     hotkeys: normalizeHotkeys(snapshot.hotkeys),
     general: {
       defaultTerminal: normalizeTerminalId(snapshot.general.defaultTerminal),
+      terminalReusePolicy: normalizeTerminalReusePolicy(snapshot.general.terminalReusePolicy),
       language: normalizeLanguage(snapshot.general.language),
       autoCheckUpdate: normalizeBoolean(snapshot.general.autoCheckUpdate, DEFAULT_AUTO_CHECK_UPDATE),
       launchAtLogin: normalizeBoolean(snapshot.general.launchAtLogin, DEFAULT_LAUNCH_AT_LOGIN),

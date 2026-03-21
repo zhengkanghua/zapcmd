@@ -1,9 +1,11 @@
+import type { TerminalReusePolicy } from "../../../stores/settingsStore";
 import { clearSettingsErrorState, type SettingsWindowState, type UseSettingsWindowOptions } from "./model";
 
 export interface GeneralActions {
   setAutoCheckUpdate: (value: boolean) => void;
   setLaunchAtLogin: (value: boolean) => void;
   setAlwaysElevatedTerminal: (value: boolean) => void;
+  setTerminalReusePolicy: (value: TerminalReusePolicy) => void;
   loadAutoStartEnabled: () => Promise<void>;
 }
 
@@ -28,6 +30,13 @@ export function createGeneralActions(deps: {
   function setAlwaysElevatedTerminal(value: boolean): void {
     options.alwaysElevatedTerminal.value = value;
     options.settingsStore.setAlwaysElevatedTerminal(value);
+    clearSettingsErrorState(state);
+    void persistSetting();
+  }
+
+  function setTerminalReusePolicy(value: TerminalReusePolicy): void {
+    options.terminalReusePolicy.value = value;
+    options.settingsStore.setTerminalReusePolicy(value);
     clearSettingsErrorState(state);
     void persistSetting();
   }
@@ -60,6 +69,7 @@ export function createGeneralActions(deps: {
     setAutoCheckUpdate,
     setLaunchAtLogin,
     setAlwaysElevatedTerminal,
+    setTerminalReusePolicy,
     loadAutoStartEnabled
   };
 }

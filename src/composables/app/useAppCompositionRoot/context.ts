@@ -86,6 +86,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
   const {
     hotkeys,
     defaultTerminal,
+    terminalReusePolicy,
     language,
     autoCheckUpdate,
     launchAtLogin,
@@ -139,6 +140,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     hotkeyDefinitions: HOTKEY_DEFINITIONS,
     isSettingsWindow,
     defaultTerminal,
+    terminalReusePolicy,
     language,
     autoCheckUpdate,
     launchAtLogin,
@@ -176,6 +178,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     stagedCommands,
     hotkeyBindings,
     defaultTerminal,
+    terminalReusePolicy,
     language,
     autoCheckUpdate,
     launchAtLogin,

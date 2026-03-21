@@ -29,6 +29,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
       general: {
         ...baseSnapshot.general,
         defaultTerminal: "powershell",
+        terminalReusePolicy: "never",
         language: "zh-CN" as const,
         autoCheckUpdate: true,
         launchAtLogin: false
@@ -37,7 +38,8 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
     setLaunchAtLogin: vi.fn(),
-    setAlwaysElevatedTerminal: vi.fn()
+    setAlwaysElevatedTerminal: vi.fn(),
+    setTerminalReusePolicy: vi.fn()
   };
 
   const options: UseSettingsWindowOptions = {
@@ -45,6 +47,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     hotkeyDefinitions,
     isSettingsWindow: ref(true),
     defaultTerminal: ref("powershell"),
+    terminalReusePolicy: ref("never"),
     language: ref("zh-CN"),
     autoCheckUpdate: ref(true),
     launchAtLogin: ref(false),

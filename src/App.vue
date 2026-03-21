@@ -71,6 +71,7 @@ const {
   availableTerminals,
   terminalLoading,
   defaultTerminal,
+  terminalReusePolicy,
   language,
   autoCheckUpdate,
   launchAtLogin,
@@ -111,6 +112,7 @@ const {
   setAutoCheckUpdate,
   setLaunchAtLogin,
   setAlwaysElevatedTerminal,
+  setTerminalReusePolicy,
   toggleCommandEnabled,
   setFilteredCommandsEnabled,
   updateCommandView,
@@ -239,6 +241,7 @@ function navigateToSettingsError(): void {
     :available-terminals="availableTerminals"
     :terminal-loading="terminalLoading"
     :default-terminal="defaultTerminal"
+    :terminal-reuse-policy="terminalReusePolicy"
     :language="language"
     :auto-check-update="autoCheckUpdate"
     :launch-at-login="launchAtLogin"
@@ -277,6 +280,7 @@ function navigateToSettingsError(): void {
     @set-auto-check-update="setAutoCheckUpdate"
     @set-launch-at-login="setLaunchAtLogin"
     @set-always-elevated-terminal="setAlwaysElevatedTerminal"
+    @set-terminal-reuse-policy="setTerminalReusePolicy"
     @toggle-command-enabled="toggleCommandEnabled"
     @set-filtered-commands-enabled="setFilteredCommandsEnabled"
     @update-command-view="updateCommandView"

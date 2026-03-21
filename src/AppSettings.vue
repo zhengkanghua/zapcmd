@@ -40,6 +40,7 @@ const settingsStorageKeys: readonly string[] = SETTINGS_STORAGE_KEYS;
 const {
   hotkeys,
   defaultTerminal,
+  terminalReusePolicy,
   language,
   autoCheckUpdate,
   launchAtLogin,
@@ -85,6 +86,7 @@ const settingsWindow = useSettingsWindow({
   hotkeyDefinitions: HOTKEY_DEFINITIONS,
   isSettingsWindow,
   defaultTerminal,
+  terminalReusePolicy,
   language,
   autoCheckUpdate,
   launchAtLogin,
@@ -123,6 +125,7 @@ const {
   setAutoCheckUpdate: setAutoCheckUpdateSetting,
   setLaunchAtLogin: setLaunchAtLoginSetting,
   setAlwaysElevatedTerminal: setAlwaysElevatedTerminalSetting,
+  setTerminalReusePolicy: setTerminalReusePolicySetting,
   loadSettings: loadSettingsSetting,
   loadAvailableTerminals: loadAvailableTerminalsSetting,
   persistSetting: persistSettingSetting,
@@ -328,6 +331,7 @@ onBeforeUnmount(() => {
     :available-terminals="availableTerminals"
     :terminal-loading="terminalLoading"
     :default-terminal="defaultTerminal"
+    :terminal-reuse-policy="terminalReusePolicy"
     :selected-terminal-path="selectedTerminalPath"
     :language="language"
     :language-options="languageOptions"
@@ -363,6 +367,7 @@ onBeforeUnmount(() => {
     @set-auto-check-update="setAutoCheckUpdateSetting"
     @set-launch-at-login="setLaunchAtLoginSetting"
     @set-always-elevated-terminal="setAlwaysElevatedTerminalSetting"
+    @set-terminal-reuse-policy="setTerminalReusePolicySetting"
     @toggle-command-enabled="toggleCommandEnabled"
     @set-filtered-commands-enabled="setFilteredCommandsEnabled"
     @update-command-view="updateCommandView"

@@ -8,7 +8,8 @@ import {
   createDefaultSettingsSnapshot,
   type HotkeyFieldId,
   type HotkeySettings,
-  type PersistedSettingsSnapshot
+  type PersistedSettingsSnapshot,
+  type TerminalReusePolicy
 } from "./settings/defaults";
 import {
   normalizeBlurEnabled,
@@ -18,6 +19,7 @@ import {
   normalizeLanguage,
   normalizePersistedSettingsSnapshot,
   normalizeTerminalId,
+  normalizeTerminalReusePolicy,
   normalizeThemeId,
   normalizeWindowOpacity
 } from "./settings/normalization";
@@ -46,7 +48,8 @@ export type {
   CommandSortBy,
   HotkeyFieldId,
   HotkeySettings,
-  PersistedSettingsSnapshot
+  PersistedSettingsSnapshot,
+  TerminalReusePolicy
 } from "./settings/defaults";
 export { migrateSettingsPayload } from "./settings/migration";
 export { createSettingsStorageAdapter, readSettingsFromStorage, writeSettingsToStorage } from "./settings/storageAdapter";
@@ -56,6 +59,7 @@ interface SettingsState {
   schemaVersion: number;
   hotkeys: HotkeySettings;
   defaultTerminal: string;
+  terminalReusePolicy: TerminalReusePolicy;
   language: AppLocale;
   autoCheckUpdate: boolean;
   launchAtLogin: boolean;
@@ -68,12 +72,18 @@ interface SettingsState {
 
 type SettingsGeneralState = Pick<
   SettingsState,
-  "defaultTerminal" | "language" | "autoCheckUpdate" | "launchAtLogin" | "alwaysElevatedTerminal"
+  | "defaultTerminal"
+  | "terminalReusePolicy"
+  | "language"
+  | "autoCheckUpdate"
+  | "launchAtLogin"
+  | "alwaysElevatedTerminal"
 >;
 
 function snapshotGeneralFromState(state: SettingsGeneralState): PersistedSettingsSnapshot["general"] {
   return {
     defaultTerminal: state.defaultTerminal,
+    terminalReusePolicy: state.terminalReusePolicy,
     language: state.language,
     autoCheckUpdate: state.autoCheckUpdate,
     launchAtLogin: state.launchAtLogin,
@@ -84,6 +94,7 @@ function snapshotGeneralFromState(state: SettingsGeneralState): PersistedSetting
 function applyGeneralState(target: SettingsGeneralState, general: PersistedSettingsSnapshot["general"]): void {
   // 统一从已规范化的 general snapshot 回写，避免设置字段在多个入口分叉。
   target.defaultTerminal = general.defaultTerminal;
+  target.terminalReusePolicy = general.terminalReusePolicy;
   target.language = general.language;
   target.autoCheckUpdate = general.autoCheckUpdate;
   target.launchAtLogin = general.launchAtLogin;
@@ -117,6 +128,7 @@ export const useSettingsStore = defineStore("settings", {
       schemaVersion: SETTINGS_SCHEMA_VERSION,
       hotkeys: defaults.hotkeys,
       defaultTerminal: defaults.general.defaultTerminal,
+      terminalReusePolicy: defaults.general.terminalReusePolicy,
       language: defaults.general.language,
       autoCheckUpdate: defaults.general.autoCheckUpdate,
       launchAtLogin: defaults.general.launchAtLogin,
@@ -149,6 +161,9 @@ export const useSettingsStore = defineStore("settings", {
     },
     setDefaultTerminal(value: string): void {
       this.defaultTerminal = normalizeTerminalId(value);
+    },
+    setTerminalReusePolicy(value: TerminalReusePolicy): void {
+      this.terminalReusePolicy = normalizeTerminalReusePolicy(value);
     },
     setLanguage(value: AppLocale): void {
       this.language = normalizeLanguage(value);
@@ -193,6 +208,7 @@ export const useSettingsStore = defineStore("settings", {
         schemaVersion: this.schemaVersion,
         hotkeys: this.hotkeys,
         defaultTerminal: this.defaultTerminal,
+        terminalReusePolicy: this.terminalReusePolicy,
         language: this.language,
         autoCheckUpdate: this.autoCheckUpdate,
         launchAtLogin: this.launchAtLogin,

@@ -27,6 +27,8 @@ export type CommandFilterOverride = "all" | "overridden";
 export type CommandFilterIssue = "all" | "with-issues";
 export type CommandSortBy = "default" | "title" | "category" | "source" | "status";
 export type CommandDisplayMode = "list";
+export const TERMINAL_REUSE_POLICIES = ["never", "normal-only", "normal-and-elevated"] as const;
+export type TerminalReusePolicy = (typeof TERMINAL_REUSE_POLICIES)[number];
 
 export interface CommandManagementViewState {
   query: string;
@@ -45,6 +47,7 @@ export interface PersistedSettingsSnapshot {
   hotkeys: HotkeySettings;
   general: {
     defaultTerminal: string;
+    terminalReusePolicy: TerminalReusePolicy;
     language: AppLocale;
     autoCheckUpdate: boolean;
     launchAtLogin: boolean;
@@ -61,6 +64,7 @@ export interface PersistedSettingsSnapshot {
 }
 
 export const DEFAULT_TERMINAL = "powershell";
+export const DEFAULT_TERMINAL_REUSE_POLICY: TerminalReusePolicy = "never";
 export const DEFAULT_LANGUAGE: AppLocale = "zh-CN";
 export const DEFAULT_AUTO_CHECK_UPDATE = true;
 export const DEFAULT_LAUNCH_AT_LOGIN = false;
@@ -120,6 +124,7 @@ export function createDefaultSettingsSnapshot(): PersistedSettingsSnapshot {
     hotkeys: createDefaultHotkeys(),
     general: {
       defaultTerminal: DEFAULT_TERMINAL,
+      terminalReusePolicy: DEFAULT_TERMINAL_REUSE_POLICY,
       language: DEFAULT_LANGUAGE,
       autoCheckUpdate: DEFAULT_AUTO_CHECK_UPDATE,
       launchAtLogin: DEFAULT_LAUNCH_AT_LOGIN,

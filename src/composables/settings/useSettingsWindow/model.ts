@@ -3,7 +3,11 @@ import { t, type AppLocale } from "../../../i18n";
 import { normalizeHotkey } from "../../../shared/hotkeys";
 import type { HotkeyFieldDefinition, SettingsRoute } from "../../../features/settings/types";
 import type { TerminalOption } from "../../../features/terminals/fallbackTerminals";
-import type { HotkeyFieldId, PersistedSettingsSnapshot } from "../../../stores/settingsStore";
+import type {
+  HotkeyFieldId,
+  PersistedSettingsSnapshot,
+  TerminalReusePolicy
+} from "../../../stores/settingsStore";
 
 export interface HotkeyEntry extends HotkeyFieldDefinition {
   value: string;
@@ -17,6 +21,7 @@ interface SettingsStoreLike {
   setHotkey: (field: HotkeyFieldId, value: string) => void;
   setLaunchAtLogin: (value: boolean) => void;
   setAlwaysElevatedTerminal: (value: boolean) => void;
+  setTerminalReusePolicy: (value: TerminalReusePolicy) => void;
 }
 
 export interface SettingsValidationIssue {
@@ -31,6 +36,7 @@ export interface UseSettingsWindowOptions {
   hotkeyDefinitions: HotkeyFieldDefinition[];
   isSettingsWindow: Ref<boolean>;
   defaultTerminal: Ref<string>;
+  terminalReusePolicy: Ref<TerminalReusePolicy>;
   language: Ref<AppLocale>;
   autoCheckUpdate: Ref<boolean>;
   launchAtLogin: Ref<boolean>;

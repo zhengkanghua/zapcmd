@@ -5,6 +5,7 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_TERMINAL,
+  DEFAULT_TERMINAL_REUSE_POLICY,
   DEFAULT_THEME,
   DEFAULT_WINDOW_OPACITY,
   HOTKEY_FIELD_IDS,
@@ -20,6 +21,7 @@ import {
   normalizeHotkeys,
   normalizeLanguage,
   normalizeTerminalId,
+  normalizeTerminalReusePolicy,
   normalizeThemeId,
   normalizeWindowOpacity
 } from "./normalization";
@@ -52,6 +54,13 @@ function extractLanguage(payload: SettingsPayload) {
     return DEFAULT_LANGUAGE;
   }
   return normalizeLanguage(payload.general.language);
+}
+
+function extractTerminalReusePolicy(payload: SettingsPayload) {
+  if (!isRecord(payload.general)) {
+    return DEFAULT_TERMINAL_REUSE_POLICY;
+  }
+  return normalizeTerminalReusePolicy(payload.general.terminalReusePolicy);
 }
 
 function extractAutoCheckUpdate(payload: SettingsPayload): boolean {
@@ -110,6 +119,7 @@ function createSnapshot(payload: SettingsPayload): PersistedSettingsSnapshot {
     hotkeys: normalizeHotkeys(extractHotkeys(payload)),
     general: {
       defaultTerminal: extractDefaultTerminal(payload),
+      terminalReusePolicy: extractTerminalReusePolicy(payload),
       language: extractLanguage(payload),
       autoCheckUpdate: extractAutoCheckUpdate(payload),
       launchAtLogin: extractLaunchAtLogin(payload),

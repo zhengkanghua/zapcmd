@@ -79,6 +79,12 @@ describe("settingsStore migration and persistence", () => {
     expect(createDefaultSettingsSnapshot().general.alwaysElevatedTerminal).toBe(false);
   });
 
+  it("defaults terminalReusePolicy to never", () => {
+    expect((createDefaultSettingsSnapshot().general as Record<string, unknown>).terminalReusePolicy).toBe(
+      "never"
+    );
+  });
+
   it("migrates alwaysElevatedTerminal from legacy payload", () => {
     const migrated = migrateSettingsPayload({
       version: 1,
@@ -86,6 +92,17 @@ describe("settingsStore migration and persistence", () => {
     });
 
     expect(migrated?.general.alwaysElevatedTerminal).toBe(true);
+  });
+
+  it("migrates terminalReusePolicy from legacy payload", () => {
+    const migrated = migrateSettingsPayload({
+      version: 1,
+      general: { terminalReusePolicy: "normal-and-elevated" }
+    });
+
+    expect((migrated?.general as Record<string, unknown>).terminalReusePolicy).toBe(
+      "normal-and-elevated"
+    );
   });
 
   it("normalizes booleans, disabled ids, and clamps window opacity", () => {
@@ -229,6 +246,19 @@ describe("settingsStore migration and persistence", () => {
     store.setAlwaysElevatedTerminal(true);
 
     expect(store.toSnapshot().general.alwaysElevatedTerminal).toBe(true);
+  });
+
+  it("persists terminalReusePolicy in snapshot", () => {
+    const store = useSettingsStore();
+    const storeWithTerminalReusePolicy = store as typeof store & {
+      setTerminalReusePolicy?: (value: string) => void;
+    };
+
+    storeWithTerminalReusePolicy.setTerminalReusePolicy?.("normal-only");
+
+    expect((store.toSnapshot().general as Record<string, unknown>).terminalReusePolicy).toBe(
+      "normal-only"
+    );
   });
 
   it("persists commands snapshot without transient view state", () => {

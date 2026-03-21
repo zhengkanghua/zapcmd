@@ -53,6 +53,7 @@ function createSettingsWindowProps(
     availableTerminals: [terminalOption],
     terminalLoading: false,
     defaultTerminal: terminalOption.id,
+    terminalReusePolicy: "never",
     selectedTerminalPath: terminalOption.path,
     language: defaults.general.language,
     languageOptions: [

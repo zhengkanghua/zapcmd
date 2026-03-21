@@ -17,7 +17,8 @@ function createOptions(overrides: Partial<UseSettingsWindowOptions> = {}): UseSe
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
     setLaunchAtLogin: vi.fn(),
-    setAlwaysElevatedTerminal: vi.fn()
+    setAlwaysElevatedTerminal: vi.fn(),
+    setTerminalReusePolicy: vi.fn()
   };
 
   const hotkeyDefinitions: HotkeyFieldDefinition[] = [
@@ -34,6 +35,7 @@ function createOptions(overrides: Partial<UseSettingsWindowOptions> = {}): UseSe
     hotkeyDefinitions,
     isSettingsWindow: ref(true),
     defaultTerminal: ref("powershell"),
+    terminalReusePolicy: ref("never"),
     language: ref("zh-CN"),
     autoCheckUpdate: ref(true),
     launchAtLogin: ref(false),
