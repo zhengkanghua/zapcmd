@@ -34,7 +34,19 @@ describe("runtimeMapper", () => {
           key: "lines",
           label: "lines",
           type: "number",
-          default: "100"
+          default: "100",
+          validation: {
+            min: 1,
+            max: 65535
+          }
+        }
+      ],
+      prerequisites: [
+        {
+          id: "docker",
+          type: "binary",
+          required: true,
+          check: "docker"
         }
       ]
     };
@@ -47,5 +59,12 @@ describe("runtimeMapper", () => {
     expect(template.argToken).toBe("{{container}}");
     expect(template.adminRequired).toBe(false);
     expect(template.dangerous).toBe(false);
+    expect(template.args?.[1]).toMatchObject({
+      min: 1,
+      max: 65535
+    });
+    expect(template.prerequisites).toEqual([
+      expect.objectContaining({ id: "docker", type: "binary", required: true })
+    ]);
   });
 });

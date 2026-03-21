@@ -1,8 +1,10 @@
 import type { CommandArg, CommandTemplate } from "./types";
 import { getCurrentLocale } from "../../i18n";
+import type { CommandPrerequisite } from "./prerequisiteTypes";
 import type {
   RuntimeCommand,
   RuntimeCommandArg,
+  RuntimeCommandPrerequisite,
   RuntimeLocalizedText,
   RuntimeLocalizedTextOrString
 } from "./runtimeTypes";
@@ -56,9 +58,24 @@ function mapRuntimeArg(arg: RuntimeCommandArg): CommandArg {
     argType: arg.type,
     validationPattern,
     validationError: resolveRuntimeText(arg.validation?.errorMessage),
+    min: arg.validation?.min,
+    max: arg.validation?.max,
     options: Array.isArray(arg.validation?.options)
       ? arg.validation?.options.filter((item) => typeof item === "string" && item.trim().length > 0)
       : undefined
+  };
+}
+
+function mapRuntimePrerequisite(
+  prerequisite: RuntimeCommandPrerequisite
+): CommandPrerequisite {
+  return {
+    id: prerequisite.id,
+    type: prerequisite.type,
+    required: prerequisite.required,
+    check: prerequisite.check,
+    installHint: resolveRuntimeText(prerequisite.installHint),
+    fallbackCommandId: prerequisite.fallbackCommandId
   };
 }
 
@@ -68,6 +85,7 @@ function extractFolder(command: RuntimeCommand): string {
 
 export function mapRuntimeCommandToTemplate(command: RuntimeCommand): CommandTemplate {
   const args = (command.args ?? []).map(mapRuntimeArg);
+  const prerequisites = (command.prerequisites ?? []).map(mapRuntimePrerequisite);
   const primaryArg = args[0];
   const title = resolveRuntimeText(command.name) || command.id;
   const description = resolveRuntimeText(command.description) || title;
@@ -84,6 +102,7 @@ export function mapRuntimeCommandToTemplate(command: RuntimeCommand): CommandTem
     argPlaceholder: primaryArg?.placeholder,
     argToken: primaryArg?.token,
     args: args.length > 0 ? args : undefined,
+    prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
     adminRequired: command.adminRequired,
     dangerous: command.dangerous ?? false
   };

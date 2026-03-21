@@ -165,6 +165,7 @@ function buildStagedCommand(
     renderedCommand: renderCommand(command, values),
     args,
     argValues: values,
+    prerequisites: command.prerequisites,
     adminRequired: command.adminRequired ?? false,
     dangerous: command.dangerous ?? false
   };

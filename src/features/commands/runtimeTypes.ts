@@ -1,3 +1,8 @@
+import type {
+  CommandPrerequisite,
+  CommandPrerequisiteType
+} from "./prerequisiteTypes";
+
 export type RuntimeLocalizedText = Record<string, string>;
 export type RuntimeLocalizedTextOrString = RuntimeLocalizedText | string;
 
@@ -19,7 +24,7 @@ export type RuntimeCategory =
 export type RuntimePlatform = "all" | "win" | "mac" | "linux";
 export type RuntimeShell = "bash" | "zsh" | "powershell" | "cmd";
 export type RuntimeArgType = "text" | "number" | "path" | "select";
-export type RuntimePrerequisiteType = "binary" | "shell" | "network" | "permission" | "env";
+export type RuntimePrerequisiteType = CommandPrerequisiteType;
 
 export interface RuntimeCommandArgValidation {
   pattern?: string;
@@ -39,13 +44,8 @@ export interface RuntimeCommandArg {
   validation?: RuntimeCommandArgValidation;
 }
 
-export interface RuntimeCommandPrerequisite {
-  id: string;
-  type: RuntimePrerequisiteType;
-  required: boolean;
-  check: string;
+export interface RuntimeCommandPrerequisite extends Omit<CommandPrerequisite, "installHint"> {
   installHint?: RuntimeLocalizedTextOrString;
-  fallbackCommandId?: string;
 }
 
 export interface RuntimeCommand {

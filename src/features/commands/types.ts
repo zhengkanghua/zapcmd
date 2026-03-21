@@ -1,3 +1,5 @@
+import type { CommandPrerequisite } from "./prerequisiteTypes";
+
 export interface CommandArg {
   key: string;
   label: string;
@@ -8,6 +10,8 @@ export interface CommandArg {
   argType?: "text" | "number" | "path" | "select";
   validationPattern?: string;
   validationError?: string;
+  min?: number;
+  max?: number;
   options?: string[];
 }
 
@@ -23,6 +27,7 @@ export interface CommandTemplate {
   argPlaceholder?: string;
   argToken?: string;
   args?: CommandArg[];
+  prerequisites?: CommandPrerequisite[];
   adminRequired?: boolean;
   dangerous?: boolean;
 }

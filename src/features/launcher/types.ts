@@ -1,4 +1,5 @@
 import type { CommandArg } from "../commands/commandTemplates";
+import type { CommandPrerequisite } from "../commands/prerequisiteTypes";
 
 export interface StagedCommand {
   id: string;
@@ -7,6 +8,7 @@ export interface StagedCommand {
   rawPreview: string;
   args: CommandArg[];
   argValues: Record<string, string>;
+  prerequisites?: CommandPrerequisite[];
   adminRequired?: boolean;
   dangerous?: boolean;
 }
