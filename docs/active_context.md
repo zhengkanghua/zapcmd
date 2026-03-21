@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-21｜Windows 终端会话策略实现）
+
+- 已完成实现：Rust 新增 Windows launch plan，`wt` 固定窗口 `zapcmd-main-terminal` 复用，`powershell/pwsh/cmd` 强制新开独立控制台；前端补齐默认终端透传回归；本轮仍不做 `adminRequired` 的真实 UAC 提权。
+
 ## 补充（2026-03-21｜Windows 终端会话策略设计）
 
 - 已确认新规：执行始终跟随 Settings 默认终端；`wt` 复用 ZapCmd 固定窗口，`powershell/pwsh/cmd` 强制新开独立控制台；`tauri:dev` 也必须脱离 VSCode 宿主控制台；本轮不做 UAC 提权。
