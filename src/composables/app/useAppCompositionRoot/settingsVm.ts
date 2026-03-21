@@ -1,4 +1,4 @@
-import { computed } from "vue";
+import { computed, proxyRefs } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
 import type { HotkeyFieldId } from "../../../stores/settingsStore";
 import type { createAppCompositionContext } from "./context";
@@ -20,7 +20,7 @@ export function createSettingsVm(
   context: AppCompositionContext,
   settingsMutationHandlers: SettingsMutationHandlers
 ) {
-  return {
+  return proxyRefs({
     settingsNavItems: context.settingsWindow.settingsNavItems,
     settingsRoute: context.settingsWindow.settingsRoute,
     hotkeyGlobalFields: context.settingsWindow.hotkeyGlobalFields,
@@ -79,5 +79,5 @@ export function createSettingsVm(
     checkUpdate: context.checkUpdate,
     downloadUpdate: context.downloadUpdate,
     openHomepage: context.openHomepage
-  };
+  });
 }

@@ -30,11 +30,14 @@
 
 ## 补充（2026-03-21｜Adapter 边界与窗口缓存加固）
 
-- 计划 4 前半段已完成：`viewModel.ts` 已收口成 `launcherVm / settingsVm / appShellVm` 三段边界，`App.vue` 根部只消费这三个 VM；`LauncherFlowPanel.vue` 也已把高度观察、抓手重排、内联参数编辑拆到独立 composable，主文件只保留 DOM 组合与少量 glue code。
+- 计划 4 已完成：`viewModel.ts` 已收口成 `launcherVm / settingsVm / appShellVm` 三段边界，`App.vue` 根部只消费这三个 VM；三个 VM 统一改走 `proxyRefs`，避免模板消费 nested ref 时再把 `Ref/ComputedRef` 直接透传给子组件。
 - `useWindowSizing/controller.ts` 已继续下沉为高层编排器：窗口同步样式与 fallback resize 进入 `windowSync.ts`，Flow 观察期 timer 进入 `flowObservation.ts`，panel session 协调进入 `sessionCoordinator.ts`；controller 对外 contract 保持不变，focused Vitest 与 lint 已通过。
+- `LauncherFlowPanel.vue` 已把高度观察、抓手重排、内联参数编辑拆到独立 composable，主文件只保留 DOM 组合与少量 glue code；`App.vue` 额外保留了 `availableTerminals / terminalLoading / submitParamInput` 三个顶层兼容入口，避免既有 app 级回归与 setupState harness 因壳层边界收口而失效。
 - Rust 侧已新增 `src-tauri/src/animation/size_cache.rs`，`AnimationController.current_size` 不再直接暴露 `Mutex<(f64, f64)>`；`animation/mod.rs` 与 `windowing.rs` 已统一改走 `WindowSizeCache::read_or_recover / write_or_recover`，poisoned mutex 下仍可安全读写。
 - 计划差异 1：Task 2 原文要求先加“主文件缩身约束”再把当前基线跑绿，但真实 `LauncherFlowPanel.vue` 在提取前仍直接持有三套状态机；本轮按最小必要调整为先补 emits contract 作为 baseline，再在提取完成后补源码缩身约束。
 - 计划差异 2：Task 3 文案写“先写失败测试”，但 Step 2 同时要求当前基线 PASS；实际执行时将其视为 characterization test，先锁住 controller 公开 API 与“不暴露 observation timer 状态”的 contract，再基于该基线做结构拆分。
+- 计划差异 3：Task 1 计划只写了“拆三段 VM 边界”，但真实 `App.vue` 模板和 app 级回归仍依赖顶层 setupState 自动解包/直访；最终通过 `proxyRefs + 顶层兼容别名` 做最小收口，保持边界目标不变，同时让 `vue-tsc` 与历史回归夹具继续成立。
+- 计划 4 最终验证已通过：`useAppCompositionViewModel`、`LauncherFlowPanel`、`useWindowSizing` focused tests、Rust `animation::tests_logic` 与 `npm run check:all` 全绿。
 
 ## 补充（2026-03-21｜项目总审查）
 

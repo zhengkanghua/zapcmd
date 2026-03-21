@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { ref, unref } from "vue";
+import { isRef, ref, unref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppCompositionViewModel } from "../../app/useAppCompositionRoot/viewModel";
@@ -138,6 +138,10 @@ describe("createAppCompositionViewModel", () => {
     expect(viewModel.appShellVm).toBeDefined();
     expect("query" in viewModel).toBe(false);
     expect("settingsNavItems" in viewModel).toBe(false);
+    expect(isRef(viewModel.launcherVm.query)).toBe(false);
+    expect(viewModel.launcherVm.query).toBe("");
+    expect(isRef(viewModel.settingsVm.defaultTerminal)).toBe(false);
+    expect(viewModel.settingsVm.defaultTerminal).toBe("powershell");
     expect(appSource).toMatch(
       /const\s*\{\s*isSettingsWindow,\s*launcherVm,\s*settingsVm,\s*appShellVm\s*\}\s*=\s*useAppCompositionRoot\(\);/s
     );

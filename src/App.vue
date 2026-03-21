@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { toRef } from "vue";
 import LauncherWindow from "./components/launcher/LauncherWindow.vue";
 import SettingsWindow from "./components/settings/SettingsWindow.vue";
 import { useAppCompositionRoot } from "./composables/app/useAppCompositionRoot";
@@ -10,12 +11,21 @@ const {
   appShellVm
 } = useAppCompositionRoot();
 
-function handleCommandPanelSubmit(): void {
+const availableTerminals = toRef(settingsVm, "availableTerminals");
+const terminalLoading = toRef(settingsVm, "terminalLoading");
+
+function submitParamInput(): void {
   if (!launcherVm.submitParamInput()) {
     return;
   }
   launcherVm.requestCommandPanelExit();
 }
+
+defineExpose({
+  availableTerminals,
+  terminalLoading,
+  submitParamInput
+});
 </script>
 
 <template>
@@ -70,7 +80,7 @@ function handleCommandPanelSubmit(): void {
     @clear-staging="launcherVm.clearStaging"
     @execute-staged="launcherVm.executeStaged"
     @grip-reorder-active-change="launcherVm.setStagingGripReorderActive"
-    @submit-param-input="handleCommandPanelSubmit"
+    @submit-param-input="submitParamInput"
     @request-command-panel-exit="launcherVm.requestCommandPanelExit"
     @command-page-settled="launcherVm.notifyCommandPageSettled"
     @flow-panel-height-change="launcherVm.notifyFlowPanelHeightChange"

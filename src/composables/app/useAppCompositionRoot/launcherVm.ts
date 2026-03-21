@@ -1,3 +1,4 @@
+import { proxyRefs } from "vue";
 import type { createAppCompositionContext } from "./context";
 import type { createAppCompositionRuntime } from "./runtime";
 
@@ -12,7 +13,7 @@ export function createLauncherVm(
     return runtime.commandExecution.submitParamInput();
   }
 
-  return {
+  return proxyRefs({
     query: context.search.query,
     executing: runtime.commandExecution.executing,
     executionFeedbackMessage: runtime.commandExecution.executionFeedbackMessage,
@@ -73,5 +74,5 @@ export function createLauncherVm(
     updatePendingArgValue: runtime.commandExecution.updatePendingArgValue,
     confirmSafetyExecution: runtime.commandExecution.confirmSafetyExecution,
     cancelSafetyExecution: runtime.commandExecution.cancelSafetyExecution
-  };
+  });
 }
