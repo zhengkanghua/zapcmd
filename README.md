@@ -185,6 +185,8 @@ Notes:
   - `title`
   - `description`
   - `preview`
+  - `folder`
+  - `category`
 - If query contains spaces, token-AND is used (all tokens must match).
 - Result ranking uses relevance score.
 - Highlight is token-based and order-insensitive.
@@ -263,7 +265,7 @@ Review and merge policy:
 - Builtin commands maintenance: `docs/command_sources/README.md`
 - Runtime templates assets: `assets/runtime_templates/README.md`
 - Command file schema: `docs/schemas/README.md`
-- GitHub automation: `.github/README.md`
+- GitHub automation: `.github/workflows/ci-gate.yml`
 - Only maintainers with repository write/release permission should push `v*.*.*` tags.
 - Pushing a `vX.Y.Z` tag will trigger multi-platform builds and publish a GitHub Release.
 

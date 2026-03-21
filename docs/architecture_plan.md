@@ -16,7 +16,7 @@
 - 后端：Rust
 - 前端：Vue 3 + TypeScript
 - 状态管理：Pinia（设置状态已收敛到 store）
-- 样式：Tailwind + 手写 CSS
+- 样式：模块化 CSS（入口 `src/styles/index.css`，Tailwind 已移除）
 
 ### 1.2 已实现能力
 
@@ -46,7 +46,7 @@
 
 - 壳层入口（编排层）：`src/App.vue`（159 行）
 - 启动入口：`src/main.ts`
-- 全局样式：`src/styles.css`
+- 全局样式入口：`src/styles/index.css`
 - 应用编排根：`src/composables/app/useAppCompositionRoot/`
 - 组合根边界层：`src/composables/app/useAppCompositionRoot/ports.ts`、`src/composables/app/useAppCompositionRoot/policies.ts`
 - 主窗口视图：`src/components/launcher/LauncherWindow.vue`

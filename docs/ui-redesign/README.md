@@ -92,6 +92,7 @@ B4 同时满足 4 个关键条件：
 ## 参考输入
 
 - 当前截图：`docs/temporary_img/主窗口.png`
-- 当前样式入口：`src/styles.css`
+- 当前样式入口：`src/styles/index.css`
+- 历史路径说明：`src/styles.css` 为旧入口，现已迁移
 - 当前主窗口入口：`src/components/launcher/LauncherWindow.vue`
 - 当前设置页入口（仅作架构边界参考，不在本轮范围内）：`src/components/settings/SettingsWindow.vue`

@@ -185,6 +185,8 @@ Schema：
   - `title`
   - `description`
   - `preview`
+  - `folder`
+  - `category`
 - 输入包含空格时使用分词 AND（所有词都要命中）。
 - 结果按相关性分数排序。
 - 高亮为分词级别，词序无关。
@@ -263,7 +265,7 @@ PR 流程：
 - 内置命令维护说明：`docs/command_sources/README.md`
 - 运行时模板资产说明：`assets/runtime_templates/README.md`
 - 命令文件 Schema：`docs/schemas/README.md`
-- GitHub 自动化说明：`.github/README.zh-CN.md`
+- GitHub 自动化说明：`.github/workflows/ci-gate.yml`
 - 仅仓库维护者（具备写入/发布权限）应推送 `v*.*.*` 标签。
 - 推送 `vX.Y.Z` 标签后，会触发多平台构建并发布 GitHub Release。
 
