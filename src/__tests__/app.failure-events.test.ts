@@ -644,11 +644,12 @@ describe("App failure and event regression", () => {
     expect(hoisted.runMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
         terminalId: "wt",
-        command: expect.stringContaining("[zapcmd] executing:"),
+        command: expect.stringContaining("[zapcmd][run]"),
       }),
     );
     const lastRequest = hoisted.runMock.mock.calls.at(-1)?.[0];
-    expect(lastRequest?.command ?? "").toContain("&&");
+    expect(lastRequest?.command ?? "").toContain("setlocal EnableDelayedExpansion");
+    expect(lastRequest?.command ?? "").toContain("[zapcmd][exit !ERRORLEVEL!]");
   });
 
   it("supports drag reorder and resets drag state on dragend", async () => {
