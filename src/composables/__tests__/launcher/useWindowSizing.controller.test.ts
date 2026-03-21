@@ -412,6 +412,18 @@ function createExitHarness() {
   };
 }
 
+describe("createWindowSizingController（公开 contract）", () => {
+  it("保留 Flow 高度通知 API，且不暴露 observation timer 状态", () => {
+    const { controller } = createWindowSizingHarness();
+
+    expect(typeof controller.notifyFlowPanelSettled).toBe("function");
+    expect(typeof controller.notifyFlowPanelHeightChange).toBe("function");
+    expect("flowPanelObservationActive" in controller).toBe(false);
+    expect("flowPanelObservationIdleTimer" in controller).toBe(false);
+    expect("flowPanelObservationMaxTimer" in controller).toBe(false);
+  });
+});
+
 describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
   it("进入 CommandPanel 时若 lastWindowSize 为空：首帧仍继承 searchPanelEffectiveHeight，而不是回退到 paramOverlayMinHeight", async () => {
     const drawerOpen = ref(true);

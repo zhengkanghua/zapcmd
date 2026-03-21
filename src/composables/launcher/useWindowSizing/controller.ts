@@ -1,49 +1,29 @@
-import { LogicalSize } from "@tauri-apps/api/window";
 import { nextTick } from "vue";
-import {
-  resolveWindowSize,
-  resolveWindowChromeHeight,
-  shouldSkipResize
-} from "./calculation";
-import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK, type UseWindowSizingOptions, type WindowSize } from "./model";
+import { resolveWindowSize, resolveWindowChromeHeight } from "./calculation";
 import { createCommandPanelExitCoordinator } from "./commandPanelExit";
-import { resolvePanelHeight } from "./panelHeightContract";
 import {
-  beginCommandPanelSession,
-  beginFlowPanelSession,
-  clearCommandPanelSession,
-  clearFlowPanelSession,
-  lockCommandPanelHeight,
-  lockFlowPanelHeight,
-  raiseFlowPanelHeight,
-  type PanelHeightSession
-} from "./panelHeightSession";
+  beginFlowPanelObservation,
+  createFlowObservationState,
+  refreshFlowPanelObservationIdleTimer,
+  stopFlowPanelObservation
+} from "./flowObservation";
+import type { UseWindowSizingOptions } from "./model";
 import {
-  measureCommandPanelFullNaturalHeight,
-  measureFlowPanelMinHeight,
-  resolveCommandPanelMinHeight,
-  resolveFlowPanelMinHeight
-} from "./panelMeasurement";
+  lockSettledPanelHeights,
+  syncPanelHeightSessions,
+  type WindowSizingSessionState
+} from "./sessionCoordinator";
 import {
-  LAUNCHER_SHELL_BREATHING_BOTTOM_PX,
-  SEARCH_CAPSULE_HEIGHT_PX
-} from "../useLauncherLayoutMetrics";
+  applyWindowSize,
+  handleSearchSettlingResize,
+  resolveShellDragStripHeightFromDom,
+  type ResizeBridge,
+  type SearchSettlingState
+} from "./windowSync";
 
-interface WindowSizingState {
-  lastWindowSize: WindowSize | null;
+interface WindowSizingState extends SearchSettlingState, WindowSizingSessionState {
   syncingWindowSize: boolean;
-  queuedWindowSync: boolean;
-  pendingCommandActive: boolean;
-  flowPanelActive: boolean;
-  pendingCommandSettled: boolean;
-  flowPanelSettled: boolean;
-  flowPanelObservationActive: boolean;
-  flowPanelObservationIdleTimer: ReturnType<typeof setTimeout> | null;
-  flowPanelObservationMaxTimer: ReturnType<typeof setTimeout> | null;
 }
-
-const FLOW_PANEL_OBSERVATION_IDLE_MS = 96;
-const FLOW_PANEL_OBSERVATION_MAX_MS = 640;
 
 function createWindowSizingState(options: UseWindowSizingOptions): WindowSizingState {
   const pendingCommandActive =
@@ -53,6 +33,7 @@ function createWindowSizingState(options: UseWindowSizingOptions): WindowSizingS
   const flowPanelActive =
     options.stagingExpanded.value &&
     (options.flowPanelInheritedHeight.value !== null || options.flowPanelLockedHeight.value !== null);
+
   return {
     lastWindowSize: null,
     syncingWindowSize: false,
@@ -61,413 +42,8 @@ function createWindowSizingState(options: UseWindowSizingOptions): WindowSizingS
     flowPanelActive,
     pendingCommandSettled: pendingCommandActive && options.commandPanelLockedHeight.value !== null,
     flowPanelSettled: flowPanelActive && options.flowPanelLockedHeight.value !== null,
-    flowPanelObservationActive: false,
-    flowPanelObservationIdleTimer: null,
-    flowPanelObservationMaxTimer: null
+    ...createFlowObservationState()
   };
-}
-
-function createPanelHeightSessionView(options: UseWindowSizingOptions): PanelHeightSession {
-  return {
-    commandPanelInheritedHeight: options.commandPanelInheritedHeight,
-    commandPanelLockedHeight: options.commandPanelLockedHeight,
-    flowPanelInheritedHeight: options.flowPanelInheritedHeight,
-    flowPanelLockedHeight: options.flowPanelLockedHeight
-  };
-}
-
-function resolveShellDragStripHeightFromDom(options: UseWindowSizingOptions): number {
-  const shell = options.searchShellRef.value;
-  const dragStrip = shell ? shell.querySelector<HTMLElement>(".shell-drag-strip") : null;
-  if (dragStrip) {
-    const height = dragStrip.getBoundingClientRect().height;
-    if (Number.isFinite(height) && height > 0) {
-      return Math.ceil(height);
-    }
-  }
-  return UI_TOP_ALIGN_OFFSET_PX_FALLBACK;
-}
-
-function resolveSearchPanelEffectiveHeight(options: UseWindowSizingOptions): number {
-  const effectiveHeight = options.searchPanelEffectiveHeight.value;
-  if (Number.isFinite(effectiveHeight) && effectiveHeight > 0) {
-    return effectiveHeight;
-  }
-  return SEARCH_CAPSULE_HEIGHT_PX;
-}
-
-/**
- * 解析当前左/右面板用于会话继承的“有效高度”。
- * Search 来源必须只认 searchPanelEffectiveHeight，避免 breathing 污染 Command / Flow 入口基线。
- */
-function resolveCurrentPanelEffectiveHeight(options: UseWindowSizingOptions): number {
-  if (options.pendingCommand.value !== null) {
-    return (
-      options.commandPanelLockedHeight.value ??
-      options.commandPanelInheritedHeight.value ??
-      resolveSearchPanelEffectiveHeight(options)
-    );
-  }
-
-  if (options.stagingExpanded.value) {
-    return (
-      options.flowPanelLockedHeight.value ??
-      options.flowPanelInheritedHeight.value ??
-      resolveSearchPanelEffectiveHeight(options)
-    );
-  }
-
-  return resolveSearchPanelEffectiveHeight(options);
-}
-
-function resolveCommandPanelEntryHeight(options: UseWindowSizingOptions): number {
-  return resolveSearchPanelEffectiveHeight(options);
-}
-
-function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
-  const screenCapFrame = Math.max(
-    0,
-    options.windowHeightCap.value - resolveWindowChromeHeight(dragStripHeight)
-  );
-  return Math.min(screenCapFrame, options.sharedPanelMaxHeight.value);
-}
-
-function syncLauncherFrameHeightStyle(
-  options: UseWindowSizingOptions,
-  windowHeight: number,
-  commandPanelExitFrameHeightLock: number | null = null,
-  preferWindowHeight = false
-): void {
-  const shell = options.searchShellRef.value;
-  if (!shell) {
-    return;
-  }
-
-  if (commandPanelExitFrameHeightLock !== null) {
-    shell.style.setProperty(
-      "--launcher-frame-height",
-      `${Math.max(0, Math.floor(commandPanelExitFrameHeightLock))}px`
-    );
-    return;
-  }
-
-  const shouldKeepFrameHeightStyle =
-    options.pendingCommand.value !== null || options.stagingExpanded.value || preferWindowHeight;
-  if (!shouldKeepFrameHeightStyle) {
-    shell.style.removeProperty("--launcher-frame-height");
-    return;
-  }
-
-  const dragStripHeight = resolveShellDragStripHeightFromDom(options);
-  const fallbackHeight = Math.max(0, windowHeight - resolveWindowChromeHeight(dragStripHeight));
-  if (preferWindowHeight) {
-    shell.style.setProperty("--launcher-frame-height", `${fallbackHeight}px`);
-    return;
-  }
-
-  const root = shell.parentElement;
-  const frame = shell.querySelector<HTMLElement>(".launcher-frame");
-  if (root && frame) {
-    const rootRect = root.getBoundingClientRect();
-    const frameRect = frame.getBoundingClientRect();
-    if (Number.isFinite(rootRect.height) && Number.isFinite(frameRect.top) && Number.isFinite(rootRect.top)) {
-      const topOffset = Math.max(0, frameRect.top - rootRect.top);
-      const frameHeight = Math.max(
-        0,
-        Math.floor(rootRect.height - topOffset - LAUNCHER_SHELL_BREATHING_BOTTOM_PX)
-      );
-      shell.style.setProperty("--launcher-frame-height", `${frameHeight}px`);
-      return;
-    }
-  }
-
-  shell.style.setProperty("--launcher-frame-height", `${fallbackHeight}px`);
-}
-
-type ResizeBridge = (width: number, height: number) => Promise<void>;
-
-interface ResizeStyleSyncOptions {
-  beforeSyncStyle?: () => void;
-  frameHeightLock?: number | null;
-  preferWindowHeight?: boolean;
-}
-
-async function applyWindowSize(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState,
-  bridge: ResizeBridge,
-  size: WindowSize,
-  styleSyncOptions: ResizeStyleSyncOptions = {}
-): Promise<void> {
-  const syncStyle = () => {
-    styleSyncOptions.beforeSyncStyle?.();
-    syncLauncherFrameHeightStyle(
-      options,
-      size.height,
-      styleSyncOptions.frameHeightLock ?? null,
-      styleSyncOptions.preferWindowHeight ?? false
-    );
-  };
-
-  if (shouldSkipResize(state.lastWindowSize, size, options.constants.windowSizeEpsilon)) {
-    state.lastWindowSize = size;
-    syncStyle();
-    return;
-  }
-
-  state.lastWindowSize = size;
-  if (!options.isTauriRuntime()) {
-    syncStyle();
-    return;
-  }
-
-  const appWindow = options.resolveAppWindow();
-  try {
-    await bridge(size.width, size.height);
-    syncStyle();
-  } catch (error) {
-    console.warn("window command resize failed", error);
-    try {
-      if (appWindow) {
-        await appWindow.setSize(new LogicalSize(size.width, size.height));
-      }
-      syncStyle();
-    } catch (fallbackError) {
-      console.warn("window webview resize failed", fallbackError);
-    }
-  }
-}
-
-function syncPanelHeightSessions(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState,
-  commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>
-): void {
-  const session = createPanelHeightSessionView(options);
-  const pendingCommandActive = options.pendingCommand.value !== null;
-  const flowPanelActive = options.stagingExpanded.value;
-
-  if (pendingCommandActive && !state.pendingCommandActive) {
-    beginCommandPanelSession(session, resolveCommandPanelEntryHeight(options));
-    state.pendingCommandActive = true;
-    state.pendingCommandSettled = false;
-  }
-
-  if (!pendingCommandActive && state.pendingCommandActive) {
-    if (commandPanelExit.snapshot().phase !== "idle") {
-      return;
-    }
-    clearCommandPanelSession(session);
-    state.pendingCommandActive = false;
-    state.pendingCommandSettled = false;
-  }
-
-  if (flowPanelActive && !state.flowPanelActive) {
-    beginFlowPanelSession(session, resolveCurrentPanelEffectiveHeight(options));
-    state.flowPanelActive = true;
-    state.flowPanelSettled = false;
-    stopFlowPanelObservation(state);
-  }
-
-  if (!flowPanelActive && state.flowPanelActive) {
-    clearFlowPanelSession(session);
-    state.flowPanelActive = false;
-    state.flowPanelSettled = false;
-    stopFlowPanelObservation(state);
-  }
-}
-
-function lockSettledPanelHeights(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState,
-  dragStripHeight: number
-): void {
-  const frameMaxHeight = resolveFrameMaxHeight(options, dragStripHeight);
-  maybeLockCommandPanelHeight(options, state, frameMaxHeight);
-  maybeLockFlowPanelHeight(options, state, frameMaxHeight);
-}
-
-function resolveFlowPanelFallbackMinHeight(options: UseWindowSizingOptions): number {
-  return (
-    options.constants.stagingChromeHeight +
-    options.constants.stagingCardEstHeight * 2 +
-    options.constants.stagingListGap
-  );
-}
-
-function maybeLockCommandPanelHeight(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState,
-  frameMaxHeight: number
-): void {
-  if (
-    options.pendingCommand.value === null ||
-    !state.pendingCommandActive ||
-    !state.pendingCommandSettled ||
-    options.commandPanelLockedHeight.value !== null
-  ) {
-    return;
-  }
-
-  const fullNaturalHeight = options.searchShellRef.value
-    ? measureCommandPanelFullNaturalHeight(options.searchShellRef.value)
-    : null;
-  const panelMinHeight = resolveCommandPanelMinHeight({
-    fallbackMinHeight: options.constants.paramOverlayMinHeight,
-    fullNaturalHeight
-  });
-
-  lockCommandPanelHeight(
-    createPanelHeightSessionView(options),
-    resolvePanelHeight({
-      panelMaxHeight: frameMaxHeight,
-      inheritedPanelHeight:
-        options.commandPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
-      panelMinHeight
-    })
-  );
-}
-
-function maybeLockFlowPanelHeight(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState,
-  frameMaxHeight: number
-): void {
-  if (!state.flowPanelActive || !state.flowPanelSettled) {
-    return;
-  }
-
-  const measuredMinHeight = options.stagingPanelRef.value
-    ? measureFlowPanelMinHeight(options.stagingPanelRef.value)
-    : null;
-  const panelMinHeight = resolveFlowPanelMinHeight({
-    fallbackMinHeight: resolveFlowPanelFallbackMinHeight(options),
-    measuredMinHeight
-  });
-  const resolvedFlowPanelHeight = resolvePanelHeight({
-    panelMaxHeight: frameMaxHeight,
-    inheritedPanelHeight:
-      options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
-    panelMinHeight
-  });
-
-  if (options.flowPanelLockedHeight.value === null) {
-    lockFlowPanelHeight(createPanelHeightSessionView(options), resolvedFlowPanelHeight);
-    return;
-  }
-
-  if (!state.flowPanelObservationActive) {
-    return;
-  }
-
-  raiseFlowPanelHeight(
-    createPanelHeightSessionView(options),
-    resolvePanelHeight({
-      panelMaxHeight: frameMaxHeight,
-      inheritedPanelHeight: options.flowPanelLockedHeight.value,
-      panelMinHeight
-    })
-  );
-}
-
-function clearFlowPanelObservationIdleTimer(state: WindowSizingState): void {
-  if (state.flowPanelObservationIdleTimer === null) {
-    return;
-  }
-  clearTimeout(state.flowPanelObservationIdleTimer);
-  state.flowPanelObservationIdleTimer = null;
-}
-
-function clearFlowPanelObservationMaxTimer(state: WindowSizingState): void {
-  if (state.flowPanelObservationMaxTimer === null) {
-    return;
-  }
-  clearTimeout(state.flowPanelObservationMaxTimer);
-  state.flowPanelObservationMaxTimer = null;
-}
-
-function stopFlowPanelObservation(state: WindowSizingState): void {
-  state.flowPanelObservationActive = false;
-  clearFlowPanelObservationIdleTimer(state);
-  clearFlowPanelObservationMaxTimer(state);
-}
-
-function refreshFlowPanelObservationIdleTimer(state: WindowSizingState): void {
-  clearFlowPanelObservationIdleTimer(state);
-  state.flowPanelObservationIdleTimer = setTimeout(() => {
-    stopFlowPanelObservation(state);
-  }, FLOW_PANEL_OBSERVATION_IDLE_MS);
-}
-
-function beginFlowPanelObservation(state: WindowSizingState): void {
-  stopFlowPanelObservation(state);
-  state.flowPanelObservationActive = true;
-  refreshFlowPanelObservationIdleTimer(state);
-  state.flowPanelObservationMaxTimer = setTimeout(() => {
-    stopFlowPanelObservation(state);
-  }, FLOW_PANEL_OBSERVATION_MAX_MS);
-}
-
-function finalizeCommandPanelExit(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState,
-  commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>
-): void {
-  commandPanelExit.clear();
-  if (options.pendingCommand.value !== null) {
-    return;
-  }
-
-  clearCommandPanelSession(createPanelHeightSessionView(options));
-  state.pendingCommandActive = false;
-  state.pendingCommandSettled = false;
-}
-
-async function handleSearchSettlingResize(
-  options: UseWindowSizingOptions,
-  state: WindowSizingState,
-  commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>,
-  bridge: ResizeBridge,
-  dragStripHeight: number
-): Promise<boolean> {
-  const snapshot = commandPanelExit.snapshot();
-  const commandPanelExitFrameHeightLock = snapshot.lockedExitFrameHeight;
-  if (snapshot.phase !== "search-settling" || commandPanelExitFrameHeightLock === null) {
-    return false;
-  }
-
-  const restoreBaseSize = resolveWindowSize(options, {
-    commandPanelExitFrameHeightLock,
-    ignoreCommandPanelExitLock: true,
-    // nav-slide out-in 期间可能还残留旧 search shell；恢复目标采样必须只走安全口径。
-    ignoreMeasuredSearchPanelHeight: true
-  });
-  const restoreTargetFrameHeight =
-    snapshot.restoreTargetFrameHeight ??
-    Math.max(0, restoreBaseSize.height - resolveWindowChromeHeight(dragStripHeight));
-  if (snapshot.restoreTargetFrameHeight === null) {
-    commandPanelExit.captureRestoreTarget(restoreTargetFrameHeight);
-  }
-
-  if (restoreTargetFrameHeight >= commandPanelExitFrameHeightLock) {
-    finalizeCommandPanelExit(options, state, commandPanelExit);
-    state.queuedWindowSync = true;
-    return true;
-  }
-
-  await applyWindowSize(
-    options,
-    state,
-    bridge,
-    {
-      width: restoreBaseSize.width,
-      height: restoreTargetFrameHeight + resolveWindowChromeHeight(dragStripHeight)
-    },
-    {
-      beforeSyncStyle: () => finalizeCommandPanelExit(options, state, commandPanelExit)
-    }
-  );
-  return true;
 }
 
 function createSyncWindowSizeCore(
@@ -490,7 +66,7 @@ function createSyncWindowSizeCore(
     try {
       const dragStripHeight = resolveShellDragStripHeightFromDom(options);
       const hadActiveFlowPanel = state.flowPanelActive;
-      syncPanelHeightSessions(options, state, commandPanelExit);
+      syncPanelHeightSessions(options, state, commandPanelExit.snapshot().phase);
       lockSettledPanelHeights(options, state, dragStripHeight);
       const preferWindowHeightForLauncherFrame =
         options.stagingExpanded.value || hadActiveFlowPanel;
@@ -551,6 +127,7 @@ function createOnAppFocused(
     if (options.isSettingsWindow.value) {
       return;
     }
+
     options.loadSettings();
     syncWindowSizeImmediate();
     options.scheduleSearchInputFocus(true);
@@ -603,6 +180,7 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     if (!state.flowPanelActive || !state.flowPanelSettled || !state.flowPanelObservationActive) {
       return;
     }
+
     refreshFlowPanelObservationIdleTimer(state);
     scheduleWindowSync();
   };
