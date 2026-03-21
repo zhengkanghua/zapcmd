@@ -4,6 +4,11 @@ import type { CommandExecutor } from "../../services/commandExecutor";
 interface UseTerminalExecutionOptions {
   commandExecutor: CommandExecutor;
   defaultTerminal: Ref<string>;
+  alwaysElevatedTerminal: Ref<boolean>;
+}
+
+interface TerminalExecutionOptions {
+  requiresElevation?: boolean;
 }
 
 function collapseCommand(command: string): string {
@@ -135,7 +140,10 @@ function buildBatchCommandPayload(terminalId: string, commands: string[]): strin
  * @returns 终端执行相关的组合式 API。
  */
 export function useTerminalExecution(options: UseTerminalExecutionOptions) {
-  async function runCommandInTerminal(renderedCommand: string): Promise<void> {
+  async function runCommandInTerminal(
+    renderedCommand: string,
+    executionOptions: TerminalExecutionOptions = {}
+  ): Promise<void> {
     const normalized = renderedCommand.trim();
     if (normalized.length === 0) {
       throw new Error("Command cannot be empty.");
@@ -145,11 +153,16 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
     const command = buildSingleCommandPayload(terminalId, normalized);
     await options.commandExecutor.run({
       terminalId,
-      command
+      command,
+      requiresElevation: executionOptions.requiresElevation === true,
+      alwaysElevated: options.alwaysElevatedTerminal.value
     });
   }
 
-  async function runCommandsInTerminal(renderedCommands: string[]): Promise<void> {
+  async function runCommandsInTerminal(
+    renderedCommands: string[],
+    executionOptions: TerminalExecutionOptions = {}
+  ): Promise<void> {
     const terminalId = options.defaultTerminal.value;
     const command = buildBatchCommandPayload(terminalId, renderedCommands);
     if (!command) {
@@ -158,7 +171,9 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
 
     await options.commandExecutor.run({
       terminalId,
-      command
+      command,
+      requiresElevation: executionOptions.requiresElevation === true,
+      alwaysElevated: options.alwaysElevatedTerminal.value
     });
   }
 

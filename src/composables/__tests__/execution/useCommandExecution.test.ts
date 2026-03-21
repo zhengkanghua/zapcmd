@@ -51,6 +51,16 @@ function createArgCommand(): CommandTemplate {
   };
 }
 
+function createAdminCommand(): CommandTemplate {
+  return {
+    ...createNoArgCommand(),
+    id: "flush-dns",
+    title: "刷新 DNS",
+    preview: "ipconfig /flushdns",
+    adminRequired: true
+  };
+}
+
 function createHarness(useBatchRunner = false): Harness {
   const stagedCommands = ref<StagedCommand[]>([]);
   const focusZone = ref<FocusZone>("search");
@@ -155,10 +165,26 @@ describe("useCommandExecution", () => {
 
     expect(submitted).toBe(true);
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
+      requiresElevation: false
+    });
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
+  });
+
+  it("passes requiresElevation=true for adminRequired single command", async () => {
+    const harness = createHarness();
+    const command = createAdminCommand();
+
+    harness.execution.executeResult(command);
+    await nextTick();
+
+    expect(harness.execution.safetyDialog.value?.mode).toBe("single");
+    await harness.execution.confirmSafetyExecution();
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ipconfig /flushdns", {
+      requiresElevation: true
+    });
   });
 
   it("opens command panel for dangerous no-arg command and executes on submit (skips safetyDialog)", async () => {
@@ -180,7 +206,9 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la", {
+      requiresElevation: false
+    });
   });
 
   it("executes dangerous command from pending execute mode without opening safetyDialog", async () => {
@@ -197,7 +225,9 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
+      requiresElevation: false
+    });
   });
 
   it("executes dismissed dangerous command directly without opening panel or safetyDialog", async () => {
@@ -213,7 +243,9 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.pendingCommand.value).toBeNull();
     expect(harness.execution.safetyDialog.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la", {
+      requiresElevation: false
+    });
   });
 
   it("trims boundary arg input before single execution and keeps success feedback", async () => {
@@ -225,7 +257,9 @@ describe("useCommandExecution", () => {
     harness.execution.submitParamInput();
     await nextTick();
 
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
+      requiresElevation: false
+    });
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
   });
@@ -322,8 +356,12 @@ describe("useCommandExecution", () => {
     harness.scheduleSearchInputFocus.mockClear();
     await harness.execution.executeStaged();
 
-    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(1, "ls -la");
-    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(2, "git gc --prune=now");
+    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(1, "ls -la", {
+      requiresElevation: false
+    });
+    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(2, "git gc --prune=now", {
+      requiresElevation: false
+    });
     expect(harness.stagedCommands.value).toHaveLength(0);
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
@@ -345,9 +383,25 @@ describe("useCommandExecution", () => {
     await harness.execution.executeStaged();
 
     expect(harness.runCommandsInTerminal).toHaveBeenCalledTimes(1);
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "git gc --prune=now"]);
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "git gc --prune=now"], {
+      requiresElevation: false
+    });
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.execution.executionFeedbackMessage.value).toContain("首个：ls -la");
+  });
+
+  it("passes requiresElevation=true when staged queue contains admin command", async () => {
+    const harness = createHarness(true);
+
+    harness.execution.stageResult(createNoArgCommand());
+    harness.execution.stageResult(createAdminCommand());
+    await harness.execution.executeStaged();
+
+    expect(harness.execution.safetyDialog.value?.mode).toBe("queue");
+    await harness.execution.confirmSafetyExecution();
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "ipconfig /flushdns"], {
+      requiresElevation: true
+    });
   });
 
   it("blocks queue execution on injection hit, keeps queue, and does not call terminal runners", async () => {
@@ -436,6 +490,8 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
 
     await harness.execution.confirmSafetyExecution();
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["taskkill /F /PID 1234"]);
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["taskkill /F /PID 1234"], {
+      requiresElevation: false
+    });
   });
 });

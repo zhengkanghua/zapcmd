@@ -118,7 +118,8 @@ export function createAppCompositionContext(options: AppCompositionContextOption
   const commandExecutor = createCommandExecutor();
   const { runCommandInTerminal, runCommandsInTerminal } = useTerminalExecution({
     commandExecutor,
-    defaultTerminal
+    defaultTerminal,
+    alwaysElevatedTerminal
   });
   const stagedFeedback = useStagedFeedback({
     durationMs: 220

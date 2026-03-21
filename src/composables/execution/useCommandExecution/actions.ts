@@ -35,6 +35,7 @@ function createExecuteStagedAction(
     const commands = snapshot
       .map((item) => item.renderedCommand.trim())
       .filter((item) => item.length > 0);
+    const requiresElevation = snapshot.some((item) => item.adminRequired === true);
 
     try {
       if (commands.length === 0) {
@@ -44,10 +45,10 @@ function createExecuteStagedAction(
       state.setExecutionFeedback("success", t("launcher.executionStarted"));
 
       if (options.runCommandsInTerminal) {
-        await options.runCommandsInTerminal(commands);
+        await options.runCommandsInTerminal(commands, { requiresElevation });
       } else {
         for (const rendered of commands) {
-          await options.runCommandInTerminal(rendered);
+          await options.runCommandInTerminal(rendered, { requiresElevation });
         }
       }
 
