@@ -3,7 +3,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64};
 #[cfg(desktop)]
 use std::sync::Mutex;
 #[cfg(all(desktop, target_os = "windows"))]
-use crate::terminal::windows_routing::WindowsSessionKind;
+use crate::terminal::windows_routing::WindowsReusableSessionState;
 
 #[cfg(desktop)]
 pub(crate) const DEFAULT_LAUNCHER_HOTKEY: &str = "Alt+V";
@@ -16,7 +16,5 @@ pub(crate) struct AppState {
     pub move_save_inflight: AtomicBool,
     pub move_save_token: AtomicU64,
     #[cfg(target_os = "windows")]
-    pub last_terminal_session_kind: Mutex<Option<WindowsSessionKind>>,
-    #[cfg(target_os = "windows")]
-    pub last_terminal_program: Mutex<Option<String>>,
+    pub windows_reusable_session_state: Mutex<WindowsReusableSessionState>,
 }

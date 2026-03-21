@@ -29,9 +29,9 @@ pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
         move_save_inflight: AtomicBool::new(false),
         move_save_token: AtomicU64::new(0),
         #[cfg(target_os = "windows")]
-        last_terminal_session_kind: Mutex::new(None),
-        #[cfg(target_os = "windows")]
-        last_terminal_program: Mutex::new(None),
+        windows_reusable_session_state: Mutex::new(
+            crate::terminal::windows_routing::WindowsReusableSessionState::default(),
+        ),
     });
 }
 

@@ -4,6 +4,8 @@ use std::process::Command as ProcessCommand;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 #[cfg(target_os = "windows")]
+use std::path::PathBuf;
+#[cfg(target_os = "windows")]
 use tauri::Manager;
 
 #[cfg(target_os = "windows")]
@@ -20,7 +22,6 @@ pub(crate) use self::windows_launch::{
     join_windows_arguments,
     map_windows_launch_error,
     resolve_windows_launch_mode,
-    should_update_last_session_kind,
     to_wide,
     WindowsLaunchMode,
 };
@@ -190,6 +191,49 @@ fn resolve_windows_terminals(
     options
 }
 
+#[cfg(target_os = "windows")]
+pub(crate) fn resolve_windows_terminal_program_from_options(
+    terminal_id: &str,
+    options: &[TerminalOption],
+) -> Result<windows_routing::ResolvedTerminalProgram, TerminalExecutionError> {
+    let option = options
+        .iter()
+        .find(|option| option.id == terminal_id)
+        .ok_or_else(|| {
+            TerminalExecutionError::new(
+                "invalid-request",
+                format!("Unknown terminal id: {}", terminal_id),
+            )
+        })?;
+
+    Ok(windows_routing::ResolvedTerminalProgram {
+        id: option.id.clone(),
+        executable_path: PathBuf::from(option.path.as_str()),
+        supports_reuse: option.id == "wt",
+    })
+}
+
+#[cfg(target_os = "windows")]
+fn resolve_windows_terminal_program(
+    terminal_id: &str,
+) -> Result<windows_routing::ResolvedTerminalProgram, TerminalExecutionError> {
+    let options = resolve_windows_terminals(command_exists, command_path);
+    resolve_windows_terminal_program_from_options(terminal_id, options.as_slice())
+}
+
+#[cfg(target_os = "windows")]
+fn parse_terminal_reuse_policy(
+    value: Option<&str>,
+) -> windows_routing::TerminalReusePolicy {
+    match value {
+        Some("normal-only") => windows_routing::TerminalReusePolicy::NormalOnly,
+        Some("normal-and-elevated") => {
+            windows_routing::TerminalReusePolicy::NormalAndElevated
+        }
+        _ => windows_routing::TerminalReusePolicy::Never,
+    }
+}
+
 #[cfg(all(unix, not(target_os = "macos")))]
 fn resolve_linux_terminals(
     exists: impl Fn(&str) -> bool,
@@ -326,55 +370,65 @@ pub(crate) fn run_command_in_terminal(
     command: String,
     requires_elevation: Option<bool>,
     always_elevated: Option<bool>,
+    terminal_reuse_policy: Option<String>,
 ) -> Result<(), TerminalExecutionError> {
     let command = sanitize_command(&command)?;
 
     #[cfg(target_os = "windows")]
     {
         let state = app.state::<AppState>();
-        let last_session_kind = *state
-            .last_terminal_session_kind
+        let reusable_session_state = state
+            .windows_reusable_session_state
             .lock()
-            .map_err(|_| TerminalExecutionError::new("state-unavailable", "terminal session state lock failed"))?;
-        let last_terminal_program = state
-            .last_terminal_program
-            .lock()
-            .map_err(|_| TerminalExecutionError::new("state-unavailable", "terminal session state lock failed"))?
+            .map_err(|_| {
+                TerminalExecutionError::new(
+                    "state-unavailable",
+                    "terminal session state lock failed",
+                )
+            })?
             .clone();
+        let terminal_program = resolve_windows_terminal_program(terminal_id.as_str())?;
+        let terminal_reuse_policy =
+            parse_terminal_reuse_policy(terminal_reuse_policy.as_deref());
         let result = run_command_windows(
-            last_session_kind,
-            last_terminal_program.as_deref(),
-            terminal_id.as_str(),
+            reusable_session_state,
+            terminal_program,
             command.as_str(),
             requires_elevation.unwrap_or(false),
             always_elevated.unwrap_or(false),
+            terminal_reuse_policy,
         );
-        if let Ok((session_kind, terminal_program)) = result {
-            *state
-                .last_terminal_session_kind
-                .lock()
-                .map_err(|_| {
-                    TerminalExecutionError::new(
-                        "state-unavailable",
-                        "terminal session state lock failed",
-                    )
-                })? = Some(session_kind);
-            *state
-                .last_terminal_program
-                .lock()
-                .map_err(|_| {
-                    TerminalExecutionError::new(
-                        "state-unavailable",
-                        "terminal session state lock failed",
-                    )
-                })? = Some(terminal_program);
+        if let Ok(decision) = &result {
+            if windows_routing::should_track_windows_reusable_session(decision) {
+                let mut reusable_session_state = state
+                    .windows_reusable_session_state
+                    .lock()
+                    .map_err(|_| {
+                        TerminalExecutionError::new(
+                            "state-unavailable",
+                            "terminal session state lock failed",
+                        )
+                    })?;
+                let update_result: Result<(), TerminalExecutionError> = Ok(());
+                windows_routing::update_windows_reusable_session_state(
+                    &mut reusable_session_state,
+                    decision.target_session_kind,
+                    decision.terminal_program_id.as_str(),
+                    &update_result,
+                );
+            }
             return Ok(());
         }
         return result.map(|_| ());
     }
 
     #[cfg(not(target_os = "windows"))]
-    let _ = (app, requires_elevation, always_elevated);
+    let _ = (
+        app,
+        requires_elevation,
+        always_elevated,
+        terminal_reuse_policy,
+    );
 
     #[cfg(target_os = "macos")]
     {

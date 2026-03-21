@@ -53,19 +53,25 @@ mod windows {
     use crate::terminal::{
         join_windows_arguments,
         map_windows_launch_error,
+        resolve_windows_terminal_program_from_options,
         resolve_windows_launch_mode,
-        should_update_last_session_kind,
         to_wide,
         windows_routing::{
             decide_windows_route,
+            ResolvedTerminalProgram,
+            TerminalReusePolicy,
+            WindowsReusableSessionState,
             WindowsRoutingInput,
             WindowsSessionKind,
             ZAPCMD_WT_ADMIN_WINDOW_ID,
             ZAPCMD_WT_WINDOW_ID,
+            update_windows_reusable_session_state,
         },
         WindowsLaunchMode,
         TerminalExecutionError,
+        TerminalOption,
     };
+    use std::path::PathBuf;
     use std::slice;
     use windows_sys::Win32::Foundation::LocalFree;
     use windows_sys::Win32::UI::Shell::CommandLineToArgvW;
@@ -115,14 +121,49 @@ mod windows {
         );
     }
 
+    fn resolved_terminal_program(id: &str) -> ResolvedTerminalProgram {
+        ResolvedTerminalProgram {
+            id: id.to_string(),
+            executable_path: PathBuf::from(format!(r"C:\terminal\{}.exe", id)),
+            supports_reuse: id == "wt",
+        }
+    }
+
     #[test]
-    fn follow_latest_without_history_keeps_normal_session_for_normal_command() {
+    fn never_policy_does_not_reuse_previous_elevated_lane_for_normal_command() {
+        let reusable_session_state = WindowsReusableSessionState {
+            normal: None,
+            elevated: Some("wt".to_string()),
+        };
+        let terminal_program = resolved_terminal_program("wt");
         let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_id: "wt",
+            terminal_program: &terminal_program,
             command: "echo 1",
             requires_elevation: false,
             always_elevated: false,
-            last_session_kind: None,
+            terminal_reuse_policy: TerminalReusePolicy::Never,
+            reusable_session_state: &reusable_session_state,
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
+        assert_eq!(decision.launch_plan.program, PathBuf::from(r"C:\terminal\wt.exe"));
+        assert_eq!(decision.launch_plan.args[1], "new");
+    }
+
+    #[test]
+    fn normal_only_policy_never_reuses_elevated_lane() {
+        let reusable_session_state = WindowsReusableSessionState {
+            normal: None,
+            elevated: Some("wt".to_string()),
+        };
+        let terminal_program = resolved_terminal_program("wt");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalOnly,
+            reusable_session_state: &reusable_session_state,
         });
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
@@ -130,122 +171,68 @@ mod windows {
     }
 
     #[test]
-    fn follow_latest_promotes_to_elevated_when_command_requires_elevation() {
+    fn normal_and_elevated_policy_can_reuse_wt_admin_lane() {
+        let reusable_session_state = WindowsReusableSessionState {
+            normal: None,
+            elevated: Some("wt".to_string()),
+        };
+        let terminal_program = resolved_terminal_program("wt");
         let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_id: "pwsh",
-            command: "ipconfig /flushdns",
-            requires_elevation: true,
-            always_elevated: false,
-            last_session_kind: Some(WindowsSessionKind::Normal),
-        });
-
-        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
-        assert_eq!(decision.launch_plan.program, "pwsh");
-    }
-
-    #[test]
-    fn follow_latest_keeps_latest_elevated_session_for_normal_command() {
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_id: "powershell",
+            terminal_program: &terminal_program,
             command: "echo 1",
             requires_elevation: false,
             always_elevated: false,
-            last_session_kind: Some(WindowsSessionKind::Elevated),
-        });
-
-        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
-        assert_eq!(decision.launch_plan.program, "powershell");
-    }
-
-    #[test]
-    fn always_elevated_forces_elevated_session_even_for_normal_command() {
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_id: "cmd",
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: true,
-            last_session_kind: Some(WindowsSessionKind::Normal),
-        });
-
-        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
-        assert_eq!(decision.launch_plan.program, "cmd");
-    }
-
-    #[test]
-    fn wt_elevated_route_uses_admin_window_id() {
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_id: "wt",
-            command: "ipconfig /flushdns",
-            requires_elevation: true,
-            always_elevated: false,
-            last_session_kind: Some(WindowsSessionKind::Normal),
+            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
+            reusable_session_state: &reusable_session_state,
         });
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
         assert_eq!(decision.launch_plan.args[1], ZAPCMD_WT_ADMIN_WINDOW_ID);
-    }
-
-    #[test]
-    fn wt_existing_elevated_session_reuses_admin_window_without_new_uac() {
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_id: "wt",
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: false,
-            last_session_kind: Some(WindowsSessionKind::Elevated),
-        });
-
         assert_eq!(
-            resolve_windows_launch_mode(
-                &decision,
-                Some(WindowsSessionKind::Elevated),
-                Some("wt"),
-                true
-            ),
+            resolve_windows_launch_mode(&decision, &reusable_session_state),
             WindowsLaunchMode::Direct
         );
     }
 
     #[test]
-    fn wt_does_not_skip_runas_when_previous_elevated_session_was_not_wt() {
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_id: "wt",
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: false,
-            last_session_kind: Some(WindowsSessionKind::Elevated),
-        });
+    fn unknown_terminal_id_returns_invalid_request() {
+        let options = vec![TerminalOption {
+            id: "wt".to_string(),
+            label: "Windows Terminal".to_string(),
+            path: r"C:\terminal\wt.exe".to_string(),
+        }];
 
         assert_eq!(
-            resolve_windows_launch_mode(
-                &decision,
-                Some(WindowsSessionKind::Elevated),
-                Some("pwsh"),
-                true
-            ),
-            WindowsLaunchMode::ElevatedViaRunas
+            resolve_windows_terminal_program_from_options("ghost", options.as_slice()).unwrap_err(),
+            TerminalExecutionError::new("invalid-request", "Unknown terminal id: ghost")
         );
     }
 
     #[test]
-    fn wt_first_elevated_session_still_requires_runas() {
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_id: "wt",
-            command: "ipconfig /flushdns",
-            requires_elevation: true,
-            always_elevated: false,
-            last_session_kind: Some(WindowsSessionKind::Normal),
-        });
+    fn only_success_updates_windows_reusable_session_state() {
+        let mut reusable_session_state = WindowsReusableSessionState::default();
+        let ok = Ok(());
+        let error = Err(TerminalExecutionError::new(
+            "elevation-launch-failed",
+            "failed"
+        ));
 
-        assert_eq!(
-            resolve_windows_launch_mode(
-                &decision,
-                Some(WindowsSessionKind::Normal),
-                Some("wt"),
-                false
-            ),
-            WindowsLaunchMode::ElevatedViaRunas
+        update_windows_reusable_session_state(
+            &mut reusable_session_state,
+            WindowsSessionKind::Elevated,
+            "wt",
+            &ok,
         );
+        assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
+
+        update_windows_reusable_session_state(
+            &mut reusable_session_state,
+            WindowsSessionKind::Normal,
+            "pwsh",
+            &error,
+        );
+        assert_eq!(reusable_session_state.normal, None);
+        assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
     }
 
     #[test]
@@ -274,14 +261,6 @@ mod windows {
         ]);
     }
 
-    #[test]
-    fn only_success_updates_last_session_kind() {
-        assert!(should_update_last_session_kind(&Ok(())));
-        assert!(!should_update_last_session_kind(&Err(TerminalExecutionError::new(
-            "elevation-launch-failed",
-            "failed"
-        ))));
-    }
 }
 
 #[cfg(target_os = "macos")]

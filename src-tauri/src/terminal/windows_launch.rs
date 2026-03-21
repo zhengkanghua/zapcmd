@@ -9,7 +9,10 @@ use windows_sys::Win32::UI::Shell::{ShellExecuteExW, SHELLEXECUTEINFOW};
 
 use super::windows_routing::{
     decide_windows_route,
+    ResolvedTerminalProgram,
+    TerminalReusePolicy,
     WindowsLaunchPlan,
+    WindowsReusableSessionState,
     WindowsRoutingDecision,
     WindowsRoutingInput,
     WindowsSessionKind,
@@ -24,7 +27,7 @@ pub(crate) enum WindowsLaunchMode {
 
 /// 把纯数据启动计划转换成可执行进程，确保传统控制台仍沿用既有创建标志。
 fn build_process_from_windows_launch_plan(plan: &WindowsLaunchPlan) -> ProcessCommand {
-    let mut process = ProcessCommand::new(plan.program.as_str());
+    let mut process = ProcessCommand::new(plan.program.as_os_str());
     process.args(plan.args.iter().map(|arg| arg.as_str()));
     if plan.creation_flags != 0 {
         process.creation_flags(plan.creation_flags);
@@ -96,29 +99,17 @@ pub(crate) fn map_windows_launch_error(code: u32) -> TerminalExecutionError {
     }
 }
 
-pub(crate) fn should_update_last_session_kind(
-    result: &Result<(), TerminalExecutionError>,
-) -> bool {
-    result.is_ok()
-}
-
 pub(crate) fn resolve_windows_launch_mode(
     decision: &WindowsRoutingDecision,
-    last_session_kind: Option<WindowsSessionKind>,
-    last_terminal_program: Option<&str>,
-    allow_direct_wt_admin_reuse: bool,
+    reusable_session_state: &WindowsReusableSessionState,
 ) -> WindowsLaunchMode {
     if decision.target_session_kind == WindowsSessionKind::Normal {
         return WindowsLaunchMode::Direct;
     }
 
-    // `wt` 的管理员窗口有稳定 window id，已有管理员窗口时应直接复用，
-    // 但只有“上一次就是 `wt` 管理员会话”且本次不要求强制重新提权时，
-    // 才能安全跳过 `runas`，否则会把其它终端的管理员态误判成可复用 `wt` 窗口。
-    if decision.launch_plan.program == "wt"
-        && last_session_kind == Some(WindowsSessionKind::Elevated)
-        && last_terminal_program == Some("wt")
-        && allow_direct_wt_admin_reuse
+    if decision.reuse_existing_session
+        && decision.terminal_program_id == "wt"
+        && reusable_session_state.elevated.as_deref() == Some("wt")
     {
         return WindowsLaunchMode::Direct;
     }
@@ -135,7 +126,8 @@ fn spawn_windows_launch_plan_elevated(
     plan: &WindowsLaunchPlan,
 ) -> Result<(), TerminalExecutionError> {
     let verb = to_wide("runas");
-    let file = to_wide(plan.program.as_str());
+    let program = plan.program.as_os_str().to_string_lossy().into_owned();
+    let file = to_wide(program.as_str());
     let joined_parameters = join_windows_arguments(plan.args.as_slice());
     let parameters = to_wide(joined_parameters.as_str());
     let mut execute_info = unsafe { std::mem::zeroed::<SHELLEXECUTEINFOW>() };
@@ -153,16 +145,9 @@ fn spawn_windows_launch_plan_elevated(
 
 fn dispatch_windows_routing_decision(
     decision: &WindowsRoutingDecision,
-    last_session_kind: Option<WindowsSessionKind>,
-    last_terminal_program: Option<&str>,
-    allow_direct_wt_admin_reuse: bool,
+    reusable_session_state: &WindowsReusableSessionState,
 ) -> Result<(), TerminalExecutionError> {
-    match resolve_windows_launch_mode(
-        decision,
-        last_session_kind,
-        last_terminal_program,
-        allow_direct_wt_admin_reuse,
-    ) {
+    match resolve_windows_launch_mode(decision, reusable_session_state) {
         WindowsLaunchMode::Direct => spawn_windows_launch_plan(&decision.launch_plan),
         WindowsLaunchMode::ElevatedViaRunas => {
             spawn_windows_launch_plan_elevated(&decision.launch_plan)
@@ -171,41 +156,21 @@ fn dispatch_windows_routing_decision(
 }
 
 pub(super) fn run_command_windows(
-    last_session_kind: Option<WindowsSessionKind>,
-    last_terminal_program: Option<&str>,
-    terminal_id: &str,
+    reusable_session_state: WindowsReusableSessionState,
+    terminal_program: ResolvedTerminalProgram,
     command: &str,
     requires_elevation: bool,
     always_elevated: bool,
-) -> Result<(WindowsSessionKind, String), TerminalExecutionError> {
+    terminal_reuse_policy: TerminalReusePolicy,
+) -> Result<WindowsRoutingDecision, TerminalExecutionError> {
     let decision = decide_windows_route(WindowsRoutingInput {
-        terminal_id,
+        terminal_program: &terminal_program,
         command,
         requires_elevation,
         always_elevated,
-        last_session_kind,
+        terminal_reuse_policy,
+        reusable_session_state: &reusable_session_state,
     });
-    let allow_direct_wt_admin_reuse = decision.launch_plan.program == "wt"
-        && decision.target_session_kind == WindowsSessionKind::Elevated
-        && !requires_elevation
-        && !always_elevated;
-    let result = dispatch_windows_routing_decision(
-        &decision,
-        last_session_kind,
-        last_terminal_program,
-        allow_direct_wt_admin_reuse,
-    );
-
-    if should_update_last_session_kind(&result) {
-        return Ok((
-            decision.target_session_kind,
-            decision.launch_plan.program.clone(),
-        ));
-    }
-    result.map(|_| {
-        (
-            decision.target_session_kind,
-            decision.launch_plan.program.clone(),
-        )
-    })
+    dispatch_windows_routing_decision(&decision, &reusable_session_state)?;
+    Ok(decision)
 }
