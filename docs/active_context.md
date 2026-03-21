@@ -4,6 +4,10 @@
 
 - 已确认新终端提示 contract：统一为 `run / exit N`，单条与批量都带轻量命令摘要；保留原始 stdout/stderr，不包装或改写命令自身报错；重点修复 `cmd/wt` 失败后仍显示 `finished` 的误导语义。
 
+## 补充（2026-03-21｜终端输出状态与辨识计划）
+
+- 已落盘实现计划 `docs/superpowers/plans/2026-03-21-terminal-output-status-clarity.md`：只改 `useTerminalExecution` 的 Windows 提示 contract；`cmd/wt` 用 delayed expansion 输出真实退出码；补齐 launcher 与 App 回归，并要求手工验证原始报错正文仍保留。
+
 ## 补充（2026-03-21｜Windows 终端会话策略实现）
 
 - 已完成实现：Rust 新增 Windows launch plan，`wt` 固定窗口 `zapcmd-main-terminal` 复用，`powershell/pwsh/cmd` 强制新开独立控制台；前端补齐默认终端透传回归；本轮仍不做 `adminRequired` 的真实 UAC 提权。
