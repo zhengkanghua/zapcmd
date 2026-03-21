@@ -4,6 +4,10 @@ import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LAUNCHER_SESSION_STORAGE_KEY } from "../composables/launcher/useLauncherSessionState";
+import {
+  SETTINGS_STORAGE_KEY,
+  createDefaultSettingsSnapshot,
+} from "../stores/settingsStore";
 import App from "../App.vue";
 
 const hoisted = vi.hoisted(() => ({
@@ -119,6 +123,17 @@ async function openReviewByPill(wrapper: VueWrapper): Promise<void> {
   await waitForUi();
 }
 
+function buildSettingsSnapshot(defaultTerminal: string) {
+  const snapshot = createDefaultSettingsSnapshot();
+  return {
+    ...snapshot,
+    general: {
+      ...snapshot.general,
+      defaultTerminal,
+    },
+  };
+}
+
 beforeEach(() => {
   localStorage.clear();
   hoisted.runMock.mockReset();
@@ -216,5 +231,33 @@ describe("App 核心路径回归（Phase 3）", () => {
       "terminal-unavailable",
     );
     expectQueueCount(wrapper, 1);
+  });
+
+  it("覆盖恢复链路：Settings 中的默认终端会沿执行链透传到执行器", async () => {
+    hoisted.runMock.mockResolvedValue(undefined);
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify(buildSettingsSnapshot("wt")),
+    );
+
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
+
+    await wrapper.get(".command-panel__input").setValue("my-container");
+    await wrapper.get("[data-testid='confirm-btn']").trigger("click");
+    await waitForUi();
+
+    await openReviewByPill(wrapper);
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    await waitForUi();
+
+    const request = hoisted.runMock.mock.calls.at(-1)?.[0];
+    expect(request?.terminalId).toBe("wt");
+    expect(request?.command ?? "").toContain("my-container");
   });
 });
