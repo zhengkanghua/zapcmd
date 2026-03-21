@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { useTerminalExecution } from "../../launcher/useTerminalExecution";
 
 describe("useTerminalExecution", () => {
-  it("runs command with selected terminal id", async () => {
+  it("builds powershell single-command payload with conditional failed markers", async () => {
     const run = vi.fn(async () => {});
     const terminal = ref("powershell");
     const execution = useTerminalExecution({
@@ -11,12 +11,12 @@ describe("useTerminalExecution", () => {
       defaultTerminal: terminal
     });
 
-    await execution.runCommandInTerminal("echo hello");
+    await execution.runCommandInTerminal("Get-Item missing");
 
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
       command:
-        "Write-Host '[zapcmd][run] echo hello'; echo hello; Write-Host ('[zapcmd][exit ' + $LASTEXITCODE + '] echo hello')"
+        "Write-Host '[zapcmd][run] Get-Item missing'; $LASTEXITCODE = $null; Get-Item missing; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][failed] Get-Item missing (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][failed] Get-Item missing' } }"
     });
   });
 

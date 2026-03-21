@@ -37,11 +37,17 @@ function escapePowerShellSingleQuotedLiteral(value: string): string {
   return value.replace(/'/g, "''");
 }
 
+function buildPowerShellFailureClause(label: string, hint: string): string {
+  const escapedLabel = escapePowerShellSingleQuotedLiteral(label);
+  const escapedHint = escapePowerShellSingleQuotedLiteral(hint);
+  return `$zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { if ($null -ne $zapcmdCode) { Write-Host ('${escapedLabel}${escapedHint} (code ' + $zapcmdCode + ')') } else { Write-Host '${escapedLabel}${escapedHint}' } }`;
+}
+
 function buildSingleCommandPayload(terminalId: string, command: string): string {
   const hint = summarizeCommand(terminalId, command);
   if (isPowerShellTerminal(terminalId)) {
     const escapedHint = escapePowerShellSingleQuotedLiteral(hint);
-    return `Write-Host '[zapcmd][run] ${escapedHint}'; ${command}; Write-Host ('[zapcmd][exit ' + $LASTEXITCODE + '] ${escapedHint}')`;
+    return `Write-Host '[zapcmd][run] ${escapedHint}'; $LASTEXITCODE = $null; ${command}; ${buildPowerShellFailureClause("[zapcmd][failed] ", hint)}`;
   }
   if (isCmdTerminal(terminalId)) {
     return `setlocal EnableDelayedExpansion & echo [zapcmd][run] ${hint} & ${command} & echo [zapcmd][exit !ERRORLEVEL!] ${hint}`;
