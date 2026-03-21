@@ -649,7 +649,9 @@ describe("App failure and event regression", () => {
     );
     const lastRequest = hoisted.runMock.mock.calls.at(-1)?.[0];
     expect(lastRequest?.command ?? "").toContain("setlocal EnableDelayedExpansion");
-    expect(lastRequest?.command ?? "").toContain("[zapcmd][exit !ERRORLEVEL!]");
+    expect(lastRequest?.command ?? "").toContain("set \"zapcmdCode=!ERRORLEVEL!\"");
+    expect(lastRequest?.command ?? "").toContain("[zapcmd][failed]");
+    expect(lastRequest?.command ?? "").not.toContain("[zapcmd][exit");
   });
 
   it("supports drag reorder and resets drag state on dragend", async () => {

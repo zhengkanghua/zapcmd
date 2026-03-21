@@ -43,6 +43,10 @@ function buildPowerShellFailureClause(label: string, hint: string): string {
   return `$zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { if ($null -ne $zapcmdCode) { Write-Host ('${escapedLabel}${escapedHint} (code ' + $zapcmdCode + ')') } else { Write-Host '${escapedLabel}${escapedHint}' } }`;
 }
 
+function buildCmdFailureClause(label: string, hint: string): string {
+  return `set "zapcmdCode=!ERRORLEVEL!" & if not "!zapcmdCode!"=="0" echo ${label}${hint} (code !zapcmdCode!)`;
+}
+
 function buildSingleCommandPayload(terminalId: string, command: string): string {
   const hint = summarizeCommand(terminalId, command);
   if (isPowerShellTerminal(terminalId)) {
@@ -50,7 +54,7 @@ function buildSingleCommandPayload(terminalId: string, command: string): string 
     return `Write-Host '[zapcmd][run] ${escapedHint}'; $LASTEXITCODE = $null; ${command}; ${buildPowerShellFailureClause("[zapcmd][failed] ", hint)}`;
   }
   if (isCmdTerminal(terminalId)) {
-    return `setlocal EnableDelayedExpansion & echo [zapcmd][run] ${hint} & ${command} & echo [zapcmd][exit !ERRORLEVEL!] ${hint}`;
+    return `setlocal EnableDelayedExpansion & echo [zapcmd][run] ${hint} & ${command} & ${buildCmdFailureClause("[zapcmd][failed] ", hint)}`;
   }
   return `echo "[zapcmd] executing: ${hint}"; ${command}; echo "[zapcmd] finished"`;
 }

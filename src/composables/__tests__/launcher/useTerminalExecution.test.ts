@@ -34,7 +34,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "wt",
       command:
-        "setlocal EnableDelayedExpansion & echo [zapcmd][run] dir & dir & echo [zapcmd][exit !ERRORLEVEL!] dir"
+        "setlocal EnableDelayedExpansion & echo [zapcmd][run] dir & dir & set \"zapcmdCode=!ERRORLEVEL!\" & if not \"!zapcmdCode!\"==\"0\" echo [zapcmd][failed] dir (code !zapcmdCode!)"
     });
   });
 
