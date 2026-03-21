@@ -38,6 +38,27 @@ describe("createCommandExecutor", () => {
     });
   });
 
+  it("passes terminalReusePolicy through tauri invoke payload", async () => {
+    isTauriMock.mockReturnValue(true);
+    const executor = createCommandExecutor();
+
+    await executor.run({
+      terminalId: "wt",
+      command: "echo 1",
+      requiresElevation: true,
+      alwaysElevated: false,
+      terminalReusePolicy: "normal-only"
+    } as never);
+
+    expect(invokeMock).toHaveBeenCalledWith("run_command_in_terminal", {
+      terminalId: "wt",
+      command: "echo 1",
+      requiresElevation: true,
+      alwaysElevated: false,
+      terminalReusePolicy: "normal-only"
+    });
+  });
+
   it("normalizes structured tauri rejection into execution error", async () => {
     isTauriMock.mockReturnValue(true);
     invokeMock.mockRejectedValueOnce({

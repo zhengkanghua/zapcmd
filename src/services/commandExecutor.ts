@@ -1,11 +1,13 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { t } from "../i18n";
+import type { TerminalReusePolicy } from "../stores/settingsStore";
 
 export interface CommandExecutionRequest {
   terminalId: string;
   command: string;
   requiresElevation?: boolean;
   alwaysElevated?: boolean;
+  terminalReusePolicy?: TerminalReusePolicy;
 }
 
 export interface CommandExecutor {
@@ -35,12 +37,23 @@ function isStructuredExecutionError(
 class TauriCommandExecutor implements CommandExecutor {
   async run(request: CommandExecutionRequest): Promise<void> {
     try {
-      await invoke("run_command_in_terminal", {
+      const payload: {
+        terminalId: string;
+        command: string;
+        requiresElevation: boolean;
+        alwaysElevated: boolean;
+        terminalReusePolicy?: TerminalReusePolicy;
+      } = {
         terminalId: request.terminalId,
         command: request.command,
         requiresElevation: request.requiresElevation ?? false,
         alwaysElevated: request.alwaysElevated ?? false
-      });
+      };
+      if (request.terminalReusePolicy) {
+        payload.terminalReusePolicy = request.terminalReusePolicy;
+      }
+
+      await invoke("run_command_in_terminal", payload);
     } catch (error) {
       // Tauri 侧会逐步切到结构化错误，这里先统一收口，避免前端继续猜字符串。
       if (isStructuredExecutionError(error)) {

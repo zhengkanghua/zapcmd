@@ -2,11 +2,13 @@ import type { Ref } from "vue";
 import type { TerminalOption } from "../../features/terminals/fallbackTerminals";
 import { resolveEffectiveTerminal } from "../../features/terminals/resolveEffectiveTerminal";
 import type { CommandExecutor } from "../../services/commandExecutor";
+import type { TerminalReusePolicy } from "../../stores/settingsStore";
 
 interface UseTerminalExecutionOptions {
   commandExecutor: CommandExecutor;
   defaultTerminal: Ref<string>;
   alwaysElevatedTerminal: Ref<boolean>;
+  terminalReusePolicy: Ref<TerminalReusePolicy>;
   availableTerminals: Ref<TerminalOption[]>;
   fallbackTerminalOptions: () => TerminalOption[];
   isTauriRuntime: () => boolean;
@@ -206,7 +208,8 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
       terminalId,
       command,
       requiresElevation: executionOptions.requiresElevation === true,
-      alwaysElevated: options.alwaysElevatedTerminal.value
+      alwaysElevated: options.alwaysElevatedTerminal.value,
+      terminalReusePolicy: options.terminalReusePolicy.value
     });
   }
 
@@ -224,7 +227,8 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
       terminalId,
       command,
       requiresElevation: executionOptions.requiresElevation === true,
-      alwaysElevated: options.alwaysElevatedTerminal.value
+      alwaysElevated: options.alwaysElevatedTerminal.value,
+      terminalReusePolicy: options.terminalReusePolicy.value
     });
   }
 

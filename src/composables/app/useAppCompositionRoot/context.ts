@@ -157,6 +157,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     commandExecutor,
     defaultTerminal,
     alwaysElevatedTerminal,
+    terminalReusePolicy,
     availableTerminals: settingsWindow.availableTerminals,
     fallbackTerminalOptions,
     isTauriRuntime: ports.isTauriRuntime,
