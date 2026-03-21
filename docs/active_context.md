@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-21｜终端失败优先实现完成）
+
+- `useTerminalExecution` 已切到 failure-first；PowerShell 先判 `$?` 再读可选 `$LASTEXITCODE`，`cmd/wt` 队列按失败数输出 `[queue][done]` / `[queue][failed]`。
+
 ## 补充（2026-03-21｜终端失败优先实现计划）
 
 - 已产出 failure-first 实现计划：只改 `useTerminalExecution` 与相关 TS 回归；PowerShell 用 `$?` + 可选 `$LASTEXITCODE`，`cmd/wt` 用 `ERRORLEVEL` 统计失败；队列尾标按 failed count 输出 `done/failed`。
