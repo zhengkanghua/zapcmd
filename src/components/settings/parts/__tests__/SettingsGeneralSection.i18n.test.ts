@@ -24,7 +24,8 @@ describe("SettingsGeneralSection i18n", () => {
         ],
         autoCheckUpdate: true,
         launchAtLogin: false,
-        alwaysElevatedTerminal: false
+        alwaysElevatedTerminal: false,
+        showAlwaysElevatedTerminal: true
       }
     });
 
@@ -52,5 +53,28 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("Interface");
     expect(wrapper.text()).toContain("Default terminal");
     expect(wrapper.text()).toContain("Always use elevated terminal");
+  });
+
+  it("hides elevated terminal toggle outside windows", () => {
+    const wrapper = mount(SettingsGeneralSection, {
+      props: {
+        availableTerminals: [{ id: "powershell", label: "PowerShell", path: "powershell.exe" }],
+        terminalLoading: false,
+        defaultTerminal: "powershell",
+        selectedTerminalPath: "powershell.exe",
+        language: "zh-CN",
+        languageOptions: [
+          { value: "zh-CN", label: "简体中文" },
+          { value: "en-US", label: "English" }
+        ],
+        autoCheckUpdate: true,
+        launchAtLogin: false,
+        alwaysElevatedTerminal: true,
+        showAlwaysElevatedTerminal: false
+      }
+    });
+
+    expect(wrapper.text()).not.toContain("始终调用管理员权限终端");
+    expect(wrapper.findAll(".setting-item")).toHaveLength(5);
   });
 });

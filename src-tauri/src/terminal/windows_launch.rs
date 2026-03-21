@@ -1,10 +1,11 @@
 use std::ffi::OsStr;
 use std::iter::once;
+use std::mem::size_of;
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::process::CommandExt;
 
 use windows_sys::Win32::Foundation::GetLastError;
-use windows_sys::Win32::UI::Shell::ShellExecuteW;
+use windows_sys::Win32::UI::Shell::{ShellExecuteExW, SHELLEXECUTEINFOW};
 
 use super::windows_routing::{
     decide_windows_route,
@@ -14,6 +15,12 @@ use super::windows_routing::{
     WindowsSessionKind,
 };
 use super::{spawn_and_forget, terminal_launch_failed, ProcessCommand, TerminalExecutionError};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum WindowsLaunchMode {
+    Direct,
+    ElevatedViaRunas,
+}
 
 /// 把纯数据启动计划转换成可执行进程，确保传统控制台仍沿用既有创建标志。
 fn build_process_from_windows_launch_plan(plan: &WindowsLaunchPlan) -> ProcessCommand {
@@ -95,6 +102,25 @@ pub(crate) fn should_update_last_session_kind(
     result.is_ok()
 }
 
+pub(crate) fn resolve_windows_launch_mode(
+    decision: &WindowsRoutingDecision,
+    last_session_kind: Option<WindowsSessionKind>,
+) -> WindowsLaunchMode {
+    if decision.target_session_kind == WindowsSessionKind::Normal {
+        return WindowsLaunchMode::Direct;
+    }
+
+    // `wt` 的管理员窗口有稳定 window id，已有管理员窗口时应直接复用，
+    // 否则“最近权限态=管理员”会退化成每次执行都重新触发 UAC。
+    if decision.launch_plan.program == "wt"
+        && last_session_kind == Some(WindowsSessionKind::Elevated)
+    {
+        return WindowsLaunchMode::Direct;
+    }
+
+    WindowsLaunchMode::ElevatedViaRunas
+}
+
 fn spawn_windows_launch_plan(plan: &WindowsLaunchPlan) -> Result<(), TerminalExecutionError> {
     let mut command = build_process_from_windows_launch_plan(plan);
     spawn_and_forget(&mut command).map_err(terminal_launch_failed)
@@ -105,18 +131,16 @@ fn spawn_windows_launch_plan_elevated(
 ) -> Result<(), TerminalExecutionError> {
     let verb = to_wide("runas");
     let file = to_wide(plan.program.as_str());
-    let parameters = to_wide(join_windows_arguments(plan.args.as_slice()).as_str());
-    let result = unsafe {
-        ShellExecuteW(
-            std::ptr::null_mut(),
-            verb.as_ptr(),
-            file.as_ptr(),
-            parameters.as_ptr(),
-            std::ptr::null(),
-            1,
-        )
-    };
-    if (result as usize) <= 32 {
+    let joined_parameters = join_windows_arguments(plan.args.as_slice());
+    let parameters = to_wide(joined_parameters.as_str());
+    let mut execute_info = unsafe { std::mem::zeroed::<SHELLEXECUTEINFOW>() };
+    execute_info.cbSize = size_of::<SHELLEXECUTEINFOW>() as u32;
+    execute_info.lpVerb = verb.as_ptr();
+    execute_info.lpFile = file.as_ptr();
+    execute_info.lpParameters = parameters.as_ptr();
+    execute_info.nShow = 1;
+
+    if unsafe { ShellExecuteExW(&mut execute_info) } == 0 {
         return Err(map_windows_launch_error(unsafe { GetLastError() }));
     }
     Ok(())
@@ -124,10 +148,13 @@ fn spawn_windows_launch_plan_elevated(
 
 fn dispatch_windows_routing_decision(
     decision: &WindowsRoutingDecision,
+    last_session_kind: Option<WindowsSessionKind>,
 ) -> Result<(), TerminalExecutionError> {
-    match decision.target_session_kind {
-        WindowsSessionKind::Normal => spawn_windows_launch_plan(&decision.launch_plan),
-        WindowsSessionKind::Elevated => spawn_windows_launch_plan_elevated(&decision.launch_plan),
+    match resolve_windows_launch_mode(decision, last_session_kind) {
+        WindowsLaunchMode::Direct => spawn_windows_launch_plan(&decision.launch_plan),
+        WindowsLaunchMode::ElevatedViaRunas => {
+            spawn_windows_launch_plan_elevated(&decision.launch_plan)
+        }
     }
 }
 
@@ -145,7 +172,7 @@ pub(super) fn run_command_windows(
         always_elevated,
         last_session_kind,
     });
-    let result = dispatch_windows_routing_decision(&decision);
+    let result = dispatch_windows_routing_decision(&decision, last_session_kind);
 
     if should_update_last_session_kind(&result) {
         return Ok(decision.target_session_kind);

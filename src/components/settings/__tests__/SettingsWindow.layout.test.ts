@@ -62,6 +62,7 @@ function createSettingsWindowProps(
     autoCheckUpdate: defaults.general.autoCheckUpdate,
     launchAtLogin: defaults.general.launchAtLogin,
     alwaysElevatedTerminal: defaults.general.alwaysElevatedTerminal,
+    showAlwaysElevatedTerminal: true,
     commandRows: [],
     commandSummary: {
       total: 0,

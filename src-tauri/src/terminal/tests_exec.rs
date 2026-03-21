@@ -53,6 +53,7 @@ mod windows {
     use crate::terminal::{
         join_windows_arguments,
         map_windows_launch_error,
+        resolve_windows_launch_mode,
         should_update_last_session_kind,
         to_wide,
         windows_routing::{
@@ -62,6 +63,7 @@ mod windows {
             ZAPCMD_WT_ADMIN_WINDOW_ID,
             ZAPCMD_WT_WINDOW_ID,
         },
+        WindowsLaunchMode,
         TerminalExecutionError,
     };
     use std::slice;
@@ -181,6 +183,38 @@ mod windows {
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
         assert_eq!(decision.launch_plan.args[1], ZAPCMD_WT_ADMIN_WINDOW_ID);
+    }
+
+    #[test]
+    fn wt_existing_elevated_session_reuses_admin_window_without_new_uac() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "wt",
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Elevated),
+        });
+
+        assert_eq!(
+            resolve_windows_launch_mode(&decision, Some(WindowsSessionKind::Elevated)),
+            WindowsLaunchMode::Direct
+        );
+    }
+
+    #[test]
+    fn wt_first_elevated_session_still_requires_runas() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "wt",
+            command: "ipconfig /flushdns",
+            requires_elevation: true,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Normal),
+        });
+
+        assert_eq!(
+            resolve_windows_launch_mode(&decision, Some(WindowsSessionKind::Normal)),
+            WindowsLaunchMode::ElevatedViaRunas
+        );
     }
 
     #[test]

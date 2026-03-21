@@ -19,8 +19,10 @@ pub(crate) mod windows_launch;
 pub(crate) use self::windows_launch::{
     join_windows_arguments,
     map_windows_launch_error,
+    resolve_windows_launch_mode,
     should_update_last_session_kind,
     to_wide,
+    WindowsLaunchMode,
 };
 
 #[cfg(target_os = "windows")]

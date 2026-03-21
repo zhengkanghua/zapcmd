@@ -112,6 +112,7 @@ function onLanguageSelect(value: string): void {
       </SettingItem>
 
       <SettingItem
+        v-if="props.showAlwaysElevatedTerminal"
         :label="t('settings.general.alwaysElevatedTerminal')"
         :description="t('settings.general.alwaysElevatedTerminalHint')"
       >

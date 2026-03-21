@@ -75,6 +75,7 @@ const {
   autoCheckUpdate,
   launchAtLogin,
   alwaysElevatedTerminal,
+  showAlwaysElevatedTerminal,
   selectedTerminalPath,
   languageOptions,
   appVersion,
@@ -242,6 +243,7 @@ function navigateToSettingsError(): void {
     :auto-check-update="autoCheckUpdate"
     :launch-at-login="launchAtLogin"
     :always-elevated-terminal="alwaysElevatedTerminal"
+    :show-always-elevated-terminal="showAlwaysElevatedTerminal"
     :selected-terminal-path="selectedTerminalPath"
     :language-options="languageOptions"
     :app-version="appVersion"

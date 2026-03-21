@@ -55,6 +55,7 @@ export interface SettingsGeneralProps {
   autoCheckUpdate: boolean;
   launchAtLogin: boolean;
   alwaysElevatedTerminal: boolean;
+  showAlwaysElevatedTerminal: boolean;
 }
 
 export interface SettingsCommandsProps {

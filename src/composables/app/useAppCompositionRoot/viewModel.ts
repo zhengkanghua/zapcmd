@@ -114,6 +114,7 @@ function createSettingsWindowProps(context: AppCompositionContext) {
     autoCheckUpdate: context.autoCheckUpdate,
     launchAtLogin: context.launchAtLogin,
     alwaysElevatedTerminal: context.alwaysElevatedTerminal,
+    showAlwaysElevatedTerminal: context.runtimePlatform.value === "win",
     selectedTerminalPath: context.settingsWindow.selectedTerminalPath,
     languageOptions: context.settingsWindow.languageOptions,
     appVersion: context.appVersion,

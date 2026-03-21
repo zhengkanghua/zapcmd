@@ -78,6 +78,7 @@ const emit = defineEmits<{
           :auto-check-update="props.autoCheckUpdate"
           :launch-at-login="props.launchAtLogin"
           :always-elevated-terminal="props.alwaysElevatedTerminal"
+          :show-always-elevated-terminal="props.showAlwaysElevatedTerminal"
           @select-terminal="emit('select-terminal', $event)"
           @select-language="emit('select-language', $event)"
           @set-auto-check-update="emit('set-auto-check-update', $event)"

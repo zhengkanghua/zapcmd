@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-21｜管理员终端 review fix）
+
+- 已修复 `wt` 管理员终端复用语义：已有管理员窗口时不再重复 UAC；Windows 提权切到 `ShellExecuteExW`，`elevation-cancelled` 映射稳定；管理员终端开关仅 Windows 可见。
+
 ## 补充（2026-03-21｜Windows 管理员终端路由实现）
 
 - 已完成 `alwaysElevatedTerminal + requiresElevation` 全链路；Windows 新增普通/管理员双 `wt` 窗口 ID、最近权限态与 UAC 取消结构化错误。Task 5/6 checkpoint=`3030c75`，待跑最终门禁与手工 smoke。

@@ -334,6 +334,7 @@ onBeforeUnmount(() => {
     :auto-check-update="autoCheckUpdate"
     :launch-at-login="launchAtLogin"
     :always-elevated-terminal="alwaysElevatedTerminal"
+    :show-always-elevated-terminal="runtimePlatform === 'win'"
     :command-rows="commandRows"
     :command-summary="commandSummary"
     :command-load-issues="commandLoadIssues"
