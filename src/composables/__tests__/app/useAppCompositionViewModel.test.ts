@@ -145,6 +145,12 @@ describe("createAppCompositionViewModel", () => {
     expect(viewModel.notifyFlowPanelHeightChange).toBeTypeOf("function");
     expect("drawerFloorViewportHeight" in viewModel).toBe(false);
     expect("stagingListMaxHeight" in viewModel).toBe(false);
+    expect("settingsErrorRoute" in viewModel).toBe(false);
+    expect("settingsCloseConfirmOpen" in viewModel).toBe(false);
+    expect("cancelSettingsCloseConfirm" in viewModel).toBe(false);
+    expect("discardUnsavedSettingsChanges" in viewModel).toBe(false);
+    expect("isHotkeyRecording" in viewModel).toBe(false);
+    expect("getHotkeyDisplay" in viewModel).toBe(false);
 
     const submitted = viewModel.submitParamInput();
 

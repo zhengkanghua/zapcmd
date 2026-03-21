@@ -116,6 +116,17 @@ describe("SettingsWindow stable shell", () => {
     expect("selectedTerminalOption" in props).toBe(false);
   });
 
+  it("does not declare legacy close-confirm or error-navigation contract", () => {
+    const props = createSettingsWindowProps({ settingsRoute: "general" }) as unknown as Record<string, unknown>;
+    const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "general" }));
+    const emitsOptions = wrapper.vm.$.emitsOptions ?? {};
+
+    expect("settingsErrorRoute" in props).toBe(false);
+    expect("closeConfirmOpen" in props).toBe(false);
+    expect(emitsOptions.confirm).toBeUndefined();
+    expect(emitsOptions["navigate-to-error"]).toBeUndefined();
+  });
+
   it("renders app topbar without custom window controls", () => {
     const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "general" }));
 

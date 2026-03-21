@@ -92,20 +92,14 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
 }
 
 function createSettingsWindowProps(context: AppCompositionContext) {
-  const closeConfirmOpen = ref(false);
-
   return {
     settingsNavItems: context.settingsWindow.settingsNavItems,
     settingsRoute: context.settingsWindow.settingsRoute,
-    settingsErrorRoute: context.settingsWindow.settingsErrorRoute,
     hotkeyGlobalFields: context.settingsWindow.hotkeyGlobalFields,
     hotkeySearchFields: context.settingsWindow.hotkeySearchFields,
     hotkeyQueueFields: context.settingsWindow.hotkeyQueueFields,
     getHotkeyValue: context.hotkeyBindings.getHotkeyValue,
-    isHotkeyRecording: context.settingsWindow.isHotkeyRecording,
-    getHotkeyDisplay: context.settingsWindow.getHotkeyDisplay,
     hotkeyErrorFields: context.settingsWindow.settingsErrorHotkeyFieldIds,
-    hotkeyErrorPrimaryField: context.settingsWindow.settingsErrorPrimaryHotkeyField,
     hotkeyErrorMessage: context.settingsWindow.settingsError,
     availableTerminals: context.settingsWindow.availableTerminals,
     terminalLoading: context.settingsWindow.terminalLoading,
@@ -135,12 +129,7 @@ function createSettingsWindowProps(context: AppCompositionContext) {
     commandDisplayModeOptions: context.commandManagement.commandDisplayModeOptions,
     commandSourceFileOptions: context.commandManagement.commandSourceFileOptions,
     commandGroups: context.commandManagement.commandGroups,
-    settingsError: context.settingsWindow.settingsError,
-    settingsCloseConfirmOpen: closeConfirmOpen,
-    cancelSettingsCloseConfirm: () => {},
-    discardUnsavedSettingsChanges: () => {},
     navigateSettings: context.settingsWindow.navigateSettings,
-    startHotkeyRecording: context.settingsWindow.startHotkeyRecording,
     selectTerminalOption: context.settingsWindow.selectTerminalOption,
     selectLanguageOption: context.settingsWindow.selectLanguageOption,
     setAutoCheckUpdate: context.settingsWindow.setAutoCheckUpdate,
@@ -230,6 +219,7 @@ export function createAppCompositionViewModel(
     confirmSafetyExecution: runtime.commandExecution.confirmSafetyExecution,
     cancelSafetyExecution: runtime.commandExecution.cancelSafetyExecution,
     ...settingsWindowProps,
+    settingsError: context.settingsWindow.settingsError,
     settingsSaved: settingsMutationHandlers.settingsSaved,
     applyHotkeyChange: settingsMutationHandlers.applyHotkeyChange,
     toggleCommandEnabled: settingsMutationHandlers.toggleCommandEnabled,

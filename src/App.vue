@@ -66,8 +66,6 @@ const {
   hotkeySearchFields,
   hotkeyQueueFields,
   getHotkeyValue,
-  isHotkeyRecording,
-  getHotkeyDisplay,
   availableTerminals,
   terminalLoading,
   defaultTerminal,
@@ -97,14 +95,9 @@ const {
   commandSourceFileOptions,
   commandGroups,
   settingsError,
-  settingsErrorRoute,
   hotkeyErrorFields,
-  hotkeyErrorPrimaryField,
   hotkeyErrorMessage,
   settingsSaved,
-  settingsCloseConfirmOpen,
-  cancelSettingsCloseConfirm,
-  discardUnsavedSettingsChanges,
   navigateSettings,
   applyHotkeyChange,
   selectTerminalOption,
@@ -120,12 +113,10 @@ const {
   checkUpdate,
   downloadUpdate,
   openHomepage,
-  closeSettingsWindow,
   hideMainWindow,
   notifyCommandPageSettled,
   notifyFlowPanelHeightChange,
   notifyFlowPanelSettled,
-  saveSettings,
   windowOpacity,
   theme,
   blurEnabled,
@@ -136,26 +127,11 @@ const {
   setExecutionFeedback
 } = useAppCompositionRoot();
 
-async function confirmSettings(): Promise<void> {
-  await saveSettings();
-  if (settingsError.value || !settingsSaved.value) {
-    return;
-  }
-  closeSettingsWindow();
-}
-
 function handleCommandPanelSubmit(): void {
   if (!submitParamInput()) {
     return;
   }
   requestCommandPanelExit();
-}
-
-function navigateToSettingsError(): void {
-  if (!settingsErrorRoute.value) {
-    return;
-  }
-  navigateSettings(settingsErrorRoute.value);
 }
 </script>
 
@@ -228,15 +204,11 @@ function navigateToSettingsError(): void {
     v-else
     :settings-nav-items="settingsNavItems"
     :settings-route="settingsRoute"
-    :settings-error-route="settingsErrorRoute"
     :hotkey-global-fields="hotkeyGlobalFields"
     :hotkey-search-fields="hotkeySearchFields"
     :hotkey-queue-fields="hotkeyQueueFields"
     :get-hotkey-value="getHotkeyValue"
-    :is-hotkey-recording="isHotkeyRecording"
-    :get-hotkey-display="getHotkeyDisplay"
     :hotkey-error-fields="hotkeyErrorFields"
-    :hotkey-error-primary-field="hotkeyErrorPrimaryField"
     :hotkey-error-message="hotkeyErrorMessage"
     :available-terminals="availableTerminals"
     :terminal-loading="terminalLoading"
@@ -266,9 +238,6 @@ function navigateToSettingsError(): void {
     :command-display-mode-options="commandDisplayModeOptions"
     :command-source-file-options="commandSourceFileOptions"
     :command-groups="commandGroups"
-    :settings-error="settingsError"
-    :settings-saved="settingsSaved"
-    :close-confirm-open="settingsCloseConfirmOpen"
     :window-opacity="windowOpacity"
     :theme="theme"
     :blur-enabled="blurEnabled"
@@ -291,16 +260,5 @@ function navigateToSettingsError(): void {
     @check-update="checkUpdate"
     @download-update="downloadUpdate"
     @open-homepage="openHomepage"
-    @close="closeSettingsWindow"
-    @apply="saveSettings"
-    @confirm="confirmSettings"
-    @navigate-to-error="navigateToSettingsError"
-    @cancel-close-confirm="cancelSettingsCloseConfirm"
-    @discard-close-confirm="
-      () => {
-        discardUnsavedSettingsChanges();
-        closeSettingsWindow();
-      }
-    "
   />
 </template>
