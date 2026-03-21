@@ -59,6 +59,19 @@ function measureVerticalGap(element: HTMLElement, fallback = 0): number {
   return fallback;
 }
 
+/**
+ * FlowPanel 外框 border 会占掉内容可用高度；不把它计入预算时，刚好铺满的两张卡片仍会残留轻微滚动。
+ */
+function measureVerticalBorder(element: HTMLElement, fallback = 0): number {
+  const style = globalThis.getComputedStyle?.(element);
+  const resolved =
+    parsePixelValue(style?.borderTopWidth ?? "") + parsePixelValue(style?.borderBottomWidth ?? "");
+  if (resolved > 0) {
+    return Math.ceil(resolved);
+  }
+  return fallback;
+}
+
 function measureFlowListItemsSpan(listItems: HTMLElement[]): number {
   if (listItems.length === 0) {
     return 0;
@@ -155,9 +168,11 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
     body,
     FLOW_PANEL_BODY_VERTICAL_PADDING_FALLBACK_PX
   );
+  const panelVerticalBorder = measureVerticalBorder(panel);
   if (emptyState) {
     return (
       measureElementBoxHeight(header) +
+      panelVerticalBorder +
       bodyVerticalPadding +
       measureElementBoxHeight(emptyState, true) +
       measureElementBoxHeight(footer)
@@ -181,6 +196,7 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
 
   return (
     measureElementBoxHeight(header) +
+    panelVerticalBorder +
     bodyVerticalPadding +
     Math.max(listItemsSpanHeight, cardHeight + interCardGap) +
     measureElementBoxHeight(footer)

@@ -251,6 +251,20 @@ describe("panelMeasurement", () => {
     expect(measureFlowPanelMinHeight(shell)).toBe(536);
   });
 
+  it("FlowPanel 最小高度应包含面板外框上下 border，避免两张卡片刚好铺满时仍残留轻微滚动", () => {
+    const shell = buildFlowShell({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220]
+    });
+    const panel = shell.querySelector<HTMLElement>(".flow-panel");
+    expect(panel).not.toBeNull();
+    panel!.style.borderTop = "1px solid rgba(255, 255, 255, 0.14)";
+    panel!.style.borderBottom = "1px solid rgba(255, 255, 255, 0.14)";
+
+    expect(measureFlowPanelMinHeight(shell)).toBe(534);
+  });
+
   it("目标面板 DOM 缺席时返回 null，不回退读取旧面板高度", () => {
     const shell = document.createElement("div");
     const legacy = document.createElement("section");

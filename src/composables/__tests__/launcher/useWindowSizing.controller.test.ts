@@ -846,6 +846,29 @@ describe("createWindowSizingController（Flow 会话）", () => {
     );
   });
 
+  it("搜索 -> Flow settled 后应把 flow-panel 外框上下 border 计入最终锁高", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    const flowPanel = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220, 180]
+    });
+    flowPanel.style.borderTop = "1px solid rgba(255, 255, 255, 0.14)";
+    flowPanel.style.borderBottom = "1px solid rgba(255, 255, 255, 0.14)";
+    harness.options.stagingPanelRef.value = flowPanel;
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(534);
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      534 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
+  });
+
   it("Search -> Flow 补高后，search-shell 必须同步 launcher-frame height", async () => {
     const root = document.createElement("main");
     const shell = document.createElement("div");

@@ -4,6 +4,10 @@
 
 - Flow 改为 settled 后短时观察前两项真实高度变化，只允许向上补高，稳定后冻结；Search/Command 关闭恢复语义保持不变。
 
+## 补充（2026-03-21｜Flow 两卡轻微滚动修正）
+
+- Flow 最小高度补计 `.flow-panel` 外框上下 border，修复 2 卡片刚好铺满时仍能轻微竖向滚动的问题。
+
 ## 补充（2026-03-20｜launcher 高度 contract 计划）
 
 - 已完成计划 `docs/superpowers/plans/2026-03-20-launcher-command-flow-height-contract-correction.md`，并通过 3 个 chunk reviewer。
