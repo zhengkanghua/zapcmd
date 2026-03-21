@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-21｜终端失败优先实现计划）
+
+- 已产出 failure-first 实现计划：只改 `useTerminalExecution` 与相关 TS 回归；PowerShell 用 `$?` + 可选 `$LASTEXITCODE`，`cmd/wt` 用 `ERRORLEVEL` 统计失败；队列尾标按 failed count 输出 `done/failed`。
+
 ## 补充（2026-03-21｜终端失败优先提示设计）
 
 - 已确认下一轮终端文案改为“失败优先、人话优先、code 可选”：单条成功静默、失败输出 `[failed]`；批量队列尾标改按失败条数汇总，不再复用最后一步状态。
