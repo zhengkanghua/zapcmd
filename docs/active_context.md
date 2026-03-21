@@ -1,5 +1,13 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-21｜Codex 子代理只读护栏）
+
+- 已将仓库规则修正为：`Codex` 子代理允许做“只读/检索/审查/分析”与“限定文件范围的无命令改动”；凡遇到提权、审批、git、安装、构建、测试、删除或其他副作用动作，子代理必须停下并把命令/原因上报主代理，由主代理向用户发起审批并亲自执行。
+
+## 补充（2026-03-21｜Codex 子代理审批护栏）
+
+- Codex 子代理若触发 `Approval needed`（已见实例：删除 `node_modules`），主会话会长期 `Waiting for <agent>`；仓库规则已改为：审批型危险命令不得直接下发给子代理，统一回退主代理先征得用户确认。
+
 ## 补充（2026-03-20｜Flow 短时观察补高）
 
 - Flow 改为 settled 后短时观察前两项真实高度变化，只允许向上补高，稳定后冻结；Search/Command 关闭恢复语义保持不变。
@@ -476,7 +484,7 @@
 - 完成窗口尺寸调整优化的 brainstorming 阶段，设计已通过 spec review。
 - 方案：Rust 端帧步进缓动动画（ease_out_cubic，120ms），智能防抖（扩展即时、收缩延迟 300ms），tokio::time::sleep 驱动。
 - 设计文档：`docs/superpowers/specs/2026-03-13-window-resize-rust-animation-design.md`
-- 下一步：新会话中执行 `/superpowers:executing-plans` 或 `/superpowers:subagent-driven-development` 实现计划。
+- 下一步：新会话中执行 `/superpowers:executing-plans` 以主代理串行实现计划；`Codex` 下实现型子代理当前默认不用，仅保留只读/审查型子代理与“限定文件范围的无命令改动”子代理。
 
 ## 补充（2026-03-13｜窗口 Rust 缓动动画实现计划完成）
 
