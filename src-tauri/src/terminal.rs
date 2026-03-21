@@ -7,11 +7,21 @@ use std::os::windows::process::CommandExt;
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
+#[cfg(target_os = "windows")]
+pub(crate) const ZAPCMD_WT_WINDOW_ID: &str = "zapcmd-main-terminal";
+
 #[derive(serde::Serialize)]
 pub(crate) struct TerminalOption {
     id: String,
     label: String,
     path: String,
+}
+
+#[cfg(target_os = "windows")]
+pub(crate) struct WindowsLaunchPlan {
+    pub program: String,
+    pub args: Vec<String>,
+    pub creation_flags: u32,
 }
 
 fn sanitize_command(command: &str) -> Result<String, String> {
@@ -240,6 +250,11 @@ fn build_command_windows(terminal_id: &str, command: &str) -> ProcessCommand {
             process
         }
     }
+}
+
+#[cfg(target_os = "windows")]
+fn build_windows_launch_plan(_terminal_id: &str, _command: &str) -> WindowsLaunchPlan {
+    todo!("implemented in Task 2")
 }
 
 #[cfg(target_os = "windows")]

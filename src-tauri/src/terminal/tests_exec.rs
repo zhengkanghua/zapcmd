@@ -44,36 +44,64 @@ fn spawn_and_forget_propagates_spawn_error() {
 
 #[cfg(target_os = "windows")]
 mod windows {
-    use super::{assert_command, command_args, command_program};
-    use crate::terminal::build_command_windows;
+    use crate::terminal::{build_windows_launch_plan, ZAPCMD_WT_WINDOW_ID};
+
+    const CREATE_NEW_CONSOLE: u32 = 0x0000_0010;
 
     #[test]
-    fn build_windows_wt_args_contract() {
-        let cmd = build_command_windows("wt", "echo 1");
-        assert_command(&cmd, "wt", &["new-tab", "cmd", "/K", "echo 1"]);
-    }
-
-    #[test]
-    fn build_windows_cmd_args_contract() {
-        let cmd = build_command_windows("cmd", "echo 1");
-        assert_command(&cmd, "cmd", &["/K", "echo 1"]);
-    }
-
-    #[test]
-    fn build_windows_pwsh_args_contract() {
-        let cmd = build_command_windows("pwsh", "echo 1");
-        assert_command(&cmd, "pwsh", &["-NoExit", "-Command", "echo 1"]);
-    }
-
-    #[test]
-    fn build_windows_default_args_contract() {
-        let cmd = build_command_windows("something-else", "echo 1");
-
-        assert_eq!(command_program(&cmd), "powershell");
+    fn build_windows_wt_launch_plan_reuses_managed_window() {
+        let plan = build_windows_launch_plan("wt", "echo 1");
+        assert_eq!(plan.program, "wt");
         assert_eq!(
-            command_args(&cmd),
-            vec!["-NoExit".to_string(), "-Command".to_string(), "echo 1".to_string()]
+            plan.args,
+            vec![
+                "-w".to_string(),
+                ZAPCMD_WT_WINDOW_ID.to_string(),
+                "new-tab".to_string(),
+                "cmd".to_string(),
+                "/K".to_string(),
+                "echo 1".to_string(),
+            ]
         );
+        assert_eq!(plan.creation_flags, 0);
+    }
+
+    #[test]
+    fn build_windows_cmd_launch_plan_forces_new_console() {
+        let plan = build_windows_launch_plan("cmd", "echo 1");
+        assert_eq!(plan.program, "cmd");
+        assert_eq!(plan.args, vec!["/K".to_string(), "echo 1".to_string()]);
+        assert_eq!(plan.creation_flags, CREATE_NEW_CONSOLE);
+    }
+
+    #[test]
+    fn build_windows_pwsh_launch_plan_forces_new_console() {
+        let plan = build_windows_launch_plan("pwsh", "echo 1");
+        assert_eq!(plan.program, "pwsh");
+        assert_eq!(
+            plan.args,
+            vec![
+                "-NoExit".to_string(),
+                "-Command".to_string(),
+                "echo 1".to_string()
+            ]
+        );
+        assert_eq!(plan.creation_flags, CREATE_NEW_CONSOLE);
+    }
+
+    #[test]
+    fn build_windows_default_launch_plan_falls_back_to_powershell_new_console() {
+        let plan = build_windows_launch_plan("something-else", "echo 1");
+        assert_eq!(plan.program, "powershell");
+        assert_eq!(
+            plan.args,
+            vec![
+                "-NoExit".to_string(),
+                "-Command".to_string(),
+                "echo 1".to_string()
+            ]
+        );
+        assert_eq!(plan.creation_flags, CREATE_NEW_CONSOLE);
     }
 }
 
