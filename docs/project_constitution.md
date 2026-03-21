@@ -82,7 +82,9 @@
 ### 4.2 覆盖率与回归底线
 
 1. 覆盖率门槛保持不低于当前基线（85%+）。
-2. 高风险行为（热键/焦点/队列/失败分支/安全确认/注入拦截/会话恢复）必须有自动化回归。
+2. 前端 JS coverage 门禁覆盖 `src/App.vue`、`src/components/**/*.vue`、`src/composables/**/*.ts`、`src/features/**/*.ts`、`src/services/**/*.ts`、`src/stores/**/*.ts`。
+3. Rust 质量继续独立走 `check:rust` / `cargo test` / smoke gate，不与前端 coverage 混成“全仓单一百分比”。
+4. 高风险行为（热键/焦点/队列/失败分支/安全确认/注入拦截/会话恢复）必须有自动化回归。
 
 ### 4.3 必须人工回归的场景（真机）
 

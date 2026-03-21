@@ -173,7 +173,7 @@ Rust 侧当前职责：
 ### 6.4 P4：工程化
 
 1. 维持并固化 lint/typecheck/test/coverage/Rust 本地门禁。
-2. 扩展前端单测覆盖并补关键 E2E。
+2. 前端 JS coverage 以 `src/App.vue`、`src/components/**/*.vue`、`src/composables/**/*.ts`、`src/features/**/*.ts`、`src/services/**/*.ts`、`src/stores/**/*.ts` 为门禁范围；Rust 继续独立走 `check:rust` / `cargo test` / smoke gate。
 3. 维护 CI 门禁 + 三平台发布构建矩阵，并补最小 E2E 冒烟。
 
 ---

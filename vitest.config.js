@@ -23,6 +23,7 @@ export default defineConfig({
       reporter: ["text", "html", "lcov"],
       include: [
         "src/App.vue",
+        "src/components/**/*.vue",
         "src/composables/**/*.ts",
         "src/features/**/*.ts",
         "src/services/**/*.ts",

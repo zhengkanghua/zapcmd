@@ -41,5 +41,24 @@ describe("SToggle", () => {
     await wrapper.find("[role='switch']").trigger("click");
     expect(wrapper.emitted("update:modelValue")).toBeUndefined();
   });
-});
 
+  it("supports Enter and suppresses the follow-up keyboard click", async () => {
+    const wrapper = mount(SToggle, { props: { modelValue: false } });
+    const toggle = wrapper.get("[role='switch']");
+
+    await toggle.trigger("keydown", { key: "Enter" });
+    toggle.element.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 0 }));
+
+    expect(wrapper.emitted("update:modelValue")).toEqual([[true]]);
+  });
+
+  it("ignores repeated toggle keydown and unrelated keys", async () => {
+    const wrapper = mount(SToggle, { props: { modelValue: true } });
+    const toggle = wrapper.get("[role='switch']");
+
+    await toggle.trigger("keydown", { key: " ", repeat: true });
+    await toggle.trigger("keydown", { key: "Escape" });
+
+    expect(wrapper.emitted("update:modelValue")).toBeUndefined();
+  });
+});

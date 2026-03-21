@@ -39,6 +39,14 @@
 - 计划差异 3：Task 1 计划只写了“拆三段 VM 边界”，但真实 `App.vue` 模板和 app 级回归仍依赖顶层 setupState 自动解包/直访；最终通过 `proxyRefs + 顶层兼容别名` 做最小收口，保持边界目标不变，同时让 `vue-tsc` 与历史回归夹具继续成立。
 - 计划 4 最终验证已通过：`useAppCompositionViewModel`、`LauncherFlowPanel`、`useWindowSizing` focused tests、Rust `animation::tests_logic` 与 `npm run check:all` 全绿。
 
+## 补充（2026-03-21｜文档事实与 coverage 口径对齐）
+
+- 计划 5 已完成：README / 中文 README / `docs/README.md` / `docs/command_sources/README.md` 已统一为“内置命令生成产物必须提交”，明确 `assets/runtime_templates/commands/builtin` 与 `docs/builtin_commands.generated.md` 都受 CI gate 约束；样式入口、Tailwind 现状、搜索字段与 GitHub workflow 引用也都改到当前真实实现。
+- `vitest.config.js` 已把前端 coverage include 扩到 `src/components/**/*.vue`，并同步更新 `README.md`、`README.zh-CN.md`、`docs/architecture_plan.md`、`docs/project_constitution.md` 的覆盖率口径：前端 JS coverage 覆盖组件层与核心逻辑，Rust 继续单独由 `check:rust` / `cargo test` / smoke gate 描述，不再写成“全仓单一 90%+”。
+- 计划差异 1：Task 1/2 原计划使用的 `rg` 会命中历史计划文档与上下文记录里的旧词，实际执行时补充了“只针对目标文档”的二次 `rg`，避免把历史设计稿误判成当前公开文档漂移。
+- 计划差异 2：Task 3 原文假设“前面各计划新增的组件测试足够吃下新 coverage include”，但真实 `npm run test:coverage` 在纳入 `src/components/**/*.vue` 后先跌到 branches / functions 未达标；因此在本计划内补写了 `LauncherStagingPanel`、`LauncherSafetyOverlay`、`SettingsCommandsSection`、`SettingsGeneralSection`、`SettingsAboutSection`、`SettingsWindow` 壳层与 `SDropdown/SSegmentNav/SSlider/SToggle` 的 focused tests，以最小范围把门禁拉回 90%。
+- 计划 5 最终验证已通过：文档 drift 搜索验证通过，`npm run test:coverage` 达到 `lines 93.88 / branches 90.2 / functions 91.72 / statements 93.88`，`npm run check:all` 全绿。
+
 ## 补充（2026-03-21｜项目总审查）
 
 - 已落盘总审查文档 `docs/plan/2026-03-21_01-project-elegance-robustness-review.md`；P0 聚焦 Windows 执行链安全/权限语义、命令 schema 契约漂移、SettingsWindow stale contract 与默认终端有效性闭环。

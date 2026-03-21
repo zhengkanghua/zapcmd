@@ -33,5 +33,32 @@ describe("SSlider", () => {
     });
     expect(wrapper.text()).toContain("96%");
   });
-});
 
+  it("falls back to raw value text when no formatter is provided", () => {
+    const wrapper = mount(SSlider, {
+      props: {
+        modelValue: 0.5,
+        min: 0,
+        max: 1,
+        step: 0.1,
+        showValue: true
+      }
+    });
+
+    expect(wrapper.text()).toContain("0.5");
+  });
+
+  it("uses zero fill percent for an invalid range and omits value text by default", () => {
+    const wrapper = mount(SSlider, {
+      props: {
+        modelValue: 0.5,
+        min: 1,
+        max: 1,
+        step: 0.01
+      }
+    });
+
+    expect(wrapper.attributes("style")).toContain("--fill-percent: 0%");
+    expect(wrapper.find(".s-slider__value").exists()).toBe(false);
+  });
+});

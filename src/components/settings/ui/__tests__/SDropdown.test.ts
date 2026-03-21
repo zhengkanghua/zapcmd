@@ -112,4 +112,66 @@ describe("SDropdown", () => {
 
     expect(document.body.querySelector(".s-dropdown__panel")).toBeNull();
   });
+
+  it("supports ArrowUp opening, Home/End focus movement, Space selection and Tab close", async () => {
+    const wrapper = mountDropdown({
+      props: {
+        modelValue: "powershell",
+        options: [
+          { value: "powershell", label: "PowerShell" },
+          { value: "cmd", label: "Command Prompt" },
+          { value: "wt", label: "Windows Terminal" }
+        ]
+      },
+      attachTo: document.body
+    });
+
+    const trigger = wrapper.get(".s-dropdown__trigger");
+    await trigger.trigger("keydown", { key: "ArrowUp" });
+    let options = Array.from(document.body.querySelectorAll(".s-dropdown__option"));
+    expect(options[2]?.classList.contains("s-dropdown__option--focused")).toBe(true);
+
+    await trigger.trigger("keydown", { key: "Home" });
+    options = Array.from(document.body.querySelectorAll(".s-dropdown__option"));
+    expect(options[0]?.classList.contains("s-dropdown__option--focused")).toBe(true);
+
+    await trigger.trigger("keydown", { key: "End" });
+    options = Array.from(document.body.querySelectorAll(".s-dropdown__option"));
+    expect(options[2]?.classList.contains("s-dropdown__option--focused")).toBe(true);
+
+    await trigger.trigger("keydown", { key: " " });
+    expect(wrapper.emitted("update:modelValue")?.[0]).toEqual(["wt"]);
+
+    await wrapper.setProps({ modelValue: "wt" });
+    await trigger.trigger("click");
+    await trigger.trigger("keydown", { key: "Tab" });
+    expect(document.body.querySelector(".s-dropdown__panel")).toBeNull();
+  });
+
+  it("stays closed when disabled or when options are empty and falls back to first option label", async () => {
+    const wrapper = mountDropdown({
+      props: {
+        modelValue: "missing",
+        disabled: true,
+        options: [
+          { value: "powershell", label: "PowerShell" },
+          { value: "cmd", label: "Command Prompt" }
+        ]
+      },
+      attachTo: document.body
+    });
+
+    expect(wrapper.get(".s-dropdown__value").text()).toBe("PowerShell");
+    expect(wrapper.get(".s-dropdown__trigger").attributes("disabled")).toBeDefined();
+    await wrapper.get(".s-dropdown__trigger").trigger("click");
+    expect(document.body.querySelector(".s-dropdown__panel")).toBeNull();
+
+    await wrapper.setProps({
+      disabled: false,
+      options: []
+    });
+    expect(wrapper.get(".s-dropdown__trigger").attributes("disabled")).toBeDefined();
+    await wrapper.get(".s-dropdown__trigger").trigger("keydown", { key: "Enter" });
+    expect(document.body.querySelector(".s-dropdown__panel")).toBeNull();
+  });
 });

@@ -76,6 +76,9 @@ Quality gate:
 npm run check:all
 ```
 
+Frontend JS coverage gate includes `src/App.vue`, `src/components/**/*.vue`, `src/composables/**/*.ts`, `src/features/**/*.ts`, `src/services/**/*.ts`, and `src/stores/**/*.ts`.
+Rust verification stays separate under `check:rust`, `cargo test`, and desktop smoke gates instead of a single repo-wide percentage.
+
 One-command local full validation (same gate + Windows desktop smoke; Windows auto-installs missing WebDriver deps):
 
 ```bash
