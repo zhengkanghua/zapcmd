@@ -28,6 +28,8 @@ pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
         launcher_hotkey: Mutex::new(DEFAULT_LAUNCHER_HOTKEY.to_string()),
         move_save_inflight: AtomicBool::new(false),
         move_save_token: AtomicU64::new(0),
+        #[cfg(target_os = "windows")]
+        last_terminal_session_kind: Mutex::new(None),
     });
 }
 

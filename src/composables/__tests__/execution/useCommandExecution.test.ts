@@ -6,6 +6,7 @@ import {
   DANGER_DISMISS_STORAGE_KEY,
   dismissDanger
 } from "../../../features/security/dangerDismiss";
+import { CommandExecutionError } from "../../../services/commandExecutor";
 import { useCommandExecution } from "../../execution/useCommandExecution";
 import type { FocusZone } from "../../launcher/useStagingQueue";
 
@@ -307,6 +308,23 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("ENOENT");
     expect(harness.execution.executionFeedbackMessage.value).toContain("检查并切换可用终端");
+    errorSpy.mockRestore();
+  });
+
+  it("maps elevation-cancelled to explicit feedback", async () => {
+    const harness = createHarness();
+    const command = createAdminCommand();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.runCommandInTerminal.mockRejectedValueOnce(
+      new CommandExecutionError("elevation-cancelled", "user cancelled elevation")
+    );
+
+    harness.execution.executeResult(command);
+    await nextTick();
+    await harness.execution.confirmSafetyExecution();
+
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toBe("已取消管理员授权，本次未执行");
     errorSpy.mockRestore();
   });
 
