@@ -3,6 +3,10 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::UNIX_EPOCH;
 
+mod prerequisites;
+
+pub(crate) use prerequisites::probe_command_prerequisites;
+
 #[derive(serde::Serialize)]
 pub(crate) struct UserCommandFile {
     path: String,

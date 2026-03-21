@@ -12,7 +12,11 @@ use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
 
 use bounds::handle_main_window_event;
-use command_catalog::{get_user_commands_dir, read_user_command_files};
+use command_catalog::{
+    get_user_commands_dir,
+    probe_command_prerequisites,
+    read_user_command_files,
+};
 use hotkeys::{get_launcher_hotkey, update_launcher_hotkey};
 use terminal::{get_available_terminals, get_runtime_platform, run_command_in_terminal};
 use windowing::{
@@ -62,6 +66,7 @@ pub fn run() {
             run_command_in_terminal,
             get_user_commands_dir,
             read_user_command_files,
+            probe_command_prerequisites,
             get_autostart_enabled,
             set_autostart_enabled
         ])
