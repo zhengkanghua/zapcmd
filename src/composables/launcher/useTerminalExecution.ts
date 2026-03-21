@@ -48,8 +48,16 @@ function buildPowerShellFailureClause(
   return `$zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { ${counter}if ($null -ne $zapcmdCode) { Write-Host ('${escapedLabel}${escapedHint} (code ' + $zapcmdCode + ')') } else { Write-Host '${escapedLabel}${escapedHint}' } }`;
 }
 
-function buildCmdFailureClause(label: string, hint: string): string {
-  return `set "zapcmdCode=!ERRORLEVEL!" & if not "!zapcmdCode!"=="0" echo ${label}${hint} (code !zapcmdCode!)`;
+function buildCmdFailureClause(
+  label: string,
+  hint: string,
+  failedCountExpression?: string,
+): string {
+  if (!failedCountExpression) {
+    return `set "zapcmdCode=!ERRORLEVEL!" & if not "!zapcmdCode!"=="0" echo ${label}${hint} (code !zapcmdCode!)`;
+  }
+
+  return `set "zapcmdCode=!ERRORLEVEL!" & if not "!zapcmdCode!"=="0" (${failedCountExpression} & echo ${label}${hint} (code !zapcmdCode!))`;
 }
 
 function buildSingleCommandPayload(terminalId: string, command: string): string {
@@ -83,9 +91,9 @@ function buildBatchCommandPayload(terminalId: string, commands: string[]): strin
     const steps = normalized.map((command, index) => {
       const step = index + 1;
       const hint = summarizeCommand(terminalId, command);
-      return `echo [zapcmd][${step}/${total}][run] ${hint} & ${command} & echo [zapcmd][${step}/${total}][exit !ERRORLEVEL!] ${hint}`;
+      return `echo [zapcmd][${step}/${total}][run] ${hint} & ${command} & ${buildCmdFailureClause(`[zapcmd][${step}/${total}][failed] `, hint, "set /a zapcmdFailedCount+=1")}`;
     });
-    return `setlocal EnableDelayedExpansion & ${steps.join(" & ")} & echo [zapcmd][queue][exit !ERRORLEVEL!] total: ${total}`;
+    return `setlocal EnableDelayedExpansion & set /a zapcmdFailedCount=0 & ${steps.join(" & ")} & if "!zapcmdFailedCount!"=="0" (echo [zapcmd][queue][done] total: ${total}) else (echo [zapcmd][queue][failed] total: ${total}, failed: !zapcmdFailedCount!)`;
   }
   const steps = normalized.map((command, index) => {
     const step = index + 1;
