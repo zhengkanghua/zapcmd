@@ -94,6 +94,8 @@ function buildFlowShell(input: {
   emptyStateHeight?: number;
   cardHeights?: number[];
   itemHeights?: number[];
+  listClientHeight?: number;
+  listScrollHeight?: number;
 }): HTMLElement {
   const shell = document.createElement("div");
   const panel = document.createElement("section");
@@ -137,6 +139,14 @@ function buildFlowShell(input: {
       list.appendChild(item);
       currentTop += itemHeight + 8;
     });
+    if (
+      typeof input.listClientHeight === "number" ||
+      typeof input.listScrollHeight === "number"
+    ) {
+      const clientHeight = input.listClientHeight ?? input.listScrollHeight ?? 0;
+      const scrollHeight = input.listScrollHeight ?? input.listClientHeight ?? clientHeight;
+      mockElementHeight(list, { height: clientHeight, scrollHeight });
+    }
     body.appendChild(list);
   }
 
@@ -256,6 +266,38 @@ describe("panelMeasurement", () => {
       headerHeight: 52,
       footerHeight: 60,
       cardHeights: [168, 220]
+    });
+    const panel = shell.querySelector<HTMLElement>(".flow-panel");
+    expect(panel).not.toBeNull();
+    panel!.style.borderTop = "1px solid rgba(255, 255, 255, 0.14)";
+    panel!.style.borderBottom = "1px solid rgba(255, 255, 255, 0.14)";
+
+    expect(measureFlowPanelMinHeight(shell)).toBe(534);
+  });
+
+  it("FlowPanel list 仍有 1px 纵向滚动残差时，应把这段残差补进最小高度", () => {
+    const shell = buildFlowShell({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220],
+      listClientHeight: 395,
+      listScrollHeight: 396
+    });
+    const panel = shell.querySelector<HTMLElement>(".flow-panel");
+    expect(panel).not.toBeNull();
+    panel!.style.borderTop = "1px solid rgba(255, 255, 255, 0.14)";
+    panel!.style.borderBottom = "1px solid rgba(255, 255, 255, 0.14)";
+
+    expect(measureFlowPanelMinHeight(shell)).toBe(535);
+  });
+
+  it("FlowPanel 只吸收小滚动残差；明显更大的滚动量不应被误算进最小高度", () => {
+    const shell = buildFlowShell({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220],
+      listClientHeight: 384,
+      listScrollHeight: 396
     });
     const panel = shell.querySelector<HTMLElement>(".flow-panel");
     expect(panel).not.toBeNull();

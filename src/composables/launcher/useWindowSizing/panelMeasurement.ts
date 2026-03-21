@@ -10,6 +10,7 @@ interface ResolveFlowPanelMinHeightOptions {
 
 const FLOW_PANEL_BODY_VERTICAL_PADDING_FALLBACK_PX = 24;
 const FLOW_PANEL_LIST_GAP_FALLBACK_PX = 8;
+const FLOW_PANEL_SCROLL_OVERFLOW_GUARD_MAX_PX = 8;
 
 function measureElementBoxHeight(element: HTMLElement, useScrollHeight = false): number {
   const candidates = [
@@ -70,6 +71,27 @@ function measureVerticalBorder(element: HTMLElement, fallback = 0): number {
     return Math.ceil(resolved);
   }
   return fallback;
+}
+
+/**
+ * Flow list 在真实渲染里可能只残留 1-几 px 的滚动余量；这类小残差应被吸收。
+ * 明显更大的滚动量通常来自 toast / 编辑态 / 其它非目标内容，不应被误算进最小高度。
+ */
+function measureMinorVerticalOverflow(element: HTMLElement | null, maxOverflowPx = 0): number {
+  if (!element) {
+    return 0;
+  }
+
+  const overflow = Math.ceil(element.scrollHeight - element.clientHeight);
+  if (!Number.isFinite(overflow) || overflow <= 0) {
+    return 0;
+  }
+
+  if (maxOverflowPx > 0 && overflow > maxOverflowPx) {
+    return 0;
+  }
+
+  return overflow;
 }
 
 function measureFlowListItemsSpan(listItems: HTMLElement[]): number {
@@ -175,6 +197,7 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
       panelVerticalBorder +
       bodyVerticalPadding +
       measureElementBoxHeight(emptyState, true) +
+      measureMinorVerticalOverflow(body, FLOW_PANEL_SCROLL_OVERFLOW_GUARD_MAX_PX) +
       measureElementBoxHeight(footer)
     );
   }
@@ -193,12 +216,17 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
     Math.max(0, listItems.length - 1) *
     measureVerticalGap(list ?? body, FLOW_PANEL_LIST_GAP_FALLBACK_PX);
   const listItemsSpanHeight = measureFlowListItemsSpan(listItems);
+  const listOverflowGuard = measureMinorVerticalOverflow(
+    list,
+    FLOW_PANEL_SCROLL_OVERFLOW_GUARD_MAX_PX
+  );
 
   return (
     measureElementBoxHeight(header) +
     panelVerticalBorder +
     bodyVerticalPadding +
     Math.max(listItemsSpanHeight, cardHeight + interCardGap) +
+    listOverflowGuard +
     measureElementBoxHeight(footer)
   );
 }

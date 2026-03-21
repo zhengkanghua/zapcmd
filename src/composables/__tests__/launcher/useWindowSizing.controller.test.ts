@@ -209,6 +209,8 @@ function buildFlowPanelShellForLock(input: {
   footerHeight: number;
   cardHeights: number[];
   itemHeights?: number[];
+  listClientHeight?: number;
+  listScrollHeight?: number;
 }): HTMLElement {
   const shell = document.createElement("div");
   const panel = document.createElement("section");
@@ -262,6 +264,16 @@ function buildFlowPanelShellForLock(input: {
     list.appendChild(item);
     currentTop += itemHeight + 8;
   });
+  if (
+    typeof input.listClientHeight === "number" ||
+    typeof input.listScrollHeight === "number"
+  ) {
+    mockElementHeight(
+      list,
+      input.listClientHeight ?? input.listScrollHeight ?? 0,
+      input.listScrollHeight ?? input.listClientHeight ?? 0
+    );
+  }
   body.appendChild(list);
 
   const footer = document.createElement("footer");
@@ -866,6 +878,31 @@ describe("createWindowSizingController（Flow 会话）", () => {
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
       534 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
+    );
+  });
+
+  it("搜索 -> Flow settled 后若 list 仅残留 1px 滚动余量，应继续向上补这 1px", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    const flowPanel = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220, 180],
+      listClientHeight: 395,
+      listScrollHeight: 396
+    });
+    flowPanel.style.borderTop = "1px solid rgba(255, 255, 255, 0.14)";
+    flowPanel.style.borderBottom = "1px solid rgba(255, 255, 255, 0.14)";
+    harness.options.stagingPanelRef.value = flowPanel;
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    harness.controller.notifyFlowPanelSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(535);
+    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+      expect.any(Number),
+      535 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
     );
   });
 
