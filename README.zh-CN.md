@@ -61,6 +61,11 @@ npm run tauri:dev
 
 提示：`npm run dev` 是 Web 预览模式（无法执行命令）；需要完整桌面能力请使用 `npm run tauri:dev`。
 
+在 Windows 上，命令执行始终跟随 Settings 中选择的默认终端。
+`wt` 会通过固定窗口 ID `zapcmd-main-terminal` 复用 ZapCmd 管理的终端窗口。
+`powershell`、`pwsh`、`cmd` 会始终新开独立控制台窗口。
+该行为在 `tauri:dev` 与打包后的桌面运行中保持一致。
+
 说明：更新密钥/端点集中在 `.env.keys`，由 `npm run keys:sync` 同步（已集成到 `tauri:dev` / `tauri:build`）。
 
 工程门禁：

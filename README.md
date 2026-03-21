@@ -61,6 +61,11 @@ npm run tauri:dev
 
 Tip: `npm run dev` starts web preview mode (no terminal execution). Use `npm run tauri:dev` for desktop features.
 
+On Windows, command execution always follows the terminal selected in Settings.
+`wt` reuses a ZapCmd-managed terminal window through the fixed window id `zapcmd-main-terminal`.
+`powershell`, `pwsh`, and `cmd` always open a new standalone console window.
+This behavior stays consistent in both `tauri:dev` and packaged desktop runs.
+
 Note: updater keys/endpoints are centralized in `.env.keys` and synced by `npm run keys:sync` (already included in `tauri:dev` / `tauri:build`).
 
 Quality gate:
