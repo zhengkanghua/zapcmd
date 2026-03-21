@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
 import type { HotkeyFieldId } from "../../../stores/settingsStore";
 import type { createAppCompositionContext } from "./context";
@@ -114,7 +114,7 @@ function createSettingsWindowProps(context: AppCompositionContext) {
     autoCheckUpdate: context.autoCheckUpdate,
     launchAtLogin: context.launchAtLogin,
     alwaysElevatedTerminal: context.alwaysElevatedTerminal,
-    showAlwaysElevatedTerminal: context.runtimePlatform.value === "win",
+    showAlwaysElevatedTerminal: computed(() => context.runtimePlatform.value === "win"),
     selectedTerminalPath: context.settingsWindow.selectedTerminalPath,
     languageOptions: context.settingsWindow.languageOptions,
     appVersion: context.appVersion,

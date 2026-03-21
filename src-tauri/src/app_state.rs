@@ -17,4 +17,6 @@ pub(crate) struct AppState {
     pub move_save_token: AtomicU64,
     #[cfg(target_os = "windows")]
     pub last_terminal_session_kind: Mutex<Option<WindowsSessionKind>>,
+    #[cfg(target_os = "windows")]
+    pub last_terminal_program: Mutex<Option<String>>,
 }

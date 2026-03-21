@@ -3,6 +3,7 @@
 ## 补充（2026-03-21｜管理员终端 review fix）
 
 - 已修复 `wt` 管理员终端复用语义：已有管理员窗口时不再重复 UAC；Windows 提权切到 `ShellExecuteExW`，`elevation-cancelled` 映射稳定；管理员终端开关仅 Windows 可见。
+- 继续补强 review fix：`wt` 只有在“上一次也是 `wt` 管理员会话”时才允许跳过 `runas` 直连复用；主窗口设置页里的管理员终端开关改为随 `runtimePlatform` 异步结果响应显示。
 
 ## 补充（2026-03-21｜Windows 管理员终端路由实现）
 

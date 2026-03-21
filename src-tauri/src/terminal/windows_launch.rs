@@ -105,15 +105,20 @@ pub(crate) fn should_update_last_session_kind(
 pub(crate) fn resolve_windows_launch_mode(
     decision: &WindowsRoutingDecision,
     last_session_kind: Option<WindowsSessionKind>,
+    last_terminal_program: Option<&str>,
+    allow_direct_wt_admin_reuse: bool,
 ) -> WindowsLaunchMode {
     if decision.target_session_kind == WindowsSessionKind::Normal {
         return WindowsLaunchMode::Direct;
     }
 
     // `wt` 的管理员窗口有稳定 window id，已有管理员窗口时应直接复用，
-    // 否则“最近权限态=管理员”会退化成每次执行都重新触发 UAC。
+    // 但只有“上一次就是 `wt` 管理员会话”且本次不要求强制重新提权时，
+    // 才能安全跳过 `runas`，否则会把其它终端的管理员态误判成可复用 `wt` 窗口。
     if decision.launch_plan.program == "wt"
         && last_session_kind == Some(WindowsSessionKind::Elevated)
+        && last_terminal_program == Some("wt")
+        && allow_direct_wt_admin_reuse
     {
         return WindowsLaunchMode::Direct;
     }
@@ -149,8 +154,15 @@ fn spawn_windows_launch_plan_elevated(
 fn dispatch_windows_routing_decision(
     decision: &WindowsRoutingDecision,
     last_session_kind: Option<WindowsSessionKind>,
+    last_terminal_program: Option<&str>,
+    allow_direct_wt_admin_reuse: bool,
 ) -> Result<(), TerminalExecutionError> {
-    match resolve_windows_launch_mode(decision, last_session_kind) {
+    match resolve_windows_launch_mode(
+        decision,
+        last_session_kind,
+        last_terminal_program,
+        allow_direct_wt_admin_reuse,
+    ) {
         WindowsLaunchMode::Direct => spawn_windows_launch_plan(&decision.launch_plan),
         WindowsLaunchMode::ElevatedViaRunas => {
             spawn_windows_launch_plan_elevated(&decision.launch_plan)
@@ -160,11 +172,12 @@ fn dispatch_windows_routing_decision(
 
 pub(super) fn run_command_windows(
     last_session_kind: Option<WindowsSessionKind>,
+    last_terminal_program: Option<&str>,
     terminal_id: &str,
     command: &str,
     requires_elevation: bool,
     always_elevated: bool,
-) -> Result<WindowsSessionKind, TerminalExecutionError> {
+) -> Result<(WindowsSessionKind, String), TerminalExecutionError> {
     let decision = decide_windows_route(WindowsRoutingInput {
         terminal_id,
         command,
@@ -172,10 +185,27 @@ pub(super) fn run_command_windows(
         always_elevated,
         last_session_kind,
     });
-    let result = dispatch_windows_routing_decision(&decision, last_session_kind);
+    let allow_direct_wt_admin_reuse = decision.launch_plan.program == "wt"
+        && decision.target_session_kind == WindowsSessionKind::Elevated
+        && !requires_elevation
+        && !always_elevated;
+    let result = dispatch_windows_routing_decision(
+        &decision,
+        last_session_kind,
+        last_terminal_program,
+        allow_direct_wt_admin_reuse,
+    );
 
     if should_update_last_session_kind(&result) {
-        return Ok(decision.target_session_kind);
+        return Ok((
+            decision.target_session_kind,
+            decision.launch_plan.program.clone(),
+        ));
     }
-    result.map(|_| decision.target_session_kind)
+    result.map(|_| {
+        (
+            decision.target_session_kind,
+            decision.launch_plan.program.clone(),
+        )
+    })
 }

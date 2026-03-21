@@ -336,14 +336,20 @@ pub(crate) fn run_command_in_terminal(
             .last_terminal_session_kind
             .lock()
             .map_err(|_| TerminalExecutionError::new("state-unavailable", "terminal session state lock failed"))?;
+        let last_terminal_program = state
+            .last_terminal_program
+            .lock()
+            .map_err(|_| TerminalExecutionError::new("state-unavailable", "terminal session state lock failed"))?
+            .clone();
         let result = run_command_windows(
             last_session_kind,
+            last_terminal_program.as_deref(),
             terminal_id.as_str(),
             command.as_str(),
             requires_elevation.unwrap_or(false),
             always_elevated.unwrap_or(false),
         );
-        if let Ok(session_kind) = result {
+        if let Ok((session_kind, terminal_program)) = result {
             *state
                 .last_terminal_session_kind
                 .lock()
@@ -353,6 +359,15 @@ pub(crate) fn run_command_in_terminal(
                         "terminal session state lock failed",
                     )
                 })? = Some(session_kind);
+            *state
+                .last_terminal_program
+                .lock()
+                .map_err(|_| {
+                    TerminalExecutionError::new(
+                        "state-unavailable",
+                        "terminal session state lock failed",
+                    )
+                })? = Some(terminal_program);
             return Ok(());
         }
         return result.map(|_| ());

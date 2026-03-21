@@ -196,8 +196,34 @@ mod windows {
         });
 
         assert_eq!(
-            resolve_windows_launch_mode(&decision, Some(WindowsSessionKind::Elevated)),
+            resolve_windows_launch_mode(
+                &decision,
+                Some(WindowsSessionKind::Elevated),
+                Some("wt"),
+                true
+            ),
             WindowsLaunchMode::Direct
+        );
+    }
+
+    #[test]
+    fn wt_does_not_skip_runas_when_previous_elevated_session_was_not_wt() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "wt",
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Elevated),
+        });
+
+        assert_eq!(
+            resolve_windows_launch_mode(
+                &decision,
+                Some(WindowsSessionKind::Elevated),
+                Some("pwsh"),
+                true
+            ),
+            WindowsLaunchMode::ElevatedViaRunas
         );
     }
 
@@ -212,7 +238,12 @@ mod windows {
         });
 
         assert_eq!(
-            resolve_windows_launch_mode(&decision, Some(WindowsSessionKind::Normal)),
+            resolve_windows_launch_mode(
+                &decision,
+                Some(WindowsSessionKind::Normal),
+                Some("wt"),
+                false
+            ),
             WindowsLaunchMode::ElevatedViaRunas
         );
     }

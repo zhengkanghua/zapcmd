@@ -30,6 +30,8 @@ pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
         move_save_token: AtomicU64::new(0),
         #[cfg(target_os = "windows")]
         last_terminal_session_kind: Mutex::new(None),
+        #[cfg(target_os = "windows")]
+        last_terminal_program: Mutex::new(None),
     });
 }
 
