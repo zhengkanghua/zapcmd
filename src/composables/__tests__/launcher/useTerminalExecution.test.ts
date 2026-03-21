@@ -1,11 +1,12 @@
 import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useTerminalExecution } from "../../launcher/useTerminalExecution";
+import type { TerminalReusePolicy } from "../../../stores/settingsStore";
 
 function createExecutionHarness(
   initialTerminalId: string,
   alwaysElevated = false,
-  initialTerminalReusePolicy = "never"
+  initialTerminalReusePolicy: TerminalReusePolicy = "never"
 ) {
   const run = vi.fn(async () => {});
   const defaultTerminal = ref(initialTerminalId);

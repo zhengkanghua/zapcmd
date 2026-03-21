@@ -7,10 +7,7 @@ describe("resolveEffectiveTerminal", () => {
     expect(
       resolveEffectiveTerminal(
         "pwsh",
-        [
-          { id: "pwsh", label: "PowerShell 7", path: "pwsh.exe" },
-          { id: "cmd", label: "Command Prompt", path: "cmd.exe" }
-        ],
+        [{ id: "pwsh" }, { id: "cmd" }],
         []
       )
     ).toMatchObject({
@@ -23,7 +20,7 @@ describe("resolveEffectiveTerminal", () => {
     expect(
       resolveEffectiveTerminal(
         "ghost",
-        [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }],
+        [{ id: "cmd" }],
         []
       )
     ).toMatchObject({

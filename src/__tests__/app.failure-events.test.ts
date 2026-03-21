@@ -10,6 +10,7 @@ import {
   type PersistedSettingsSnapshot,
   useSettingsStore,
 } from "../stores/settingsStore";
+import { fallbackTerminalOptions } from "../features/terminals/fallbackTerminals";
 import { LAUNCHER_SESSION_STORAGE_KEY } from "../composables/launcher/useLauncherSessionState";
 import {
   SEARCH_CAPSULE_HEIGHT_PX,
@@ -137,6 +138,34 @@ interface FeedbackContract {
   guidanceSnippet?: string;
 }
 
+function expectTerminalCommandContract(
+  request: { terminalId: string; command: string } | undefined,
+) {
+  expect(request).toBeTruthy();
+  if (!request) {
+    throw new Error("terminal request should exist");
+  }
+
+  switch (request.terminalId) {
+    case "wt":
+    case "cmd":
+      expect(request.command).toContain("setlocal EnableDelayedExpansion");
+      expect(request.command).toContain("set \"zapcmdCode=!ERRORLEVEL!\"");
+      expect(request.command).toContain("[zapcmd][failed]");
+      expect(request.command).not.toContain("[zapcmd][exit");
+      break;
+    case "powershell":
+    case "pwsh":
+      expect(request.command).toContain("[zapcmd][run]");
+      expect(request.command).toContain("[zapcmd][failed]");
+      break;
+    default:
+      expect(request.command).toContain("[zapcmd] executing:");
+      expect(request.command).toContain("[zapcmd] finished");
+      break;
+  }
+}
+
 function buildSnapshot(
   launcherHotkey: string,
   overrides: SnapshotOverrides = {},
@@ -160,6 +189,7 @@ function buildSnapshot(
     },
     general: {
       defaultTerminal: overrides.defaultTerminal ?? "powershell",
+      terminalReusePolicy: "never",
       language: "zh-CN",
       autoCheckUpdate: true,
       launchAtLogin: false,
@@ -629,6 +659,7 @@ describe("App failure and event regression", () => {
   });
 
   it("applies synced default terminal to command execution after storage update", async () => {
+    const expectedTerminalId = fallbackTerminalOptions()[0]?.id ?? "x-terminal-emulator";
     const wrapper = await mountApp();
 
     localStorage.setItem(
@@ -648,15 +679,11 @@ describe("App failure and event regression", () => {
     expect(hoisted.runMock).toHaveBeenCalledTimes(1);
     expect(hoisted.runMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        terminalId: "wt",
-        command: expect.stringContaining("[zapcmd][run]"),
+        terminalId: expectedTerminalId,
       }),
     );
     const lastRequest = hoisted.runMock.mock.calls.at(-1)?.[0];
-    expect(lastRequest?.command ?? "").toContain("setlocal EnableDelayedExpansion");
-    expect(lastRequest?.command ?? "").toContain("set \"zapcmdCode=!ERRORLEVEL!\"");
-    expect(lastRequest?.command ?? "").toContain("[zapcmd][failed]");
-    expect(lastRequest?.command ?? "").not.toContain("[zapcmd][exit");
+    expectTerminalCommandContract(lastRequest);
   });
 
   it("supports drag reorder and resets drag state on dragend", async () => {

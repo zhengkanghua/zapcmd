@@ -30,7 +30,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
       general: {
         ...baseSnapshot.general,
         defaultTerminal: "powershell",
-        terminalReusePolicy: "never",
+        terminalReusePolicy: "never" as const,
         language: "zh-CN" as const,
         autoCheckUpdate: true,
         launchAtLogin: false
@@ -67,12 +67,12 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
   };
 
   const state = createSettingsState();
-  let ensureDefaultTerminal: (() => boolean) | undefined;
+  const terminalRefs: { ensureDefaultTerminal?: () => boolean } = {};
 
   const actions = createPersistenceActions({
     options,
     state,
-    ensureDefaultTerminal: () => ensureDefaultTerminal?.() ?? false
+    ensureDefaultTerminal: () => terminalRefs.ensureDefaultTerminal?.() ?? false
   });
   const terminal = createTerminalActions({
     options,
@@ -80,7 +80,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     cancelHotkeyRecording: vi.fn(),
     persistSetting: actions.persistSetting
   });
-  ensureDefaultTerminal = terminal.ensureDefaultTerminal;
+  terminalRefs.ensureDefaultTerminal = terminal.ensureDefaultTerminal;
 
   return {
     options,
