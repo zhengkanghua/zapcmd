@@ -94,6 +94,8 @@ npm run precommit:guard
 
 当你修改内置命令源（`docs/command_sources/_*.md`）时，需要生成并提交产物：
 
+CI 会阻断 `assets/runtime_templates/commands/builtin` 和 `docs/builtin_commands.generated.md` 的未提交漂移。
+
 ```bash
 pwsh -File scripts/generate_builtin_commands.ps1
 git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md

@@ -22,11 +22,14 @@
 
 最小流程：**改 `docs/command_sources/_*.md` → 运行生成脚本 → 提交生成产物**。
 
+CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_commands.generated.md` 也属于必须提交的生成快照。
+
 1. 修改源文件：`docs/command_sources/_*.md`
 2. 运行生成：`./scripts/generate_builtin_commands.ps1`
 3. 检查并提交生成产物：
    - `assets/runtime_templates/commands/builtin/_*.json`
    - `assets/runtime_templates/commands/builtin/index.json`
+   - `docs/builtin_commands.generated.md`
 4. 本地门禁：`npm run check:all`
 
 ## 源文件规范（必须）

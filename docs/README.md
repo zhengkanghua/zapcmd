@@ -16,8 +16,9 @@
 1. 人维护：`docs/command_sources/_*.md`
 2. 机器生成：`assets/runtime_templates/commands/builtin/_*.json`
 3. 生成清单：`assets/runtime_templates/commands/builtin/index.json`
-4. （可选）生成 Markdown 快照用于 Review（不要求提交到仓库）
+4. 生成 Markdown 快照：`docs/builtin_commands.generated.md`（必须提交）
 5. 生成命令：`./scripts/generate_builtin_commands.ps1`
+6. CI 会阻断以上生成产物的未提交漂移
 
 ## 其他文档
 

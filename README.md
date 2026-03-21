@@ -94,6 +94,8 @@ npm run precommit:guard
 
 Builtin command sources (`docs/command_sources/_*.md`) require generating and committing outputs:
 
+CI blocks drift in both `assets/runtime_templates/commands/builtin` and `docs/builtin_commands.generated.md`.
+
 ```bash
 pwsh -File scripts/generate_builtin_commands.ps1
 git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
