@@ -1,5 +1,22 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
+
+- 已进入 `writing-plans` 并按子系统拆出 5 份执行计划：`terminal-routing-and-effective-terminal-hardening`、`command-schema-runtime-contract-hardening`、`settings-window-contract-and-hotkey-unification`、`adapter-boundary-and-window-cache-hardening`、`docs-and-coverage-drift-alignment`。推荐顺序：先终端执行链，再命令 contract，再 Settings 契约，再 adapter/窗口缓存，最后文档与 coverage。
+
+## 补充（2026-03-21｜执行链与 Settings 分阶段加固设计）
+
+- 已落盘总 spec `docs/superpowers/specs/2026-03-21-execution-contract-settings-hardening-design.md`；确认采用“方案 1：分阶段治理”，先收紧 Windows 终端复用/权限边界、schema/runtime contract、SettingsWindow 契约、默认终端自愈持久化，再进入 adapter 拆分与文档/coverage 对齐。Tailwind 仅记录为延期架构议题，本轮不改样式栈。
+
+## 补充（2026-03-21｜终端路由与有效终端加固）
+
+- 计划 1 已完成：`terminalReusePolicy` 已接入 Settings、执行链与 Rust Windows 路由；默认终端在设置加载、终端列表刷新和执行前都会走统一 `resolveEffectiveTerminal()` 自愈，并在回退后立即持久化和广播。
+- Windows 终端路由已改成显式三挡策略：未知 `terminal_id` 直接返回 `invalid-request`；`wt` 普通/管理员 lane 分离；最近可复用状态改为单一 `WindowsReusableSessionState`，普通命令不再被“最近一次管理员会话”污染。
+
+## 补充（2026-03-21｜项目总审查）
+
+- 已落盘总审查文档 `docs/plan/2026-03-21_01-project-elegance-robustness-review.md`；P0 聚焦 Windows 执行链安全/权限语义、命令 schema 契约漂移、SettingsWindow stale contract 与默认终端有效性闭环。
+
 ## 补充（2026-03-21｜管理员终端 review fix）
 
 - 已修复 `wt` 管理员终端复用语义：已有管理员窗口时不再重复 UAC；Windows 提权切到 `ShellExecuteExW`，`elevation-cancelled` 映射稳定；管理员终端开关仅 Windows 可见。
