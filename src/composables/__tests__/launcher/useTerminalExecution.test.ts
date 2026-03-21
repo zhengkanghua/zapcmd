@@ -69,7 +69,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "wt",
       command:
-        "setlocal EnableDelayedExpansion & set /a zapcmdFailedCount=0 & echo [zapcmd][1/1][run] git status & git status & set \"zapcmdCode=!ERRORLEVEL!\" & if not \"!zapcmdCode!\"==\"0\" (set /a zapcmdFailedCount+=1 & echo [zapcmd][1/1][failed] git status (code !zapcmdCode!)) & if \"!zapcmdFailedCount!\"==\"0\" (echo [zapcmd][queue][done] total: 1) else (echo [zapcmd][queue][failed] total: 1, failed: !zapcmdFailedCount!)"
+        "setlocal EnableDelayedExpansion & set /a zapcmdFailedCount=0 >nul & echo [zapcmd][1/1][run] git status & git status & set \"zapcmdCode=!ERRORLEVEL!\" & (if not \"!zapcmdCode!\"==\"0\" (set /a zapcmdFailedCount+=1 >nul & echo [zapcmd][1/1][failed] git status ^(code !zapcmdCode!^))) & if \"!zapcmdFailedCount!\"==\"0\" (echo [zapcmd][queue][done] total: 1) else (echo [zapcmd][queue][failed] total: 1, failed: !zapcmdFailedCount!)"
     });
   });
 
