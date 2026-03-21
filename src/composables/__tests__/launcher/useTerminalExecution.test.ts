@@ -51,7 +51,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "pwsh",
       command:
-        "Write-Host '[zapcmd][1/2][run] echo hello'; echo hello; Write-Host ('[zapcmd][1/2][exit ' + $LASTEXITCODE + '] echo hello'); Write-Host '[zapcmd][2/2][run] git status'; git status; Write-Host ('[zapcmd][2/2][exit ' + $LASTEXITCODE + '] git status'); Write-Host ('[zapcmd][queue][exit ' + $LASTEXITCODE + '] total: 2')"
+        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/2][run] echo hello'; $LASTEXITCODE = $null; echo hello; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/2][failed] echo hello (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/2][failed] echo hello' } }; Write-Host '[zapcmd][2/2][run] git status'; $LASTEXITCODE = $null; git status; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][2/2][failed] git status (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][2/2][failed] git status' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 2' } else { Write-Host ('[zapcmd][queue][failed] total: 2, failed: ' + $zapcmdFailedCount) }"
     });
   });
 
@@ -86,7 +86,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
       command:
-        "Write-Host '[zapcmd][1/1][run] netstat -ano | findstr :8080'; netstat -ano | findstr :8080; Write-Host ('[zapcmd][1/1][exit ' + $LASTEXITCODE + '] netstat -ano | findstr :8080'); Write-Host ('[zapcmd][queue][exit ' + $LASTEXITCODE + '] total: 1')"
+        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/1][run] netstat -ano | findstr :8080'; $LASTEXITCODE = $null; netstat -ano | findstr :8080; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/1][failed] netstat -ano | findstr :8080 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/1][failed] netstat -ano | findstr :8080' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 1' } else { Write-Host ('[zapcmd][queue][failed] total: 1, failed: ' + $zapcmdFailedCount) }"
     });
   });
 
@@ -103,7 +103,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
       command:
-        "Write-Host '[zapcmd][1/2][run] netstat -ano | findstr :8081'; netstat -ano | findstr :8081; Write-Host ('[zapcmd][1/2][exit ' + $LASTEXITCODE + '] netstat -ano | findstr :8081'); Write-Host '[zapcmd][2/2][run] netstat -ano | findstr :443'; netstat -ano | findstr :443; Write-Host ('[zapcmd][2/2][exit ' + $LASTEXITCODE + '] netstat -ano | findstr :443'); Write-Host ('[zapcmd][queue][exit ' + $LASTEXITCODE + '] total: 2')"
+        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/2][run] netstat -ano | findstr :8081'; $LASTEXITCODE = $null; netstat -ano | findstr :8081; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/2][failed] netstat -ano | findstr :8081 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/2][failed] netstat -ano | findstr :8081' } }; Write-Host '[zapcmd][2/2][run] netstat -ano | findstr :443'; $LASTEXITCODE = $null; netstat -ano | findstr :443; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][2/2][failed] netstat -ano | findstr :443 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][2/2][failed] netstat -ano | findstr :443' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 2' } else { Write-Host ('[zapcmd][queue][failed] total: 2, failed: ' + $zapcmdFailedCount) }"
     });
   });
 });

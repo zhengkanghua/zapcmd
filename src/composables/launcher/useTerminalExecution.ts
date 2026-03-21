@@ -37,10 +37,15 @@ function escapePowerShellSingleQuotedLiteral(value: string): string {
   return value.replace(/'/g, "''");
 }
 
-function buildPowerShellFailureClause(label: string, hint: string): string {
+function buildPowerShellFailureClause(
+  label: string,
+  hint: string,
+  failedCountVar?: string,
+): string {
   const escapedLabel = escapePowerShellSingleQuotedLiteral(label);
   const escapedHint = escapePowerShellSingleQuotedLiteral(hint);
-  return `$zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { if ($null -ne $zapcmdCode) { Write-Host ('${escapedLabel}${escapedHint} (code ' + $zapcmdCode + ')') } else { Write-Host '${escapedLabel}${escapedHint}' } }`;
+  const counter = failedCountVar ? `${failedCountVar} += 1; ` : "";
+  return `$zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { ${counter}if ($null -ne $zapcmdCode) { Write-Host ('${escapedLabel}${escapedHint} (code ' + $zapcmdCode + ')') } else { Write-Host '${escapedLabel}${escapedHint}' } }`;
 }
 
 function buildCmdFailureClause(label: string, hint: string): string {
@@ -70,9 +75,9 @@ function buildBatchCommandPayload(terminalId: string, commands: string[]): strin
     const steps = normalized.map((command, index) => {
       const step = index + 1;
       const hint = escapePowerShellSingleQuotedLiteral(summarizeCommand(terminalId, command));
-      return `Write-Host '[zapcmd][${step}/${total}][run] ${hint}'; ${command}; Write-Host ('[zapcmd][${step}/${total}][exit ' + $LASTEXITCODE + '] ${hint}')`;
+      return `Write-Host '[zapcmd][${step}/${total}][run] ${hint}'; $LASTEXITCODE = $null; ${command}; ${buildPowerShellFailureClause(`[zapcmd][${step}/${total}][failed] `, hint, "$zapcmdFailedCount")}`;
     });
-    return `${steps.join("; ")}; Write-Host ('[zapcmd][queue][exit ' + $LASTEXITCODE + '] total: ${total}')`;
+    return `$zapcmdFailedCount = 0; ${steps.join("; ")}; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: ${total}' } else { Write-Host ('[zapcmd][queue][failed] total: ${total}, failed: ' + $zapcmdFailedCount) }`;
   }
   if (isCmdTerminal(terminalId)) {
     const steps = normalized.map((command, index) => {
