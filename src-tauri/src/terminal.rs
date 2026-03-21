@@ -248,6 +248,7 @@ fn build_windows_launch_plan(terminal_id: &str, command: &str) -> WindowsLaunchP
                 ZAPCMD_WT_WINDOW_ID.to_string(),
                 "new-tab".to_string(),
                 "cmd".to_string(),
+                "/V:ON".to_string(),
                 "/K".to_string(),
                 command.to_string(),
             ],
@@ -255,7 +256,7 @@ fn build_windows_launch_plan(terminal_id: &str, command: &str) -> WindowsLaunchP
         },
         "cmd" => WindowsLaunchPlan {
             program: "cmd".to_string(),
-            args: vec!["/K".to_string(), command.to_string()],
+            args: vec!["/V:ON".to_string(), "/K".to_string(), command.to_string()],
             creation_flags: CREATE_NEW_CONSOLE,
         },
         "pwsh" => WindowsLaunchPlan {

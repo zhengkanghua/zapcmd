@@ -62,6 +62,7 @@ mod windows {
                 ZAPCMD_WT_WINDOW_ID.to_string(),
                 "new-tab".to_string(),
                 "cmd".to_string(),
+                "/V:ON".to_string(),
                 "/K".to_string(),
                 "echo 1".to_string(),
             ]
@@ -73,7 +74,10 @@ mod windows {
     fn build_windows_cmd_launch_plan_forces_new_console() {
         let plan = build_windows_launch_plan("cmd", "echo 1");
         assert_eq!(plan.program, "cmd");
-        assert_eq!(plan.args, vec!["/K".to_string(), "echo 1".to_string()]);
+        assert_eq!(
+            plan.args,
+            vec!["/V:ON".to_string(), "/K".to_string(), "echo 1".to_string()]
+        );
         assert_eq!(plan.creation_flags, CREATE_NEW_CONSOLE);
     }
 

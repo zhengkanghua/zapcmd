@@ -1,5 +1,13 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-21｜终端输出状态与辨识根修复）
+
+- 真实 Windows smoke 证实 `cmd /K` 需进程级 `/V:ON` 才能展开 `!ERRORLEVEL!`；现已为 `cmd/wt` 启动参数补 `/V:ON`，保留前端 `run / exit N` payload，`check:all` 全绿。
+
+## 补充（2026-03-21｜终端输出状态与辨识实现）
+
+- 已在隔离 worktree 完成 Windows 终端提示收口：单条/批量统一为 `run / exit N`；`cmd/wt` 用 delayed expansion 输出真实退出码；launcher 与 App 回归已对齐。
+
 ## 补充（2026-03-21｜终端输出状态与辨识设计）
 
 - 已确认新终端提示 contract：统一为 `run / exit N`，单条与批量都带轻量命令摘要；保留原始 stdout/stderr，不包装或改写命令自身报错；重点修复 `cmd/wt` 失败后仍显示 `finished` 的误导语义。
