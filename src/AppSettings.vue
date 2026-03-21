@@ -43,6 +43,7 @@ const {
   language,
   autoCheckUpdate,
   launchAtLogin,
+  alwaysElevatedTerminal,
   disabledCommandIds,
   windowOpacity,
   theme,
@@ -87,6 +88,7 @@ const settingsWindow = useSettingsWindow({
   language,
   autoCheckUpdate,
   launchAtLogin,
+  alwaysElevatedTerminal,
   settingsStore,
   getHotkeyValue: hotkeyBindings.getHotkeyValue,
   setHotkeyValue: hotkeyBindings.setHotkeyValue,
@@ -120,6 +122,7 @@ const {
   selectLanguageOption,
   setAutoCheckUpdate: setAutoCheckUpdateSetting,
   setLaunchAtLogin: setLaunchAtLoginSetting,
+  setAlwaysElevatedTerminal: setAlwaysElevatedTerminalSetting,
   loadSettings: loadSettingsSetting,
   loadAvailableTerminals: loadAvailableTerminalsSetting,
   persistSetting: persistSettingSetting,
@@ -330,6 +333,7 @@ onBeforeUnmount(() => {
     :language-options="languageOptions"
     :auto-check-update="autoCheckUpdate"
     :launch-at-login="launchAtLogin"
+    :always-elevated-terminal="alwaysElevatedTerminal"
     :command-rows="commandRows"
     :command-summary="commandSummary"
     :command-load-issues="commandLoadIssues"
@@ -357,6 +361,7 @@ onBeforeUnmount(() => {
     @select-language="selectLanguageOption"
     @set-auto-check-update="setAutoCheckUpdateSetting"
     @set-launch-at-login="setLaunchAtLoginSetting"
+    @set-always-elevated-terminal="setAlwaysElevatedTerminalSetting"
     @toggle-command-enabled="toggleCommandEnabled"
     @set-filtered-commands-enabled="setFilteredCommandsEnabled"
     @update-command-view="updateCommandView"

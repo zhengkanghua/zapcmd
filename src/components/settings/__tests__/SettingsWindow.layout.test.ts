@@ -61,6 +61,7 @@ function createSettingsWindowProps(
     ],
     autoCheckUpdate: defaults.general.autoCheckUpdate,
     launchAtLogin: defaults.general.launchAtLogin,
+    alwaysElevatedTerminal: defaults.general.alwaysElevatedTerminal,
     commandRows: [],
     commandSummary: {
       total: 0,
@@ -107,6 +108,7 @@ describe("SettingsWindow stable shell", () => {
   it("does not feed legacy terminal dropdown props into the window shell factory", () => {
     const props = createSettingsWindowProps({ settingsRoute: "general" }) as unknown as Record<string, unknown>;
 
+    expect("alwaysElevatedTerminal" in props).toBe(true);
     expect("terminalDropdownOpen" in props).toBe(false);
     expect("terminalFocusIndex" in props).toBe(false);
     expect("selectedTerminalOption" in props).toBe(false);

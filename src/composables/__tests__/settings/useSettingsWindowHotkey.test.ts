@@ -16,7 +16,8 @@ function createOptions(overrides: Partial<UseSettingsWindowOptions> = {}): UseSe
     toSnapshot: vi.fn(() => baseSnapshot),
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
-    setLaunchAtLogin: vi.fn()
+    setLaunchAtLogin: vi.fn(),
+    setAlwaysElevatedTerminal: vi.fn()
   };
 
   const hotkeyDefinitions: HotkeyFieldDefinition[] = [
@@ -36,6 +37,7 @@ function createOptions(overrides: Partial<UseSettingsWindowOptions> = {}): UseSe
     language: ref("zh-CN"),
     autoCheckUpdate: ref(true),
     launchAtLogin: ref(false),
+    alwaysElevatedTerminal: ref(false),
     settingsStore,
     getHotkeyValue: vi.fn((field: HotkeyFieldId) => hotkeys[field] ?? ""),
     setHotkeyValue: vi.fn((field: HotkeyFieldId, value: string) => {
@@ -125,4 +127,3 @@ describe("useSettingsWindow hotkey actions", () => {
     expect(actionsRecording.getHotkeyDisplay("launcher")).toBe(t("settings.hotkeys.recording"));
   });
 });
-

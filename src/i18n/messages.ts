@@ -110,7 +110,10 @@ export const messages = {
         noTerminal: "无可用终端",
         terminalPathNotFound: "未检测到路径",
         language: "界面语言",
-        terminalHint: "执行命令时将优先使用此终端，涉及管理员权限时会以终端方式请求提权。",
+        terminalHint: "命令默认会发送到此终端；需要管理员权限时，将由系统拉起对应终端。",
+        alwaysElevatedTerminal: "始终调用管理员权限终端",
+        alwaysElevatedTerminalHint:
+          "开启后，所有命令都会通过管理员终端运行；关闭时，仅在命令或执行流需要管理员权限时才触发系统提权。",
         languageOptionZhCn: "简体中文",
         languageOptionEnUs: "English",
         autoCheckUpdate: "自动检查更新",
@@ -430,7 +433,10 @@ export const messages = {
         terminalPathNotFound: "Path not detected",
         language: "Language",
         terminalHint:
-          "Commands are sent to this terminal by default. When elevation is required, privilege escalation is requested via terminal.",
+          "Commands are sent to this terminal by default. When elevation is required, Windows opens the matching terminal with system elevation.",
+        alwaysElevatedTerminal: "Always use elevated terminal",
+        alwaysElevatedTerminalHint:
+          "When enabled, every command runs in an elevated terminal. When disabled, elevation is requested only when a command or flow needs it.",
         languageOptionZhCn: "简体中文",
         languageOptionEnUs: "English",
         autoCheckUpdate: "Auto check for updates",

@@ -23,7 +23,8 @@ describe("SettingsGeneralSection i18n", () => {
           { value: "en-US", label: "English" }
         ],
         autoCheckUpdate: true,
-        launchAtLogin: false
+        launchAtLogin: false,
+        alwaysElevatedTerminal: false
       }
     });
 
@@ -32,7 +33,8 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("终端");
     expect(wrapper.text()).toContain("界面");
     expect(wrapper.text()).toContain("默认终端");
-    expect(wrapper.findAll(".setting-item")).toHaveLength(5);
+    expect(wrapper.text()).toContain("始终调用管理员权限终端");
+    expect(wrapper.findAll(".setting-item")).toHaveLength(6);
     expect(wrapper.find(".setting-item__description").exists()).toBe(true);
     const trigger = wrapper.get(".s-dropdown__trigger");
     expect(trigger.text()).toContain("PowerShell");
@@ -49,5 +51,6 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("Terminal");
     expect(wrapper.text()).toContain("Interface");
     expect(wrapper.text()).toContain("Default terminal");
+    expect(wrapper.text()).toContain("Always use elevated terminal");
   });
 });

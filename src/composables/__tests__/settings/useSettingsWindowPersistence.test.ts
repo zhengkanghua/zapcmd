@@ -36,7 +36,8 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     })),
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
-    setLaunchAtLogin: vi.fn()
+    setLaunchAtLogin: vi.fn(),
+    setAlwaysElevatedTerminal: vi.fn()
   };
 
   const options: UseSettingsWindowOptions = {
@@ -47,6 +48,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     language: ref("zh-CN"),
     autoCheckUpdate: ref(true),
     launchAtLogin: ref(false),
+    alwaysElevatedTerminal: ref(false),
     settingsStore,
     getHotkeyValue: vi.fn(() => "Alt+K"),
     setHotkeyValue: vi.fn(),

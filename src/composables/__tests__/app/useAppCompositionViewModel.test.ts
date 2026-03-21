@@ -56,6 +56,7 @@ describe("createAppCompositionViewModel", () => {
       language: ref("zh-CN"),
       autoCheckUpdate: ref(true),
       launchAtLogin: ref(false),
+      alwaysElevatedTerminal: ref(false),
       appVersion: ref("1.0.1"),
       runtimePlatform: ref("windows"),
       updateStatus: ref(null),
