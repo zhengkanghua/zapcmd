@@ -116,12 +116,6 @@ export function createAppCompositionContext(options: AppCompositionContextOption
   const initialWindowLabel = resolveAppWindow()?.label ?? "main";
   const currentWindowLabel = ref(initialWindowLabel);
   const settingsSyncChannel = ref<BroadcastChannel | null>(null);
-  const commandExecutor = createCommandExecutor();
-  const { runCommandInTerminal, runCommandsInTerminal } = useTerminalExecution({
-    commandExecutor,
-    defaultTerminal,
-    alwaysElevatedTerminal
-  });
   const stagedFeedback = useStagedFeedback({
     durationMs: 220
   });
@@ -155,6 +149,20 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     writeLauncherHotkey: ports.writeLauncherHotkey,
     fallbackTerminalOptions,
     broadcastSettingsUpdated: () => {
+      settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
+    }
+  });
+  const commandExecutor = createCommandExecutor();
+  const { runCommandInTerminal, runCommandsInTerminal } = useTerminalExecution({
+    commandExecutor,
+    defaultTerminal,
+    alwaysElevatedTerminal,
+    availableTerminals: settingsWindow.availableTerminals,
+    fallbackTerminalOptions,
+    isTauriRuntime: ports.isTauriRuntime,
+    readAvailableTerminals: ports.readAvailableTerminals,
+    persistCorrectedTerminal: () => {
+      settingsStore.persist();
       settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
     }
   });

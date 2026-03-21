@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { HotkeyFieldDefinition } from "../../../features/settings/types";
 import { createDefaultSettingsSnapshot, type HotkeyFieldId } from "../../../stores/settingsStore";
 import { createPersistenceActions } from "../../settings/useSettingsWindow/persistence";
+import { createTerminalActions } from "../../settings/useSettingsWindow/terminal";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
 
 function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
@@ -66,21 +67,44 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
   };
 
   const state = createSettingsState();
+  let ensureDefaultTerminal: (() => boolean) | undefined;
 
   const actions = createPersistenceActions({
     options,
-    state
+    state,
+    ensureDefaultTerminal: () => ensureDefaultTerminal?.() ?? false
   });
+  const terminal = createTerminalActions({
+    options,
+    state,
+    cancelHotkeyRecording: vi.fn(),
+    persistSetting: actions.persistSetting
+  });
+  ensureDefaultTerminal = terminal.ensureDefaultTerminal;
 
   return {
     options,
     settingsStore,
     state,
-    actions
+    actions,
+    terminal
   };
 }
 
 describe("useSettingsWindow persistence", () => {
+  it("persists corrected default terminal after loadSettings fallback", async () => {
+    const harness = createHarness({
+      defaultTerminal: ref("ghost"),
+      fallbackTerminalOptions: () => [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }]
+    });
+
+    harness.actions.loadSettings();
+
+    expect(harness.options.defaultTerminal.value).toBe("cmd");
+    expect(harness.settingsStore.persist).toHaveBeenCalledTimes(1);
+    expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
+  });
+
   it("persists and broadcasts on single setting change", async () => {
     const harness = createHarness();
 

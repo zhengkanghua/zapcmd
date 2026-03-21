@@ -2,15 +2,38 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useTerminalExecution } from "../../launcher/useTerminalExecution";
 
+function createExecutionHarness(initialTerminalId: string, alwaysElevated = false) {
+  const run = vi.fn(async () => {});
+  const defaultTerminal = ref(initialTerminalId);
+  const availableTerminals = ref<
+    Array<{ id: string; label: string; path: string }>
+  >([]);
+  const readAvailableTerminals = vi.fn(async () => []);
+  const persistCorrectedTerminal = vi.fn();
+  const execution = useTerminalExecution({
+    commandExecutor: { run },
+    defaultTerminal,
+    alwaysElevatedTerminal: ref(alwaysElevated),
+    availableTerminals,
+    fallbackTerminalOptions: () => [],
+    isTauriRuntime: () => false,
+    readAvailableTerminals,
+    persistCorrectedTerminal
+  });
+
+  return {
+    run,
+    defaultTerminal,
+    availableTerminals,
+    readAvailableTerminals,
+    persistCorrectedTerminal,
+    execution
+  };
+}
+
 describe("useTerminalExecution", () => {
   it("builds powershell single-command payload with conditional failed markers", async () => {
-    const run = vi.fn(async () => {});
-    const terminal = ref("powershell");
-    const execution = useTerminalExecution({
-      commandExecutor: { run },
-      defaultTerminal: terminal,
-      alwaysElevatedTerminal: ref(false)
-    });
+    const { run, execution } = createExecutionHarness("powershell");
 
     await execution.runCommandInTerminal("Get-Item missing");
 
@@ -24,15 +47,9 @@ describe("useTerminalExecution", () => {
   });
 
   it("reads latest terminal id on each invocation", async () => {
-    const run = vi.fn(async () => {});
-    const terminal = ref("cmd");
-    const execution = useTerminalExecution({
-      commandExecutor: { run },
-      defaultTerminal: terminal,
-      alwaysElevatedTerminal: ref(true)
-    });
+    const { run, defaultTerminal, execution } = createExecutionHarness("cmd", true);
 
-    terminal.value = "wt";
+    defaultTerminal.value = "wt";
     await execution.runCommandInTerminal("dir", { requiresElevation: true });
 
     expect(run).toHaveBeenCalledWith({
@@ -45,13 +62,7 @@ describe("useTerminalExecution", () => {
   });
 
   it("runs staged commands in one batch command", async () => {
-    const run = vi.fn(async () => {});
-    const terminal = ref("pwsh");
-    const execution = useTerminalExecution({
-      commandExecutor: { run },
-      defaultTerminal: terminal,
-      alwaysElevatedTerminal: ref(false)
-    });
+    const { run, execution } = createExecutionHarness("pwsh");
 
     await execution.runCommandsInTerminal(["echo hello", "git status"]);
 
@@ -65,15 +76,9 @@ describe("useTerminalExecution", () => {
   });
 
   it("switches queue execution to the latest settings terminal before dispatch", async () => {
-    const run = vi.fn(async () => {});
-    const terminal = ref("powershell");
-    const execution = useTerminalExecution({
-      commandExecutor: { run },
-      defaultTerminal: terminal,
-      alwaysElevatedTerminal: ref(false)
-    });
+    const { run, defaultTerminal, execution } = createExecutionHarness("powershell");
 
-    terminal.value = "wt";
+    defaultTerminal.value = "wt";
     await execution.runCommandsInTerminal(["git status"]);
 
     expect(run).toHaveBeenCalledWith({
@@ -86,13 +91,7 @@ describe("useTerminalExecution", () => {
   });
 
   it("keeps pipe symbol in PowerShell queue hint for visibility", async () => {
-    const run = vi.fn(async () => {});
-    const terminal = ref("powershell");
-    const execution = useTerminalExecution({
-      commandExecutor: { run },
-      defaultTerminal: terminal,
-      alwaysElevatedTerminal: ref(false)
-    });
+    const { run, execution } = createExecutionHarness("powershell");
 
     await execution.runCommandsInTerminal(["netstat -ano | findstr :8080"]);
 
@@ -106,13 +105,7 @@ describe("useTerminalExecution", () => {
   });
 
   it("labels each queued command so output can be matched to each step", async () => {
-    const run = vi.fn(async () => {});
-    const terminal = ref("powershell");
-    const execution = useTerminalExecution({
-      commandExecutor: { run },
-      defaultTerminal: terminal,
-      alwaysElevatedTerminal: ref(false)
-    });
+    const { run, execution } = createExecutionHarness("powershell");
 
     await execution.runCommandsInTerminal(["netstat -ano | findstr :8081", "netstat -ano | findstr :443"]);
 
@@ -126,13 +119,7 @@ describe("useTerminalExecution", () => {
   });
 
   it("passes elevation flags for queue execution", async () => {
-    const run = vi.fn(async () => {});
-    const terminal = ref("wt");
-    const execution = useTerminalExecution({
-      commandExecutor: { run },
-      defaultTerminal: terminal,
-      alwaysElevatedTerminal: ref(true)
-    });
+    const { run, execution } = createExecutionHarness("wt", true);
 
     await execution.runCommandsInTerminal(["git status"], { requiresElevation: true });
 
@@ -143,5 +130,26 @@ describe("useTerminalExecution", () => {
       requiresElevation: true,
       alwaysElevated: true
     });
+  });
+
+  it("corrects invalid terminal before dispatching command", async () => {
+    const {
+      run,
+      defaultTerminal,
+      availableTerminals,
+      persistCorrectedTerminal,
+      execution
+    } = createExecutionHarness("ghost");
+    availableTerminals.value = [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }];
+
+    await execution.runCommandInTerminal("dir");
+
+    expect(run).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalId: "cmd"
+      })
+    );
+    expect(defaultTerminal.value).toBe("cmd");
+    expect(persistCorrectedTerminal).toHaveBeenCalledTimes(1);
   });
 });

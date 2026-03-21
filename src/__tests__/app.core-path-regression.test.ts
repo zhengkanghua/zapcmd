@@ -4,6 +4,8 @@ import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LAUNCHER_SESSION_STORAGE_KEY } from "../composables/launcher/useLauncherSessionState";
+import { fallbackTerminalOptions } from "../features/terminals/fallbackTerminals";
+import { resolveEffectiveTerminal } from "../features/terminals/resolveEffectiveTerminal";
 import {
   SETTINGS_STORAGE_KEY,
   createDefaultSettingsSnapshot,
@@ -144,6 +146,14 @@ function buildSettingsSnapshot(defaultTerminal: string, alwaysElevatedTerminal =
   };
 }
 
+function resolveExpectedTerminalId(requestedId: string): string {
+  return resolveEffectiveTerminal(
+    requestedId,
+    [],
+    fallbackTerminalOptions(navigator.platform),
+  ).effectiveId;
+}
+
 beforeEach(() => {
   localStorage.clear();
   hoisted.runMock.mockReset();
@@ -203,12 +213,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     const request = hoisted.runMock.mock.calls[0]?.[0];
     expect(request?.command ?? "").toContain("my-container");
 
-    const terminalId = request?.terminalId ?? "";
-    if (process.platform === "win32") {
-      expect(terminalId).toBe("powershell");
-    } else {
-      expect(terminalId).toBeTruthy();
-    }
+    expect(request?.terminalId).toBe(resolveExpectedTerminalId("powershell"));
 
     await waitForUi();
     expectQueueCount(restored, 0);
@@ -267,7 +272,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     await waitForUi();
 
     const request = hoisted.runMock.mock.calls.at(-1)?.[0];
-    expect(request?.terminalId).toBe("wt");
+    expect(request?.terminalId).toBe(resolveExpectedTerminalId("wt"));
     expect(request?.command ?? "").toContain("my-container");
   });
 
@@ -296,5 +301,32 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     const request = hoisted.runMock.mock.calls.at(-1)?.[0];
     expect(request?.alwaysElevated).toBe(true);
+  });
+
+  it("覆盖恢复链路：失效默认终端会在执行前回退到可用终端", async () => {
+    hoisted.runMock.mockResolvedValue(undefined);
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify(buildSettingsSnapshot("ghost")),
+    );
+
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
+
+    await wrapper.get(".command-panel__input").setValue("my-container");
+    await wrapper.get("[data-testid='confirm-btn']").trigger("click");
+    await waitForUi();
+
+    await openReviewByPill(wrapper);
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    await waitForUi();
+
+    const request = hoisted.runMock.mock.calls.at(-1)?.[0];
+    expect(request?.terminalId).toBe(fallbackTerminalOptions(navigator.platform)[0]?.id);
   });
 });

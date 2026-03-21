@@ -12,14 +12,14 @@ export type { HotkeyFieldDefinition, SettingsRoute };
 export function useSettingsWindow(options: UseSettingsWindowOptions) {
   const state = createSettingsState();
   const persistenceHooks: {
-    ensureDefaultTerminal?: () => void;
+    ensureDefaultTerminal?: () => boolean;
     loadAutoStartEnabled?: () => Promise<void>;
   } = {};
 
   const persistence = createPersistenceActions({
     options,
     state,
-    ensureDefaultTerminal: () => persistenceHooks.ensureDefaultTerminal?.(),
+    ensureDefaultTerminal: () => persistenceHooks.ensureDefaultTerminal?.() ?? false,
     loadAutoStartEnabled: () => persistenceHooks.loadAutoStartEnabled?.() ?? Promise.resolve()
   });
   const hotkey = createHotkeyActions({

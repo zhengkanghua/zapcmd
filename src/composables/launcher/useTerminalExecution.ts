@@ -1,10 +1,17 @@
 import type { Ref } from "vue";
+import type { TerminalOption } from "../../features/terminals/fallbackTerminals";
+import { resolveEffectiveTerminal } from "../../features/terminals/resolveEffectiveTerminal";
 import type { CommandExecutor } from "../../services/commandExecutor";
 
 interface UseTerminalExecutionOptions {
   commandExecutor: CommandExecutor;
   defaultTerminal: Ref<string>;
   alwaysElevatedTerminal: Ref<boolean>;
+  availableTerminals: Ref<TerminalOption[]>;
+  fallbackTerminalOptions: () => TerminalOption[];
+  isTauriRuntime: () => boolean;
+  readAvailableTerminals: () => Promise<TerminalOption[]>;
+  persistCorrectedTerminal: () => void;
 }
 
 interface TerminalExecutionOptions {
@@ -134,6 +141,50 @@ function buildBatchCommandPayload(terminalId: string, commands: string[]): strin
   return `${steps.join("; ")}; echo "[zapcmd] queue finished, total: ${total}"`;
 }
 
+async function resolveAvailableTerminals(
+  options: UseTerminalExecutionOptions
+): Promise<TerminalOption[]> {
+  if (options.availableTerminals.value.length > 0) {
+    return options.availableTerminals.value;
+  }
+
+  if (!options.isTauriRuntime()) {
+    return [];
+  }
+
+  try {
+    const discovered = await options.readAvailableTerminals();
+    if (Array.isArray(discovered) && discovered.length > 0) {
+      options.availableTerminals.value = discovered;
+      return discovered;
+    }
+  } catch (error) {
+    console.warn("readAvailableTerminals before execution failed", error);
+  }
+
+  return [];
+}
+
+async function resolveTerminalIdBeforeDispatch(
+  options: UseTerminalExecutionOptions
+): Promise<string> {
+  const availableTerminals = await resolveAvailableTerminals(options);
+  const resolution = resolveEffectiveTerminal(
+    options.defaultTerminal.value,
+    availableTerminals,
+    options.fallbackTerminalOptions()
+  );
+  if (resolution.corrected) {
+    options.defaultTerminal.value = resolution.effectiveId;
+    try {
+      options.persistCorrectedTerminal();
+    } catch (error) {
+      console.warn("persist corrected terminal before execution failed", error);
+    }
+  }
+  return resolution.effectiveId;
+}
+
 /**
  * 暴露单条与批量终端执行入口，并在执行前注入与终端类型匹配的提示 contract。
  * @param options 命令执行器与默认终端引用。
@@ -149,7 +200,7 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
       throw new Error("Command cannot be empty.");
     }
 
-    const terminalId = options.defaultTerminal.value;
+    const terminalId = await resolveTerminalIdBeforeDispatch(options);
     const command = buildSingleCommandPayload(terminalId, normalized);
     await options.commandExecutor.run({
       terminalId,
@@ -163,7 +214,7 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
     renderedCommands: string[],
     executionOptions: TerminalExecutionOptions = {}
   ): Promise<void> {
-    const terminalId = options.defaultTerminal.value;
+    const terminalId = await resolveTerminalIdBeforeDispatch(options);
     const command = buildBatchCommandPayload(terminalId, renderedCommands);
     if (!command) {
       throw new Error("No executable commands in queue.");

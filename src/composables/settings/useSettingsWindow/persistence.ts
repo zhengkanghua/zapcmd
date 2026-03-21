@@ -58,7 +58,7 @@ export interface InstantPersistenceActions {
 export function createPersistenceActions(deps: {
   options: UseSettingsWindowOptions;
   state: SettingsWindowState;
-  ensureDefaultTerminal?: () => void;
+  ensureDefaultTerminal?: () => boolean;
   loadAutoStartEnabled?: () => Promise<void>;
 }): InstantPersistenceActions {
   const { options, state } = deps;
@@ -88,9 +88,12 @@ export function createPersistenceActions(deps: {
 
   function loadSettings(): void {
     options.settingsStore.hydrateFromStorage();
-    deps.ensureDefaultTerminal?.();
-    void deps.loadAutoStartEnabled?.();
+    const corrected = deps.ensureDefaultTerminal?.() ?? false;
     clearSettingsErrorState(state);
+    if (corrected) {
+      void persistSetting();
+    }
+    void deps.loadAutoStartEnabled?.();
   }
 
   async function applyHotkeyChange(fieldId: HotkeyFieldId, value: string): Promise<void> {

@@ -1,8 +1,9 @@
 import { normalizeAppLocale, type AppLocale } from "../../../i18n";
+import { resolveEffectiveTerminal } from "../../../features/terminals/resolveEffectiveTerminal";
 import { clearSettingsErrorState, type SettingsWindowState, type UseSettingsWindowOptions } from "./model";
 
 export interface TerminalActions {
-  ensureDefaultTerminal: () => void;
+  ensureDefaultTerminal: () => boolean;
   selectTerminalOption: (id: string) => void;
   selectLanguageOption: (locale: AppLocale) => void;
   onGlobalPointerDown: (event: PointerEvent) => void;
@@ -17,14 +18,18 @@ export function createTerminalActions(deps: {
 }): TerminalActions {
   const { options, state, cancelHotkeyRecording, persistSetting } = deps;
 
-  function ensureDefaultTerminal(): void {
-    if (state.availableTerminals.value.length === 0) {
-      return;
+  function ensureDefaultTerminal(): boolean {
+    const resolution = resolveEffectiveTerminal(
+      options.defaultTerminal.value,
+      state.availableTerminals.value,
+      options.fallbackTerminalOptions()
+    );
+    if (!resolution.effectiveId || !resolution.corrected) {
+      return false;
     }
-    const exists = state.availableTerminals.value.some((item) => item.id === options.defaultTerminal.value);
-    if (!exists) {
-      options.defaultTerminal.value = state.availableTerminals.value[0].id;
-    }
+
+    options.defaultTerminal.value = resolution.effectiveId;
+    return true;
   }
 
   function selectTerminalOption(id: string): void {
@@ -59,11 +64,15 @@ export function createTerminalActions(deps: {
             ? terminals
             : options.fallbackTerminalOptions();
       }
-      ensureDefaultTerminal();
+      if (ensureDefaultTerminal()) {
+        await persistSetting();
+      }
     } catch (error) {
       console.warn("loadAvailableTerminals failed; using fallback", error);
       state.availableTerminals.value = options.fallbackTerminalOptions();
-      ensureDefaultTerminal();
+      if (ensureDefaultTerminal()) {
+        await persistSetting();
+      }
     } finally {
       state.terminalLoading.value = false;
     }
