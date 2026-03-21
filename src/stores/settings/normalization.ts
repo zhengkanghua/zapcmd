@@ -8,6 +8,7 @@ import {
   COMMAND_SOURCE_FILTERS,
   COMMAND_STATUS_FILTERS,
   DEFAULT_AUTO_CHECK_UPDATE,
+  DEFAULT_ALWAYS_ELEVATED_TERMINAL,
   DEFAULT_BLUR_ENABLED,
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
@@ -176,7 +177,11 @@ export function normalizePersistedSettingsSnapshot(
       defaultTerminal: normalizeTerminalId(snapshot.general.defaultTerminal),
       language: normalizeLanguage(snapshot.general.language),
       autoCheckUpdate: normalizeBoolean(snapshot.general.autoCheckUpdate, DEFAULT_AUTO_CHECK_UPDATE),
-      launchAtLogin: normalizeBoolean(snapshot.general.launchAtLogin, DEFAULT_LAUNCH_AT_LOGIN)
+      launchAtLogin: normalizeBoolean(snapshot.general.launchAtLogin, DEFAULT_LAUNCH_AT_LOGIN),
+      alwaysElevatedTerminal: normalizeBoolean(
+        snapshot.general.alwaysElevatedTerminal,
+        DEFAULT_ALWAYS_ELEVATED_TERMINAL
+      )
     },
     commands: {
       disabledCommandIds: normalizeDisabledCommandIds(snapshot.commands.disabledCommandIds)
