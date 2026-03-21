@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -133,6 +134,53 @@ afterEach(() => {
 });
 
 describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
+  it("delegates height observation, grip reorder and inline args state out of the main file", () => {
+    const source = readFileSync("src/components/launcher/parts/LauncherFlowPanel.vue", "utf8");
+
+    expect(source).toContain("useFlowPanelHeightObservation");
+    expect(source).toContain("useFlowPanelGripReorder");
+    expect(source).toContain("useFlowPanelInlineArgs");
+    expect(source).not.toContain("let gripReorderCleanup");
+    expect(source).not.toContain("let flowPanelHeightObserver");
+    expect(source).not.toContain("const editingParam = ref");
+  });
+
+  it("keeps settled, grip drag-end and inline arg update emits stable", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      attachTo: document.body,
+      props: createProps({
+        stagedCommands: [
+          createArgCommand(),
+          createStagedCommand({ id: "cmd-2", title: "命令 2" })
+        ]
+      })
+    });
+
+    await nextTick();
+    await nextTick();
+    expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+
+    await wrapper.find(".flow-card__grip").trigger("mousedown", {
+      button: 0,
+      buttons: 1,
+      clientX: 80,
+      clientY: 120
+    });
+    window.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+    await nextTick();
+    expect(wrapper.emitted("staging-drag-end")).toBeTruthy();
+
+    await wrapper.get(".flow-card__param-value").trigger("click");
+    await nextTick();
+    const input = wrapper.get(".flow-card__param-input");
+    await input.setValue("8080");
+    await input.trigger("keydown.enter");
+    await nextTick();
+    expect(wrapper.emitted("update-staged-arg")).toBeTruthy();
+
+    wrapper.unmount();
+  });
+
   it("FlowPanel 采用 header + body + footer 三段式，空态与列表态都挂在 body 内", () => {
     const emptyWrapper = mount(LauncherFlowPanel, {
       props: createProps({ stagedCommands: [] })
