@@ -10,6 +10,9 @@ const CREATE_NO_WINDOW: u32 = 0x08000000;
 #[cfg(target_os = "windows")]
 pub(crate) const ZAPCMD_WT_WINDOW_ID: &str = "zapcmd-main-terminal";
 
+#[cfg(target_os = "windows")]
+const CREATE_NEW_CONSOLE: u32 = 0x0000_0010;
+
 #[derive(serde::Serialize)]
 pub(crate) struct TerminalOption {
     id: String,
@@ -17,6 +20,10 @@ pub(crate) struct TerminalOption {
     path: String,
 }
 
+/// Windows 端统一的终端启动计划。
+///
+/// `program` 为目标可执行文件，`args` 为完整参数序列，
+/// `creation_flags` 用于声明是否必须新开独立控制台。
 #[cfg(target_os = "windows")]
 pub(crate) struct WindowsLaunchPlan {
     pub program: String,
@@ -227,34 +234,69 @@ pub(crate) fn get_available_terminals() -> Result<Vec<TerminalOption>, String> {
 }
 
 #[cfg(target_os = "windows")]
-fn build_command_windows(terminal_id: &str, command: &str) -> ProcessCommand {
+/// 根据当前默认终端生成 Windows 启动策略。
+///
+/// 参数 `terminal_id` 为 Settings 中选中的终端标识，`command` 为已清洗后的命令。
+/// 返回值为不依赖 `ProcessCommand` 的纯数据计划，便于锁定平台 contract。
+#[cfg(target_os = "windows")]
+fn build_windows_launch_plan(terminal_id: &str, command: &str) -> WindowsLaunchPlan {
     match terminal_id {
-        "wt" => {
-            let mut process = ProcessCommand::new("wt");
-            process.args(["new-tab", "cmd", "/K", command]);
-            process
-        }
-        "cmd" => {
-            let mut process = ProcessCommand::new("cmd");
-            process.args(["/K", command]);
-            process
-        }
-        "pwsh" => {
-            let mut process = ProcessCommand::new("pwsh");
-            process.args(["-NoExit", "-Command", command]);
-            process
-        }
-        _ => {
-            let mut process = ProcessCommand::new("powershell");
-            process.args(["-NoExit", "-Command", command]);
-            process
-        }
+        "wt" => WindowsLaunchPlan {
+            program: "wt".to_string(),
+            args: vec![
+                "-w".to_string(),
+                ZAPCMD_WT_WINDOW_ID.to_string(),
+                "new-tab".to_string(),
+                "cmd".to_string(),
+                "/K".to_string(),
+                command.to_string(),
+            ],
+            creation_flags: 0,
+        },
+        "cmd" => WindowsLaunchPlan {
+            program: "cmd".to_string(),
+            args: vec!["/K".to_string(), command.to_string()],
+            creation_flags: CREATE_NEW_CONSOLE,
+        },
+        "pwsh" => WindowsLaunchPlan {
+            program: "pwsh".to_string(),
+            args: vec![
+                "-NoExit".to_string(),
+                "-Command".to_string(),
+                command.to_string(),
+            ],
+            creation_flags: CREATE_NEW_CONSOLE,
+        },
+        _ => WindowsLaunchPlan {
+            program: "powershell".to_string(),
+            args: vec![
+                "-NoExit".to_string(),
+                "-Command".to_string(),
+                command.to_string(),
+            ],
+            creation_flags: CREATE_NEW_CONSOLE,
+        },
     }
 }
 
+/// 把 Windows 启动计划转换成真正的进程命令。
+///
+/// 参数 `plan` 为 `build_windows_launch_plan` 生成的纯数据计划。
+/// 返回值为可直接交给 `spawn_and_forget` 的 `ProcessCommand`。
 #[cfg(target_os = "windows")]
-fn build_windows_launch_plan(_terminal_id: &str, _command: &str) -> WindowsLaunchPlan {
-    todo!("implemented in Task 2")
+fn build_process_from_windows_launch_plan(plan: &WindowsLaunchPlan) -> ProcessCommand {
+    let mut process = ProcessCommand::new(plan.program.as_str());
+    process.args(plan.args.iter().map(|arg| arg.as_str()));
+    if plan.creation_flags != 0 {
+        process.creation_flags(plan.creation_flags);
+    }
+    process
+}
+
+#[cfg(target_os = "windows")]
+fn build_command_windows(terminal_id: &str, command: &str) -> ProcessCommand {
+    let plan = build_windows_launch_plan(terminal_id, command);
+    build_process_from_windows_launch_plan(&plan)
 }
 
 #[cfg(target_os = "windows")]

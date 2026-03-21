@@ -1,15 +1,18 @@
 use super::{run_command_in_terminal, sanitize_command, spawn_and_forget, ProcessCommand};
 
+#[cfg(not(target_os = "windows"))]
 fn command_program(cmd: &ProcessCommand) -> String {
     cmd.get_program().to_string_lossy().into_owned()
 }
 
+#[cfg(not(target_os = "windows"))]
 fn command_args(cmd: &ProcessCommand) -> Vec<String> {
     cmd.get_args()
         .map(|arg| arg.to_string_lossy().into_owned())
         .collect()
 }
 
+#[cfg(not(target_os = "windows"))]
 fn assert_command(cmd: &ProcessCommand, expected_program: &str, expected_args: &[&str]) {
     assert_eq!(command_program(cmd), expected_program);
     assert_eq!(
