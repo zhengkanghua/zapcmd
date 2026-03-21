@@ -119,7 +119,8 @@ describe("SettingsWindow stable shell", () => {
   it("does not declare legacy close-confirm or error-navigation contract", () => {
     const props = createSettingsWindowProps({ settingsRoute: "general" }) as unknown as Record<string, unknown>;
     const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "general" }));
-    const emitsOptions = wrapper.vm.$.emitsOptions ?? {};
+    const emitsOptions =
+      ((wrapper.vm.$ as unknown as { emitsOptions?: Record<string, unknown> }).emitsOptions) ?? {};
 
     expect("settingsErrorRoute" in props).toBe(false);
     expect("closeConfirmOpen" in props).toBe(false);
