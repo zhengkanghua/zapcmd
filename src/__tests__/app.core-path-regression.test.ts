@@ -22,6 +22,8 @@ const hoisted = vi.hoisted(() => ({
         alwaysElevated?: boolean;
       }) => Promise<void>
     >(),
+  invokeMock: vi.fn<(command: string, payload?: unknown) => Promise<unknown>>(),
+  isTauriMock: vi.fn<() => boolean>(() => true),
   currentWindowLabel: "main",
   closeSpy: vi.fn(),
   hideSpy: vi.fn(),
@@ -30,8 +32,8 @@ const hoisted = vi.hoisted(() => ({
 }));
 
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-  isTauri: vi.fn(() => false),
+  invoke: hoisted.invokeMock,
+  isTauri: hoisted.isTauriMock,
 }));
 
 vi.mock("@tauri-apps/api/window", () => ({
@@ -157,6 +159,10 @@ function resolveExpectedTerminalId(requestedId: string): string {
 beforeEach(() => {
   localStorage.clear();
   hoisted.runMock.mockReset();
+  hoisted.invokeMock.mockReset();
+  hoisted.invokeMock.mockResolvedValue(undefined);
+  hoisted.isTauriMock.mockReset();
+  hoisted.isTauriMock.mockReturnValue(true);
   warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
   errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 });

@@ -15,9 +15,11 @@
 
 ## 补充（2026-03-21｜命令 schema 与 preflight contract 加固）
 
-- 计划 2 进行中：`CommandArg` / `CommandTemplate` 已补齐 `min/max/prerequisites`，`runtimeMapper` 不再丢掉这些字段，`StagedCommand` 也开始携带 prerequisites。
-- `commandSafety` 已对 `number` 参数执行 `min/max` 运行时校验；前端新增 `commandPreflight` service，Rust 新增 prerequisite probe，当前支持 `binary/env`，其余类型返回结构化 `unsupported-prerequisite`。
-- `useCommandExecution` 已在单条与队列执行前接入 prerequisite preflight：required 失败会阻断，optional 失败会在成功反馈后追加预检告警。
+- 计划 2 已完成：`CommandArg` / `CommandTemplate` 已补齐 `min/max/prerequisites`，`runtimeMapper` 不再丢字段，`StagedCommand` 也开始携带 prerequisites，schema-only contract 已收口到真实运行时模型。
+- `commandSafety` 已对 `number` 参数执行 `min/max` 运行时校验；前端新增 `commandPreflight` service，Rust 新增 prerequisite probe，当前支持 `binary/env`，其余类型统一返回结构化 `unsupported-prerequisite`。
+- `useCommandExecution` 已在单条与队列执行前接入 prerequisite preflight：required 失败会阻断，optional 失败会在成功反馈后追加预检告警；队列 preflight 抽取为独立 helper，但单条路径保留原时序，避免无谓 async turn 漂移。
+- 计划差异：真实内置 runtime JSON 已普遍携带 `prerequisites`，导致 app 级执行回归在浏览器预览态下会被 preflight 提前阻断；为与“桌面端真实执行链”对齐，补充了 `app.core-path-regression` / `app.hotkeys` / `app.failure-events` 的 Tauri mock 夹具，仅保留“执行被阻断时队列保留”用例继续跑 `isTauri=false`。
+- 计划 2 最终验证已通过：`runtimeMapper` / `commandSafety` / `commandPreflight` / `useCommandExecution` focused tests、Rust prerequisite tests 与 `npm run check:all` 全绿。
 
 ## 补充（2026-03-21｜项目总审查）
 

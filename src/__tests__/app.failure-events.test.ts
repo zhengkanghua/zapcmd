@@ -440,7 +440,7 @@ beforeEach(() => {
   hoisted.invokeMock.mockReset();
   hoisted.invokeMock.mockResolvedValue(undefined);
   hoisted.isTauriMock.mockReset();
-  hoisted.isTauriMock.mockReturnValue(false);
+  hoisted.isTauriMock.mockReturnValue(true);
   hoisted.currentWindowLabel = "main";
   hoisted.closeSpy.mockReset();
   hoisted.hideSpy.mockReset();

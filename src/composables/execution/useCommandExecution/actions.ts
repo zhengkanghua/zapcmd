@@ -31,6 +31,34 @@ function needsPanel(command: CommandTemplate): boolean {
   return hasArgs || (isDangerous && !dismissed);
 }
 
+function hasPrerequisites(
+  prerequisites: CommandTemplate["prerequisites"] | StagedCommand["prerequisites"]
+): boolean {
+  return Array.isArray(prerequisites) && prerequisites.length > 0;
+}
+
+async function collectQueuePreflightIssues(
+  options: UseCommandExecutionOptions,
+  snapshot: StagedCommand[]
+): Promise<CommandPreflightIssue[]> {
+  if (!options.runCommandPreflight || !snapshot.some((item) => hasPrerequisites(item.prerequisites))) {
+    return [];
+  }
+
+  return (
+    await Promise.all(
+      snapshot.map(async (item) =>
+        (
+          await runCommandPreflight(options, item.prerequisites)
+        ).map((result) => ({
+          title: item.title,
+          result
+        }))
+      )
+    )
+  ).flat();
+}
+
 function createExecuteStagedAction(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState,
@@ -112,18 +140,7 @@ function createExecuteStagedAction(
       options.scheduleSearchInputFocus(false);
       return;
     }
-    const preflightIssues = (
-      await Promise.all(
-        snapshot.map(async (item) =>
-          (
-            await runCommandPreflight(options, item.prerequisites)
-          ).map((result) => ({
-            title: item.title,
-            result
-          }))
-        )
-      )
-    ).flat();
+    const preflightIssues = await collectQueuePreflightIssues(options, snapshot);
     const blockingPreflightIssues = collectBlockingPreflightIssues(preflightIssues);
     if (blockingPreflightIssues.length > 0) {
       state.setExecutionFeedback(
@@ -182,9 +199,12 @@ function createSingleExecutionRequester(
       options.scheduleSearchInputFocus(false);
       return;
     }
-    const preflightIssues = (
-      await runCommandPreflight(options, command.prerequisites)
-    ).map((result) => ({ result }));
+    const shouldRunPreflight = !!options.runCommandPreflight && hasPrerequisites(command.prerequisites);
+    const preflightIssues = shouldRunPreflight
+      ? (
+          await runCommandPreflight(options, command.prerequisites)
+        ).map((result) => ({ result }))
+      : [];
     const blockingPreflightIssues = collectBlockingPreflightIssues(preflightIssues);
     if (blockingPreflightIssues.length > 0) {
       state.setExecutionFeedback(

@@ -5,9 +5,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "../App.vue";
 
+const hoisted = vi.hoisted(() => ({
+  invokeMock: vi.fn<(command: string, payload?: unknown) => Promise<unknown>>(),
+  isTauriMock: vi.fn<() => boolean>(() => true)
+}));
+
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-  isTauri: vi.fn(() => false)
+  invoke: hoisted.invokeMock,
+  isTauri: hoisted.isTauriMock
 }));
 
 vi.mock("@tauri-apps/api/window", () => ({
@@ -99,6 +104,10 @@ async function openReviewByPill(wrapper: VueWrapper): Promise<void> {
 
 beforeEach(() => {
   localStorage.clear();
+  hoisted.invokeMock.mockReset();
+  hoisted.invokeMock.mockResolvedValue(undefined);
+  hoisted.isTauriMock.mockReset();
+  hoisted.isTauriMock.mockReturnValue(true);
   warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
   errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -334,6 +343,7 @@ describe("App UI hotkeys regression", () => {
   });
 
   it("executes queue with Ctrl+Enter and keeps staged commands when execution is blocked", async () => {
+    hoisted.isTauriMock.mockReturnValue(false);
     const wrapper = await mountApp();
 
     await focusSearchAndType(wrapper, "docker");
