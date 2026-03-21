@@ -15,7 +15,8 @@ describe("useTerminalExecution", () => {
 
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
-      command: "Write-Host '[zapcmd] executing: echo hello'; echo hello; Write-Host ('[zapcmd] finished, last exit code: ' + $LASTEXITCODE)"
+      command:
+        "Write-Host '[zapcmd][run] echo hello'; echo hello; Write-Host ('[zapcmd][exit ' + $LASTEXITCODE + '] echo hello')"
     });
   });
 
@@ -32,7 +33,8 @@ describe("useTerminalExecution", () => {
 
     expect(run).toHaveBeenCalledWith({
       terminalId: "wt",
-      command: "echo [zapcmd] executing: dir && dir & echo [zapcmd] finished"
+      command:
+        "setlocal EnableDelayedExpansion & echo [zapcmd][run] dir & dir & echo [zapcmd][exit !ERRORLEVEL!] dir"
     });
   });
 
@@ -105,4 +107,3 @@ describe("useTerminalExecution", () => {
     });
   });
 });
-

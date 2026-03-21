@@ -41,10 +41,10 @@ function buildSingleCommandPayload(terminalId: string, command: string): string 
   const hint = summarizeCommand(terminalId, command);
   if (isPowerShellTerminal(terminalId)) {
     const escapedHint = escapePowerShellSingleQuotedLiteral(hint);
-    return `Write-Host '[zapcmd] executing: ${escapedHint}'; ${command}; Write-Host ('[zapcmd] finished, last exit code: ' + $LASTEXITCODE)`;
+    return `Write-Host '[zapcmd][run] ${escapedHint}'; ${command}; Write-Host ('[zapcmd][exit ' + $LASTEXITCODE + '] ${escapedHint}')`;
   }
   if (isCmdTerminal(terminalId)) {
-    return `echo [zapcmd] executing: ${hint} && ${command} & echo [zapcmd] finished`;
+    return `setlocal EnableDelayedExpansion & echo [zapcmd][run] ${hint} & ${command} & echo [zapcmd][exit !ERRORLEVEL!] ${hint}`;
   }
   return `echo "[zapcmd] executing: ${hint}"; ${command}; echo "[zapcmd] finished"`;
 }
