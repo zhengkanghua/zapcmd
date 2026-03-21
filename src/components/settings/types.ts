@@ -54,6 +54,8 @@ export interface SettingsGeneralProps {
   languageOptions: Array<{ value: AppLocale; label: string }>;
   autoCheckUpdate: boolean;
   launchAtLogin: boolean;
+  alwaysElevatedTerminal: boolean;
+  showAlwaysElevatedTerminal: boolean;
 }
 
 export interface SettingsCommandsProps {

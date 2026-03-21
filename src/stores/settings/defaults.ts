@@ -48,6 +48,7 @@ export interface PersistedSettingsSnapshot {
     language: AppLocale;
     autoCheckUpdate: boolean;
     launchAtLogin: boolean;
+    alwaysElevatedTerminal: boolean;
   };
   commands: {
     disabledCommandIds: string[];
@@ -63,6 +64,7 @@ export const DEFAULT_TERMINAL = "powershell";
 export const DEFAULT_LANGUAGE: AppLocale = "zh-CN";
 export const DEFAULT_AUTO_CHECK_UPDATE = true;
 export const DEFAULT_LAUNCH_AT_LOGIN = false;
+export const DEFAULT_ALWAYS_ELEVATED_TERMINAL = false;
 export const DEFAULT_WINDOW_OPACITY = 0.96;
 export const MIN_WINDOW_OPACITY = 0.2;
 export const MAX_WINDOW_OPACITY = 1.0;
@@ -120,7 +122,8 @@ export function createDefaultSettingsSnapshot(): PersistedSettingsSnapshot {
       defaultTerminal: DEFAULT_TERMINAL,
       language: DEFAULT_LANGUAGE,
       autoCheckUpdate: DEFAULT_AUTO_CHECK_UPDATE,
-      launchAtLogin: DEFAULT_LAUNCH_AT_LOGIN
+      launchAtLogin: DEFAULT_LAUNCH_AT_LOGIN,
+      alwaysElevatedTerminal: DEFAULT_ALWAYS_ELEVATED_TERMINAL
     },
     commands: {
       disabledCommandIds: []

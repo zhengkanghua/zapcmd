@@ -74,6 +74,8 @@ const {
   language,
   autoCheckUpdate,
   launchAtLogin,
+  alwaysElevatedTerminal,
+  showAlwaysElevatedTerminal,
   selectedTerminalPath,
   languageOptions,
   appVersion,
@@ -108,6 +110,7 @@ const {
   selectLanguageOption,
   setAutoCheckUpdate,
   setLaunchAtLogin,
+  setAlwaysElevatedTerminal,
   toggleCommandEnabled,
   setFilteredCommandsEnabled,
   updateCommandView,
@@ -239,6 +242,8 @@ function navigateToSettingsError(): void {
     :language="language"
     :auto-check-update="autoCheckUpdate"
     :launch-at-login="launchAtLogin"
+    :always-elevated-terminal="alwaysElevatedTerminal"
+    :show-always-elevated-terminal="showAlwaysElevatedTerminal"
     :selected-terminal-path="selectedTerminalPath"
     :language-options="languageOptions"
     :app-version="appVersion"
@@ -271,6 +276,7 @@ function navigateToSettingsError(): void {
     @select-language="selectLanguageOption"
     @set-auto-check-update="setAutoCheckUpdate"
     @set-launch-at-login="setLaunchAtLogin"
+    @set-always-elevated-terminal="setAlwaysElevatedTerminal"
     @toggle-command-enabled="toggleCommandEnabled"
     @set-filtered-commands-enabled="setFilteredCommandsEnabled"
     @update-command-view="updateCommandView"

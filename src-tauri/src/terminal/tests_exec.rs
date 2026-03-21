@@ -1,4 +1,4 @@
-use super::{run_command_in_terminal, sanitize_command, spawn_and_forget, ProcessCommand};
+use super::{sanitize_command, spawn_and_forget, ProcessCommand, TerminalExecutionError};
 
 #[cfg(not(target_os = "windows"))]
 fn command_program(cmd: &ProcessCommand) -> String {
@@ -35,8 +35,11 @@ fn sanitize_command_rejects_all_whitespace() {
 }
 
 #[test]
-fn run_command_in_terminal_keeps_rejecting_blank_input_after_strategy_refactor() {
-    assert!(run_command_in_terminal("wt".to_string(), "   ".to_string()).is_err());
+fn sanitize_command_keeps_structured_invalid_request_error() {
+    assert_eq!(
+        sanitize_command("   ").unwrap_err(),
+        TerminalExecutionError::new("invalid-request", "Command cannot be empty.")
+    );
 }
 
 #[test]
@@ -47,68 +50,237 @@ fn spawn_and_forget_propagates_spawn_error() {
 
 #[cfg(target_os = "windows")]
 mod windows {
-    use crate::terminal::{build_windows_launch_plan, ZAPCMD_WT_WINDOW_ID};
+    use crate::terminal::{
+        join_windows_arguments,
+        map_windows_launch_error,
+        resolve_windows_launch_mode,
+        should_update_last_session_kind,
+        to_wide,
+        windows_routing::{
+            decide_windows_route,
+            WindowsRoutingInput,
+            WindowsSessionKind,
+            ZAPCMD_WT_ADMIN_WINDOW_ID,
+            ZAPCMD_WT_WINDOW_ID,
+        },
+        WindowsLaunchMode,
+        TerminalExecutionError,
+    };
+    use std::slice;
+    use windows_sys::Win32::Foundation::LocalFree;
+    use windows_sys::Win32::UI::Shell::CommandLineToArgvW;
 
-    const CREATE_NEW_CONSOLE: u32 = 0x0000_0010;
+    fn wide_ptr_to_string(pointer: *mut u16) -> String {
+        let mut length = 0usize;
+        unsafe {
+            while *pointer.add(length) != 0 {
+                length += 1;
+            }
+            String::from_utf16_lossy(slice::from_raw_parts(pointer, length))
+        }
+    }
 
-    #[test]
-    fn build_windows_wt_launch_plan_reuses_managed_window() {
-        let plan = build_windows_launch_plan("wt", "echo 1");
-        assert_eq!(plan.program, "wt");
-        assert_eq!(
-            plan.args,
-            vec![
-                "-w".to_string(),
-                ZAPCMD_WT_WINDOW_ID.to_string(),
-                "new-tab".to_string(),
-                "cmd".to_string(),
-                "/V:ON".to_string(),
-                "/K".to_string(),
-                "echo 1".to_string(),
-            ]
+    fn parse_windows_arguments(command_line: &str) -> Vec<String> {
+        let raw = to_wide(command_line);
+        let mut argument_count = 0i32;
+        let arguments = unsafe { CommandLineToArgvW(raw.as_ptr(), &mut argument_count) };
+        assert!(!arguments.is_null(), "CommandLineToArgvW should parse the command line");
+
+        let parsed = unsafe { slice::from_raw_parts(arguments, argument_count as usize) }
+            .iter()
+            .map(|pointer| wide_ptr_to_string(*pointer))
+            .collect::<Vec<_>>();
+
+        unsafe {
+            let _ = LocalFree(arguments.cast());
+        }
+
+        parsed
+    }
+
+    fn assert_windows_arguments_roundtrip(arguments: &[&str]) {
+        let encoded = join_windows_arguments(
+            &arguments
+                .iter()
+                .map(|argument| (*argument).to_string())
+                .collect::<Vec<_>>(),
         );
-        assert_eq!(plan.creation_flags, 0);
+        let parsed = parse_windows_arguments(format!("placeholder.exe {}", encoded).as_str());
+        assert_eq!(
+            parsed.into_iter().skip(1).collect::<Vec<_>>(),
+            arguments
+                .iter()
+                .map(|argument| (*argument).to_string())
+                .collect::<Vec<_>>()
+        );
     }
 
     #[test]
-    fn build_windows_cmd_launch_plan_forces_new_console() {
-        let plan = build_windows_launch_plan("cmd", "echo 1");
-        assert_eq!(plan.program, "cmd");
-        assert_eq!(
-            plan.args,
-            vec!["/V:ON".to_string(), "/K".to_string(), "echo 1".to_string()]
-        );
-        assert_eq!(plan.creation_flags, CREATE_NEW_CONSOLE);
+    fn follow_latest_without_history_keeps_normal_session_for_normal_command() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "wt",
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            last_session_kind: None,
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
+        assert_eq!(decision.launch_plan.args[1], ZAPCMD_WT_WINDOW_ID);
     }
 
     #[test]
-    fn build_windows_pwsh_launch_plan_forces_new_console() {
-        let plan = build_windows_launch_plan("pwsh", "echo 1");
-        assert_eq!(plan.program, "pwsh");
-        assert_eq!(
-            plan.args,
-            vec![
-                "-NoExit".to_string(),
-                "-Command".to_string(),
-                "echo 1".to_string()
-            ]
-        );
-        assert_eq!(plan.creation_flags, CREATE_NEW_CONSOLE);
+    fn follow_latest_promotes_to_elevated_when_command_requires_elevation() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "pwsh",
+            command: "ipconfig /flushdns",
+            requires_elevation: true,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Normal),
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
+        assert_eq!(decision.launch_plan.program, "pwsh");
     }
 
     #[test]
-    fn build_windows_default_launch_plan_falls_back_to_powershell_new_console() {
-        let plan = build_windows_launch_plan("something-else", "echo 1");
-        assert_eq!(plan.program, "powershell");
+    fn follow_latest_keeps_latest_elevated_session_for_normal_command() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "powershell",
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Elevated),
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
+        assert_eq!(decision.launch_plan.program, "powershell");
+    }
+
+    #[test]
+    fn always_elevated_forces_elevated_session_even_for_normal_command() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "cmd",
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: true,
+            last_session_kind: Some(WindowsSessionKind::Normal),
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
+        assert_eq!(decision.launch_plan.program, "cmd");
+    }
+
+    #[test]
+    fn wt_elevated_route_uses_admin_window_id() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "wt",
+            command: "ipconfig /flushdns",
+            requires_elevation: true,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Normal),
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
+        assert_eq!(decision.launch_plan.args[1], ZAPCMD_WT_ADMIN_WINDOW_ID);
+    }
+
+    #[test]
+    fn wt_existing_elevated_session_reuses_admin_window_without_new_uac() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "wt",
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Elevated),
+        });
+
         assert_eq!(
-            plan.args,
-            vec![
-                "-NoExit".to_string(),
-                "-Command".to_string(),
-                "echo 1".to_string()
-            ]
+            resolve_windows_launch_mode(
+                &decision,
+                Some(WindowsSessionKind::Elevated),
+                Some("wt"),
+                true
+            ),
+            WindowsLaunchMode::Direct
         );
-        assert_eq!(plan.creation_flags, CREATE_NEW_CONSOLE);
+    }
+
+    #[test]
+    fn wt_does_not_skip_runas_when_previous_elevated_session_was_not_wt() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "wt",
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Elevated),
+        });
+
+        assert_eq!(
+            resolve_windows_launch_mode(
+                &decision,
+                Some(WindowsSessionKind::Elevated),
+                Some("pwsh"),
+                true
+            ),
+            WindowsLaunchMode::ElevatedViaRunas
+        );
+    }
+
+    #[test]
+    fn wt_first_elevated_session_still_requires_runas() {
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_id: "wt",
+            command: "ipconfig /flushdns",
+            requires_elevation: true,
+            always_elevated: false,
+            last_session_kind: Some(WindowsSessionKind::Normal),
+        });
+
+        assert_eq!(
+            resolve_windows_launch_mode(
+                &decision,
+                Some(WindowsSessionKind::Normal),
+                Some("wt"),
+                false
+            ),
+            WindowsLaunchMode::ElevatedViaRunas
+        );
+    }
+
+    #[test]
+    fn error_cancelled_maps_to_elevation_cancelled_code() {
+        assert_eq!(
+            map_windows_launch_error(1223),
+            TerminalExecutionError::new("elevation-cancelled", "user cancelled elevation")
+        );
+    }
+
+    #[test]
+    fn windows_argument_join_roundtrips_backslashes_in_spaced_paths() {
+        assert_windows_arguments_roundtrip(&[
+            "-NoExit",
+            "-Command",
+            r#"Write-Output C:\Program Files\Git\bin"#,
+        ]);
+    }
+
+    #[test]
+    fn windows_argument_join_roundtrips_embedded_quotes_and_trailing_backslashes() {
+        assert_windows_arguments_roundtrip(&[
+            "/V:ON",
+            "/K",
+            r#"echo "C:\Program Files\ZapCmd\\""#,
+        ]);
+    }
+
+    #[test]
+    fn only_success_updates_last_session_kind() {
+        assert!(should_update_last_session_kind(&Ok(())));
+        assert!(!should_update_last_session_kind(&Err(TerminalExecutionError::new(
+            "elevation-launch-failed",
+            "failed"
+        ))));
     }
 }
 

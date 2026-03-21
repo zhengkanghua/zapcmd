@@ -3,6 +3,7 @@ import { clearSettingsErrorState, type SettingsWindowState, type UseSettingsWind
 export interface GeneralActions {
   setAutoCheckUpdate: (value: boolean) => void;
   setLaunchAtLogin: (value: boolean) => void;
+  setAlwaysElevatedTerminal: (value: boolean) => void;
   loadAutoStartEnabled: () => Promise<void>;
 }
 
@@ -22,6 +23,13 @@ export function createGeneralActions(deps: {
 
   function setLaunchAtLogin(value: boolean): void {
     void applyAutoStartChange(value);
+  }
+
+  function setAlwaysElevatedTerminal(value: boolean): void {
+    options.alwaysElevatedTerminal.value = value;
+    options.settingsStore.setAlwaysElevatedTerminal(value);
+    clearSettingsErrorState(state);
+    void persistSetting();
   }
 
   async function loadAutoStartEnabled(): Promise<void> {
@@ -51,6 +59,7 @@ export function createGeneralActions(deps: {
   return {
     setAutoCheckUpdate,
     setLaunchAtLogin,
+    setAlwaysElevatedTerminal,
     loadAutoStartEnabled
   };
 }

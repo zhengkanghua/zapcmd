@@ -89,6 +89,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     language,
     autoCheckUpdate,
     launchAtLogin,
+    alwaysElevatedTerminal,
     disabledCommandIds,
     windowOpacity,
     theme,
@@ -117,7 +118,8 @@ export function createAppCompositionContext(options: AppCompositionContextOption
   const commandExecutor = createCommandExecutor();
   const { runCommandInTerminal, runCommandsInTerminal } = useTerminalExecution({
     commandExecutor,
-    defaultTerminal
+    defaultTerminal,
+    alwaysElevatedTerminal
   });
   const stagedFeedback = useStagedFeedback({
     durationMs: 220
@@ -140,6 +142,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     language,
     autoCheckUpdate,
     launchAtLogin,
+    alwaysElevatedTerminal,
     settingsStore,
     getHotkeyValue: hotkeyBindings.getHotkeyValue,
     setHotkeyValue: hotkeyBindings.setHotkeyValue,
@@ -176,6 +179,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     language,
     autoCheckUpdate,
     launchAtLogin,
+    alwaysElevatedTerminal,
     currentWindowLabel,
     settingsSyncChannel,
     resolveAppWindow,

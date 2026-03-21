@@ -1,6 +1,7 @@
 import { nextTick } from "vue";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
+import { CommandExecutionError } from "../../../services/commandExecutor";
 import {
   buildInitialArgValues,
   getCommandArgs,
@@ -91,7 +92,27 @@ function formatFailureMessage(
   });
 }
 
+function resolveStructuredExecutionFeedback(error: unknown): string | null {
+  if (!(error instanceof CommandExecutionError)) {
+    return null;
+  }
+  if (error.code === "elevation-cancelled") {
+    return t("execution.elevationCancelled");
+  }
+  if (error.code === "elevation-launch-failed") {
+    return t("execution.elevationLaunchFailed");
+  }
+  if (error.code === "terminal-launch-failed") {
+    return t("execution.terminalLaunchFailed");
+  }
+  return null;
+}
+
 export function buildExecutionFailureFeedback(error: unknown, mode: "single" | "queue"): string {
+  const structuredFeedback = resolveStructuredExecutionFeedback(error);
+  if (structuredFeedback) {
+    return structuredFeedback;
+  }
   const fallback = mode === "queue" ? t("execution.queueFailedFallback") : t("execution.failedFallback");
   const reason = toErrorMessage(error, fallback);
   return formatFailureMessage(reason, classifyExecutionFailure(reason), mode);
@@ -163,7 +184,9 @@ export async function executeSingleCommand(
 
   try {
     state.setExecutionFeedback("success", t("launcher.executionStarted"));
-    await options.runCommandInTerminal(rendered);
+    await options.runCommandInTerminal(rendered, {
+      requiresElevation: command.adminRequired === true
+    });
     state.setExecutionFeedback(
       "success",
       t("execution.sentToTerminal", {

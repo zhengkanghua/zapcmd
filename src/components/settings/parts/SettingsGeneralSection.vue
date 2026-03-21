@@ -16,6 +16,7 @@ const emit = defineEmits<{
   (e: "select-language", locale: AppLocale): void;
   (e: "set-auto-check-update", value: boolean): void;
   (e: "set-launch-at-login", value: boolean): void;
+  (e: "set-always-elevated-terminal", value: boolean): void;
 }>();
 
 const terminalSelectDisabled = computed(
@@ -108,6 +109,17 @@ function onLanguageSelect(value: string): void {
 
       <SettingItem :label="t('settings.general.currentTerminalPath')">
         <code class="settings-card__mono">{{ props.selectedTerminalPath }}</code>
+      </SettingItem>
+
+      <SettingItem
+        v-if="props.showAlwaysElevatedTerminal"
+        :label="t('settings.general.alwaysElevatedTerminal')"
+        :description="t('settings.general.alwaysElevatedTerminalHint')"
+      >
+        <SToggle
+          :model-value="props.alwaysElevatedTerminal"
+          @update:model-value="emit('set-always-elevated-terminal', $event)"
+        />
       </SettingItem>
     </SettingSection>
 

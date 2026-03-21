@@ -62,8 +62,10 @@ npm run tauri:dev
 提示：`npm run dev` 是 Web 预览模式（无法执行命令）；需要完整桌面能力请使用 `npm run tauri:dev`。
 
 在 Windows 上，命令执行始终跟随 Settings 中选择的默认终端。
-`wt` 会通过固定窗口 ID `zapcmd-main-terminal` 复用 ZapCmd 管理的终端窗口。
+ZapCmd 主进程本身不会提权；只有命令或执行流需要管理员权限时，Windows 才会对被拉起的终端发起 UAC。
+`wt` 会通过两套固定窗口 ID 复用 ZapCmd 管理的终端窗口：普通会话使用 `zapcmd-main-terminal`，管理员会话使用 `zapcmd-main-terminal-admin`。
 `powershell`、`pwsh`、`cmd` 会始终新开独立控制台窗口。
+执行流仍保持“一次投递”；只要队列里任一步 `adminRequired=true`，整队都会在管理员终端中运行。
 该行为在 `tauri:dev` 与打包后的桌面运行中保持一致。
 
 说明：更新密钥/端点集中在 `.env.keys`，由 `npm run keys:sync` 同步（已集成到 `tauri:dev` / `tauri:build`）。
@@ -173,6 +175,7 @@ Schema：
 说明：
 
 - `shell` 字段当前仅做 schema 校验，运行时会忽略（不会影响执行）。ZapCmd 会在 `设置 -> 命令管理` 显示校验提示。
+- 在 Windows 上，`adminRequired=true` 表示“执行时按需拉起对应管理员终端”，并不会提升 ZapCmd 主进程权限。
 
 ## 搜索机制（当前实现）
 

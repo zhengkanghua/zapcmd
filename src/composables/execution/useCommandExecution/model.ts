@@ -28,8 +28,14 @@ export interface UseCommandExecutionOptions {
   clearSearchQueryAndSelection: () => void;
   triggerStagedFeedback: (commandId: string) => void;
   scheduleSearchInputFocus: (selectText?: boolean) => void;
-  runCommandInTerminal: (renderedCommand: string) => Promise<void>;
-  runCommandsInTerminal?: (renderedCommands: string[]) => Promise<void>;
+  runCommandInTerminal: (
+    renderedCommand: string,
+    options?: { requiresElevation?: boolean }
+  ) => Promise<void>;
+  runCommandsInTerminal?: (
+    renderedCommands: string[],
+    options?: { requiresElevation?: boolean }
+  ) => Promise<void>;
   feedbackDurationMs?: number;
   onNeedPanel?: (command: CommandTemplate, mode: ParamSubmitMode) => void;
 }

@@ -32,6 +32,7 @@ const emit = defineEmits<{
   (e: "select-language", locale: AppLocale): void;
   (e: "set-auto-check-update", value: boolean): void;
   (e: "set-launch-at-login", value: boolean): void;
+  (e: "set-always-elevated-terminal", value: boolean): void;
   (e: "toggle-command-enabled", commandId: string, enabled: boolean): void;
   (e: "set-filtered-commands-enabled", enabled: boolean): void;
   (e: "update-command-view", patch: Partial<CommandManagementViewState>): void;
@@ -76,10 +77,13 @@ const emit = defineEmits<{
           :language-options="props.languageOptions"
           :auto-check-update="props.autoCheckUpdate"
           :launch-at-login="props.launchAtLogin"
+          :always-elevated-terminal="props.alwaysElevatedTerminal"
+          :show-always-elevated-terminal="props.showAlwaysElevatedTerminal"
           @select-terminal="emit('select-terminal', $event)"
           @select-language="emit('select-language', $event)"
           @set-auto-check-update="emit('set-auto-check-update', $event)"
           @set-launch-at-login="emit('set-launch-at-login', $event)"
+          @set-always-elevated-terminal="emit('set-always-elevated-terminal', $event)"
         />
         <SettingsCommandsSection
           v-else-if="settingsRoute === 'commands'"

@@ -8,7 +8,8 @@ describe("useTerminalExecution", () => {
     const terminal = ref("powershell");
     const execution = useTerminalExecution({
       commandExecutor: { run },
-      defaultTerminal: terminal
+      defaultTerminal: terminal,
+      alwaysElevatedTerminal: ref(false)
     });
 
     await execution.runCommandInTerminal("Get-Item missing");
@@ -16,7 +17,9 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
       command:
-        "Write-Host '[zapcmd][run] Get-Item missing'; $LASTEXITCODE = $null; Get-Item missing; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][failed] Get-Item missing (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][failed] Get-Item missing' } }"
+        "Write-Host '[zapcmd][run] Get-Item missing'; $LASTEXITCODE = $null; Get-Item missing; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][failed] Get-Item missing (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][failed] Get-Item missing' } }",
+      requiresElevation: false,
+      alwaysElevated: false
     });
   });
 
@@ -25,16 +28,19 @@ describe("useTerminalExecution", () => {
     const terminal = ref("cmd");
     const execution = useTerminalExecution({
       commandExecutor: { run },
-      defaultTerminal: terminal
+      defaultTerminal: terminal,
+      alwaysElevatedTerminal: ref(true)
     });
 
     terminal.value = "wt";
-    await execution.runCommandInTerminal("dir");
+    await execution.runCommandInTerminal("dir", { requiresElevation: true });
 
     expect(run).toHaveBeenCalledWith({
       terminalId: "wt",
       command:
-        "setlocal EnableDelayedExpansion & echo [zapcmd][run] dir & dir & set \"zapcmdCode=!ERRORLEVEL!\" & if not \"!zapcmdCode!\"==\"0\" echo [zapcmd][failed] dir (code !zapcmdCode!)"
+        "setlocal EnableDelayedExpansion & echo [zapcmd][run] dir & dir & set \"zapcmdCode=!ERRORLEVEL!\" & if not \"!zapcmdCode!\"==\"0\" echo [zapcmd][failed] dir (code !zapcmdCode!)",
+      requiresElevation: true,
+      alwaysElevated: true
     });
   });
 
@@ -43,7 +49,8 @@ describe("useTerminalExecution", () => {
     const terminal = ref("pwsh");
     const execution = useTerminalExecution({
       commandExecutor: { run },
-      defaultTerminal: terminal
+      defaultTerminal: terminal,
+      alwaysElevatedTerminal: ref(false)
     });
 
     await execution.runCommandsInTerminal(["echo hello", "git status"]);
@@ -51,7 +58,9 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "pwsh",
       command:
-        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/2][run] echo hello'; $LASTEXITCODE = $null; echo hello; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/2][failed] echo hello (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/2][failed] echo hello' } }; Write-Host '[zapcmd][2/2][run] git status'; $LASTEXITCODE = $null; git status; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][2/2][failed] git status (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][2/2][failed] git status' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 2' } else { Write-Host ('[zapcmd][queue][failed] total: 2, failed: ' + $zapcmdFailedCount) }"
+        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/2][run] echo hello'; $LASTEXITCODE = $null; echo hello; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/2][failed] echo hello (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/2][failed] echo hello' } }; Write-Host '[zapcmd][2/2][run] git status'; $LASTEXITCODE = $null; git status; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][2/2][failed] git status (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][2/2][failed] git status' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 2' } else { Write-Host ('[zapcmd][queue][failed] total: 2, failed: ' + $zapcmdFailedCount) }",
+      requiresElevation: false,
+      alwaysElevated: false
     });
   });
 
@@ -60,7 +69,8 @@ describe("useTerminalExecution", () => {
     const terminal = ref("powershell");
     const execution = useTerminalExecution({
       commandExecutor: { run },
-      defaultTerminal: terminal
+      defaultTerminal: terminal,
+      alwaysElevatedTerminal: ref(false)
     });
 
     terminal.value = "wt";
@@ -69,7 +79,9 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "wt",
       command:
-        "setlocal EnableDelayedExpansion & set /a zapcmdFailedCount=0 >nul & echo [zapcmd][1/1][run] git status & git status & set \"zapcmdCode=!ERRORLEVEL!\" & (if not \"!zapcmdCode!\"==\"0\" (set /a zapcmdFailedCount+=1 >nul & echo [zapcmd][1/1][failed] git status ^(code !zapcmdCode!^))) & if \"!zapcmdFailedCount!\"==\"0\" (echo [zapcmd][queue][done] total: 1) else (echo [zapcmd][queue][failed] total: 1, failed: !zapcmdFailedCount!)"
+        "setlocal EnableDelayedExpansion & set /a zapcmdFailedCount=0 >nul & echo [zapcmd][1/1][run] git status & git status & set \"zapcmdCode=!ERRORLEVEL!\" & (if not \"!zapcmdCode!\"==\"0\" (set /a zapcmdFailedCount+=1 >nul & echo [zapcmd][1/1][failed] git status ^(code !zapcmdCode!^))) & if \"!zapcmdFailedCount!\"==\"0\" (echo [zapcmd][queue][done] total: 1) else (echo [zapcmd][queue][failed] total: 1, failed: !zapcmdFailedCount!)",
+      requiresElevation: false,
+      alwaysElevated: false
     });
   });
 
@@ -78,7 +90,8 @@ describe("useTerminalExecution", () => {
     const terminal = ref("powershell");
     const execution = useTerminalExecution({
       commandExecutor: { run },
-      defaultTerminal: terminal
+      defaultTerminal: terminal,
+      alwaysElevatedTerminal: ref(false)
     });
 
     await execution.runCommandsInTerminal(["netstat -ano | findstr :8080"]);
@@ -86,7 +99,9 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
       command:
-        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/1][run] netstat -ano | findstr :8080'; $LASTEXITCODE = $null; netstat -ano | findstr :8080; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/1][failed] netstat -ano | findstr :8080 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/1][failed] netstat -ano | findstr :8080' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 1' } else { Write-Host ('[zapcmd][queue][failed] total: 1, failed: ' + $zapcmdFailedCount) }"
+        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/1][run] netstat -ano | findstr :8080'; $LASTEXITCODE = $null; netstat -ano | findstr :8080; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/1][failed] netstat -ano | findstr :8080 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/1][failed] netstat -ano | findstr :8080' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 1' } else { Write-Host ('[zapcmd][queue][failed] total: 1, failed: ' + $zapcmdFailedCount) }",
+      requiresElevation: false,
+      alwaysElevated: false
     });
   });
 
@@ -95,7 +110,8 @@ describe("useTerminalExecution", () => {
     const terminal = ref("powershell");
     const execution = useTerminalExecution({
       commandExecutor: { run },
-      defaultTerminal: terminal
+      defaultTerminal: terminal,
+      alwaysElevatedTerminal: ref(false)
     });
 
     await execution.runCommandsInTerminal(["netstat -ano | findstr :8081", "netstat -ano | findstr :443"]);
@@ -103,7 +119,29 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
       command:
-        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/2][run] netstat -ano | findstr :8081'; $LASTEXITCODE = $null; netstat -ano | findstr :8081; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/2][failed] netstat -ano | findstr :8081 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/2][failed] netstat -ano | findstr :8081' } }; Write-Host '[zapcmd][2/2][run] netstat -ano | findstr :443'; $LASTEXITCODE = $null; netstat -ano | findstr :443; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][2/2][failed] netstat -ano | findstr :443 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][2/2][failed] netstat -ano | findstr :443' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 2' } else { Write-Host ('[zapcmd][queue][failed] total: 2, failed: ' + $zapcmdFailedCount) }"
+        "$zapcmdFailedCount = 0; Write-Host '[zapcmd][1/2][run] netstat -ano | findstr :8081'; $LASTEXITCODE = $null; netstat -ano | findstr :8081; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][1/2][failed] netstat -ano | findstr :8081 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][1/2][failed] netstat -ano | findstr :8081' } }; Write-Host '[zapcmd][2/2][run] netstat -ano | findstr :443'; $LASTEXITCODE = $null; netstat -ano | findstr :443; $zapcmdSuccess = $?; $zapcmdCode = $LASTEXITCODE; if (-not $zapcmdSuccess) { $zapcmdFailedCount += 1; if ($null -ne $zapcmdCode) { Write-Host ('[zapcmd][2/2][failed] netstat -ano | findstr :443 (code ' + $zapcmdCode + ')') } else { Write-Host '[zapcmd][2/2][failed] netstat -ano | findstr :443' } }; if ($zapcmdFailedCount -eq 0) { Write-Host '[zapcmd][queue][done] total: 2' } else { Write-Host ('[zapcmd][queue][failed] total: 2, failed: ' + $zapcmdFailedCount) }",
+      requiresElevation: false,
+      alwaysElevated: false
+    });
+  });
+
+  it("passes elevation flags for queue execution", async () => {
+    const run = vi.fn(async () => {});
+    const terminal = ref("wt");
+    const execution = useTerminalExecution({
+      commandExecutor: { run },
+      defaultTerminal: terminal,
+      alwaysElevatedTerminal: ref(true)
+    });
+
+    await execution.runCommandsInTerminal(["git status"], { requiresElevation: true });
+
+    expect(run).toHaveBeenCalledWith({
+      terminalId: "wt",
+      command:
+        "setlocal EnableDelayedExpansion & set /a zapcmdFailedCount=0 >nul & echo [zapcmd][1/1][run] git status & git status & set \"zapcmdCode=!ERRORLEVEL!\" & (if not \"!zapcmdCode!\"==\"0\" (set /a zapcmdFailedCount+=1 >nul & echo [zapcmd][1/1][failed] git status ^(code !zapcmdCode!^))) & if \"!zapcmdFailedCount!\"==\"0\" (echo [zapcmd][queue][done] total: 1) else (echo [zapcmd][queue][failed] total: 1, failed: !zapcmdFailedCount!)",
+      requiresElevation: true,
+      alwaysElevated: true
     });
   });
 });

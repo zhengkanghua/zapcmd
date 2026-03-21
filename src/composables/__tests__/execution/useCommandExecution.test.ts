@@ -6,6 +6,7 @@ import {
   DANGER_DISMISS_STORAGE_KEY,
   dismissDanger
 } from "../../../features/security/dangerDismiss";
+import { CommandExecutionError } from "../../../services/commandExecutor";
 import { useCommandExecution } from "../../execution/useCommandExecution";
 import type { FocusZone } from "../../launcher/useStagingQueue";
 
@@ -48,6 +49,16 @@ function createArgCommand(): CommandTemplate {
     argLabel: "端口",
     argPlaceholder: "3000",
     argToken: "{{value}}"
+  };
+}
+
+function createAdminCommand(): CommandTemplate {
+  return {
+    ...createNoArgCommand(),
+    id: "flush-dns",
+    title: "刷新 DNS",
+    preview: "ipconfig /flushdns",
+    adminRequired: true
   };
 }
 
@@ -155,10 +166,26 @@ describe("useCommandExecution", () => {
 
     expect(submitted).toBe(true);
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
+      requiresElevation: false
+    });
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
+  });
+
+  it("passes requiresElevation=true for adminRequired single command", async () => {
+    const harness = createHarness();
+    const command = createAdminCommand();
+
+    harness.execution.executeResult(command);
+    await nextTick();
+
+    expect(harness.execution.safetyDialog.value?.mode).toBe("single");
+    await harness.execution.confirmSafetyExecution();
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ipconfig /flushdns", {
+      requiresElevation: true
+    });
   });
 
   it("opens command panel for dangerous no-arg command and executes on submit (skips safetyDialog)", async () => {
@@ -180,7 +207,9 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la", {
+      requiresElevation: false
+    });
   });
 
   it("executes dangerous command from pending execute mode without opening safetyDialog", async () => {
@@ -197,7 +226,9 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
+      requiresElevation: false
+    });
   });
 
   it("executes dismissed dangerous command directly without opening panel or safetyDialog", async () => {
@@ -213,7 +244,9 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.pendingCommand.value).toBeNull();
     expect(harness.execution.safetyDialog.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la", {
+      requiresElevation: false
+    });
   });
 
   it("trims boundary arg input before single execution and keeps success feedback", async () => {
@@ -225,7 +258,9 @@ describe("useCommandExecution", () => {
     harness.execution.submitParamInput();
     await nextTick();
 
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp");
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
+      requiresElevation: false
+    });
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
   });
@@ -276,6 +311,23 @@ describe("useCommandExecution", () => {
     errorSpy.mockRestore();
   });
 
+  it("maps elevation-cancelled to explicit feedback", async () => {
+    const harness = createHarness();
+    const command = createAdminCommand();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.runCommandInTerminal.mockRejectedValueOnce(
+      new CommandExecutionError("elevation-cancelled", "user cancelled elevation")
+    );
+
+    harness.execution.executeResult(command);
+    await nextTick();
+    await harness.execution.confirmSafetyExecution();
+
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toBe("已取消管理员授权，本次未执行");
+    errorSpy.mockRestore();
+  });
+
   it("updates staged argument and rendered command", () => {
     const harness = createHarness();
     const command = createArgCommand();
@@ -322,8 +374,12 @@ describe("useCommandExecution", () => {
     harness.scheduleSearchInputFocus.mockClear();
     await harness.execution.executeStaged();
 
-    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(1, "ls -la");
-    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(2, "git gc --prune=now");
+    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(1, "ls -la", {
+      requiresElevation: false
+    });
+    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(2, "git gc --prune=now", {
+      requiresElevation: false
+    });
     expect(harness.stagedCommands.value).toHaveLength(0);
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
@@ -345,9 +401,25 @@ describe("useCommandExecution", () => {
     await harness.execution.executeStaged();
 
     expect(harness.runCommandsInTerminal).toHaveBeenCalledTimes(1);
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "git gc --prune=now"]);
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "git gc --prune=now"], {
+      requiresElevation: false
+    });
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.execution.executionFeedbackMessage.value).toContain("首个：ls -la");
+  });
+
+  it("passes requiresElevation=true when staged queue contains admin command", async () => {
+    const harness = createHarness(true);
+
+    harness.execution.stageResult(createNoArgCommand());
+    harness.execution.stageResult(createAdminCommand());
+    await harness.execution.executeStaged();
+
+    expect(harness.execution.safetyDialog.value?.mode).toBe("queue");
+    await harness.execution.confirmSafetyExecution();
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "ipconfig /flushdns"], {
+      requiresElevation: true
+    });
   });
 
   it("blocks queue execution on injection hit, keeps queue, and does not call terminal runners", async () => {
@@ -436,6 +508,8 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
 
     await harness.execution.confirmSafetyExecution();
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["taskkill /F /PID 1234"]);
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["taskkill /F /PID 1234"], {
+      requiresElevation: false
+    });
   });
 });

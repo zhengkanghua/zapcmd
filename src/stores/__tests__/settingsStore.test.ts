@@ -70,8 +70,22 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.general.language).toBe("en-US");
     expect(migrated?.general.autoCheckUpdate).toBe(true);
     expect(migrated?.general.launchAtLogin).toBe(false);
+    expect(migrated?.general.alwaysElevatedTerminal).toBe(false);
     expect(migrated?.commands.disabledCommandIds).toEqual(["docker-ps"]);
     expect((migrated?.commands as Record<string, unknown>).view).toBeUndefined();
+  });
+
+  it("defaults alwaysElevatedTerminal to false", () => {
+    expect(createDefaultSettingsSnapshot().general.alwaysElevatedTerminal).toBe(false);
+  });
+
+  it("migrates alwaysElevatedTerminal from legacy payload", () => {
+    const migrated = migrateSettingsPayload({
+      version: 1,
+      general: { alwaysElevatedTerminal: "true" }
+    });
+
+    expect(migrated?.general.alwaysElevatedTerminal).toBe(true);
   });
 
   it("normalizes booleans, disabled ids, and clamps window opacity", () => {
@@ -208,6 +222,13 @@ describe("settingsStore migration and persistence", () => {
     expect(parsed.general.defaultTerminal).toBe("wt");
     expect(parsed.general.language).toBe("en-US");
     expect(parsed.commands.disabledCommandIds).toEqual(["docker-ps"]);
+  });
+
+  it("persists alwaysElevatedTerminal in snapshot", () => {
+    const store = useSettingsStore();
+    store.setAlwaysElevatedTerminal(true);
+
+    expect(store.toSnapshot().general.alwaysElevatedTerminal).toBe(true);
   });
 
   it("persists commands snapshot without transient view state", () => {

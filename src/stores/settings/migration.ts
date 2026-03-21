@@ -1,5 +1,6 @@
 import {
   DEFAULT_AUTO_CHECK_UPDATE,
+  DEFAULT_ALWAYS_ELEVATED_TERMINAL,
   DEFAULT_BLUR_ENABLED,
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
@@ -67,6 +68,16 @@ function extractLaunchAtLogin(payload: SettingsPayload): boolean {
   return normalizeBoolean(payload.general.launchAtLogin, DEFAULT_LAUNCH_AT_LOGIN);
 }
 
+function extractAlwaysElevatedTerminal(payload: SettingsPayload): boolean {
+  if (!isRecord(payload.general)) {
+    return DEFAULT_ALWAYS_ELEVATED_TERMINAL;
+  }
+  return normalizeBoolean(
+    payload.general.alwaysElevatedTerminal,
+    DEFAULT_ALWAYS_ELEVATED_TERMINAL
+  );
+}
+
 function extractDisabledCommandIds(payload: SettingsPayload): string[] {
   if (!isRecord(payload.commands)) {
     return [];
@@ -101,7 +112,8 @@ function createSnapshot(payload: SettingsPayload): PersistedSettingsSnapshot {
       defaultTerminal: extractDefaultTerminal(payload),
       language: extractLanguage(payload),
       autoCheckUpdate: extractAutoCheckUpdate(payload),
-      launchAtLogin: extractLaunchAtLogin(payload)
+      launchAtLogin: extractLaunchAtLogin(payload),
+      alwaysElevatedTerminal: extractAlwaysElevatedTerminal(payload)
     },
     commands: {
       disabledCommandIds: extractDisabledCommandIds(payload)

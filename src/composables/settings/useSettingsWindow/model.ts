@@ -16,6 +16,7 @@ interface SettingsStoreLike {
   applySnapshot: (snapshot: PersistedSettingsSnapshot) => void;
   setHotkey: (field: HotkeyFieldId, value: string) => void;
   setLaunchAtLogin: (value: boolean) => void;
+  setAlwaysElevatedTerminal: (value: boolean) => void;
 }
 
 export interface SettingsValidationIssue {
@@ -33,6 +34,7 @@ export interface UseSettingsWindowOptions {
   language: Ref<AppLocale>;
   autoCheckUpdate: Ref<boolean>;
   launchAtLogin: Ref<boolean>;
+  alwaysElevatedTerminal: Ref<boolean>;
   settingsStore: SettingsStoreLike;
   getHotkeyValue: (field: HotkeyFieldId) => string;
   setHotkeyValue: (field: HotkeyFieldId, value: string) => void;

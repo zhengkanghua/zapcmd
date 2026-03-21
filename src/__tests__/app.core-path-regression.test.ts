@@ -13,7 +13,12 @@ import App from "../App.vue";
 const hoisted = vi.hoisted(() => ({
   runMock:
     vi.fn<
-      (request: { terminalId: string; command: string }) => Promise<void>
+      (request: {
+        terminalId: string;
+        command: string;
+        requiresElevation?: boolean;
+        alwaysElevated?: boolean;
+      }) => Promise<void>
     >(),
   currentWindowLabel: "main",
   closeSpy: vi.fn(),
@@ -49,11 +54,15 @@ vi.mock("@tauri-apps/plugin-updater", () => ({
   check: vi.fn(async () => null),
 }));
 
-vi.mock("../services/commandExecutor", () => ({
-  createCommandExecutor: () => ({
-    run: hoisted.runMock,
-  }),
-}));
+vi.mock("../services/commandExecutor", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../services/commandExecutor")>();
+  return {
+    ...actual,
+    createCommandExecutor: () => ({
+      run: hoisted.runMock,
+    }),
+  };
+});
 
 const wrappers: VueWrapper[] = [];
 let warnSpy: ReturnType<typeof vi.spyOn> | null = null;
@@ -123,13 +132,14 @@ async function openReviewByPill(wrapper: VueWrapper): Promise<void> {
   await waitForUi();
 }
 
-function buildSettingsSnapshot(defaultTerminal: string) {
+function buildSettingsSnapshot(defaultTerminal: string, alwaysElevatedTerminal = false) {
   const snapshot = createDefaultSettingsSnapshot();
   return {
     ...snapshot,
     general: {
       ...snapshot.general,
       defaultTerminal,
+      alwaysElevatedTerminal
     },
   };
 }
@@ -259,5 +269,32 @@ describe("App 核心路径回归（Phase 3）", () => {
     const request = hoisted.runMock.mock.calls.at(-1)?.[0];
     expect(request?.terminalId).toBe("wt");
     expect(request?.command ?? "").toContain("my-container");
+  });
+
+  it("覆盖恢复链路：Settings 恢复的 alwaysElevatedTerminal 会传到执行器", async () => {
+    hoisted.runMock.mockResolvedValue(undefined);
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify(buildSettingsSnapshot("wt", true)),
+    );
+
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
+
+    await wrapper.get(".command-panel__input").setValue("my-container");
+    await wrapper.get("[data-testid='confirm-btn']").trigger("click");
+    await waitForUi();
+
+    await openReviewByPill(wrapper);
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    await waitForUi();
+
+    const request = hoisted.runMock.mock.calls.at(-1)?.[0];
+    expect(request?.alwaysElevated).toBe(true);
   });
 });

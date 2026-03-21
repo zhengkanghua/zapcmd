@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import type { AppLocale } from "../i18n";
 import {
   DEFAULT_AUTO_CHECK_UPDATE,
+  DEFAULT_ALWAYS_ELEVATED_TERMINAL,
   DEFAULT_LAUNCH_AT_LOGIN,
   SETTINGS_SCHEMA_VERSION,
   createDefaultSettingsSnapshot,
@@ -58,22 +59,42 @@ interface SettingsState {
   language: AppLocale;
   autoCheckUpdate: boolean;
   launchAtLogin: boolean;
+  alwaysElevatedTerminal: boolean;
   disabledCommandIds: string[];
   windowOpacity: number;
   theme: string;
   blurEnabled: boolean;
 }
 
+type SettingsGeneralState = Pick<
+  SettingsState,
+  "defaultTerminal" | "language" | "autoCheckUpdate" | "launchAtLogin" | "alwaysElevatedTerminal"
+>;
+
+function snapshotGeneralFromState(state: SettingsGeneralState): PersistedSettingsSnapshot["general"] {
+  return {
+    defaultTerminal: state.defaultTerminal,
+    language: state.language,
+    autoCheckUpdate: state.autoCheckUpdate,
+    launchAtLogin: state.launchAtLogin,
+    alwaysElevatedTerminal: state.alwaysElevatedTerminal
+  };
+}
+
+function applyGeneralState(target: SettingsGeneralState, general: PersistedSettingsSnapshot["general"]): void {
+  // 统一从已规范化的 general snapshot 回写，避免设置字段在多个入口分叉。
+  target.defaultTerminal = general.defaultTerminal;
+  target.language = general.language;
+  target.autoCheckUpdate = general.autoCheckUpdate;
+  target.launchAtLogin = general.launchAtLogin;
+  target.alwaysElevatedTerminal = general.alwaysElevatedTerminal;
+}
+
 function snapshotFromState(state: SettingsState): PersistedSettingsSnapshot {
   return normalizePersistedSettingsSnapshot({
     version: SETTINGS_SCHEMA_VERSION,
     hotkeys: state.hotkeys,
-    general: {
-      defaultTerminal: state.defaultTerminal,
-      language: state.language,
-      autoCheckUpdate: state.autoCheckUpdate,
-      launchAtLogin: state.launchAtLogin
-    },
+    general: snapshotGeneralFromState(state),
     commands: {
       disabledCommandIds: state.disabledCommandIds
     },
@@ -99,6 +120,7 @@ export const useSettingsStore = defineStore("settings", {
       language: defaults.general.language,
       autoCheckUpdate: defaults.general.autoCheckUpdate,
       launchAtLogin: defaults.general.launchAtLogin,
+      alwaysElevatedTerminal: defaults.general.alwaysElevatedTerminal,
       disabledCommandIds: defaults.commands.disabledCommandIds,
       windowOpacity: defaults.appearance.windowOpacity,
       theme: defaults.appearance.theme,
@@ -116,10 +138,7 @@ export const useSettingsStore = defineStore("settings", {
       const normalized = normalizePersistedSettingsSnapshot(snapshot);
       this.schemaVersion = SETTINGS_SCHEMA_VERSION;
       this.hotkeys = normalized.hotkeys;
-      this.defaultTerminal = normalized.general.defaultTerminal;
-      this.language = normalized.general.language;
-      this.autoCheckUpdate = normalized.general.autoCheckUpdate;
-      this.launchAtLogin = normalized.general.launchAtLogin;
+      applyGeneralState(this, normalized.general);
       this.disabledCommandIds = normalized.commands.disabledCommandIds;
       this.windowOpacity = normalized.appearance.windowOpacity;
       this.theme = normalized.appearance.theme;
@@ -139,6 +158,9 @@ export const useSettingsStore = defineStore("settings", {
     },
     setLaunchAtLogin(value: boolean): void {
       this.launchAtLogin = normalizeBoolean(value, DEFAULT_LAUNCH_AT_LOGIN);
+    },
+    setAlwaysElevatedTerminal(value: boolean): void {
+      this.alwaysElevatedTerminal = normalizeBoolean(value, DEFAULT_ALWAYS_ELEVATED_TERMINAL);
     },
     setCommandEnabled(commandId: string, enabled: boolean): void {
       const id = commandId.trim();
@@ -174,6 +196,7 @@ export const useSettingsStore = defineStore("settings", {
         language: this.language,
         autoCheckUpdate: this.autoCheckUpdate,
         launchAtLogin: this.launchAtLogin,
+        alwaysElevatedTerminal: this.alwaysElevatedTerminal,
         disabledCommandIds: this.disabledCommandIds,
         windowOpacity: this.windowOpacity,
         theme: this.theme,

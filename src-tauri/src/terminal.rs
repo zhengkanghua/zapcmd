@@ -1,17 +1,32 @@
-use std::process::Command as ProcessCommand;
 #[cfg(target_os = "macos")]
 use std::path::Path;
+use std::process::Command as ProcessCommand;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
+#[cfg(target_os = "windows")]
+use tauri::Manager;
+
+#[cfg(target_os = "windows")]
+use crate::app_state::AppState;
+#[cfg(target_os = "windows")]
+use self::windows_launch::run_command_windows;
+
+#[cfg(target_os = "windows")]
+pub(crate) mod windows_routing;
+#[cfg(target_os = "windows")]
+pub(crate) mod windows_launch;
+#[cfg(all(test, target_os = "windows"))]
+pub(crate) use self::windows_launch::{
+    join_windows_arguments,
+    map_windows_launch_error,
+    resolve_windows_launch_mode,
+    should_update_last_session_kind,
+    to_wide,
+    WindowsLaunchMode,
+};
 
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
-
-#[cfg(target_os = "windows")]
-pub(crate) const ZAPCMD_WT_WINDOW_ID: &str = "zapcmd-main-terminal";
-
-#[cfg(target_os = "windows")]
-const CREATE_NEW_CONSOLE: u32 = 0x0000_0010;
 
 #[derive(serde::Serialize)]
 pub(crate) struct TerminalOption {
@@ -20,27 +35,38 @@ pub(crate) struct TerminalOption {
     path: String,
 }
 
-/// Windows 端统一的终端启动计划。
-///
-/// `program` 为目标可执行文件，`args` 为完整参数序列，
-/// `creation_flags` 用于声明是否必须新开独立控制台。
-#[cfg(target_os = "windows")]
-pub(crate) struct WindowsLaunchPlan {
-    pub program: String,
-    pub args: Vec<String>,
-    pub creation_flags: u32,
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub(crate) struct TerminalExecutionError {
+    code: String,
+    message: String,
 }
 
-fn sanitize_command(command: &str) -> Result<String, String> {
+impl TerminalExecutionError {
+    fn new(code: &str, message: impl Into<String>) -> Self {
+        Self {
+            code: code.to_string(),
+            message: message.into(),
+        }
+    }
+}
+
+fn sanitize_command(command: &str) -> Result<String, TerminalExecutionError> {
     let trimmed = command.trim();
     if trimmed.is_empty() {
-        return Err("Command cannot be empty.".to_string());
+        return Err(TerminalExecutionError::new(
+            "invalid-request",
+            "Command cannot be empty.",
+        ));
     }
     Ok(trimmed.to_string())
 }
 
 fn spawn_and_forget(cmd: &mut ProcessCommand) -> Result<(), String> {
     cmd.spawn().map(|_| ()).map_err(|err| err.to_string())
+}
+
+pub(super) fn terminal_launch_failed(message: impl Into<String>) -> TerminalExecutionError {
+    TerminalExecutionError::new("terminal-launch-failed", message)
 }
 
 fn parse_first_non_empty_line(raw: &str) -> Option<String> {
@@ -233,80 +259,6 @@ pub(crate) fn get_available_terminals() -> Result<Vec<TerminalOption>, String> {
     }])
 }
 
-#[cfg(target_os = "windows")]
-/// 根据当前默认终端生成 Windows 启动策略。
-///
-/// 参数 `terminal_id` 为 Settings 中选中的终端标识，`command` 为已清洗后的命令。
-/// 返回值为不依赖 `ProcessCommand` 的纯数据计划，便于锁定平台 contract。
-#[cfg(target_os = "windows")]
-fn build_windows_launch_plan(terminal_id: &str, command: &str) -> WindowsLaunchPlan {
-    match terminal_id {
-        "wt" => WindowsLaunchPlan {
-            program: "wt".to_string(),
-            args: vec![
-                "-w".to_string(),
-                ZAPCMD_WT_WINDOW_ID.to_string(),
-                "new-tab".to_string(),
-                "cmd".to_string(),
-                "/V:ON".to_string(),
-                "/K".to_string(),
-                command.to_string(),
-            ],
-            creation_flags: 0,
-        },
-        "cmd" => WindowsLaunchPlan {
-            program: "cmd".to_string(),
-            args: vec!["/V:ON".to_string(), "/K".to_string(), command.to_string()],
-            creation_flags: CREATE_NEW_CONSOLE,
-        },
-        "pwsh" => WindowsLaunchPlan {
-            program: "pwsh".to_string(),
-            args: vec![
-                "-NoExit".to_string(),
-                "-Command".to_string(),
-                command.to_string(),
-            ],
-            creation_flags: CREATE_NEW_CONSOLE,
-        },
-        _ => WindowsLaunchPlan {
-            program: "powershell".to_string(),
-            args: vec![
-                "-NoExit".to_string(),
-                "-Command".to_string(),
-                command.to_string(),
-            ],
-            creation_flags: CREATE_NEW_CONSOLE,
-        },
-    }
-}
-
-/// 把 Windows 启动计划转换成真正的进程命令。
-///
-/// 参数 `plan` 为 `build_windows_launch_plan` 生成的纯数据计划。
-/// 返回值为可直接交给 `spawn_and_forget` 的 `ProcessCommand`。
-#[cfg(target_os = "windows")]
-fn build_process_from_windows_launch_plan(plan: &WindowsLaunchPlan) -> ProcessCommand {
-    let mut process = ProcessCommand::new(plan.program.as_str());
-    process.args(plan.args.iter().map(|arg| arg.as_str()));
-    if plan.creation_flags != 0 {
-        process.creation_flags(plan.creation_flags);
-    }
-    process
-}
-
-#[cfg(target_os = "windows")]
-fn build_command_windows(terminal_id: &str, command: &str) -> ProcessCommand {
-    let plan = build_windows_launch_plan(terminal_id, command);
-    build_process_from_windows_launch_plan(&plan)
-}
-
-#[cfg(target_os = "windows")]
-fn run_command_windows(terminal_id: &str, command: &str) -> Result<(), String> {
-    let mut cmd = build_command_windows(terminal_id, command);
-
-    spawn_and_forget(&mut cmd)
-}
-
 #[cfg(target_os = "macos")]
 fn build_command_macos(terminal_id: &str, command: &str) -> ProcessCommand {
     let escaped = command.replace('\\', "\\\\").replace('\"', "\\\"");
@@ -368,26 +320,77 @@ fn run_command_linux(terminal_id: &str, command: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub(crate) fn run_command_in_terminal(terminal_id: String, command: String) -> Result<(), String> {
+pub(crate) fn run_command_in_terminal(
+    app: tauri::AppHandle,
+    terminal_id: String,
+    command: String,
+    requires_elevation: Option<bool>,
+    always_elevated: Option<bool>,
+) -> Result<(), TerminalExecutionError> {
     let command = sanitize_command(&command)?;
 
     #[cfg(target_os = "windows")]
     {
-        return run_command_windows(terminal_id.as_str(), command.as_str());
+        let state = app.state::<AppState>();
+        let last_session_kind = *state
+            .last_terminal_session_kind
+            .lock()
+            .map_err(|_| TerminalExecutionError::new("state-unavailable", "terminal session state lock failed"))?;
+        let last_terminal_program = state
+            .last_terminal_program
+            .lock()
+            .map_err(|_| TerminalExecutionError::new("state-unavailable", "terminal session state lock failed"))?
+            .clone();
+        let result = run_command_windows(
+            last_session_kind,
+            last_terminal_program.as_deref(),
+            terminal_id.as_str(),
+            command.as_str(),
+            requires_elevation.unwrap_or(false),
+            always_elevated.unwrap_or(false),
+        );
+        if let Ok((session_kind, terminal_program)) = result {
+            *state
+                .last_terminal_session_kind
+                .lock()
+                .map_err(|_| {
+                    TerminalExecutionError::new(
+                        "state-unavailable",
+                        "terminal session state lock failed",
+                    )
+                })? = Some(session_kind);
+            *state
+                .last_terminal_program
+                .lock()
+                .map_err(|_| {
+                    TerminalExecutionError::new(
+                        "state-unavailable",
+                        "terminal session state lock failed",
+                    )
+                })? = Some(terminal_program);
+            return Ok(());
+        }
+        return result.map(|_| ());
     }
+
+    #[cfg(not(target_os = "windows"))]
+    let _ = (app, requires_elevation, always_elevated);
 
     #[cfg(target_os = "macos")]
     {
-        return run_command_macos(terminal_id.as_str(), command.as_str());
+        return run_command_macos(terminal_id.as_str(), command.as_str()).map_err(terminal_launch_failed);
     }
 
     #[cfg(all(unix, not(target_os = "macos")))]
     {
-        return run_command_linux(terminal_id.as_str(), command.as_str());
+        return run_command_linux(terminal_id.as_str(), command.as_str()).map_err(terminal_launch_failed);
     }
 
     #[allow(unreachable_code)]
-    Err("Running commands is not supported on this platform.".to_string())
+    Err(TerminalExecutionError::new(
+        "terminal-launch-failed",
+        "Running commands is not supported on this platform.",
+    ))
 }
 
 #[tauri::command]
