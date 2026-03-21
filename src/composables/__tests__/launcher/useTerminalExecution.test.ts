@@ -53,6 +53,24 @@ describe("useTerminalExecution", () => {
     });
   });
 
+  it("switches queue execution to the latest settings terminal before dispatch", async () => {
+    const run = vi.fn(async () => {});
+    const terminal = ref("powershell");
+    const execution = useTerminalExecution({
+      commandExecutor: { run },
+      defaultTerminal: terminal
+    });
+
+    terminal.value = "wt";
+    await execution.runCommandsInTerminal(["git status"]);
+
+    expect(run).toHaveBeenCalledWith({
+      terminalId: "wt",
+      command:
+        "echo [zapcmd] [1/1] executing: git status & git status & echo [zapcmd] [1/1] finished & echo [zapcmd] queue finished, total: 1"
+    });
+  });
+
   it("keeps pipe symbol in PowerShell queue hint for visibility", async () => {
     const run = vi.fn(async () => {});
     const terminal = ref("powershell");
@@ -87,5 +105,4 @@ describe("useTerminalExecution", () => {
     });
   });
 });
-
 
