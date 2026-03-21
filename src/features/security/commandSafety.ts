@@ -57,8 +57,18 @@ function validateArgumentValue(arg: CommandArg, argValue: string | undefined): s
     return null;
   }
 
-  if (arg.argType === "number" && !/^-?\d+(\.\d+)?$/.test(value)) {
-    return t("safety.validation.number", { label: arg.label });
+  if (arg.argType === "number") {
+    if (!/^-?\d+(\.\d+)?$/.test(value)) {
+      return t("safety.validation.number", { label: arg.label });
+    }
+
+    const numericValue = Number(value);
+    if (typeof arg.min === "number" && numericValue < arg.min) {
+      return arg.validationError?.trim() || t("safety.validation.min", { label: arg.label, min: arg.min });
+    }
+    if (typeof arg.max === "number" && numericValue > arg.max) {
+      return arg.validationError?.trim() || t("safety.validation.max", { label: arg.label, max: arg.max });
+    }
   }
 
   if (arg.options && arg.options.length > 0 && !arg.options.includes(value)) {

@@ -157,6 +157,50 @@ describe("commandSafety", () => {
     expect(result.blockedMessage).toContain("terminal");
   });
 
+  it("blocks number args below min", () => {
+    const result = checkSingleCommandSafety({
+      title: "port-min",
+      renderedCommand: "echo {{port}}",
+      args: [
+        {
+          key: "port",
+          label: "port",
+          token: "{{port}}",
+          argType: "number",
+          min: 1,
+          max: 10
+        }
+      ],
+      argValues: {
+        port: "0"
+      }
+    });
+
+    expect(result.blockedMessage).toContain("port");
+  });
+
+  it("blocks number args above max", () => {
+    const result = checkSingleCommandSafety({
+      title: "port-max",
+      renderedCommand: "echo {{port}}",
+      args: [
+        {
+          key: "port",
+          label: "port",
+          token: "{{port}}",
+          argType: "number",
+          min: 1,
+          max: 10
+        }
+      ],
+      argValues: {
+        port: "99999"
+      }
+    });
+
+    expect(result.blockedMessage).toContain("port");
+  });
+
   it("uses custom validationError when regex validation fails", () => {
     const result = checkSingleCommandSafety({
       title: "custom-regex",
@@ -234,6 +278,36 @@ describe("commandSafety", () => {
     ]);
 
     expect(result.blockedMessage).toContain("missing-required-arg");
+    expect(result.confirmationItems).toHaveLength(0);
+  });
+
+  it("blocks queue when number arg is outside min max range", () => {
+    const result = checkQueueCommandSafety([
+      {
+        title: "safe",
+        renderedCommand: "git status"
+      },
+      {
+        title: "queue-port",
+        renderedCommand: "echo {{port}}",
+        args: [
+          {
+            key: "port",
+            label: "port",
+            token: "{{port}}",
+            required: true,
+            argType: "number",
+            min: 1,
+            max: 10
+          }
+        ],
+        argValues: {
+          port: "0"
+        }
+      }
+    ]);
+
+    expect(result.blockedMessage).toContain("queue-port");
     expect(result.confirmationItems).toHaveLength(0);
   });
 

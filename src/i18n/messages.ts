@@ -320,6 +320,8 @@ export const messages = {
       validation: {
         required: "{label} 不能为空。",
         number: "{label} 需要是数字。",
+        min: "{label} 不能小于 {min}。",
+        max: "{label} 不能大于 {max}。",
         options: "{label} 不在允许选项中。",
         pattern: "{label} 不符合格式要求。",
         invalidPattern: "{label} 校验规则无效，请联系维护者修复命令模板。",
@@ -659,6 +661,8 @@ export const messages = {
       validation: {
         required: "{label} is required.",
         number: "{label} must be a number.",
+        min: "{label} must be greater than or equal to {min}.",
+        max: "{label} must be less than or equal to {max}.",
         options: "{label} is not in allowed options.",
         pattern: "{label} does not match required format.",
         invalidPattern: "{label} has invalid validation rule. Contact maintainer.",
