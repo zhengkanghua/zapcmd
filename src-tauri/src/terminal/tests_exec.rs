@@ -35,8 +35,8 @@ fn sanitize_command_rejects_all_whitespace() {
 }
 
 #[test]
-fn run_command_in_terminal_rejects_all_whitespace() {
-    assert!(run_command_in_terminal("powershell".to_string(), " \n\t ".to_string()).is_err());
+fn run_command_in_terminal_keeps_rejecting_blank_input_after_strategy_refactor() {
+    assert!(run_command_in_terminal("wt".to_string(), "   ".to_string()).is_err());
 }
 
 #[test]
