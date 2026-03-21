@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { ref, unref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
@@ -22,6 +23,126 @@ function createDeepStub(): unknown {
 }
 
 describe("createAppCompositionViewModel", () => {
+  it("returns segmented launcher/settings/app-shell view models and App consumes only those roots", () => {
+    const context = {
+      isSettingsWindow: ref(false),
+      search: {
+        query: ref(""),
+        filteredResults: ref([]),
+        activeIndex: ref(0),
+        onQueryInput: vi.fn()
+      },
+      domBridge: {
+        setSearchShellRef: vi.fn(),
+        setSearchInputRef: vi.fn(),
+        setDrawerRef: vi.fn(),
+        setStagingPanelRef: vi.fn(),
+        setStagingListRef: vi.fn(),
+        setResultButtonRef: vi.fn(),
+        setParamInputRef: vi.fn()
+      },
+      stagedFeedback: {
+        stagedFeedbackCommandId: ref(null)
+      },
+      stagedCommands: ref([]),
+      stagingGripReorderActive: ref(false),
+      hotkeyBindings: createDeepStub(),
+      settingsWindow: createDeepStub(),
+      commandManagement: createDeepStub(),
+      themeManager: createDeepStub(),
+      defaultTerminal: ref("powershell"),
+      terminalReusePolicy: ref("never"),
+      language: ref("zh-CN"),
+      autoCheckUpdate: ref(true),
+      launchAtLogin: ref(false),
+      alwaysElevatedTerminal: ref(false),
+      appVersion: ref("1.0.1"),
+      runtimePlatform: ref("windows"),
+      updateStatus: ref(null),
+      setWindowOpacity: vi.fn(),
+      setTheme: vi.fn(),
+      setBlurEnabled: vi.fn(),
+      windowOpacity: ref(0.96),
+      theme: ref("obsidian"),
+      blurEnabled: ref(true),
+      checkUpdate: vi.fn(),
+      downloadUpdate: vi.fn(),
+      openHomepage: vi.fn()
+    };
+
+    const runtime = {
+      commandExecution: {
+        submitParamInput: vi.fn(() => false),
+        pendingCommand: ref<unknown>(null),
+        executionFeedbackMessage: ref(""),
+        executionFeedbackTone: ref("neutral"),
+        pendingArgValues: ref({}),
+        pendingSubmitMode: ref("stage"),
+        safetyDialog: ref(null),
+        stageResult: vi.fn(),
+        executeResult: vi.fn(),
+        removeStagedCommand: vi.fn(),
+        updateStagedArg: vi.fn(),
+        clearStaging: vi.fn(),
+        executeStaged: vi.fn(),
+        updatePendingArgValue: vi.fn(),
+        confirmSafetyExecution: vi.fn(),
+        cancelSafetyExecution: vi.fn(),
+        setExecutionFeedback: vi.fn(),
+        executing: ref(false)
+      },
+      navStack: {
+        canGoBack: ref(false),
+        popPage: vi.fn(),
+        currentPage: ref({ type: "search" }),
+        pushPage: vi.fn(),
+        resetToSearch: vi.fn(),
+        stack: ref([{ type: "search" }])
+      },
+      layoutMetrics: {
+        searchShellStyle: ref({}),
+        drawerOpen: ref(false),
+        drawerViewportHeight: ref(0)
+      },
+      stagingQueue: {
+        stagingExpanded: ref(false),
+        stagingDrawerState: ref("closed"),
+        focusZone: ref("search"),
+        stagingActiveIndex: ref(0),
+        toggleStaging: vi.fn(),
+        onStagingDragStart: vi.fn(),
+        onStagingDragOver: vi.fn(),
+        onStagingDragEnd: vi.fn(),
+        onFocusStagingIndex: vi.fn()
+      },
+      pendingArgs: ref([]),
+      pendingSubmitHint: ref(""),
+      requestCommandPanelExit: vi.fn(),
+      notifyCommandPageSettled: vi.fn(),
+      notifyFlowPanelHeightChange: vi.fn(),
+      notifyFlowPanelSettled: vi.fn(),
+      notifySearchPageSettled: vi.fn(),
+      closeSettingsWindow: vi.fn(),
+      forceCloseSettingsWindow: vi.fn(),
+      hideMainWindow: vi.fn()
+    };
+
+    const viewModel = createAppCompositionViewModel(
+      context as never,
+      runtime as never
+    );
+    const appSource = readFileSync("src/App.vue", "utf8");
+
+    expect(viewModel.launcherVm).toBeDefined();
+    expect(viewModel.settingsVm).toBeDefined();
+    expect(viewModel.appShellVm).toBeDefined();
+    expect("query" in viewModel).toBe(false);
+    expect("settingsNavItems" in viewModel).toBe(false);
+    expect(appSource).toMatch(
+      /const\s*\{\s*isSettingsWindow,\s*launcherVm,\s*settingsVm,\s*appShellVm\s*\}\s*=\s*useAppCompositionRoot\(\);/s
+    );
+  });
+
   it("submitParamInput 透传业务提交结果，且不再直接 popPage", () => {
     const submitParamInput = vi.fn();
     const popPage = vi.fn();
@@ -141,8 +262,8 @@ describe("createAppCompositionViewModel", () => {
       runtime as never
     );
 
-    expect(viewModel.notifyFlowPanelSettled).toBeTypeOf("function");
-    expect(viewModel.notifyFlowPanelHeightChange).toBeTypeOf("function");
+    expect(viewModel.launcherVm.notifyFlowPanelSettled).toBeTypeOf("function");
+    expect(viewModel.launcherVm.notifyFlowPanelHeightChange).toBeTypeOf("function");
     expect("drawerFloorViewportHeight" in viewModel).toBe(false);
     expect("stagingListMaxHeight" in viewModel).toBe(false);
     expect("settingsErrorRoute" in viewModel).toBe(false);
@@ -152,7 +273,7 @@ describe("createAppCompositionViewModel", () => {
     expect("isHotkeyRecording" in viewModel).toBe(false);
     expect("getHotkeyDisplay" in viewModel).toBe(false);
 
-    const submitted = viewModel.submitParamInput();
+    const submitted = viewModel.launcherVm.submitParamInput();
 
     expect(submitted).toBe(true);
     expect(submitParamInput).toHaveBeenCalledTimes(1);
@@ -269,8 +390,8 @@ describe("createAppCompositionViewModel", () => {
       runtime as never
     );
 
-    expect(unref(viewModel.showAlwaysElevatedTerminal)).toBe(false);
+    expect(unref(viewModel.settingsVm.showAlwaysElevatedTerminal)).toBe(false);
     runtimePlatform.value = "win";
-    expect(unref(viewModel.showAlwaysElevatedTerminal)).toBe(true);
+    expect(unref(viewModel.settingsVm.showAlwaysElevatedTerminal)).toBe(true);
   });
 });
