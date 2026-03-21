@@ -1,5 +1,9 @@
 import type { Ref } from "vue";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
+import type {
+  CommandPrerequisite,
+  CommandPrerequisiteProbeResult
+} from "../../../features/commands/prerequisiteTypes";
 import type { StagedCommand } from "../../../features/launcher/types";
 import type { FocusZone } from "../../launcher/useStagingQueue";
 
@@ -36,6 +40,9 @@ export interface UseCommandExecutionOptions {
     renderedCommands: string[],
     options?: { requiresElevation?: boolean }
   ) => Promise<void>;
+  runCommandPreflight?: (
+    prerequisites: CommandPrerequisite[]
+  ) => Promise<CommandPrerequisiteProbeResult[]>;
   feedbackDurationMs?: number;
   onNeedPanel?: (command: CommandTemplate, mode: ParamSubmitMode) => void;
 }

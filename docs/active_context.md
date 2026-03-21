@@ -13,6 +13,12 @@
 - 计划 1 已完成：`terminalReusePolicy` 已接入 Settings、执行链与 Rust Windows 路由；默认终端在设置加载、终端列表刷新和执行前都会走统一 `resolveEffectiveTerminal()` 自愈，并在回退后立即持久化和广播。
 - Windows 终端路由已改成显式三挡策略：未知 `terminal_id` 直接返回 `invalid-request`；`wt` 普通/管理员 lane 分离；最近可复用状态改为单一 `WindowsReusableSessionState`，普通命令不再被“最近一次管理员会话”污染。
 
+## 补充（2026-03-21｜命令 schema 与 preflight contract 加固）
+
+- 计划 2 进行中：`CommandArg` / `CommandTemplate` 已补齐 `min/max/prerequisites`，`runtimeMapper` 不再丢掉这些字段，`StagedCommand` 也开始携带 prerequisites。
+- `commandSafety` 已对 `number` 参数执行 `min/max` 运行时校验；前端新增 `commandPreflight` service，Rust 新增 prerequisite probe，当前支持 `binary/env`，其余类型返回结构化 `unsupported-prerequisite`。
+- `useCommandExecution` 已在单条与队列执行前接入 prerequisite preflight：required 失败会阻断，optional 失败会在成功反馈后追加预检告警。
+
 ## 补充（2026-03-21｜项目总审查）
 
 - 已落盘总审查文档 `docs/plan/2026-03-21_01-project-elegance-robustness-review.md`；P0 聚焦 Windows 执行链安全/权限语义、命令 schema 契约漂移、SettingsWindow stale contract 与默认终端有效性闭环。

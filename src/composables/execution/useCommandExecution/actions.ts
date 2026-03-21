@@ -10,9 +10,15 @@ import {
 import { isDangerDismissed } from "../../../features/security/dangerDismiss";
 import {
   appendToStaging,
+  appendPreflightWarnings,
   buildExecutionFailureFeedback,
+  buildPreflightBlockedFeedback,
+  collectBlockingPreflightIssues,
+  collectWarningPreflightIssues,
+  type CommandPreflightIssue,
   executeSingleCommand,
   getPendingSubmitRejection,
+  runCommandPreflight,
   summarizeCommandForFeedback,
   updateStagedRenderedCommand
 } from "./helpers";
@@ -30,7 +36,10 @@ function createExecuteStagedAction(
   state: CommandExecutionState,
   clearStaging: () => void
 ) {
-  async function runStagedSnapshot(snapshot: StagedCommand[]): Promise<void> {
+  async function runStagedSnapshot(
+    snapshot: StagedCommand[],
+    preflightWarnings: CommandPreflightIssue[] = []
+  ): Promise<void> {
     state.executing.value = true;
     const commands = snapshot
       .map((item) => item.renderedCommand.trim())
@@ -56,10 +65,13 @@ function createExecuteStagedAction(
       const firstCommand = summarizeCommandForFeedback(commands[0]);
       state.setExecutionFeedback(
         "success",
-        t("execution.queueSuccess", {
-          count: commands.length,
-          firstCommand
-        })
+        appendPreflightWarnings(
+          t("execution.queueSuccess", {
+            count: commands.length,
+            firstCommand
+          }),
+          preflightWarnings
+        )
       );
     } catch (error) {
       console.error("queue execution failed:", error);
@@ -100,6 +112,28 @@ function createExecuteStagedAction(
       options.scheduleSearchInputFocus(false);
       return;
     }
+    const preflightIssues = (
+      await Promise.all(
+        snapshot.map(async (item) =>
+          (
+            await runCommandPreflight(options, item.prerequisites)
+          ).map((result) => ({
+            title: item.title,
+            result
+          }))
+        )
+      )
+    ).flat();
+    const blockingPreflightIssues = collectBlockingPreflightIssues(preflightIssues);
+    if (blockingPreflightIssues.length > 0) {
+      state.setExecutionFeedback(
+        "error",
+        buildPreflightBlockedFeedback(blockingPreflightIssues)
+      );
+      options.scheduleSearchInputFocus(false);
+      return;
+    }
+    const warningPreflightIssues = collectWarningPreflightIssues(preflightIssues);
 
     if (queueSafety.confirmationItems.length > 0) {
       state.requestSafetyConfirmation(
@@ -112,13 +146,13 @@ function createExecuteStagedAction(
           items: queueSafety.confirmationItems
         },
         async () => {
-          await runStagedSnapshot(snapshot);
+          await runStagedSnapshot(snapshot, warningPreflightIssues);
         }
       );
       return;
     }
 
-    await runStagedSnapshot(snapshot);
+    await runStagedSnapshot(snapshot, warningPreflightIssues);
   };
 }
 
@@ -126,10 +160,11 @@ function createSingleExecutionRequester(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState
 ) {
-  return function requestSingleExecution(
+  return async function requestSingleExecution(
     command: CommandTemplate,
-    argValues?: Record<string, string>
-  ): void {
+    argValues?: Record<string, string>,
+    skipDangerConfirmation = false
+  ): Promise<void> {
     const args = getCommandArgs(command);
     const rendered = renderCommand(command, argValues);
     const safety = checkSingleCommandSafety(
@@ -147,8 +182,25 @@ function createSingleExecutionRequester(
       options.scheduleSearchInputFocus(false);
       return;
     }
+    const preflightIssues = (
+      await runCommandPreflight(options, command.prerequisites)
+    ).map((result) => ({ result }));
+    const blockingPreflightIssues = collectBlockingPreflightIssues(preflightIssues);
+    if (blockingPreflightIssues.length > 0) {
+      state.setExecutionFeedback(
+        "error",
+        buildPreflightBlockedFeedback(blockingPreflightIssues)
+      );
+      options.scheduleSearchInputFocus(false);
+      return;
+    }
+    const warningPreflightIssues = collectWarningPreflightIssues(preflightIssues);
 
-    if (safety.confirmationReasons.length > 0 && !isDangerDismissed(command.id)) {
+    if (
+      !skipDangerConfirmation &&
+      safety.confirmationReasons.length > 0 &&
+      !isDangerDismissed(command.id)
+    ) {
       state.requestSafetyConfirmation(
         {
           mode: "single",
@@ -163,20 +215,36 @@ function createSingleExecutionRequester(
           ]
         },
         async () => {
-          await executeSingleCommand(options, state, command, argValues);
+          await executeSingleCommand(
+            options,
+            state,
+            command,
+            argValues,
+            warningPreflightIssues
+          );
         }
       );
       return;
     }
 
-    void executeSingleCommand(options, state, command, argValues);
+    await executeSingleCommand(
+      options,
+      state,
+      command,
+      argValues,
+      warningPreflightIssues
+    );
   };
 }
 
 function createPendingCommandActions(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState,
-  requestSingleExecution: (command: CommandTemplate, argValues?: Record<string, string>) => void
+  requestSingleExecution: (
+    command: CommandTemplate,
+    argValues?: Record<string, string>,
+    skipDangerConfirmation?: boolean
+  ) => Promise<void>
 ) {
   function resetPendingCommand(): void {
     state.pendingCommand.value = null;
@@ -209,7 +277,7 @@ function createPendingCommandActions(
       options.onNeedPanel?.(command, "execute");
       return;
     }
-    requestSingleExecution(command);
+    void requestSingleExecution(command);
   }
 
   function submitParamInput(): boolean {
@@ -250,7 +318,7 @@ function createPendingCommandActions(
       }
 
       resetPendingCommand();
-      void executeSingleCommand(options, state, command, values);
+      void requestSingleExecution(command, values, true);
       return true;
     }
 

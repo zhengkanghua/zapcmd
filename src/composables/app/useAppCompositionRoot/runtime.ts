@@ -11,6 +11,7 @@ import {
   WINDOW_SIZING_CONSTANTS,
   useLauncherLayoutMetrics
 } from "../../launcher/useLauncherLayoutMetrics";
+import { createCommandPreflightService } from "../../../services/commandPreflight";
 import { createPanelHeightSession } from "../../launcher/useWindowSizing/panelHeightSession";
 import { useLauncherVisibility } from "../../launcher/useLauncherVisibility";
 import { useLauncherWatcherBindings } from "../../launcher/useLauncherWatcherBindings";
@@ -49,6 +50,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
 
   const navStack = useLauncherNavStack();
   cleanExpiredDismissals();
+  const commandPreflight = createCommandPreflightService();
 
   const commandExecution = useCommandExecution({
     stagedCommands: context.stagedCommands,
@@ -61,6 +63,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
     runCommandInTerminal: context.runCommandInTerminal,
     runCommandsInTerminal: context.runCommandsInTerminal,
+    runCommandPreflight: commandPreflight.check.bind(commandPreflight),
     onNeedPanel: (command, mode) => {
       navStack.pushPage({
         type: "command-action",

@@ -1,5 +1,9 @@
 import { nextTick } from "vue";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
+import type {
+  CommandPrerequisite,
+  CommandPrerequisiteProbeResult
+} from "../../../features/commands/prerequisiteTypes";
 import { t } from "../../../i18n";
 import { CommandExecutionError } from "../../../services/commandExecutor";
 import {
@@ -133,6 +137,65 @@ export interface PendingSubmitRejection {
   nextStep: string;
 }
 
+export interface CommandPreflightIssue {
+  title?: string;
+  result: CommandPrerequisiteProbeResult;
+}
+
+function formatPreflightIssue(issue: CommandPreflightIssue): string {
+  const subject = issue.title
+    ? `${issue.title} / ${issue.result.id}`
+    : issue.result.id;
+  const message =
+    issue.result.message.trim().length > 0
+      ? issue.result.message.trim()
+      : issue.result.code;
+  return `${subject}: ${message}`;
+}
+
+export async function runCommandPreflight(
+  options: UseCommandExecutionOptions,
+  prerequisites: CommandPrerequisite[] | undefined
+): Promise<CommandPrerequisiteProbeResult[]> {
+  if (!options.runCommandPreflight || !prerequisites || prerequisites.length === 0) {
+    return [];
+  }
+  return options.runCommandPreflight(prerequisites);
+}
+
+export function collectBlockingPreflightIssues(
+  issues: CommandPreflightIssue[]
+): CommandPreflightIssue[] {
+  return issues.filter((issue) => issue.result.ok !== true && issue.result.required);
+}
+
+export function collectWarningPreflightIssues(
+  issues: CommandPreflightIssue[]
+): CommandPreflightIssue[] {
+  return issues.filter((issue) => issue.result.ok !== true && issue.result.required === false);
+}
+
+export function buildPreflightBlockedFeedback(
+  issues: CommandPreflightIssue[]
+): string {
+  return t("execution.preflightBlockedWithNextStep", {
+    reason: issues.map(formatPreflightIssue).join("；"),
+    nextStep: t("execution.nextStepPrerequisite")
+  });
+}
+
+export function appendPreflightWarnings(
+  message: string,
+  issues: CommandPreflightIssue[]
+): string {
+  if (issues.length === 0) {
+    return message;
+  }
+  return `${message} ${t("execution.preflightWarning", {
+    reason: issues.map(formatPreflightIssue).join("；")
+  })}`;
+}
+
 export function getPendingSubmitRejection(
   command: CommandTemplate,
   pendingArgValues: Record<string, string>
@@ -175,7 +238,8 @@ export async function executeSingleCommand(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState,
   command: CommandTemplate,
-  argValues?: Record<string, string>
+  argValues?: Record<string, string>,
+  preflightWarnings: CommandPreflightIssue[] = []
 ): Promise<void> {
   if (state.executing.value) {
     return;
@@ -190,9 +254,12 @@ export async function executeSingleCommand(
     });
     state.setExecutionFeedback(
       "success",
-      t("execution.sentToTerminal", {
-        command: summarizeCommandForFeedback(rendered)
-      })
+      appendPreflightWarnings(
+        t("execution.sentToTerminal", {
+          command: summarizeCommandForFeedback(rendered)
+        }),
+        preflightWarnings
+      )
     );
   } catch (error) {
     console.error("command execution failed:", error);
@@ -233,6 +300,7 @@ export function updateStagedRenderedCommand(
     category: "",
     needsArgs: cmd.args.length > 0,
     args: cmd.args,
+    prerequisites: cmd.prerequisites,
     adminRequired: cmd.adminRequired ?? false,
     dangerous: cmd.dangerous ?? false
   };

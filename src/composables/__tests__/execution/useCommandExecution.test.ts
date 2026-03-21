@@ -1,6 +1,10 @@
 import { nextTick, ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
+import type {
+  CommandPrerequisite,
+  CommandPrerequisiteProbeResult
+} from "../../../features/commands/prerequisiteTypes";
 import type { StagedCommand } from "../../../features/launcher/types";
 import {
   DANGER_DISMISS_STORAGE_KEY,
@@ -21,6 +25,7 @@ interface Harness {
   scheduleSearchInputFocus: ReturnType<typeof vi.fn>;
   runCommandInTerminal: ReturnType<typeof vi.fn>;
   runCommandsInTerminal: ReturnType<typeof vi.fn>;
+  runCommandPreflight: ReturnType<typeof vi.fn>;
   onNeedPanel: ReturnType<typeof vi.fn>;
   execution: ReturnType<typeof useCommandExecution>;
 }
@@ -62,6 +67,22 @@ function createAdminCommand(): CommandTemplate {
   };
 }
 
+function createPrerequisiteCommand(
+  overrides: Partial<CommandTemplate> = {},
+  prerequisites: CommandPrerequisite[] = [
+    { id: "docker", type: "binary", required: true, check: "docker" }
+  ]
+): CommandTemplate {
+  return {
+    ...createNoArgCommand(),
+    id: "docker-ps",
+    title: "Docker PS",
+    preview: "docker ps",
+    prerequisites,
+    ...overrides
+  };
+}
+
 function createHarness(useBatchRunner = false): Harness {
   const stagedCommands = ref<StagedCommand[]>([]);
   const focusZone = ref<FocusZone>("search");
@@ -73,6 +94,9 @@ function createHarness(useBatchRunner = false): Harness {
   const scheduleSearchInputFocus = vi.fn();
   const runCommandInTerminal = vi.fn(async () => {});
   const runCommandsInTerminal = vi.fn(async () => {});
+  const runCommandPreflight = vi.fn(
+    async () => [] as CommandPrerequisiteProbeResult[]
+  );
   const onNeedPanel = vi.fn();
 
   const execution = useCommandExecution({
@@ -86,6 +110,7 @@ function createHarness(useBatchRunner = false): Harness {
     scheduleSearchInputFocus,
     runCommandInTerminal,
     runCommandsInTerminal: useBatchRunner ? runCommandsInTerminal : undefined,
+    runCommandPreflight,
     onNeedPanel
   });
 
@@ -100,9 +125,16 @@ function createHarness(useBatchRunner = false): Harness {
     scheduleSearchInputFocus,
     runCommandInTerminal,
     runCommandsInTerminal,
+    runCommandPreflight,
     onNeedPanel,
     execution
   };
+}
+
+async function flushExecution(): Promise<void> {
+  await Promise.resolve();
+  await nextTick();
+  await nextTick();
 }
 
 describe("useCommandExecution", () => {
@@ -162,7 +194,7 @@ describe("useCommandExecution", () => {
     harness.execution.executeResult(command);
     harness.execution.updatePendingArgValue("value", "8088");
     const submitted = harness.execution.submitParamInput();
-    await nextTick();
+    await flushExecution();
 
     expect(submitted).toBe(true);
     expect(harness.execution.pendingCommand.value).toBeNull();
@@ -188,6 +220,55 @@ describe("useCommandExecution", () => {
     });
   });
 
+  it("blocks single execution when required prerequisite fails", async () => {
+    const harness = createHarness();
+    const command = createPrerequisiteCommand();
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: false,
+        code: "missing-binary",
+        required: true,
+        message: "docker not found"
+      }
+    ]);
+
+    harness.execution.executeResult(command);
+    await flushExecution();
+
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("docker not found");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
+  });
+
+  it("keeps execution but appends warning when optional prerequisite fails", async () => {
+    const harness = createHarness();
+    const command = createPrerequisiteCommand(
+      {},
+      [{ id: "docker", type: "binary", required: false, check: "docker" }]
+    );
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: false,
+        code: "missing-binary",
+        required: false,
+        message: "docker not found"
+      }
+    ]);
+
+    harness.execution.executeResult(command);
+    await flushExecution();
+
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("docker ps", {
+      requiresElevation: false
+    });
+    expect(harness.execution.executionFeedbackTone.value).toBe("success");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("预检告警");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("docker");
+  });
+
   it("opens command panel for dangerous no-arg command and executes on submit (skips safetyDialog)", async () => {
     const harness = createHarness();
     const command: CommandTemplate = {
@@ -203,7 +284,7 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
 
     harness.execution.submitParamInput();
-    await nextTick();
+    await flushExecution();
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.execution.pendingCommand.value).toBeNull();
@@ -222,7 +303,7 @@ describe("useCommandExecution", () => {
     harness.execution.executeResult(command);
     harness.execution.updatePendingArgValue("value", "8088");
     harness.execution.submitParamInput();
-    await nextTick();
+    await flushExecution();
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.execution.pendingCommand.value).toBeNull();
@@ -240,7 +321,7 @@ describe("useCommandExecution", () => {
 
     dismissDanger(command.id);
     harness.execution.executeResult(command);
-    await nextTick();
+    await flushExecution();
 
     expect(harness.execution.pendingCommand.value).toBeNull();
     expect(harness.execution.safetyDialog.value).toBeNull();
@@ -256,7 +337,7 @@ describe("useCommandExecution", () => {
     harness.execution.executeResult(command);
     harness.execution.updatePendingArgValue("value", "  8088  ");
     harness.execution.submitParamInput();
-    await nextTick();
+    await flushExecution();
 
     expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
       requiresElevation: false
@@ -271,7 +352,7 @@ describe("useCommandExecution", () => {
     const command = createNoArgCommand();
 
     harness.execution.executeResult(command);
-    await nextTick();
+    await flushExecution();
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
 
@@ -288,7 +369,7 @@ describe("useCommandExecution", () => {
     harness.runCommandInTerminal.mockRejectedValueOnce(new Error("mock-run-failed"));
 
     harness.execution.executeResult(command);
-    await nextTick();
+    await flushExecution();
 
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("mock-run-failed");
@@ -303,7 +384,7 @@ describe("useCommandExecution", () => {
     harness.runCommandInTerminal.mockRejectedValueOnce(new Error("ENOENT: terminal not found"));
 
     harness.execution.executeResult(command);
-    await nextTick();
+    await flushExecution();
 
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("ENOENT");
@@ -437,6 +518,54 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("执行已拦截");
     expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
+  });
+
+  it("blocks queue execution when any required prerequisite fails", async () => {
+    const harness = createHarness(true);
+
+    harness.execution.stageResult(createNoArgCommand());
+    harness.execution.stageResult(createPrerequisiteCommand());
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: false,
+        code: "missing-binary",
+        required: true,
+        message: "docker not found"
+      }
+    ]);
+
+    await harness.execution.executeStaged();
+
+    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.stagedCommands.value).toHaveLength(2);
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("docker not found");
+  });
+
+  it("treats unsupported prerequisite as blocking failure", async () => {
+    const harness = createHarness();
+    const command = createPrerequisiteCommand(
+      {},
+      [{ id: "login-shell", type: "shell", required: true, check: "pwsh" }]
+    );
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "login-shell",
+        ok: false,
+        code: "unsupported-prerequisite",
+        required: true,
+        message: "unsupported prerequisite type: shell"
+      }
+    ]);
+
+    harness.execution.executeResult(command);
+    await flushExecution();
+
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("unsupported prerequisite");
   });
 
   it("removes staged command and clamps active index", () => {
