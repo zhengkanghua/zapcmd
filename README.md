@@ -62,8 +62,10 @@ npm run tauri:dev
 Tip: `npm run dev` starts web preview mode (no terminal execution). Use `npm run tauri:dev` for desktop features.
 
 On Windows, command execution always follows the terminal selected in Settings.
-`wt` reuses a ZapCmd-managed terminal window through the fixed window id `zapcmd-main-terminal`.
+ZapCmd itself stays unelevated; when a command or flow requires admin rights, Windows requests UAC only for the launched terminal.
+`wt` reuses ZapCmd-managed terminal windows through two fixed window ids: `zapcmd-main-terminal` for normal sessions and `zapcmd-main-terminal-admin` for elevated sessions.
 `powershell`, `pwsh`, and `cmd` always open a new standalone console window.
+A staged flow is still delivered once. If any node in the flow has `adminRequired=true`, the whole flow runs in the elevated terminal.
 This behavior stays consistent in both `tauri:dev` and packaged desktop runs.
 
 Note: updater keys/endpoints are centralized in `.env.keys` and synced by `npm run keys:sync` (already included in `tauri:dev` / `tauri:build`).
@@ -173,6 +175,7 @@ Schema:
 Notes:
 
 - `shell` is currently validated by schema but ignored at runtime (no effect). ZapCmd shows a validation notice in `Settings -> Command Management`.
+- On Windows, `adminRequired=true` means "launch the matching elevated terminal when executing this command"; it does not elevate the ZapCmd app process itself.
 
 ## Search Behavior (Current)
 

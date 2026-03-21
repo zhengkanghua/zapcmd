@@ -44,7 +44,7 @@
 
 1. `平台`：支持 `all / win / mac / linux / mac/linux`（其中 `mac/linux` 会拆成两条）。
 2. `高危`：用 `⚠️` 标记高危命令（会触发更严格的安全提示/确认流程）。
-3. `adminRequired`：需要管理员权限时标记为 `true`（Windows 会提示以管理员终端执行）。
+3. `adminRequired`：需要管理员权限时标记为 `true`（Windows 会按需拉起管理员终端；若执行流中任一步为 `true`，则整队整体升权，ZapCmd 主进程本身不提权）。
 4. `prerequisites`：逗号分隔，例如 `git,docker,powershell`。
 5. `tags`：空格分隔，用于搜索与分类。
 6. `参数`：使用 `key(type, ...)` 形式描述（例如 `path(path)`、`count(number, default:10)`、`mode(select:a/b/c)`）。

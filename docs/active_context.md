@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-21｜Windows 管理员终端路由实现）
+
+- 已完成 `alwaysElevatedTerminal + requiresElevation` 全链路；Windows 新增普通/管理员双 `wt` 窗口 ID、最近权限态与 UAC 取消结构化错误。Task 5/6 checkpoint=`3030c75`，待跑最终门禁与手工 smoke。
+
 ## 补充（2026-03-21｜终端失败优先实现完成）
 
 - `useTerminalExecution` 已切到 failure-first；PowerShell 先判 `$?` 再读可选 `$LASTEXITCODE`，`cmd/wt` 队列按失败数输出 `[queue][done]` / `[queue][failed]`。
