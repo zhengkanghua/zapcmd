@@ -51,7 +51,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "pwsh",
       command:
-        "Write-Host '[zapcmd] [1/2] executing: echo hello'; echo hello; Write-Host ('[zapcmd] [1/2] exit code: ' + $LASTEXITCODE); Write-Host '[zapcmd] [2/2] executing: git status'; git status; Write-Host ('[zapcmd] [2/2] exit code: ' + $LASTEXITCODE); Write-Host ('[zapcmd] queue finished, total: 2, last exit code: ' + $LASTEXITCODE)"
+        "Write-Host '[zapcmd][1/2][run] echo hello'; echo hello; Write-Host ('[zapcmd][1/2][exit ' + $LASTEXITCODE + '] echo hello'); Write-Host '[zapcmd][2/2][run] git status'; git status; Write-Host ('[zapcmd][2/2][exit ' + $LASTEXITCODE + '] git status'); Write-Host ('[zapcmd][queue][exit ' + $LASTEXITCODE + '] total: 2')"
     });
   });
 
@@ -69,7 +69,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "wt",
       command:
-        "echo [zapcmd] [1/1] executing: git status & git status & echo [zapcmd] [1/1] finished & echo [zapcmd] queue finished, total: 1"
+        "setlocal EnableDelayedExpansion & echo [zapcmd][1/1][run] git status & git status & echo [zapcmd][1/1][exit !ERRORLEVEL!] git status & echo [zapcmd][queue][exit !ERRORLEVEL!] total: 1"
     });
   });
 
@@ -86,7 +86,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
       command:
-        "Write-Host '[zapcmd] [1/1] executing: netstat -ano | findstr :8080'; netstat -ano | findstr :8080; Write-Host ('[zapcmd] [1/1] exit code: ' + $LASTEXITCODE); Write-Host ('[zapcmd] queue finished, total: 1, last exit code: ' + $LASTEXITCODE)"
+        "Write-Host '[zapcmd][1/1][run] netstat -ano | findstr :8080'; netstat -ano | findstr :8080; Write-Host ('[zapcmd][1/1][exit ' + $LASTEXITCODE + '] netstat -ano | findstr :8080'); Write-Host ('[zapcmd][queue][exit ' + $LASTEXITCODE + '] total: 1')"
     });
   });
 
@@ -103,7 +103,7 @@ describe("useTerminalExecution", () => {
     expect(run).toHaveBeenCalledWith({
       terminalId: "powershell",
       command:
-        "Write-Host '[zapcmd] [1/2] executing: netstat -ano | findstr :8081'; netstat -ano | findstr :8081; Write-Host ('[zapcmd] [1/2] exit code: ' + $LASTEXITCODE); Write-Host '[zapcmd] [2/2] executing: netstat -ano | findstr :443'; netstat -ano | findstr :443; Write-Host ('[zapcmd] [2/2] exit code: ' + $LASTEXITCODE); Write-Host ('[zapcmd] queue finished, total: 2, last exit code: ' + $LASTEXITCODE)"
+        "Write-Host '[zapcmd][1/2][run] netstat -ano | findstr :8081'; netstat -ano | findstr :8081; Write-Host ('[zapcmd][1/2][exit ' + $LASTEXITCODE + '] netstat -ano | findstr :8081'); Write-Host '[zapcmd][2/2][run] netstat -ano | findstr :443'; netstat -ano | findstr :443; Write-Host ('[zapcmd][2/2][exit ' + $LASTEXITCODE + '] netstat -ano | findstr :443'); Write-Host ('[zapcmd][queue][exit ' + $LASTEXITCODE + '] total: 2')"
     });
   });
 });

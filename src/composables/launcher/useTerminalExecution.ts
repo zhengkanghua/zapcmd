@@ -60,17 +60,17 @@ function buildBatchCommandPayload(terminalId: string, commands: string[]): strin
     const steps = normalized.map((command, index) => {
       const step = index + 1;
       const hint = escapePowerShellSingleQuotedLiteral(summarizeCommand(terminalId, command));
-      return `Write-Host '[zapcmd] [${step}/${total}] executing: ${hint}'; ${command}; Write-Host ('[zapcmd] [${step}/${total}] exit code: ' + $LASTEXITCODE)`;
+      return `Write-Host '[zapcmd][${step}/${total}][run] ${hint}'; ${command}; Write-Host ('[zapcmd][${step}/${total}][exit ' + $LASTEXITCODE + '] ${hint}')`;
     });
-    return `${steps.join("; ")}; Write-Host ('[zapcmd] queue finished, total: ${total}, last exit code: ' + $LASTEXITCODE)`;
+    return `${steps.join("; ")}; Write-Host ('[zapcmd][queue][exit ' + $LASTEXITCODE + '] total: ${total}')`;
   }
   if (isCmdTerminal(terminalId)) {
     const steps = normalized.map((command, index) => {
       const step = index + 1;
       const hint = summarizeCommand(terminalId, command);
-      return `echo [zapcmd] [${step}/${total}] executing: ${hint} & ${command} & echo [zapcmd] [${step}/${total}] finished`;
+      return `echo [zapcmd][${step}/${total}][run] ${hint} & ${command} & echo [zapcmd][${step}/${total}][exit !ERRORLEVEL!] ${hint}`;
     });
-    return `${steps.join(" & ")} & echo [zapcmd] queue finished, total: ${total}`;
+    return `setlocal EnableDelayedExpansion & ${steps.join(" & ")} & echo [zapcmd][queue][exit !ERRORLEVEL!] total: ${total}`;
   }
   const steps = normalized.map((command, index) => {
     const step = index + 1;
