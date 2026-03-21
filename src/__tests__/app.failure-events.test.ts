@@ -103,11 +103,15 @@ vi.mock("@tauri-apps/plugin-updater", () => ({
   check: vi.fn(async () => null),
 }));
 
-vi.mock("../services/commandExecutor", () => ({
-  createCommandExecutor: () => ({
-    run: hoisted.runMock,
-  }),
-}));
+vi.mock("../services/commandExecutor", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../services/commandExecutor")>();
+  return {
+    ...actual,
+    createCommandExecutor: () => ({
+      run: hoisted.runMock,
+    }),
+  };
+});
 
 const wrappers: VueWrapper[] = [];
 
@@ -159,6 +163,7 @@ function buildSnapshot(
       language: "zh-CN",
       autoCheckUpdate: true,
       launchAtLogin: false,
+      alwaysElevatedTerminal: false,
     },
     appearance: {
       windowOpacity: 0.96,
