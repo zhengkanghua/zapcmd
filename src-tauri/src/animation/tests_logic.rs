@@ -1,4 +1,4 @@
-use super::ease_out_cubic;
+use super::{ease_out_cubic, size_cache::WindowSizeCache};
 
 #[test]
 fn ease_out_cubic_at_zero() {
@@ -34,4 +34,34 @@ fn ease_out_cubic_stays_in_unit_range() {
         let v = ease_out_cubic(t);
         assert!((0.0..=1.0).contains(&v), "超出 [0,1] 范围: t={t}, v={v}");
     }
+}
+
+#[test]
+fn window_size_cache_returns_default_before_first_write() {
+    let cache = WindowSizeCache::new();
+
+    assert_eq!(cache.read_or_recover(), (0.0, 0.0));
+}
+
+#[test]
+fn window_size_cache_reads_back_latest_write() {
+    let cache = WindowSizeCache::new();
+
+    cache.write_or_recover(640.0, 480.0);
+
+    assert_eq!(cache.read_or_recover(), (640.0, 480.0));
+}
+
+#[test]
+fn window_size_cache_recovers_after_poison() {
+    let cache = WindowSizeCache::new();
+    cache.write_or_recover(320.0, 240.0);
+
+    cache.poison_for_test();
+
+    assert_eq!(cache.read_or_recover(), (320.0, 240.0));
+
+    cache.write_or_recover(800.0, 600.0);
+
+    assert_eq!(cache.read_or_recover(), (800.0, 600.0));
 }

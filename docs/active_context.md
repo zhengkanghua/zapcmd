@@ -28,6 +28,14 @@
 - 计划差异 1：真实代码里 `cancelHotkeyRecording` 还残留在 `useAppLifecycle` / `useAppLifecycleBridge` / `useMainWindowShell` 这条壳层链路；为避免 Task 2 后留下类型断裂，本轮一并做了最小收口。
 - 计划差异 2：`SHotkeyRecorder.vue` 与 `SettingsHotkeysSection.vue` 的生产实现实际上已先于计划满足目标 contract，因此 Task 3 无需改业务代码，只补强组件级与应用级回归来锁定这条真实路径。
 
+## 补充（2026-03-21｜Adapter 边界与窗口缓存加固）
+
+- 计划 4 前半段已完成：`viewModel.ts` 已收口成 `launcherVm / settingsVm / appShellVm` 三段边界，`App.vue` 根部只消费这三个 VM；`LauncherFlowPanel.vue` 也已把高度观察、抓手重排、内联参数编辑拆到独立 composable，主文件只保留 DOM 组合与少量 glue code。
+- `useWindowSizing/controller.ts` 已继续下沉为高层编排器：窗口同步样式与 fallback resize 进入 `windowSync.ts`，Flow 观察期 timer 进入 `flowObservation.ts`，panel session 协调进入 `sessionCoordinator.ts`；controller 对外 contract 保持不变，focused Vitest 与 lint 已通过。
+- Rust 侧已新增 `src-tauri/src/animation/size_cache.rs`，`AnimationController.current_size` 不再直接暴露 `Mutex<(f64, f64)>`；`animation/mod.rs` 与 `windowing.rs` 已统一改走 `WindowSizeCache::read_or_recover / write_or_recover`，poisoned mutex 下仍可安全读写。
+- 计划差异 1：Task 2 原文要求先加“主文件缩身约束”再把当前基线跑绿，但真实 `LauncherFlowPanel.vue` 在提取前仍直接持有三套状态机；本轮按最小必要调整为先补 emits contract 作为 baseline，再在提取完成后补源码缩身约束。
+- 计划差异 2：Task 3 文案写“先写失败测试”，但 Step 2 同时要求当前基线 PASS；实际执行时将其视为 characterization test，先锁住 controller 公开 API 与“不暴露 observation timer 状态”的 contract，再基于该基线做结构拆分。
+
 ## 补充（2026-03-21｜项目总审查）
 
 - 已落盘总审查文档 `docs/plan/2026-03-21_01-project-elegance-robustness-review.md`；P0 聚焦 Windows 执行链安全/权限语义、命令 schema 契约漂移、SettingsWindow stale contract 与默认终端有效性闭环。

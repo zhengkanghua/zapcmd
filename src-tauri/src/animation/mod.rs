@@ -1,5 +1,4 @@
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Mutex;
 use std::time::Duration;
 
 use tauri::LogicalSize;
@@ -7,6 +6,9 @@ use tauri::{Manager, State, WebviewWindow};
 
 #[cfg(desktop)]
 use crate::app_state::AppState;
+use size_cache::WindowSizeCache;
+
+mod size_cache;
 
 /// 缓动动画总时长（ms）
 const ANIMATION_DURATION_MS: u64 = 120;
@@ -26,7 +28,7 @@ pub(crate) struct AnimationController {
     /// 收缩延迟代纪计数器：每次取消收缩延迟时递增
     pub shrink_delay_gen: AtomicU64,
     /// 当前窗口实际尺寸（每帧更新）
-    pub current_size: Mutex<(f64, f64)>,
+    pub current_size: WindowSizeCache,
 }
 
 impl AnimationController {
@@ -34,7 +36,7 @@ impl AnimationController {
         Self {
             animation_gen: AtomicU64::new(0),
             shrink_delay_gen: AtomicU64::new(0),
-            current_size: Mutex::new((0.0, 0.0)),
+            current_size: WindowSizeCache::new(),
         }
     }
 }
@@ -53,12 +55,12 @@ pub(crate) async fn animate_main_window_size(
 ) -> Result<(), String> {
     let target_w = width.max(MIN_WIDTH);
     let target_h = height.max(MIN_HEIGHT);
-    let (current_w, current_h) = *state.current_size.lock().unwrap();
+    let (current_w, current_h) = state.current_size.read_or_recover();
 
     // 首次调用 — current_size 为零，即时设置并记录
     if current_w == 0.0 && current_h == 0.0 {
         set_size_with_position_guard(&window, target_w, target_h);
-        *state.current_size.lock().unwrap() = (target_w, target_h);
+        state.current_size.write_or_recover(target_w, target_h);
         return Ok(());
     }
 
@@ -111,7 +113,7 @@ async fn run_animation(
     target_h: f64,
 ) {
     let ctrl = app.state::<AnimationController>();
-    let (start_w, start_h) = *ctrl.current_size.lock().unwrap();
+    let (start_w, start_h) = ctrl.current_size.read_or_recover();
     let total_frames = ANIMATION_DURATION_MS / ANIMATION_FRAME_MS;
 
     for frame in 1..=total_frames {
@@ -124,7 +126,7 @@ async fn run_animation(
         let h = start_h + (target_h - start_h) * eased;
 
         set_size_with_position_guard(window, w, h);
-        *ctrl.current_size.lock().unwrap() = (w, h);
+        ctrl.current_size.write_or_recover(w, h);
 
         // 最后一帧不 sleep — 避免多等 16ms
         if frame < total_frames {
@@ -137,7 +139,7 @@ async fn run_animation(
         return;
     }
     set_size_with_position_guard(window, target_w, target_h);
-    *ctrl.current_size.lock().unwrap() = (target_w, target_h);
+    ctrl.current_size.write_or_recover(target_w, target_h);
 }
 
 /// 设置窗口尺寸并通过 move_save_token 保护位置不漂移

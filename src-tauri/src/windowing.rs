@@ -47,7 +47,7 @@ pub(crate) fn set_main_window_size(
     if let Some(ctrl) = window.app_handle().try_state::<crate::animation::AnimationController>() {
         ctrl.animation_gen.fetch_add(1, Ordering::SeqCst);
         ctrl.shrink_delay_gen.fetch_add(1, Ordering::SeqCst);
-        *ctrl.current_size.lock().unwrap() = (width, height);
+        ctrl.current_size.write_or_recover(width, height);
     }
     Ok(())
 }
