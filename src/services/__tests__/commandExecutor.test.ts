@@ -24,13 +24,37 @@ describe("createCommandExecutor", () => {
 
     await executor.run({
       terminalId: "powershell",
-      command: "echo test"
+      command: "echo test",
+      requiresElevation: true,
+      alwaysElevated: false
     });
 
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith("run_command_in_terminal", {
       terminalId: "powershell",
-      command: "echo test"
+      command: "echo test",
+      requiresElevation: true,
+      alwaysElevated: false
+    });
+  });
+
+  it("normalizes structured tauri rejection into execution error", async () => {
+    isTauriMock.mockReturnValue(true);
+    invokeMock.mockRejectedValueOnce({
+      code: "elevation-cancelled",
+      message: "user cancelled elevation"
+    });
+    const executor = createCommandExecutor();
+
+    await expect(
+      executor.run({
+        terminalId: "wt",
+        command: "echo test",
+        requiresElevation: true,
+        alwaysElevated: false
+      })
+    ).rejects.toMatchObject({
+      code: "elevation-cancelled"
     });
   });
 
