@@ -47,9 +47,9 @@ describe("SHotkeyRecorder", () => {
       attachTo: document.body,
     });
     await wrapper.find(".s-hotkey-recorder").trigger("click");
+    expect(wrapper.find(".s-hotkey-recorder--recording").exists()).toBe(true);
     await wrapper.find(".s-hotkey-recorder").trigger("keydown", { key: "Escape" });
     expect(wrapper.find(".s-hotkey-recorder--recording").exists()).toBe(false);
-    // 原值不变
     expect(wrapper.emitted("update:modelValue")).toBeUndefined();
     wrapper.unmount();
   });
@@ -64,8 +64,10 @@ describe("SHotkeyRecorder", () => {
       key: "v", ctrlKey: true, altKey: false, shiftKey: false, metaKey: false,
       preventDefault: vi.fn(),
     });
+    expect(wrapper.emitted("update:modelValue")).toBeUndefined();
     await wrapper.find(".s-hotkey-recorder").trigger("blur");
     expect(wrapper.emitted("update:modelValue")?.[0][0]).toBe("Ctrl+V");
+    expect(wrapper.find(".s-hotkey-recorder--recording").exists()).toBe(false);
     wrapper.unmount();
   });
 

@@ -149,6 +149,7 @@ describe("AppSettings hotkeys regression", () => {
 
     expect(settingsStore.hotkeys.launcher).toBe("Ctrl+K");
     expect(recorder.text()).toContain("Ctrl");
+    expect(hoisted.closeSpy).not.toHaveBeenCalled();
 
     const persisted = readPersistedSettings() as { hotkeys?: { launcher?: string } };
     expect(persisted.hotkeys?.launcher).toBe("Ctrl+K");

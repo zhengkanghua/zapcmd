@@ -21,6 +21,13 @@
 - 计划差异：真实内置 runtime JSON 已普遍携带 `prerequisites`，导致 app 级执行回归在浏览器预览态下会被 preflight 提前阻断；为与“桌面端真实执行链”对齐，补充了 `app.core-path-regression` / `app.hotkeys` / `app.failure-events` 的 Tauri mock 夹具，仅保留“执行被阻断时队列保留”用例继续跑 `isTauri=false`。
 - 计划 2 最终验证已通过：`runtimeMapper` / `commandSafety` / `commandPreflight` / `useCommandExecution` focused tests、Rust prerequisite tests 与 `npm run check:all` 全绿。
 
+## 补充（2026-03-21｜SettingsWindow 契约与热键录制统一）
+
+- 计划 3 当前已完成三块收口：`App.vue` / `viewModel.ts` / `SettingsWindow` 壳层死契约已删除；窗口级 hotkey recording state 已从 `useSettingsWindow`、`windowKeydownHandlers`、生命周期桥接和主窗口壳层中移除；Settings Escape 现在只负责关闭窗口。
+- `SHotkeyRecorder` 已确认仍是唯一真实录制路径：录制、`Escape` 取消、`blur` 提交、冲突提示与 app 级持久化回归都继续通过，`SettingsHotkeysSection` 保持只消费 `update:modelValue`。
+- 计划差异 1：真实代码里 `cancelHotkeyRecording` 还残留在 `useAppLifecycle` / `useAppLifecycleBridge` / `useMainWindowShell` 这条壳层链路；为避免 Task 2 后留下类型断裂，本轮一并做了最小收口。
+- 计划差异 2：`SHotkeyRecorder.vue` 与 `SettingsHotkeysSection.vue` 的生产实现实际上已先于计划满足目标 contract，因此 Task 3 无需改业务代码，只补强组件级与应用级回归来锁定这条真实路径。
+
 ## 补充（2026-03-21｜项目总审查）
 
 - 已落盘总审查文档 `docs/plan/2026-03-21_01-project-elegance-robustness-review.md`；P0 聚焦 Windows 执行链安全/权限语义、命令 schema 契约漂移、SettingsWindow stale contract 与默认终端有效性闭环。
