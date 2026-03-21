@@ -282,7 +282,6 @@ function bindAppRuntime(
 
   const { closeSettingsWindow: closeSettingsWindowImmediately, hideMainWindow, handleMainEscape } = useMainWindowShell({
     isSettingsWindow: context.isSettingsWindow,
-    cancelHotkeyRecording: context.settingsWindow.cancelHotkeyRecording,
     resolveAppWindow: context.resolveAppWindow,
     isTauriRuntime: context.ports.isTauriRuntime,
     requestHideMainWindow: context.ports.requestHideMainWindow,
@@ -305,7 +304,6 @@ function bindAppRuntime(
     navStackPopPage: launcherRuntime.navStack.popPage
   });
   function requestCloseSettingsWindow(): void {
-    context.settingsWindow.cancelHotkeyRecording();
     closeSettingsWindowImmediately();
   }
   const onWindowKeydown = useAppWindowKeydown({

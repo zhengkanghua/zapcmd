@@ -1,13 +1,8 @@
-import type { HotkeyFieldId } from "../../../stores/settingsStore";
-
 export interface RefLike<T> {
   value: T;
 }
 
 export interface SettingsHandlers {
-  recordingHotkeyField: RefLike<HotkeyFieldId | null>;
-  applyRecordedHotkey: (field: HotkeyFieldId, captured: string) => void;
-  cancelHotkeyRecording: () => void;
   closeSettingsWindow: () => void;
 }
 

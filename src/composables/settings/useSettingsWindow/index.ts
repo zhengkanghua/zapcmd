@@ -22,15 +22,10 @@ export function useSettingsWindow(options: UseSettingsWindowOptions) {
     ensureDefaultTerminal: () => persistenceHooks.ensureDefaultTerminal?.() ?? false,
     loadAutoStartEnabled: () => persistenceHooks.loadAutoStartEnabled?.() ?? Promise.resolve()
   });
-  const hotkey = createHotkeyActions({
-    options,
-    state,
-    applyHotkeyChange: persistence.applyHotkeyChange
-  });
+  const hotkey = createHotkeyActions();
   const terminal = createTerminalActions({
     options,
     state,
-    cancelHotkeyRecording: hotkey.cancelHotkeyRecording,
     persistSetting: persistence.persistSetting
   });
   persistenceHooks.ensureDefaultTerminal = terminal.ensureDefaultTerminal;

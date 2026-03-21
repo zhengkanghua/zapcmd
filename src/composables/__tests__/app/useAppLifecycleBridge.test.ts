@@ -22,8 +22,7 @@ describe("useAppLifecycleBridge", () => {
       loadAvailableTerminals: vi.fn(async () => {}),
       applySettingsRouteFromHash: vi.fn(),
       onSettingsHashChange: vi.fn(),
-      onGlobalPointerDown: vi.fn(),
-      cancelHotkeyRecording: vi.fn()
+      onGlobalPointerDown: vi.fn()
     };
     const windowSizing = {
       onViewportResize: vi.fn(),
@@ -67,6 +66,7 @@ describe("useAppLifecycleBridge", () => {
     expect(arg?.readLauncherHotkey).toBe(readLauncherHotkey);
     expect(arg?.scheduleSearchInputFocus).toBe(scheduleSearchInputFocus);
     expect(arg?.clearExecutionFeedbackTimer).toBe(execution.clearExecutionFeedbackTimer);
+    expect("cancelHotkeyRecording" in (arg ?? {})).toBe(false);
 
     arg?.onLauncherHotkeyLoaded("Ctrl+L");
     expect(launcherHotkey.value).toBe("Ctrl+L");
@@ -75,4 +75,3 @@ describe("useAppLifecycleBridge", () => {
     expect(readLauncherHotkey).toHaveBeenCalledTimes(1);
   });
 });
-

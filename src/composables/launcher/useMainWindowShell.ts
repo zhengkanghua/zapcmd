@@ -7,7 +7,6 @@ interface AppWindowLike {
 
 interface UseMainWindowShellOptions {
   isSettingsWindow: Ref<boolean>;
-  cancelHotkeyRecording: () => void;
   resolveAppWindow: () => AppWindowLike | null;
   isTauriRuntime: () => boolean;
   requestHideMainWindow: () => Promise<void>;
@@ -36,7 +35,6 @@ export function useMainWindowShell(options: UseMainWindowShellOptions) {
     if (!options.isSettingsWindow.value) {
       return;
     }
-    options.cancelHotkeyRecording();
     const appWindow = options.resolveAppWindow();
     if (appWindow) {
       void Promise.resolve(appWindow.close()).catch((error) => {

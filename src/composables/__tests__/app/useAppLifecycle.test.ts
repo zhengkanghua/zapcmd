@@ -79,7 +79,6 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
   const onLauncherHotkeyLoaded = vi.fn();
   const scheduleSearchInputFocus = vi.fn();
   const syncWindowSize = vi.fn(async () => {});
-  const cancelHotkeyRecording = vi.fn();
   const clearResizeTimer = vi.fn();
   const clearStagingTransitionTimer = vi.fn();
   const clearStagedFeedbackTimer = vi.fn();
@@ -114,7 +113,6 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
         onLauncherHotkeyLoaded,
         scheduleSearchInputFocus,
         syncWindowSize,
-        cancelHotkeyRecording,
         clearResizeTimer,
         clearStagingTransitionTimer,
         clearStagedFeedbackTimer,
@@ -142,7 +140,6 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
       onLauncherHotkeyLoaded,
       scheduleSearchInputFocus,
       syncWindowSize,
-      cancelHotkeyRecording,
       clearResizeTimer,
       clearStagingTransitionTimer,
       clearStagedFeedbackTimer,
@@ -208,7 +205,6 @@ describe("useAppLifecycle", () => {
     expect(spies.loadSettings.mock.calls.length).toBeGreaterThan(beforeStorageReloads + 1);
 
     wrapper.unmount();
-    expect(spies.cancelHotkeyRecording).toHaveBeenCalledTimes(1);
     expect(spies.clearResizeTimer).toHaveBeenCalledTimes(1);
     expect(spies.clearStagingTransitionTimer).toHaveBeenCalledTimes(1);
     expect(spies.clearStagedFeedbackTimer).toHaveBeenCalledTimes(1);
@@ -327,4 +323,3 @@ describe("useAppCompositionRoot policies", () => {
     });
   });
 });
-

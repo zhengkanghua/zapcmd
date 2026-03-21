@@ -77,7 +77,6 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
   const terminal = createTerminalActions({
     options,
     state,
-    cancelHotkeyRecording: vi.fn(),
     persistSetting: actions.persistSetting
   });
   terminalRefs.ensureDefaultTerminal = terminal.ensureDefaultTerminal;

@@ -59,7 +59,6 @@ export interface SettingsWindowState {
   launchAtLoginLoading: Ref<boolean>;
   launchAtLoginBaseline: Ref<boolean | null>;
   settingsRoute: Ref<SettingsRoute>;
-  recordingHotkeyField: Ref<HotkeyFieldId | null>;
   settingsError: Ref<string>;
   settingsErrorRoute: Ref<SettingsRoute | null>;
   settingsErrorHotkeyFieldIds: Ref<HotkeyFieldId[]>;
@@ -73,7 +72,6 @@ export function createSettingsState(): SettingsWindowState {
     launchAtLoginLoading: ref(false),
     launchAtLoginBaseline: ref(null),
     settingsRoute: ref("hotkeys"),
-    recordingHotkeyField: ref(null),
     settingsError: ref(""),
     settingsErrorRoute: ref(null),
     settingsErrorHotkeyFieldIds: ref([]),

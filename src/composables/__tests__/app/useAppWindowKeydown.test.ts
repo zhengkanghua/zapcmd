@@ -1,7 +1,6 @@
 import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useAppWindowKeydown } from "../../app/useAppWindowKeydown";
-import type { HotkeyFieldId } from "../../../stores/settingsStore";
 import { createAppCompositionRootPorts } from "../../app/useAppCompositionRoot/ports";
 
 function createHarness() {
@@ -14,11 +13,7 @@ function createHarness() {
   document.body.appendChild(searchInput);
   searchInput.focus();
 
-  const settingsWindow = {
-    recordingHotkeyField: ref<HotkeyFieldId | null>(null),
-    applyRecordedHotkey: vi.fn(),
-    cancelHotkeyRecording: vi.fn()
-  };
+  const settingsWindow = {};
 
   const stagingQueue = {
     focusZone: ref<"search" | "staging">("search"),
@@ -95,17 +90,18 @@ describe("useAppWindowKeydown", () => {
     expect("terminalFocusIndex" in harness.settingsWindow).toBe(false);
     expect("selectTerminalOption" in harness.settingsWindow).toBe(false);
     expect("closeTerminalDropdown" in harness.settingsWindow).toBe(false);
+    expect("recordingHotkeyField" in harness.settingsWindow).toBe(false);
+    expect("applyRecordedHotkey" in harness.settingsWindow).toBe(false);
+    expect("cancelHotkeyRecording" in harness.settingsWindow).toBe(false);
   });
 
-  it("routes Escape to settings hotkey recording cancel", () => {
+  it("routes Escape to settings close without hotkey recording branch", () => {
     const harness = createHarness();
     harness.isSettingsWindow.value = true;
-    harness.settingsWindow.recordingHotkeyField.value = "launcher";
 
     harness.handler(new KeyboardEvent("keydown", { key: "Escape" }));
 
-    expect(harness.settingsWindow.cancelHotkeyRecording).toHaveBeenCalledTimes(1);
-    expect(harness.closeSettingsWindow).not.toHaveBeenCalled();
+    expect(harness.closeSettingsWindow).toHaveBeenCalledTimes(1);
   });
 
   it("routes Ctrl+Tab to staging focus switch in main window", () => {

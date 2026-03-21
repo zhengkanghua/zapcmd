@@ -1,12 +1,7 @@
 import { computed, nextTick, type Ref } from "vue";
 import { createWindowKeydownHandler } from "../../features/hotkeys/windowKeydownHandlers";
-import type { HotkeyFieldId } from "../../stores/settingsStore";
 
-interface SettingsWindowLike {
-  recordingHotkeyField: Ref<HotkeyFieldId | null>;
-  applyRecordedHotkey: (field: HotkeyFieldId, captured: string) => void;
-  cancelHotkeyRecording: () => void;
-}
+type SettingsWindowLike = object;
 
 interface StagingQueueLike {
   focusZone: Ref<"search" | "staging">;
@@ -74,9 +69,6 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
   return createWindowKeydownHandler({
     isSettingsWindow: options.isSettingsWindow,
     settings: {
-      recordingHotkeyField: options.settingsWindow.recordingHotkeyField,
-      applyRecordedHotkey: options.settingsWindow.applyRecordedHotkey,
-      cancelHotkeyRecording: options.settingsWindow.cancelHotkeyRecording,
       closeSettingsWindow: options.closeSettingsWindow
     },
     main: {

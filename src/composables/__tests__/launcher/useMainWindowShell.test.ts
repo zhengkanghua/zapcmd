@@ -10,7 +10,6 @@ function createHarness() {
   const requestCommandPanelExit = vi.fn();
   const query = ref("");
   const stagingExpanded = ref(false);
-  const cancelHotkeyRecording = vi.fn();
   const closeStagingDrawer = vi.fn();
   const requestHideMainWindow = vi.fn(async () => {});
   const close = vi.fn();
@@ -20,7 +19,6 @@ function createHarness() {
 
   const shell = useMainWindowShell({
     isSettingsWindow,
-    cancelHotkeyRecording,
     resolveAppWindow,
     isTauriRuntime,
     requestHideMainWindow,
@@ -43,7 +41,6 @@ function createHarness() {
       stagingExpanded
     },
     spies: {
-      cancelHotkeyRecording,
       navStackPopPage,
       requestCommandPanelExit,
       closeStagingDrawer,
@@ -64,7 +61,6 @@ describe("useMainWindowShell", () => {
     harness.state.isSettingsWindow.value = true;
     harness.shell.closeSettingsWindow();
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(harness.spies.cancelHotkeyRecording).toHaveBeenCalledTimes(1);
     expect(harness.spies.close).toHaveBeenCalledTimes(1);
     expect(harness.spies.hide).not.toHaveBeenCalled();
   });

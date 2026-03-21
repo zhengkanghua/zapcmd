@@ -24,7 +24,6 @@ interface UseAppLifecycleOptions {
   onLauncherHotkeyLoaded: (hotkey: string) => void;
   scheduleSearchInputFocus: (selectText?: boolean) => void;
   syncWindowSize: () => Promise<void>;
-  cancelHotkeyRecording: () => void;
   clearResizeTimer: () => void;
   clearStagingTransitionTimer: () => void;
   clearStagedFeedbackTimer: () => void;
@@ -141,7 +140,6 @@ export function useAppLifecycle(options: UseAppLifecycleOptions): void {
   });
 
   onBeforeUnmount(() => {
-    options.cancelHotkeyRecording();
     closeSettingsSyncChannel(options, onSettingsBroadcast);
     detachWindowListeners(options, onSettingsStorageChanged);
 

@@ -13,10 +13,9 @@ export interface TerminalActions {
 export function createTerminalActions(deps: {
   options: UseSettingsWindowOptions;
   state: SettingsWindowState;
-  cancelHotkeyRecording: () => void;
   persistSetting: () => Promise<void>;
 }): TerminalActions {
-  const { options, state, cancelHotkeyRecording, persistSetting } = deps;
+  const { options, state, persistSetting } = deps;
 
   function ensureDefaultTerminal(): boolean {
     const resolution = resolveEffectiveTerminal(
@@ -45,11 +44,7 @@ export function createTerminalActions(deps: {
   }
 
   function onGlobalPointerDown(event: PointerEvent): void {
-    if (state.recordingHotkeyField.value) {
-      if (!(event.target instanceof Element) || !event.target.closest(".hotkey-recorder")) {
-        cancelHotkeyRecording();
-      }
-    }
+    void event;
   }
 
   async function loadAvailableTerminals(): Promise<void> {

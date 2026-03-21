@@ -6,8 +6,6 @@ function makeRef<T>(value: T): { value: T } {
 }
 
 function createHarness() {
-  const applyRecordedHotkey = vi.fn();
-  const cancelHotkeyRecording = vi.fn();
   const closeSettingsWindow = vi.fn();
   const openStagingDrawer = vi.fn();
   const switchFocusZone = vi.fn();
@@ -33,9 +31,6 @@ function createHarness() {
   const options = {
     isSettingsWindow: makeRef(false),
     settings: {
-      recordingHotkeyField: makeRef<"launcher" | null>(null),
-      applyRecordedHotkey,
-      cancelHotkeyRecording,
       closeSettingsWindow
     },
     main: {
@@ -84,8 +79,6 @@ function createHarness() {
     options,
     handler: createWindowKeydownHandler(options),
     spies: {
-      applyRecordedHotkey,
-      cancelHotkeyRecording,
       closeSettingsWindow,
       openStagingDrawer,
       switchFocusZone,
@@ -116,25 +109,13 @@ describe("windowKeydownHandlers", () => {
     expect(spies.closeSettingsWindow).toHaveBeenCalledTimes(1);
   });
 
-  it("cancels settings hotkey recording on Escape", () => {
+  it("closes settings window on Escape even when recorder state exists", () => {
     const { handler, options, spies } = createHarness();
     options.isSettingsWindow.value = true;
-    options.settings.recordingHotkeyField.value = "launcher";
 
     handler(new KeyboardEvent("keydown", { key: "Escape" }));
 
-    expect(spies.cancelHotkeyRecording).toHaveBeenCalledTimes(1);
-    expect(spies.applyRecordedHotkey).not.toHaveBeenCalled();
-  });
-
-  it("captures recorded hotkey in settings window", () => {
-    const { handler, options, spies } = createHarness();
-    options.isSettingsWindow.value = true;
-    options.settings.recordingHotkeyField.value = "launcher";
-
-    handler(new KeyboardEvent("keydown", { key: "v", altKey: true }));
-
-    expect(spies.applyRecordedHotkey).toHaveBeenCalledWith("launcher", "Alt+V");
+    expect(spies.closeSettingsWindow).toHaveBeenCalledTimes(1);
   });
 
   it("does not require legacy terminal dropdown state in settings handlers", () => {
@@ -143,6 +124,9 @@ describe("windowKeydownHandlers", () => {
 
     expect("terminalDropdownOpen" in options.settings).toBe(false);
     expect("terminalFocusIndex" in options.settings).toBe(false);
+    expect("recordingHotkeyField" in options.settings).toBe(false);
+    expect("applyRecordedHotkey" in options.settings).toBe(false);
+    expect("cancelHotkeyRecording" in options.settings).toBe(false);
     expect(spies.closeSettingsWindow).not.toHaveBeenCalled();
   });
 
