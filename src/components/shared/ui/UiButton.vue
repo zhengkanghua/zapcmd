@@ -42,8 +42,8 @@ const buttonClass = computed(() => {
       "px-2.5",
       "py-1.5",
       "text-[12px]",
-      "enabled:hover:bg-[rgba(255,255,255,0.09)]",
-      "enabled:hover:border-[rgba(255,255,255,0.12)]"
+      "enabled:hover:bg-[var(--ui-control-muted-hover-bg)]",
+      "enabled:hover:border-[var(--ui-control-muted-hover-border)]"
     ],
     primary: [
       "border",
