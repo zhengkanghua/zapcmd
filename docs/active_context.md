@@ -11,6 +11,7 @@
 - Phase 3B 补丁 2：抽取 `buttonPrimitives` 复用按钮 variant classes，统一 disabled 视觉（含 muted/danger），并新增门禁禁止组件脚本层直接消费 `--theme-*`。
 - Phase 4（进行中）：新增截图级视觉回归门禁 `npm run test:visual:ui`（`visual.html` harness + `scripts/e2e/visual-regression.cjs` + baselines `scripts/e2e/visual-baselines/*`，Windows CI/local gate 均接入）；Settings `SDropdown` 已 Tailwind 化并保留 `--ui-*` tokens，`npm run check:all` 全绿。
 - Phase 4 设计稿已落盘：Settings 小组件 Tailwind 化 + 视觉回归扩展（范围含 `SToggle/SSegmentNav/SSlider` 等；验收含 `check:all` + `test:visual:ui`）。
+- Phase 4 实施计划已落盘：`docs/superpowers/plans/2026-03-23-tailwind-primitives-migration-phase-4-settings-ui-tailwindization-and-visual-regression.md`（先扩展视觉场景+baseline，再逐个组件 Tailwind 化并过门禁）。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 

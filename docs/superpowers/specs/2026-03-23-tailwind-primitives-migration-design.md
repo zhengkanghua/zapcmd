@@ -54,7 +54,7 @@
 3) Phase 3 Plan  
 `docs/superpowers/plans/2026-03-23-tailwind-primitives-migration-phase-3-tailwindize-and-guardrails.md`
 
-4) Phase 4 Plan（待产出）  
+4) Phase 4 Plan  
 `docs/superpowers/plans/2026-03-23-tailwind-primitives-migration-phase-4-settings-ui-tailwindization-and-visual-regression.md`
 
 ---
