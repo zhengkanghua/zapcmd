@@ -9,7 +9,18 @@
 module.exports = {
   content: ["index.html", "settings.html", "src/**/*.{vue,ts}"],
   corePlugins: { preflight: false },
-  theme: { extend: {} },
+  theme: {
+    extend: {
+      borderRadius: {
+        ui: "var(--ui-radius)"
+      },
+      boxShadow: {
+        ui: "var(--ui-shadow)"
+      },
+      fontFamily: {
+        mono: ["var(--ui-font-mono)"]
+      }
+    }
+  },
   plugins: []
 };
-
