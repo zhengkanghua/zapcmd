@@ -2,7 +2,7 @@
 
 ## 补充（2026-03-23｜Tailwind 原语迁移规划）
 
-- 仅在开发分支试验“页面消费原语 + Tailwind 实现”，保留现有 `themes/* + tokens.css` 多主题架构；已落盘 spec/plan：`docs/superpowers/specs/2026-03-23-tailwind-primitives-migration-design.md`、`docs/superpowers/plans/2026-03-23-tailwind-primitives-migration.md`。
+- 开发分支试验 Tailwind（C：页面消费原语），保留 `themes/* + tokens.css` 多主题；Roadmap：`docs/superpowers/plans/2026-03-23-tailwind-primitives-migration.md`（含 Phase1/2/3 拆分）。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
