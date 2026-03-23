@@ -943,7 +943,7 @@
 
 .staging-chip--active {
   border-color: rgba(var(--ui-brand-rgb), 0.48);
-  background: linear-gradient(180deg, rgba(var(--ui-brand-rgb), 0.22), rgba(var(--theme-bg-rgb), var(--ui-opacity)));
+  background: linear-gradient(180deg, rgba(var(--ui-brand-rgb), 0.22), var(--ui-bg));
 }
 
 .staging-chip:focus-visible {
@@ -1276,7 +1276,7 @@
   padding: 16px;
   display: grid;
   gap: 12px;
-  background: rgba(var(--theme-bg-rgb), 0.92);
+  background: rgba(var(--ui-bg-rgb), 0.92);
   backdrop-filter: blur(20px);
   animation: dialog-scale-in 300ms cubic-bezier(0.175, 0.885, 0.32, 1.15) both;
   scrollbar-width: thin;

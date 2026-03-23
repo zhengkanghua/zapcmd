@@ -36,6 +36,11 @@ const fileExtensions = new Set([".ts", ".vue"]);
 
 const rules = [
   {
+    name: "theme-token-leak",
+    description: "禁止在组件/脚本层直接消费 --theme-*（请使用 --ui-* token）",
+    regex: /--theme-/
+  },
+  {
     name: "hex-color",
     description: "禁止硬编码 hex 色值（例如 #fff / #ffffff / #ffffffff）",
     regex: /#[0-9a-fA-F]{3,8}\b/

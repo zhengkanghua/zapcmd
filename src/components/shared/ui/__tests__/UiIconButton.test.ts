@@ -55,9 +55,23 @@ describe("UiIconButton", () => {
     const button = wrapper.get("button");
 
     expect(button.attributes("disabled")).toBeDefined();
+    expect(button.attributes("class")).toContain("disabled:opacity-[0.56]");
+    expect(button.attributes("class")).toContain("disabled:cursor-default");
 
     await button.trigger("click");
 
     expect(wrapper.emitted("click")).toBeUndefined();
+  });
+
+  it("adds consistent disabled visuals for danger variant", () => {
+    const wrapper = mount(UiIconButton, {
+      props: { ariaLabel: "Delete", variant: "danger", disabled: true },
+      slots: { default: "!" }
+    });
+
+    const button = wrapper.get("button");
+
+    expect(button.attributes("class")).toContain("disabled:opacity-[0.56]");
+    expect(button.attributes("class")).toContain("disabled:cursor-default");
   });
 });

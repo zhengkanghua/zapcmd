@@ -13,7 +13,7 @@
 3. 状态管理：Pinia。
 4. 多语言：`vue-i18n`。
 5. 构建：Vite。
-6. 样式：模块化 CSS（入口 `src/styles/index.css`；Tailwind 已移除）。
+6. 样式：Tokens + 模块化 CSS + Tailwind（入口 `src/styles/index.css`；Tailwind v4；preflight 禁用）。
 7. 测试：Vitest + Vue Test Utils（`jsdom`）+ coverage（v8）。
 8. 代码质量：ESLint（含 Vue/TS 规则）。
 9. CI/Release：GitHub Actions（`ci-gate` / `codeql` / `release-build` / `release-dry-run`）。

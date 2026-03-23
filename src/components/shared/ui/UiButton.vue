@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-type UiButtonVariant = "muted" | "primary" | "stage" | "success" | "danger";
-type UiButtonSize = "default" | "small";
+import {
+  uiButtonDisabledClasses,
+  uiButtonVariantBaseClasses,
+  type UiButtonSize,
+  type UiButtonVariant
+} from "./buttonPrimitives";
+
 type UiFocusOptions = { preventScroll?: boolean };
 
 const props = withDefaults(
@@ -31,74 +36,6 @@ const buttonClass = computed(() => {
    * Tailwind class 必须可静态分析（避免动态拼接导致 content 扫描漏抓）。
    * 这里用“枚举表”明确列出每个 variant/size 的 class 组合，并避免互相冲突的 utilities 叠加覆盖。
    */
-  const variantBaseClasses: Record<UiButtonVariant, Array<string>> = {
-    muted: [
-      "border",
-      "border-transparent",
-      "rounded-control",
-      "bg-[var(--ui-bg-soft)]",
-      "text-[var(--ui-text)]",
-      "cursor-pointer",
-      "enabled:hover:bg-[var(--ui-control-muted-hover-bg)]",
-      "enabled:hover:border-[var(--ui-control-muted-hover-border)]"
-    ],
-    primary: [
-      "border",
-      "rounded-control",
-      "bg-gradient-to-b",
-      "from-[rgba(var(--ui-brand-rgb),0.9)]",
-      "to-[rgba(var(--ui-brand-rgb),0.82)]",
-      "border-[rgba(var(--ui-brand-rgb),0.45)]",
-      "text-[var(--ui-accent-text)]",
-      "font-bold",
-      "cursor-pointer",
-      "enabled:hover:brightness-[1.04]",
-      "disabled:opacity-[0.56]",
-      "disabled:cursor-default"
-    ],
-    stage: [
-      "border",
-      "rounded-control",
-      "bg-gradient-to-b",
-      "from-[rgba(var(--ui-search-hl-rgb),0.92)]",
-      "to-[rgba(var(--ui-search-hl-rgb),0.82)]",
-      "border-[rgba(var(--ui-search-hl-rgb),0.5)]",
-      "text-[var(--ui-accent-text)]",
-      "font-bold",
-      "cursor-pointer",
-      "enabled:hover:brightness-[1.04]",
-      "disabled:opacity-[0.56]",
-      "disabled:cursor-default"
-    ],
-    success: [
-      "border",
-      "rounded-control",
-      "bg-gradient-to-b",
-      "from-[rgba(var(--ui-success-rgb),0.9)]",
-      "to-[rgba(var(--ui-success-rgb),0.82)]",
-      "border-[rgba(var(--ui-success-rgb),0.45)]",
-      "text-[var(--ui-accent-text)]",
-      "font-bold",
-      "cursor-pointer",
-      "enabled:hover:brightness-[1.04]",
-      "disabled:opacity-[0.56]",
-      "disabled:cursor-default"
-    ],
-    danger: [
-      "border",
-      "rounded-control",
-      "bg-[rgba(var(--ui-danger-rgb),0.1)]",
-      "border-[rgba(var(--ui-danger-rgb),0.2)]",
-      "text-[var(--ui-danger)]",
-      "cursor-pointer",
-      "transition-all",
-      "duration-150",
-      "ease-[ease]",
-      "enabled:hover:bg-[rgba(var(--ui-danger-rgb),0.18)]",
-      "enabled:hover:border-[rgba(var(--ui-danger-rgb),0.35)]"
-    ]
-  };
-
   const sizeClasses: Record<UiButtonVariant, Record<UiButtonSize, Array<string>>> = {
     muted: {
       default: ["px-2.5", "py-1.5", "text-[12px]"],
@@ -122,7 +59,11 @@ const buttonClass = computed(() => {
     }
   };
 
-  return [...variantBaseClasses[props.variant], ...sizeClasses[props.variant][props.size]];
+  return [
+    ...uiButtonVariantBaseClasses[props.variant],
+    ...uiButtonDisabledClasses,
+    ...sizeClasses[props.variant][props.size]
+  ];
 });
 
 /**

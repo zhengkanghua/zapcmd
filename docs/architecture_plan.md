@@ -16,7 +16,7 @@
 - 后端：Rust
 - 前端：Vue 3 + TypeScript
 - 状态管理：Pinia（设置状态已收敛到 store）
-- 样式：模块化 CSS（入口 `src/styles/index.css`，Tailwind 已移除）
+- 样式：Tokens + 模块化 CSS + Tailwind（入口 `src/styles/index.css`；Tailwind v4；preflight 禁用）
 
 ### 1.2 已实现能力
 
