@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-23｜Tailwind 原语迁移规划）
+
+- 仅在开发分支试验“页面消费原语 + Tailwind 实现”，保留现有 `themes/* + tokens.css` 多主题架构；已落盘 spec/plan：`docs/superpowers/specs/2026-03-23-tailwind-primitives-migration-design.md`、`docs/superpowers/plans/2026-03-23-tailwind-primitives-migration.md`。
+
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
 - 已进入 `writing-plans` 并按子系统拆出 5 份执行计划：`terminal-routing-and-effective-terminal-hardening`、`command-schema-runtime-contract-hardening`、`settings-window-contract-and-hotkey-unification`、`adapter-boundary-and-window-cache-hardening`、`docs-and-coverage-drift-alignment`。推荐顺序：先终端执行链，再命令 contract，再 Settings 契约，再 adapter/窗口缓存，最后文档与 coverage。
