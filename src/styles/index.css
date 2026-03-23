@@ -14,3 +14,6 @@
 @import './settings.css';
 /* 6. 动画 */
 @import './animations.css';
+
+/* 7. Tailwind（Phase 1：仅接入工具链；preflight 已禁用，避免 reset 冲突） */
+@import './tailwind.css';

@@ -1,0 +1,9 @@
+/* Tailwind CSS 入口（Phase 1）
+ *
+ * - preflight 已禁用：`@tailwind base` 不会注入 reset，避免视觉回归。
+ * - 该文件在 `src/styles/index.css` 末尾引入，迁移期尽量降低层叠冲突风险。
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
