@@ -2,12 +2,13 @@
  * style-guard：样式治理门禁（Phase 3）
  *
  * 目标：
- * - 阻止硬编码色值回流（尤其是 UI 组件/业务代码里出现的 hex / rgb() / hsl()）
+ * - 阻止硬编码色值回流（尤其是 UI 组件/业务代码里出现的 hex / rgb() / rgba() / hsl()）
  * - 阻止 Tailwind arbitrary hex color（例如 `text-[#fff]`）
  *
  * 范围：
- * - 扫描 `src` 下所有 `.vue` 与 `.ts` 文件
+ * - 扫描 `src` 下 `.vue` 与 `.ts` 文件（排除 `__tests__` / `*.test.ts` 等测试文件）
  * - 允许“主题定义层”持有色值（例如 theme registry），UI 消费侧必须使用 `var(--ui-*)`
+ * - 注意：`rgba()` 规则不扫描 `.vue` 的 `<style>` block（避免历史 CSS 大面积误伤；优先治理脚本/模板层）。
  *
  * 输出：
  * - 违规输出包含 `文件:行号`，便于快速定位修复
@@ -23,6 +24,14 @@ const excludedRelativePaths = new Set([
   "src/features/themes/themeRegistry.ts"
 ]);
 
+const excludedPathPatterns = [
+  // 测试文件允许包含“视觉基线断言字符串”，不纳入门禁。
+  /^src\/__tests__\//,
+  /\/__tests__\//,
+  /\.test\.ts$/,
+  /\.spec\.ts$/
+];
+
 const fileExtensions = new Set([".ts", ".vue"]);
 
 const rules = [
@@ -35,6 +44,12 @@ const rules = [
     name: "rgb()",
     description: "禁止硬编码 rgb() 色值",
     regex: /\brgb\(/i
+  },
+  {
+    name: "rgba()",
+    description: "禁止硬编码 rgba() 色值（仅允许 rgba(var(--ui-...)) 形式）",
+    regex: /\brgba\(\s*(?!var\(--ui-)/i,
+    skipInVueStyleBlock: true
   },
   {
     name: "hsl()",
@@ -83,7 +98,10 @@ function collectScanFiles(dirPath) {
  */
 function isExcluded(filePath) {
   const relativePath = normalizeToRepoRelativePath(filePath);
-  return excludedRelativePaths.has(relativePath);
+  if (excludedRelativePaths.has(relativePath)) {
+    return true;
+  }
+  return excludedPathPatterns.some((pattern) => pattern.test(relativePath));
 }
 
 /**
@@ -94,13 +112,24 @@ function scanFile(filePath) {
   const relativePath = normalizeToRepoRelativePath(filePath);
   const content = readFileSync(filePath, "utf8");
   const lines = content.split(/\r?\n/);
+  const isVueFile = relativePath.endsWith(".vue");
+
+  let inVueStyleBlock = false;
 
   /** @type {{file: string; line: number; rule: string; message: string; preview: string}[]} */
   const violations = [];
   for (let index = 0; index < lines.length; index += 1) {
     const lineNumber = index + 1;
     const line = lines[index] ?? "";
+
+    if (isVueFile && /<style\b/i.test(line)) {
+      inVueStyleBlock = true;
+    }
+
     for (const rule of rules) {
+      if (isVueFile && inVueStyleBlock && rule.skipInVueStyleBlock) {
+        continue;
+      }
       if (!rule.regex.test(line)) {
         continue;
       }
@@ -111,6 +140,10 @@ function scanFile(filePath) {
         message: rule.description,
         preview: line.trim()
       });
+    }
+
+    if (isVueFile && /<\/style>/i.test(line)) {
+      inVueStyleBlock = false;
     }
   }
 

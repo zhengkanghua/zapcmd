@@ -73,9 +73,9 @@
 ### 3.7 样式治理（Tokens + Tailwind）
 
 1. 多主题只通过 `data-theme` + CSS Variables 实现；组件侧只消费 `--ui-*` token。
-2. 禁止在 `src/**/*.vue` / `src/**/*.ts` 硬编码色值（hex / `rgb(` / `hsl(`）；需要新颜色语义先补齐 theme/tokens，再在组件侧消费 token。
+2. 禁止在 `src/**/*.vue` / `src/**/*.ts` 硬编码色值（hex / `rgb(` / `rgba(` / `hsl(`）；`rgba()` 仅允许 `rgba(var(--ui-...))` 形式。需要新颜色语义先补齐 theme/tokens，再在组件侧消费 token。
 3. 禁止 Tailwind arbitrary hex color（例如 `text-[#fff]`）。
-4. 样式门禁：`npm run check:style-guard`（已接入 `check:all`）。
+4. 样式门禁：`npm run check:style-guard`（已接入 `check:all`；不扫描 `__tests__` / `*.test.ts` 等测试文件；`rgba()` 规则不扫描 `.vue` 的 `<style>` block）。
 
 ---
 
