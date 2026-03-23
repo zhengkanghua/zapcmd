@@ -23,7 +23,7 @@
 ### 2.1 本地统一门禁
 
 - 提交前最终确认：`npm run check:all`
-- 约定链路顺序：`lint` -> `typecheck` -> `test:coverage` -> `build` -> `check:rust`
+- 约定链路顺序：`lint` -> `typecheck` -> `check:style-guard` -> `typecheck:test` -> `test:coverage` -> `build` -> `check:rust` -> `test:rust`
 
 ### 2.2 pre-commit（本地提交前）
 
@@ -69,6 +69,13 @@
 
 1. UI 语义优先：使用语义化 HTML（`main/section/nav/button` 等），不要为样式牺牲语义。
 2. 可达性是功能的一部分：新增交互必须保证键盘可达（focus 顺序、`Esc` 关闭、快捷键一致性）。
+
+### 3.7 样式治理（Tokens + Tailwind）
+
+1. 多主题只通过 `data-theme` + CSS Variables 实现；组件侧只消费 `--ui-*` token。
+2. 禁止在 `src/**/*.vue` / `src/**/*.ts` 硬编码色值（hex / `rgb(` / `hsl(`）；需要新颜色语义先补齐 theme/tokens，再在组件侧消费 token。
+3. 禁止 Tailwind arbitrary hex color（例如 `text-[#fff]`）。
+4. 样式门禁：`npm run check:style-guard`（已接入 `check:all`）。
 
 ---
 

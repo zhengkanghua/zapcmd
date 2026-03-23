@@ -239,12 +239,12 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 .appearance-preview-text {
   font-size: 16px;
   font-weight: 700;
-  color: #f5f5f5;
+  color: var(--ui-text);
 }
 
 .appearance-preview-sub {
   font-size: 11px;
-  color: #a1a1aa;
+  color: var(--ui-subtle);
   font-variant-numeric: tabular-nums;
 }
 
