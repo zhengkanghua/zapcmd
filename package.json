@@ -42,6 +42,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@intlify/devtools-types": "^10.0.8",
+    "@tailwindcss/postcss": "^4.2.2",
     "@tauri-apps/cli": "^2.8.2",
     "@types/node": "^24.5.2",
     "@vitejs/plugin-vue": "^6.0.1",
