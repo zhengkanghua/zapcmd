@@ -13,7 +13,7 @@ concurrency:
   group: ci-gate-${{ github.ref }}
   cancel-in-progress: true
 
-# Windows desktop WebDriver smoke is the only blocking desktop gate in CI.
+# Windows desktop WebDriver smoke + screenshot-level visual regression are blocking desktop gates in CI.
 # macOS/Linux remain on cross-platform build/test/Rust smoke only.
 jobs:
   quality-gate:
@@ -83,12 +83,17 @@ jobs:
       - name: Run Windows-only blocking desktop E2E smoke
         run: npm run e2e:desktop:smoke
 
+      - name: Run screenshot-level visual regression gate
+        run: npm run test:visual:ui
+
       - name: Upload Windows blocking desktop smoke artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: windows-blocking-desktop-e2e-smoke
-          path: .tmp/e2e/desktop-smoke/
+          path: |
+            .tmp/e2e/desktop-smoke/
+            .tmp/e2e/visual-regression/
           if-no-files-found: warn
 
   cross-platform-smoke:

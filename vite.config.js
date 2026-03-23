@@ -105,7 +105,8 @@ export default defineConfig(async ({ mode }) => {
     rollupOptions: {
       input: {
         main: "index.html",
-        settings: "settings.html"
+        settings: "settings.html",
+        visual: "visual.html"
       }
     }
   };

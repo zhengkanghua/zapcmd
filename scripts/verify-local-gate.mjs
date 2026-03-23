@@ -33,6 +33,7 @@ function printUsage() {
   console.log("1) 运行 npm run check:all");
   console.log("2) Windows 上自动检测 WebDriver 依赖，缺失时自动安装");
   console.log(`3) Windows 上运行 npm run e2e:desktop:smoke；${macOSDefaultGateDescription}`);
+  console.log("4) Windows 上运行 npm run test:visual:ui（截图级视觉回归门禁）");
   console.log(`   ${macOSExperimentalProbeDescription}`);
   console.log("");
   console.log("选项:");
@@ -309,6 +310,18 @@ async function runDesktopSmokeIfNeeded() {
   await runCommand("npm run e2e:desktop:smoke", "运行桌面 E2E 冒烟");
 }
 
+async function runVisualRegressionIfNeeded() {
+  if (!runE2E) {
+    return;
+  }
+
+  if (!isWindows) {
+    return;
+  }
+
+  await runCommand("npm run test:visual:ui", "运行截图级视觉回归门禁");
+}
+
 async function main() {
   if (shouldShowHelp()) {
     printUsage();
@@ -320,6 +333,7 @@ async function main() {
   await preflightDesktopDependenciesIfNeeded();
   await runQualityGateIfNeeded();
   await runDesktopSmokeIfNeeded();
+  await runVisualRegressionIfNeeded();
   console.log("[local-gate] 本地验证完成");
 }
 

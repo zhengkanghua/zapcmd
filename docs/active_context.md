@@ -9,6 +9,7 @@
 - Phase 3 补丁：FlowPanel 关闭按钮改为 `UiIconButton`；按钮圆角统一为 `rounded-control`（`--ui-radius-control`），避免直角回退且与执行按钮一致。
 - Phase 3B：新增控件 hover tokens（`--ui-control-muted-hover-*`/`--ui-bg-rgb`），按钮原语去除硬编码 rgba；`style-guard` 增加 `rgba()` 门禁（仅允许 `rgba(var(--ui-...))`，排除测试，`.vue` `<style>` 暂不扫此规则）；`UiButton` size 组合确定化。
 - Phase 3B 补丁 2：抽取 `buttonPrimitives` 复用按钮 variant classes，统一 disabled 视觉（含 muted/danger），并新增门禁禁止组件脚本层直接消费 `--theme-*`。
+- Phase 4（进行中）：新增截图级视觉回归门禁 `npm run test:visual:ui`（`visual.html` harness + `scripts/e2e/visual-regression.cjs` + baselines `scripts/e2e/visual-baselines/*`，Windows CI/local gate 均接入）；Settings `SDropdown` 已 Tailwind 化并保留 `--ui-*` tokens，`npm run check:all` 全绿。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 

@@ -239,12 +239,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="s-dropdown">
+  <div class="s-dropdown relative inline-flex">
     <button
       ref="triggerRef"
       type="button"
-      class="s-dropdown__trigger"
-      :class="`s-dropdown__trigger--${props.variant}`"
+      class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-[10px] transition-[background,border-color,box-shadow,color] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
+      :class="
+        props.variant === 'ghost'
+          ? 's-dropdown__trigger--ghost min-w-0 w-auto border border-transparent bg-[var(--ui-settings-badge-bg)] px-[10px] py-[6px] text-[var(--ui-settings-badge-text)] hover:bg-[var(--ui-settings-dropdown-hover)] hover:text-[var(--ui-text)]'
+          : 's-dropdown__trigger--default w-full min-w-[180px] border border-[var(--ui-settings-dropdown-border)] bg-[var(--ui-settings-dropdown-bg)] px-[10px] py-[7px] text-[var(--ui-text)] hover:border-[var(--ui-control-muted-hover-border)]'
+      "
       :disabled="props.disabled || props.options.length === 0"
       :aria-expanded="open"
       aria-haspopup="listbox"
@@ -253,8 +257,10 @@ onBeforeUnmount(() => {
       @click="toggleDropdown"
       @keydown="onTriggerKeydown"
     >
-      <span class="s-dropdown__value">{{ selectedOption.label }}</span>
-      <span class="s-dropdown__arrow" aria-hidden="true">
+      <span class="s-dropdown__value flex-1 min-w-0 truncate text-left text-[12.5px] leading-[1.35]">
+        {{ selectedOption.label }}
+      </span>
+      <span class="s-dropdown__arrow inline-flex text-current opacity-[0.78]" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
           <path
             d="M7 10l5 5 5-5"
@@ -268,28 +274,42 @@ onBeforeUnmount(() => {
     </button>
 
     <Teleport to="body">
-      <div v-if="open" ref="panelRef" class="s-dropdown__panel" :style="panelStyle">
-        <ul :id="listboxId" class="s-dropdown__list" role="listbox">
-          <li v-for="(item, index) in props.options" :key="item.value" class="s-dropdown__item">
+      <div
+        v-if="open"
+        ref="panelRef"
+        class="s-dropdown__panel pointer-events-auto"
+        :style="panelStyle"
+      >
+        <ul
+          :id="listboxId"
+          class="s-dropdown__list m-0 list-none rounded-[12px] border border-[var(--ui-settings-dropdown-border)] bg-[var(--ui-settings-dropdown-bg)] p-[6px] shadow-ui backdrop-blur-[var(--ui-blur)]"
+          role="listbox"
+        >
+          <li v-for="(item, index) in props.options" :key="item.value" class="s-dropdown__item m-0 p-0">
             <button
               :id="`${listboxId}-option-${index}`"
               type="button"
               role="option"
-              class="s-dropdown__option"
+              class="s-dropdown__option grid w-full cursor-pointer grid-cols-[16px_minmax(0,1fr)] items-start gap-2 rounded-[10px] border border-transparent bg-transparent px-[10px] py-[8px] text-left text-[var(--ui-text)]"
               :class="{
-                's-dropdown__option--selected': item.value === props.modelValue,
-                's-dropdown__option--focused': index === focusIndex
+                's-dropdown__option--focused bg-[var(--ui-settings-dropdown-hover)]': index === focusIndex,
+                's-dropdown__option--selected border-[rgba(var(--ui-brand-rgb),0.2)] bg-[rgba(var(--ui-brand-rgb),0.08)]':
+                  item.value === props.modelValue
               }"
               :aria-selected="item.value === props.modelValue"
               @click="selectValue(item.value)"
             >
-              <span class="s-dropdown__check" aria-hidden="true">
+              <span class="s-dropdown__check text-[12px] leading-[1.2] text-[var(--ui-brand)]" aria-hidden="true">
                 {{ item.value === props.modelValue ? "✓" : "" }}
               </span>
-              <span class="s-dropdown__content">
-                <span class="s-dropdown__label">{{ item.label }}</span>
-                <span v-if="item.description" class="s-dropdown__description">{{ item.description }}</span>
-                <span v-if="item.meta" class="s-dropdown__meta">{{ item.meta }}</span>
+              <span class="s-dropdown__content grid gap-[2px]">
+                <span class="s-dropdown__label text-[12.5px] leading-[1.35]">{{ item.label }}</span>
+                <span v-if="item.description" class="s-dropdown__description text-[11px] leading-[1.35] text-[var(--ui-subtle)]">
+                  {{ item.description }}
+                </span>
+                <span v-if="item.meta" class="s-dropdown__meta text-[11px] leading-[1.35] text-[var(--ui-subtle)]">
+                  {{ item.meta }}
+                </span>
               </span>
             </button>
           </li>
@@ -298,146 +318,3 @@ onBeforeUnmount(() => {
     </Teleport>
   </div>
 </template>
-
-<style scoped>
-.s-dropdown {
-  position: relative;
-  display: inline-flex;
-}
-
-.s-dropdown__trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 34px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition:
-    background 150ms cubic-bezier(0.33, 1, 0.68, 1),
-    border-color 150ms cubic-bezier(0.33, 1, 0.68, 1),
-    box-shadow 150ms cubic-bezier(0.33, 1, 0.68, 1),
-    color 150ms cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.s-dropdown__trigger:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.s-dropdown__trigger:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--ui-settings-focus-ring);
-}
-
-.s-dropdown__trigger--default {
-  width: 100%;
-  min-width: 180px;
-  padding: 7px 10px;
-  border: 1px solid var(--ui-settings-dropdown-border);
-  background: var(--ui-settings-dropdown-bg);
-  color: var(--ui-text);
-}
-
-.s-dropdown__trigger--default:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.s-dropdown__trigger--ghost {
-  min-width: 0;
-  width: auto;
-  padding: 6px 10px;
-  border: 1px solid transparent;
-  background: var(--ui-settings-badge-bg);
-  color: var(--ui-settings-badge-text);
-}
-
-.s-dropdown__trigger--ghost:hover {
-  background: var(--ui-settings-dropdown-hover);
-  color: var(--ui-text);
-}
-
-.s-dropdown__value {
-  flex: 1 1 auto;
-  min-width: 0;
-  text-align: left;
-  font-size: 12.5px;
-  line-height: 1.35;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.s-dropdown__arrow {
-  display: inline-flex;
-  color: currentColor;
-  opacity: 0.78;
-}
-
-.s-dropdown__panel {
-  pointer-events: auto;
-}
-
-.s-dropdown__list {
-  margin: 0;
-  padding: 6px;
-  list-style: none;
-  border-radius: 12px;
-  border: 1px solid var(--ui-settings-dropdown-border);
-  background: var(--ui-settings-dropdown-bg);
-  box-shadow: var(--ui-shadow);
-  backdrop-filter: blur(var(--ui-blur));
-}
-
-.s-dropdown__item {
-  margin: 0;
-  padding: 0;
-}
-
-.s-dropdown__option {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 16px minmax(0, 1fr);
-  gap: 8px;
-  align-items: start;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--ui-text);
-  text-align: left;
-  cursor: pointer;
-}
-
-.s-dropdown__option--focused {
-  background: var(--ui-settings-dropdown-hover);
-}
-
-.s-dropdown__option--selected {
-  border-color: rgba(var(--ui-brand-rgb), 0.2);
-  background: rgba(var(--ui-brand-rgb), 0.08);
-}
-
-.s-dropdown__check {
-  color: var(--ui-brand);
-  font-size: 12px;
-  line-height: 1.2;
-}
-
-.s-dropdown__content {
-  display: grid;
-  gap: 2px;
-}
-
-.s-dropdown__label {
-  font-size: 12.5px;
-  line-height: 1.35;
-}
-
-.s-dropdown__description,
-.s-dropdown__meta {
-  font-size: 11px;
-  line-height: 1.35;
-  color: var(--ui-subtle);
-}
-</style>
