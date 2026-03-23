@@ -32,6 +32,15 @@ const SCREENSHOTS = [
     maxDiffRatio: 0.005,
     pixelTolerance: 0,
     sampleStep: 1
+  },
+  {
+    id: "settings-ui-slider",
+    hash: "settings-ui-slider",
+    width: 1100,
+    height: 900,
+    maxDiffRatio: 0.005,
+    pixelTolerance: 0,
+    sampleStep: 1
   }
 ];
 
@@ -155,10 +164,27 @@ function runEdgeScreenshot({ edgePath, url, outPath, profileDir, width, height, 
       url
     ];
 
-    const logStream = fs.createWriteStream(logPath, { flags: "w" });
+    fs.writeFileSync(
+      logPath,
+      [
+        `[visual-regression] ${nowIso()} spawn Edge`,
+        `edgePath=${edgePath}`,
+        `url=${url}`,
+        `outPath=${outPath}`,
+        `profileDir=${profileDir}`,
+        `width=${width}`,
+        `height=${height}`,
+        `args=${args.join(" ")}`,
+        "",
+        "NOTE: 当前脚本不捕获 stdout/stderr（避免在受限环境下使用 stdio=pipe 触发 spawn EPERM）。"
+      ].join("\n"),
+      "utf8"
+    );
+
     const child = spawn(edgePath, args, {
       windowsHide: true,
-      stdio: ["ignore", "pipe", "pipe"]
+      // 受限环境下 stdio=pipe 可能导致 spawn EPERM；这里用 ignore 保证可执行性。
+      stdio: "ignore"
     });
 
     const timeout = setTimeout(() => {
@@ -168,18 +194,19 @@ function runEdgeScreenshot({ edgePath, url, outPath, profileDir, width, height, 
       reject(new Error(`Edge 截图超时（>35s）：${url}`));
     }, 35_000);
 
-    child.stdout?.on("data", (chunk) => logStream.write(chunk));
-    child.stderr?.on("data", (chunk) => logStream.write(chunk));
-
     child.on("error", (error) => {
       clearTimeout(timeout);
-      logStream.end();
+      try {
+        fs.appendFileSync(logPath, `\n[error] ${String(error)}\n`, "utf8");
+      } catch {}
       reject(error);
     });
 
     child.on("exit", (code, signal) => {
       clearTimeout(timeout);
-      logStream.end();
+      try {
+        fs.appendFileSync(logPath, `\n[exit] code=${code ?? "null"} signal=${signal ?? "null"}\n`, "utf8");
+      } catch {}
       if (code === 0) {
         resolve();
         return;
@@ -192,6 +219,7 @@ function runEdgeScreenshot({ edgePath, url, outPath, profileDir, width, height, 
 function runVisualDiff({ baselinePath, actualPath, maxDiffRatio, pixelTolerance, sampleStep }) {
   return new Promise((resolve, reject) => {
     const scriptPath = path.resolve("scripts/e2e/visual-diff.ps1");
+    const outJsonPath = path.join(OUTPUT_DIR, `${path.basename(actualPath)}.diff.json`);
     const args = [
       "-NoProfile",
       "-File",
@@ -205,35 +233,38 @@ function runVisualDiff({ baselinePath, actualPath, maxDiffRatio, pixelTolerance,
       "-PixelTolerance",
       String(pixelTolerance),
       "-SampleStep",
-      String(sampleStep)
+      String(sampleStep),
+      "-OutPath",
+      outJsonPath
     ];
+
+    if (fs.existsSync(outJsonPath)) {
+      fs.rmSync(outJsonPath, { force: true });
+    }
 
     const child = spawn("pwsh", args, {
       windowsHide: true,
-      stdio: ["ignore", "pipe", "pipe"]
-    });
-
-    let stdout = "";
-    let stderr = "";
-    child.stdout?.on("data", (chunk) => {
-      stdout += chunk.toString("utf8");
-    });
-    child.stderr?.on("data", (chunk) => {
-      stderr += chunk.toString("utf8");
+      // 受限环境下 stdio=pipe 可能导致 spawn EPERM；这里让脚本写文件，再由 Node 读取。
+      stdio: "ignore"
     });
 
     child.on("error", reject);
     child.on("exit", (code) => {
-      const trimmed = stdout.trim();
-      if (!trimmed) {
-        reject(new Error(`visual-diff 无输出（code=${code ?? "null"}）：${stderr.trim()}`));
+      if (!fs.existsSync(outJsonPath)) {
+        reject(new Error(`visual-diff 未生成输出：${outJsonPath}（code=${code ?? "null"}）`));
         return;
       }
+
+      const trimmed = fs.readFileSync(outJsonPath, "utf8").trim();
+      if (!trimmed) {
+        reject(new Error(`visual-diff 输出为空：${outJsonPath}（code=${code ?? "null"}）`));
+        return;
+      }
+
       try {
         resolve({ code: code ?? 1, payload: JSON.parse(trimmed) });
       } catch (error) {
-        const detail = stderr.trim() ? `\n${stderr.trim()}` : "";
-        reject(new Error(`visual-diff JSON 解析失败：${String(error)}\nstdout: ${trimmed}${detail}`));
+        reject(new Error(`visual-diff JSON 解析失败：${String(error)}\nfile: ${outJsonPath}\ncontent: ${trimmed}`));
       }
     });
   });

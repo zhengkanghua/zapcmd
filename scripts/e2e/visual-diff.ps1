@@ -12,7 +12,10 @@ param(
   [int]$PixelTolerance = 0,
 
   # 采样步长：1 表示逐像素；>1 表示抽样比较以换取速度。
-  [int]$SampleStep = 1
+  [int]$SampleStep = 1,
+
+  # 可选：将 JSON 输出写入文件（避免某些受限环境无法通过 stdout 读取）。
+  [string]$OutPath
 )
 
 $ErrorActionPreference = "Stop"
@@ -111,15 +114,29 @@ function Compare-Bitmaps(
   }
 }
 
+function Write-ResultJson([hashtable]$Payload) {
+  $json = $Payload | ConvertTo-Json -Compress
+  if (-not $OutPath) {
+    $json
+    return
+  }
+
+  $parent = Split-Path -Parent $OutPath
+  if ($parent) {
+    New-Item -ItemType Directory -Force -Path $parent | Out-Null
+  }
+  Set-Content -LiteralPath $OutPath -Value $json -Encoding utf8
+}
+
 if (-not (Test-Path -LiteralPath $BaselinePath)) {
   $payload = @{ ok = $false; reason = "baseline_missing"; path = $BaselinePath }
-  $payload | ConvertTo-Json -Compress
+  Write-ResultJson $payload
   exit 2
 }
 
 if (-not (Test-Path -LiteralPath $ActualPath)) {
   $payload = @{ ok = $false; reason = "actual_missing"; path = $ActualPath }
-  $payload | ConvertTo-Json -Compress
+  Write-ResultJson $payload
   exit 2
 }
 
@@ -135,7 +152,7 @@ try {
   $result = Compare-Bitmaps -Baseline $baselineArgb -Actual $actualArgb -Step $SampleStep -Tolerance $PixelTolerance
 
   if ($result.reason -eq "size_mismatch") {
-    $result | ConvertTo-Json -Compress
+    Write-ResultJson $result
     exit 1
   }
 
@@ -155,7 +172,7 @@ try {
     sampleStep = $SampleStep
   }
 
-  $payload | ConvertTo-Json -Compress
+  Write-ResultJson $payload
   if ($ok) { exit 0 }
   exit 1
 } finally {
@@ -164,4 +181,3 @@ try {
   $baselineBitmap.Dispose()
   $actualBitmap.Dispose()
 }
-

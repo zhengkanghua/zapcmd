@@ -3,14 +3,18 @@ import { computed, nextTick, onMounted, ref } from "vue";
 
 import SDropdown from "./components/settings/ui/SDropdown.vue";
 import SSegmentNav from "./components/settings/ui/SSegmentNav.vue";
+import SSlider from "./components/settings/ui/SSlider.vue";
 import SToggle from "./components/settings/ui/SToggle.vue";
 
-type VisualScenarioId = "settings-ui-overview" | "settings-ui-dropdown-open";
+type VisualScenarioId = "settings-ui-overview" | "settings-ui-dropdown-open" | "settings-ui-slider";
 
 function normalizeScenario(hash: string): VisualScenarioId {
   const normalized = hash.replace(/^#/, "");
   if (normalized === "settings-ui-dropdown-open") {
     return "settings-ui-dropdown-open";
+  }
+  if (normalized === "settings-ui-slider") {
+    return "settings-ui-slider";
   }
   return "settings-ui-overview";
 }
@@ -18,6 +22,7 @@ function normalizeScenario(hash: string): VisualScenarioId {
 const scenario = computed<VisualScenarioId>(() => normalizeScenario(window.location.hash));
 
 const dropdownOpenHost = ref<HTMLElement | null>(null);
+const sliderValue = ref(0.72);
 
 const segmentItems = [
   { id: "general", label: "通用", icon: "⚙" },
@@ -32,6 +37,11 @@ const dropdownOptions = [
 ];
 
 const selectedTerminal = ref("powershell");
+const formatSliderValue = (v: number) => `${Math.round(v * 100)}%`;
+
+function onSliderValueUpdate(value: number) {
+  sliderValue.value = value;
+}
 
 /**
  * 视觉回归中的“下拉框打开态”必须稳定复现：
@@ -104,7 +114,7 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section v-else class="grid gap-6">
+      <section v-else-if="scenario === 'settings-ui-dropdown-open'" class="grid gap-6">
         <div class="grid gap-3">
           <h2 class="text-[13px] font-semibold text-[var(--ui-text)]">SDropdown（打开态）</h2>
           <p class="text-[12.5px] leading-snug text-[var(--ui-subtle)]">
@@ -118,7 +128,26 @@ onMounted(async () => {
           </div>
         </div>
       </section>
+
+      <section v-else-if="scenario === 'settings-ui-slider'" class="grid gap-8">
+        <div class="grid gap-3">
+          <h2 class="text-[13px] font-semibold text-[var(--ui-text)]">SSlider</h2>
+          <div class="grid gap-4 rounded-[14px] border border-[var(--ui-border)] bg-[var(--ui-bg-deep)] p-4">
+            <div class="grid gap-2">
+              <p class="text-[12.5px] text-[var(--ui-subtle)]">Opacity</p>
+              <SSlider
+                :model-value="sliderValue"
+                :min="0.2"
+                :max="1"
+                :step="0.01"
+                show-value
+                :format-value="formatSliderValue"
+                @update:model-value="onSliderValueUpdate"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 </template>
-
