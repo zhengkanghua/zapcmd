@@ -17,6 +17,7 @@
 
   /* ── 颜色语义映射 ── */
   --ui-bg:          rgba(var(--theme-bg-rgb), var(--ui-opacity));
+  --ui-bg-rgb:      var(--theme-bg-rgb);
   --ui-bg-soft:     var(--theme-surface-soft);
   --ui-bg-deep:     var(--theme-bg-deep);
   --ui-surface:     var(--theme-surface);

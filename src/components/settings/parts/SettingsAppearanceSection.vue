@@ -107,7 +107,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
           <div class="appearance-preview-wrap">
             <div
               class="appearance-preview-panel"
-              :style="{ backgroundColor: `rgba(var(--theme-bg-rgb), ${props.windowOpacity})` }"
+              :style="{ backgroundColor: `rgba(var(--ui-bg-rgb), ${props.windowOpacity})` }"
             >
               <span class="appearance-preview-text">ZapCmd</span>
               <span class="appearance-preview-sub">{{ percentDisplay }}</span>
