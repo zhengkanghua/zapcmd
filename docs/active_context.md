@@ -6,6 +6,7 @@
 - Phase 1 已完成：接入 Tailwind 工具链（preflight 禁用；`src/styles/index.css` 末尾引入 `tailwind.css`）；新增 focused Vitest scripts：`test:flow:launcher`/`test:flow:settings`/`test:contract:styles`；`npm run check:all` 全绿。
 - Phase 2 已推进：新增共享 `UiButton/UiIconButton` 原语（复用旧 `.btn-*`，含 characterization tests，并暴露 `focus()`），迁移 About/SafetyOverlay/StagingPanel 改为消费原语；focused tests 已通过。
 - Phase 3 已推进：Tailwind theme 映射 `--ui-*`；`UiButton/UiIconButton` 内部 Tailwind 化并移除 `btn-*`；删除 `shared.css` 旧按钮样式；新增 `style-guard` 并接入 `check:all`（全绿）。
+- Phase 3 补丁：FlowPanel 关闭按钮改为 `UiIconButton`；按钮圆角统一为 `rounded-control`（`--ui-radius-control`），避免直角回退且与执行按钮一致。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 

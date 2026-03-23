@@ -12,7 +12,8 @@ module.exports = {
   theme: {
     extend: {
       borderRadius: {
-        ui: "var(--ui-radius)"
+        ui: "var(--ui-radius)",
+        control: "var(--ui-radius-control)"
       },
       boxShadow: {
         ui: "var(--ui-shadow)"

@@ -13,6 +13,7 @@ describe("UiButton", () => {
 
     expect(button.attributes("type")).toBe("button");
     expect(button.text()).toBe("OK");
+    expect(button.attributes("class")).toContain("rounded-control");
   });
 
   it("applies variant and size props", async () => {

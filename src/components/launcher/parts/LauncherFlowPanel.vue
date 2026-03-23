@@ -30,7 +30,8 @@ const emit = defineEmits<{
 const reviewPanelRef = ref<HTMLElement | null>(null);
 const reviewBodyRef = ref<HTMLElement | null>(null);
 const reviewListRef = ref<HTMLElement | null>(null);
-const closeButtonRef = ref<HTMLButtonElement | null>(null);
+// close 按钮使用 `UiIconButton` 暴露的 focus()（保证键盘可达性与视觉一致性）。
+const closeButtonRef = ref<{ focus: (options?: { preventScroll?: boolean }) => void } | null>(null);
 
 function closeReview(): void {
   emit("toggle-staging");
@@ -222,15 +223,15 @@ useFlowPanelHeightObservation({
           >
             <LauncherIcon name="trash" />
           </UiIconButton>
-          <button
+          <UiIconButton
             ref="closeButtonRef"
-            type="button"
-            class="flow-panel__close inline-flex min-w-8 min-h-8 items-center justify-center p-1.5 cursor-pointer"
-            :aria-label="t('common.close')"
+            class="flow-panel__close"
+            :ariaLabel="t('common.close')"
+            variant="muted"
             @click="closeReview"
           >
             <LauncherIcon name="x" />
-          </button>
+          </UiIconButton>
         </div>
       </header>
 

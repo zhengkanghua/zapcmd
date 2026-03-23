@@ -7,3 +7,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* 自定义 utilities：用 ui tokens 驱动圆角（避免依赖某些默认 rounded-* 产物）。 */
+  .rounded-ui {
+    border-radius: var(--ui-radius);
+  }
+
+  .rounded-control {
+    border-radius: var(--ui-radius-control);
+  }
+}

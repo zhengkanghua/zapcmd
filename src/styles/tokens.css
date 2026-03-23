@@ -8,6 +8,7 @@
 
   /* ── 布局常量 ── */
   --ui-radius:           12px;
+  --ui-radius-control:    8px;
   --ui-top-align-offset: 18px;
   --ui-font-mono: "Fira Code", "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
 

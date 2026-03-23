@@ -13,7 +13,7 @@ describe("UiIconButton", () => {
     const button = wrapper.get("button");
 
     expect(button.attributes("aria-label")).toBe("Close");
-    expect((button.attributes("class") ?? "").trim().length).toBeGreaterThan(0);
+    expect(button.attributes("class")).toContain("rounded-control");
   });
 
   it("applies variant and size props", async () => {

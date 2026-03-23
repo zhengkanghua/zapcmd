@@ -749,6 +749,11 @@
   -webkit-app-region: no-drag;
 }
 
+/* FlowPanel icon buttons：统一圆角兜底（避免迁移期 Tailwind utilities 产物异常导致回退直角）。 */
+.flow-panel__header-actions > button {
+  border-radius: var(--ui-radius-control);
+}
+
 .flow-panel__title-group {
   display: flex;
   align-items: center;
@@ -864,7 +869,7 @@
   width: 100%;
   padding: 10px 0;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--ui-radius-control);
   background: var(--ui-accent);
   color: var(--ui-accent-text);
   font-size: 14px;
@@ -883,6 +888,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* FlowPanel 卡片操作区 icon buttons：统一圆角兜底（同上）。 */
+.flow-panel__card-actions > button {
+  border-radius: var(--ui-radius-control);
 }
 
 /* --- staging-panel / chip / card / list --- */

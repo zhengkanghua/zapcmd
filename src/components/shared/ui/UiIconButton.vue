@@ -36,7 +36,7 @@ const buttonClass = computed(() => {
     muted: [
       "border",
       "border-transparent",
-      "rounded-lg",
+      "rounded-control",
       "bg-[var(--ui-bg-soft)]",
       "text-[var(--ui-text)]",
       "cursor-pointer",
@@ -45,7 +45,7 @@ const buttonClass = computed(() => {
     ],
     primary: [
       "border",
-      "rounded-lg",
+      "rounded-control",
       "bg-gradient-to-b",
       "from-[rgba(var(--ui-brand-rgb),0.9)]",
       "to-[rgba(var(--ui-brand-rgb),0.82)]",
@@ -59,7 +59,7 @@ const buttonClass = computed(() => {
     ],
     stage: [
       "border",
-      "rounded-lg",
+      "rounded-control",
       "bg-gradient-to-b",
       "from-[rgba(var(--ui-search-hl-rgb),0.92)]",
       "to-[rgba(var(--ui-search-hl-rgb),0.82)]",
@@ -73,7 +73,7 @@ const buttonClass = computed(() => {
     ],
     success: [
       "border",
-      "rounded-lg",
+      "rounded-control",
       "bg-gradient-to-b",
       "from-[rgba(var(--ui-success-rgb),0.9)]",
       "to-[rgba(var(--ui-success-rgb),0.82)]",
@@ -87,7 +87,7 @@ const buttonClass = computed(() => {
     ],
     danger: [
       "border",
-      "rounded-lg",
+      "rounded-control",
       "bg-[rgba(var(--ui-danger-rgb),0.1)]",
       "border-[rgba(var(--ui-danger-rgb),0.2)]",
       "text-[var(--ui-danger)]",
