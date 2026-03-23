@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import UiIconButton from "../UiIconButton.vue";
 
 describe("UiIconButton", () => {
-  it("renders aria-label and btn-icon class", () => {
+  it("renders aria-label", () => {
     const wrapper = mount(UiIconButton, {
       props: { ariaLabel: "Close" },
       slots: { default: "x" }
@@ -13,20 +13,26 @@ describe("UiIconButton", () => {
     const button = wrapper.get("button");
 
     expect(button.attributes("aria-label")).toBe("Close");
-    expect(button.classes()).toContain("btn-icon");
+    expect((button.attributes("class") ?? "").trim().length).toBeGreaterThan(0);
   });
 
-  it("supports variant and size props via legacy btn-* classes", () => {
+  it("applies variant and size props", async () => {
     const wrapper = mount(UiIconButton, {
-      props: { ariaLabel: "Delete", variant: "danger", size: "small" },
+      props: { ariaLabel: "Delete", variant: "danger", size: "default" },
       slots: { default: "!" }
     });
 
     const button = wrapper.get("button");
+    const dangerDefaultClass = button.attributes("class") ?? "";
 
-    expect(button.classes()).toContain("btn-icon");
-    expect(button.classes()).toContain("btn-danger");
-    expect(button.classes()).toContain("btn-small");
+    await wrapper.setProps({ size: "small" });
+    const dangerSmallClass = button.attributes("class") ?? "";
+
+    await wrapper.setProps({ variant: "muted", size: "small" });
+    const mutedSmallClass = button.attributes("class") ?? "";
+
+    expect(dangerDefaultClass).not.toBe(dangerSmallClass);
+    expect(dangerSmallClass).not.toBe(mutedSmallClass);
   });
 
   it("emits click", async () => {
@@ -55,4 +61,3 @@ describe("UiIconButton", () => {
     expect(wrapper.emitted("click")).toBeUndefined();
   });
 });
-

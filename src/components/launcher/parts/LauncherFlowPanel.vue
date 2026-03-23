@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18nText } from "../../../i18n";
+import UiIconButton from "../../shared/ui/UiIconButton.vue";
 import type { ElementRefArg, LauncherFlowPanelProps } from "../types";
 import { useFlowPanelGripReorder } from "./flowPanel/useFlowPanelGripReorder";
 import { useFlowPanelHeightObservation } from "./flowPanel/useFlowPanelHeightObservation";
@@ -213,19 +214,18 @@ useFlowPanelHeightObservation({
           </h2>
         </div>
         <div class="flow-panel__header-actions">
-          <button
-            type="button"
-            class="btn-icon btn-danger"
-            :aria-label="t('common.clear')"
+          <UiIconButton
+            variant="danger"
+            :ariaLabel="t('common.clear')"
             :disabled="props.stagedCommands.length === 0"
             @click="emit('clear-staging')"
           >
             <LauncherIcon name="trash" />
-          </button>
+          </UiIconButton>
           <button
             ref="closeButtonRef"
             type="button"
-            class="btn-icon flow-panel__close"
+            class="flow-panel__close inline-flex min-w-8 min-h-8 items-center justify-center p-1.5 cursor-pointer"
             :aria-label="t('common.close')"
             @click="closeReview"
           >
@@ -295,26 +295,26 @@ useFlowPanelHeightObservation({
                 <header class="staging-card__head">
                   <h3>{{ cmd.title }}</h3>
                   <div class="flow-panel__card-actions">
-                    <button
-                      type="button"
-                      class="btn-muted btn-icon btn-small"
+                    <UiIconButton
+                      :ariaLabel="t('common.copy')"
+                      variant="muted"
+                      size="small"
                       :disabled="props.executing"
-                      :aria-label="t('common.copy')"
                       :title="t('common.copy')"
                       @click.stop="copyCommand(cmd.renderedCommand)"
                     >
                       <LauncherIcon name="copy" />
-                    </button>
-                    <button
-                      type="button"
-                      class="btn-danger btn-icon btn-small"
+                    </UiIconButton>
+                    <UiIconButton
+                      :ariaLabel="t('common.remove')"
+                      variant="danger"
+                      size="small"
                       :disabled="props.executing"
-                      :aria-label="t('common.remove')"
                       :title="t('common.remove')"
                       @click.stop="emit('remove-staged-command', cmd.id)"
                     >
                       <LauncherIcon name="x" />
-                    </button>
+                    </UiIconButton>
                   </div>
                 </header>
                 <div v-if="cmd.args.length > 0" class="flow-card__params">

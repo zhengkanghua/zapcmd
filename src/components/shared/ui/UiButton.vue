@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 
 type UiButtonVariant = "muted" | "primary" | "stage" | "success" | "danger";
 type UiButtonSize = "default" | "small";
+type UiFocusOptions = { preventScroll?: boolean };
 
 const props = withDefaults(
   defineProps<{
@@ -124,8 +125,8 @@ const buttonClass = computed(() => {
 /**
  * 允许父组件（例如对话框）在打开后把焦点落到按钮上，保证键盘可达性。
  */
-function focus() {
-  buttonRef.value?.focus();
+function focus(options?: UiFocusOptions): void {
+  buttonRef.value?.focus(options);
 }
 
 defineExpose({ focus });
