@@ -80,6 +80,10 @@
     0 1px 4px rgba(0, 0, 0, 0.28),
     0 0 0 1px rgba(var(--theme-text-rgb), 0.08);
   --ui-settings-table-row-hover: var(--theme-settings-table-row-hover);
+  --ui-settings-segment-tab-text: rgba(var(--theme-text-rgb), 0.56);
+  --ui-settings-segment-tab-text-hover: rgba(var(--theme-text-rgb), 0.82);
+  --ui-settings-segment-tab-text-active: rgba(var(--theme-text-rgb), 0.95);
+  --ui-settings-segment-tab-active-bg: rgba(var(--theme-text-rgb), 0.09);
   --ui-settings-tab-active-bg: var(--theme-settings-tab-active-bg);
   --ui-settings-tab-active-border: var(--theme-settings-tab-active-border);
   --ui-settings-card-bg: var(--theme-settings-card-bg);
