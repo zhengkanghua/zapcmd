@@ -111,7 +111,7 @@ describe("LauncherStagingPanel", () => {
     await wrapper.get(".staging-card__arg input").setValue("500");
     expect(wrapper.emitted("update-staged-arg")?.[0]).toEqual(["cmd-1", "tail", "500"]);
 
-    await wrapper.get(".staging-card__head .btn-danger").trigger("click");
+    await wrapper.get(".staging-card__head button").trigger("click");
     expect(wrapper.emitted("remove-staged-command")?.[0]).toEqual(["cmd-1"]);
 
     const footerButtons = wrapper.findAll(".staging-panel__footer button");
@@ -130,7 +130,9 @@ describe("LauncherStagingPanel", () => {
       })
     });
 
-    const executeButton = wrapper.get(".staging-panel__footer .btn-primary");
+    const footerButtons = wrapper.findAll(".staging-panel__footer button");
+    expect(footerButtons).toHaveLength(2);
+    const executeButton = footerButtons[1]!;
     expect(executeButton.attributes("disabled")).toBeDefined();
 
     await wrapper.setProps({
@@ -138,6 +140,8 @@ describe("LauncherStagingPanel", () => {
       stagedCommands: []
     });
 
-    expect(wrapper.get(".staging-panel__footer .btn-primary").attributes("disabled")).toBeDefined();
+    const updatedFooterButtons = wrapper.findAll(".staging-panel__footer button");
+    expect(updatedFooterButtons).toHaveLength(2);
+    expect(updatedFooterButtons[1]!.attributes("disabled")).toBeDefined();
   });
 });

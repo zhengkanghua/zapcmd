@@ -46,9 +46,10 @@ describe("SettingsAboutSection states and actions", () => {
     });
 
     expect(wrapper.find(".about-status--error").exists()).toBe(true);
-    expect(wrapper.find(".btn-primary").exists()).toBe(true);
+    const actions = wrapper.findAll(".about-actions button");
+    expect(actions).toHaveLength(3);
 
-    await wrapper.get(".btn-primary").trigger("click");
+    await actions[1]!.trigger("click");
     expect(wrapper.emitted("download-update")).toHaveLength(1);
 
     await wrapper.setProps({
@@ -61,7 +62,8 @@ describe("SettingsAboutSection states and actions", () => {
     });
 
     expect(wrapper.find(".about-status--error").text()).toContain("installer blocked");
-    expect(wrapper.find(".btn-primary").exists()).toBe(true);
+    const updatedActions = wrapper.findAll(".about-actions button");
+    expect(updatedActions).toHaveLength(3);
   });
 
   it("renders downloading and installing progress states with disabled recheck action", async () => {
@@ -77,7 +79,9 @@ describe("SettingsAboutSection states and actions", () => {
       }
     });
 
-    expect(wrapper.get(".btn-muted").attributes("disabled")).toBeDefined();
+    const actions = wrapper.findAll(".about-actions button");
+    expect(actions.length).toBeGreaterThanOrEqual(1);
+    expect(actions[0]!.attributes("disabled")).toBeDefined();
     expect(wrapper.get("progress").attributes("value")).toBe("42");
     expect(wrapper.find(".about-status--loading").text()).toContain("42");
 
@@ -88,7 +92,9 @@ describe("SettingsAboutSection states and actions", () => {
       }
     });
 
-    expect(wrapper.get(".btn-muted").attributes("disabled")).toBeDefined();
+    const updatedActions = wrapper.findAll(".about-actions button");
+    expect(updatedActions.length).toBeGreaterThanOrEqual(1);
+    expect(updatedActions[0]!.attributes("disabled")).toBeDefined();
     expect(wrapper.find("progress").exists()).toBe(false);
     expect(wrapper.find(".about-status--loading").text()).toContain("安装");
   });

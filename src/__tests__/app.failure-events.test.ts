@@ -1457,7 +1457,9 @@ describe("App failure and event regression", () => {
     expect(wrapper.find(".safety-overlay").exists()).toBe(true);
     expect(hoisted.runMock).not.toHaveBeenCalled();
 
-    await wrapper.get(".safety-dialog .btn-danger").trigger("click");
+    const footerButtons = wrapper.findAll(".safety-dialog footer button");
+    expect(footerButtons).toHaveLength(2);
+    await footerButtons[1]!.trigger("click");
     await waitForUi();
     await waitForUi();
 

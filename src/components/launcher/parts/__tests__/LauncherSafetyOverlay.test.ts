@@ -42,7 +42,9 @@ describe("LauncherSafetyOverlay", () => {
     await nextTick();
     await nextTick();
 
-    const cancelButton = wrapper.get("footer .btn-muted").element as HTMLButtonElement;
+    const footerButtons = wrapper.findAll("footer button");
+    expect(footerButtons).toHaveLength(2);
+    const cancelButton = footerButtons[0]!.element as HTMLButtonElement;
     expect(wrapper.find(".safety-overlay").exists()).toBe(true);
     expect(document.activeElement).toBe(cancelButton);
   });
@@ -55,9 +57,12 @@ describe("LauncherSafetyOverlay", () => {
       }
     });
 
+    const footerButtons = wrapper.findAll("footer button");
+    expect(footerButtons).toHaveLength(2);
+
     await wrapper.get(".safety-overlay").trigger("click");
-    await wrapper.get("footer .btn-muted").trigger("click");
-    await wrapper.get("footer .btn-danger").trigger("click");
+    await footerButtons[0]!.trigger("click");
+    await footerButtons[1]!.trigger("click");
 
     expect(wrapper.emitted("cancel-safety-execution")).toHaveLength(2);
     expect(wrapper.emitted("confirm-safety-execution")).toHaveLength(1);
@@ -73,8 +78,10 @@ describe("LauncherSafetyOverlay", () => {
     });
 
     const dialog = wrapper.get(".safety-dialog");
-    const cancelButton = wrapper.get("footer .btn-muted").element as HTMLButtonElement;
-    const confirmButton = wrapper.get("footer .btn-danger").element as HTMLButtonElement;
+    const footerButtons = wrapper.findAll("footer button");
+    expect(footerButtons).toHaveLength(2);
+    const cancelButton = footerButtons[0]!.element as HTMLButtonElement;
+    const confirmButton = footerButtons[1]!.element as HTMLButtonElement;
 
     confirmButton.focus();
     const tabEvent = new KeyboardEvent("keydown", {
@@ -137,7 +144,9 @@ describe("LauncherSafetyOverlay", () => {
     dialog.element.dispatchEvent(tabEvent);
 
     expect(tabEvent.defaultPrevented).toBe(false);
-    expect(wrapper.get("footer .btn-muted").attributes("disabled")).toBeDefined();
-    expect(wrapper.get("footer .btn-danger").attributes("disabled")).toBeDefined();
+    const footerButtons = wrapper.findAll("footer button");
+    expect(footerButtons).toHaveLength(2);
+    expect(footerButtons[0]!.attributes("disabled")).toBeDefined();
+    expect(footerButtons[1]!.attributes("disabled")).toBeDefined();
   });
 });

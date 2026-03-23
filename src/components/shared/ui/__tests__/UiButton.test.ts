@@ -15,16 +15,23 @@ describe("UiButton", () => {
     expect(button.text()).toBe("OK");
   });
 
-  it("supports variant and size props via legacy btn-* classes", () => {
+  it("applies variant and size props", async () => {
     const wrapper = mount(UiButton, {
-      props: { variant: "primary", size: "small" },
+      props: { variant: "primary", size: "default" },
       slots: { default: "Save" }
     });
 
     const button = wrapper.get("button");
+    const primaryDefaultClass = button.attributes("class") ?? "";
 
-    expect(button.classes()).toContain("btn-primary");
-    expect(button.classes()).toContain("btn-small");
+    await wrapper.setProps({ size: "small" });
+    const primarySmallClass = button.attributes("class") ?? "";
+
+    await wrapper.setProps({ variant: "muted", size: "small" });
+    const mutedSmallClass = button.attributes("class") ?? "";
+
+    expect(primaryDefaultClass).not.toBe(primarySmallClass);
+    expect(primarySmallClass).not.toBe(mutedSmallClass);
   });
 
   it("emits click", async () => {
@@ -53,4 +60,3 @@ describe("UiButton", () => {
     expect(wrapper.emitted("click")).toBeUndefined();
   });
 });
-
