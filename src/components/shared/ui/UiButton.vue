@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 type UiButtonVariant = "muted" | "primary" | "stage" | "success" | "danger";
 type UiButtonSize = "default" | "small";
@@ -23,6 +23,8 @@ const emit = defineEmits<{
   (e: "click", event: MouseEvent): void;
 }>();
 
+const buttonRef = ref<HTMLButtonElement | null>(null);
+
 const buttonClass = computed(() => {
   const classes: Array<string> = [`btn-${props.variant}`];
 
@@ -32,6 +34,12 @@ const buttonClass = computed(() => {
 
   return classes;
 });
+
+function focus() {
+  buttonRef.value?.focus();
+}
+
+defineExpose({ focus });
 
 function onClick(event: MouseEvent) {
   if (props.disabled) {
@@ -44,6 +52,7 @@ function onClick(event: MouseEvent) {
 
 <template>
   <button
+    ref="buttonRef"
     :type="props.type"
     :class="buttonClass"
     :disabled="props.disabled"
@@ -52,4 +61,3 @@ function onClick(event: MouseEvent) {
     <slot />
   </button>
 </template>
-

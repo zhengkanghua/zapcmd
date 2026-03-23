@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18nText } from "../../../i18n";
+import UiButton from "../../shared/ui/UiButton.vue";
 import type { SettingsAboutProps } from "../types";
 
 const props = defineProps<SettingsAboutProps>();
@@ -130,25 +131,19 @@ const updateErrorNextStep = computed(() => {
       <div class="about-card about-card--actions" data-testid="about-actions-card">
         <h3 class="about-card__title">{{ t("settings.about.checkUpdate") }}</h3>
         <div class="about-actions">
-          <button
-            type="button"
-            class="btn-muted"
-            :disabled="!canCheckUpdate"
-            @click="emit('check-update')"
-          >
+          <UiButton variant="muted" :disabled="!canCheckUpdate" @click="emit('check-update')">
             {{ checkButtonLabel }}
-          </button>
-          <button
+          </UiButton>
+          <UiButton
             v-if="canDownloadUpdate"
-            type="button"
-            class="btn-primary"
+            variant="primary"
             @click="emit('download-update')"
           >
             {{ t("settings.about.downloadUpdate") }}
-          </button>
-          <button type="button" class="btn-muted" @click="emit('open-homepage')">
+          </UiButton>
+          <UiButton variant="muted" @click="emit('open-homepage')">
             {{ t("settings.about.openHomepage") }}
-          </button>
+          </UiButton>
         </div>
 
         <div v-if="props.updateStatus.state === 'error'" class="about-status about-status--error" role="status">

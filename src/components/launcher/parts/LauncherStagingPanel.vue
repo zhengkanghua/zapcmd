@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18nText } from "../../../i18n";
+import UiButton from "../../shared/ui/UiButton.vue";
 import type { LauncherStagingPanelProps } from "../types";
 
 const props = defineProps<LauncherStagingPanelProps>();
@@ -90,13 +91,13 @@ const stagingHintText = computed(() => {
           >
             <header class="staging-card__head">
               <h3>{{ cmd.title }}</h3>
-              <button
-                type="button"
-                class="btn-danger btn-small"
+              <UiButton
+                variant="danger"
+                size="small"
                 @click="emit('remove-staged-command', cmd.id)"
               >
                 {{ t("common.remove") }}
-              </button>
+              </UiButton>
             </header>
             <div v-if="cmd.args.length > 0" class="staging-card__args">
               <div v-for="arg in cmd.args" :key="`${cmd.id}-${arg.key}`" class="staging-card__arg">
@@ -115,15 +116,16 @@ const stagingHintText = computed(() => {
         </li>
       </ul>
       <footer class="staging-panel__footer">
-        <button type="button" class="btn-muted" @click="emit('clear-staging')">{{ t("common.clear") }}</button>
-        <button
-          type="button"
-          class="btn-primary"
+        <UiButton variant="muted" @click="emit('clear-staging')">
+          {{ t("common.clear") }}
+        </UiButton>
+        <UiButton
+          variant="primary"
           :disabled="props.executing || props.stagedCommands.length === 0"
           @click="emit('execute-staged')"
         >
           {{ props.executing ? t("launcher.executing") : t("launcher.executeAll") }}
-        </button>
+        </UiButton>
       </footer>
     </template>
   </aside>

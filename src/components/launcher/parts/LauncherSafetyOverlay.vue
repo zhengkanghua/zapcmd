@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
 import { useI18nText } from "../../../i18n";
+import UiButton from "../../shared/ui/UiButton.vue";
 import type { LauncherSafetyDialog } from "../types";
 
 const props = defineProps<{
@@ -14,8 +15,10 @@ const emit = defineEmits<{
   (e: "cancel-safety-execution"): void;
 }>();
 
+type FocusableButton = { focus: () => void };
+
 const dialogRef = ref<HTMLElement | null>(null);
-const cancelButtonRef = ref<HTMLButtonElement | null>(null);
+const cancelButtonRef = ref<FocusableButton | null>(null);
 
 watch(
   () => props.safetyDialog,
@@ -94,23 +97,21 @@ function onDialogKeydown(event: KeyboardEvent): void {
       </ul>
 
       <footer>
-        <button
+        <UiButton
           ref="cancelButtonRef"
-          type="button"
-          class="btn-muted"
+          variant="muted"
           :disabled="props.executing"
           @click="emit('cancel-safety-execution')"
         >
           {{ t("common.cancel") }}
-        </button>
-        <button
-          type="button"
-          class="btn-danger"
+        </UiButton>
+        <UiButton
+          variant="danger"
           :disabled="props.executing"
           @click="emit('confirm-safety-execution')"
         >
           {{ t("common.execute") }}
-        </button>
+        </UiButton>
       </footer>
     </section>
   </aside>
