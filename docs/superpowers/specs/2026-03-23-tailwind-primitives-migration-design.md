@@ -40,6 +40,9 @@
 3) Phase 3：原语 Tailwind 化 + 清理旧 CSS + Guardrails  
 `docs/superpowers/specs/2026-03-23-tailwind-primitives-migration-phase-3-tailwindize-and-guardrails-design.md`
 
+4) Phase 4：Settings 小组件 Tailwind 化 + 截图级视觉回归扩展  
+`docs/superpowers/specs/2026-03-23-tailwind-primitives-migration-phase-4-settings-ui-tailwindization-and-visual-regression-design.md`
+
 ### Phase Plans（按顺序执行）
 
 1) Phase 1 Plan  
@@ -50,6 +53,9 @@
 
 3) Phase 3 Plan  
 `docs/superpowers/plans/2026-03-23-tailwind-primitives-migration-phase-3-tailwindize-and-guardrails.md`
+
+4) Phase 4 Plan（待产出）  
+`docs/superpowers/plans/2026-03-23-tailwind-primitives-migration-phase-4-settings-ui-tailwindization-and-visual-regression.md`
 
 ---
 
@@ -87,4 +93,3 @@
    对策：禁用 preflight；严格控制 `src/styles/index.css` 引入顺序；迁移期不急删旧 CSS。  
 3) **多主题被绕开（出现第二套色值系统）**  
    对策：Tailwind theme 映射到 `--ui-*`；引入 guardrails 脚本，阻止硬编码色值回流。  
-

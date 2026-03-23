@@ -32,6 +32,9 @@
 3) Phase 3：原语 Tailwind 化 + 清理旧 CSS + Guardrails  
 `docs/superpowers/specs/2026-03-23-tailwind-primitives-migration-phase-3-tailwindize-and-guardrails-design.md`
 
+4) Phase 4：Settings 小组件 Tailwind 化 + 截图级视觉回归扩展  
+`docs/superpowers/specs/2026-03-23-tailwind-primitives-migration-phase-4-settings-ui-tailwindization-and-visual-regression-design.md`
+
 ### Phase Plans（按顺序执行）
 
 1) Phase 1 Plan  
@@ -42,6 +45,9 @@
 
 3) Phase 3 Plan  
 `docs/superpowers/plans/2026-03-23-tailwind-primitives-migration-phase-3-tailwindize-and-guardrails.md`
+
+4) Phase 4 Plan（待产出）  
+`docs/superpowers/plans/2026-03-23-tailwind-primitives-migration-phase-4-settings-ui-tailwindization-and-visual-regression.md`
 
 ---
 
@@ -90,4 +96,3 @@ npm run test:run -- src/styles/__tests__/launcher-style-contract.test.ts
 1) `npm run check:all` 全绿（或明确记录卡点）  
 2) `docs/active_context.md` 追加 ≤200 字摘要（只补充，不覆盖）  
 3) 提交 checkpoint（保持可回滚、可审查）  
-
