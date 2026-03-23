@@ -47,6 +47,8 @@
   --ui-accent-text: var(--theme-accent-text);
 
   --ui-hover:       var(--theme-hover);
+  --ui-control-muted-hover-bg:     var(--theme-control-muted-hover-bg);
+  --ui-control-muted-hover-border: var(--theme-control-muted-hover-border);
   --ui-selected:    var(--theme-selected);
   --ui-kbd:         var(--theme-kbd);
 

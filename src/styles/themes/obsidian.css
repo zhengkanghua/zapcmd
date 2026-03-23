@@ -37,6 +37,8 @@
 
   /* ── 交互态 ── */
   --theme-hover:        rgba(39, 39, 42, 0.50);
+  --theme-control-muted-hover-bg:     rgba(255, 255, 255, 0.09);
+  --theme-control-muted-hover-border: rgba(255, 255, 255, 0.12);
   --theme-selected:     rgba(39, 39, 42, 0.60);
   --theme-kbd:          rgba(39, 39, 42, 0.80);
 
