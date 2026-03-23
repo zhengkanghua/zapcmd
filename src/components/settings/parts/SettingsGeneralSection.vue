@@ -139,19 +139,22 @@ function onTerminalReusePolicySelect(value: string): void {
         :label="t('settings.general.terminalReusePolicy')"
         :description="t('settings.general.terminalReusePolicyHint')"
       >
-        <div class="settings-general__reuse-policy">
+        <div class="settings-general__reuse-policy grid gap-2">
           <SDropdown
             :model-value="props.terminalReusePolicy"
             :options="terminalReusePolicyOptions"
             @update:model-value="onTerminalReusePolicySelect"
           />
-          <ul class="settings-general__reuse-policy-list" aria-label="terminal-reuse-policy-hints">
+          <ul
+            class="settings-general__reuse-policy-list m-0 grid list-none gap-1.5 p-0"
+            aria-label="terminal-reuse-policy-hints"
+          >
             <li
               v-for="item in terminalReusePolicyOptions"
               :key="item.value"
-              class="settings-general__reuse-policy-item"
+              class="settings-general__reuse-policy-item grid gap-0.5 text-[12px] leading-[1.4] text-[color:var(--ui-subtle)]"
             >
-              <strong>{{ item.label }}</strong>
+              <strong class="font-semibold text-[color:var(--ui-text)]">{{ item.label }}</strong>
               <span>{{ item.description }}</span>
             </li>
           </ul>
@@ -181,31 +184,3 @@ function onTerminalReusePolicySelect(value: string): void {
     </SettingSection>
   </section>
 </template>
-
-<style scoped>
-.settings-general__reuse-policy {
-  display: grid;
-  gap: 8px;
-}
-
-.settings-general__reuse-policy-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 6px;
-}
-
-.settings-general__reuse-policy-item {
-  display: grid;
-  gap: 2px;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--ui-subtle);
-}
-
-.settings-general__reuse-policy-item strong {
-  color: var(--ui-text);
-  font-weight: 600;
-}
-</style>
