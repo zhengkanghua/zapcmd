@@ -40,8 +40,8 @@ const buttonClass = computed(() => {
       "bg-[var(--ui-bg-soft)]",
       "text-[var(--ui-text)]",
       "cursor-pointer",
-      "enabled:hover:bg-[rgba(255,255,255,0.09)]",
-      "enabled:hover:border-[rgba(255,255,255,0.12)]"
+      "enabled:hover:bg-[var(--ui-control-muted-hover-bg)]",
+      "enabled:hover:border-[var(--ui-control-muted-hover-border)]"
     ],
     primary: [
       "border",
