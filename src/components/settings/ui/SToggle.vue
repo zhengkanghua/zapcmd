@@ -47,7 +47,7 @@ function onKeydown(e: KeyboardEvent) {
     type="button"
     role="switch"
     :class="[
-      's-toggle',
+      's-toggle inline-flex shrink-0 items-center justify-center border-0 bg-transparent p-0 transition-opacity duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)]',
       {
         's-toggle--on': modelValue,
         's-toggle--compact': compact,
@@ -59,81 +59,20 @@ function onKeydown(e: KeyboardEvent) {
     @click="onClick"
     @keydown="onKeydown"
   >
-    <span class="s-toggle__track">
-      <span class="s-toggle__thumb" />
+    <span
+      :class="[
+        's-toggle__track relative rounded-full shadow-[var(--ui-settings-toggle-track-shadow)] transition-[background,box-shadow] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)]',
+        compact ? 'w-[30px] h-[17px]' : 'w-[36px] h-[20px]',
+        modelValue ? 'bg-[var(--ui-toggle-on)]' : 'bg-[var(--ui-settings-toggle-off)]'
+      ]"
+    >
+      <span
+        :class="[
+          's-toggle__thumb absolute left-[2px] top-[2px] rounded-full bg-[var(--ui-settings-toggle-thumb)] shadow-[var(--ui-settings-toggle-thumb-shadow)] transition-[transform,background] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)]',
+          compact ? 'w-[13px] h-[13px]' : 'w-[16px] h-[16px]',
+          modelValue ? (compact ? 'translate-x-[13px]' : 'translate-x-[16px]') : ''
+        ]"
+      />
     </span>
   </button>
 </template>
-
-<style scoped>
-.s-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  background: transparent;
-  transition: opacity 150ms cubic-bezier(0.33, 1, 0.68, 1);
-  flex-shrink: 0;
-}
-
-.s-toggle__track {
-  position: relative;
-  width: 36px;
-  height: 20px;
-  border-radius: 999px;
-  background: var(--ui-settings-toggle-off);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-  transition:
-    background 150ms cubic-bezier(0.33, 1, 0.68, 1),
-    box-shadow 150ms cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.s-toggle--on .s-toggle__track {
-  background: var(--ui-toggle-on);
-}
-
-.s-toggle__thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--ui-settings-toggle-thumb);
-  box-shadow:
-    0 1px 4px rgba(0, 0, 0, 0.28),
-    0 0 0 1px rgba(255, 255, 255, 0.08);
-  transition: transform 150ms cubic-bezier(0.33, 1, 0.68, 1), background 150ms;
-}
-
-.s-toggle--on .s-toggle__thumb {
-  transform: translateX(16px);
-}
-
-.s-toggle--compact .s-toggle__track {
-  width: 30px;
-  height: 17px;
-}
-
-.s-toggle--compact .s-toggle__thumb {
-  top: 2px;
-  width: 13px;
-  height: 13px;
-}
-
-.s-toggle--compact.s-toggle--on .s-toggle__thumb {
-  transform: translateX(13px);
-}
-
-.s-toggle--disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.s-toggle:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--ui-settings-focus-ring);
-}
-</style>
