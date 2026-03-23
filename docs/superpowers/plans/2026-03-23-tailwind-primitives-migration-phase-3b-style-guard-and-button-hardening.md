@@ -45,8 +45,8 @@
     - `--ui-control-muted-hover-border: var(--theme-control-muted-hover-border);`
 
 - [ ] **Step 3: 快速自检（确保变量可被加载）**
-  - Run: `rg -n -- \"ui-control-muted-hover\" src/styles/tokens.css src/styles/themes/obsidian.css`
-  - Expected: 两处都能命中
+  - Run: `rg -n -- \"control-muted-hover\" src/styles/tokens.css src/styles/themes/obsidian.css`
+  - Expected: 两处都能命中（theme + tokens）
 
 - [ ] **Step 4: Commit**
   - Run:
@@ -117,6 +117,7 @@
   - 在 `scripts/style-guard.mjs` 的 `rules` 中新增一条：
     - 目标：禁止 `rgba(255,...)` / `rgba(0,...)` 等硬编码；允许 `rgba(var(--ui-...))`
     - 推荐实现：新增 regex `\\brgba\\(\\s*(?!var\\(--ui-)`（大小写不敏感）
+    - 迁移期兜底：为避免历史 CSS 大面积误伤，`rgba()` 规则建议跳过 `.vue` 的 `<style>` block，并排除 `__tests__` / `*.test.ts` 等测试文件；如发现 `rgba(var(--theme-...))`，优先补齐 `--ui-*` 映射后替换。
 
 - [ ] **Step 2: 更新规则口径文档**
   - 在 `docs/project_constitution.md` 的“3.7 样式治理（Tokens + Tailwind）”补充：`rgba()` 同样禁止（仅允许 ui token 形式）。
@@ -179,4 +180,3 @@
   - Run:
     - `git add docs/active_context.md`
     - `git commit -m \"docs:记录 Tailwind Phase 3B 进展\"`
-
