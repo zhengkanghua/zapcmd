@@ -29,9 +29,9 @@ const buttonRef = ref<HTMLButtonElement | null>(null);
 const buttonClass = computed(() => {
   /**
    * Tailwind class 必须可静态分析（避免动态拼接导致 content 扫描漏抓）。
-   * 这里用“枚举表”明确列出每个 variant/size 的 class 组合。
+   * 这里用“枚举表”明确列出每个 variant/size 的 class 组合，并避免互相冲突的 utilities 叠加覆盖。
    */
-  const variantClasses: Record<UiButtonVariant, Array<string>> = {
+  const variantBaseClasses: Record<UiButtonVariant, Array<string>> = {
     muted: [
       "border",
       "border-transparent",
@@ -39,9 +39,6 @@ const buttonClass = computed(() => {
       "bg-[var(--ui-bg-soft)]",
       "text-[var(--ui-text)]",
       "cursor-pointer",
-      "px-2.5",
-      "py-1.5",
-      "text-[12px]",
       "enabled:hover:bg-[var(--ui-control-muted-hover-bg)]",
       "enabled:hover:border-[var(--ui-control-muted-hover-border)]"
     ],
@@ -55,9 +52,6 @@ const buttonClass = computed(() => {
       "text-[var(--ui-accent-text)]",
       "font-bold",
       "cursor-pointer",
-      "px-3",
-      "py-1.5",
-      "text-[12px]",
       "enabled:hover:brightness-[1.04]",
       "disabled:opacity-[0.56]",
       "disabled:cursor-default"
@@ -72,9 +66,6 @@ const buttonClass = computed(() => {
       "text-[var(--ui-accent-text)]",
       "font-bold",
       "cursor-pointer",
-      "px-3",
-      "py-1.5",
-      "text-[12px]",
       "enabled:hover:brightness-[1.04]",
       "disabled:opacity-[0.56]",
       "disabled:cursor-default"
@@ -89,9 +80,6 @@ const buttonClass = computed(() => {
       "text-[var(--ui-accent-text)]",
       "font-bold",
       "cursor-pointer",
-      "px-3",
-      "py-1.5",
-      "text-[12px]",
       "enabled:hover:brightness-[1.04]",
       "disabled:opacity-[0.56]",
       "disabled:cursor-default"
@@ -103,9 +91,6 @@ const buttonClass = computed(() => {
       "border-[rgba(var(--ui-danger-rgb),0.2)]",
       "text-[var(--ui-danger)]",
       "cursor-pointer",
-      "px-2.5",
-      "py-1.5",
-      "text-[12px]",
       "transition-all",
       "duration-150",
       "ease-[ease]",
@@ -114,12 +99,30 @@ const buttonClass = computed(() => {
     ]
   };
 
-  const sizeClasses: Record<UiButtonSize, Array<string>> = {
-    default: [],
-    small: ["px-2", "py-1", "text-[11px]"]
+  const sizeClasses: Record<UiButtonVariant, Record<UiButtonSize, Array<string>>> = {
+    muted: {
+      default: ["px-2.5", "py-1.5", "text-[12px]"],
+      small: ["px-2", "py-1", "text-[11px]"]
+    },
+    primary: {
+      default: ["px-3", "py-1.5", "text-[12px]"],
+      small: ["px-2", "py-1", "text-[11px]"]
+    },
+    stage: {
+      default: ["px-3", "py-1.5", "text-[12px]"],
+      small: ["px-2", "py-1", "text-[11px]"]
+    },
+    success: {
+      default: ["px-3", "py-1.5", "text-[12px]"],
+      small: ["px-2", "py-1", "text-[11px]"]
+    },
+    danger: {
+      default: ["px-2.5", "py-1.5", "text-[12px]"],
+      small: ["px-2", "py-1", "text-[11px]"]
+    }
   };
 
-  return [...variantClasses[props.variant], ...sizeClasses[props.size]];
+  return [...variantBaseClasses[props.variant], ...sizeClasses[props.variant][props.size]];
 });
 
 /**
