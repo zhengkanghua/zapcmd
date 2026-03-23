@@ -75,6 +75,10 @@
   --ui-settings-focus-ring: var(--theme-settings-focus-ring);
   --ui-settings-toggle-off: var(--theme-settings-toggle-off);
   --ui-settings-toggle-thumb: var(--theme-settings-toggle-thumb);
+  --ui-settings-toggle-track-shadow: inset 0 0 0 1px rgba(var(--theme-text-rgb), 0.06);
+  --ui-settings-toggle-thumb-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(var(--theme-text-rgb), 0.08);
   --ui-settings-table-row-hover: var(--theme-settings-table-row-hover);
   --ui-settings-tab-active-bg: var(--theme-settings-tab-active-bg);
   --ui-settings-tab-active-border: var(--theme-settings-tab-active-border);
