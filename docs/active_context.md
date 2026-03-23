@@ -5,6 +5,7 @@
 - 开发分支试验 Tailwind（C：页面消费原语），保留 `themes/* + tokens.css` 多主题；Roadmap：`docs/superpowers/plans/2026-03-23-tailwind-primitives-migration.md`（含 Phase1/2/3 拆分）。
 - Phase 1 已完成：接入 Tailwind 工具链（preflight 禁用；`src/styles/index.css` 末尾引入 `tailwind.css`）；新增 focused Vitest scripts：`test:flow:launcher`/`test:flow:settings`/`test:contract:styles`；`npm run check:all` 全绿。
 - Phase 2 已推进：新增共享 `UiButton/UiIconButton` 原语（复用旧 `.btn-*`，含 characterization tests，并暴露 `focus()`），迁移 About/SafetyOverlay/StagingPanel 改为消费原语；focused tests 已通过。
+- Phase 3 已推进：Tailwind theme 映射 `--ui-*`；`UiButton/UiIconButton` 内部 Tailwind 化并移除 `btn-*`；删除 `shared.css` 旧按钮样式；新增 `style-guard` 并接入 `check:all`（全绿）。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
