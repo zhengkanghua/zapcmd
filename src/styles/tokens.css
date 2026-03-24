@@ -18,6 +18,8 @@
   /* ── 颜色语义映射 ── */
   --ui-bg:          rgba(var(--theme-bg-rgb), var(--ui-opacity));
   --ui-bg-rgb:      var(--theme-bg-rgb);
+  --ui-text-rgb:    var(--theme-text-rgb);
+  --ui-black-rgb:   0, 0, 0;
   --ui-bg-soft:     var(--theme-surface-soft);
   --ui-bg-deep:     var(--theme-bg-deep);
   --ui-surface:     var(--theme-surface);
@@ -79,6 +81,10 @@
   --ui-settings-toggle-thumb-shadow:
     0 1px 4px rgba(0, 0, 0, 0.28),
     0 0 0 1px rgba(var(--theme-text-rgb), 0.08);
+  --ui-settings-preview-checker: repeating-conic-gradient(
+    rgba(var(--ui-text-rgb), 0.08) 0% 25%,
+    transparent 0% 50%
+  );
   --ui-settings-table-row-hover: var(--theme-settings-table-row-hover);
   --ui-settings-segment-tab-text: rgba(var(--theme-text-rgb), 0.56);
   --ui-settings-segment-tab-text-hover: rgba(var(--theme-text-rgb), 0.82);
