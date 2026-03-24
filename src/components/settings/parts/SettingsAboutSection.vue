@@ -84,53 +84,66 @@ const updateErrorNextStep = computed(() => {
 
 <template>
   <section class="settings-group settings-about" aria-label="settings-about">
-    <header class="about-brand" data-testid="about-brand">
-      <div class="about-brand__logo" role="img" aria-label="ZapCmd logo">⚡</div>
-      <div class="about-brand__text">
-        <p class="about-brand__name">ZapCmd</p>
-        <p class="about-brand__meta">
+    <header
+      class="about-brand flex items-center gap-[12px] rounded-[16px] border border-[var(--ui-settings-card-border)] bg-[var(--ui-settings-card-bg)] px-[16px] py-[14px]"
+      data-testid="about-brand"
+    >
+      <div
+        class="about-brand__logo grid h-[60px] w-[60px] flex-shrink-0 place-items-center rounded-[14px] border border-[rgba(var(--ui-text-rgb),0.12)] bg-[rgba(var(--ui-text-rgb),0.06)] text-[26px] text-[var(--ui-text)]"
+        role="img"
+        aria-label="ZapCmd logo"
+      >
+        ⚡
+      </div>
+      <div class="about-brand__text grid min-w-0 gap-[4px]">
+        <p class="about-brand__name m-0 text-[16px] font-[750] text-[var(--ui-text)]">ZapCmd</p>
+        <p class="about-brand__meta m-0 flex items-baseline gap-[8px] text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">
           <span>{{ t("settings.about.version") }}</span>
-          <code class="about-brand__version">{{ props.appVersion || FALLBACK_TEXT }}</code>
+          <code
+            class="about-brand__version relative pl-[10px] text-[var(--ui-accent)] [font-variant-numeric:tabular-nums] before:absolute before:left-0 before:top-1/2 before:h-[5px] before:w-[5px] before:-translate-y-1/2 before:rounded-full before:bg-current before:content-['']"
+          >
+            {{ props.appVersion || FALLBACK_TEXT }}
+          </code>
         </p>
       </div>
     </header>
 
-    <div class="about-cards">
-      <div class="about-card about-card--info" data-testid="about-info-card">
-        <h3 class="about-card__title">{{ t("settings.about.infoTitle") }}</h3>
-        <dl class="about-grid">
-          <div class="about-row">
-            <dt>{{ t("settings.about.version") }}</dt>
-            <dd>
+    <div class="about-cards grid gap-[12px]">
+      <div class="about-card about-card--info grid gap-[10px] rounded-[14px] border border-[var(--ui-settings-card-border)] bg-[var(--ui-settings-card-bg)] p-[14px]" data-testid="about-info-card">
+        <h3 class="about-card__title m-0 text-[12px] font-[650] text-[var(--ui-text)]">{{ t("settings.about.infoTitle") }}</h3>
+        <dl class="about-grid m-0 grid gap-[10px]">
+          <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
+            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.version") }}</dt>
+            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">
               <code>{{ props.appVersion || FALLBACK_TEXT }}</code>
             </dd>
           </div>
-          <div class="about-row">
-            <dt>{{ t("settings.about.platform") }}</dt>
-            <dd>{{ props.runtimePlatform || FALLBACK_TEXT }}</dd>
+          <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
+            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.platform") }}</dt>
+            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">{{ props.runtimePlatform || FALLBACK_TEXT }}</dd>
           </div>
-          <div class="about-row">
-            <dt>{{ t("settings.about.homepage") }}</dt>
-            <dd>
+          <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
+            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.homepage") }}</dt>
+            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">
               <code>{{ homepageUrl || FALLBACK_TEXT }}</code>
             </dd>
           </div>
-          <div class="about-row">
-            <dt>{{ t("settings.about.license") }}</dt>
-            <dd>MIT</dd>
+          <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
+            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.license") }}</dt>
+            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">MIT</dd>
           </div>
-          <div class="about-row">
-            <dt>{{ t("settings.about.feedback") }}</dt>
-            <dd>
+          <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
+            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.feedback") }}</dt>
+            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">
               <code>{{ issuesUrl || FALLBACK_TEXT }}</code>
             </dd>
           </div>
         </dl>
       </div>
 
-      <div class="about-card about-card--actions" data-testid="about-actions-card">
-        <h3 class="about-card__title">{{ t("settings.about.checkUpdate") }}</h3>
-        <div class="about-actions">
+      <div class="about-card about-card--actions grid gap-[10px] rounded-[14px] border border-[var(--ui-settings-card-border)] bg-[var(--ui-settings-card-bg)] p-[14px]" data-testid="about-actions-card">
+        <h3 class="about-card__title m-0 text-[12px] font-[650] text-[var(--ui-text)]">{{ t("settings.about.checkUpdate") }}</h3>
+        <div class="about-actions m-0 flex flex-wrap gap-[10px]">
           <UiButton variant="muted" :disabled="!canCheckUpdate" @click="emit('check-update')">
             {{ checkButtonLabel }}
           </UiButton>
@@ -146,255 +159,66 @@ const updateErrorNextStep = computed(() => {
           </UiButton>
         </div>
 
-        <div v-if="props.updateStatus.state === 'error'" class="about-status about-status--error" role="status">
-          <p class="about-status__title">{{ updateErrorMessage }}</p>
-          <p class="about-status__next-step">{{ updateErrorNextStep }}</p>
+        <div
+          v-if="props.updateStatus.state === 'error'"
+          class="about-status about-status--error relative mt-[12px] rounded-[10px] border border-[rgba(var(--ui-danger-rgb),0.3)] bg-[rgba(var(--ui-danger-rgb),0.08)] px-[12px] py-[10px] pl-[16px] text-[12px] text-[rgba(var(--ui-danger-rgb),0.9)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-[var(--ui-danger)] before:content-['']"
+          role="status"
+        >
+          <p class="about-status__title m-0 mb-[8px] font-semibold">{{ updateErrorMessage }}</p>
+          <p class="about-status__next-step m-0">{{ updateErrorNextStep }}</p>
         </div>
         <div
           v-else-if="props.updateStatus.state === 'checking'"
-          class="about-status about-status--loading"
+          class="about-status about-status--loading relative mt-[12px] rounded-[10px] border border-[rgba(var(--ui-brand-rgb),0.24)] bg-[rgba(var(--ui-brand-rgb),0.08)] px-[12px] py-[10px] pl-[16px] text-[12px] text-[rgba(var(--ui-text-rgb),0.85)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-[var(--ui-brand)] before:content-['']"
           role="status"
         >
-          <p class="about-status__title">{{ t("settings.about.checking") }}</p>
-          <p class="about-status__next-step">{{ t("settings.about.checkingHint") }}</p>
+          <p class="about-status__title m-0 mb-[8px] font-semibold">{{ t("settings.about.checking") }}</p>
+          <p class="about-status__next-step m-0">{{ t("settings.about.checkingHint") }}</p>
         </div>
         <div
           v-else-if="props.updateStatus.state === 'upToDate'"
-          class="about-status about-status--success"
+          class="about-status about-status--success relative mt-[12px] rounded-[10px] border border-[rgba(var(--ui-success-rgb),0.28)] bg-[rgba(var(--ui-success-rgb),0.1)] px-[12px] py-[10px] pl-[16px] text-[12px] text-[rgba(var(--ui-success-rgb),0.9)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-[var(--ui-success)] before:content-['']"
           role="status"
         >
-          <p class="about-status__title">{{ t("settings.about.upToDate") }}</p>
+          <p class="about-status__title m-0 mb-[8px] font-semibold">{{ t("settings.about.upToDate") }}</p>
         </div>
-        <div v-else-if="props.updateStatus.state === 'available'" class="about-status" role="status">
-          <p class="about-status__title">
+        <div
+          v-else-if="props.updateStatus.state === 'available'"
+          class="about-status relative mt-[12px] rounded-[10px] border border-[rgba(var(--ui-text-rgb),0.1)] bg-[rgba(var(--ui-text-rgb),0.03)] px-[12px] py-[10px] pl-[16px] text-[12px] text-[rgba(var(--ui-text-rgb),0.85)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-[rgba(var(--ui-text-rgb),0.16)] before:content-['']"
+          role="status"
+        >
+          <p class="about-status__title m-0 mb-[8px] font-semibold">
             {{ t("settings.about.updateAvailable", { version: props.updateStatus.version }) }}
           </p>
           <div v-if="props.updateStatus.body" class="about-status__body">
-            <p class="about-status__label">{{ t("settings.about.updateBody") }}</p>
-            <pre class="about-status__content">{{ props.updateStatus.body }}</pre>
+            <p class="about-status__label m-0 mb-[6px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.updateBody") }}</p>
+            <pre class="about-status__content m-0 whitespace-pre-wrap break-words rounded-[10px] border border-[rgba(var(--ui-text-rgb),0.12)] bg-[rgba(var(--ui-black-rgb),0.25)] p-[10px]">{{ props.updateStatus.body }}</pre>
           </div>
         </div>
         <div
           v-else-if="props.updateStatus.state === 'downloading'"
-          class="about-status about-status--loading"
+          class="about-status about-status--loading relative mt-[12px] rounded-[10px] border border-[rgba(var(--ui-brand-rgb),0.24)] bg-[rgba(var(--ui-brand-rgb),0.08)] px-[12px] py-[10px] pl-[16px] text-[12px] text-[rgba(var(--ui-text-rgb),0.85)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-[var(--ui-brand)] before:content-['']"
           role="status"
         >
-          <p class="about-status__title">
+          <p class="about-status__title m-0 mb-[8px] font-semibold">
             {{ t("settings.about.downloading", { progress: props.updateStatus.progressPercent }) }}
           </p>
-          <p class="about-status__next-step">{{ t("settings.about.downloadingHint") }}</p>
-          <progress :value="props.updateStatus.progressPercent" max="100"></progress>
+          <p class="about-status__next-step m-0">{{ t("settings.about.downloadingHint") }}</p>
+          <progress
+            class="mt-[8px] h-[8px] w-full accent-[var(--ui-accent)]"
+            :value="props.updateStatus.progressPercent"
+            max="100"
+          ></progress>
         </div>
         <div
           v-else-if="props.updateStatus.state === 'installing'"
-          class="about-status about-status--loading"
+          class="about-status about-status--loading relative mt-[12px] rounded-[10px] border border-[rgba(var(--ui-brand-rgb),0.24)] bg-[rgba(var(--ui-brand-rgb),0.08)] px-[12px] py-[10px] pl-[16px] text-[12px] text-[rgba(var(--ui-text-rgb),0.85)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-[var(--ui-brand)] before:content-['']"
           role="status"
         >
-          <p class="about-status__title">{{ t("settings.about.installing") }}</p>
-          <p class="about-status__next-step">{{ t("settings.about.installingHint") }}</p>
+          <p class="about-status__title m-0 mb-[8px] font-semibold">{{ t("settings.about.installing") }}</p>
+          <p class="about-status__next-step m-0">{{ t("settings.about.installingHint") }}</p>
         </div>
       </div>
     </div>
   </section>
 </template>
-
-<style scoped>
-.about-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid var(--ui-settings-card-border);
-  border-radius: 16px;
-  background: var(--ui-settings-card-bg);
-}
-
-.about-brand__logo {
-  width: 60px;
-  height: 60px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  font-size: 26px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.92);
-  flex-shrink: 0;
-}
-
-.about-brand__text {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-.about-brand__name {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 750;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.about-brand__meta {
-  margin: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.about-brand__version {
-  position: relative;
-  padding-left: 10px;
-  font-variant-numeric: tabular-nums;
-  color: var(--ui-accent);
-}
-
-.about-brand__version::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: currentColor;
-  transform: translateY(-50%);
-}
-
-.about-cards {
-  display: grid;
-  gap: 12px;
-}
-
-.about-card {
-  border: 1px solid var(--ui-settings-card-border);
-  border-radius: 14px;
-  padding: 14px;
-  background: var(--ui-settings-card-bg);
-  display: grid;
-  gap: 10px;
-}
-
-.about-card__title {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 650;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.about-grid {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-}
-
-.about-row {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 12px;
-  align-items: baseline;
-}
-
-.about-row dt {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.about-row dd {
-  margin: 0;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.about-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin: 0;
-}
-
-.about-status {
-  margin-top: 12px;
-  position: relative;
-  padding: 10px 12px 10px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.about-status::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.about-status--loading {
-  border-color: rgba(var(--ui-brand-rgb), 0.24);
-  background: rgba(var(--ui-brand-rgb), 0.08);
-}
-
-.about-status--loading::before {
-  background: var(--ui-brand);
-}
-
-.about-status--success {
-  border-color: rgba(var(--ui-success-rgb), 0.28);
-  background: rgba(var(--ui-success-rgb), 0.1);
-  color: rgba(var(--ui-success-rgb), 0.9);
-}
-
-.about-status--success::before {
-  background: var(--ui-success);
-}
-
-.about-status--error {
-  border-color: rgba(var(--ui-danger-rgb), 0.3);
-  background: rgba(var(--ui-danger-rgb), 0.08);
-  color: rgba(var(--ui-danger-rgb), 0.9);
-}
-
-.about-status--error::before {
-  background: var(--ui-danger);
-}
-
-.about-status__title {
-  margin: 0 0 8px;
-  font-weight: 600;
-}
-
-.about-status__next-step {
-  margin: 0;
-}
-
-progress {
-  width: 100%;
-  height: 8px;
-  margin-top: 8px;
-  accent-color: var(--ui-accent);
-}
-
-.about-status__label {
-  margin: 0 0 6px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.about-status__content {
-  margin: 0;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-</style>
