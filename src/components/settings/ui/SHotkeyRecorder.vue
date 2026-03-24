@@ -76,143 +76,48 @@ function onBlur(): void {
 </script>
 
 <template>
-  <div class="s-hotkey-recorder-field">
-    <div class="s-hotkey-recorder-field__label">{{ props.label }}</div>
+  <div class="s-hotkey-recorder-field grid w-fit max-w-full gap-[8px]">
+    <div class="s-hotkey-recorder-field__label text-[12px] text-[var(--ui-subtle)]">{{ props.label }}</div>
     <button
       ref="recorderRef"
       type="button"
       :class="[
-        's-hotkey-recorder',
+        's-hotkey-recorder min-h-[34px] justify-self-start w-fit min-w-[92px] max-w-[min(100%,280px)] border border-[var(--ui-border)] rounded-[8px] bg-[var(--ui-input-bg)] px-[10px] text-left text-[13px] tracking-[0.02em] text-[var(--ui-text)] outline-none inline-flex items-center gap-[6px] whitespace-nowrap cursor-pointer transition-[border-color,box-shadow,background] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:border-[var(--ui-brand-dim)] focus-visible:shadow-[0_0_0_2px_var(--ui-brand-soft)]',
         {
-          's-hotkey-recorder--empty': isEmpty,
-          's-hotkey-recorder--recording': recording,
-          's-hotkey-recorder--conflict': Boolean(props.conflict)
+          's-hotkey-recorder--empty text-[var(--ui-subtle)]': isEmpty,
+          's-hotkey-recorder--recording border-[var(--ui-brand-dim)] shadow-[0_0_0_2px_var(--ui-brand-soft)]':
+            recording,
+          's-hotkey-recorder--conflict border-[var(--ui-danger)] shadow-[0_0_0_2px_var(--ui-danger-soft)]':
+            Boolean(props.conflict)
         }
       ]"
       @click="startRecording"
       @keydown="onKeydown"
       @blur="onBlur"
     >
-      <span v-if="recording && !capturedKeys" class="s-hotkey-recorder__hint">按下新的快捷键…</span>
-      <span v-else-if="displayTokens.length === 0" class="s-hotkey-recorder__placeholder">未设置</span>
-      <span v-else class="s-hotkey-recorder__keys" aria-hidden="true">
+      <span v-if="recording && !capturedKeys" class="s-hotkey-recorder__hint text-[12px]">按下新的快捷键…</span>
+      <span v-else-if="displayTokens.length === 0" class="s-hotkey-recorder__placeholder text-[12px]">未设置</span>
+      <span v-else class="s-hotkey-recorder__keys inline-flex max-w-full items-center gap-[4px]" aria-hidden="true">
         <template v-for="(token, index) in displayTokens" :key="`${token}-${index}`">
-          <kbd class="s-hotkey-recorder__kbd">{{ token }}</kbd>
-          <span v-if="index < displayTokens.length - 1" class="s-hotkey-recorder__sep">+</span>
+          <kbd
+            class="s-hotkey-recorder__kbd rounded-[6px] border border-[var(--ui-border-light)] border-b-[2px] bg-[var(--ui-kbd)] px-[6px] py-[1px] text-[12px] text-[var(--ui-text)] [font-family:var(--ui-font-mono)]"
+          >
+            {{ token }}
+          </kbd>
+          <span v-if="index < displayTokens.length - 1" class="s-hotkey-recorder__sep text-[12px] text-[var(--ui-subtle)]">
+            +
+          </span>
         </template>
       </span>
     </button>
 
-    <div v-if="props.conflict" class="s-hotkey-recorder-field__conflict">
-      <span class="s-hotkey-recorder-field__conflict-title">冲突</span>
-      <span class="s-hotkey-recorder-field__conflict-text">{{ props.conflict }}</span>
+    <div v-if="props.conflict" class="s-hotkey-recorder-field__conflict flex flex-wrap items-center gap-[6px] text-[12px] text-[var(--ui-danger)]">
+      <span
+        class="s-hotkey-recorder-field__conflict-title rounded-full border border-[var(--ui-danger)] bg-[var(--ui-danger-soft)] px-[8px] py-[1px] font-semibold"
+      >
+        冲突
+      </span>
+      <span class="s-hotkey-recorder-field__conflict-text text-[var(--ui-subtle)]">{{ props.conflict }}</span>
     </div>
   </div>
 </template>
-
-<style scoped>
-.s-hotkey-recorder-field {
-  display: grid;
-  gap: 8px;
-}
-
-.s-hotkey-recorder-field__label {
-  font-size: 12px;
-  color: var(--ui-subtle);
-}
-
-.s-hotkey-recorder {
-  min-height: 34px;
-  justify-self: start;
-  inline-size: fit-content;
-  min-inline-size: 92px;
-  max-inline-size: min(100%, 280px);
-  border: 1px solid var(--ui-border);
-  border-radius: 8px;
-  background: var(--ui-input-bg);
-  color: var(--ui-text);
-  padding: 0 10px;
-  outline: none;
-  text-align: left;
-  font-size: 13px;
-  letter-spacing: 0.02em;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    border-color 150ms cubic-bezier(0.33, 1, 0.68, 1),
-    box-shadow 150ms cubic-bezier(0.33, 1, 0.68, 1),
-    background 150ms cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.s-hotkey-recorder--empty {
-  color: var(--ui-subtle);
-}
-
-.s-hotkey-recorder--recording {
-  border-color: var(--ui-brand-dim);
-  box-shadow: 0 0 0 2px var(--ui-brand-soft);
-}
-
-.s-hotkey-recorder--conflict {
-  border-color: var(--ui-danger);
-  box-shadow: 0 0 0 2px var(--ui-danger-soft);
-}
-
-.s-hotkey-recorder:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--ui-brand-soft);
-  border-color: var(--ui-brand-dim);
-}
-
-.s-hotkey-recorder__hint,
-.s-hotkey-recorder__placeholder {
-  font-size: 12px;
-}
-
-.s-hotkey-recorder__keys {
-  display: inline-flex;
-  align-items: center;
-  max-width: 100%;
-  gap: 4px;
-}
-
-.s-hotkey-recorder__kbd {
-  border: 1px solid var(--ui-border-light);
-  border-bottom-width: 2px;
-  border-radius: 6px;
-  padding: 1px 6px;
-  font-family: var(--ui-font-mono);
-  font-size: 12px;
-  background: var(--ui-kbd);
-  color: var(--ui-text);
-}
-
-.s-hotkey-recorder__sep {
-  color: var(--ui-subtle);
-  font-size: 12px;
-}
-
-.s-hotkey-recorder-field__conflict {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--ui-danger);
-}
-
-.s-hotkey-recorder-field__conflict-title {
-  border: 1px solid var(--ui-danger);
-  border-radius: 999px;
-  padding: 1px 8px;
-  background: var(--ui-danger-soft);
-  font-weight: 600;
-}
-
-.s-hotkey-recorder-field__conflict-text {
-  color: var(--ui-subtle);
-}
-</style>
