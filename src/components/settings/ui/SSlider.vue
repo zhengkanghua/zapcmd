@@ -54,9 +54,9 @@ function onInput(event: Event) {
 </script>
 
 <template>
-  <div class="s-slider" :style="sliderStyle">
+  <div class="s-slider flex items-center gap-[12px]" :style="sliderStyle">
     <input
-      class="s-slider__input"
+      class="s-slider__input flex-1 h-[6px] appearance-none rounded-full outline-none bg-[linear-gradient(90deg,var(--ui-brand)_0%,var(--ui-brand)_var(--fill-percent),var(--ui-border)_var(--fill-percent),var(--ui-border)_100%)]"
       type="range"
       :min="props.min"
       :max="props.max"
@@ -64,32 +64,16 @@ function onInput(event: Event) {
       :value="props.modelValue"
       @input="onInput"
     />
-    <span v-if="props.showValue" class="s-slider__value">{{ displayValue }}</span>
+    <span
+      v-if="props.showValue"
+      class="s-slider__value min-w-[44px] text-right text-[12px] text-[var(--ui-subtle)]"
+    >
+      {{ displayValue }}
+    </span>
   </div>
 </template>
 
 <style scoped>
-.s-slider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.s-slider__input {
-  flex: 1;
-  height: 6px;
-  appearance: none;
-  background: linear-gradient(
-    90deg,
-    var(--ui-brand) 0%,
-    var(--ui-brand) var(--fill-percent),
-    var(--ui-border) var(--fill-percent),
-    var(--ui-border) 100%
-  );
-  border-radius: 999px;
-  outline: none;
-}
-
 .s-slider__input::-webkit-slider-thumb {
   appearance: none;
   width: 16px;
@@ -109,11 +93,4 @@ function onInput(event: Event) {
   box-shadow: 0 0 0 3px var(--ui-brand-soft);
 }
 
-.s-slider__value {
-  min-width: 44px;
-  text-align: right;
-  color: var(--ui-subtle);
-  font-size: 12px;
-}
 </style>
-
