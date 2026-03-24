@@ -41,6 +41,15 @@ const SCREENSHOTS = [
     maxDiffRatio: 0.005,
     pixelTolerance: 0,
     sampleStep: 1
+  },
+  {
+    id: "settings-ui-hotkey-recorder",
+    hash: "settings-ui-hotkey-recorder",
+    width: 1100,
+    height: 900,
+    maxDiffRatio: 0.005,
+    pixelTolerance: 0,
+    sampleStep: 1
   }
 ];
 

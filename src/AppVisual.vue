@@ -3,10 +3,15 @@ import { computed, nextTick, onMounted, ref } from "vue";
 
 import SDropdown from "./components/settings/ui/SDropdown.vue";
 import SSegmentNav from "./components/settings/ui/SSegmentNav.vue";
+import SHotkeyRecorder from "./components/settings/ui/SHotkeyRecorder.vue";
 import SSlider from "./components/settings/ui/SSlider.vue";
 import SToggle from "./components/settings/ui/SToggle.vue";
 
-type VisualScenarioId = "settings-ui-overview" | "settings-ui-dropdown-open" | "settings-ui-slider";
+type VisualScenarioId =
+  | "settings-ui-overview"
+  | "settings-ui-dropdown-open"
+  | "settings-ui-slider"
+  | "settings-ui-hotkey-recorder";
 
 function normalizeScenario(hash: string): VisualScenarioId {
   const normalized = hash.replace(/^#/, "");
@@ -16,12 +21,16 @@ function normalizeScenario(hash: string): VisualScenarioId {
   if (normalized === "settings-ui-slider") {
     return "settings-ui-slider";
   }
+  if (normalized === "settings-ui-hotkey-recorder") {
+    return "settings-ui-hotkey-recorder";
+  }
   return "settings-ui-overview";
 }
 
 const scenario = computed<VisualScenarioId>(() => normalizeScenario(window.location.hash));
 
 const dropdownOpenHost = ref<HTMLElement | null>(null);
+const hotkeyRecorderHost = ref<HTMLElement | null>(null);
 const sliderValue = ref(0.72);
 
 const segmentItems = [
@@ -49,12 +58,20 @@ function onSliderValueUpdate(value: number) {
  * - 这里用一次程序化 click 触发内部 open 状态，覆盖交互态样式（hover/focus/selected）。
  */
 onMounted(async () => {
-  if (scenario.value !== "settings-ui-dropdown-open") {
+  if (scenario.value !== "settings-ui-dropdown-open" && scenario.value !== "settings-ui-hotkey-recorder") {
     return;
   }
 
   await nextTick();
-  const trigger = dropdownOpenHost.value?.querySelector<HTMLButtonElement>(".s-dropdown__trigger");
+  if (scenario.value === "settings-ui-dropdown-open") {
+    const trigger = dropdownOpenHost.value?.querySelector<HTMLButtonElement>(".s-dropdown__trigger");
+    trigger?.click();
+    return;
+  }
+
+  const trigger = hotkeyRecorderHost.value?.querySelector<HTMLButtonElement>(
+    ".visual-hotkey-recorder__recording .s-hotkey-recorder"
+  );
   trigger?.click();
 });
 </script>
@@ -144,6 +161,41 @@ onMounted(async () => {
                 :format-value="formatSliderValue"
                 @update:model-value="onSliderValueUpdate"
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-else-if="scenario === 'settings-ui-hotkey-recorder'" class="grid gap-8">
+        <div class="grid gap-3">
+          <h2 class="text-[13px] font-semibold text-[var(--ui-text)]">SHotkeyRecorder</h2>
+          <p class="text-[12.5px] leading-snug text-[var(--ui-subtle)]">
+            覆盖：空态/录制态/冲突态、kbd 渲染、ring 与边框色。
+          </p>
+          <div
+            ref="hotkeyRecorderHost"
+            class="grid gap-4 rounded-[14px] border border-[var(--ui-border)] bg-[var(--ui-bg-deep)] p-4"
+          >
+            <div class="grid gap-2">
+              <p class="text-[12.5px] text-[var(--ui-subtle)]">Empty</p>
+              <SHotkeyRecorder model-value="" label="切换焦点区域" />
+            </div>
+
+            <div class="grid gap-2">
+              <p class="text-[12.5px] text-[var(--ui-subtle)]">Default</p>
+              <SHotkeyRecorder model-value="Ctrl+K" label="唤起窗口" />
+            </div>
+
+            <div class="grid gap-2">
+              <p class="text-[12.5px] text-[var(--ui-subtle)]">Conflict</p>
+              <SHotkeyRecorder model-value="Ctrl+K" label="唤起窗口" conflict="与「切换焦点区域」冲突" />
+            </div>
+
+            <div class="grid gap-2">
+              <p class="text-[12.5px] text-[var(--ui-subtle)]">Recording（programmatic）</p>
+              <div class="visual-hotkey-recorder__recording">
+                <SHotkeyRecorder model-value="Alt+V" label="唤起窗口" />
+              </div>
             </div>
           </div>
         </div>
