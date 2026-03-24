@@ -3,9 +3,14 @@
  * - preflight 已禁用：`@tailwind base` 不会注入 reset，避免视觉回归。
  * - 该文件在 `src/styles/index.css` 末尾引入，迁移期尽量降低层叠冲突风险。
  */
+@source "../../index.html";
+@source "../../settings.html";
+@source "../../visual.html";
+@source "../**/*.{vue,ts}";
+
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities source(none);
 
 @layer utilities {
   /* 自定义 utilities：用 ui tokens 驱动圆角（避免依赖某些默认 rounded-* 产物）。 */
