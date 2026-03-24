@@ -18,24 +18,24 @@ describe("settings topbar navigation style contract", () => {
   it("uses rectangular topbar tabs with explicit group spacing", () => {
     const component = readProjectFile("src/components/settings/ui/SSegmentNav.vue");
 
-    expect(component).toMatch(/\.s-segment-nav\s*\{[\s\S]*gap:\s*10px;[\s\S]*padding:\s*8px 0 10px;/);
-    expect(component).toMatch(/\.s-segment-nav__tab\s*\{[\s\S]*border-radius:\s*10px;/);
+    expect(component).toContain('class="s-segment-nav');
+    expect(component).toContain("gap-[10px]");
+    expect(component).toContain("pt-[8px]");
+    expect(component).toContain("pb-[10px]");
+    expect(component).toContain("rounded-[10px]");
   });
 
   it("keeps the default tab state frameless and uses background only for hover or active emphasis", () => {
     const component = readProjectFile("src/components/settings/ui/SSegmentNav.vue");
-    const hoverBlock =
-      component.match(/\.s-segment-nav__tab:hover\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
-    const activeBlock =
-      component.match(/\.s-segment-nav__tab--active\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
 
-    expect(component).toMatch(
-      /\.s-segment-nav__tab\s*\{[\s\S]*border:\s*1px solid transparent;[\s\S]*background:\s*transparent;/
-    );
-    expect(hoverBlock).toContain("background: rgba(255, 255, 255, 0.04);");
-    expect(hoverBlock).not.toContain("border-color:");
-    expect(activeBlock).toContain("background: rgba(255, 255, 255, 0.09);");
-    expect(activeBlock).not.toContain("border-color:");
-    expect(activeBlock).not.toContain("box-shadow:");
+    expect(component).toContain("border border-transparent bg-transparent");
+    expect(component).toContain("text-[color:var(--ui-settings-segment-tab-text)]");
+    expect(component).toContain("hover:bg-[var(--ui-settings-table-row-hover)]");
+    expect(component).toContain("hover:text-[color:var(--ui-settings-segment-tab-text-hover)]");
+    expect(component).toContain("bg-[var(--ui-settings-segment-tab-active-bg)]");
+    expect(component).toContain("text-[color:var(--ui-settings-segment-tab-text-active)]");
+    expect(component).toContain("focus-visible:shadow-[0_0_0_2px_var(--ui-brand-soft)]");
+
+    expect(component).not.toMatch(/rgba\(\s*255\s*,\s*255\s*,\s*255\s*,/);
   });
 });

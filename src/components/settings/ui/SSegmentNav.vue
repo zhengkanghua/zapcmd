@@ -46,7 +46,12 @@ function onKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <nav class="s-segment-nav" role="tablist" aria-label="Settings sections" @keydown="onKeydown">
+  <nav
+    class="s-segment-nav flex justify-center gap-[10px] w-fit max-w-[min(100%,720px)] mx-auto pt-[8px] pb-[10px]"
+    role="tablist"
+    aria-label="Settings sections"
+    @keydown="onKeydown"
+  >
     <button
       v-for="item in items"
       :key="item.id"
@@ -54,70 +59,17 @@ function onKeydown(e: KeyboardEvent) {
       type="button"
       :class="[
         's-segment-nav__tab',
-        { 's-segment-nav__tab--active': modelValue === item.id }
+        'flex items-center gap-[7px] min-h-[34px] px-[16px] py-[8px] rounded-[10px] border border-transparent bg-transparent cursor-pointer whitespace-nowrap text-[13px] font-medium text-[color:var(--ui-settings-segment-tab-text)] hover:bg-[var(--ui-settings-table-row-hover)] hover:text-[color:var(--ui-settings-segment-tab-text-hover)] transition-[color,background-color] duration-[130ms] focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_var(--ui-brand-soft)]',
+        modelValue === item.id
+          ? 's-segment-nav__tab--active bg-[var(--ui-settings-segment-tab-active-bg)] text-[color:var(--ui-settings-segment-tab-text-active)] font-semibold'
+          : ''
       ]"
       :aria-selected="modelValue === item.id"
       :tabindex="modelValue === item.id ? 0 : -1"
       @click="emit('update:modelValue', item.id)"
     >
-      <span class="s-segment-nav__icon">{{ item.icon }}</span>
-      <span class="s-segment-nav__label">{{ item.label }}</span>
+      <span class="s-segment-nav__icon text-[15px] leading-none">{{ item.icon }}</span>
+      <span class="s-segment-nav__label text-[13px]">{{ item.label }}</span>
     </button>
   </nav>
 </template>
-
-<style scoped>
-.s-segment-nav {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  width: fit-content;
-  max-width: min(100%, 720px);
-  margin: 0 auto;
-  padding: 8px 0 10px;
-}
-
-.s-segment-nav__tab {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 34px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.56);
-  font-size: 13px;
-  font-weight: 500;
-  transition:
-    color 130ms ease,
-    background-color 130ms ease;
-  white-space: nowrap;
-}
-
-.s-segment-nav__tab:hover {
-  color: rgba(255, 255, 255, 0.82);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.s-segment-nav__tab--active {
-  background: rgba(255, 255, 255, 0.09);
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 600;
-}
-
-.s-segment-nav__tab:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--ui-brand-soft);
-}
-
-.s-segment-nav__icon {
-  font-size: 15px;
-  line-height: 1;
-}
-
-.s-segment-nav__label {
-  font-size: 13px;
-}
-</style>
