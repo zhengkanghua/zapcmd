@@ -35,7 +35,9 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
         <div class="settings-hotkeys-row__label">
           <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
-        <div class="settings-hotkeys-row__recorder">
+        <div
+          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field__label]:sr-only [&_.s-hotkey-recorder-field__conflict]:justify-start"
+        >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
             :label="t(`settings.hotkeys.fields.${field.id}`)"
@@ -60,7 +62,9 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
         <div class="settings-hotkeys-row__label">
           <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
-        <div class="settings-hotkeys-row__recorder">
+        <div
+          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field__label]:sr-only [&_.s-hotkey-recorder-field__conflict]:justify-start"
+        >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
             :label="t(`settings.hotkeys.fields.${field.id}`)"
@@ -85,7 +89,9 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
         <div class="settings-hotkeys-row__label">
           <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
-        <div class="settings-hotkeys-row__recorder">
+        <div
+          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field__label]:sr-only [&_.s-hotkey-recorder-field__conflict]:justify-start"
+        >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
             :label="t(`settings.hotkeys.fields.${field.id}`)"
@@ -97,30 +103,3 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
     </div>
   </section>
 </template>
-
-<style scoped>
-.settings-hotkeys-row__recorder :deep(.s-hotkey-recorder-field) {
-  width: auto;
-  max-width: 100%;
-}
-
-.settings-hotkeys-row__recorder :deep(.s-hotkey-recorder-field__label) {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-.settings-hotkeys-row__recorder {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.settings-hotkeys-row__recorder :deep(.s-hotkey-recorder-field__conflict) {
-  justify-content: flex-start;
-}
-</style>
