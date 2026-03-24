@@ -36,7 +36,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
           <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div
-          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field__label]:sr-only [&_.s-hotkey-recorder-field__conflict]:justify-start"
+          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field\\_\\_label]:sr-only [&_.s-hotkey-recorder-field\\_\\_conflict]:justify-start"
         >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
@@ -63,7 +63,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
           <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div
-          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field__label]:sr-only [&_.s-hotkey-recorder-field__conflict]:justify-start"
+          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field\\_\\_label]:sr-only [&_.s-hotkey-recorder-field\\_\\_conflict]:justify-start"
         >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
@@ -90,7 +90,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
           <span class="settings-card__label">{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div
-          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field__label]:sr-only [&_.s-hotkey-recorder-field__conflict]:justify-start"
+          class="settings-hotkeys-row__recorder flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field\\_\\_label]:sr-only [&_.s-hotkey-recorder-field\\_\\_conflict]:justify-start"
         >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
