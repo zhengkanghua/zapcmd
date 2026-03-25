@@ -89,7 +89,9 @@ function onSubmit(): void {
 </script>
 
 <template>
-  <section class="command-panel">
+  <section
+    class="command-panel grid grid-rows-[auto_minmax(0,1fr)_auto] h-full max-h-[var(--launcher-panel-max-height)] min-h-0 bg-transparent overflow-hidden"
+  >
     <header class="command-panel__header" data-tauri-drag-region>
       <div class="command-panel__header-main" data-tauri-drag-region>
         <button

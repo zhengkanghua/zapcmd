@@ -143,7 +143,10 @@ function onNavAfterEnter(): void {
 </script>
 
 <template>
-  <main class="launcher-root" @pointerdown.capture="onRootPointerDown">
+  <main
+    class="launcher-root w-full h-full px-[var(--shell-side-pad)] grid place-items-[start_center] text-[var(--ui-text)] select-none bg-transparent"
+    @pointerdown.capture="onRootPointerDown"
+  >
     <div
       :ref="props.setSearchShellRef"
       class="search-shell"
