@@ -47,33 +47,68 @@ const stagingHintText = computed(() => {
 <template>
   <aside
     :ref="props.setStagingPanelRef"
-    class="staging-panel"
+    class="staging-panel col-start-2 row-start-2 relative w-full min-w-0 p-[10px] grid gap-[8px] rounded-[var(--ui-radius)] border border-[var(--ui-border)] bg-[var(--ui-bg)] shadow-[var(--ui-shadow)]"
     data-hit-zone="interactive"
-    :class="`staging-panel--${props.stagingDrawerState}`"
+    :class="[
+      `staging-panel--${props.stagingDrawerState}`,
+      props.stagingDrawerState === 'opening'
+        ? 'animate-[staging-panel-enter_300ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]'
+        : '',
+      props.stagingDrawerState === 'closing'
+        ? 'pointer-events-none animate-[staging-panel-exit_200ms_ease-in_both]'
+        : '',
+      props.stagingDrawerState === 'closed' ? 'hidden' : ''
+    ]"
     aria-label="floating-staging"
   >
     <button
       type="button"
-      class="staging-chip"
-      :class="{ 'staging-chip--active': props.stagingExpanded }"
+      class="staging-chip w-full min-h-[62px] grid justify-items-center content-center gap-[6px] border border-[var(--ui-border)] rounded-[var(--ui-radius)] bg-[var(--ui-bg)] shadow-[inset_0_1px_0_rgba(var(--ui-text-rgb),0.04)] text-[var(--ui-text)] cursor-pointer focus-visible:outline-none focus-visible:border-[rgba(var(--ui-brand-rgb),0.54)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
+      :class="{
+        'staging-chip--active border-[rgba(var(--ui-brand-rgb),0.48)] bg-[linear-gradient(180deg,rgba(var(--ui-brand-rgb),0.22),var(--ui-bg))]':
+          props.stagingExpanded
+      }"
       :aria-expanded="props.stagingExpanded"
       :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommands.length })"
       @click="emit('toggle-staging')"
     >
-      <span class="staging-chip__icon" aria-hidden="true"></span>
-      <span class="staging-chip__count">{{ props.stagedCommands.length }}</span>
+      <span
+        class="staging-chip__icon w-[16px] h-[12px] border border-[rgba(var(--ui-text-rgb),0.28)] rounded-[4px] relative"
+        aria-hidden="true"
+      >
+        <span
+          class="staging-chip__icon-bar absolute left-[2px] right-[2px] bottom-[-4px] h-[2px] rounded-[2px] bg-[rgba(var(--ui-text-rgb),0.25)]"
+          aria-hidden="true"
+        ></span>
+      </span>
+      <span
+        class="staging-chip__count inline-flex items-center justify-center min-w-[24px] h-[18px] px-[6px] rounded-full border border-[rgba(var(--ui-text-rgb),0.16)] bg-[rgba(var(--ui-text-rgb),0.08)] text-[var(--ui-subtle)] text-[11px] font-semibold"
+      >
+        {{ props.stagedCommands.length }}
+      </span>
     </button>
 
     <template v-if="props.stagingExpanded">
-      <header class="staging-panel__header" data-hit-zone="drag" data-tauri-drag-region>
-        <h2>{{ t("launcher.queueTitle", { count: props.stagedCommands.length }) }}</h2>
-        <span v-if="stagingHintText" class="staging-panel__hint">{{ stagingHintText }}</span>
+      <header
+        class="staging-panel__header flex items-center justify-between gap-[8px]"
+        data-hit-zone="drag"
+        data-tauri-drag-region
+      >
+        <h2 class="m-0 text-[13px]">{{ t("launcher.queueTitle", { count: props.stagedCommands.length }) }}</h2>
+        <span v-if="stagingHintText" class="staging-panel__hint text-[11px] text-[var(--ui-subtle)]">
+          {{ stagingHintText }}
+        </span>
       </header>
-      <p v-if="props.stagedCommands.length === 0" class="staging-empty">{{ t("launcher.queueEmpty") }}</p>
+      <p
+        v-if="props.stagedCommands.length === 0"
+        class="staging-empty m-0 p-[12px_10px] border border-dashed border-[rgba(var(--ui-text-rgb),0.16)] rounded-[8px] text-[var(--ui-subtle)] text-[12px]"
+      >
+        {{ t("launcher.queueEmpty") }}
+      </p>
       <ul
         v-else
         :ref="props.setStagingListRef"
-        class="staging-list"
+        class="staging-list m-0 p-0 pr-[2px] list-none flex flex-col gap-[8px] overflow-y-auto"
       >
         <li
           v-for="(cmd, index) in props.stagedCommands"
@@ -86,11 +121,16 @@ const stagingHintText = computed(() => {
           @click="emit('focus-staging-index', index)"
         >
           <article
-            class="staging-card"
-            :class="{ 'staging-card--active': props.focusZone === 'staging' && index === props.stagingActiveIndex }"
+            class="staging-card border border-[rgba(var(--ui-text-rgb),0.08)] rounded-[10px] bg-[rgba(var(--ui-black-rgb),0.17)] p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
+            :class="{
+              'staging-card--active border-[rgba(var(--ui-brand-rgb),0.52)] shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.2)]':
+                props.focusZone === 'staging' && index === props.stagingActiveIndex
+            }"
           >
-            <header class="staging-card__head">
-              <h3>{{ cmd.title }}</h3>
+            <header class="staging-card__head flex items-center justify-between gap-[8px] w-full">
+              <h3 class="m-0 text-[12px] overflow-hidden text-ellipsis whitespace-nowrap">
+                {{ cmd.title }}
+              </h3>
               <UiButton
                 variant="danger"
                 size="small"
@@ -99,23 +139,38 @@ const stagingHintText = computed(() => {
                 {{ t("common.remove") }}
               </UiButton>
             </header>
-            <div v-if="cmd.args.length > 0" class="staging-card__args">
-              <div v-for="arg in cmd.args" :key="`${cmd.id}-${arg.key}`" class="staging-card__arg">
-                <label>{{ arg.label }}</label>
+            <div
+              v-if="cmd.args.length > 0"
+              class="staging-card__args flex flex-wrap gap-x-[12px] gap-y-[6px] bg-[rgba(var(--ui-text-rgb),0.02)] p-[6px_8px] border border-[rgba(var(--ui-text-rgb),0.04)] rounded-[6px]"
+            >
+              <div
+                v-for="arg in cmd.args"
+                :key="`${cmd.id}-${arg.key}`"
+                class="staging-card__arg flex items-center gap-[6px] flex-[1_1_120px] min-w-0"
+              >
+                <label class="text-[11px] text-[var(--ui-subtle)] whitespace-nowrap">
+                  {{ arg.label }}
+                </label>
                 <input
                   type="text"
                   :value="cmd.argValues[arg.key] ?? ''"
                   :placeholder="arg.placeholder"
                   autocomplete="off"
+                  class="h-[24px] px-[6px] border border-[var(--ui-border)] rounded-[6px] bg-[rgba(var(--ui-text-rgb),0.04)] text-[var(--ui-text)] text-[11px] outline-none flex-1 min-w-0 focus-visible:border-[rgba(var(--ui-brand-rgb),0.56)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
                   @input="onStagingArgInput(cmd.id, arg.key, $event)"
                 />
               </div>
             </div>
-            <code :title="cmd.renderedCommand">{{ cmd.renderedCommand }}</code>
+            <code
+              :title="cmd.renderedCommand"
+              class="block [font-family:var(--ui-font-mono)] text-[11px] text-[var(--ui-subtle)] whitespace-nowrap overflow-hidden text-ellipsis mt-[2px]"
+            >
+              {{ cmd.renderedCommand }}
+            </code>
           </article>
         </li>
       </ul>
-      <footer class="staging-panel__footer">
+      <footer class="staging-panel__footer flex items-center justify-between gap-[8px]">
         <UiButton variant="muted" @click="emit('clear-staging')">
           {{ t("common.clear") }}
         </UiButton>
