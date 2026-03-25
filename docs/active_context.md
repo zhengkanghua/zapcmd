@@ -15,6 +15,7 @@
 - Phase 4 进展（2026-03-24）：Settings reuse-policy、SToggle、SSegmentNav（含样式契约）Tailwind 化，SSlider Hybrid 完成；视觉回归新增 slider 场景，`check:all` + `test:visual:ui` 全绿。
 - 补充（2026-03-24）：SHotkeyRecorder+3个Settings section 去 scoped 并 Tailwind 化；visual 新增 `settings-ui-hotkey-recorder`（Windows 待补 baseline）；限定 Tailwind 扫描源后 LightningCSS warning 已消失；Linux Rust 依赖走本地 sysroot。
 - 补充（2026-03-24）：Windows 已生成并提交 `settings-ui-hotkey-recorder` baseline，并同步更新 `settings-ui-overview`/`settings-ui-slider` baseline。
+- 补充（2026-03-25）：新增“全量 Tailwind 化（极简 CSS 例外）”设计稿与 Phase 6 计划：清理 `shared/settings/launcher/animations`，最终只保留 `reset/themes/tokens/tailwind/index`。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
