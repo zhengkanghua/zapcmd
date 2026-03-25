@@ -73,22 +73,33 @@ function onDialogKeydown(event: KeyboardEvent): void {
 <template>
   <aside
     v-if="props.safetyDialog"
-    class="param-overlay safety-overlay"
+    class="param-overlay safety-overlay absolute left-0 right-0 top-[var(--ui-top-align-offset)] bottom-[12px] z-[40] grid place-items-center rounded-b-[var(--ui-radius)] bg-[rgba(var(--ui-black-rgb),0.38)] animate-[fade-in_200ms_ease-out_both]"
     data-hit-zone="overlay"
     role="dialog"
     aria-modal="true"
     :aria-label="t('launcher.safetyDialogAria')"
     @click.self="emit('cancel-safety-execution')"
   >
-    <section ref="dialogRef" class="param-dialog safety-dialog" @keydown="onDialogKeydown">
-      <h2>{{ props.safetyDialog.title }}</h2>
-      <p>{{ props.safetyDialog.description }}</p>
+    <section
+      ref="dialogRef"
+      class="param-dialog safety-dialog w-[min(680px,calc(100vw-24px))] max-h-[min(78vh,640px)] overflow-auto p-[16px] grid gap-[12px] bg-[rgba(var(--ui-bg-rgb),0.92)] backdrop-blur-[20px] animate-[dialog-scale-in_300ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]"
+      @keydown="onDialogKeydown"
+    >
+      <h2 class="m-0 text-[16px]">{{ props.safetyDialog.title }}</h2>
+      <p class="m-0 text-[13px] text-[var(--ui-subtle)]">{{ props.safetyDialog.description }}</p>
 
-      <ul class="safety-list">
-        <li v-for="(item, index) in props.safetyDialog.items" :key="`safety-${index}-${item.title}`">
-          <h3>{{ item.title }}</h3>
-          <code>{{ item.renderedCommand }}</code>
-          <ul class="safety-reasons">
+      <ul class="safety-list m-0 p-0 list-none grid gap-[10px]">
+        <li
+          v-for="(item, index) in props.safetyDialog.items"
+          :key="`safety-${index}-${item.title}`"
+          class="border border-[rgba(var(--ui-text-rgb),0.1)] rounded-[8px] p-[8px_10px] bg-[rgba(var(--ui-black-rgb),0.16)] grid gap-[6px]"
+        >
+          <h3 class="m-0 text-[13px] font-semibold">{{ item.title }}</h3>
+          <code
+            class="block [font-family:var(--ui-font-mono)] text-[12px] whitespace-pre-wrap break-words text-[var(--ui-subtle)]"
+            >{{ item.renderedCommand }}</code
+          >
+          <ul class="safety-reasons m-0 pl-[16px] grid gap-[4px] text-[12px] text-[var(--ui-danger)]">
             <li v-for="(reason, reasonIndex) in item.reasons" :key="`reason-${reasonIndex}`">
               {{ reason }}
             </li>
@@ -96,7 +107,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
         </li>
       </ul>
 
-      <footer>
+      <footer class="flex justify-end items-center gap-[8px]">
         <UiButton
           ref="cancelButtonRef"
           variant="muted"
