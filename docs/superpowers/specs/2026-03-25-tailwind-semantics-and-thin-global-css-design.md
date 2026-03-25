@@ -77,23 +77,47 @@
 
 #### 3.1.2 迁移范围
 
-把 `src/styles/tailwind.css` 中下列 keyframes 迁到 `tailwind.config.cjs`：
+迁移前必须先做一次 **使用清单（inventory）**，避免把“未使用/遗留”的 keyframes 搬进 config 导致膨胀：
+
+- 先用 `rg -n "animate-\\[" src` 列出模板侧所有 `animate-[...]` 实际引用。
+- 再用 `rg -n "@keyframes" src/styles/tailwind.css` 列出 `tailwind.css` 当前 keyframes 定义。
+- 对“计划删除的 keyframes 名称”额外做一次全仓检索（例如 `rg -n "<keyframe-name>" src`），避免遗漏非 `animate-[...]` 的引用路径。
+- **只迁移“被引用”的 keyframes**；未被引用的 keyframes 视为疑似 dead code：不迁移到 config，优先在同一批次中删除（以门禁验证无回归）。
+
+本批次的目标是：**`tailwind.css` 不再持有任何 `@keyframes`**（全部由 `tailwind.config.cjs` 生成，或被确认未使用并删除）。
+
+把 `src/styles/tailwind.css` 中“被引用”的 keyframes 迁到 `tailwind.config.cjs`（见下表）：
 
 - `toast-slide-down`
 - `staged-feedback`
-- `flow-drawer-*`（scrim/panel in/out）
 - `review-overlay-*`（scrim/panel in/out）
 - `staging-panel-enter / staging-panel-exit`
 - `fade-in`
 - `dialog-scale-in`
-- `filters-expand / filters-collapse`
-- `toast-auto-dismiss`
 
-并在 config 中为每个 keyframe 定义对应 `animation` 名称（统一 `both`，并固化时长/缓动），模板使用：
+并在 config 中为每个 **“使用变体”（duration/easing/fill-mode）** 定义对应 `animation` 名称，模板改用具名 class：
 
-- `animate-toast-slide-down`
-- `animate-staged-feedback`
-- `animate-review-overlay-scrim-in` / `animate-review-overlay-panel-in` …
+- 新 class 命名约定：`animate-launcher-<keyframe-or-scenario>`（为未来 Settings/其他窗口预留命名空间）。
+
+**零差异硬约束（必须）**：
+
+- 每个 `animation` 的 `duration/easing/fill-mode` 必须与当前 `animate-[...]` 完全一致。  
+- 如果同一个 keyframe 在代码中存在多组参数：必须拆成多个语义 animation 名称，**禁止**为了“统一”而改动参数（例如强行补 `both`）。
+
+#### 3.1.2.1 动画迁移对照表（基于当前代码实际引用）
+
+> 说明：该表是 Phase A 的执行基线；实现时以 `rg -n "animate-\\[" src` 的结果为准更新。
+
+| 场景 | 当前引用位置 | 现有 `animate-[...]` | 参数（保持不变） | 新语义 class（建议） | reduced-motion（建议） | 验证 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 执行反馈 Toast 下滑 | `src/components/launcher/parts/LauncherCommandPanel.vue`、`LauncherSearchPanel.vue`、`LauncherFlowPanel.vue` | `animate-[toast-slide-down_350ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]` | `350ms` + `cubic-bezier(0.175,0.885,0.32,1.15)` + `both` | `animate-launcher-toast-slide-down` | `motion-reduce:animate-none` | `npm run test:flow:launcher` |
+| 搜索结果 staged feedback | `src/components/launcher/parts/LauncherSearchPanel.vue` | `animate-[staged-feedback_220ms_ease]` | `220ms` + `ease` + **无 fill-mode** | `animate-launcher-staged-feedback` | `motion-reduce:animate-none` | `npm run test:flow:launcher` |
+| StagingPanel 入场 | `src/components/launcher/parts/LauncherStagingPanel.vue` | `animate-[staging-panel-enter_300ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]` | `300ms` + `cubic-bezier(0.175,0.885,0.32,1.15)` + `both` | `animate-launcher-staging-panel-enter` | `motion-reduce:animate-none` | `npm run test:contract:styles` |
+| StagingPanel 退场 | `src/components/launcher/parts/LauncherStagingPanel.vue` | `animate-[staging-panel-exit_200ms_ease-in_both]` | `200ms` + `ease-in` + `both` | `animate-launcher-staging-panel-exit` | `motion-reduce:animate-none` | `npm run test:contract:styles` |
+| SafetyOverlay 遮罩淡入 | `src/components/launcher/parts/LauncherSafetyOverlay.vue` | `animate-[fade-in_200ms_ease-out_both]` | `200ms` + `ease-out` + `both` | `animate-launcher-fade-in` | `motion-reduce:animate-none` | `npm run test:flow:launcher` |
+| SafetyDialog 弹窗缩放进入 | `src/components/launcher/parts/LauncherSafetyOverlay.vue` | `animate-[dialog-scale-in_300ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]` | `300ms` + `cubic-bezier(0.175,0.885,0.32,1.15)` + `both` | `animate-launcher-dialog-scale-in` | `motion-reduce:animate-none` | `npm run test:flow:launcher` |
+| ReviewOverlay scrim in/out | `src/components/launcher/parts/LauncherFlowPanel.vue` | `animate-[review-overlay-scrim-in_200ms_ease-out_both]` / `animate-[review-overlay-scrim-out_200ms_ease-in_both]` | `200ms` + `ease-out/ease-in` + `both` | `animate-launcher-review-overlay-scrim-in` / `animate-launcher-review-overlay-scrim-out` | `motion-reduce:animate-none` | `npm run test:flow:launcher` |
+| ReviewOverlay panel in/out | `src/components/launcher/parts/LauncherFlowPanel.vue` | `animate-[review-overlay-panel-in_300ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]` / `animate-[review-overlay-panel-out_200ms_ease-in_both]` | `300ms/200ms` + `cubic-bezier/ease-in` + `both` | `animate-launcher-review-overlay-panel-in` / `animate-launcher-review-overlay-panel-out` | `motion-reduce:animate-none` | `npm run test:flow:launcher` |
 
 #### 3.1.3 reduced-motion 策略
 
@@ -103,7 +127,10 @@
 #### 3.1.4 验收口径
 
 - `src/**` 中不再出现 `animate-[`（grep 为 0）。
-- `src/styles/tailwind.css` 不再包含上述 `@keyframes` 定义（只保留 Tailwind 指令与少量全局行为/工具类）。
+- `src/styles/tailwind.css` 不再包含任何 `@keyframes` 定义（只保留 Tailwind 指令与少量全局行为/工具类）。
+- 建议加入可量化门禁：
+  - `rg "animate-\\[" src` 结果为 0
+  - `rg "@keyframes" src/styles/tailwind.css` 结果为 0
 
 ---
 
@@ -112,16 +139,38 @@
 当前 `LauncherWindow` 使用 `<Transition name="nav-slide">`，因此必须在全局 CSS 中保留 `.nav-slide-*`。  
 改为显式 class：
 
-- `enter-active-class`
-- `enter-from-class`
-- `leave-active-class`
-- `leave-to-class`
+- `enter-active-class` / `enter-from-class` / `enter-to-class`
+- `leave-active-class` / `leave-from-class` / `leave-to-class`
 
-并在模板直接加入 `motion-reduce:transition-none`，从而删掉 `tailwind.css` 中 `.nav-slide-*` 与其 reduced-motion 分支。
+#### 3.2.1 零差异参数约束（必须）
+
+现有 CSS 的零差异口径如下（来自 `src/styles/tailwind.css`）：
+
+- enter：`transition: transform 250ms cubic-bezier(0.175,0.885,0.32,1.15)`
+- leave：`transition: transform 200ms ease-in`
+- enter-from / leave-to：`transform: translateX(100%)`
+
+#### 3.2.2 落地方式（定案：扩展 Tailwind config，避免 arbitrary）
+
+为避免再次引入 `duration-[250ms]`/`ease-[cubic-bezier(...)]` 的 arbitrary，建议在 `tailwind.config.cjs` 扩展：
+
+- `theme.extend.transitionDuration`：补齐 `250: "250ms"`（`duration-250`）
+- `theme.extend.transitionTimingFunction`：补齐 `nav-slide: "cubic-bezier(0.175,0.885,0.32,1.15)"`（`ease-nav-slide`）
+
+然后在 `LauncherWindow` 的 `<Transition>` 上显式声明 6 个 class，并在 active-class 中加入 reduced-motion 兜底（建议写入 `enter-active-class/leave-active-class`）：
+
+- enter active：`transition-transform duration-250 ease-nav-slide motion-reduce:transition-none`
+- enter from/to：`translate-x-full` → `translate-x-0`
+- leave active：`transition-transform duration-200 ease-in motion-reduce:transition-none`
+- leave from/to：`translate-x-0` → `translate-x-full`
+
+从而可以删掉 `tailwind.css` 中 `.nav-slide-*` 与其 reduced-motion 分支。
 
 验收口径：
 - `src/styles/tailwind.css` 中不再出现 `.nav-slide-*`。
 - Launcher 过渡仍保持零差异（以既有 flow/contract 门禁验证）。
+- 建议加入可量化门禁：
+  - `rg "nav-slide-" src/styles/tailwind.css` 结果为 0
 
 ---
 
@@ -137,13 +186,13 @@
 
 对高复用、且容易影响结构/滚动 contract 的 template，落到 `tailwind.config.cjs`：
 
-- `grid-rows-panel`：`auto minmax(0, 1fr) auto`（用于 CommandPanel/FlowPanel）
+- `grid-rows-launcher-panel`：`auto minmax(0, 1fr) auto`（用于 CommandPanel/FlowPanel）
 - `grid-rows-settings-window`：`52px minmax(0, 1fr)`（用于 SettingsWindow）
-- `grid-rows-panel-header`：`auto auto`（用于 panel header）
+- `grid-rows-launcher-panel-header`：`auto auto`（用于 panel header）
 - （可选）`grid-rows-launcher-shell`：`var(--ui-top-align-offset) auto`
 - （可选）`grid-cols-launcher-shell`：`var(--search-main-width) var(--staging-collapsed-width)`
 
-并同步更新 `src/styles/__tests__/launcher-style-contract.test.ts` 的 class contract 断言，使其从 `grid-rows-[...]` 转为 `grid-rows-panel` 等语义类。
+并同步更新 `src/styles/__tests__/launcher-style-contract.test.ts` 的 class contract 断言，使其从 `grid-rows-[...]` 转为 `grid-rows-launcher-panel` / `grid-rows-settings-window` 等语义类。
 
 验收口径：
 - 关键文件中 `grid-rows-[auto_minmax(0,1fr)_auto]` 等高噪音 arbitrary 减少/消失。
@@ -151,13 +200,34 @@
 
 ---
 
+### 3.4 `tailwind.css` 职责白名单与禁止项（DoD）
+
+为了避免 `tailwind.css` 再次膨胀为“新 shared.css”，定义其职责边界（以可验证为准）：
+
+#### 3.4.1 允许（Allowed）
+
+- Tailwind 入口与扫描声明（`@source` / `@tailwind`）。
+- **无法由模板 class 表达的全局行为选择器**：例如 `[data-tauri-drag-region]`（窗口拖拽行为）。
+- 极少量“工具类原语”（`@layer utilities`）：例如 `.scrollbar-none`、`.rounded-control` 等。
+
+#### 3.4.2 禁止（Banned，Phase A 完成后生效）
+
+- `@keyframes`（必须为 0；动画由 `tailwind.config.cjs` 生成或确认未使用并删除）。
+- 任何 `*.nav-slide-*` 或其他 Transition 选择器（Transition 一律用 `<Transition ...-class>` 落到模板）。
+
+#### 3.4.3 可量化检查（建议写入 Plan 的验证步骤）
+
+- `rg "@keyframes" src/styles/tailwind.css` 结果为 0
+- `rg "nav-slide-" src/styles/tailwind.css` 结果为 0
+- （可选）`rg "-enter-active|-leave-active|-enter-from|-leave-to" src/styles/tailwind.css` 结果为 0（或仅匹配白名单）
+
 ## 4. 风险与对策（Risks）
 
 1) **Tailwind 扫描漏抓（动态 class 拼接）**  
    - 对策：animation/layout 统一改成静态 class；保持 class 字符串字面量可被扫描。
 
 2) **配置膨胀**  
-   - 对策：只命名“高价值/高复用/契约关键”的模板与动画；不把所有 spacing/typography 都配置化。
+   - 对策：只迁移“被引用”的动画（inventory 约束）；只命名“高价值/高复用/契约关键”的模板与动画；不把所有 spacing/typography 都配置化。
 
 3) **reduced-motion 回归**  
    - 对策：将 `motion-reduce:*` 放到动画/过渡触发点；必要时保留最小全局兜底并写明原因。
@@ -174,10 +244,15 @@
    - `npm run test:visual:ui`（如涉及 Settings/视觉基线）  
 3) `src/styles/tailwind.css` 的职责进一步变薄（不包含可被 config/模板表达的大块 keyframes/过渡选择器）。
 
+建议补充“硬门禁”到 plan 的验证步骤（避免主观判断）：
+
+- `rg "animate-\\[" src` 为 0
+- `rg "@keyframes" src/styles/tailwind.css` 为 0
+- `rg "nav-slide-" src/styles/tailwind.css` 为 0
+
 ---
 
 ## 6. 下一步（Next）
 
 1) 基于本设计稿编写实现计划（Plan），按 **A（动画/Transition）→ B（布局）** 拆成可验证的小任务。  
 2) 每个任务完成后补充 `docs/active_context.md`（只追加 ≤200 字），并保留可回滚 checkpoint。
-
