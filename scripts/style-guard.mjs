@@ -4,6 +4,8 @@
  * 目标：
  * - 阻止硬编码色值回流（尤其是 UI 组件/业务代码里出现的 hex / rgb() / rgba() / hsl()）
  * - 阻止 Tailwind arbitrary hex color（例如 `text-[#fff]`）
+ * - 阻止窗口级 CSS 文件回流：`src/styles/index.css` 只能导入白名单样式入口
+ * - 阻止 Vue `<style>` 回流：除明确白名单外，禁止在 `.vue` 内新增 `<style>`
  *
  * 范围：
  * - 扫描 `src` 下 `.vue` 与 `.ts` 文件（排除 `__tests__` / `*.test.ts` 等测试文件）
@@ -19,9 +21,23 @@ import path from "node:path";
 const repoRoot = process.cwd();
 const scanRoot = path.join(repoRoot, "src");
 
+const styleIndexRelativePath = "src/styles/index.css";
+
 const excludedRelativePaths = new Set([
   // 主题定义层允许持有色值（最终会映射到 CSS Variables；UI 消费侧禁止硬编码）。
   "src/features/themes/themeRegistry.ts"
+]);
+
+const allowedStyleIndexImports = new Set([
+  "./reset.css",
+  "./themes/_index.css",
+  "./tokens.css",
+  "./tailwind.css"
+]);
+
+const allowedVueStyleBlockRelativePaths = new Set([
+  // `SSlider` 需要 pseudo-element 选择器（例如 range thumb/track），迁移期允许保留局部 `<style>`。
+  "src/components/settings/ui/SSlider.vue"
 ]);
 
 const excludedPathPatterns = [
@@ -128,6 +144,15 @@ function scanFile(filePath) {
     const line = lines[index] ?? "";
 
     if (isVueFile && /<style\b/i.test(line)) {
+      if (!allowedVueStyleBlockRelativePaths.has(relativePath)) {
+        violations.push({
+          file: relativePath,
+          line: lineNumber,
+          rule: "vue-style-block",
+          message: "禁止在 Vue 组件内使用 <style>（请用 Tailwind utilities/primitives 或集中到 tailwind.css）",
+          preview: line.trim()
+        });
+      }
       inVueStyleBlock = true;
     }
 
@@ -155,6 +180,39 @@ function scanFile(filePath) {
   return violations;
 }
 
+/**
+ * @returns {{file: string; line: number; rule: string; message: string; preview: string}[]}
+ */
+function scanStylesIndexImports() {
+  const absoluteIndexPath = path.join(repoRoot, "src", "styles", "index.css");
+  const content = readFileSync(absoluteIndexPath, "utf8");
+  const lines = content.split(/\r?\n/);
+
+  /** @type {{file: string; line: number; rule: string; message: string; preview: string}[]} */
+  const violations = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const lineNumber = index + 1;
+    const line = lines[index] ?? "";
+    const match = line.match(/@import\s+['"]([^'"]+)['"]\s*;/);
+    if (!match) {
+      continue;
+    }
+    const importPath = match[1] ?? "";
+    if (allowedStyleIndexImports.has(importPath)) {
+      continue;
+    }
+    violations.push({
+      file: styleIndexRelativePath,
+      line: lineNumber,
+      rule: "styles-index-import-whitelist",
+      message: "src/styles/index.css 只允许导入 reset/themes/tokens/tailwind 白名单文件",
+      preview: line.trim()
+    });
+  }
+
+  return violations;
+}
+
 function main() {
   const files = collectScanFiles(scanRoot).filter((file) => !isExcluded(file));
 
@@ -163,6 +221,7 @@ function main() {
   for (const file of files) {
     violations.push(...scanFile(file));
   }
+  violations.push(...scanStylesIndexImports());
 
   if (violations.length === 0) {
     console.log("[style-guard] OK");
