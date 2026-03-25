@@ -8,11 +8,13 @@ function readProjectFile(path: string): string {
 }
 
 describe("settings topbar navigation style contract", () => {
-  it("removes the topbar middle separator and keeps only the bottom divider", () => {
-    const css = readProjectFile("src/styles/settings.css");
+  it("renders a real topbar bottom divider (no pseudo-element dependency)", () => {
+    const component = readProjectFile("src/components/settings/SettingsWindow.vue");
 
-    expect(css).not.toContain(".settings-window-topbar::before");
-    expect(css).toContain(".settings-window-topbar::after");
+    expect(component).toContain("settings-window-topbar__divider");
+    expect(component).toContain("absolute");
+    expect(component).toContain("bottom-0");
+    expect(component).toContain("h-px");
   });
 
   it("uses rectangular topbar tabs with explicit group spacing", () => {

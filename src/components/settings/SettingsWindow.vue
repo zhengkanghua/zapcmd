@@ -48,15 +48,30 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <main class="settings-window-root">
-    <div class="settings-window-topbar">
+  <main
+    class="settings-window-root h-full min-h-0 grid grid-rows-[52px_minmax(0,1fr)] overflow-hidden text-[var(--ui-text)] bg-[radial-gradient(circle_at_top,rgba(var(--ui-text-rgb),0.035),transparent_48%),linear-gradient(180deg,rgba(var(--ui-text-rgb),0.02),transparent_28%),var(--ui-bg-deep)]"
+  >
+    <div
+      class="settings-window-topbar relative z-[var(--ui-settings-z-topbar)] h-[52px] flex items-end justify-center px-[24px] box-border bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.045),rgba(var(--ui-text-rgb),0.01)_42%,rgba(var(--ui-text-rgb),0))] backdrop-blur-[calc(var(--ui-blur)*0.24)]"
+    >
       <SSegmentNav :items="navItems" v-model="settingsRoute" />
+      <div
+        class="settings-window-topbar__divider pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[rgba(var(--ui-text-rgb),0.05)]"
+        aria-hidden="true"
+      />
     </div>
 
-    <div class="settings-content" aria-label="settings-content">
+    <div
+      class="settings-content min-h-0 h-full overflow-y-auto overscroll-contain w-full pb-[24px] box-border scrollbar-none"
+      aria-label="settings-content"
+    >
       <div
-        class="settings-content__inner"
-        :class="{ 'settings-content__inner--commands': settingsRoute === 'commands' }"
+        class="settings-content__inner box-border w-full mx-auto p-[24px_32px_32px]"
+        :class="
+          settingsRoute === 'commands'
+            ? ['settings-content__inner--commands', 'max-w-[1120px]']
+            : 'max-w-[720px]'
+        "
       >
         <SettingsHotkeysSection
           v-if="settingsRoute === 'hotkeys'"
