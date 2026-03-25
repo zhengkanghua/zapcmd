@@ -12,6 +12,28 @@
 @tailwind components;
 @tailwind utilities source(none);
 
+@layer base {
+  /* Tauri 窗口拖拽区域：保留选择器避免行为回归（从 shared.css 迁移）。 */
+  [data-tauri-drag-region] {
+    -webkit-app-region: drag;
+    app-region: drag;
+    cursor: move;
+    background-color: rgba(var(--ui-black-rgb), 0.001);
+  }
+
+  [data-tauri-drag-region] :is(button, input, textarea, select, a, [contenteditable="true"]) {
+    cursor: auto;
+  }
+
+  [data-tauri-drag-region] :is(input, textarea, [contenteditable="true"]) {
+    cursor: text;
+  }
+
+  [data-tauri-drag-region] :is(button, a, select) {
+    cursor: pointer;
+  }
+}
+
 @layer utilities {
   /* 自定义 utilities：用 ui tokens 驱动圆角（避免依赖某些默认 rounded-* 产物）。 */
   .rounded-ui {

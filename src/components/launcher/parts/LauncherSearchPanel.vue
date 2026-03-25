@@ -66,8 +66,12 @@ function onSearchInput(event: Event): void {
       <!-- search-capsule 内的 toast：仅在 FlowPanel 关闭时显示 -->
       <p
         v-if="props.executionFeedbackMessage && !props.reviewOpen"
-        class="execution-feedback execution-toast"
-        :class="`execution-feedback--${props.executionFeedbackTone}`"
+        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-[var(--ui-glass-bg)] shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-[toast-slide-down_350ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]"
+        :class="{
+          'execution-feedback--neutral text-[var(--ui-brand)]': props.executionFeedbackTone === 'neutral',
+          'execution-feedback--success text-[var(--ui-success)]': props.executionFeedbackTone === 'success',
+          'execution-feedback--error text-[var(--ui-danger)]': props.executionFeedbackTone === 'error'
+        }"
         role="status"
         aria-live="polite"
       >
@@ -86,13 +90,30 @@ function onSearchInput(event: Event): void {
         aria-label="result-drawer"
         data-testid="result-drawer"
       >
-        <p v-if="props.keyboardHints?.length" class="keyboard-hint">
-          <span v-for="(hint, index) in props.keyboardHints" :key="index" class="keyboard-hint__item">
-            <span class="keyboard-hint__keys">
-              <kbd v-for="key in hint.keys" :key="key">{{ key }}</kbd>
+        <p
+          v-if="props.keyboardHints?.length"
+          class="keyboard-hint m-0 min-h-[20px] flex flex-wrap items-center gap-[6px] p-[2px_6px_6px] text-[10px] font-medium tracking-[0.03em] text-[var(--ui-subtle)]"
+        >
+          <span
+            v-for="(hint, index) in props.keyboardHints"
+            :key="index"
+            class="keyboard-hint__item inline-flex items-center gap-[4px]"
+          >
+            <span class="keyboard-hint__keys inline-flex items-center gap-[2px]">
+              <kbd
+                v-for="key in hint.keys"
+                :key="key"
+                class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-[rgba(var(--ui-text-rgb),0.15)] [border-bottom-color:rgba(var(--ui-text-rgb),0.05)] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.1),rgba(var(--ui-text-rgb),0.04))] text-[10px] leading-[1] text-[var(--ui-subtle)] [font-family:var(--ui-font-mono)] shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
+              >
+                {{ key }}
+              </kbd>
             </span>
-            <span class="keyboard-hint__action">{{ hint.action }}</span>
-            <span v-if="index < props.keyboardHints.length - 1" class="keyboard-hint__sep">·</span>
+            <span class="keyboard-hint__action text-[var(--ui-dim)]">{{ hint.action }}</span>
+            <span
+              v-if="index < props.keyboardHints.length - 1"
+              class="keyboard-hint__sep ml-[2px] text-[rgba(var(--ui-text-rgb),0.15)]"
+              >·</span
+            >
           </span>
         </p>
         <ul v-if="props.filteredResults.length > 0" class="result-list">
@@ -134,10 +155,17 @@ function onSearchInput(event: Event): void {
             <span class="drawer-empty__title">{{ t("launcher.noResult") }}</span>
             <span class="drawer-empty__hint">{{ t("launcher.noResultHint") }}</span>
           </div>
-          <span class="keyboard-hint" style="padding: 0; min-height: auto;">
-            <span class="keyboard-hint__item">
-              <span class="keyboard-hint__keys"><kbd>Esc</kbd></span>
-              <span class="keyboard-hint__action">{{ t("common.cancel") }}</span>
+          <span
+            class="keyboard-hint m-0 min-h-0 flex flex-wrap items-center gap-[6px] p-0 text-[10px] font-medium tracking-[0.03em] text-[var(--ui-subtle)]"
+          >
+            <span class="keyboard-hint__item inline-flex items-center gap-[4px]">
+              <span class="keyboard-hint__keys inline-flex items-center gap-[2px]"
+                ><kbd
+                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-[rgba(var(--ui-text-rgb),0.15)] [border-bottom-color:rgba(var(--ui-text-rgb),0.05)] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.1),rgba(var(--ui-text-rgb),0.04))] text-[10px] leading-[1] text-[var(--ui-subtle)] [font-family:var(--ui-font-mono)] shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
+                  >Esc</kbd
+                ></span
+              >
+              <span class="keyboard-hint__action text-[var(--ui-dim)]">{{ t("common.cancel") }}</span>
             </span>
           </span>
         </div>

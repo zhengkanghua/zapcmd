@@ -7,8 +7,6 @@
 @import './themes/_index.css';
 /* 3. 语义变量映射 */
 @import './tokens.css';
-/* 4. 共享组件 */
-@import './shared.css';
 /* 5. 窗口样式 */
 @import './launcher.css';
 @import './settings.css';

@@ -16,7 +16,7 @@ const props = withDefaults(
 
 <template>
   <svg
-    class="launcher-icon"
+    class="launcher-icon block"
     :width="props.size"
     :height="props.size"
     viewBox="0 0 24 24"
@@ -72,4 +72,3 @@ const props = withDefaults(
     </g>
   </svg>
 </template>
-
