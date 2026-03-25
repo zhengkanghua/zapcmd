@@ -149,19 +149,22 @@ function onNavAfterEnter(): void {
   >
     <div
       :ref="props.setSearchShellRef"
-      class="search-shell"
+      class="search-shell w-max max-w-full mt-[var(--launcher-shell-margin-top)] pb-[var(--launcher-shell-breathing-bottom)] relative grid grid-cols-[var(--search-main-width)_var(--staging-collapsed-width)] grid-rows-[var(--ui-top-align-offset)_auto] gap-x-[var(--shell-gap)] justify-start justify-items-stretch items-start"
       :style="props.searchShellStyle"
       role="application"
       :aria-label="t('app.launcherAriaLabel')"
     >
       <div
-        class="shell-drag-strip"
+        class="shell-drag-strip col-span-full row-start-1 w-full min-h-[var(--ui-top-align-offset)] self-stretch justify-self-stretch"
         data-hit-zone="drag"
         data-tauri-drag-region
         aria-hidden="true"
       ></div>
 
-      <div class="launcher-frame" data-hit-zone="interactive">
+      <div
+        class="launcher-frame col-start-1 row-start-2 relative w-full min-w-0 h-[var(--launcher-frame-height,auto)] max-h-[var(--launcher-panel-max-height,none)] overflow-hidden rounded-[var(--ui-radius)] border border-[var(--ui-border)] shadow-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.04),transparent_60%),var(--ui-bg)]"
+        data-hit-zone="interactive"
+      >
         <Transition name="nav-slide" mode="out-in" @after-enter="onNavAfterEnter">
           <LauncherSearchPanel
             v-if="props.navCurrentPage.type === 'search'"
