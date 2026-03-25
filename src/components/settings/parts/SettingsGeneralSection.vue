@@ -86,7 +86,7 @@ function onTerminalReusePolicySelect(value: string): void {
 </script>
 
 <template>
-  <section class="settings-group settings-general" aria-label="settings-general">
+  <section class="settings-group settings-general grid gap-[24px]" aria-label="settings-general">
     <SettingSection :label="t('settings.general.sectionStartup')" heading-id="settings-general-startup">
       <SettingItem
         :label="t('settings.general.autoCheckUpdate')"
@@ -124,7 +124,7 @@ function onTerminalReusePolicySelect(value: string): void {
 
       <p
         v-if="props.terminalLoading"
-        class="settings-status settings-status--loading"
+        class="settings-status settings-status--loading mt-0 mx-[16px] mb-[12px] px-[12px] py-[9px] border border-[color:rgba(var(--ui-brand-rgb),0.25)] rounded-[8px] bg-[rgba(var(--ui-brand-rgb),0.08)] text-[12px] leading-[1.45] text-[var(--ui-brand)]"
         role="status"
         aria-live="polite"
       >
@@ -132,7 +132,10 @@ function onTerminalReusePolicySelect(value: string): void {
       </p>
 
       <SettingItem :label="t('settings.general.currentTerminalPath')">
-        <code class="settings-card__mono">{{ props.selectedTerminalPath }}</code>
+        <code
+          class="settings-card__mono [font-family:var(--ui-font-mono)] text-[11.5px] text-[rgba(var(--ui-text-rgb),0.68)] truncate max-w-[min(100%,460px)] bg-[rgba(var(--ui-text-rgb),0.05)] border border-[color:var(--ui-settings-row-border)] rounded-[6px] px-[8px] py-[3px]"
+          >{{ props.selectedTerminalPath }}</code
+        >
       </SettingItem>
 
       <SettingItem

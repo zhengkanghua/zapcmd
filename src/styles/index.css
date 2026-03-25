@@ -9,7 +9,6 @@
 @import './tokens.css';
 /* 5. 窗口样式 */
 @import './launcher.css';
-@import './settings.css';
 /* 6. 动画 */
 @import './animations.css';
 

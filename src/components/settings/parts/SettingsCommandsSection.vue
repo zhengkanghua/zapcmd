@@ -201,14 +201,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="settings-commands" aria-label="command-management">
+  <section class="settings-commands grid gap-[14px] content-start" aria-label="command-management">
     <div
-      class="settings-commands-toolbar settings-commands-toolbar--sticky settings-commands-toolbar--underlap"
+      class="settings-commands-toolbar settings-commands-toolbar--sticky settings-commands-toolbar--underlap relative grid gap-[12px] p-[14px] border border-[color:var(--ui-settings-card-border)] rounded-[18px] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.03),rgba(var(--ui-text-rgb),0)),var(--ui-settings-toolbar-sticky-bg)] shadow-[0_18px_40px_rgba(var(--ui-black-rgb),0.18)] overflow-visible sticky top-[-12px] z-[var(--ui-settings-z-toolbar)] backdrop-blur-[calc(var(--ui-blur)*0.7)]"
       aria-label="command-management-toolbar"
     >
-      <div class="settings-commands-toolbar__search-row">
+      <div class="settings-commands-toolbar__search-row min-w-0 grid gap-[10px]">
         <input
-          class="settings-commands-toolbar__search"
+          class="settings-commands-toolbar__search w-full h-[38px] px-[14px] border border-[color:var(--ui-settings-dropdown-border)] rounded-[11px] bg-[rgba(var(--ui-text-rgb),0.045)] text-[var(--ui-text)] text-[13px] outline-none transition-[border-color,box-shadow,background] duration-[120ms] placeholder:text-[rgba(var(--ui-text-rgb),0.28)] focus-visible:border-[color:rgba(var(--ui-brand-rgb),0.22)] focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)] focus-visible:bg-[rgba(var(--ui-text-rgb),0.055)]"
           type="search"
           :value="props.commandView.query"
           :placeholder="t('settings.commands.queryPlaceholder')"
@@ -216,25 +216,34 @@ onBeforeUnmount(() => {
         />
       </div>
       <div
-        class="settings-commands-toolbar__summary settings-commands-toolbar__summary-row"
+        class="settings-commands-toolbar__summary settings-commands-toolbar__summary-row flex flex-wrap items-center justify-start gap-[8px] max-[760px]:flex-col max-[760px]:items-start"
         aria-label="command-management-summary"
         aria-live="polite"
       >
-        <span class="settings-commands-toolbar__badge">
+        <span
+          class="settings-commands-toolbar__badge px-[10px] py-[5px] border border-[color:rgba(var(--ui-text-rgb),0.07)] rounded-full bg-[var(--ui-settings-badge-bg)] text-[var(--ui-settings-badge-text)] text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
+        >
           {{ t("settings.commands.summaryFiltered", { filtered: props.commandFilteredCount }) }}
         </span>
-        <span class="settings-commands-toolbar__badge">
+        <span
+          class="settings-commands-toolbar__badge px-[10px] py-[5px] border border-[color:rgba(var(--ui-text-rgb),0.07)] rounded-full bg-[var(--ui-settings-badge-bg)] text-[var(--ui-settings-badge-text)] text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
+        >
           {{ t("settings.commands.summaryTotal", { total: props.commandSummary.total }) }}
         </span>
-        <span class="settings-commands-toolbar__badge settings-commands-toolbar__badge--accent">
+        <span
+          class="settings-commands-toolbar__badge settings-commands-toolbar__badge--accent px-[10px] py-[5px] border border-[color:rgba(var(--ui-brand-rgb),0.24)] rounded-full bg-[rgba(var(--ui-brand-rgb),0.1)] text-[var(--ui-brand)] text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
+        >
           {{ t("settings.commands.summaryEnabled", { enabled: props.commandSummary.enabled }) }}
         </span>
       </div>
-      <div class="settings-commands-toolbar__filters-row" aria-label="command-management-filters">
+      <div
+        class="settings-commands-toolbar__filters-row flex flex-wrap items-center gap-[8px]"
+        aria-label="command-management-filters"
+      >
         <SDropdown
           v-for="filter in primaryFilters"
           :key="filter.key"
-          class="settings-commands-toolbar__primary-filter"
+          class="settings-commands-toolbar__primary-filter flex-none"
           :model-value="filter.modelValue"
           :options="filter.options"
           variant="ghost"
@@ -242,12 +251,17 @@ onBeforeUnmount(() => {
           @update:model-value="filter.onUpdate"
         />
 
-        <div class="settings-commands-toolbar__more-filters-wrap">
+        <div class="settings-commands-toolbar__more-filters-wrap relative ml-auto flex-none max-[760px]:ml-0">
           <button
             ref="moreFiltersTriggerRef"
             type="button"
-            class="settings-commands-toolbar__more-filters"
-            :class="{ 'settings-commands-toolbar__more-filters--active': activeSecondaryFilterCount > 0 }"
+            class="settings-commands-toolbar__more-filters min-h-[34px] inline-flex items-center gap-[8px] px-[12px] py-[6px] border border-transparent rounded-full bg-[var(--ui-settings-badge-bg)] text-[var(--ui-settings-badge-text)] text-[12px] cursor-pointer transition-[background,border-color,color,box-shadow] duration-[150ms] ease-[cubic-bezier(0.33,1,0.68,1)] hover:border-[color:var(--ui-settings-dropdown-border)] hover:bg-[var(--ui-settings-dropdown-hover)] hover:text-[var(--ui-text)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)]"
+            :class="{
+              'settings-commands-toolbar__more-filters--active text-[var(--ui-brand)]':
+                activeSecondaryFilterCount > 0 && !moreFiltersOpen,
+              'border-[color:var(--ui-settings-dropdown-border)] bg-[var(--ui-settings-dropdown-hover)] text-[var(--ui-text)]':
+                moreFiltersOpen
+            }"
             :aria-expanded="moreFiltersOpen"
             aria-haspopup="dialog"
             aria-controls="settings-commands-more-filters"
@@ -256,7 +270,7 @@ onBeforeUnmount(() => {
             <span>{{ t("settings.commands.moreFilters") }}</span>
             <span
               v-if="activeSecondaryFilterCount > 0"
-              class="settings-commands-toolbar__more-filters-count"
+              class="settings-commands-toolbar__more-filters-count min-w-[18px] px-[6px] py-[1px] rounded-full bg-[rgba(var(--ui-brand-rgb),0.18)] text-[var(--ui-brand)] text-[11px] leading-[1.4] text-center"
             >
               {{ activeSecondaryFilterCount }}
             </span>
@@ -266,19 +280,22 @@ onBeforeUnmount(() => {
             v-if="moreFiltersOpen"
             id="settings-commands-more-filters"
             ref="moreFiltersPanelRef"
-            class="settings-commands-toolbar__more-filters-panel"
+            class="settings-commands-toolbar__more-filters-panel absolute top-[calc(100%+8px)] right-0 w-[min(360px,calc(100vw-56px))] p-[12px] border border-[color:var(--ui-settings-dropdown-border)] rounded-[16px] bg-[var(--ui-settings-dropdown-bg)] shadow-[var(--ui-shadow)] backdrop-blur-[var(--ui-blur)] z-[var(--ui-settings-z-popover)] max-[760px]:left-0 max-[760px]:right-auto max-[760px]:w-[min(100%,360px)]"
             role="dialog"
             :aria-label="t('settings.commands.moreFilters')"
           >
-            <div class="settings-commands-toolbar__secondary-grid">
+            <div class="settings-commands-toolbar__secondary-grid grid gap-[10px]">
               <div
                 v-for="filter in secondaryFilters"
                 :key="filter.key"
-                class="settings-commands-toolbar__secondary-group"
+                class="settings-commands-toolbar__secondary-group grid gap-[6px]"
               >
-                <span class="settings-commands-toolbar__secondary-label">{{ filter.label }}</span>
+                <span
+                  class="settings-commands-toolbar__secondary-label text-[11px] font-semibold tracking-[0.04em] uppercase text-[var(--ui-settings-hint)]"
+                  >{{ filter.label }}</span
+                >
                 <SDropdown
-                  class="settings-commands-toolbar__secondary-filter"
+                  class="settings-commands-toolbar__secondary-filter w-full [&_.s-dropdown__trigger]:w-full [&_.s-dropdown__trigger]:justify-between"
                   :model-value="filter.modelValue"
                   :options="filter.options"
                   variant="ghost"
@@ -286,10 +303,10 @@ onBeforeUnmount(() => {
                 />
               </div>
             </div>
-            <div class="settings-commands-toolbar__actions">
+            <div class="settings-commands-toolbar__actions mt-[12px] flex justify-end">
               <button
                 type="button"
-                class="settings-commands-toolbar__reset"
+                class="settings-commands-toolbar__reset border-0 bg-transparent px-[8px] py-[5px] text-[12px] text-[rgba(var(--ui-text-rgb),0.52)] underline cursor-pointer transition-colors duration-[120ms] hover:text-[rgba(var(--ui-text-rgb),0.78)] disabled:opacity-[0.35] disabled:text-[rgba(var(--ui-text-rgb),0.3)] disabled:cursor-not-allowed disabled:no-underline"
                 :disabled="!hasActiveFilters"
                 @click="onResetFilters"
               >
@@ -301,19 +318,38 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <div class="settings-commands-table">
-      <div class="settings-commands-table__container" role="table" aria-label="command-management-table">
-        <div class="settings-commands-table__header" role="row">
-          <div class="settings-commands-table__cell settings-commands-table__cell--command" role="columnheader">
+    <div class="settings-commands-table min-w-0 grid gap-[10px]">
+      <div
+        class="settings-commands-table__container grid gap-[6px] pt-[4px]"
+        role="table"
+        aria-label="command-management-table"
+      >
+        <div
+          class="settings-commands-table__header grid grid-cols-12 items-center gap-x-[12px] px-[14px] pt-0 pb-[2px] text-[11px] uppercase tracking-[0.6px] text-[rgba(var(--ui-text-rgb),0.3)] max-[760px]:gap-x-[10px]"
+          role="row"
+        >
+          <div
+            class="settings-commands-table__cell settings-commands-table__cell--command min-w-0 col-span-6 max-[760px]:col-span-7"
+            role="columnheader"
+          >
             {{ t("settings.commands.tableHeaderCommand") }}
           </div>
-          <div class="settings-commands-table__cell settings-commands-table__cell--category" role="columnheader">
+          <div
+            class="settings-commands-table__cell settings-commands-table__cell--category min-w-0 col-span-3 max-[760px]:col-span-3"
+            role="columnheader"
+          >
             {{ t("settings.commands.tableHeaderCategory") }}
           </div>
-          <div class="settings-commands-table__cell settings-commands-table__cell--source" role="columnheader">
+          <div
+            class="settings-commands-table__cell settings-commands-table__cell--source min-w-0 col-span-2 max-[760px]:col-start-1 max-[760px]:col-span-8 max-[760px]:mt-[4px]"
+            role="columnheader"
+          >
             {{ t("settings.commands.tableHeaderSource") }}
           </div>
-          <div class="settings-commands-table__cell settings-commands-table__cell--toggle" role="columnheader">
+          <div
+            class="settings-commands-table__cell settings-commands-table__cell--toggle min-w-0 col-span-1 text-right max-[760px]:col-start-11 max-[760px]:col-span-2"
+            role="columnheader"
+          >
             {{ t("settings.commands.tableHeaderEnabled") }}
           </div>
         </div>
@@ -322,38 +358,61 @@ onBeforeUnmount(() => {
           v-for="row in props.commandRows"
           :key="row.id"
           :class="[
-            'settings-commands-table__row',
+            'settings-commands-table__row grid grid-cols-12 items-center gap-x-[12px] px-[14px] py-[12px] border border-[color:rgba(var(--ui-text-rgb),0.06)] rounded-[14px] bg-[rgba(var(--ui-text-rgb),0.025)] transition-[background,border-color,transform] duration-[120ms] hover:bg-[var(--ui-settings-table-row-hover)] hover:border-[color:rgba(var(--ui-text-rgb),0.11)] hover:-translate-y-[1px] max-[760px]:gap-x-[10px]',
             {
-              'settings-commands-table__row--disabled': !row.enabled
+              'settings-commands-table__row--disabled': !row.enabled,
+              'opacity-[0.58]': !row.enabled
             }
           ]"
           role="row"
           :title="row.sourcePath ?? undefined"
         >
-          <div class="settings-commands-table__cell settings-commands-table__cell--command" role="cell">
-            <div class="settings-commands-table__title">{{ row.title }}</div>
-            <code class="settings-commands-table__id">{{ row.id }}</code>
+          <div
+            class="settings-commands-table__cell settings-commands-table__cell--command min-w-0 col-span-6 max-[760px]:col-span-7"
+            role="cell"
+          >
+            <div class="settings-commands-table__title text-[13px] text-[rgba(var(--ui-text-rgb),0.88)] font-[450]">
+              {{ row.title }}
+            </div>
+            <code
+              class="settings-commands-table__id block mt-[3px] text-[11px] text-[rgba(var(--ui-text-rgb),0.3)] [font-family:var(--ui-font-mono)] truncate"
+              >{{ row.id }}</code
+            >
           </div>
 
-          <div class="settings-commands-table__cell settings-commands-table__cell--category" role="cell">
-            <span class="settings-commands-table__badge">{{ row.category }}</span>
-          </div>
-
-          <div class="settings-commands-table__cell settings-commands-table__cell--source" role="cell">
+          <div
+            class="settings-commands-table__cell settings-commands-table__cell--category min-w-0 col-span-3 max-[760px]:col-span-3"
+            role="cell"
+          >
             <span
-              class="settings-commands-table__source-dot"
+              class="settings-commands-table__badge inline-flex items-center max-w-full min-w-0 px-[10px] py-[5px] border border-[color:rgba(var(--ui-text-rgb),0.07)] rounded-full bg-[rgba(var(--ui-text-rgb),0.05)] text-[rgba(var(--ui-text-rgb),0.68)] text-[11.5px] whitespace-nowrap overflow-hidden [text-overflow:ellipsis]"
+              >{{ row.category }}</span
+            >
+          </div>
+
+          <div
+            class="settings-commands-table__cell settings-commands-table__cell--source min-w-0 col-span-2 inline-flex items-center max-[760px]:col-start-1 max-[760px]:col-span-8 max-[760px]:mt-[4px]"
+            role="cell"
+          >
+            <span
+              class="settings-commands-table__source-dot inline-block w-[7px] h-[7px] rounded-full mr-[6px] bg-[rgba(var(--ui-text-rgb),0.25)]"
               :class="{
                 'settings-commands-table__source-dot--user': row.source === 'user',
-                'settings-commands-table__source-dot--builtin': row.source === 'builtin'
+                'bg-[var(--ui-brand)]': row.source === 'user',
+                'settings-commands-table__source-dot--builtin': row.source === 'builtin',
+                'bg-[rgba(var(--ui-text-rgb),0.24)]': row.source === 'builtin'
               }"
               aria-hidden="true"
             />
-            <span class="settings-commands-table__source-text">
+            <span class="settings-commands-table__source-text text-[12px] text-[rgba(var(--ui-text-rgb),0.44)] whitespace-nowrap">
               {{ row.source === "user" ? t("settings.commands.sourceUser") : t("settings.commands.sourceBuiltin") }}
             </span>
           </div>
 
-          <div class="settings-commands-table__cell settings-commands-table__cell--toggle" role="cell">
+          <div
+            class="settings-commands-table__cell settings-commands-table__cell--toggle min-w-0 col-span-1 flex justify-end max-[760px]:col-start-11 max-[760px]:col-span-2"
+            role="cell"
+          >
             <SToggle
               compact
               :model-value="row.enabled"
@@ -365,16 +424,30 @@ onBeforeUnmount(() => {
     </div>
   </section>
 
-  <section v-if="props.commandLoadIssues.length > 0" class="settings-card" aria-label="command-load-issues">
-    <h2 class="settings-card__title">{{ t("settings.commands.loadIssuesTitle") }}</h2>
-    <p class="settings-hint">{{ t("settings.commands.loadIssuesHint") }}</p>
-    <ul class="settings-command-issues">
+  <section
+    v-if="props.commandLoadIssues.length > 0"
+    class="settings-card rounded-[16px] border border-[color:var(--ui-settings-card-border)] bg-[var(--ui-settings-card-bg)] overflow-hidden"
+    aria-label="command-load-issues"
+  >
+    <h2
+      class="settings-card__title m-0 px-[16px] py-[10px] text-[11px] font-semibold uppercase tracking-[0.8px] text-[var(--ui-settings-card-title)] bg-[rgba(var(--ui-text-rgb),0.015)] border-b border-[color:var(--ui-settings-row-border)]"
+    >
+      {{ t("settings.commands.loadIssuesTitle") }}
+    </h2>
+    <p class="settings-hint m-0 px-[16px] pt-[10px] pb-[12px] text-[12px] text-[var(--ui-settings-hint)] leading-[1.5]">
+      {{ t("settings.commands.loadIssuesHint") }}
+    </p>
+    <ul class="settings-command-issues m-0 p-0 list-none grid gap-[8px] text-[12px] text-[var(--ui-danger)]">
       <li
         v-for="issue in props.commandLoadIssues"
         :key="`${issue.code}:${issue.stage}:${issue.sourceId}:${issue.commandId ?? ''}`"
-        class="settings-command-issues__item"
+        class="settings-command-issues__item grid grid-cols-[auto_minmax(0,1fr)] items-start gap-[8px] px-[12px] py-[9px] border border-[color:rgba(var(--ui-danger-rgb),0.28)] rounded-[10px] bg-[rgba(var(--ui-danger-rgb),0.07)]"
       >
-        <span class="settings-command-issues__icon" aria-hidden="true">⚠</span>
+        <span
+          class="settings-command-issues__icon text-[var(--ui-danger)] text-[14px] leading-[1.2]"
+          aria-hidden="true"
+          >⚠</span
+        >
         <span>{{ issue.message }}</span>
       </li>
     </ul>

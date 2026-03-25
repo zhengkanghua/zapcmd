@@ -28,7 +28,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 </script>
 
 <template>
-  <section class="settings-group settings-appearance" aria-label="settings-appearance">
+  <section class="settings-group settings-appearance grid gap-[24px]" aria-label="settings-appearance">
     <div class="appearance-cards grid gap-[16px] min-[620px]:grid-cols-2 min-[620px]:items-start">
       <div
         class="appearance-card appearance-card--theme grid gap-[10px] rounded-[14px] border border-[var(--ui-settings-card-border)] bg-[var(--ui-settings-card-bg)] p-[14px] min-[620px]:col-span-2"

@@ -83,7 +83,7 @@ const updateErrorNextStep = computed(() => {
 </script>
 
 <template>
-  <section class="settings-group settings-about" aria-label="settings-about">
+  <section class="settings-group settings-about grid gap-[24px]" aria-label="settings-about">
     <header
       class="about-brand flex items-center gap-[12px] rounded-[16px] border border-[var(--ui-settings-card-border)] bg-[var(--ui-settings-card-bg)] px-[16px] py-[14px]"
       data-testid="about-brand"

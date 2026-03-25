@@ -11,8 +11,16 @@ const resolvedHeadingId =
 </script>
 
 <template>
-  <section class="settings-card settings-section" :aria-labelledby="resolvedHeadingId">
-    <h3 :id="resolvedHeadingId" class="settings-card__title">{{ props.label }}</h3>
+  <section
+    class="settings-card settings-section rounded-[16px] border border-[color:var(--ui-settings-card-border)] bg-[var(--ui-settings-card-bg)] overflow-visible"
+    :aria-labelledby="resolvedHeadingId"
+  >
+    <h3
+      :id="resolvedHeadingId"
+      class="settings-card__title m-0 px-[16px] py-[10px] text-[11px] font-semibold uppercase tracking-[0.8px] text-[var(--ui-settings-card-title)] bg-[rgba(var(--ui-text-rgb),0.015)] border-b border-[color:var(--ui-settings-row-border)]"
+    >
+      {{ props.label }}
+    </h3>
     <slot />
   </section>
 </template>
