@@ -21,18 +21,44 @@
     background-color: rgba(var(--ui-black-rgb), 0.001);
   }
 
-  [data-tauri-drag-region] :is(button, input, textarea, select, a, [contenteditable="true"]) {
-    cursor: auto;
-  }
+	  [data-tauri-drag-region] :is(button, input, textarea, select, a, [contenteditable="true"]) {
+	    -webkit-app-region: no-drag;
+	    app-region: no-drag;
+	    cursor: auto;
+	  }
 
   [data-tauri-drag-region] :is(input, textarea, [contenteditable="true"]) {
     cursor: text;
   }
 
-  [data-tauri-drag-region] :is(button, a, select) {
-    cursor: pointer;
-  }
-}
+	  [data-tauri-drag-region] :is(button, a, select) {
+	    cursor: pointer;
+	  }
+
+	  /* Launcher 导航滑动动效：从 launcher.css 迁移，避免删除 launcher.css 后动效丢失。 */
+	  .nav-slide-enter-active {
+	    transition: transform 250ms cubic-bezier(0.175, 0.885, 0.32, 1.15);
+	  }
+
+	  .nav-slide-enter-from {
+	    transform: translateX(100%);
+	  }
+
+	  .nav-slide-leave-active {
+	    transition: transform 200ms ease-in;
+	  }
+
+	  .nav-slide-leave-to {
+	    transform: translateX(100%);
+	  }
+
+	  @media (prefers-reduced-motion: reduce) {
+	    .nav-slide-enter-active,
+	    .nav-slide-leave-active {
+	      transition: none;
+	    }
+	  }
+	}
 
 @layer utilities {
   /* 隐藏滚动条（Settings 迁移期用）：保持滚动能力但不显示 scrollbar。 */

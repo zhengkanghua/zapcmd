@@ -7,10 +7,8 @@
 @import './themes/_index.css';
 /* 3. 语义变量映射 */
 @import './tokens.css';
-/* 5. 窗口样式 */
-@import './launcher.css';
-/* 6. 动画 */
+/* 4. 动画 */
 @import './animations.css';
 
-/* 7. Tailwind（Phase 1：仅接入工具链；preflight 已禁用，避免 reset 冲突） */
+/* 5. Tailwind（Phase 1：仅接入工具链；preflight 已禁用，避免 reset 冲突） */
 @import './tailwind.css';
