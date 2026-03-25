@@ -19,6 +19,7 @@
 - 补充（2026-03-25｜Phase 6）：SettingsWindow/SettingSection/Item/Commands/Hotkeys 全量 Tailwind 化，删除 `src/styles/settings.css` 并从 `src/styles/index.css` 移除导入；`npm run check:all` 全绿（checkpoint=`ba93040`）。
 - 补充（2026-03-25｜Phase 6）：Launcher contract test 改为组件 Tailwind 类契约；SafetyOverlay 样式已迁到 Tailwind（checkpoint=`89f7d86`/`b4d6342`）。
 - 补充（2026-03-25｜Phase 6）：Launcher 全量 Tailwind 化，`launcher.css`/`animations.css` 已删除；keyframes/reduced-motion 收敛到 `tailwind.css`；`index.css` 仅导入白名单；style-guard 禁 Vue `<style>`（仅 `SSlider` 例外）。
+- 补充（2026-03-25）：新增 Tailwind 语义化（动画/布局）+ 全局 CSS 瘦身设计稿，先做动画语义化与 Transition 去全局，再收口关键 layout arbitrary。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
