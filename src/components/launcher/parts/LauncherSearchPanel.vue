@@ -40,11 +40,17 @@ function onSearchInput(event: Event): void {
 </script>
 
 <template>
-  <section class="search-panel">
-    <section class="search-capsule" aria-label="search-capsule">
-      <form class="search-form" @submit.prevent @pointerdown.capture="onSearchFormPointerDown">
-        <LauncherIcon name="search" class="search-form__icon" />
-        <label class="search-label" for="zapcmd-search-input">{{ t("common.search") }}</label>
+  <section class="search-panel w-full min-w-0">
+    <section class="search-capsule w-full" aria-label="search-capsule">
+      <form
+        class="search-form grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-[10px] p-[12px]"
+        @submit.prevent
+        @pointerdown.capture="onSearchFormPointerDown"
+      >
+        <LauncherIcon name="search" class="search-form__icon text-[var(--ui-subtle)] shrink-0" />
+        <label class="search-label sr-only" for="zapcmd-search-input">
+          {{ t("common.search") }}
+        </label>
         <input
           id="zapcmd-search-input"
           data-testid="zapcmd-search-input"
@@ -55,7 +61,7 @@ function onSearchInput(event: Event): void {
           :tabindex="props.flowOpen ? -1 : undefined"
           :aria-disabled="props.flowOpen ? 'true' : undefined"
           :value="props.query"
-          class="search-input"
+          class="search-input w-full h-[38px] border-0 outline-none bg-transparent text-[var(--ui-text)] text-[17px] select-text disabled:text-[var(--ui-dim)] focus-visible:outline-none"
           type="text"
           :placeholder="t('launcher.searchPlaceholder')"
           autocomplete="off"
@@ -79,11 +85,11 @@ function onSearchInput(event: Event): void {
       </p>
     </section>
 
-    <section style="position: relative">
+    <section class="relative">
       <section
         v-if="props.drawerOpen"
         :ref="props.setDrawerRef"
-        class="result-drawer"
+        class="result-drawer w-full m-0 border-t border-t-[rgba(var(--ui-text-rgb),0.08)] border-x-0 border-b-0 rounded-none bg-transparent shadow-none p-[6px] overflow-auto"
         :inert="props.reviewOpen || props.flowOpen ? true : undefined"
         :aria-hidden="props.reviewOpen || props.flowOpen ? 'true' : undefined"
         :style="{ maxHeight: `${props.drawerViewportHeight}px` }"
@@ -116,32 +122,48 @@ function onSearchInput(event: Event): void {
             >
           </span>
         </p>
-        <ul v-if="props.filteredResults.length > 0" class="result-list">
+        <ul v-if="props.filteredResults.length > 0" class="result-list m-0 p-0 list-none">
           <li v-for="(item, index) in props.filteredResults" :key="item.id">
             <button
-              class="result-item"
+              class="result-item group w-full m-0 h-[var(--drawer-row-height,44px)] min-h-[var(--drawer-row-height,44px)] px-[10px] py-[4px] pl-[12px] grid grid-cols-[minmax(0,1fr)_auto] items-center text-left gap-[10px] overflow-hidden border-0 rounded-[10px] bg-transparent text-[var(--ui-text)] cursor-pointer relative transition-[background-color,transform] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:scale-[0.985] hover:bg-[rgba(var(--ui-text-rgb),0.06)] focus-visible:outline-none focus-visible:bg-[rgba(var(--ui-brand-rgb),0.12)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
               type="button"
               :class="{
-                'result-item--active': index === props.activeIndex,
-                'result-item--staged-feedback': item.id === props.stagedFeedbackCommandId
+                'result-item--active bg-[var(--ui-brand-soft)] hover:bg-[var(--ui-brand-soft)] focus-visible:bg-[var(--ui-brand-soft)]': index === props.activeIndex,
+                'result-item--staged-feedback animate-[staged-feedback_220ms_ease]': item.id === props.stagedFeedbackCommandId
               }"
               :ref="(el) => props.setResultButtonRef(el, index)"
               @click="emit('execute-result', item)"
               @contextmenu.prevent="emit('stage-result', item)"
             >
-              <span class="result-item__content">
-                <span class="result-item__meaning">
+              <span
+                aria-hidden="true"
+                class="result-item__indicator absolute left-[5px] top-[11px] bottom-[11px] w-[2px] rounded-[2px] bg-transparent group-focus-visible:bg-[var(--ui-search-hl)] group-focus-visible:shadow-[0_0_10px_rgba(var(--ui-search-hl-rgb),0.6)]"
+                :class="{
+                  'bg-[var(--ui-search-hl)] shadow-[0_0_10px_rgba(var(--ui-search-hl-rgb),0.6)]': index === props.activeIndex
+                }"
+              ></span>
+              <span class="result-item__content min-w-0 grid gap-[2px]">
+                <span
+                  class="result-item__meaning text-[13px] font-semibold text-[var(--ui-text)] overflow-hidden text-ellipsis whitespace-nowrap"
+                >
                   <LauncherHighlightText :text="item.description" :query="props.query" />
                 </span>
-                <code class="result-item__command" :title="item.preview">
+                <code
+                  class="result-item__command [font-family:var(--ui-font-mono)] text-[11px] text-[var(--ui-subtle)] overflow-hidden text-ellipsis whitespace-nowrap"
+                  :title="item.preview"
+                >
                   <LauncherHighlightText :text="item.preview" :query="props.query" />
                 </code>
               </span>
-              <span class="result-item__meta">
-                <span class="result-item__folder">
+              <span class="result-item__meta grid justify-items-end gap-[2px]">
+                <span
+                  class="result-item__folder px-[6px] rounded-full text-[10px] leading-[1.2] border border-[rgba(var(--ui-text-rgb),0.12)] text-[var(--ui-subtle)]"
+                >
                   <LauncherHighlightText :text="item.folder" :query="props.query" />
                 </span>
-                <span class="result-item__category">
+                <span
+                  class="result-item__category px-[6px] rounded-full text-[10px] leading-[1.2] border border-[rgba(var(--ui-brand-rgb),0.45)] text-[rgba(var(--ui-brand-rgb),0.9)]"
+                >
                   #
                   <LauncherHighlightText :text="item.category" :query="props.query" />
                 </span>
@@ -149,11 +171,22 @@ function onSearchInput(event: Event): void {
             </button>
           </li>
         </ul>
-        <div v-else class="drawer-empty">
-          <div class="drawer-empty__body">
-            <LauncherIcon name="search" :size="20" class="drawer-empty__icon" />
-            <span class="drawer-empty__title">{{ t("launcher.noResult") }}</span>
-            <span class="drawer-empty__hint">{{ t("launcher.noResultHint") }}</span>
+        <div
+          v-else
+          class="drawer-empty m-0 p-[12px_14px] flex items-center justify-between border border-transparent rounded-[10px] bg-transparent text-[var(--ui-subtle)] text-[13px]"
+        >
+          <div class="drawer-empty__body flex items-center gap-[8px]">
+            <LauncherIcon
+              name="search"
+              :size="20"
+              class="drawer-empty__icon text-[var(--ui-subtle)] shrink-0"
+            />
+            <span class="drawer-empty__title text-[var(--ui-text)] font-semibold text-[13px]">
+              {{ t("launcher.noResult") }}
+            </span>
+            <span class="drawer-empty__hint text-[12px] leading-[1.45] text-[var(--ui-subtle)]">
+              {{ t("launcher.noResultHint") }}
+            </span>
           </div>
           <span
             class="keyboard-hint m-0 min-h-0 flex flex-wrap items-center gap-[6px] p-0 text-[10px] font-medium tracking-[0.03em] text-[var(--ui-subtle)]"
