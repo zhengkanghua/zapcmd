@@ -144,7 +144,7 @@ function onNavAfterEnter(): void {
 
 <template>
   <main
-    class="launcher-root w-full h-full px-[var(--shell-side-pad)] grid place-items-[start_center] text-[var(--ui-text)] select-none bg-transparent"
+    class="launcher-root w-full h-full px-[var(--shell-side-pad)] grid place-items-start justify-items-center text-[var(--ui-text)] select-none bg-transparent"
     @pointerdown.capture="onRootPointerDown"
   >
     <div

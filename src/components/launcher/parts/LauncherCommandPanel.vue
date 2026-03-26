@@ -90,7 +90,7 @@ function onSubmit(): void {
 
 <template>
   <section
-    class="command-panel grid grid-rows-[auto_minmax(0,1fr)_auto] h-full max-h-[var(--launcher-panel-max-height)] min-h-0 bg-transparent overflow-hidden"
+    class="command-panel grid grid-rows-launcher-panel h-full max-h-[var(--launcher-panel-max-height)] min-h-0 bg-transparent overflow-hidden"
   >
     <header class="command-panel__header grid grid-rows-[auto_auto] gap-[12px] p-[12px_16px_0]" data-tauri-drag-region>
       <div class="command-panel__header-main flex items-center gap-[8px]" data-tauri-drag-region>

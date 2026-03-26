@@ -25,16 +25,17 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
   expect(source).toMatch(new RegExp(`class="[^"]*${base}[^"]*${required}[^"]*"`, "s"));
 }
 
-describe("launcher Tailwind class contract", () => {
-  it("launcher-root 在窗口中水平居中主视觉盒子", () => {
-    expectClassContract(launcherWindowSource, "launcher-root", "grid");
-    expectClassContract(launcherWindowSource, "launcher-root", "place-items-[start_center]");
-  });
+	describe("launcher Tailwind class contract", () => {
+	  it("launcher-root 在窗口中水平居中主视觉盒子", () => {
+	    expectClassContract(launcherWindowSource, "launcher-root", "grid");
+	    expectClassContract(launcherWindowSource, "launcher-root", "place-items-start");
+	    expectClassContract(launcherWindowSource, "launcher-root", "justify-items-center");
+	  });
 
-  it("CommandPanel / FlowPanel 使用三段式 grid rows", () => {
-    expectClassContract(commandPanelSource, "command-panel", "grid-rows-[auto_minmax(0,1fr)_auto]");
-    expectClassContract(flowPanelSource, "flow-panel", "grid-rows-[auto_minmax(0,1fr)_auto]");
-  });
+	  it("CommandPanel / FlowPanel 使用三段式 grid rows", () => {
+	    expectClassContract(commandPanelSource, "command-panel", "grid-rows-launcher-panel");
+	    expectClassContract(flowPanelSource, "flow-panel", "grid-rows-launcher-panel");
+	  });
 
   it("FlowPanel body 使用 min-h-0 与 scroll contract（无列表时滚动）", () => {
     expectClassContract(flowPanelSource, "flow-panel__body", "min-h-0");

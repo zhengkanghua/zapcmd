@@ -83,6 +83,10 @@ module.exports = {
       },
       transitionTimingFunction: {
         "nav-slide": "cubic-bezier(0.175,0.885,0.32,1.15)"
+      },
+      gridTemplateRows: {
+        "launcher-panel": "auto minmax(0, 1fr) auto",
+        "settings-window": "52px minmax(0, 1fr)"
       }
     }
   },

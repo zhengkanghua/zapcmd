@@ -217,7 +217,7 @@ useFlowPanelHeightObservation({
     ></button>
     <section
       :ref="setReviewPanelRef"
-      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-[auto_minmax(0,1fr)_auto] border border-[rgba(var(--ui-text-rgb),0.14)] rounded-l-[var(--ui-radius)] rounded-r-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.06),rgba(var(--ui-text-rgb),0.02)_52%,transparent),var(--ui-bg)] shadow-[-4px_0_24px_rgba(var(--ui-black-rgb),0.35)] transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
+      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-[rgba(var(--ui-text-rgb),0.14)] rounded-l-[var(--ui-radius)] rounded-r-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.06),rgba(var(--ui-text-rgb),0.02)_52%,transparent),var(--ui-bg)] shadow-[-4px_0_24px_rgba(var(--ui-black-rgb),0.35)] transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
       :class="[
         { 'flow-panel--has-list': props.stagedCommands.length > 0 },
         props.stagingDrawerState === 'opening'
