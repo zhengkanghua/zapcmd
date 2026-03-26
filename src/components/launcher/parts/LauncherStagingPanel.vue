@@ -63,9 +63,9 @@ const stagingHintText = computed(() => {
   >
     <button
       type="button"
-      class="staging-chip w-full min-h-[62px] grid justify-items-center content-center gap-[6px] border border-ui-border rounded-ui bg-ui-bg shadow-[inset_0_1px_0_rgba(var(--ui-text-rgb),0.04)] text-ui-text cursor-pointer focus-visible:outline-none focus-visible:border-[rgba(var(--ui-brand-rgb),0.54)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
+      class="staging-chip w-full min-h-[62px] grid justify-items-center content-center gap-[6px] border border-ui-border rounded-ui bg-ui-bg shadow-[inset_0_1px_0_var(--tw-shadow-color)] shadow-ui-text/4 text-ui-text cursor-pointer focus-visible:outline-none focus-visible:border-ui-brand/54 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/22"
       :class="{
-        'staging-chip--active border-[rgba(var(--ui-brand-rgb),0.48)] bg-[linear-gradient(180deg,rgba(var(--ui-brand-rgb),0.22),var(--ui-bg))]':
+        'staging-chip--active border-ui-brand/48 bg-gradient-to-b from-ui-brand/22 to-ui-bg':
           props.stagingExpanded
       }"
       :aria-expanded="props.stagingExpanded"
@@ -73,16 +73,16 @@ const stagingHintText = computed(() => {
       @click="emit('toggle-staging')"
     >
       <span
-        class="staging-chip__icon w-[16px] h-[12px] border border-[rgba(var(--ui-text-rgb),0.28)] rounded-[4px] relative"
+        class="staging-chip__icon w-[16px] h-[12px] border border-ui-text/28 rounded-[4px] relative"
         aria-hidden="true"
       >
         <span
-          class="staging-chip__icon-bar absolute left-[2px] right-[2px] bottom-[-4px] h-[2px] rounded-[2px] bg-[rgba(var(--ui-text-rgb),0.25)]"
+          class="staging-chip__icon-bar absolute left-[2px] right-[2px] bottom-[-4px] h-[2px] rounded-[2px] bg-ui-text/25"
           aria-hidden="true"
         ></span>
       </span>
       <span
-        class="staging-chip__count inline-flex items-center justify-center min-w-[24px] h-[18px] px-[6px] rounded-full border border-[rgba(var(--ui-text-rgb),0.16)] bg-[rgba(var(--ui-text-rgb),0.08)] text-ui-subtle text-[11px] font-semibold"
+        class="staging-chip__count inline-flex items-center justify-center min-w-[24px] h-[18px] px-[6px] rounded-full border border-ui-text/16 bg-ui-text/8 text-ui-subtle text-[11px] font-semibold"
       >
         {{ props.stagedCommands.length }}
       </span>
@@ -101,7 +101,7 @@ const stagingHintText = computed(() => {
       </header>
       <p
         v-if="props.stagedCommands.length === 0"
-        class="staging-empty m-0 p-[12px_10px] border border-dashed border-[rgba(var(--ui-text-rgb),0.16)] rounded-[8px] text-ui-subtle text-[12px]"
+        class="staging-empty m-0 p-[12px_10px] border border-dashed border-ui-text/16 rounded-[8px] text-ui-subtle text-[12px]"
       >
         {{ t("launcher.queueEmpty") }}
       </p>
@@ -121,9 +121,9 @@ const stagingHintText = computed(() => {
           @click="emit('focus-staging-index', index)"
         >
           <article
-            class="staging-card border border-[rgba(var(--ui-text-rgb),0.08)] rounded-surface bg-[rgba(var(--ui-black-rgb),0.17)] p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
+            class="staging-card border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
             :class="{
-              'staging-card--active border-[rgba(var(--ui-brand-rgb),0.52)] shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.2)]':
+              'staging-card--active border-ui-brand/52 ring-1 ring-inset ring-ui-brand/20':
                 props.focusZone === 'staging' && index === props.stagingActiveIndex
             }"
           >
@@ -141,7 +141,7 @@ const stagingHintText = computed(() => {
             </header>
             <div
               v-if="cmd.args.length > 0"
-              class="staging-card__args flex flex-wrap gap-x-[12px] gap-y-[6px] bg-[rgba(var(--ui-text-rgb),0.02)] p-[6px_8px] border border-[rgba(var(--ui-text-rgb),0.04)] rounded-[6px]"
+              class="staging-card__args flex flex-wrap gap-x-[12px] gap-y-[6px] bg-ui-text/2 p-[6px_8px] border border-ui-text/4 rounded-[6px]"
             >
               <div
                 v-for="arg in cmd.args"
@@ -156,7 +156,7 @@ const stagingHintText = computed(() => {
                   :value="cmd.argValues[arg.key] ?? ''"
                   :placeholder="arg.placeholder"
                   autocomplete="off"
-                  class="h-[24px] px-[6px] border border-ui-border rounded-[6px] bg-[rgba(var(--ui-text-rgb),0.04)] text-ui-text text-[11px] outline-none flex-1 min-w-0 focus-visible:border-[rgba(var(--ui-brand-rgb),0.56)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
+                  class="h-[24px] px-[6px] border border-ui-border rounded-[6px] bg-ui-text/4 text-ui-text text-[11px] outline-none flex-1 min-w-0 focus-visible:border-ui-brand/56 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/22"
                   @input="onStagingArgInput(cmd.id, arg.key, $event)"
                 />
               </div>

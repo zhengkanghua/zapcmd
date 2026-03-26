@@ -293,7 +293,7 @@ onBeforeUnmount(() => {
               class="s-dropdown__option grid w-full cursor-pointer grid-cols-[16px_minmax(0,1fr)] items-start gap-2 rounded-surface border border-transparent bg-transparent px-2.5 py-2 text-left text-ui-text"
               :class="{
                 's-dropdown__option--focused bg-settings-dropdown-hover': index === focusIndex,
-                's-dropdown__option--selected border-[rgba(var(--ui-brand-rgb),0.2)] bg-[rgba(var(--ui-brand-rgb),0.08)]':
+                's-dropdown__option--selected border-ui-brand/20 bg-ui-brand/8':
                   item.value === props.modelValue
               }"
               :aria-selected="item.value === props.modelValue"

@@ -201,7 +201,7 @@ useFlowPanelHeightObservation({
   >
     <button
       type="button"
-      class="flow-panel-overlay__scrim drawer-scrim absolute inset-0 border-0 p-0 rounded-b-ui bg-[rgba(var(--ui-black-rgb),0.2)] backdrop-blur-[8px] cursor-pointer opacity-100 [will-change:opacity]"
+      class="flow-panel-overlay__scrim drawer-scrim absolute inset-0 border-0 p-0 rounded-b-ui bg-ui-black/20 backdrop-blur-[8px] cursor-pointer opacity-100 [will-change:opacity]"
       data-hit-zone="overlay"
       :aria-label="t('common.close')"
       :class="[
@@ -217,7 +217,7 @@ useFlowPanelHeightObservation({
     ></button>
     <section
       :ref="setReviewPanelRef"
-      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-[rgba(var(--ui-text-rgb),0.14)] rounded-l-ui rounded-r-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.06),rgba(var(--ui-text-rgb),0.02)_52%,transparent),var(--ui-bg)] shadow-[-4px_0_24px_rgba(var(--ui-black-rgb),0.35)] transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
+      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-[linear-gradient(180deg,var(--tw-gradient-from),var(--tw-gradient-via)_52%,transparent)] shadow-[-4px_0_24px_var(--tw-shadow-color)] shadow-ui-black/35 transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
       :class="[
         { 'flow-panel--has-list': props.stagedCommands.length > 0 },
         props.stagingDrawerState === 'opening'
@@ -270,7 +270,7 @@ useFlowPanelHeightObservation({
       >
         <p
           v-if="props.executionFeedbackMessage"
-          class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-ui-glass shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
+          class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-ui-text/18 bg-ui-glass shadow-[0_8px_22px_var(--tw-shadow-color)] shadow-ui-black/34 backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
           :class="{
             'execution-feedback--neutral text-ui-brand': props.executionFeedbackTone === 'neutral',
             'execution-feedback--success text-ui-success': props.executionFeedbackTone === 'success',
@@ -282,7 +282,7 @@ useFlowPanelHeightObservation({
 
         <div
           v-if="props.stagedCommands.length === 0"
-          class="flow-panel__empty m-0 p-[16px_14px] flex items-center justify-between gap-[12px] border border-dashed border-[rgba(var(--ui-text-rgb),0.16)] rounded-[8px] text-ui-subtle text-[12px]"
+          class="flow-panel__empty m-0 p-[16px_14px] flex items-center justify-between gap-[12px] border border-dashed border-ui-text/16 rounded-[8px] text-ui-subtle text-[12px]"
         >
           <div class="flow-panel__empty-copy flex items-center gap-[8px]">
             <span class="flow-panel__empty-title text-[13px] font-semibold text-ui-text">
@@ -298,7 +298,7 @@ useFlowPanelHeightObservation({
             <span class="keyboard-hint__item inline-flex items-center gap-[4px]">
               <span class="keyboard-hint__keys inline-flex items-center gap-[2px]"
                 ><kbd
-                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-[rgba(var(--ui-text-rgb),0.15)] [border-bottom-color:rgba(var(--ui-text-rgb),0.05)] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.1),rgba(var(--ui-text-rgb),0.04))] text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
+                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-ui-text/15 border-b-ui-text/5 bg-gradient-to-b from-ui-text/10 to-ui-text/4 text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
                   >Esc</kbd
                 ></span
               >
@@ -326,13 +326,13 @@ useFlowPanelHeightObservation({
             @click="emit('focus-staging-index', index)"
           >
             <article
-              class="staging-card flow-panel__card group border border-[rgba(var(--ui-text-rgb),0.08)] rounded-surface bg-[rgba(var(--ui-black-rgb),0.17)] p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
+              class="staging-card flow-panel__card group border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
               :class="{
-                'staging-card--active border-[rgba(var(--ui-brand-rgb),0.52)] shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.2)]':
+                'staging-card--active border-ui-brand/52 ring-1 ring-inset ring-ui-brand/20':
                   props.focusZone === 'staging' && index === props.stagingActiveIndex,
-                'staging-card--dragging opacity-[0.62] scale-[1.02] border-[rgba(var(--ui-brand-rgb),0.45)] shadow-[0_14px_28px_rgba(var(--ui-black-rgb),0.28)] cursor-grabbing':
+                'staging-card--dragging opacity-[0.62] scale-[1.02] border-ui-brand/45 shadow-[0_14px_28px_var(--tw-shadow-color)] shadow-ui-black/28 cursor-grabbing':
                   draggingCommandId === cmd.id,
-                'staging-card--drag-over border-[rgba(var(--ui-brand-rgb),0.65)] shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.18)]':
+                'staging-card--drag-over border-ui-brand/65 ring-1 ring-inset ring-ui-brand/18':
                   dragOverCommandId === cmd.id && draggingCommandId !== cmd.id
               }"
               :tabindex="index === props.stagingActiveIndex ? 0 : -1"
@@ -376,7 +376,7 @@ useFlowPanelHeightObservation({
                 </header>
                 <div
                   v-if="cmd.args.length > 0"
-                  class="flow-card__params flex flex-col gap-[6px] p-[8px_10px] bg-[rgba(var(--ui-text-rgb),0.04)] border border-[rgba(var(--ui-text-rgb),0.06)] rounded-[6px]"
+                  class="flow-card__params flex flex-col gap-[6px] p-[8px_10px] bg-ui-text/4 border border-ui-text/6 rounded-[6px]"
                 >
                   <div
                     v-for="arg in cmd.args"
@@ -388,14 +388,14 @@ useFlowPanelHeightObservation({
                     </span>
                     <span
                       v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
-                      class="flow-card__param-value text-ui-accent cursor-pointer p-[2px_8px] bg-[rgba(var(--ui-brand-rgb),0.12)] border border-[rgba(var(--ui-brand-rgb),0.2)] rounded-[4px] transition-[background,border-color] duration-120 hover:bg-[rgba(var(--ui-brand-rgb),0.2)] hover:border-[rgba(var(--ui-brand-rgb),0.35)] font-mono"
+                      class="flow-card__param-value text-ui-accent cursor-pointer p-[2px_8px] bg-ui-brand/12 border border-ui-brand/20 rounded-[4px] transition-[background,border-color] duration-120 hover:bg-ui-brand/20 hover:border-ui-brand/35 font-mono"
                       @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
                     >
                       {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}
                     </span>
                     <input
                       v-else
-                      class="flow-card__param-input bg-[rgba(var(--ui-text-rgb),0.08)] border border-ui-accent rounded-[4px] text-ui-accent text-[12px] font-mono p-[2px_8px] outline-none w-auto min-w-[60px]"
+                      class="flow-card__param-input bg-ui-text/8 border border-ui-accent rounded-[4px] text-ui-accent text-[12px] font-mono p-[2px_8px] outline-none w-auto min-w-[60px]"
                       :value="editingParam.currentValue"
                       @input="onParamEditInput(cmd.id, arg.key, ($event.target as HTMLInputElement).value)"
                       @keydown.enter.stop="commitParamEdit(cmd.id, arg.key)"

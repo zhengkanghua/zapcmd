@@ -56,7 +56,7 @@ const emit = defineEmits<{
     >
       <SSegmentNav :items="navItems" v-model="settingsRoute" />
       <div
-        class="settings-window-topbar__divider pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[rgba(var(--ui-text-rgb),0.05)]"
+        class="settings-window-topbar__divider pointer-events-none absolute inset-x-0 bottom-0 h-px bg-ui-text/5"
         aria-hidden="true"
       />
     </div>

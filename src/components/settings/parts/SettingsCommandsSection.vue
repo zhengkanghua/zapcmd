@@ -203,12 +203,12 @@ onBeforeUnmount(() => {
 <template>
   <section class="settings-commands grid gap-3.5 content-start" aria-label="command-management">
     <div
-      class="settings-commands-toolbar settings-commands-toolbar--sticky settings-commands-toolbar--underlap relative grid gap-3 p-3.5 border border-settings-card-border rounded-[18px] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.03),rgba(var(--ui-text-rgb),0)),var(--ui-settings-toolbar-sticky-bg)] shadow-[0_18px_40px_rgba(var(--ui-black-rgb),0.18)] overflow-visible sticky top-[-12px] z-settings-toolbar backdrop-blur-[calc(var(--ui-blur)*0.7)]"
+      class="settings-commands-toolbar settings-commands-toolbar--sticky settings-commands-toolbar--underlap relative grid gap-3 p-3.5 border border-settings-card-border rounded-[18px] bg-settings-toolbar-sticky bg-gradient-to-b from-ui-text/[0.03] to-ui-text/0 shadow-[0_18px_40px_var(--tw-shadow-color)] shadow-ui-black/18 overflow-visible sticky top-[-12px] z-settings-toolbar backdrop-blur-[calc(var(--ui-blur)*0.7)]"
       aria-label="command-management-toolbar"
     >
       <div class="settings-commands-toolbar__search-row min-w-0 grid gap-2.5">
         <input
-          class="settings-commands-toolbar__search w-full h-[38px] px-3.5 border border-settings-dropdown-border rounded-[11px] bg-[rgba(var(--ui-text-rgb),0.045)] text-ui-text text-[13px] outline-none transition-[border-color,box-shadow,background] duration-120 placeholder:text-[rgba(var(--ui-text-rgb),0.28)] focus-visible:border-[color:rgba(var(--ui-brand-rgb),0.22)] focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)] focus-visible:bg-[rgba(var(--ui-text-rgb),0.055)]"
+          class="settings-commands-toolbar__search w-full h-[38px] px-3.5 border border-settings-dropdown-border rounded-[11px] bg-ui-text/[0.045] text-ui-text text-[13px] outline-none transition-[border-color,box-shadow,background] duration-120 placeholder:text-ui-text/28 focus-visible:border-ui-brand/22 focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)] focus-visible:bg-ui-text/[0.055]"
           type="search"
           :value="props.commandView.query"
           :placeholder="t('settings.commands.queryPlaceholder')"
@@ -221,17 +221,17 @@ onBeforeUnmount(() => {
         aria-live="polite"
       >
         <span
-          class="settings-commands-toolbar__badge px-2.5 py-[5px] border border-[color:rgba(var(--ui-text-rgb),0.07)] rounded-full bg-settings-badge text-settings-badge-text text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
+          class="settings-commands-toolbar__badge px-2.5 py-[5px] border border-ui-text/7 rounded-full bg-settings-badge text-settings-badge-text text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
         >
           {{ t("settings.commands.summaryFiltered", { filtered: props.commandFilteredCount }) }}
         </span>
         <span
-          class="settings-commands-toolbar__badge px-2.5 py-[5px] border border-[color:rgba(var(--ui-text-rgb),0.07)] rounded-full bg-settings-badge text-settings-badge-text text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
+          class="settings-commands-toolbar__badge px-2.5 py-[5px] border border-ui-text/7 rounded-full bg-settings-badge text-settings-badge-text text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
         >
           {{ t("settings.commands.summaryTotal", { total: props.commandSummary.total }) }}
         </span>
         <span
-          class="settings-commands-toolbar__badge settings-commands-toolbar__badge--accent px-2.5 py-[5px] border border-[color:rgba(var(--ui-brand-rgb),0.24)] rounded-full bg-[rgba(var(--ui-brand-rgb),0.1)] text-ui-brand text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
+          class="settings-commands-toolbar__badge settings-commands-toolbar__badge--accent px-2.5 py-[5px] border border-ui-brand/24 rounded-full bg-ui-brand/10 text-ui-brand text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
         >
           {{ t("settings.commands.summaryEnabled", { enabled: props.commandSummary.enabled }) }}
         </span>
@@ -270,7 +270,7 @@ onBeforeUnmount(() => {
             <span>{{ t("settings.commands.moreFilters") }}</span>
             <span
               v-if="activeSecondaryFilterCount > 0"
-              class="settings-commands-toolbar__more-filters-count min-w-[18px] px-1.5 py-[1px] rounded-full bg-[rgba(var(--ui-brand-rgb),0.18)] text-ui-brand text-[11px] leading-[1.4] text-center"
+              class="settings-commands-toolbar__more-filters-count min-w-[18px] px-1.5 py-[1px] rounded-full bg-ui-brand/18 text-ui-brand text-[11px] leading-[1.4] text-center"
             >
               {{ activeSecondaryFilterCount }}
             </span>
@@ -306,7 +306,7 @@ onBeforeUnmount(() => {
             <div class="settings-commands-toolbar__actions mt-3 flex justify-end">
               <button
                 type="button"
-                class="settings-commands-toolbar__reset border-0 bg-transparent px-2 py-[5px] text-[12px] text-[rgba(var(--ui-text-rgb),0.52)] underline cursor-pointer transition-colors duration-120 hover:text-[rgba(var(--ui-text-rgb),0.78)] disabled:opacity-[0.35] disabled:text-[rgba(var(--ui-text-rgb),0.3)] disabled:cursor-not-allowed disabled:no-underline"
+                class="settings-commands-toolbar__reset border-0 bg-transparent px-2 py-[5px] text-[12px] text-ui-text/52 underline cursor-pointer transition-colors duration-120 hover:text-ui-text/78 disabled:opacity-[0.35] disabled:text-ui-text/30 disabled:cursor-not-allowed disabled:no-underline"
                 :disabled="!hasActiveFilters"
                 @click="onResetFilters"
               >
@@ -325,7 +325,7 @@ onBeforeUnmount(() => {
         aria-label="command-management-table"
       >
         <div
-          class="settings-commands-table__header grid grid-cols-12 items-center gap-x-3 px-3.5 pt-0 pb-0.5 text-[11px] uppercase tracking-[0.6px] text-[rgba(var(--ui-text-rgb),0.3)] settings-narrow:gap-x-2.5"
+          class="settings-commands-table__header grid grid-cols-12 items-center gap-x-3 px-3.5 pt-0 pb-0.5 text-[11px] uppercase tracking-[0.6px] text-ui-text/30 settings-narrow:gap-x-2.5"
           role="row"
         >
           <div
@@ -358,7 +358,7 @@ onBeforeUnmount(() => {
           v-for="row in props.commandRows"
           :key="row.id"
           :class="[
-            'settings-commands-table__row grid grid-cols-12 items-center gap-x-3 px-3.5 py-3 border border-[color:rgba(var(--ui-text-rgb),0.06)] rounded-panel bg-[rgba(var(--ui-text-rgb),0.025)] transition-[background,border-color,transform] duration-120 hover:bg-settings-table-row-hover hover:border-[color:rgba(var(--ui-text-rgb),0.11)] hover:-translate-y-[1px] settings-narrow:gap-x-2.5',
+            'settings-commands-table__row grid grid-cols-12 items-center gap-x-3 px-3.5 py-3 border border-ui-text/6 rounded-panel bg-ui-text/[0.025] transition-[background,border-color,transform] duration-120 hover:bg-settings-table-row-hover hover:border-ui-text/11 hover:-translate-y-[1px] settings-narrow:gap-x-2.5',
             {
               'settings-commands-table__row--disabled': !row.enabled,
               'opacity-[0.58]': !row.enabled
@@ -371,11 +371,11 @@ onBeforeUnmount(() => {
             class="settings-commands-table__cell settings-commands-table__cell--command min-w-0 col-span-6 settings-narrow:col-span-7"
             role="cell"
           >
-            <div class="settings-commands-table__title text-[13px] text-[rgba(var(--ui-text-rgb),0.88)] font-[450]">
+            <div class="settings-commands-table__title text-[13px] text-ui-text/88 font-[450]">
               {{ row.title }}
             </div>
             <code
-              class="settings-commands-table__id block mt-[3px] text-[11px] text-[rgba(var(--ui-text-rgb),0.3)] font-mono truncate"
+              class="settings-commands-table__id block mt-[3px] text-[11px] text-ui-text/30 font-mono truncate"
               >{{ row.id }}</code
             >
           </div>
@@ -385,7 +385,7 @@ onBeforeUnmount(() => {
             role="cell"
           >
             <span
-              class="settings-commands-table__badge inline-flex items-center max-w-full min-w-0 px-2.5 py-[5px] border border-[color:rgba(var(--ui-text-rgb),0.07)] rounded-full bg-[rgba(var(--ui-text-rgb),0.05)] text-[rgba(var(--ui-text-rgb),0.68)] text-[11.5px] whitespace-nowrap overflow-hidden [text-overflow:ellipsis]"
+              class="settings-commands-table__badge inline-flex items-center max-w-full min-w-0 px-2.5 py-[5px] border border-ui-text/7 rounded-full bg-ui-text/5 text-ui-text/68 text-[11.5px] whitespace-nowrap overflow-hidden [text-overflow:ellipsis]"
               >{{ row.category }}</span
             >
           </div>
@@ -395,16 +395,16 @@ onBeforeUnmount(() => {
             role="cell"
           >
             <span
-              class="settings-commands-table__source-dot inline-block w-[7px] h-[7px] rounded-full mr-1.5 bg-[rgba(var(--ui-text-rgb),0.25)]"
+              class="settings-commands-table__source-dot inline-block w-[7px] h-[7px] rounded-full mr-1.5 bg-ui-text/25"
               :class="{
                 'settings-commands-table__source-dot--user': row.source === 'user',
                 'bg-ui-brand': row.source === 'user',
                 'settings-commands-table__source-dot--builtin': row.source === 'builtin',
-                'bg-[rgba(var(--ui-text-rgb),0.24)]': row.source === 'builtin'
+                'bg-ui-text/24': row.source === 'builtin'
               }"
               aria-hidden="true"
             />
-            <span class="settings-commands-table__source-text text-[12px] text-[rgba(var(--ui-text-rgb),0.44)] whitespace-nowrap">
+            <span class="settings-commands-table__source-text text-[12px] text-ui-text/44 whitespace-nowrap">
               {{ row.source === "user" ? t("settings.commands.sourceUser") : t("settings.commands.sourceBuiltin") }}
             </span>
           </div>
@@ -430,7 +430,7 @@ onBeforeUnmount(() => {
     aria-label="command-load-issues"
   >
     <h2
-      class="settings-card__title m-0 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.8px] text-settings-card-title bg-[rgba(var(--ui-text-rgb),0.015)] border-b border-b-settings-row-border"
+      class="settings-card__title m-0 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.8px] text-settings-card-title bg-ui-text/[0.015] border-b border-b-settings-row-border"
     >
       {{ t("settings.commands.loadIssuesTitle") }}
     </h2>
@@ -441,7 +441,7 @@ onBeforeUnmount(() => {
       <li
         v-for="issue in props.commandLoadIssues"
         :key="`${issue.code}:${issue.stage}:${issue.sourceId}:${issue.commandId ?? ''}`"
-        class="settings-command-issues__item grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 px-3 py-[9px] border border-[color:rgba(var(--ui-danger-rgb),0.28)] rounded-surface bg-[rgba(var(--ui-danger-rgb),0.07)]"
+        class="settings-command-issues__item grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 px-3 py-[9px] border border-ui-danger/28 rounded-surface bg-ui-danger/7"
       >
         <span
           class="settings-command-issues__icon text-ui-danger text-[14px] leading-[1.2]"

@@ -45,9 +45,9 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
               :key="themeMeta.id"
               type="button"
               :class="[
-                'theme-card flex cursor-pointer flex-col items-center gap-[8px] rounded-ui border border-settings-card-border bg-[rgba(var(--ui-text-rgb),0.015)] p-[12px] transition-[border-color,background,transform] duration-150 hover:border-[rgba(var(--ui-text-rgb),0.16)] hover:bg-[rgba(var(--ui-text-rgb),0.03)] hover:-translate-y-[1px]',
+                'theme-card flex cursor-pointer flex-col items-center gap-[8px] rounded-ui border border-settings-card-border bg-ui-text/[0.015] p-[12px] transition-[border-color,background,transform] duration-150 hover:border-ui-text/16 hover:bg-ui-text/3 hover:-translate-y-[1px]',
                 {
-                  'theme-card--active border-ui-accent bg-[rgba(var(--ui-brand-rgb),0.08)]':
+                  'theme-card--active border-ui-accent bg-ui-brand/8':
                     themeMeta.id === props.theme
                 }
               ]"
@@ -141,7 +141,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
             class="appearance-preview-wrap grid h-[96px] w-full place-items-center overflow-hidden rounded-surface border border-settings-row-border [background-image:var(--ui-settings-preview-checker)] [background-size:16px_16px]"
           >
             <div
-              class="appearance-preview-panel flex h-[64px] w-[70%] flex-col items-center justify-center gap-[4px] rounded-surface border border-[rgba(var(--ui-text-rgb),0.14)] shadow-[0_4px_12px_rgba(var(--ui-black-rgb),0.25)]"
+              class="appearance-preview-panel flex h-[64px] w-[70%] flex-col items-center justify-center gap-[4px] rounded-surface border border-ui-text/14 shadow-[0_4px_12px_var(--tw-shadow-color)] shadow-ui-black/25"
               :style="{ backgroundColor: `rgba(var(--ui-bg-rgb), ${props.windowOpacity})` }"
             >
               <span class="appearance-preview-text text-[16px] font-bold text-ui-text">ZapCmd</span>

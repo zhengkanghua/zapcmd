@@ -18,6 +18,22 @@ const flowPanelSource = readFileSync(
   path.resolve(process.cwd(), "src/components/launcher/parts/LauncherFlowPanel.vue"),
   "utf8"
 );
+const searchPanelSource = readFileSync(
+  path.resolve(process.cwd(), "src/components/launcher/parts/LauncherSearchPanel.vue"),
+  "utf8"
+);
+const stagingPanelSource = readFileSync(
+  path.resolve(process.cwd(), "src/components/launcher/parts/LauncherStagingPanel.vue"),
+  "utf8"
+);
+const queueSummaryPillSource = readFileSync(
+  path.resolve(process.cwd(), "src/components/launcher/parts/LauncherQueueSummaryPill.vue"),
+  "utf8"
+);
+const buttonPrimitivesSource = readFileSync(
+  path.resolve(process.cwd(), "src/components/shared/ui/buttonPrimitives.ts"),
+  "utf8"
+);
 
 function expectClassContract(source: string, baseClass: string, requiredClass: string): void {
   const base = escapeRegExp(baseClass);
@@ -40,5 +56,28 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
   it("FlowPanel body 使用 min-h-0 与 scroll contract（无列表时滚动）", () => {
     expectClassContract(flowPanelSource, "flow-panel__body", "min-h-0");
     expect(flowPanelSource).toMatch(/flow-panel__body[\s\S]{0,400}overflow-y-auto/);
+  });
+
+  it("Launcher alpha arbitrary 不允许回退", () => {
+    const banned = [
+      /bg-\[rgba\(var\(--ui-/,
+      /border-\[rgba\(var\(--ui-/,
+      /text-\[rgba\(var\(--ui-/,
+      /from-\[rgba\(var\(--ui-/,
+      /to-\[rgba\(var\(--ui-/
+    ];
+    const sources = [
+      commandPanelSource,
+      searchPanelSource,
+      flowPanelSource,
+      stagingPanelSource,
+      queueSummaryPillSource,
+      buttonPrimitivesSource
+    ];
+    for (const source of sources) {
+      for (const pattern of banned) {
+        expect(source).not.toMatch(pattern);
+      }
+    }
   });
 });

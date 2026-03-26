@@ -25,7 +25,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
   <section class="settings-hotkeys-group grid gap-2.5" aria-labelledby="settings-hotkeys-global">
     <h2
       id="settings-hotkeys-global"
-      class="settings-hotkeys-group__title m-0 px-1 text-[11px] font-semibold tracking-[0.04em] leading-[1.4] text-[rgba(var(--ui-text-rgb),0.42)]"
+      class="settings-hotkeys-group__title m-0 px-1 text-[11px] font-semibold tracking-[0.04em] leading-[1.4] text-ui-text/42"
     >
       {{ t("settings.hotkeys.sectionGlobal") }}
     </h2>
@@ -39,7 +39,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
       >
         <div class="settings-hotkeys-row__label min-w-0 pt-0.5">
           <span
-            class="settings-card__label min-w-0 text-[13px] font-medium leading-[1.35] text-[rgba(var(--ui-text-rgb),0.9)]"
+            class="settings-card__label min-w-0 text-[13px] font-medium leading-[1.35] text-ui-text/90"
           >{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div
@@ -59,7 +59,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
   <section class="settings-hotkeys-group grid gap-2.5 mt-3.5" aria-labelledby="settings-hotkeys-search">
     <h2
       id="settings-hotkeys-search"
-      class="settings-hotkeys-group__title m-0 px-1 text-[11px] font-semibold tracking-[0.04em] leading-[1.4] text-[rgba(var(--ui-text-rgb),0.42)]"
+      class="settings-hotkeys-group__title m-0 px-1 text-[11px] font-semibold tracking-[0.04em] leading-[1.4] text-ui-text/42"
     >
       {{ t("settings.hotkeys.sectionSearch") }}
     </h2>
@@ -73,7 +73,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
       >
         <div class="settings-hotkeys-row__label min-w-0 pt-0.5">
           <span
-            class="settings-card__label min-w-0 text-[13px] font-medium leading-[1.35] text-[rgba(var(--ui-text-rgb),0.9)]"
+            class="settings-card__label min-w-0 text-[13px] font-medium leading-[1.35] text-ui-text/90"
           >{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div
@@ -93,7 +93,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
   <section class="settings-hotkeys-group grid gap-2.5 mt-3.5" aria-labelledby="settings-hotkeys-queue">
     <h2
       id="settings-hotkeys-queue"
-      class="settings-hotkeys-group__title m-0 px-1 text-[11px] font-semibold tracking-[0.04em] leading-[1.4] text-[rgba(var(--ui-text-rgb),0.42)]"
+      class="settings-hotkeys-group__title m-0 px-1 text-[11px] font-semibold tracking-[0.04em] leading-[1.4] text-ui-text/42"
     >
       {{ t("settings.hotkeys.sectionQueue") }}
     </h2>
@@ -107,7 +107,7 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
       >
         <div class="settings-hotkeys-row__label min-w-0 pt-0.5">
           <span
-            class="settings-card__label min-w-0 text-[13px] font-medium leading-[1.35] text-[rgba(var(--ui-text-rgb),0.9)]"
+            class="settings-card__label min-w-0 text-[13px] font-medium leading-[1.35] text-ui-text/90"
           >{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div

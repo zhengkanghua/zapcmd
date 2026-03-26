@@ -89,7 +89,7 @@ const updateErrorNextStep = computed(() => {
       data-testid="about-brand"
     >
       <div
-        class="about-brand__logo grid h-[60px] w-[60px] flex-shrink-0 place-items-center rounded-panel border border-[rgba(var(--ui-text-rgb),0.12)] bg-[rgba(var(--ui-text-rgb),0.06)] text-[26px] text-ui-text"
+        class="about-brand__logo grid h-[60px] w-[60px] flex-shrink-0 place-items-center rounded-panel border border-ui-text/12 bg-ui-text/6 text-[26px] text-ui-text"
         role="img"
         aria-label="ZapCmd logo"
       >
@@ -97,7 +97,7 @@ const updateErrorNextStep = computed(() => {
       </div>
       <div class="about-brand__text grid min-w-0 gap-[4px]">
         <p class="about-brand__name m-0 text-[16px] font-[750] text-ui-text">ZapCmd</p>
-        <p class="about-brand__meta m-0 flex items-baseline gap-[8px] text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">
+        <p class="about-brand__meta m-0 flex items-baseline gap-[8px] text-[12px] text-ui-text/70">
           <span>{{ t("settings.about.version") }}</span>
           <code
             class="about-brand__version relative pl-[10px] text-ui-accent [font-variant-numeric:tabular-nums] before:absolute before:left-0 before:top-1/2 before:h-[5px] before:w-[5px] before:-translate-y-1/2 before:rounded-full before:bg-current before:content-['']"
@@ -113,28 +113,28 @@ const updateErrorNextStep = computed(() => {
         <h3 class="about-card__title m-0 text-[12px] font-[650] text-ui-text">{{ t("settings.about.infoTitle") }}</h3>
         <dl class="about-grid m-0 grid gap-[10px]">
           <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
-            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.version") }}</dt>
-            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">
+            <dt class="text-[12px] text-ui-text/70">{{ t("settings.about.version") }}</dt>
+            <dd class="m-0 text-[12px] text-ui-text/90">
               <code>{{ props.appVersion || FALLBACK_TEXT }}</code>
             </dd>
           </div>
           <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
-            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.platform") }}</dt>
-            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">{{ props.runtimePlatform || FALLBACK_TEXT }}</dd>
+            <dt class="text-[12px] text-ui-text/70">{{ t("settings.about.platform") }}</dt>
+            <dd class="m-0 text-[12px] text-ui-text/90">{{ props.runtimePlatform || FALLBACK_TEXT }}</dd>
           </div>
           <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
-            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.homepage") }}</dt>
-            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">
+            <dt class="text-[12px] text-ui-text/70">{{ t("settings.about.homepage") }}</dt>
+            <dd class="m-0 text-[12px] text-ui-text/90">
               <code>{{ homepageUrl || FALLBACK_TEXT }}</code>
             </dd>
           </div>
           <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
-            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.license") }}</dt>
-            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">MIT</dd>
+            <dt class="text-[12px] text-ui-text/70">{{ t("settings.about.license") }}</dt>
+            <dd class="m-0 text-[12px] text-ui-text/90">MIT</dd>
           </div>
           <div class="about-row grid grid-cols-[140px_1fr] items-baseline gap-[12px]">
-            <dt class="text-[12px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.feedback") }}</dt>
-            <dd class="m-0 text-[12px] text-[rgba(var(--ui-text-rgb),0.9)]">
+            <dt class="text-[12px] text-ui-text/70">{{ t("settings.about.feedback") }}</dt>
+            <dd class="m-0 text-[12px] text-ui-text/90">
               <code>{{ issuesUrl || FALLBACK_TEXT }}</code>
             </dd>
           </div>
@@ -161,7 +161,7 @@ const updateErrorNextStep = computed(() => {
 
         <div
           v-if="props.updateStatus.state === 'error'"
-          class="about-status about-status--error relative mt-3 rounded-surface border border-[rgba(var(--ui-danger-rgb),0.3)] bg-[rgba(var(--ui-danger-rgb),0.08)] px-3 py-2.5 pl-4 text-[12px] text-[rgba(var(--ui-danger-rgb),0.9)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-danger before:content-['']"
+          class="about-status about-status--error relative mt-3 rounded-surface border border-ui-danger/30 bg-ui-danger/8 px-3 py-2.5 pl-4 text-[12px] text-ui-danger/90 before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-danger before:content-['']"
           role="status"
         >
           <p class="about-status__title m-0 mb-[8px] font-semibold">{{ updateErrorMessage }}</p>
@@ -169,7 +169,7 @@ const updateErrorNextStep = computed(() => {
         </div>
         <div
           v-else-if="props.updateStatus.state === 'checking'"
-          class="about-status about-status--loading relative mt-3 rounded-surface border border-[rgba(var(--ui-brand-rgb),0.24)] bg-[rgba(var(--ui-brand-rgb),0.08)] px-3 py-2.5 pl-4 text-[12px] text-[rgba(var(--ui-text-rgb),0.85)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-brand before:content-['']"
+          class="about-status about-status--loading relative mt-3 rounded-surface border border-ui-brand/24 bg-ui-brand/8 px-3 py-2.5 pl-4 text-[12px] text-ui-text/85 before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-brand before:content-['']"
           role="status"
         >
           <p class="about-status__title m-0 mb-[8px] font-semibold">{{ t("settings.about.checking") }}</p>
@@ -177,27 +177,27 @@ const updateErrorNextStep = computed(() => {
         </div>
         <div
           v-else-if="props.updateStatus.state === 'upToDate'"
-          class="about-status about-status--success relative mt-3 rounded-surface border border-[rgba(var(--ui-success-rgb),0.28)] bg-[rgba(var(--ui-success-rgb),0.1)] px-3 py-2.5 pl-4 text-[12px] text-[rgba(var(--ui-success-rgb),0.9)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-success before:content-['']"
+          class="about-status about-status--success relative mt-3 rounded-surface border border-ui-success/28 bg-ui-success/10 px-3 py-2.5 pl-4 text-[12px] text-ui-success/90 before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-success before:content-['']"
           role="status"
         >
           <p class="about-status__title m-0 mb-[8px] font-semibold">{{ t("settings.about.upToDate") }}</p>
         </div>
         <div
           v-else-if="props.updateStatus.state === 'available'"
-          class="about-status relative mt-3 rounded-surface border border-[rgba(var(--ui-text-rgb),0.1)] bg-[rgba(var(--ui-text-rgb),0.03)] px-3 py-2.5 pl-4 text-[12px] text-[rgba(var(--ui-text-rgb),0.85)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-[rgba(var(--ui-text-rgb),0.16)] before:content-['']"
+          class="about-status relative mt-3 rounded-surface border border-ui-text/10 bg-ui-text/3 px-3 py-2.5 pl-4 text-[12px] text-ui-text/85 before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-text/16 before:content-['']"
           role="status"
         >
           <p class="about-status__title m-0 mb-[8px] font-semibold">
             {{ t("settings.about.updateAvailable", { version: props.updateStatus.version }) }}
           </p>
           <div v-if="props.updateStatus.body" class="about-status__body">
-            <p class="about-status__label m-0 mb-[6px] text-[rgba(var(--ui-text-rgb),0.7)]">{{ t("settings.about.updateBody") }}</p>
-            <pre class="about-status__content m-0 whitespace-pre-wrap break-words rounded-surface border border-[rgba(var(--ui-text-rgb),0.12)] bg-[rgba(var(--ui-black-rgb),0.25)] p-2.5">{{ props.updateStatus.body }}</pre>
+            <p class="about-status__label m-0 mb-[6px] text-ui-text/70">{{ t("settings.about.updateBody") }}</p>
+            <pre class="about-status__content m-0 whitespace-pre-wrap break-words rounded-surface border border-ui-text/12 bg-ui-black/25 p-2.5">{{ props.updateStatus.body }}</pre>
           </div>
         </div>
         <div
           v-else-if="props.updateStatus.state === 'downloading'"
-          class="about-status about-status--loading relative mt-3 rounded-surface border border-[rgba(var(--ui-brand-rgb),0.24)] bg-[rgba(var(--ui-brand-rgb),0.08)] px-3 py-2.5 pl-4 text-[12px] text-[rgba(var(--ui-text-rgb),0.85)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-brand before:content-['']"
+          class="about-status about-status--loading relative mt-3 rounded-surface border border-ui-brand/24 bg-ui-brand/8 px-3 py-2.5 pl-4 text-[12px] text-ui-text/85 before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-brand before:content-['']"
           role="status"
         >
           <p class="about-status__title m-0 mb-[8px] font-semibold">
@@ -212,7 +212,7 @@ const updateErrorNextStep = computed(() => {
         </div>
         <div
           v-else-if="props.updateStatus.state === 'installing'"
-          class="about-status about-status--loading relative mt-3 rounded-surface border border-[rgba(var(--ui-brand-rgb),0.24)] bg-[rgba(var(--ui-brand-rgb),0.08)] px-3 py-2.5 pl-4 text-[12px] text-[rgba(var(--ui-text-rgb),0.85)] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-brand before:content-['']"
+          class="about-status about-status--loading relative mt-3 rounded-surface border border-ui-brand/24 bg-ui-brand/8 px-3 py-2.5 pl-4 text-[12px] text-ui-text/85 before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-brand before:content-['']"
           role="status"
         >
           <p class="about-status__title m-0 mb-[8px] font-semibold">{{ t("settings.about.installing") }}</p>

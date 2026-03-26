@@ -124,7 +124,7 @@ function onTerminalReusePolicySelect(value: string): void {
 
       <p
         v-if="props.terminalLoading"
-        class="settings-status settings-status--loading mt-0 mx-[16px] mb-[12px] px-[12px] py-[9px] border border-[color:rgba(var(--ui-brand-rgb),0.25)] rounded-[8px] bg-[rgba(var(--ui-brand-rgb),0.08)] text-[12px] leading-[1.45] text-ui-brand"
+        class="settings-status settings-status--loading mt-0 mx-[16px] mb-[12px] px-[12px] py-[9px] border border-ui-brand/25 rounded-[8px] bg-ui-brand/8 text-[12px] leading-[1.45] text-ui-brand"
         role="status"
         aria-live="polite"
       >
@@ -133,7 +133,7 @@ function onTerminalReusePolicySelect(value: string): void {
 
       <SettingItem :label="t('settings.general.currentTerminalPath')">
         <code
-          class="settings-card__mono [font-family:var(--ui-font-mono)] text-[11.5px] text-[rgba(var(--ui-text-rgb),0.68)] truncate max-w-[min(100%,460px)] bg-[rgba(var(--ui-text-rgb),0.05)] border border-[color:var(--ui-settings-row-border)] rounded-[6px] px-[8px] py-[3px]"
+          class="settings-card__mono [font-family:var(--ui-font-mono)] text-[11.5px] text-ui-text/68 truncate max-w-[min(100%,460px)] bg-ui-text/5 border border-[color:var(--ui-settings-row-border)] rounded-[6px] px-[8px] py-[3px]"
           >{{ props.selectedTerminalPath }}</code
         >
       </SettingItem>

@@ -17,7 +17,7 @@ const resolvedHeadingId =
   >
     <h3
       :id="resolvedHeadingId"
-      class="settings-card__title m-0 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.8px] text-settings-card-title bg-[rgba(var(--ui-text-rgb),0.015)] border-b border-b-settings-row-border"
+      class="settings-card__title m-0 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.8px] text-settings-card-title bg-ui-text/[0.015] border-b border-b-settings-row-border"
     >
       {{ props.label }}
     </h3>

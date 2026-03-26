@@ -72,7 +72,7 @@ function onSearchInput(event: Event): void {
       <!-- search-capsule 内的 toast：仅在 FlowPanel 关闭时显示 -->
       <p
         v-if="props.executionFeedbackMessage && !props.reviewOpen"
-        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-ui-glass shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
+        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-ui-text/18 bg-ui-glass shadow-[0_8px_22px_var(--tw-shadow-color)] shadow-ui-black/34 backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
         :class="{
           'execution-feedback--neutral text-ui-brand': props.executionFeedbackTone === 'neutral',
           'execution-feedback--success text-ui-success': props.executionFeedbackTone === 'success',
@@ -89,7 +89,7 @@ function onSearchInput(event: Event): void {
       <section
         v-if="props.drawerOpen"
         :ref="props.setDrawerRef"
-        class="result-drawer w-full m-0 border-t border-t-[rgba(var(--ui-text-rgb),0.08)] border-x-0 border-b-0 rounded-none bg-transparent shadow-none p-[6px] overflow-auto"
+        class="result-drawer w-full m-0 border-t border-t-ui-text/8 border-x-0 border-b-0 rounded-none bg-transparent shadow-none p-[6px] overflow-auto"
         :inert="props.reviewOpen || props.flowOpen ? true : undefined"
         :aria-hidden="props.reviewOpen || props.flowOpen ? 'true' : undefined"
         :style="{ maxHeight: `${props.drawerViewportHeight}px` }"
@@ -109,7 +109,7 @@ function onSearchInput(event: Event): void {
                 <kbd
                   v-for="key in hint.keys"
                   :key="key"
-                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-[rgba(var(--ui-text-rgb),0.15)] [border-bottom-color:rgba(var(--ui-text-rgb),0.05)] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.1),rgba(var(--ui-text-rgb),0.04))] text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
+                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-ui-text/15 border-b-ui-text/5 bg-gradient-to-b from-ui-text/10 to-ui-text/4 text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
                 >
                   {{ key }}
                 </kbd>
@@ -117,7 +117,7 @@ function onSearchInput(event: Event): void {
             <span class="keyboard-hint__action text-ui-dim">{{ hint.action }}</span>
             <span
               v-if="index < props.keyboardHints.length - 1"
-              class="keyboard-hint__sep ml-[2px] text-[rgba(var(--ui-text-rgb),0.15)]"
+              class="keyboard-hint__sep ml-[2px] text-ui-text/15"
               >·</span
             >
           </span>
@@ -125,7 +125,7 @@ function onSearchInput(event: Event): void {
         <ul v-if="props.filteredResults.length > 0" class="result-list m-0 p-0 list-none">
           <li v-for="(item, index) in props.filteredResults" :key="item.id">
             <button
-              class="result-item group w-full m-0 h-[var(--drawer-row-height,44px)] min-h-[var(--drawer-row-height,44px)] px-[10px] py-[4px] pl-[12px] grid grid-cols-[minmax(0,1fr)_auto] items-center text-left gap-[10px] overflow-hidden border-0 rounded-surface bg-transparent text-ui-text cursor-pointer relative transition-[background-color,transform] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:scale-[0.985] hover:bg-[rgba(var(--ui-text-rgb),0.06)] focus-visible:outline-none focus-visible:bg-[rgba(var(--ui-brand-rgb),0.12)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
+              class="result-item group w-full m-0 h-[var(--drawer-row-height,44px)] min-h-[var(--drawer-row-height,44px)] px-[10px] py-[4px] pl-[12px] grid grid-cols-[minmax(0,1fr)_auto] items-center text-left gap-[10px] overflow-hidden border-0 rounded-surface bg-transparent text-ui-text cursor-pointer relative transition-[background-color,transform] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:scale-[0.985] hover:bg-ui-text/6 focus-visible:outline-none focus-visible:bg-ui-brand/12 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/22"
               type="button"
               :class="{
                 'result-item--active bg-ui-brand-soft hover:bg-ui-brand-soft focus-visible:bg-ui-brand-soft': index === props.activeIndex,
@@ -138,9 +138,9 @@ function onSearchInput(event: Event): void {
             >
               <span
                 aria-hidden="true"
-                class="result-item__indicator absolute left-[5px] top-[11px] bottom-[11px] w-[2px] rounded-[2px] bg-transparent group-focus-visible:bg-ui-search-hl group-focus-visible:shadow-[0_0_10px_rgba(var(--ui-search-hl-rgb),0.6)]"
+                class="result-item__indicator absolute left-[5px] top-[11px] bottom-[11px] w-[2px] rounded-[2px] bg-transparent group-focus-visible:bg-ui-search-hl group-focus-visible:shadow-[0_0_10px_var(--tw-shadow-color)] group-focus-visible:shadow-ui-search-hl/60"
                 :class="{
-                  'bg-ui-search-hl shadow-[0_0_10px_rgba(var(--ui-search-hl-rgb),0.6)]': index === props.activeIndex
+                  'bg-ui-search-hl shadow-[0_0_10px_var(--tw-shadow-color)] shadow-ui-search-hl/60': index === props.activeIndex
                 }"
               ></span>
               <span class="result-item__content min-w-0 grid gap-[2px]">
@@ -158,12 +158,12 @@ function onSearchInput(event: Event): void {
               </span>
               <span class="result-item__meta grid justify-items-end gap-[2px]">
                 <span
-                  class="result-item__folder px-1.5 rounded-full text-[10px] leading-[1.2] border border-[rgba(var(--ui-text-rgb),0.12)] text-ui-subtle"
+                  class="result-item__folder px-1.5 rounded-full text-[10px] leading-[1.2] border border-ui-text/12 text-ui-subtle"
                 >
                   <LauncherHighlightText :text="item.folder" :query="props.query" />
                 </span>
                 <span
-                  class="result-item__category px-[6px] rounded-full text-[10px] leading-[1.2] border border-[rgba(var(--ui-brand-rgb),0.45)] text-[rgba(var(--ui-brand-rgb),0.9)]"
+                  class="result-item__category px-[6px] rounded-full text-[10px] leading-[1.2] border border-ui-brand/45 text-ui-brand/90"
                 >
                   #
                   <LauncherHighlightText :text="item.category" :query="props.query" />
@@ -195,7 +195,7 @@ function onSearchInput(event: Event): void {
             <span class="keyboard-hint__item inline-flex items-center gap-[4px]">
               <span class="keyboard-hint__keys inline-flex items-center gap-[2px]"
                 ><kbd
-                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-[rgba(var(--ui-text-rgb),0.15)] [border-bottom-color:rgba(var(--ui-text-rgb),0.05)] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.1),rgba(var(--ui-text-rgb),0.04))] text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
+                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-ui-text/15 border-b-ui-text/5 bg-gradient-to-b from-ui-text/10 to-ui-text/4 text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
                   >Esc</kbd
                 ></span
               >

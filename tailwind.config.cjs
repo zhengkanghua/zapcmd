@@ -29,18 +29,21 @@ module.exports = {
       colors: {
         ui: {
           bg: "var(--ui-bg)",
+          "bg-rgb": "rgb(var(--ui-bg-rgb) / <alpha-value>)",
           "bg-deep": "var(--ui-bg-deep)",
           "bg-soft": "var(--ui-bg-soft)",
           border: "var(--ui-border)",
           "border-light": "var(--ui-border-light)",
-          text: "var(--ui-text)",
+          text: "rgb(var(--ui-text-rgb) / <alpha-value>)",
+          black: "rgb(var(--ui-black-rgb) / <alpha-value>)",
           subtle: "var(--ui-subtle)",
           dim: "var(--ui-dim)",
-          brand: "var(--ui-brand)",
+          brand: "rgb(var(--ui-brand-rgb) / <alpha-value>)",
           "brand-dim": "var(--ui-brand-dim)",
           accent: "var(--ui-accent)",
-          success: "var(--ui-success)",
-          danger: "var(--ui-danger)",
+          "search-hl": "rgb(var(--ui-search-hl-rgb) / <alpha-value>)",
+          success: "rgb(var(--ui-success-rgb) / <alpha-value>)",
+          danger: "rgb(var(--ui-danger-rgb) / <alpha-value>)",
           "danger-soft": "var(--ui-danger-soft)",
           "accent-text": "var(--ui-accent-text)",
           "brand-soft": "var(--ui-brand-soft)",
@@ -48,7 +51,7 @@ module.exports = {
           input: "var(--ui-input-bg)",
           kbd: "var(--ui-kbd)",
           hover: "var(--ui-hover)",
-          "search-hl": "var(--ui-search-hl)"
+          "search-hl-solid": "var(--ui-search-hl)"
         },
         settings: {
           card: "var(--ui-settings-card-bg)",
@@ -57,6 +60,7 @@ module.exports = {
           "row-border": "var(--ui-settings-row-border)",
           "row-hover": "var(--ui-settings-row-hover)",
           "table-row-hover": "var(--ui-settings-table-row-hover)",
+          "toolbar-sticky": "var(--ui-settings-toolbar-sticky-bg)",
           dropdown: "var(--ui-settings-dropdown-bg)",
           "dropdown-border": "var(--ui-settings-dropdown-border)",
           "dropdown-hover": "var(--ui-settings-dropdown-hover)",

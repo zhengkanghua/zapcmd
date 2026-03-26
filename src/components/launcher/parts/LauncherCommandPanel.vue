@@ -96,7 +96,7 @@ function onSubmit(): void {
       <div class="command-panel__header-main flex items-center gap-[8px]" data-tauri-drag-region>
         <button
           type="button"
-          class="command-panel__back border-0 bg-transparent text-ui-subtle text-[18px] cursor-pointer p-[4px_8px] rounded-[6px] transition-[color,background-color,box-shadow] duration-150 hover:text-ui-text hover:bg-[rgba(var(--ui-text-rgb),0.06)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+          class="command-panel__back border-0 bg-transparent text-ui-subtle text-[18px] cursor-pointer p-[4px_8px] rounded-[6px] transition-[color,background-color,box-shadow] duration-150 hover:text-ui-text hover:bg-ui-text/6 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           :aria-label="t('commandPanel.btn.cancel')"
           @click="onCancel"
         >
@@ -111,9 +111,9 @@ function onSubmit(): void {
         </h2>
 
         <span
-          class="command-panel__badge text-[11px] p-[2px_8px] rounded-[6px] border border-[rgba(var(--ui-text-rgb),0.08)] bg-[rgba(var(--ui-text-rgb),0.06)] text-ui-subtle whitespace-nowrap"
+          class="command-panel__badge text-[11px] p-[2px_8px] rounded-[6px] border border-ui-text/8 bg-ui-text/6 text-ui-subtle whitespace-nowrap"
           :class="{
-            'command-panel__badge--danger bg-[rgba(var(--ui-danger-rgb),0.12)] border-[rgba(var(--ui-danger-rgb),0.2)] text-ui-danger':
+            'command-panel__badge--danger bg-ui-danger/12 border-ui-danger/20 text-ui-danger':
               props.isDangerous
           }"
         >
@@ -124,20 +124,20 @@ function onSubmit(): void {
 
         <button
           type="button"
-          class="command-panel__queue-btn border-0 bg-transparent cursor-pointer p-[4px_6px] rounded-[6px] text-ui-subtle opacity-85 transition-[opacity,background-color,color,box-shadow] duration-150 hover:opacity-100 hover:text-ui-text hover:bg-[rgba(var(--ui-text-rgb),0.06)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+          class="command-panel__queue-btn border-0 bg-transparent cursor-pointer p-[4px_6px] rounded-[6px] text-ui-subtle opacity-85 transition-[opacity,background-color,color,box-shadow] duration-150 hover:opacity-100 hover:text-ui-text hover:bg-ui-text/6 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommandCount })"
           @click="emit('toggle-staging')"
         >
           <LauncherIcon name="queue" />
         </button>
       </div>
-      <div class="command-panel__divider command-panel__divider--header h-px w-full m-0 bg-[rgba(var(--ui-text-rgb),0.08)]" />
+      <div class="command-panel__divider command-panel__divider--header h-px w-full m-0 bg-ui-text/8" />
     </header>
 
     <div class="command-panel__content min-h-0 overflow-y-auto p-[16px] flex flex-col gap-[16px]">
       <p
         v-if="props.executionFeedbackMessage"
-        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-ui-glass shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
+        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-ui-text/18 bg-ui-glass shadow-[0_8px_22px_var(--tw-shadow-color)] shadow-ui-black/34 backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
         :class="{
           'execution-feedback--neutral text-ui-brand': props.executionFeedbackTone === 'neutral',
           'execution-feedback--success text-ui-success': props.executionFeedbackTone === 'success',
@@ -151,12 +151,12 @@ function onSubmit(): void {
 
       <div
         v-if="props.isDangerous"
-        class="command-panel__danger-banner bg-[rgba(var(--ui-danger-rgb),0.08)] border border-[rgba(var(--ui-danger-rgb),0.22)] rounded-[12px] p-[12px_16px] flex flex-col gap-[6px]"
+        class="command-panel__danger-banner bg-ui-danger/8 border border-ui-danger/22 rounded-[12px] p-[12px_16px] flex flex-col gap-[6px]"
         data-testid="danger-banner"
       >
         <div class="command-panel__danger-header flex items-center gap-[8px] text-ui-danger text-[14px] font-semibold">
           <span
-            class="command-panel__danger-icon w-[18px] h-[18px] inline-flex items-center justify-center rounded-[6px] border border-[rgba(var(--ui-danger-rgb),0.3)] bg-[rgba(var(--ui-danger-rgb),0.12)] text-[12px] leading-[1]"
+            class="command-panel__danger-icon w-[18px] h-[18px] inline-flex items-center justify-center rounded-[6px] border border-ui-danger/30 bg-ui-danger/12 text-[12px] leading-[1]"
             aria-hidden="true"
             >!</span
           >
@@ -195,7 +195,7 @@ function onSubmit(): void {
           <select
             v-if="arg.argType === 'select' && arg.options?.length"
             :value="props.pendingArgValues[arg.key] ?? ''"
-            class="command-panel__select h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-[rgba(var(--ui-black-rgb),0.2)] text-ui-text outline-none transition-[border-color,box-shadow,background-color] duration-140 focus-visible:border-[rgba(var(--ui-search-hl-rgb),0.5)] focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+            class="command-panel__select h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-[border-color,box-shadow,background-color] duration-140 focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
             @change="
               onArgInput(arg.key, ($event.target as HTMLSelectElement).value)
             "
@@ -211,9 +211,9 @@ function onSubmit(): void {
             :value="props.pendingArgValues[arg.key] ?? ''"
             :type="arg.argType === 'number' ? 'number' : 'text'"
             :placeholder="arg.placeholder"
-            class="command-panel__input h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-[rgba(var(--ui-black-rgb),0.2)] text-ui-text outline-none transition-[border-color,box-shadow,background-color] duration-140 placeholder:text-ui-dim focus-visible:border-[rgba(var(--ui-search-hl-rgb),0.5)] focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+            class="command-panel__input h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-[border-color,box-shadow,background-color] duration-140 placeholder:text-ui-dim focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
             :class="{
-              'command-panel__input--danger focus-visible:border-[rgba(var(--ui-danger-rgb),0.55)] focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-danger-rgb),0.18)]':
+              'command-panel__input--danger focus-visible:border-ui-danger/55 focus-visible:ring focus-visible:ring-ui-danger/18':
                 props.isDangerous
             }"
             autocomplete="off"
@@ -225,14 +225,14 @@ function onSubmit(): void {
       </form>
 
       <div
-        class="command-panel__preview flex items-baseline gap-[8px] p-[8px_12px] bg-[rgba(var(--ui-black-rgb),0.12)] rounded-surface border border-[rgba(var(--ui-text-rgb),0.08)]"
+        class="command-panel__preview flex items-baseline gap-[8px] p-[8px_12px] bg-ui-black/12 rounded-surface border border-ui-text/8"
         data-testid="command-preview"
       >
         <span class="command-panel__preview-label text-[12px] text-ui-subtle whitespace-nowrap shrink-0">
           <span aria-hidden="true">&gt;_ </span>{{ t("commandPanel.preview.label") }}:
         </span>
         <code
-          class="command-panel__preview-code font-mono text-[13px] text-[rgba(var(--ui-brand-rgb),0.95)] break-all"
+          class="command-panel__preview-code font-mono text-[13px] text-ui-brand/95 break-all"
           >{{ renderedCommand }}</code
         >
       </div>
@@ -248,7 +248,7 @@ function onSubmit(): void {
     </div>
 
     <footer class="command-panel__footer grid grid-rows-[auto_auto] gap-[12px] p-[0_16px_12px]">
-      <div class="command-panel__divider command-panel__divider--footer h-px w-full m-0 bg-[rgba(var(--ui-text-rgb),0.08)]" />
+      <div class="command-panel__divider command-panel__divider--footer h-px w-full m-0 bg-ui-text/8" />
       <div class="command-panel__footer-main flex items-center gap-[8px]">
         <span class="command-panel__hint text-[12px] text-ui-subtle flex-1">
           {{ t("commandPanel.hint.escCancel") }}
@@ -256,7 +256,7 @@ function onSubmit(): void {
 
         <button
           type="button"
-          class="command-panel__btn command-panel__btn--cancel p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-[rgba(var(--ui-text-rgb),0.08)] bg-[rgba(var(--ui-text-rgb),0.06)] text-ui-subtle transition-[background-color,color,opacity,box-shadow] duration-150 hover:bg-[rgba(var(--ui-text-rgb),0.1)] hover:text-ui-text focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+          class="command-panel__btn command-panel__btn--cancel p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-ui-text/8 bg-ui-text/6 text-ui-subtle transition-[background-color,color,opacity,box-shadow] duration-150 hover:bg-ui-text/10 hover:text-ui-text focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           @click="onCancel"
         >
           {{ t("commandPanel.btn.cancel") }}
@@ -264,7 +264,7 @@ function onSubmit(): void {
 
         <button
           type="button"
-          class="command-panel__btn command-panel__btn--confirm p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-transparent bg-[rgba(var(--ui-brand-rgb),0.95)] text-ui-accent-text transition-[opacity,box-shadow] duration-150 hover:opacity-92 focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+          class="command-panel__btn command-panel__btn--confirm p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-transparent bg-ui-brand/95 text-ui-accent-text transition-[opacity,box-shadow] duration-150 hover:opacity-92 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           :class="{
             'command-panel__btn--danger bg-ui-danger text-ui-accent-text': isDangerBtn
           }"

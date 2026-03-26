@@ -12,7 +12,7 @@ const props = defineProps<SettingItemProps>();
     class="setting-item grid grid-cols-[minmax(0,1fr)_auto] items-center gap-[18px] px-4 py-3.5 border-b border-b-settings-row-border transition-[background] duration-120 hover:bg-settings-row-hover last:border-b-0"
   >
     <div class="setting-item__body min-w-0 grid gap-[4px]">
-      <p class="setting-item__label m-0 text-[13px] font-medium leading-[1.35] text-[rgba(var(--ui-text-rgb),0.9)]">
+      <p class="setting-item__label m-0 text-[13px] font-medium leading-[1.35] text-ui-text/90">
         {{ props.label }}
       </p>
       <p

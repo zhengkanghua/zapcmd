@@ -23,7 +23,7 @@ function formatCount(count: number): string {
 <template>
   <button
     type="button"
-    class="queue-summary-pill relative inline-flex items-center justify-center w-[34px] h-[34px] p-0 border border-[rgba(var(--ui-brand-rgb),0.34)] rounded-surface bg-[rgba(var(--ui-brand-rgb),0.12)] text-ui-text leading-none cursor-pointer transition-[background-color,border-color] duration-150 hover:border-[rgba(var(--ui-brand-rgb),0.44)] hover:bg-ui-brand-soft focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.24)]"
+    class="queue-summary-pill relative inline-flex items-center justify-center w-[34px] h-[34px] p-0 border border-ui-brand/34 rounded-surface bg-ui-brand/12 text-ui-text leading-none cursor-pointer transition-[background-color,border-color] duration-150 hover:border-ui-brand/44 hover:bg-ui-brand-soft focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24"
     :aria-label="t('launcher.queueToggleAria', { count: props.count })"
     :title="t('launcher.queueTitle', { count: props.count })"
     @click="emit('toggle-staging')"
@@ -31,7 +31,7 @@ function formatCount(count: number): string {
     <LauncherIcon name="queue" />
     <span
       v-if="props.count > 0"
-      class="queue-summary-pill__badge absolute top-[-6px] right-[-6px] min-w-[18px] h-[18px] px-[5px] inline-flex items-center justify-center rounded-full border border-[rgba(var(--ui-black-rgb),0.8)] bg-[rgba(var(--ui-brand-rgb),0.95)] text-ui-accent-text text-[10px] font-extrabold"
+      class="queue-summary-pill__badge absolute top-[-6px] right-[-6px] min-w-[18px] h-[18px] px-[5px] inline-flex items-center justify-center rounded-full border border-ui-black/80 bg-ui-brand/95 text-ui-accent-text text-[10px] font-extrabold"
       aria-hidden="true"
     >
       {{ formatCount(props.count) }}
