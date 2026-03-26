@@ -3,7 +3,7 @@
  *
  * 关键约束：
  * - 禁用 preflight：避免与现有 `src/styles/reset.css` 产生 reset 冲突，保证视觉零差异。
- * - content 覆盖多入口：Launcher(`index.html`) + Settings(`settings.html`) + Visual(`visual.html`) + `src/**/*.{vue,ts}`。
+ * - content 覆盖多入口：Launcher(`index.html`) + Settings(`settings.html`) + Visual(`visual.html`) + src 下所有 .vue/.ts。
  */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
