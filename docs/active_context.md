@@ -21,6 +21,7 @@
 - 补充（2026-03-25｜Phase 6）：Launcher 全量 Tailwind 化，`launcher.css`/`animations.css` 已删除；keyframes/reduced-motion 收敛到 `tailwind.css`；`index.css` 仅导入白名单；style-guard 禁 Vue `<style>`（仅 `SSlider` 例外）。
 - 补充（2026-03-25）：新增 Tailwind 语义化（动画/布局）+ 全局 CSS 瘦身设计稿，先做动画语义化与 Transition 去全局，再收口关键 layout arbitrary。
 - 补充（2026-03-25）：已根据 spec review 补齐动画迁移对照表、`nav-slide` 零差异落地策略与 `tailwind.css` DoD（白名单/禁止项/rg 门禁）。
+- 补充（2026-03-26）：已落盘 Tailwind 语义化+全局 CSS 瘦身实施计划（`docs/superpowers/plans/2026-03-26-tailwind-semantics-and-thin-global-css.md`），先做动画 `animate-launcher-*` + 删除 `tailwind.css` keyframes/nav-slide，再收口关键 `grid-rows/place-items` 并更新样式契约测试。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
