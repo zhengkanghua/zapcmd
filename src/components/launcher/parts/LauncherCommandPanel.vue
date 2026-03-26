@@ -96,7 +96,7 @@ function onSubmit(): void {
       <div class="command-panel__header-main flex items-center gap-[8px]" data-tauri-drag-region>
         <button
           type="button"
-          class="command-panel__back border-0 bg-transparent text-[var(--ui-subtle)] text-[18px] cursor-pointer p-[4px_8px] rounded-[6px] transition-[color,background-color,box-shadow] duration-150 hover:text-[var(--ui-text)] hover:bg-[rgba(var(--ui-text-rgb),0.06)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+          class="command-panel__back border-0 bg-transparent text-ui-subtle text-[18px] cursor-pointer p-[4px_8px] rounded-[6px] transition-[color,background-color,box-shadow] duration-150 hover:text-ui-text hover:bg-[rgba(var(--ui-text-rgb),0.06)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
           :aria-label="t('commandPanel.btn.cancel')"
           @click="onCancel"
         >
@@ -104,16 +104,16 @@ function onSubmit(): void {
         </button>
 
         <h2
-          class="command-panel__title text-[15px] font-semibold text-[var(--ui-text)] whitespace-nowrap overflow-hidden text-ellipsis"
+          class="command-panel__title text-[15px] font-semibold text-ui-text whitespace-nowrap overflow-hidden text-ellipsis"
           data-tauri-drag-region
         >
           {{ props.command.title }}
         </h2>
 
         <span
-          class="command-panel__badge text-[11px] p-[2px_8px] rounded-[6px] border border-[rgba(var(--ui-text-rgb),0.08)] bg-[rgba(var(--ui-text-rgb),0.06)] text-[var(--ui-subtle)] whitespace-nowrap"
+          class="command-panel__badge text-[11px] p-[2px_8px] rounded-[6px] border border-[rgba(var(--ui-text-rgb),0.08)] bg-[rgba(var(--ui-text-rgb),0.06)] text-ui-subtle whitespace-nowrap"
           :class="{
-            'command-panel__badge--danger bg-[rgba(var(--ui-danger-rgb),0.12)] border-[rgba(var(--ui-danger-rgb),0.2)] text-[var(--ui-danger)]':
+            'command-panel__badge--danger bg-[rgba(var(--ui-danger-rgb),0.12)] border-[rgba(var(--ui-danger-rgb),0.2)] text-ui-danger':
               props.isDangerous
           }"
         >
@@ -124,7 +124,7 @@ function onSubmit(): void {
 
         <button
           type="button"
-          class="command-panel__queue-btn border-0 bg-transparent cursor-pointer p-[4px_6px] rounded-[6px] text-[var(--ui-subtle)] opacity-85 transition-[opacity,background-color,color,box-shadow] duration-150 hover:opacity-100 hover:text-[var(--ui-text)] hover:bg-[rgba(var(--ui-text-rgb),0.06)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+          class="command-panel__queue-btn border-0 bg-transparent cursor-pointer p-[4px_6px] rounded-[6px] text-ui-subtle opacity-85 transition-[opacity,background-color,color,box-shadow] duration-150 hover:opacity-100 hover:text-ui-text hover:bg-[rgba(var(--ui-text-rgb),0.06)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
           :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommandCount })"
           @click="emit('toggle-staging')"
         >
@@ -137,11 +137,11 @@ function onSubmit(): void {
     <div class="command-panel__content min-h-0 overflow-y-auto p-[16px] flex flex-col gap-[16px]">
       <p
         v-if="props.executionFeedbackMessage"
-        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-[var(--ui-glass-bg)] shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
+        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-ui-glass shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
         :class="{
-          'execution-feedback--neutral text-[var(--ui-brand)]': props.executionFeedbackTone === 'neutral',
-          'execution-feedback--success text-[var(--ui-success)]': props.executionFeedbackTone === 'success',
-          'execution-feedback--error text-[var(--ui-danger)]': props.executionFeedbackTone === 'error'
+          'execution-feedback--neutral text-ui-brand': props.executionFeedbackTone === 'neutral',
+          'execution-feedback--success text-ui-success': props.executionFeedbackTone === 'success',
+          'execution-feedback--error text-ui-danger': props.executionFeedbackTone === 'error'
         }"
         role="status"
         aria-live="polite"
@@ -154,7 +154,7 @@ function onSubmit(): void {
         class="command-panel__danger-banner bg-[rgba(var(--ui-danger-rgb),0.08)] border border-[rgba(var(--ui-danger-rgb),0.22)] rounded-[12px] p-[12px_16px] flex flex-col gap-[6px]"
         data-testid="danger-banner"
       >
-        <div class="command-panel__danger-header flex items-center gap-[8px] text-[var(--ui-danger)] text-[14px] font-semibold">
+        <div class="command-panel__danger-header flex items-center gap-[8px] text-ui-danger text-[14px] font-semibold">
           <span
             class="command-panel__danger-icon w-[18px] h-[18px] inline-flex items-center justify-center rounded-[6px] border border-[rgba(var(--ui-danger-rgb),0.3)] bg-[rgba(var(--ui-danger-rgb),0.12)] text-[12px] leading-[1]"
             aria-hidden="true"
@@ -162,11 +162,11 @@ function onSubmit(): void {
           >
           <strong>{{ t("commandPanel.danger.title") }}</strong>
         </div>
-        <p class="command-panel__danger-desc m-0 text-[13px] text-[var(--ui-subtle)] leading-[1.5]">
+        <p class="command-panel__danger-desc m-0 text-[13px] text-ui-subtle leading-[1.5]">
           {{ t("commandPanel.danger.description") }}
         </p>
         <label
-          class="command-panel__danger-dismiss flex items-center gap-[6px] text-[12px] text-[var(--ui-subtle)] cursor-pointer opacity-85 hover:opacity-100"
+          class="command-panel__danger-dismiss flex items-center gap-[6px] text-[12px] text-ui-subtle cursor-pointer opacity-85 hover:opacity-100"
           data-testid="dismiss-checkbox"
         >
           <input v-model="dismissChecked" type="checkbox" />
@@ -185,9 +185,9 @@ function onSubmit(): void {
           :key="arg.key"
           class="command-panel__field flex flex-col gap-[4px]"
         >
-          <label class="command-panel__label text-[12px] font-medium text-[var(--ui-subtle)] uppercase tracking-[0.5px]">
+          <label class="command-panel__label text-[12px] font-medium text-ui-subtle uppercase tracking-[0.5px]">
             {{ arg.label }}
-            <span v-if="arg.required !== false" class="command-panel__required text-[var(--ui-danger)]"
+            <span v-if="arg.required !== false" class="command-panel__required text-ui-danger"
               >*</span
             >
           </label>
@@ -195,7 +195,7 @@ function onSubmit(): void {
           <select
             v-if="arg.argType === 'select' && arg.options?.length"
             :value="props.pendingArgValues[arg.key] ?? ''"
-            class="command-panel__select h-[34px] p-[0_10px] border border-[var(--ui-border)] rounded-[8px] bg-[rgba(var(--ui-black-rgb),0.2)] text-[var(--ui-text)] outline-none transition-[border-color,box-shadow,background-color] duration-140 focus-visible:border-[rgba(var(--ui-search-hl-rgb),0.5)] focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+            class="command-panel__select h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-[rgba(var(--ui-black-rgb),0.2)] text-ui-text outline-none transition-[border-color,box-shadow,background-color] duration-140 focus-visible:border-[rgba(var(--ui-search-hl-rgb),0.5)] focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
             @change="
               onArgInput(arg.key, ($event.target as HTMLSelectElement).value)
             "
@@ -211,7 +211,7 @@ function onSubmit(): void {
             :value="props.pendingArgValues[arg.key] ?? ''"
             :type="arg.argType === 'number' ? 'number' : 'text'"
             :placeholder="arg.placeholder"
-            class="command-panel__input h-[34px] p-[0_10px] border border-[var(--ui-border)] rounded-[8px] bg-[rgba(var(--ui-black-rgb),0.2)] text-[var(--ui-text)] outline-none transition-[border-color,box-shadow,background-color] duration-140 placeholder:text-[var(--ui-dim)] focus-visible:border-[rgba(var(--ui-search-hl-rgb),0.5)] focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+            class="command-panel__input h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-[rgba(var(--ui-black-rgb),0.2)] text-ui-text outline-none transition-[border-color,box-shadow,background-color] duration-140 placeholder:text-ui-dim focus-visible:border-[rgba(var(--ui-search-hl-rgb),0.5)] focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
             :class="{
               'command-panel__input--danger focus-visible:border-[rgba(var(--ui-danger-rgb),0.55)] focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-danger-rgb),0.18)]':
                 props.isDangerous
@@ -225,21 +225,21 @@ function onSubmit(): void {
       </form>
 
       <div
-        class="command-panel__preview flex items-baseline gap-[8px] p-[8px_12px] bg-[rgba(var(--ui-black-rgb),0.12)] rounded-[10px] border border-[rgba(var(--ui-text-rgb),0.08)]"
+        class="command-panel__preview flex items-baseline gap-[8px] p-[8px_12px] bg-[rgba(var(--ui-black-rgb),0.12)] rounded-surface border border-[rgba(var(--ui-text-rgb),0.08)]"
         data-testid="command-preview"
       >
-        <span class="command-panel__preview-label text-[12px] text-[var(--ui-subtle)] whitespace-nowrap shrink-0">
+        <span class="command-panel__preview-label text-[12px] text-ui-subtle whitespace-nowrap shrink-0">
           <span aria-hidden="true">&gt;_ </span>{{ t("commandPanel.preview.label") }}:
         </span>
         <code
-          class="command-panel__preview-code [font-family:var(--ui-font-mono)] text-[13px] text-[rgba(var(--ui-brand-rgb),0.95)] break-all"
+          class="command-panel__preview-code font-mono text-[13px] text-[rgba(var(--ui-brand-rgb),0.95)] break-all"
           >{{ renderedCommand }}</code
         >
       </div>
 
       <ul
         v-if="dangerReasons.length > 0"
-        class="command-panel__danger-reasons m-0 pl-[16px] grid gap-[4px] text-[var(--ui-danger)] text-[12px]"
+        class="command-panel__danger-reasons m-0 pl-[16px] grid gap-[4px] text-ui-danger text-[12px]"
       >
         <li v-for="reason in dangerReasons" :key="reason">
           {{ reason }}
@@ -250,13 +250,13 @@ function onSubmit(): void {
     <footer class="command-panel__footer grid grid-rows-[auto_auto] gap-[12px] p-[0_16px_12px]">
       <div class="command-panel__divider command-panel__divider--footer h-px w-full m-0 bg-[rgba(var(--ui-text-rgb),0.08)]" />
       <div class="command-panel__footer-main flex items-center gap-[8px]">
-        <span class="command-panel__hint text-[12px] text-[var(--ui-subtle)] flex-1">
+        <span class="command-panel__hint text-[12px] text-ui-subtle flex-1">
           {{ t("commandPanel.hint.escCancel") }}
         </span>
 
         <button
           type="button"
-          class="command-panel__btn command-panel__btn--cancel p-[8px_16px] rounded-[10px] text-[13px] font-semibold cursor-pointer border border-[rgba(var(--ui-text-rgb),0.08)] bg-[rgba(var(--ui-text-rgb),0.06)] text-[var(--ui-subtle)] transition-[background-color,color,opacity,box-shadow] duration-150 hover:bg-[rgba(var(--ui-text-rgb),0.1)] hover:text-[var(--ui-text)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+          class="command-panel__btn command-panel__btn--cancel p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-[rgba(var(--ui-text-rgb),0.08)] bg-[rgba(var(--ui-text-rgb),0.06)] text-ui-subtle transition-[background-color,color,opacity,box-shadow] duration-150 hover:bg-[rgba(var(--ui-text-rgb),0.1)] hover:text-ui-text focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
           @click="onCancel"
         >
           {{ t("commandPanel.btn.cancel") }}
@@ -264,9 +264,9 @@ function onSubmit(): void {
 
         <button
           type="button"
-          class="command-panel__btn command-panel__btn--confirm p-[8px_16px] rounded-[10px] text-[13px] font-semibold cursor-pointer border border-transparent bg-[rgba(var(--ui-brand-rgb),0.95)] text-[var(--ui-accent-text)] transition-[opacity,box-shadow] duration-150 hover:opacity-92 focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
+          class="command-panel__btn command-panel__btn--confirm p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-transparent bg-[rgba(var(--ui-brand-rgb),0.95)] text-ui-accent-text transition-[opacity,box-shadow] duration-150 hover:opacity-92 focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(var(--ui-search-hl-rgb),0.18)]"
           :class="{
-            'command-panel__btn--danger bg-[var(--ui-danger)] text-[var(--ui-accent-text)]': isDangerBtn
+            'command-panel__btn--danger bg-ui-danger text-ui-accent-text': isDangerBtn
           }"
           data-testid="confirm-btn"
           @click="onSubmit"

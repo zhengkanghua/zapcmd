@@ -9,7 +9,7 @@ const props = defineProps<SettingItemProps>();
 
 <template>
   <div
-    class="setting-item grid grid-cols-[minmax(0,1fr)_auto] items-center gap-[18px] px-[16px] py-[14px] border-b [border-bottom-color:var(--ui-settings-row-border)] transition-[background] duration-[120ms] hover:bg-[var(--ui-settings-row-hover)] last:border-b-0"
+    class="setting-item grid grid-cols-[minmax(0,1fr)_auto] items-center gap-[18px] px-4 py-3.5 border-b border-b-settings-row-border transition-[background] duration-120 hover:bg-settings-row-hover last:border-b-0"
   >
     <div class="setting-item__body min-w-0 grid gap-[4px]">
       <p class="setting-item__label m-0 text-[13px] font-medium leading-[1.35] text-[rgba(var(--ui-text-rgb),0.9)]">
@@ -17,7 +17,7 @@ const props = defineProps<SettingItemProps>();
       </p>
       <p
         v-if="props.description"
-        class="setting-item__description m-0 text-[12px] leading-[1.5] text-[var(--ui-settings-hint)]"
+        class="setting-item__description m-0 text-[12px] leading-[1.5] text-settings-hint"
       >
         {{ props.description }}
       </p>

@@ -21,10 +21,10 @@ describe("settings topbar navigation style contract", () => {
     const component = readProjectFile("src/components/settings/ui/SSegmentNav.vue");
 
     expect(component).toContain('class="s-segment-nav');
-    expect(component).toContain("gap-[10px]");
-    expect(component).toContain("pt-[8px]");
-    expect(component).toContain("pb-[10px]");
-    expect(component).toContain("rounded-[10px]");
+    expect(component).toContain("gap-2.5");
+    expect(component).toContain("pt-2");
+    expect(component).toContain("pb-2.5");
+    expect(component).toContain("rounded-surface");
   });
 
   it("keeps the default tab state frameless and uses background only for hover or active emphasis", () => {
@@ -32,9 +32,9 @@ describe("settings topbar navigation style contract", () => {
 
     expect(component).toContain("border border-transparent bg-transparent");
     expect(component).toContain("text-[color:var(--ui-settings-segment-tab-text)]");
-    expect(component).toContain("hover:bg-[var(--ui-settings-table-row-hover)]");
+    expect(component).toContain("hover:bg-settings-table-row-hover");
     expect(component).toContain("hover:text-[color:var(--ui-settings-segment-tab-text-hover)]");
-    expect(component).toContain("bg-[var(--ui-settings-segment-tab-active-bg)]");
+    expect(component).toContain("bg-settings-segment-tab-active");
     expect(component).toContain("text-[color:var(--ui-settings-segment-tab-text-active)]");
     expect(component).toContain("focus-visible:shadow-[0_0_0_2px_var(--ui-brand-soft)]");
 

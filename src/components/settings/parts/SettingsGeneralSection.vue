@@ -124,7 +124,7 @@ function onTerminalReusePolicySelect(value: string): void {
 
       <p
         v-if="props.terminalLoading"
-        class="settings-status settings-status--loading mt-0 mx-[16px] mb-[12px] px-[12px] py-[9px] border border-[color:rgba(var(--ui-brand-rgb),0.25)] rounded-[8px] bg-[rgba(var(--ui-brand-rgb),0.08)] text-[12px] leading-[1.45] text-[var(--ui-brand)]"
+        class="settings-status settings-status--loading mt-0 mx-[16px] mb-[12px] px-[12px] py-[9px] border border-[color:rgba(var(--ui-brand-rgb),0.25)] rounded-[8px] bg-[rgba(var(--ui-brand-rgb),0.08)] text-[12px] leading-[1.45] text-ui-brand"
         role="status"
         aria-live="polite"
       >

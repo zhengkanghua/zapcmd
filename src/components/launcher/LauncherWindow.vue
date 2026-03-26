@@ -144,7 +144,7 @@ function onNavAfterEnter(): void {
 
 <template>
   <main
-    class="launcher-root w-full h-full px-[var(--shell-side-pad)] grid place-items-start justify-items-center text-[var(--ui-text)] select-none bg-transparent"
+    class="launcher-root w-full h-full px-[var(--shell-side-pad)] grid place-items-start justify-items-center text-ui-text select-none bg-transparent"
     @pointerdown.capture="onRootPointerDown"
   >
     <div
@@ -162,7 +162,7 @@ function onNavAfterEnter(): void {
       ></div>
 
       <div
-        class="launcher-frame col-start-1 row-start-2 relative w-full min-w-0 h-[var(--launcher-frame-height,auto)] max-h-[var(--launcher-panel-max-height,none)] overflow-hidden rounded-[var(--ui-radius)] border border-[var(--ui-border)] shadow-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.04),transparent_60%),var(--ui-bg)]"
+        class="launcher-frame col-start-1 row-start-2 relative w-full min-w-0 h-[var(--launcher-frame-height,auto)] max-h-[var(--launcher-panel-max-height,none)] overflow-hidden rounded-ui border border-ui-border shadow-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.04),transparent_60%),var(--ui-bg)]"
         data-hit-zone="interactive"
       >
         <Transition

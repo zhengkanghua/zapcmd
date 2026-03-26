@@ -47,7 +47,7 @@ const stagingHintText = computed(() => {
 <template>
   <aside
     :ref="props.setStagingPanelRef"
-    class="staging-panel col-start-2 row-start-2 relative w-full min-w-0 p-[10px] grid gap-[8px] rounded-[var(--ui-radius)] border border-[var(--ui-border)] bg-[var(--ui-bg)] shadow-[var(--ui-shadow)]"
+    class="staging-panel col-start-2 row-start-2 relative w-full min-w-0 p-2.5 grid gap-2 rounded-ui border border-ui-border bg-ui-bg shadow-ui"
     data-hit-zone="interactive"
     :class="[
       `staging-panel--${props.stagingDrawerState}`,
@@ -63,7 +63,7 @@ const stagingHintText = computed(() => {
   >
     <button
       type="button"
-      class="staging-chip w-full min-h-[62px] grid justify-items-center content-center gap-[6px] border border-[var(--ui-border)] rounded-[var(--ui-radius)] bg-[var(--ui-bg)] shadow-[inset_0_1px_0_rgba(var(--ui-text-rgb),0.04)] text-[var(--ui-text)] cursor-pointer focus-visible:outline-none focus-visible:border-[rgba(var(--ui-brand-rgb),0.54)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
+      class="staging-chip w-full min-h-[62px] grid justify-items-center content-center gap-[6px] border border-ui-border rounded-ui bg-ui-bg shadow-[inset_0_1px_0_rgba(var(--ui-text-rgb),0.04)] text-ui-text cursor-pointer focus-visible:outline-none focus-visible:border-[rgba(var(--ui-brand-rgb),0.54)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
       :class="{
         'staging-chip--active border-[rgba(var(--ui-brand-rgb),0.48)] bg-[linear-gradient(180deg,rgba(var(--ui-brand-rgb),0.22),var(--ui-bg))]':
           props.stagingExpanded
@@ -82,7 +82,7 @@ const stagingHintText = computed(() => {
         ></span>
       </span>
       <span
-        class="staging-chip__count inline-flex items-center justify-center min-w-[24px] h-[18px] px-[6px] rounded-full border border-[rgba(var(--ui-text-rgb),0.16)] bg-[rgba(var(--ui-text-rgb),0.08)] text-[var(--ui-subtle)] text-[11px] font-semibold"
+        class="staging-chip__count inline-flex items-center justify-center min-w-[24px] h-[18px] px-[6px] rounded-full border border-[rgba(var(--ui-text-rgb),0.16)] bg-[rgba(var(--ui-text-rgb),0.08)] text-ui-subtle text-[11px] font-semibold"
       >
         {{ props.stagedCommands.length }}
       </span>
@@ -90,18 +90,18 @@ const stagingHintText = computed(() => {
 
     <template v-if="props.stagingExpanded">
       <header
-        class="staging-panel__header flex items-center justify-between gap-[8px]"
+        class="staging-panel__header flex items-center justify-between gap-2"
         data-hit-zone="drag"
         data-tauri-drag-region
       >
         <h2 class="m-0 text-[13px]">{{ t("launcher.queueTitle", { count: props.stagedCommands.length }) }}</h2>
-        <span v-if="stagingHintText" class="staging-panel__hint text-[11px] text-[var(--ui-subtle)]">
+        <span v-if="stagingHintText" class="staging-panel__hint text-[11px] text-ui-subtle">
           {{ stagingHintText }}
         </span>
       </header>
       <p
         v-if="props.stagedCommands.length === 0"
-        class="staging-empty m-0 p-[12px_10px] border border-dashed border-[rgba(var(--ui-text-rgb),0.16)] rounded-[8px] text-[var(--ui-subtle)] text-[12px]"
+        class="staging-empty m-0 p-[12px_10px] border border-dashed border-[rgba(var(--ui-text-rgb),0.16)] rounded-[8px] text-ui-subtle text-[12px]"
       >
         {{ t("launcher.queueEmpty") }}
       </p>
@@ -121,7 +121,7 @@ const stagingHintText = computed(() => {
           @click="emit('focus-staging-index', index)"
         >
           <article
-            class="staging-card border border-[rgba(var(--ui-text-rgb),0.08)] rounded-[10px] bg-[rgba(var(--ui-black-rgb),0.17)] p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
+            class="staging-card border border-[rgba(var(--ui-text-rgb),0.08)] rounded-surface bg-[rgba(var(--ui-black-rgb),0.17)] p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
             :class="{
               'staging-card--active border-[rgba(var(--ui-brand-rgb),0.52)] shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.2)]':
                 props.focusZone === 'staging' && index === props.stagingActiveIndex
@@ -148,7 +148,7 @@ const stagingHintText = computed(() => {
                 :key="`${cmd.id}-${arg.key}`"
                 class="staging-card__arg flex items-center gap-[6px] flex-[1_1_120px] min-w-0"
               >
-                <label class="text-[11px] text-[var(--ui-subtle)] whitespace-nowrap">
+                <label class="text-[11px] text-ui-subtle whitespace-nowrap">
                   {{ arg.label }}
                 </label>
                 <input
@@ -156,14 +156,14 @@ const stagingHintText = computed(() => {
                   :value="cmd.argValues[arg.key] ?? ''"
                   :placeholder="arg.placeholder"
                   autocomplete="off"
-                  class="h-[24px] px-[6px] border border-[var(--ui-border)] rounded-[6px] bg-[rgba(var(--ui-text-rgb),0.04)] text-[var(--ui-text)] text-[11px] outline-none flex-1 min-w-0 focus-visible:border-[rgba(var(--ui-brand-rgb),0.56)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
+                  class="h-[24px] px-[6px] border border-ui-border rounded-[6px] bg-[rgba(var(--ui-text-rgb),0.04)] text-ui-text text-[11px] outline-none flex-1 min-w-0 focus-visible:border-[rgba(var(--ui-brand-rgb),0.56)] focus-visible:shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.22)]"
                   @input="onStagingArgInput(cmd.id, arg.key, $event)"
                 />
               </div>
             </div>
             <code
               :title="cmd.renderedCommand"
-              class="block [font-family:var(--ui-font-mono)] text-[11px] text-[var(--ui-subtle)] whitespace-nowrap overflow-hidden text-ellipsis mt-[2px]"
+              class="block font-mono text-[11px] text-ui-subtle whitespace-nowrap overflow-hidden text-ellipsis mt-[2px]"
             >
               {{ cmd.renderedCommand }}
             </code>

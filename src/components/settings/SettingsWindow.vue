@@ -49,10 +49,10 @@ const emit = defineEmits<{
 
 <template>
   <main
-    class="settings-window-root h-full min-h-0 grid grid-rows-settings-window overflow-hidden text-[var(--ui-text)] bg-[radial-gradient(circle_at_top,rgba(var(--ui-text-rgb),0.035),transparent_48%),linear-gradient(180deg,rgba(var(--ui-text-rgb),0.02),transparent_28%),var(--ui-bg-deep)]"
+    class="settings-window-root h-full min-h-0 grid grid-rows-settings-window overflow-hidden text-ui-text bg-[radial-gradient(circle_at_top,rgba(var(--ui-text-rgb),0.035),transparent_48%),linear-gradient(180deg,rgba(var(--ui-text-rgb),0.02),transparent_28%),var(--ui-bg-deep)]"
   >
     <div
-      class="settings-window-topbar relative z-[var(--ui-settings-z-topbar)] h-[52px] flex items-end justify-center px-[24px] box-border bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.045),rgba(var(--ui-text-rgb),0.01)_42%,rgba(var(--ui-text-rgb),0))] backdrop-blur-[calc(var(--ui-blur)*0.24)]"
+      class="settings-window-topbar relative z-settings-topbar h-[52px] flex items-end justify-center px-[24px] box-border bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.045),rgba(var(--ui-text-rgb),0.01)_42%,rgba(var(--ui-text-rgb),0))] backdrop-blur-[calc(var(--ui-blur)*0.24)]"
     >
       <SSegmentNav :items="navItems" v-model="settingsRoute" />
       <div

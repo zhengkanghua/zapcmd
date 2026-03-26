@@ -7,6 +7,8 @@
 @source "../../settings.html";
 @source "../../visual.html";
 @source "../**/*.{vue,ts}";
+@source not "../__tests__/**/*";
+@source not "../**/__tests__/**/*";
 
 @tailwind base;
 @tailwind components;

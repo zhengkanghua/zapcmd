@@ -7,19 +7,77 @@
  */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["index.html", "settings.html", "visual.html", "src/**/*.{vue,ts}"],
+  content: [
+    "index.html",
+    "settings.html",
+    "visual.html",
+    "src/**/*.{vue,ts}",
+    "!src/**/__tests__/**"
+  ],
   corePlugins: { preflight: false },
   theme: {
     extend: {
       borderRadius: {
         ui: "var(--ui-radius)",
-        control: "var(--ui-radius-control)"
+        control: "var(--ui-radius-control)",
+        surface: "10px",
+        panel: "14px"
       },
       boxShadow: {
         ui: "var(--ui-shadow)"
       },
+      colors: {
+        ui: {
+          bg: "var(--ui-bg)",
+          "bg-deep": "var(--ui-bg-deep)",
+          "bg-soft": "var(--ui-bg-soft)",
+          border: "var(--ui-border)",
+          "border-light": "var(--ui-border-light)",
+          text: "var(--ui-text)",
+          subtle: "var(--ui-subtle)",
+          dim: "var(--ui-dim)",
+          brand: "var(--ui-brand)",
+          "brand-dim": "var(--ui-brand-dim)",
+          accent: "var(--ui-accent)",
+          success: "var(--ui-success)",
+          danger: "var(--ui-danger)",
+          "danger-soft": "var(--ui-danger-soft)",
+          "accent-text": "var(--ui-accent-text)",
+          "brand-soft": "var(--ui-brand-soft)",
+          glass: "var(--ui-glass-bg)",
+          input: "var(--ui-input-bg)",
+          kbd: "var(--ui-kbd)",
+          hover: "var(--ui-hover)",
+          "search-hl": "var(--ui-search-hl)"
+        },
+        settings: {
+          card: "var(--ui-settings-card-bg)",
+          "card-border": "var(--ui-settings-card-border)",
+          "card-title": "var(--ui-settings-card-title)",
+          "row-border": "var(--ui-settings-row-border)",
+          "row-hover": "var(--ui-settings-row-hover)",
+          "table-row-hover": "var(--ui-settings-table-row-hover)",
+          dropdown: "var(--ui-settings-dropdown-bg)",
+          "dropdown-border": "var(--ui-settings-dropdown-border)",
+          "dropdown-hover": "var(--ui-settings-dropdown-hover)",
+          badge: "var(--ui-settings-badge-bg)",
+          "badge-text": "var(--ui-settings-badge-text)",
+          hint: "var(--ui-settings-hint)",
+          "segment-tab-active": "var(--ui-settings-segment-tab-active-bg)"
+        }
+      },
       fontFamily: {
         mono: ["var(--ui-font-mono)"]
+      },
+      screens: {
+        "settings-compact": { max: "520px" },
+        "settings-narrow": { max: "760px" }
+      },
+      zIndex: {
+        "settings-topbar": "var(--ui-settings-z-topbar)",
+        "settings-toolbar": "var(--ui-settings-z-toolbar)",
+        "settings-popover": "var(--ui-settings-z-popover)",
+        "settings-overlay": "var(--ui-settings-z-overlay)"
       },
       keyframes: {
         "toast-slide-down": {
@@ -79,6 +137,8 @@ module.exports = {
         "launcher-dialog-scale-in": "dialog-scale-in 300ms cubic-bezier(0.175,0.885,0.32,1.15) both"
       },
       transitionDuration: {
+        120: "120ms",
+        130: "130ms",
         250: "250ms"
       },
       transitionTimingFunction: {

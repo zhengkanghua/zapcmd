@@ -73,7 +73,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
 <template>
   <aside
     v-if="props.safetyDialog"
-    class="param-overlay safety-overlay absolute left-0 right-0 top-[var(--ui-top-align-offset)] bottom-[12px] z-[40] grid place-items-center rounded-b-[var(--ui-radius)] bg-[rgba(var(--ui-black-rgb),0.38)] animate-launcher-fade-in motion-reduce:animate-none"
+    class="param-overlay safety-overlay absolute left-0 right-0 top-[var(--ui-top-align-offset)] bottom-[12px] z-[40] grid place-items-center rounded-b-ui bg-[rgba(var(--ui-black-rgb),0.38)] animate-launcher-fade-in motion-reduce:animate-none"
     data-hit-zone="overlay"
     role="dialog"
     aria-modal="true"
@@ -86,7 +86,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
       @keydown="onDialogKeydown"
     >
       <h2 class="m-0 text-[16px]">{{ props.safetyDialog.title }}</h2>
-      <p class="m-0 text-[13px] text-[var(--ui-subtle)]">{{ props.safetyDialog.description }}</p>
+      <p class="m-0 text-[13px] text-ui-subtle">{{ props.safetyDialog.description }}</p>
 
       <ul class="safety-list m-0 p-0 list-none grid gap-[10px]">
         <li
@@ -96,10 +96,10 @@ function onDialogKeydown(event: KeyboardEvent): void {
         >
           <h3 class="m-0 text-[13px] font-semibold">{{ item.title }}</h3>
           <code
-            class="block [font-family:var(--ui-font-mono)] text-[12px] whitespace-pre-wrap break-words text-[var(--ui-subtle)]"
+            class="block font-mono text-[12px] whitespace-pre-wrap break-words text-ui-subtle"
             >{{ item.renderedCommand }}</code
           >
-          <ul class="safety-reasons m-0 pl-[16px] grid gap-[4px] text-[12px] text-[var(--ui-danger)]">
+          <ul class="safety-reasons m-0 pl-[16px] grid gap-[4px] text-[12px] text-ui-danger">
             <li v-for="(reason, reasonIndex) in item.reasons" :key="`reason-${reasonIndex}`">
               {{ reason }}
             </li>

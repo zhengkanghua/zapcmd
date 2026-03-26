@@ -66,7 +66,7 @@ function onInput(event: Event) {
     />
     <span
       v-if="props.showValue"
-      class="s-slider__value min-w-[44px] text-right text-[12px] text-[var(--ui-subtle)]"
+      class="s-slider__value min-w-[44px] text-right text-[12px] text-ui-subtle"
     >
       {{ displayValue }}
     </span>

@@ -243,11 +243,11 @@ onBeforeUnmount(() => {
     <button
       ref="triggerRef"
       type="button"
-      class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-[10px] transition-[background,border-color,box-shadow,color] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
+      class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-surface transition-[background,border-color,box-shadow,color] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
       :class="
         props.variant === 'ghost'
-          ? 's-dropdown__trigger--ghost min-w-0 w-auto border border-transparent bg-[var(--ui-settings-badge-bg)] px-[10px] py-[6px] text-[var(--ui-settings-badge-text)] hover:bg-[var(--ui-settings-dropdown-hover)] hover:text-[var(--ui-text)]'
-          : 's-dropdown__trigger--default w-full min-w-[180px] border border-[var(--ui-settings-dropdown-border)] bg-[var(--ui-settings-dropdown-bg)] px-[10px] py-[7px] text-[var(--ui-text)] hover:border-[var(--ui-control-muted-hover-border)]'
+          ? 's-dropdown__trigger--ghost min-w-0 w-auto border border-transparent bg-settings-badge px-2.5 py-1.5 text-settings-badge-text hover:bg-settings-dropdown-hover hover:text-ui-text'
+          : 's-dropdown__trigger--default w-full min-w-[180px] border border-settings-dropdown-border bg-settings-dropdown px-2.5 py-[7px] text-ui-text hover:border-[var(--ui-control-muted-hover-border)]'
       "
       :disabled="props.disabled || props.options.length === 0"
       :aria-expanded="open"
@@ -282,7 +282,7 @@ onBeforeUnmount(() => {
       >
         <ul
           :id="listboxId"
-          class="s-dropdown__list m-0 list-none rounded-[12px] border border-[var(--ui-settings-dropdown-border)] bg-[var(--ui-settings-dropdown-bg)] p-[6px] shadow-ui backdrop-blur-[var(--ui-blur)]"
+          class="s-dropdown__list m-0 list-none rounded-[12px] border border-settings-dropdown-border bg-settings-dropdown p-[6px] shadow-ui backdrop-blur-[var(--ui-blur)]"
           role="listbox"
         >
           <li v-for="(item, index) in props.options" :key="item.value" class="s-dropdown__item m-0 p-0">
@@ -290,24 +290,24 @@ onBeforeUnmount(() => {
               :id="`${listboxId}-option-${index}`"
               type="button"
               role="option"
-              class="s-dropdown__option grid w-full cursor-pointer grid-cols-[16px_minmax(0,1fr)] items-start gap-2 rounded-[10px] border border-transparent bg-transparent px-[10px] py-[8px] text-left text-[var(--ui-text)]"
+              class="s-dropdown__option grid w-full cursor-pointer grid-cols-[16px_minmax(0,1fr)] items-start gap-2 rounded-surface border border-transparent bg-transparent px-2.5 py-2 text-left text-ui-text"
               :class="{
-                's-dropdown__option--focused bg-[var(--ui-settings-dropdown-hover)]': index === focusIndex,
+                's-dropdown__option--focused bg-settings-dropdown-hover': index === focusIndex,
                 's-dropdown__option--selected border-[rgba(var(--ui-brand-rgb),0.2)] bg-[rgba(var(--ui-brand-rgb),0.08)]':
                   item.value === props.modelValue
               }"
               :aria-selected="item.value === props.modelValue"
               @click="selectValue(item.value)"
             >
-              <span class="s-dropdown__check text-[12px] leading-[1.2] text-[var(--ui-brand)]" aria-hidden="true">
+              <span class="s-dropdown__check text-[12px] leading-[1.2] text-ui-brand" aria-hidden="true">
                 {{ item.value === props.modelValue ? "✓" : "" }}
               </span>
               <span class="s-dropdown__content grid gap-[2px]">
                 <span class="s-dropdown__label text-[12.5px] leading-[1.35]">{{ item.label }}</span>
-                <span v-if="item.description" class="s-dropdown__description text-[11px] leading-[1.35] text-[var(--ui-subtle)]">
+                <span v-if="item.description" class="s-dropdown__description text-[11px] leading-[1.35] text-ui-subtle">
                   {{ item.description }}
                 </span>
-                <span v-if="item.meta" class="s-dropdown__meta text-[11px] leading-[1.35] text-[var(--ui-subtle)]">
+                <span v-if="item.meta" class="s-dropdown__meta text-[11px] leading-[1.35] text-ui-subtle">
                   {{ item.meta }}
                 </span>
               </span>

@@ -201,7 +201,7 @@ useFlowPanelHeightObservation({
   >
     <button
       type="button"
-      class="flow-panel-overlay__scrim drawer-scrim absolute inset-0 border-0 p-0 rounded-b-[var(--ui-radius)] bg-[rgba(var(--ui-black-rgb),0.2)] backdrop-blur-[8px] cursor-pointer opacity-100 [will-change:opacity]"
+      class="flow-panel-overlay__scrim drawer-scrim absolute inset-0 border-0 p-0 rounded-b-ui bg-[rgba(var(--ui-black-rgb),0.2)] backdrop-blur-[8px] cursor-pointer opacity-100 [will-change:opacity]"
       data-hit-zone="overlay"
       :aria-label="t('common.close')"
       :class="[
@@ -217,7 +217,7 @@ useFlowPanelHeightObservation({
     ></button>
     <section
       :ref="setReviewPanelRef"
-      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-[rgba(var(--ui-text-rgb),0.14)] rounded-l-[var(--ui-radius)] rounded-r-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.06),rgba(var(--ui-text-rgb),0.02)_52%,transparent),var(--ui-bg)] shadow-[-4px_0_24px_rgba(var(--ui-black-rgb),0.35)] transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
+      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-[rgba(var(--ui-text-rgb),0.14)] rounded-l-ui rounded-r-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.06),rgba(var(--ui-text-rgb),0.02)_52%,transparent),var(--ui-bg)] shadow-[-4px_0_24px_rgba(var(--ui-black-rgb),0.35)] transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
       :class="[
         { 'flow-panel--has-list': props.stagedCommands.length > 0 },
         props.stagingDrawerState === 'opening'
@@ -233,9 +233,9 @@ useFlowPanelHeightObservation({
       :aria-label="t('launcher.queueTitle', { count: props.stagedCommands.length })"
       @keydown="onReviewPanelKeydown"
     >
-      <header class="flow-panel__header flex items-center justify-between gap-[8px] p-[12px_16px] border-b border-b-[var(--ui-border)]" data-tauri-drag-region>
+      <header class="flow-panel__header flex items-center justify-between gap-[8px] p-[12px_16px] border-b border-b-ui-border" data-tauri-drag-region>
         <div class="flow-panel__title-group flex items-center gap-[8px] min-w-0" data-tauri-drag-region>
-          <h2 class="flow-panel__heading text-[14px] font-semibold text-[var(--ui-text)]" data-tauri-drag-region>
+          <h2 class="flow-panel__heading text-[14px] font-semibold text-ui-text" data-tauri-drag-region>
             {{ t('launcher.queueTitle', { count: props.stagedCommands.length }) }}
           </h2>
         </div>
@@ -270,11 +270,11 @@ useFlowPanelHeightObservation({
       >
         <p
           v-if="props.executionFeedbackMessage"
-          class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-[var(--ui-glass-bg)] shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
+          class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-ui-glass shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
           :class="{
-            'execution-feedback--neutral text-[var(--ui-brand)]': props.executionFeedbackTone === 'neutral',
-            'execution-feedback--success text-[var(--ui-success)]': props.executionFeedbackTone === 'success',
-            'execution-feedback--error text-[var(--ui-danger)]': props.executionFeedbackTone === 'error'
+            'execution-feedback--neutral text-ui-brand': props.executionFeedbackTone === 'neutral',
+            'execution-feedback--success text-ui-success': props.executionFeedbackTone === 'success',
+            'execution-feedback--error text-ui-danger': props.executionFeedbackTone === 'error'
           }"
         >
           {{ props.executionFeedbackMessage }}
@@ -282,27 +282,27 @@ useFlowPanelHeightObservation({
 
         <div
           v-if="props.stagedCommands.length === 0"
-          class="flow-panel__empty m-0 p-[16px_14px] flex items-center justify-between gap-[12px] border border-dashed border-[rgba(var(--ui-text-rgb),0.16)] rounded-[8px] text-[var(--ui-subtle)] text-[12px]"
+          class="flow-panel__empty m-0 p-[16px_14px] flex items-center justify-between gap-[12px] border border-dashed border-[rgba(var(--ui-text-rgb),0.16)] rounded-[8px] text-ui-subtle text-[12px]"
         >
           <div class="flow-panel__empty-copy flex items-center gap-[8px]">
-            <span class="flow-panel__empty-title text-[13px] font-semibold text-[var(--ui-text)]">
+            <span class="flow-panel__empty-title text-[13px] font-semibold text-ui-text">
               {{ t("launcher.queueEmpty") }}
             </span>
-            <span class="flow-panel__empty-hint text-[12px] text-[var(--ui-subtle)]">
+            <span class="flow-panel__empty-hint text-[12px] text-ui-subtle">
               {{ t("launcher.queueEmptyHint") }}
             </span>
           </div>
           <span
-            class="keyboard-hint flow-panel__empty-shortcut m-0 min-h-0 flex flex-wrap items-center gap-[6px] p-0 text-[10px] font-medium tracking-[0.03em] text-[var(--ui-subtle)]"
+            class="keyboard-hint flow-panel__empty-shortcut m-0 min-h-0 flex flex-wrap items-center gap-[6px] p-0 text-[10px] font-medium tracking-[0.03em] text-ui-subtle"
           >
             <span class="keyboard-hint__item inline-flex items-center gap-[4px]">
               <span class="keyboard-hint__keys inline-flex items-center gap-[2px]"
                 ><kbd
-                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-[rgba(var(--ui-text-rgb),0.15)] [border-bottom-color:rgba(var(--ui-text-rgb),0.05)] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.1),rgba(var(--ui-text-rgb),0.04))] text-[10px] leading-[1] text-[var(--ui-subtle)] [font-family:var(--ui-font-mono)] shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
+                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-[rgba(var(--ui-text-rgb),0.15)] [border-bottom-color:rgba(var(--ui-text-rgb),0.05)] bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.1),rgba(var(--ui-text-rgb),0.04))] text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
                   >Esc</kbd
                 ></span
               >
-              <span class="keyboard-hint__action text-[var(--ui-dim)]">{{ t("common.cancel") }}</span>
+              <span class="keyboard-hint__action text-ui-dim">{{ t("common.cancel") }}</span>
             </span>
           </span>
         </div>
@@ -326,7 +326,7 @@ useFlowPanelHeightObservation({
             @click="emit('focus-staging-index', index)"
           >
             <article
-              class="staging-card flow-panel__card group border border-[rgba(var(--ui-text-rgb),0.08)] rounded-[10px] bg-[rgba(var(--ui-black-rgb),0.17)] p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
+              class="staging-card flow-panel__card group border border-[rgba(var(--ui-text-rgb),0.08)] rounded-surface bg-[rgba(var(--ui-black-rgb),0.17)] p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
               :class="{
                 'staging-card--active border-[rgba(var(--ui-brand-rgb),0.52)] shadow-[inset_0_0_0_1px_rgba(var(--ui-brand-rgb),0.2)]':
                   props.focusZone === 'staging' && index === props.stagingActiveIndex,
@@ -338,7 +338,7 @@ useFlowPanelHeightObservation({
               :tabindex="index === props.stagingActiveIndex ? 0 : -1"
             >
               <div
-                class="flow-card__grip flex items-center shrink-0 text-[var(--ui-dim)] cursor-grab opacity-50 transition-opacity duration-150 group-hover:opacity-100 active:cursor-grabbing"
+                class="flow-card__grip flex items-center shrink-0 text-ui-dim cursor-grab opacity-50 transition-opacity duration-150 group-hover:opacity-100 active:cursor-grabbing"
                 :class="{ 'cursor-grabbing': gripReorderActive }"
                 aria-hidden="true"
                 @mousedown="startGripReorder(index, $event)"
@@ -383,19 +383,19 @@ useFlowPanelHeightObservation({
                     :key="arg.key"
                     class="flow-card__param flex items-center gap-[8px] text-[12px]"
                   >
-                    <span class="flow-card__param-key text-[var(--ui-subtle)] shrink-0">
+                    <span class="flow-card__param-key text-ui-subtle shrink-0">
                       {{ arg.label }}:
                     </span>
                     <span
                       v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
-                      class="flow-card__param-value text-[var(--ui-accent)] cursor-pointer p-[2px_8px] bg-[rgba(var(--ui-brand-rgb),0.12)] border border-[rgba(var(--ui-brand-rgb),0.2)] rounded-[4px] transition-[background,border-color] duration-[120ms] hover:bg-[rgba(var(--ui-brand-rgb),0.2)] hover:border-[rgba(var(--ui-brand-rgb),0.35)] [font-family:var(--ui-font-mono)]"
+                      class="flow-card__param-value text-ui-accent cursor-pointer p-[2px_8px] bg-[rgba(var(--ui-brand-rgb),0.12)] border border-[rgba(var(--ui-brand-rgb),0.2)] rounded-[4px] transition-[background,border-color] duration-120 hover:bg-[rgba(var(--ui-brand-rgb),0.2)] hover:border-[rgba(var(--ui-brand-rgb),0.35)] font-mono"
                       @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
                     >
                       {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}
                     </span>
                     <input
                       v-else
-                      class="flow-card__param-input bg-[rgba(var(--ui-text-rgb),0.08)] border border-[var(--ui-accent)] rounded-[4px] text-[var(--ui-accent)] text-[12px] [font-family:var(--ui-font-mono)] p-[2px_8px] outline-none w-auto min-w-[60px]"
+                      class="flow-card__param-input bg-[rgba(var(--ui-text-rgb),0.08)] border border-ui-accent rounded-[4px] text-ui-accent text-[12px] font-mono p-[2px_8px] outline-none w-auto min-w-[60px]"
                       :value="editingParam.currentValue"
                       @input="onParamEditInput(cmd.id, arg.key, ($event.target as HTMLInputElement).value)"
                       @keydown.enter.stop="commitParamEdit(cmd.id, arg.key)"
@@ -405,7 +405,7 @@ useFlowPanelHeightObservation({
                     />
                   </div>
                 </div>
-                <code class="flow-card__command block p-[4px_0] [font-family:var(--ui-font-mono)] text-[11px] text-[var(--ui-subtle)] whitespace-nowrap overflow-hidden text-ellipsis">
+                <code class="flow-card__command block p-[4px_0] font-mono text-[11px] text-ui-subtle whitespace-nowrap overflow-hidden text-ellipsis">
                   &gt; {{ cmd.renderedCommand }}
                 </code>
               </div>
@@ -414,10 +414,10 @@ useFlowPanelHeightObservation({
         </TransitionGroup>
       </section>
 
-      <footer class="flow-panel__footer p-[12px_16px] border-t border-t-[var(--ui-border)]">
+      <footer class="flow-panel__footer p-[12px_16px] border-t border-t-ui-border">
         <button
           type="button"
-          class="flow-panel__execute-btn w-full p-[10px_0] border-0 rounded-[var(--ui-radius-control)] bg-[var(--ui-accent)] text-[var(--ui-accent-text)] text-[14px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-92 disabled:bg-[var(--ui-hover)] disabled:text-[var(--ui-dim)] disabled:cursor-not-allowed"
+          class="flow-panel__execute-btn w-full p-[10px_0] border-0 rounded-control bg-ui-accent text-ui-accent-text text-[14px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-92 disabled:bg-ui-hover disabled:text-ui-dim disabled:cursor-not-allowed"
           :disabled="props.stagedCommands.length === 0 || props.executing"
           :aria-disabled="props.flowOpen ? 'true' : undefined"
           @click="onExecuteStagedClick"

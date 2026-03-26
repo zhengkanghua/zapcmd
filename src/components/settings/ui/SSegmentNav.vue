@@ -47,7 +47,7 @@ function onKeydown(e: KeyboardEvent) {
 
 <template>
   <nav
-    class="s-segment-nav flex justify-center gap-[10px] w-fit max-w-[min(100%,720px)] mx-auto pt-[8px] pb-[10px]"
+    class="s-segment-nav flex justify-center gap-2.5 w-fit max-w-[min(100%,720px)] mx-auto pt-2 pb-2.5"
     role="tablist"
     aria-label="Settings sections"
     @keydown="onKeydown"
@@ -59,9 +59,9 @@ function onKeydown(e: KeyboardEvent) {
       type="button"
       :class="[
         's-segment-nav__tab',
-        'flex items-center gap-[7px] min-h-[34px] px-[16px] py-[8px] rounded-[10px] border border-transparent bg-transparent cursor-pointer whitespace-nowrap text-[13px] font-medium text-[color:var(--ui-settings-segment-tab-text)] hover:bg-[var(--ui-settings-table-row-hover)] hover:text-[color:var(--ui-settings-segment-tab-text-hover)] transition-[color,background-color] duration-[130ms] focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_var(--ui-brand-soft)]',
+        'flex items-center gap-[7px] min-h-[34px] px-4 py-2 rounded-surface border border-transparent bg-transparent cursor-pointer whitespace-nowrap text-[13px] font-medium text-[color:var(--ui-settings-segment-tab-text)] hover:bg-settings-table-row-hover hover:text-[color:var(--ui-settings-segment-tab-text-hover)] transition-[color,background-color] duration-130 focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_var(--ui-brand-soft)]',
         modelValue === item.id
-          ? 's-segment-nav__tab--active bg-[var(--ui-settings-segment-tab-active-bg)] text-[color:var(--ui-settings-segment-tab-text-active)] font-semibold'
+          ? 's-segment-nav__tab--active bg-settings-segment-tab-active text-[color:var(--ui-settings-segment-tab-text-active)] font-semibold'
           : ''
       ]"
       :aria-selected="modelValue === item.id"

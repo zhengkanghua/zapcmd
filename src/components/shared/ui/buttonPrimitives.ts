@@ -19,8 +19,8 @@ export const uiButtonVariantBaseClasses = {
     "border",
     "border-transparent",
     "rounded-control",
-    "bg-[var(--ui-bg-soft)]",
-    "text-[var(--ui-text)]",
+    "bg-ui-bg-soft",
+    "text-ui-text",
     "cursor-pointer",
     "enabled:hover:bg-[var(--ui-control-muted-hover-bg)]",
     "enabled:hover:border-[var(--ui-control-muted-hover-border)]"
@@ -32,7 +32,7 @@ export const uiButtonVariantBaseClasses = {
     "from-[rgba(var(--ui-brand-rgb),0.9)]",
     "to-[rgba(var(--ui-brand-rgb),0.82)]",
     "border-[rgba(var(--ui-brand-rgb),0.45)]",
-    "text-[var(--ui-accent-text)]",
+    "text-ui-accent-text",
     "font-bold",
     "cursor-pointer",
     "enabled:hover:brightness-[1.04]"
@@ -44,7 +44,7 @@ export const uiButtonVariantBaseClasses = {
     "from-[rgba(var(--ui-search-hl-rgb),0.92)]",
     "to-[rgba(var(--ui-search-hl-rgb),0.82)]",
     "border-[rgba(var(--ui-search-hl-rgb),0.5)]",
-    "text-[var(--ui-accent-text)]",
+    "text-ui-accent-text",
     "font-bold",
     "cursor-pointer",
     "enabled:hover:brightness-[1.04]"
@@ -56,7 +56,7 @@ export const uiButtonVariantBaseClasses = {
     "from-[rgba(var(--ui-success-rgb),0.9)]",
     "to-[rgba(var(--ui-success-rgb),0.82)]",
     "border-[rgba(var(--ui-success-rgb),0.45)]",
-    "text-[var(--ui-accent-text)]",
+    "text-ui-accent-text",
     "font-bold",
     "cursor-pointer",
     "enabled:hover:brightness-[1.04]"
@@ -66,7 +66,7 @@ export const uiButtonVariantBaseClasses = {
     "rounded-control",
     "bg-[rgba(var(--ui-danger-rgb),0.1)]",
     "border-[rgba(var(--ui-danger-rgb),0.2)]",
-    "text-[var(--ui-danger)]",
+    "text-ui-danger",
     "cursor-pointer",
     "transition-all",
     "duration-150",
@@ -75,4 +75,3 @@ export const uiButtonVariantBaseClasses = {
     "enabled:hover:border-[rgba(var(--ui-danger-rgb),0.35)]"
   ]
 } satisfies Record<UiButtonVariant, ReadonlyArray<string>>;
-
