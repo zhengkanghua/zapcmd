@@ -165,7 +165,16 @@ function onNavAfterEnter(): void {
         class="launcher-frame col-start-1 row-start-2 relative w-full min-w-0 h-[var(--launcher-frame-height,auto)] max-h-[var(--launcher-panel-max-height,none)] overflow-hidden rounded-[var(--ui-radius)] border border-[var(--ui-border)] shadow-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.04),transparent_60%),var(--ui-bg)]"
         data-hit-zone="interactive"
       >
-        <Transition name="nav-slide" mode="out-in" @after-enter="onNavAfterEnter">
+        <Transition
+          mode="out-in"
+          enter-active-class="transition-transform duration-250 ease-nav-slide motion-reduce:transition-none"
+          enter-from-class="translate-x-full"
+          enter-to-class="translate-x-0"
+          leave-active-class="transition-transform duration-200 ease-in motion-reduce:transition-none"
+          leave-from-class="translate-x-0"
+          leave-to-class="translate-x-full"
+          @after-enter="onNavAfterEnter"
+        >
           <LauncherSearchPanel
             v-if="props.navCurrentPage.type === 'search'"
             key="search"

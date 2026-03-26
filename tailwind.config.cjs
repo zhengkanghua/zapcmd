@@ -77,6 +77,12 @@ module.exports = {
         "launcher-staging-panel-exit": "staging-panel-exit 200ms ease-in both",
         "launcher-fade-in": "fade-in 200ms ease-out both",
         "launcher-dialog-scale-in": "dialog-scale-in 300ms cubic-bezier(0.175,0.885,0.32,1.15) both"
+      },
+      transitionDuration: {
+        250: "250ms"
+      },
+      transitionTimingFunction: {
+        "nav-slide": "cubic-bezier(0.175,0.885,0.32,1.15)"
       }
     }
   },
