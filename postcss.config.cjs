@@ -7,6 +7,7 @@
 module.exports = {
   plugins: {
     "@tailwindcss/postcss": {},
+    "./scripts/postcss/ui-color-mix-to-rgba.cjs": {},
     autoprefixer: {}
   }
 };
