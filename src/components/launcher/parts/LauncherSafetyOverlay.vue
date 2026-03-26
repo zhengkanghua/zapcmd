@@ -73,7 +73,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
 <template>
   <aside
     v-if="props.safetyDialog"
-    class="param-overlay safety-overlay absolute left-0 right-0 top-[var(--ui-top-align-offset)] bottom-[12px] z-[40] grid place-items-center rounded-b-[var(--ui-radius)] bg-[rgba(var(--ui-black-rgb),0.38)] animate-[fade-in_200ms_ease-out_both]"
+    class="param-overlay safety-overlay absolute left-0 right-0 top-[var(--ui-top-align-offset)] bottom-[12px] z-[40] grid place-items-center rounded-b-[var(--ui-radius)] bg-[rgba(var(--ui-black-rgb),0.38)] animate-launcher-fade-in motion-reduce:animate-none"
     data-hit-zone="overlay"
     role="dialog"
     aria-modal="true"
@@ -82,7 +82,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
   >
     <section
       ref="dialogRef"
-      class="param-dialog safety-dialog w-[min(680px,calc(100vw-24px))] max-h-[min(78vh,640px)] overflow-auto p-[16px] grid gap-[12px] bg-[rgba(var(--ui-bg-rgb),0.92)] backdrop-blur-[20px] animate-[dialog-scale-in_300ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]"
+      class="param-dialog safety-dialog w-[min(680px,calc(100vw-24px))] max-h-[min(78vh,640px)] overflow-auto p-[16px] grid gap-[12px] bg-[rgba(var(--ui-bg-rgb),0.92)] backdrop-blur-[20px] animate-launcher-dialog-scale-in motion-reduce:animate-none"
       @keydown="onDialogKeydown"
     >
       <h2 class="m-0 text-[16px]">{{ props.safetyDialog.title }}</h2>

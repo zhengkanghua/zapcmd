@@ -12,273 +12,6 @@
 @tailwind components;
 @tailwind utilities source(none);
 
-/* ============================================================
- * 动画 keyframes：从 animations.css 迁移
- * ============================================================ */
-
-/* --- Toast ----------------------------------------------- */
-
-@keyframes toast-slide-down {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -10px) scale(0.95);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate(-50%, 0) scale(1);
-  }
-}
-
-/* --- Staged feedback ------------------------------------- */
-
-@keyframes staged-feedback {
-  from {
-    transform: scale(0.995);
-    background: rgba(var(--ui-brand-rgb), 0.32);
-  }
-
-  to {
-    transform: scale(1);
-    background: var(--ui-brand-soft);
-  }
-}
-
-/* --- Flow drawer ----------------------------------------- */
-
-@keyframes flow-drawer-scrim-in {
-  0% {
-    opacity: 0;
-  }
-
-  40% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes flow-drawer-scrim-out {
-  0% {
-    opacity: 1;
-  }
-
-  60% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes flow-drawer-panel-in {
-  0% {
-    opacity: 0;
-    transform: translate3d(-16px, 0, 0);
-  }
-
-  15% {
-    opacity: 0;
-    transform: translate3d(-16px, 0, 0);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes flow-drawer-panel-out-left {
-  0% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate3d(-16px, 0, 0);
-  }
-}
-
-@keyframes flow-drawer-panel-out-right {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  100% {
-    transform: translate3d(16px, 0, 0);
-  }
-}
-
-@keyframes flow-drawer-panel-out-right-opacity {
-  0% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-}
-
-/* --- Review overlay -------------------------------------- */
-
-@keyframes review-overlay-scrim-in {
-  0% {
-    opacity: 0;
-  }
-
-  40% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes review-overlay-scrim-out {
-  0% {
-    opacity: 1;
-  }
-
-  60% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes review-overlay-panel-in {
-  0% {
-    opacity: 0;
-    transform: translate3d(16px, 0, 0);
-  }
-
-  15% {
-    opacity: 0;
-    transform: translate3d(16px, 0, 0);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes review-overlay-panel-out {
-  0% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate3d(16px, 0, 0);
-  }
-}
-
-/* --- Staging panel --------------------------------------- */
-
-@keyframes staging-panel-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes staging-panel-exit {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-}
-
-/* --- Fade in --------------------------------------------- */
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-/* --- Dialog ---------------------------------------------- */
-
-@keyframes dialog-scale-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* --- Settings filters ------------------------------------ */
-
-@keyframes filters-expand {
-  from {
-    max-height: 0;
-    opacity: 0;
-  }
-
-  to {
-    max-height: 300px;
-    opacity: 1;
-  }
-}
-
-@keyframes filters-collapse {
-  from {
-    max-height: 300px;
-    opacity: 1;
-  }
-
-  to {
-    max-height: 0;
-    opacity: 0;
-  }
-}
-
-/* --- Toast auto dismiss ---------------------------------- */
-
-@keyframes toast-auto-dismiss {
-  0% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  70% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-}
-
 @layer base {
   /* Tauri 窗口拖拽区域：保留选择器避免行为回归（从 shared.css 迁移）。 */
   [data-tauri-drag-region] {
@@ -288,44 +21,44 @@
     background-color: rgba(var(--ui-black-rgb), 0.001);
   }
 
-	  [data-tauri-drag-region] :is(button, input, textarea, select, a, [contenteditable="true"]) {
-	    -webkit-app-region: no-drag;
-	    app-region: no-drag;
-	    cursor: auto;
-	  }
+  [data-tauri-drag-region] :is(button, input, textarea, select, a, [contenteditable="true"]) {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+    cursor: auto;
+  }
 
   [data-tauri-drag-region] :is(input, textarea, [contenteditable="true"]) {
     cursor: text;
   }
 
-	  [data-tauri-drag-region] :is(button, a, select) {
-	    cursor: pointer;
-	  }
+  [data-tauri-drag-region] :is(button, a, select) {
+    cursor: pointer;
+  }
 
-	  /* Launcher 导航滑动动效：从 launcher.css 迁移，避免删除 launcher.css 后动效丢失。 */
-	  .nav-slide-enter-active {
-	    transition: transform 250ms cubic-bezier(0.175, 0.885, 0.32, 1.15);
-	  }
+  /* Launcher 导航滑动动效：从 launcher.css 迁移，避免删除 launcher.css 后动效丢失。 */
+  .nav-slide-enter-active {
+    transition: transform 250ms cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  }
 
-	  .nav-slide-enter-from {
-	    transform: translateX(100%);
-	  }
+  .nav-slide-enter-from {
+    transform: translateX(100%);
+  }
 
-	  .nav-slide-leave-active {
-	    transition: transform 200ms ease-in;
-	  }
+  .nav-slide-leave-active {
+    transition: transform 200ms ease-in;
+  }
 
-	  .nav-slide-leave-to {
-	    transform: translateX(100%);
-	  }
+  .nav-slide-leave-to {
+    transform: translateX(100%);
+  }
 
-	  @media (prefers-reduced-motion: reduce) {
-	    .nav-slide-enter-active,
-	    .nav-slide-leave-active {
-	      transition: none;
-	    }
-	  }
-	}
+  @media (prefers-reduced-motion: reduce) {
+    .nav-slide-enter-active,
+    .nav-slide-leave-active {
+      transition: none;
+    }
+  }
+}
 
 @layer utilities {
   /* 隐藏滚动条（Settings 迁移期用）：保持滚动能力但不显示 scrollbar。 */
@@ -345,35 +78,5 @@
 
   .rounded-control {
     border-radius: var(--ui-radius-control);
-  }
-
-  /* Reduced motion：从 animations.css 迁移。 */
-  @media (prefers-reduced-motion: reduce) {
-    .flow-panel-overlay.state-opening .flow-panel-overlay__scrim,
-    .flow-panel-overlay.state-opening .flow-panel,
-    .flow-panel-overlay.state-closing .flow-panel-overlay__scrim,
-    .flow-panel-overlay.state-closing .flow-panel {
-      animation: none;
-    }
-
-    .flow-panel {
-      transition: none;
-    }
-
-    .flow-overlay--opening .flow-overlay__scrim,
-    .flow-overlay--opening .flow-panel,
-    .flow-overlay--closing-left .flow-overlay__scrim,
-    .flow-overlay--closing-left .flow-panel,
-    .flow-overlay--closing-right .flow-overlay__scrim,
-    .flow-overlay--closing-right .flow-panel {
-      animation: none;
-    }
-
-    .settings-close-confirm-enter-active .settings-close-confirm__scrim,
-    .settings-close-confirm-leave-active .settings-close-confirm__scrim,
-    .settings-close-confirm-enter-active .settings-close-confirm__panel,
-    .settings-close-confirm-leave-active .settings-close-confirm__panel {
-      transition: none;
-    }
   }
 }

@@ -206,10 +206,10 @@ useFlowPanelHeightObservation({
       :aria-label="t('common.close')"
       :class="[
         props.stagingDrawerState === 'opening'
-          ? 'animate-[review-overlay-scrim-in_200ms_ease-out_both]'
+          ? 'animate-launcher-review-overlay-scrim-in motion-reduce:animate-none'
           : '',
         props.stagingDrawerState === 'closing'
-          ? 'pointer-events-none animate-[review-overlay-scrim-out_200ms_ease-in_both]'
+          ? 'pointer-events-none animate-launcher-review-overlay-scrim-out motion-reduce:animate-none'
           : ''
       ]"
       @click="closeReview"
@@ -217,14 +217,14 @@ useFlowPanelHeightObservation({
     ></button>
     <section
       :ref="setReviewPanelRef"
-      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-[auto_minmax(0,1fr)_auto] border border-[rgba(var(--ui-text-rgb),0.14)] rounded-l-[var(--ui-radius)] rounded-r-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.06),rgba(var(--ui-text-rgb),0.02)_52%,transparent),var(--ui-bg)] shadow-[-4px_0_24px_rgba(var(--ui-black-rgb),0.35)] transition-[width] duration-200 ease-in-out"
+      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-[auto_minmax(0,1fr)_auto] border border-[rgba(var(--ui-text-rgb),0.14)] rounded-l-[var(--ui-radius)] rounded-r-none bg-[linear-gradient(180deg,rgba(var(--ui-text-rgb),0.06),rgba(var(--ui-text-rgb),0.02)_52%,transparent),var(--ui-bg)] shadow-[-4px_0_24px_rgba(var(--ui-black-rgb),0.35)] transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
       :class="[
         { 'flow-panel--has-list': props.stagedCommands.length > 0 },
         props.stagingDrawerState === 'opening'
-          ? 'animate-[review-overlay-panel-in_300ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]'
+          ? 'animate-launcher-review-overlay-panel-in motion-reduce:animate-none'
           : '',
         props.stagingDrawerState === 'closing'
-          ? 'pointer-events-none animate-[review-overlay-panel-out_200ms_ease-in_both]'
+          ? 'pointer-events-none animate-launcher-review-overlay-panel-out motion-reduce:animate-none'
           : ''
       ]"
       data-hit-zone="overlay"
@@ -270,7 +270,7 @@ useFlowPanelHeightObservation({
       >
         <p
           v-if="props.executionFeedbackMessage"
-          class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-[var(--ui-glass-bg)] shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-[toast-slide-down_350ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]"
+          class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-[rgba(var(--ui-text-rgb),0.18)] bg-[var(--ui-glass-bg)] shadow-[0_8px_22px_rgba(var(--ui-black-rgb),0.34)] backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
           :class="{
             'execution-feedback--neutral text-[var(--ui-brand)]': props.executionFeedbackTone === 'neutral',
             'execution-feedback--success text-[var(--ui-success)]': props.executionFeedbackTone === 'success',

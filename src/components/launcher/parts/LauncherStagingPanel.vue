@@ -52,10 +52,10 @@ const stagingHintText = computed(() => {
     :class="[
       `staging-panel--${props.stagingDrawerState}`,
       props.stagingDrawerState === 'opening'
-        ? 'animate-[staging-panel-enter_300ms_cubic-bezier(0.175,0.885,0.32,1.15)_both]'
+        ? 'animate-launcher-staging-panel-enter motion-reduce:animate-none'
         : '',
       props.stagingDrawerState === 'closing'
-        ? 'pointer-events-none animate-[staging-panel-exit_200ms_ease-in_both]'
+        ? 'pointer-events-none animate-launcher-staging-panel-exit motion-reduce:animate-none'
         : '',
       props.stagingDrawerState === 'closed' ? 'hidden' : ''
     ]"
