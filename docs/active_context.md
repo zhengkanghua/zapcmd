@@ -22,6 +22,7 @@
 - 补充（2026-03-25）：新增 Tailwind 语义化（动画/布局）+ 全局 CSS 瘦身设计稿，先做动画语义化与 Transition 去全局，再收口关键 layout arbitrary。
 - 补充（2026-03-25）：已根据 spec review 补齐动画迁移对照表、`nav-slide` 零差异落地策略与 `tailwind.css` DoD（白名单/禁止项/rg 门禁）。
 - 补充（2026-03-26）：已落盘 Tailwind 语义化+全局 CSS 瘦身实施计划（`docs/superpowers/plans/2026-03-26-tailwind-semantics-and-thin-global-css.md`），先做动画 `animate-launcher-*` + 删除 `tailwind.css` keyframes/nav-slide，再收口关键 `grid-rows/place-items` 并更新样式契约测试。
+- 补充（2026-03-26）：已完成执行：动画改为 `tailwind.config.cjs` 语义类 `animate-launcher-*`，`tailwind.css` 已无 `@keyframes/nav-slide`；`nav-slide` 过渡改为显式 Transition classes；关键 `grid-rows` 命名化并更新契约测试，`npm run check:all` 全绿。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
