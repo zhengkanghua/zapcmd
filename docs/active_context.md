@@ -25,6 +25,7 @@
 - 补充（2026-03-26）：已完成执行：动画改为 `tailwind.config.cjs` 语义类 `animate-launcher-*`，`tailwind.css` 已无 `@keyframes/nav-slide`；`nav-slide` 过渡改为显式 Transition classes；关键 `grid-rows` 命名化并更新契约测试，`npm run check:all` 全绿。
 - 补充（2026-03-26）：Tailwind 扫描源排除 `src/**/__tests__`；新增 `ui/*`、`settings/*` 语义 theme keys（含 `ui-search-hl`）并批量替换高频 `var(--ui-*)` arbitrary（text/bg/border、rounded 10/14、zIndex），`npm run check:all` 全绿。
 - 补充（2026-03-26）：alpha 色收口：在 `tailwind.config.cjs` 增加 `ui` 可带 `/opacity` 语义色（含 `bg-rgb/text/brand/search-hl/black/success/danger`），并替换 Launcher/Settings 高频 `rgba(var(--ui-*-rgb),alpha)` arbitrary；门禁全绿。
+- 补充（2026-03-26）：修复 `ui` alpha 语义色因 RGB token 逗号分隔导致的 `rgb(... / a)` 非法输出，改为 `rgba(var(--ui-*-rgb), <alpha-value>)`，避免 Windows 样式丢失；门禁全绿。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
