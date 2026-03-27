@@ -56,7 +56,7 @@ function onInput(event: Event) {
 <template>
   <div class="s-slider flex items-center gap-[12px]" :style="sliderStyle">
     <input
-      class="s-slider__input flex-1 h-[6px] appearance-none rounded-full outline-none bg-[linear-gradient(90deg,var(--ui-brand)_0%,var(--ui-brand)_var(--fill-percent),var(--ui-border)_var(--fill-percent),var(--ui-border)_100%)]"
+      class="s-slider__input flex-1 h-[6px] appearance-none rounded-full outline-none bg-settings-slider-fill"
       type="range"
       :min="props.min"
       :max="props.max"

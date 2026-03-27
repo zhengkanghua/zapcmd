@@ -133,7 +133,7 @@ function onTerminalReusePolicySelect(value: string): void {
 
       <SettingItem :label="t('settings.general.currentTerminalPath')">
         <code
-          class="settings-card__mono [font-family:var(--ui-font-mono)] text-[11.5px] text-ui-text/68 truncate max-w-[min(100%,460px)] bg-ui-text/5 border border-[color:var(--ui-settings-row-border)] rounded-[6px] px-[8px] py-[3px]"
+          class="settings-card__mono font-mono text-[11.5px] text-ui-text/68 truncate max-w-[min(100%,460px)] bg-ui-text/5 border border-settings-row-border rounded-[6px] px-[8px] py-[3px]"
           >{{ props.selectedTerminalPath }}</code
         >
       </SettingItem>
@@ -155,9 +155,9 @@ function onTerminalReusePolicySelect(value: string): void {
             <li
               v-for="item in terminalReusePolicyOptions"
               :key="item.value"
-              class="settings-general__reuse-policy-item grid gap-0.5 text-[12px] leading-[1.4] text-[color:var(--ui-subtle)]"
+              class="settings-general__reuse-policy-item grid gap-0.5 text-[12px] leading-[1.4] text-ui-subtle"
             >
-              <strong class="font-semibold text-[color:var(--ui-text)]">{{ item.label }}</strong>
+              <strong class="font-semibold text-ui-text">{{ item.label }}</strong>
               <span>{{ item.description }}</span>
             </li>
           </ul>

@@ -22,8 +22,8 @@ export const uiButtonVariantBaseClasses = {
     "bg-ui-bg-soft",
     "text-ui-text",
     "cursor-pointer",
-    "enabled:hover:bg-[var(--ui-control-muted-hover-bg)]",
-    "enabled:hover:border-[var(--ui-control-muted-hover-border)]"
+    "enabled:hover:bg-ui-control-muted-hover-bg",
+    "enabled:hover:border-ui-control-muted-hover-border"
   ],
   primary: [
     "border",

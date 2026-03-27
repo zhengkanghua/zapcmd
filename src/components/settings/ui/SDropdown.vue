@@ -243,11 +243,11 @@ onBeforeUnmount(() => {
     <button
       ref="triggerRef"
       type="button"
-      class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-surface transition-[background,border-color,box-shadow,color] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
+      class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-surface transition-[background,border-color,box-shadow,color] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:outline-none focus-visible:shadow-settings-focus disabled:cursor-not-allowed disabled:opacity-50"
       :class="
         props.variant === 'ghost'
           ? 's-dropdown__trigger--ghost min-w-0 w-auto border border-transparent bg-settings-badge px-2.5 py-1.5 text-settings-badge-text hover:bg-settings-dropdown-hover hover:text-ui-text'
-          : 's-dropdown__trigger--default w-full min-w-[180px] border border-settings-dropdown-border bg-settings-dropdown px-2.5 py-[7px] text-ui-text hover:border-[var(--ui-control-muted-hover-border)]'
+          : 's-dropdown__trigger--default w-full min-w-[180px] border border-settings-dropdown-border bg-settings-dropdown px-2.5 py-[7px] text-ui-text hover:border-ui-control-muted-hover-border'
       "
       :disabled="props.disabled || props.options.length === 0"
       :aria-expanded="open"
@@ -282,7 +282,7 @@ onBeforeUnmount(() => {
       >
         <ul
           :id="listboxId"
-          class="s-dropdown__list m-0 list-none rounded-[12px] border border-settings-dropdown-border bg-settings-dropdown p-[6px] shadow-ui backdrop-blur-[var(--ui-blur)]"
+          class="s-dropdown__list m-0 list-none rounded-[12px] border border-settings-dropdown-border bg-settings-dropdown p-[6px] shadow-ui backdrop-blur-ui"
           role="listbox"
         >
           <li v-for="(item, index) in props.options" :key="item.value" class="s-dropdown__item m-0 p-0">

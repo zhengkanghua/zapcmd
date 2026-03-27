@@ -32,7 +32,7 @@
     "test:coverage": "node scripts/coverage/run-test-coverage.mjs",
     "test:flow:launcher": "npm test -- src/components/launcher/__tests__/LauncherWindow.flow.test.ts",
     "test:flow:settings": "npm test -- src/components/settings/__tests__/SettingsWindow.layout.test.ts",
-    "test:contract:styles": "npm run test:run -- src/styles/__tests__/launcher-style-contract.test.ts src/styles/__tests__/tailwind-theme-layer-contract.test.ts src/__tests__/settings.topbar-nav-style-contract.test.ts",
+    "test:contract:styles": "npm run test:run -- src/styles/__tests__/launcher-style-contract.test.ts src/styles/__tests__/tailwind-theme-layer-contract.test.ts src/styles/__tests__/tailwind-governance-contract.test.ts src/__tests__/settings.topbar-nav-style-contract.test.ts",
     "test:visual:ui": "node scripts/e2e/visual-regression.cjs",
     "test:visual:ui:update": "node scripts/e2e/visual-regression.cjs --update"
   },

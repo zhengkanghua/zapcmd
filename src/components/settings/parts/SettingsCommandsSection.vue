@@ -203,12 +203,12 @@ onBeforeUnmount(() => {
 <template>
   <section class="settings-commands grid gap-3.5 content-start" aria-label="command-management">
     <div
-      class="settings-commands-toolbar settings-commands-toolbar--sticky settings-commands-toolbar--underlap relative grid gap-3 p-3.5 border border-settings-card-border rounded-[18px] bg-settings-toolbar-sticky bg-gradient-to-b from-ui-text/[0.03] to-ui-text/0 shadow-[0_18px_40px_var(--tw-shadow-color)] shadow-ui-black/18 overflow-visible sticky top-[-12px] z-settings-toolbar backdrop-blur-[calc(var(--ui-blur)*0.7)]"
+      class="settings-commands-toolbar settings-commands-toolbar--sticky settings-commands-toolbar--underlap relative grid gap-3 p-3.5 border border-settings-card-border rounded-[18px] bg-settings-toolbar-sticky bg-gradient-to-b from-ui-text/[0.03] to-ui-text/0 shadow-[0_18px_40px_var(--tw-shadow-color)] shadow-ui-black/18 overflow-visible sticky top-[-12px] z-settings-toolbar backdrop-blur-ui-70"
       aria-label="command-management-toolbar"
     >
       <div class="settings-commands-toolbar__search-row min-w-0 grid gap-2.5">
         <input
-          class="settings-commands-toolbar__search w-full h-[38px] px-3.5 border border-settings-dropdown-border rounded-[11px] bg-ui-text/[0.045] text-ui-text text-[13px] outline-none transition-[border-color,box-shadow,background] duration-120 placeholder:text-ui-text/28 focus-visible:border-ui-brand/22 focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)] focus-visible:bg-ui-text/[0.055]"
+          class="settings-commands-toolbar__search w-full h-[38px] px-3.5 border border-settings-dropdown-border rounded-[11px] bg-ui-text/[0.045] text-ui-text text-[13px] outline-none transition-[border-color,box-shadow,background] duration-120 placeholder:text-ui-text/28 focus-visible:border-ui-brand/22 focus-visible:shadow-settings-focus focus-visible:bg-ui-text/[0.055]"
           type="search"
           :value="props.commandView.query"
           :placeholder="t('settings.commands.queryPlaceholder')"
@@ -255,7 +255,7 @@ onBeforeUnmount(() => {
           <button
             ref="moreFiltersTriggerRef"
             type="button"
-            class="settings-commands-toolbar__more-filters min-h-[34px] inline-flex items-center gap-2 px-3 py-1.5 border border-transparent rounded-full bg-settings-badge text-settings-badge-text text-[12px] cursor-pointer transition-[background,border-color,color,box-shadow] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] hover:border-settings-dropdown-border hover:bg-settings-dropdown-hover hover:text-ui-text focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_var(--ui-settings-focus-ring)]"
+            class="settings-commands-toolbar__more-filters min-h-[34px] inline-flex items-center gap-2 px-3 py-1.5 border border-transparent rounded-full bg-settings-badge text-settings-badge-text text-[12px] cursor-pointer transition-[background,border-color,color,box-shadow] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] hover:border-settings-dropdown-border hover:bg-settings-dropdown-hover hover:text-ui-text focus-visible:outline-none focus-visible:shadow-settings-focus"
             :class="{
               'settings-commands-toolbar__more-filters--active text-ui-brand':
                 activeSecondaryFilterCount > 0 && !moreFiltersOpen,
@@ -280,7 +280,7 @@ onBeforeUnmount(() => {
             v-if="moreFiltersOpen"
             id="settings-commands-more-filters"
             ref="moreFiltersPanelRef"
-            class="settings-commands-toolbar__more-filters-panel absolute top-[calc(100%+8px)] right-0 w-[min(360px,calc(100vw-56px))] p-3 border border-settings-dropdown-border rounded-[16px] bg-settings-dropdown shadow-ui backdrop-blur-[var(--ui-blur)] z-settings-popover settings-narrow:left-0 settings-narrow:right-auto settings-narrow:w-[min(100%,360px)]"
+            class="settings-commands-toolbar__more-filters-panel absolute top-[calc(100%+8px)] right-0 w-[min(360px,calc(100vw-56px))] p-3 border border-settings-dropdown-border rounded-[16px] bg-settings-dropdown shadow-ui backdrop-blur-ui z-settings-popover settings-narrow:left-0 settings-narrow:right-auto settings-narrow:w-[min(100%,360px)]"
             role="dialog"
             :aria-label="t('settings.commands.moreFilters')"
           >

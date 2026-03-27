@@ -137,7 +137,7 @@ function onSubmit(): void {
     <div class="command-panel__content min-h-0 overflow-y-auto p-[16px] flex flex-col gap-[16px]">
       <p
         v-if="props.executionFeedbackMessage"
-        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-ui-text/18 bg-ui-glass shadow-[0_8px_22px_var(--tw-shadow-color)] shadow-ui-black/34 backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
+        class="execution-feedback execution-toast ui-glass-toast animate-launcher-toast-slide-down motion-reduce:animate-none"
         :class="{
           'execution-feedback--neutral text-ui-brand': props.executionFeedbackTone === 'neutral',
           'execution-feedback--success text-ui-success': props.executionFeedbackTone === 'success',

@@ -21,7 +21,7 @@ describe("tailwind theme layer contract", () => {
   }, 60_000);
 
   it("生成默认 scale utilities（避免 Settings UI 退回成方形/拥挤）", () => {
-    const requiredSelectors = [".p-5", ".gap-4", ".rounded-2xl", ".font-semibold"];
+    const requiredSelectors = [".p-4", ".gap-4", ".rounded-2xl", ".font-semibold"];
     for (const selector of requiredSelectors) {
       expect(compiledCss).toContain(selector);
     }
@@ -29,6 +29,43 @@ describe("tailwind theme layer contract", () => {
     const requiredThemeTokens = ["--radius-2xl", "--font-weight-semibold", "--spacing:"];
     for (const token of requiredThemeTokens) {
       expect(compiledCss).toContain(token);
+    }
+  });
+
+  it("生成本轮治理依赖的语义 utility（避免 @config/theme 回退时静默失效）", () => {
+    const requiredSemanticSelectors = [
+      ".text-settings-segment-tab-text",
+      ".text-settings-segment-tab-text-active",
+      ".bg-settings-toggle-on",
+      ".shadow-settings-toggle-thumb",
+      ".enabled\\:hover\\:border-ui-control-muted-hover-border",
+      ".enabled\\:hover\\:bg-ui-control-muted-hover-bg",
+      ".focus-visible\\:shadow-settings-focus",
+      ".focus-visible\\:shadow-brand-soft-ring"
+    ];
+
+    for (const selector of requiredSemanticSelectors) {
+      expect(compiledCss).toContain(selector);
+    }
+  });
+
+  it("生成剩余 arbitrary 收口所需的语义 utility", () => {
+    const requiredSemanticSelectors = [
+      ".grid-rows-launcher-shell",
+      ".top-ui-top-align",
+      ".min-h-ui-top-align",
+      ".bg-settings-slider-fill",
+      ".bg-settings-preview-checker",
+      ".bg-settings-window-shell",
+      ".bg-settings-window-topbar",
+      ".backdrop-blur-ui",
+      ".backdrop-blur-ui-70",
+      ".backdrop-blur-ui-24",
+      ".accent-ui"
+    ];
+
+    for (const selector of requiredSemanticSelectors) {
+      expect(compiledCss).toContain(selector);
     }
   });
 });

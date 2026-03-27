@@ -205,7 +205,7 @@ const updateErrorNextStep = computed(() => {
           </p>
           <p class="about-status__next-step m-0">{{ t("settings.about.downloadingHint") }}</p>
           <progress
-            class="mt-2 h-[8px] w-full accent-[var(--ui-accent)]"
+            class="mt-2 h-[8px] w-full accent-ui"
             :value="props.updateStatus.progressPercent"
             max="100"
           ></progress>

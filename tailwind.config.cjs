@@ -23,8 +23,36 @@ module.exports = {
         surface: "10px",
         panel: "14px"
       },
+      minHeight: {
+        "ui-top-align": "var(--ui-top-align-offset)"
+      },
+      inset: {
+        "ui-top-align": "var(--ui-top-align-offset)"
+      },
       boxShadow: {
-        ui: "var(--ui-shadow)"
+        ui: "var(--ui-shadow)",
+        "settings-focus": "0 0 0 3px var(--ui-settings-focus-ring)",
+        "brand-soft-ring": "0 0 0 2px var(--ui-brand-soft)",
+        "danger-soft-ring": "0 0 0 2px var(--ui-danger-soft)",
+        "settings-toggle-track": "var(--ui-settings-toggle-track-shadow)",
+        "settings-toggle-thumb": "var(--ui-settings-toggle-thumb-shadow)"
+      },
+      backgroundImage: {
+        "settings-slider-fill":
+          "linear-gradient(90deg,var(--ui-brand) 0%,var(--ui-brand) var(--fill-percent),var(--ui-border) var(--fill-percent),var(--ui-border) 100%)",
+        "settings-preview-checker": "var(--ui-settings-preview-checker)",
+        "settings-window-shell":
+          "radial-gradient(circle at top, rgba(var(--ui-text-rgb), 0.035), transparent 48%), linear-gradient(180deg, rgba(var(--ui-text-rgb), 0.02), transparent 28%)",
+        "settings-window-topbar":
+          "linear-gradient(180deg, rgba(var(--ui-text-rgb), 0.045), rgba(var(--ui-text-rgb), 0.01) 42%, rgba(var(--ui-text-rgb), 0))"
+      },
+      backdropBlur: {
+        ui: "var(--ui-blur)",
+        "ui-70": "calc(var(--ui-blur) * 0.7)",
+        "ui-24": "calc(var(--ui-blur) * 0.24)"
+      },
+      accentColor: {
+        ui: "var(--ui-accent)"
       },
       colors: {
         ui: {
@@ -51,7 +79,9 @@ module.exports = {
           input: "var(--ui-input-bg)",
           kbd: "var(--ui-kbd)",
           hover: "var(--ui-hover)",
-          "search-hl-solid": "var(--ui-search-hl)"
+          "search-hl-solid": "var(--ui-search-hl)",
+          "control-muted-hover-bg": "var(--ui-control-muted-hover-bg)",
+          "control-muted-hover-border": "var(--ui-control-muted-hover-border)"
         },
         settings: {
           card: "var(--ui-settings-card-bg)",
@@ -67,7 +97,13 @@ module.exports = {
           badge: "var(--ui-settings-badge-bg)",
           "badge-text": "var(--ui-settings-badge-text)",
           hint: "var(--ui-settings-hint)",
-          "segment-tab-active": "var(--ui-settings-segment-tab-active-bg)"
+          "segment-tab-active": "var(--ui-settings-segment-tab-active-bg)",
+          "segment-tab-text": "var(--ui-settings-segment-tab-text)",
+          "segment-tab-text-hover": "var(--ui-settings-segment-tab-text-hover)",
+          "segment-tab-text-active": "var(--ui-settings-segment-tab-text-active)",
+          "toggle-on": "var(--ui-toggle-on)",
+          "toggle-off": "var(--ui-settings-toggle-off)",
+          "toggle-thumb": "var(--ui-settings-toggle-thumb)"
         }
       },
       fontFamily: {
@@ -149,6 +185,7 @@ module.exports = {
         "nav-slide": "cubic-bezier(0.175,0.885,0.32,1.15)"
       },
       gridTemplateRows: {
+        "launcher-shell": "var(--ui-top-align-offset) auto",
         "launcher-panel": "auto minmax(0, 1fr) auto",
         "settings-window": "52px minmax(0, 1fr)"
       }

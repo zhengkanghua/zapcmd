@@ -27,6 +27,9 @@
 - 补充（2026-03-26）：alpha 色收口：在 `tailwind.config.cjs` 增加 `ui` 可带 `/opacity` 语义色（含 `bg-rgb/text/brand/search-hl/black/success/danger`），并替换 Launcher/Settings 高频 `rgba(var(--ui-*-rgb),alpha)` arbitrary；门禁全绿。
 - 补充（2026-03-26）：修复 `ui` alpha 语义色因 RGB token 逗号分隔导致的 `rgb(... / a)` 非法输出，改为 `rgba(var(--ui-*-rgb), <alpha-value>)`，避免 Windows 样式丢失；门禁全绿。
 - 补充（2026-03-26）：补齐 Tailwind `@config` 加载 `tailwind.config.cjs`；并修复 config 顶部注释包含 `*/` 导致解析失败，恢复 `bg-ui-*`/`settings-*` 等语义类生成，Windows 视觉回归待复测。
+- 补充（2026-03-27）：Tailwind 治理收口：theme-layer 契约改为“默认 token + 实际消费 utility”；新增治理契约限制高风险 arbitrary 与 `var(--ui-*)` 预算（36→12）；提炼 `ui-keycap`/`ui-glass-toast`，`check:all` 全绿。
+- 补充（2026-03-27）：Tailwind 契约继续加固：预算统计覆盖 `src/components/**/*.ts` 且排除 `__tests__`；theme-layer 新增 `shadow-settings-focus` 等语义 utility 编译校验；`check:all` 全绿。
+- 补充（2026-03-27）：组件模板里剩余 12 个 `var(--ui-*)` arbitrary 已清零；新增 launcher-shell/top-align/backdrop/window-shell/slider/checker/accent 语义类；`check:all` 全绿，Windows 视觉基线可按需复测。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 

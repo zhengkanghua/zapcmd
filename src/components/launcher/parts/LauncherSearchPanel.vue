@@ -72,7 +72,7 @@ function onSearchInput(event: Event): void {
       <!-- search-capsule 内的 toast：仅在 FlowPanel 关闭时显示 -->
       <p
         v-if="props.executionFeedbackMessage && !props.reviewOpen"
-        class="execution-feedback execution-toast m-0 absolute left-1/2 top-3 z-[12] max-w-[min(460px,calc(100%-24px))] -translate-x-1/2 pointer-events-none rounded-[8px] border border-ui-text/18 bg-ui-glass shadow-[0_8px_22px_var(--tw-shadow-color)] shadow-ui-black/34 backdrop-blur-[12px] px-[10px] py-[6px] text-[12px] animate-launcher-toast-slide-down motion-reduce:animate-none"
+        class="execution-feedback execution-toast ui-glass-toast animate-launcher-toast-slide-down motion-reduce:animate-none"
         :class="{
           'execution-feedback--neutral text-ui-brand': props.executionFeedbackTone === 'neutral',
           'execution-feedback--success text-ui-success': props.executionFeedbackTone === 'success',
@@ -109,7 +109,7 @@ function onSearchInput(event: Event): void {
                 <kbd
                   v-for="key in hint.keys"
                   :key="key"
-                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-ui-text/15 border-b-ui-text/5 bg-gradient-to-b from-ui-text/10 to-ui-text/4 text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
+                  class="ui-keycap"
                 >
                   {{ key }}
                 </kbd>
@@ -195,7 +195,7 @@ function onSearchInput(event: Event): void {
             <span class="keyboard-hint__item inline-flex items-center gap-[4px]">
               <span class="keyboard-hint__keys inline-flex items-center gap-[2px]"
                 ><kbd
-                  class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[4px] rounded-[4px] border border-ui-text/15 border-b-ui-text/5 bg-gradient-to-b from-ui-text/10 to-ui-text/4 text-[10px] leading-[1] text-ui-subtle font-mono shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
+                  class="ui-keycap"
                   >Esc</kbd
                 ></span
               >

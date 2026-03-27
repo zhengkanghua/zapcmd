@@ -138,7 +138,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
         </div>
         <div class="appearance-card__body">
           <div
-            class="appearance-preview-wrap grid h-[96px] w-full place-items-center overflow-hidden rounded-surface border border-settings-row-border [background-image:var(--ui-settings-preview-checker)] [background-size:16px_16px]"
+            class="appearance-preview-wrap grid h-[96px] w-full place-items-center overflow-hidden rounded-surface border border-settings-row-border bg-settings-preview-checker [background-size:16px_16px]"
           >
             <div
               class="appearance-preview-panel flex h-[64px] w-[70%] flex-col items-center justify-center gap-[4px] rounded-surface border border-ui-text/14 shadow-[0_4px_12px_var(--tw-shadow-color)] shadow-ui-black/25"

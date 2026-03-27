@@ -149,13 +149,13 @@ function onNavAfterEnter(): void {
   >
     <div
       :ref="props.setSearchShellRef"
-      class="search-shell w-max max-w-full mt-[var(--launcher-shell-margin-top)] pb-[var(--launcher-shell-breathing-bottom)] relative grid grid-cols-[var(--search-main-width)_var(--staging-collapsed-width)] grid-rows-[var(--ui-top-align-offset)_auto] gap-x-[var(--shell-gap)] justify-start justify-items-stretch items-start"
+      class="search-shell w-max max-w-full mt-[var(--launcher-shell-margin-top)] pb-[var(--launcher-shell-breathing-bottom)] relative grid grid-cols-[var(--search-main-width)_var(--staging-collapsed-width)] grid-rows-launcher-shell gap-x-[var(--shell-gap)] justify-start justify-items-stretch items-start"
       :style="props.searchShellStyle"
       role="application"
       :aria-label="t('app.launcherAriaLabel')"
     >
       <div
-        class="shell-drag-strip col-span-full row-start-1 w-full min-h-[var(--ui-top-align-offset)] self-stretch justify-self-stretch"
+        class="shell-drag-strip col-span-full row-start-1 w-full min-h-ui-top-align self-stretch justify-self-stretch"
         data-hit-zone="drag"
         data-tauri-drag-region
         aria-hidden="true"

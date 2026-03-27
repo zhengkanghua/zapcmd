@@ -31,12 +31,12 @@ describe("settings topbar navigation style contract", () => {
     const component = readProjectFile("src/components/settings/ui/SSegmentNav.vue");
 
     expect(component).toContain("border border-transparent bg-transparent");
-    expect(component).toContain("text-[color:var(--ui-settings-segment-tab-text)]");
+    expect(component).toContain("text-settings-segment-tab-text");
     expect(component).toContain("hover:bg-settings-table-row-hover");
-    expect(component).toContain("hover:text-[color:var(--ui-settings-segment-tab-text-hover)]");
+    expect(component).toContain("hover:text-settings-segment-tab-text-hover");
     expect(component).toContain("bg-settings-segment-tab-active");
-    expect(component).toContain("text-[color:var(--ui-settings-segment-tab-text-active)]");
-    expect(component).toContain("focus-visible:shadow-[0_0_0_2px_var(--ui-brand-soft)]");
+    expect(component).toContain("text-settings-segment-tab-text-active");
+    expect(component).toContain("focus-visible:shadow-brand-soft-ring");
 
     expect(component).not.toMatch(/rgba\(\s*255\s*,\s*255\s*,\s*255\s*,/);
   });

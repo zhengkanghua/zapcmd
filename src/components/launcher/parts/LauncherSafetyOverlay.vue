@@ -73,7 +73,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
 <template>
   <aside
     v-if="props.safetyDialog"
-    class="param-overlay safety-overlay absolute left-0 right-0 top-[var(--ui-top-align-offset)] bottom-[12px] z-[40] grid place-items-center rounded-b-ui bg-ui-black/38 animate-launcher-fade-in motion-reduce:animate-none"
+    class="param-overlay safety-overlay absolute left-0 right-0 top-ui-top-align bottom-[12px] z-[40] grid place-items-center rounded-b-ui bg-ui-black/38 animate-launcher-fade-in motion-reduce:animate-none"
     data-hit-zone="overlay"
     role="dialog"
     aria-modal="true"
