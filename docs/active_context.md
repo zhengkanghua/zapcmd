@@ -3,6 +3,7 @@
 ## 补充（2026-03-27｜FlowPanel 交互失活修复）
 
 - 移除 `tailwind.css` 中 `[data-tauri-drag-region]` 的 `app-region/-webkit-app-region` 注入，仅保留视觉提示；避免 Windows/WebView2 吞掉 FlowPanel 点击、滚动与拖拽交互，并新增样式契约防回归。
+- 进一步确认真实根因是 `LauncherFlowPanel` overlay 在 open/opening 态同时挂了 `pointer-events-none` 与 `pointer-events-auto`，实际计算结果为 `none`，导致执行流内容层被下方 search layer 抢走事件；已改为按状态单一控制并补齐组件回归。
 
 ## 补充（2026-03-23｜Tailwind 原语迁移规划）
 

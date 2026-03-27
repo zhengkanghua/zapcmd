@@ -333,6 +333,23 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 });
 
 describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
+  it("open/opening 态的 overlay 不应残留 pointer-events-none，closing 态必须禁交互", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({ stagingDrawerState: "open" })
+    });
+
+    expect(wrapper.get(".flow-panel-overlay").classes()).toContain("pointer-events-auto");
+    expect(wrapper.get(".flow-panel-overlay").classes()).not.toContain("pointer-events-none");
+
+    await wrapper.setProps({ stagingDrawerState: "opening" });
+    expect(wrapper.get(".flow-panel-overlay").classes()).toContain("pointer-events-auto");
+    expect(wrapper.get(".flow-panel-overlay").classes()).not.toContain("pointer-events-none");
+
+    await wrapper.setProps({ stagingDrawerState: "closing" });
+    expect(wrapper.get(".flow-panel-overlay").classes()).toContain("pointer-events-none");
+    wrapper.unmount();
+  });
+
   it("根节点/遮罩/面板具备 overlay hit-zone 与 dialog 语义", () => {
     const wrapper = mount(LauncherFlowPanel, { props: createProps() });
 

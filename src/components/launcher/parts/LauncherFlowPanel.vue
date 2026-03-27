@@ -190,10 +190,13 @@ useFlowPanelHeightObservation({
 
 <template>
   <aside
-    class="flow-panel-overlay absolute inset-0 flex items-stretch w-full min-w-0 min-h-0 z-[20] pointer-events-none"
+    class="flow-panel-overlay absolute inset-0 flex items-stretch w-full min-w-0 min-h-0 z-[20]"
     data-hit-zone="overlay"
     :class="[
       `state-${props.stagingDrawerState}`,
+      props.stagingDrawerState === 'closing' || props.stagingDrawerState === 'closed'
+        ? 'pointer-events-none'
+        : '',
       props.stagingDrawerState === 'open' || props.stagingDrawerState === 'opening'
         ? 'pointer-events-auto'
         : ''
