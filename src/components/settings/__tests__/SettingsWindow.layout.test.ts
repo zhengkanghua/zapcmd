@@ -148,6 +148,14 @@ describe("SettingsWindow stable shell", () => {
     expect(wrapper.find(".settings-content > .settings-content__inner").exists()).toBe(true);
   });
 
+  it("uses subtle scrollbar on the single settings scroll host", () => {
+    const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "general" }));
+    const content = wrapper.get(".settings-content");
+
+    expect(content.classes()).toContain("scrollbar-subtle");
+    expect(content.classes()).not.toContain("scrollbar-none");
+  });
+
   it("uses commands-specific content width hook only on commands route", async () => {
     const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "commands" }));
 

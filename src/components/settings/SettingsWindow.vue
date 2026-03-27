@@ -62,7 +62,7 @@ const emit = defineEmits<{
     </div>
 
     <div
-      class="settings-content min-h-0 h-full overflow-y-auto overscroll-contain w-full pb-[24px] box-border scrollbar-none"
+      class="settings-content min-h-0 h-full overflow-y-auto overscroll-contain w-full pb-[24px] box-border scrollbar-subtle"
       aria-label="settings-content"
     >
       <div

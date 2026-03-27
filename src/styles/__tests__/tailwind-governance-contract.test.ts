@@ -34,6 +34,24 @@ describe("tailwind governance contract", () => {
     expect(tailwindSource).not.toMatch(/(?<!-webkit-)app-region:\s*(drag|no-drag)/);
   });
 
+  it("scrollbar-subtle utility 提供细滚动条契约，并清理旧的 scrollbar-none", () => {
+    const tailwindSource = readProjectFile("src/styles/tailwind.css");
+
+    expect(tailwindSource).toContain(".scrollbar-subtle");
+    expect(tailwindSource).toMatch(/\.scrollbar-subtle\s*\{[\s\S]*scrollbar-width:\s*thin;/);
+    expect(tailwindSource).toMatch(
+      /\.scrollbar-subtle\s*\{[\s\S]*scrollbar-color:\s*rgba\(var\(--ui-text-rgb\),\s*0\.(16|18)\)\s+transparent;/
+    );
+    expect(tailwindSource).toMatch(/\.scrollbar-subtle::-webkit-scrollbar\s*\{[\s\S]*width:\s*4px;/);
+    expect(tailwindSource).toMatch(
+      /\.scrollbar-subtle::-webkit-scrollbar-thumb\s*\{[\s\S]*background:\s*rgba\(var\(--ui-text-rgb\),\s*0\.(16|18)\);/
+    );
+    expect(tailwindSource).toMatch(
+      /\.scrollbar-subtle::-webkit-scrollbar-thumb:hover\s*\{[\s\S]*background:\s*rgba\(var\(--ui-text-rgb\),\s*0\.(26|28)\);/
+    );
+    expect(tailwindSource).not.toContain(".scrollbar-none");
+  });
+
   it("高风险 arbitrary token class 已收口为语义类", () => {
     const sources = [
       readProjectFile("src/components/settings/ui/SSegmentNav.vue"),

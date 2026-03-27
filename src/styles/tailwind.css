@@ -110,14 +110,28 @@
 }
 
 @layer utilities {
-  /* 隐藏滚动条（Settings 迁移期用）：保持滚动能力但不显示 scrollbar。 */
-  .scrollbar-none {
-    scrollbar-width: none;
+  /* 主滚动容器使用克制的细滚动条，避免深色界面里完全丢失滚动提示。 */
+  .scrollbar-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--ui-text-rgb), 0.16) transparent;
   }
 
-  .scrollbar-none::-webkit-scrollbar {
-    width: 0;
-    height: 0;
+  .scrollbar-subtle::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scrollbar-subtle::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-subtle::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: rgba(var(--ui-text-rgb), 0.16);
+  }
+
+  .scrollbar-subtle::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--ui-text-rgb), 0.28);
   }
 
   /* 自定义 utilities：用 ui tokens 驱动圆角（避免依赖某些默认 rounded-* 产物）。 */
