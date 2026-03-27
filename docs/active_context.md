@@ -1,5 +1,13 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-27｜UI 多主题与效果策略）
+
+- `.impeccable.md` 已从“单一深色风格描述”改为“桌面工具稳定原则 + 多主题策略 + 受控效果策略”；当前 `obsidian` 仅是默认基线，后续允许多主题与局部 glow/gradient/blur，但必须服务可读性、层级、状态与效率。
+
+## 补充（2026-03-27｜UI Design Context 与 Playbook）
+
+- 已新增 `.impeccable.md` 作为 ZapCmd UI 设计事实源；`.ai/AGENTS.md` 已补成可执行 Playbook：先看 `.impeccable.md`，新界面走 `frontend-design`，现有界面优化走 `critique/polish/optimize`，系统约束再补 `ui-ux-pro-max`。
+
 ## 补充（2026-03-27｜impeccable 命名空间与 gsd 退场）
 
 - `impeccable` skills 已从 `.codex/skills` 根目录收口到 `.codex/skills/impeccable`；当前桌面 UI 规则统一引用 impeccable 技能组。`.codex/get-shit-done` 与 `gsd-file-manifest.json` 已退场，活跃入口不再使用 `gsd-*`。
