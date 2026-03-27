@@ -162,7 +162,7 @@ function onNavAfterEnter(): void {
       ></div>
 
       <div
-        class="launcher-frame col-start-1 row-start-2 relative w-full min-w-0 h-[var(--launcher-frame-height,auto)] max-h-[var(--launcher-panel-max-height,none)] overflow-hidden rounded-ui border border-ui-border shadow-none bg-ui-bg from-ui-text/4 bg-[linear-gradient(180deg,var(--tw-gradient-from),transparent_60%)]"
+        class="launcher-frame col-start-1 row-start-2 relative w-full min-w-0 h-[var(--launcher-frame-height,auto)] max-h-[var(--launcher-panel-max-height,none)] overflow-hidden rounded-ui border border-ui-border shadow-none bg-ui-bg from-ui-text/4 bg-launcher-frame-highlight"
         data-hit-zone="interactive"
       >
         <Transition

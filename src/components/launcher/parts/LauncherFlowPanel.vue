@@ -201,7 +201,7 @@ useFlowPanelHeightObservation({
   >
     <button
       type="button"
-      class="flow-panel-overlay__scrim drawer-scrim absolute inset-0 border-0 p-0 rounded-b-ui bg-ui-black/20 backdrop-blur-[8px] cursor-pointer opacity-100 [will-change:opacity]"
+      class="flow-panel-overlay__scrim drawer-scrim absolute inset-0 border-0 p-0 rounded-b-ui bg-ui-black/20 backdrop-blur-launcher-scrim cursor-pointer opacity-100 [will-change:opacity]"
       data-hit-zone="overlay"
       :aria-label="t('common.close')"
       :class="[
@@ -217,7 +217,7 @@ useFlowPanelHeightObservation({
     ></button>
     <section
       :ref="setReviewPanelRef"
-      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-[linear-gradient(180deg,var(--tw-gradient-from),var(--tw-gradient-via)_52%,transparent)] shadow-[-4px_0_24px_var(--tw-shadow-color)] shadow-ui-black/35 transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
+      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-launcher-flow-panel-highlight shadow-launcher-side-panel shadow-ui-black/35 transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
       :class="[
         { 'flow-panel--has-list': props.stagedCommands.length > 0 },
         props.stagingDrawerState === 'opening'
@@ -330,7 +330,7 @@ useFlowPanelHeightObservation({
               :class="{
                 'staging-card--active border-ui-brand/52 ring-1 ring-inset ring-ui-brand/20':
                   props.focusZone === 'staging' && index === props.stagingActiveIndex,
-                'staging-card--dragging opacity-[0.62] scale-[1.02] border-ui-brand/45 shadow-[0_14px_28px_var(--tw-shadow-color)] shadow-ui-black/28 cursor-grabbing':
+                'staging-card--dragging opacity-[0.62] scale-[1.02] border-ui-brand/45 shadow-launcher-drag-card shadow-ui-black/28 cursor-grabbing':
                   draggingCommandId === cmd.id,
                 'staging-card--drag-over border-ui-brand/65 ring-1 ring-inset ring-ui-brand/18':
                   dragOverCommandId === cmd.id && draggingCommandId !== cmd.id

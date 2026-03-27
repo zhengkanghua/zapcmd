@@ -82,7 +82,7 @@ function onBlur(): void {
       ref="recorderRef"
       type="button"
       :class="[
-        's-hotkey-recorder min-h-[34px] justify-self-start w-fit min-w-[92px] max-w-[min(100%,280px)] border border-ui-border rounded-lg bg-ui-input px-2.5 text-left text-[13px] tracking-[0.02em] text-ui-text outline-none inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-[border-color,box-shadow,background] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:border-ui-brand-dim focus-visible:shadow-brand-soft-ring',
+        's-hotkey-recorder min-h-[34px] justify-self-start w-fit min-w-[92px] max-w-[min(100%,280px)] border border-ui-border rounded-lg bg-ui-input px-2.5 text-left text-[13px] tracking-[0.02em] text-ui-text outline-none inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-settings-field duration-150 ease-settings-emphasized focus-visible:border-ui-brand-dim focus-visible:shadow-brand-soft-ring',
         {
           's-hotkey-recorder--empty text-ui-subtle': isEmpty,
           's-hotkey-recorder--recording border-ui-brand-dim shadow-brand-soft-ring':

@@ -22,6 +22,10 @@ const searchPanelSource = readFileSync(
   path.resolve(process.cwd(), "src/components/launcher/parts/LauncherSearchPanel.vue"),
   "utf8"
 );
+const safetyOverlaySource = readFileSync(
+  path.resolve(process.cwd(), "src/components/launcher/parts/LauncherSafetyOverlay.vue"),
+  "utf8"
+);
 const stagingPanelSource = readFileSync(
   path.resolve(process.cwd(), "src/components/launcher/parts/LauncherStagingPanel.vue"),
   "utf8"
@@ -76,6 +80,41 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
     ];
     for (const source of sources) {
       for (const pattern of banned) {
+        expect(source).not.toMatch(pattern);
+      }
+    }
+  });
+
+  it("Launcher 高成本 surface arbitrary 已收口为语义类", () => {
+    const requiredClasses = [
+      "bg-launcher-frame-highlight",
+      "bg-launcher-flow-panel-highlight",
+      "shadow-launcher-search-indicator",
+      "shadow-launcher-drag-card",
+      "shadow-launcher-side-panel",
+      "backdrop-blur-launcher-scrim",
+      "backdrop-blur-launcher-dialog"
+    ];
+
+    const requiredSources = [launcherWindowSource, flowPanelSource, searchPanelSource, safetyOverlaySource];
+    for (const className of requiredClasses) {
+      const found = requiredSources.some((source) => source.includes(className));
+      expect(found).toBe(true);
+    }
+
+    const bannedPatterns = [
+      /shadow-\[0_0_10px_var\(--tw-shadow-color\)\]/,
+      /shadow-\[-4px_0_24px_var\(--tw-shadow-color\)\]/,
+      /shadow-\[0_14px_28px_var\(--tw-shadow-color\)\]/,
+      /bg-\[linear-gradient\(180deg,var\(--tw-gradient-from\),transparent_60%\)\]/,
+      /bg-\[linear-gradient\(180deg,var\(--tw-gradient-from\),var\(--tw-gradient-via\)_52%,transparent\)\]/,
+      /backdrop-blur-\[8px\]/,
+      /backdrop-blur-\[20px\]/
+    ];
+
+    const launcherSources = [launcherWindowSource, flowPanelSource, searchPanelSource, safetyOverlaySource];
+    for (const source of launcherSources) {
+      for (const pattern of bannedPatterns) {
         expect(source).not.toMatch(pattern);
       }
     }

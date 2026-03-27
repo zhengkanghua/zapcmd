@@ -68,4 +68,26 @@ describe("tailwind theme layer contract", () => {
       expect(compiledCss).toContain(selector);
     }
   });
+
+  it("生成本轮新增的语义 transition / surface utility", () => {
+    const requiredSemanticSelectors = [
+      ".ease-settings-emphasized",
+      ".transition-settings-field",
+      ".transition-settings-interactive",
+      ".transition-settings-toggle-track",
+      ".transition-settings-toggle-thumb",
+      ".shadow-settings-toolbar",
+      ".shadow-launcher-search-indicator",
+      ".shadow-launcher-drag-card",
+      ".shadow-launcher-side-panel",
+      ".bg-launcher-frame-highlight",
+      ".bg-launcher-flow-panel-highlight",
+      ".backdrop-blur-launcher-scrim",
+      ".backdrop-blur-launcher-dialog"
+    ];
+
+    for (const selector of requiredSemanticSelectors) {
+      expect(compiledCss).toContain(selector);
+    }
+  });
 });

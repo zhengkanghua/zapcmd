@@ -91,4 +91,40 @@ describe("tailwind governance contract", () => {
 
     expect(total).toBe(0);
   });
+
+  it("Settings 高重复 transition/easing arbitrary 已收口为语义类", () => {
+    const sources = [
+      readProjectFile("src/components/settings/ui/SToggle.vue"),
+      readProjectFile("src/components/settings/ui/SDropdown.vue"),
+      readProjectFile("src/components/settings/ui/SHotkeyRecorder.vue"),
+      readProjectFile("src/components/settings/parts/SettingsCommandsSection.vue")
+    ];
+
+    const requiredClasses = [
+      "ease-settings-emphasized",
+      "transition-settings-field",
+      "transition-settings-interactive",
+      "transition-settings-toggle-track",
+      "transition-settings-toggle-thumb"
+    ];
+
+    for (const source of sources) {
+      const hasAnyRequiredClass = requiredClasses.some((className) => source.includes(className));
+      expect(hasAnyRequiredClass).toBe(true);
+    }
+
+    const bannedPatterns = [
+      /ease-\[cubic-bezier\(0\.33,1,0\.68,1\)\]/,
+      /transition-\[background,border-color,color,box-shadow\]/,
+      /transition-\[border-color,box-shadow,background\]/,
+      /transition-\[background,box-shadow\]/,
+      /transition-\[transform,background\]/
+    ];
+
+    for (const source of sources) {
+      for (const pattern of bannedPatterns) {
+        expect(source).not.toMatch(pattern);
+      }
+    }
+  });
 });

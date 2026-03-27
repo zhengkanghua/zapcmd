@@ -76,6 +76,18 @@ const rules = [
     name: "hsl()",
     description: "禁止硬编码 hsl() 色值",
     regex: /\bhsl\(/i
+  },
+  {
+    name: "settings-transition-semantic",
+    description: "Settings 交互态 transition/easing 必须使用语义 utility，禁止回退为重复 arbitrary",
+    regex:
+      /ease-\[cubic-bezier\(0\.33,1,0\.68,1\)\]|transition-\[(background,border-color,color,box-shadow|border-color,box-shadow,background|background,box-shadow|transform,background)\]/
+  },
+  {
+    name: "launcher-surface-semantic",
+    description: "Launcher 高成本 glow/shadow/gradient/blur 必须使用语义 utility，禁止回退为 arbitrary",
+    regex:
+      /shadow-\[0_0_10px_var\(--tw-shadow-color\)\]|shadow-\[-4px_0_24px_var\(--tw-shadow-color\)\]|shadow-\[0_14px_28px_var\(--tw-shadow-color\)\]|bg-\[linear-gradient\(180deg,var\(--tw-gradient-from\),transparent_60%\)\]|bg-\[linear-gradient\(180deg,var\(--tw-gradient-from\),var\(--tw-gradient-via\)_52%,transparent\)\]|backdrop-blur-\[(8|20)px\]/
   }
 ];
 

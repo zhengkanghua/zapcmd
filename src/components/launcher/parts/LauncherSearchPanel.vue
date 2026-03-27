@@ -138,9 +138,9 @@ function onSearchInput(event: Event): void {
             >
               <span
                 aria-hidden="true"
-                class="result-item__indicator absolute left-[5px] top-[11px] bottom-[11px] w-[2px] rounded-[2px] bg-transparent group-focus-visible:bg-ui-search-hl group-focus-visible:shadow-[0_0_10px_var(--tw-shadow-color)] group-focus-visible:shadow-ui-search-hl/60"
+                class="result-item__indicator absolute left-[5px] top-[11px] bottom-[11px] w-[2px] rounded-[2px] bg-transparent group-focus-visible:bg-ui-search-hl group-focus-visible:shadow-launcher-search-indicator group-focus-visible:shadow-ui-search-hl/60"
                 :class="{
-                  'bg-ui-search-hl shadow-[0_0_10px_var(--tw-shadow-color)] shadow-ui-search-hl/60': index === props.activeIndex
+                  'bg-ui-search-hl shadow-launcher-search-indicator shadow-ui-search-hl/60': index === props.activeIndex
                 }"
               ></span>
               <span class="result-item__content min-w-0 grid gap-[2px]">

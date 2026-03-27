@@ -35,7 +35,11 @@ module.exports = {
         "brand-soft-ring": "0 0 0 2px var(--ui-brand-soft)",
         "danger-soft-ring": "0 0 0 2px var(--ui-danger-soft)",
         "settings-toggle-track": "var(--ui-settings-toggle-track-shadow)",
-        "settings-toggle-thumb": "var(--ui-settings-toggle-thumb-shadow)"
+        "settings-toggle-thumb": "var(--ui-settings-toggle-thumb-shadow)",
+        "settings-toolbar": "0 18px 40px var(--tw-shadow-color)",
+        "launcher-search-indicator": "0 0 10px var(--tw-shadow-color)",
+        "launcher-side-panel": "-4px 0 24px var(--tw-shadow-color)",
+        "launcher-drag-card": "0 14px 28px var(--tw-shadow-color)"
       },
       backgroundImage: {
         "settings-slider-fill":
@@ -44,12 +48,17 @@ module.exports = {
         "settings-window-shell":
           "radial-gradient(circle at top, rgba(var(--ui-text-rgb), 0.035), transparent 48%), linear-gradient(180deg, rgba(var(--ui-text-rgb), 0.02), transparent 28%)",
         "settings-window-topbar":
-          "linear-gradient(180deg, rgba(var(--ui-text-rgb), 0.045), rgba(var(--ui-text-rgb), 0.01) 42%, rgba(var(--ui-text-rgb), 0))"
+          "linear-gradient(180deg, rgba(var(--ui-text-rgb), 0.045), rgba(var(--ui-text-rgb), 0.01) 42%, rgba(var(--ui-text-rgb), 0))",
+        "launcher-frame-highlight": "linear-gradient(180deg,var(--tw-gradient-from),transparent 60%)",
+        "launcher-flow-panel-highlight":
+          "linear-gradient(180deg,var(--tw-gradient-from),var(--tw-gradient-via) 52%,transparent)"
       },
       backdropBlur: {
         ui: "var(--ui-blur)",
         "ui-70": "calc(var(--ui-blur) * 0.7)",
-        "ui-24": "calc(var(--ui-blur) * 0.24)"
+        "ui-24": "calc(var(--ui-blur) * 0.24)",
+        "launcher-scrim": "8px",
+        "launcher-dialog": "20px"
       },
       accentColor: {
         ui: "var(--ui-accent)"
@@ -181,8 +190,15 @@ module.exports = {
         130: "130ms",
         250: "250ms"
       },
+      transitionProperty: {
+        "settings-field": "background-color, border-color, box-shadow",
+        "settings-interactive": "background-color, border-color, color, box-shadow",
+        "settings-toggle-track": "background-color, box-shadow",
+        "settings-toggle-thumb": "transform, background-color"
+      },
       transitionTimingFunction: {
-        "nav-slide": "cubic-bezier(0.175,0.885,0.32,1.15)"
+        "nav-slide": "cubic-bezier(0.175,0.885,0.32,1.15)",
+        "settings-emphasized": "cubic-bezier(0.33,1,0.68,1)"
       },
       gridTemplateRows: {
         "launcher-shell": "var(--ui-top-align-offset) auto",

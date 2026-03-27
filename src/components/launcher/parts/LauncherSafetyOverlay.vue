@@ -82,7 +82,7 @@ function onDialogKeydown(event: KeyboardEvent): void {
   >
     <section
       ref="dialogRef"
-      class="param-dialog safety-dialog w-[min(680px,calc(100vw-24px))] max-h-[min(78vh,640px)] overflow-auto p-[16px] grid gap-[12px] bg-ui-bg-rgb/92 backdrop-blur-[20px] animate-launcher-dialog-scale-in motion-reduce:animate-none"
+      class="param-dialog safety-dialog w-[min(680px,calc(100vw-24px))] max-h-[min(78vh,640px)] overflow-auto p-[16px] grid gap-[12px] bg-ui-bg-rgb/92 backdrop-blur-launcher-dialog animate-launcher-dialog-scale-in motion-reduce:animate-none"
       @keydown="onDialogKeydown"
     >
       <h2 class="m-0 text-[16px]">{{ props.safetyDialog.title }}</h2>

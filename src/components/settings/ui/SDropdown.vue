@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
     <button
       ref="triggerRef"
       type="button"
-      class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-surface transition-[background,border-color,box-shadow,color] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:outline-none focus-visible:shadow-settings-focus disabled:cursor-not-allowed disabled:opacity-50"
+      class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-surface transition-settings-interactive duration-150 ease-settings-emphasized focus-visible:outline-none focus-visible:shadow-settings-focus disabled:cursor-not-allowed disabled:opacity-50"
       :class="
         props.variant === 'ghost'
           ? 's-dropdown__trigger--ghost min-w-0 w-auto border border-transparent bg-settings-badge px-2.5 py-1.5 text-settings-badge-text hover:bg-settings-dropdown-hover hover:text-ui-text'
