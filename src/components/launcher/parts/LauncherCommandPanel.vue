@@ -62,18 +62,55 @@ const isDangerBtn = computed(() => props.isDangerous);
 
 const dismissChecked = ref(false);
 
-const firstInputRef = ref<HTMLInputElement | null>(null);
+const firstControlRef = ref<HTMLInputElement | HTMLSelectElement | null>(null);
+const dangerDescriptionId = computed(() => `${getPanelIdBase()}-danger-description`);
 
 function setFirstInputRef(el: Element | null, index: number): void {
-  if (index !== 0) return;
-  firstInputRef.value = el instanceof HTMLInputElement ? el : null;
+  if (index !== 0) {
+    return;
+  }
+  firstControlRef.value =
+    el instanceof HTMLInputElement || el instanceof HTMLSelectElement ? el : null;
 }
 
 onMounted(() => {
   void nextTick(() => {
-    firstInputRef.value?.focus({ preventScroll: true });
+    firstControlRef.value?.focus({ preventScroll: true });
   });
 });
+
+function getPanelIdBase(): string {
+  return `command-panel-${props.command.id.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+}
+
+/**
+ * 参数控件 id / 描述 id 必须稳定，才能把 label、必填提示和高危说明可靠挂到同一语义链上。
+ * @param argKey 参数 key。
+ * @param index 参数顺序，用于兜底避免重复 id。
+ * @returns 当前参数字段的稳定 DOM id 前缀。
+ */
+function getArgIdBase(argKey: string, index: number): string {
+  return `${getPanelIdBase()}-${argKey.replace(/[^a-zA-Z0-9_-]/g, "-")}-${index}`;
+}
+
+function getArgControlId(argKey: string, index: number): string {
+  return `${getArgIdBase(argKey, index)}-control`;
+}
+
+function getArgRequiredHintId(argKey: string, index: number): string {
+  return `${getArgIdBase(argKey, index)}-required`;
+}
+
+function getArgDescribedBy(arg: CommandArg, index: number): string | undefined {
+  const describedBy: string[] = [];
+  if (arg.required !== false) {
+    describedBy.push(getArgRequiredHintId(arg.key, index));
+  }
+  if (props.isDangerous) {
+    describedBy.push(dangerDescriptionId.value);
+  }
+  return describedBy.length > 0 ? describedBy.join(" ") : undefined;
+}
 
 function onArgInput(key: string, value: string): void {
   emit("arg-input", key, value);
@@ -162,7 +199,10 @@ function onSubmit(): void {
           >
           <strong>{{ t("commandPanel.danger.title") }}</strong>
         </div>
-        <p class="command-panel__danger-desc m-0 text-[13px] text-ui-subtle leading-[1.5]">
+        <p
+          :id="dangerDescriptionId"
+          class="command-panel__danger-desc m-0 text-[13px] text-ui-subtle leading-[1.5]"
+        >
           {{ t("commandPanel.danger.description") }}
         </p>
         <label
@@ -185,16 +225,32 @@ function onSubmit(): void {
           :key="arg.key"
           class="command-panel__field flex flex-col gap-[4px]"
         >
-          <label class="command-panel__label text-[12px] font-medium text-ui-subtle uppercase tracking-[0.5px]">
+          <label
+            class="command-panel__label text-[12px] font-medium text-ui-subtle uppercase tracking-[0.5px]"
+            :for="getArgControlId(arg.key, i)"
+          >
             {{ arg.label }}
             <span v-if="arg.required !== false" class="command-panel__required text-ui-danger"
               >*</span
             >
           </label>
+          <span
+            v-if="arg.required !== false"
+            :id="getArgRequiredHintId(arg.key, i)"
+            class="sr-only"
+          >
+            {{ t("safety.validation.required", { label: arg.label }) }}
+          </span>
 
           <select
             v-if="arg.argType === 'select' && arg.options?.length"
+            :id="getArgControlId(arg.key, i)"
+            :ref="(el) => setFirstInputRef(el as Element | null, i)"
             :value="props.pendingArgValues[arg.key] ?? ''"
+            :name="arg.key"
+            :required="arg.required !== false"
+            :aria-required="arg.required !== false ? 'true' : undefined"
+            :aria-describedby="getArgDescribedBy(arg, i)"
             class="command-panel__select h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-launcher-field duration-140 focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
             @change="
               onArgInput(arg.key, ($event.target as HTMLSelectElement).value)
@@ -208,9 +264,14 @@ function onSubmit(): void {
           <input
             v-else
             :ref="(el) => setFirstInputRef(el as Element | null, i)"
+            :id="getArgControlId(arg.key, i)"
             :value="props.pendingArgValues[arg.key] ?? ''"
+            :name="arg.key"
             :type="arg.argType === 'number' ? 'number' : 'text'"
             :placeholder="arg.placeholder"
+            :required="arg.required !== false"
+            :aria-required="arg.required !== false ? 'true' : undefined"
+            :aria-describedby="getArgDescribedBy(arg, i)"
             class="command-panel__input h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-launcher-field duration-140 placeholder:text-ui-dim focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
             :class="{
               'command-panel__input--danger focus-visible:border-ui-danger/55 focus-visible:ring focus-visible:ring-ui-danger/18':

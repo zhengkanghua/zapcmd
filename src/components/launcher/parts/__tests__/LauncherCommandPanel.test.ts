@@ -260,4 +260,65 @@ describe("LauncherCommandPanel", () => {
       expect(argInputEvents![0]).toEqual(["value", "new-value"]);
     });
   });
+
+  describe("可访问性", () => {
+    it("为输入与下拉参数生成稳定 id，并让 label for 正确绑定控件", () => {
+      const wrapper = mountPanel({
+        command: createCommand({
+          args: [
+            {
+              key: "container",
+              label: "容器名",
+              token: "{{container}}",
+              placeholder: "nginx",
+              required: true
+            },
+            {
+              key: "tail",
+              label: "日志行数",
+              token: "{{tail}}",
+              argType: "select",
+              options: ["50", "100"],
+              required: false
+            }
+          ]
+        }),
+        pendingArgValues: {
+          container: "nginx",
+          tail: "50"
+        }
+      });
+
+      const labels = wrapper.findAll(".command-panel__label");
+      const input = wrapper.get(".command-panel__input");
+      const select = wrapper.get(".command-panel__select");
+
+      expect(labels[0]?.attributes("for")).toBe(input.attributes("id"));
+      expect(labels[1]?.attributes("for")).toBe(select.attributes("id"));
+      expect(input.attributes("name")).toBe("container");
+      expect(select.attributes("name")).toBe("tail");
+    });
+
+    it("通过 aria-describedby 挂接必填提示与高危说明", () => {
+      const wrapper = mountPanel({
+        command: createCommand({ dangerous: true }),
+        isDangerous: true,
+        pendingArgValues: { value: "prod" }
+      });
+
+      const input = wrapper.get(".command-panel__input");
+      const describedBy = (input.attributes("aria-describedby") ?? "")
+        .split(" ")
+        .filter(Boolean);
+
+      expect(describedBy.length).toBeGreaterThanOrEqual(2);
+
+      const requiredHint = wrapper.get(`#${describedBy[0]!}`);
+      const dangerHint = wrapper.get(`#${describedBy[1]!}`);
+
+      expect(requiredHint.text()).toContain("不能为空");
+      expect(dangerHint.text()).toContain("敏感系统资源");
+      expect(input.attributes("aria-required")).toBe("true");
+    });
+  });
 });

@@ -210,4 +210,63 @@ describe("SettingsCommandsSection interactions", () => {
     expect(wrapper.get(".settings-commands-toolbar__reset").attributes("disabled")).toBeDefined();
     wrapper.unmount();
   });
+
+  it("treats more filters as a dialog with initial focus, focus trap, Escape close and return focus", async () => {
+    const wrapper = mount(SettingsCommandsSection, {
+      attachTo: document.body,
+      props: createProps({
+        commandView: createCommandView({
+          fileFilter: "user.json"
+        })
+      })
+    });
+
+    const trigger = wrapper.get(".settings-commands-toolbar__more-filters");
+    await trigger.trigger("click");
+    await nextTick();
+
+    const dialog = wrapper.get("#settings-commands-more-filters");
+    const dropdownTriggers = dialog.findAll(".settings-commands-toolbar__secondary-filter .s-dropdown__trigger");
+    const resetButton = dialog.get(".settings-commands-toolbar__reset");
+
+    expect(document.activeElement).toBe(dropdownTriggers[0]?.element ?? null);
+
+    (resetButton.element as HTMLButtonElement).focus();
+    const tabEvent = new KeyboardEvent("keydown", {
+      key: "Tab",
+      bubbles: true,
+      cancelable: true
+    });
+    dialog.element.dispatchEvent(tabEvent);
+    await nextTick();
+
+    expect(tabEvent.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(dropdownTriggers[0]?.element ?? null);
+
+    (dropdownTriggers[0]?.element as HTMLButtonElement).focus();
+    const reverseTabEvent = new KeyboardEvent("keydown", {
+      key: "Tab",
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true
+    });
+    dialog.element.dispatchEvent(reverseTabEvent);
+    await nextTick();
+
+    expect(reverseTabEvent.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(resetButton.element);
+
+    const escapeEvent = new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+      cancelable: true
+    });
+    dialog.element.dispatchEvent(escapeEvent);
+    await nextTick();
+
+    expect(wrapper.find("#settings-commands-more-filters").exists()).toBe(false);
+    expect(document.activeElement).toBe(trigger.element);
+
+    wrapper.unmount();
+  });
 });

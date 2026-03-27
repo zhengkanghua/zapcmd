@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { computed, nextTick, ref } from "vue";
 
 import { useI18nText } from "../../../i18n";
 import type {
@@ -13,6 +13,7 @@ import type {
 import type { SettingsCommandsProps } from "../types";
 import SDropdown from "../ui/SDropdown.vue";
 import SToggle from "../ui/SToggle.vue";
+import SettingsCommandsMoreFiltersDialog from "./settingsCommands/SettingsCommandsMoreFiltersDialog.vue";
 
 const props = defineProps<SettingsCommandsProps>();
 const { t } = useI18nText();
@@ -26,7 +27,6 @@ const emit = defineEmits<{
 
 const moreFiltersOpen = ref(false);
 const moreFiltersTriggerRef = ref<HTMLButtonElement | null>(null);
-const moreFiltersPanelRef = ref<HTMLElement | null>(null);
 
 const fileFilterOptions = computed(() => [
   { value: "all", label: t("settings.commands.allFiles") },
@@ -154,6 +154,9 @@ function setSortBy(value: string): void {
 
 function closeMoreFilters(): void {
   moreFiltersOpen.value = false;
+  void nextTick(() => {
+    moreFiltersTriggerRef.value?.focus({ preventScroll: true });
+  });
 }
 
 function toggleMoreFilters(): void {
@@ -165,39 +168,6 @@ function onResetFilters(): void {
   closeMoreFilters();
 }
 
-function isMoreFiltersEventInside(event: PointerEvent): boolean {
-  if (!(event.target instanceof Element)) {
-    return false;
-  }
-
-  return (
-    moreFiltersTriggerRef.value?.contains(event.target) === true ||
-    moreFiltersPanelRef.value?.contains(event.target) === true
-  );
-}
-
-function onGlobalPointerDown(event: PointerEvent): void {
-  if (moreFiltersOpen.value && !isMoreFiltersEventInside(event)) {
-    closeMoreFilters();
-  }
-}
-
-watch(
-  moreFiltersOpen,
-  (isOpen) => {
-    if (isOpen) {
-      document.addEventListener("pointerdown", onGlobalPointerDown);
-      return;
-    }
-
-    document.removeEventListener("pointerdown", onGlobalPointerDown);
-  },
-  { immediate: true }
-);
-
-onBeforeUnmount(() => {
-  document.removeEventListener("pointerdown", onGlobalPointerDown);
-});
 </script>
 
 <template>
@@ -276,45 +246,14 @@ onBeforeUnmount(() => {
             </span>
           </button>
 
-          <div
+          <SettingsCommandsMoreFiltersDialog
             v-if="moreFiltersOpen"
-            id="settings-commands-more-filters"
-            ref="moreFiltersPanelRef"
-            class="settings-commands-toolbar__more-filters-panel absolute top-[calc(100%+8px)] right-0 w-[min(360px,calc(100vw-56px))] p-3 border border-settings-dropdown-border rounded-[16px] bg-settings-dropdown shadow-ui backdrop-blur-ui z-settings-popover settings-narrow:left-0 settings-narrow:right-auto settings-narrow:w-[min(100%,360px)]"
-            role="dialog"
-            :aria-label="t('settings.commands.moreFilters')"
-          >
-            <div class="settings-commands-toolbar__secondary-grid grid gap-2.5">
-              <div
-                v-for="filter in secondaryFilters"
-                :key="filter.key"
-                class="settings-commands-toolbar__secondary-group grid gap-1.5"
-              >
-                <span
-                  class="settings-commands-toolbar__secondary-label text-[11px] font-semibold tracking-[0.04em] uppercase text-settings-hint"
-                  >{{ filter.label }}</span
-                >
-                <SDropdown
-                  class="settings-commands-toolbar__secondary-filter w-full"
-                  :model-value="filter.modelValue"
-                  :options="filter.options"
-                  variant="ghost"
-                  stretch
-                  @update:model-value="filter.onUpdate"
-                />
-              </div>
-            </div>
-            <div class="settings-commands-toolbar__actions mt-3 flex justify-end">
-              <button
-                type="button"
-                class="settings-commands-toolbar__reset border-0 bg-transparent px-2 py-[5px] text-[12px] text-ui-text/52 underline cursor-pointer transition-colors duration-120 hover:text-ui-text/78 disabled:opacity-[0.35] disabled:text-ui-text/30 disabled:cursor-not-allowed disabled:no-underline"
-                :disabled="!hasActiveFilters"
-                @click="onResetFilters"
-              >
-                {{ t("settings.commands.resetFilters") }}
-              </button>
-            </div>
-          </div>
+            :filters="secondaryFilters"
+            :has-active-filters="hasActiveFilters"
+            :trigger-element="moreFiltersTriggerRef"
+            @close="closeMoreFilters"
+            @reset-filters="onResetFilters"
+          />
         </div>
       </div>
     </div>
