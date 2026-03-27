@@ -30,6 +30,7 @@
 - 补充（2026-03-27）：Tailwind 治理收口：theme-layer 契约改为“默认 token + 实际消费 utility”；新增治理契约限制高风险 arbitrary 与 `var(--ui-*)` 预算（36→12）；提炼 `ui-keycap`/`ui-glass-toast`，`check:all` 全绿。
 - 补充（2026-03-27）：Tailwind 契约继续加固：预算统计覆盖 `src/components/**/*.ts` 且排除 `__tests__`；theme-layer 新增 `shadow-settings-focus` 等语义 utility 编译校验；`check:all` 全绿。
 - 补充（2026-03-27）：组件模板里剩余 12 个 `var(--ui-*)` arbitrary 已清零；新增 launcher-shell/top-align/backdrop/window-shell/slider/checker/accent 语义类；`check:all` 全绿，Windows 视觉基线可按需复测。
+- 补充（2026-03-27）：Windows 视觉回归复测确认当前 Settings UI 为新基线形态，不是样式丢失；已用最新 `actual` 刷新 4 张 settings baselines，待 Windows 再跑 `npm run test:visual:ui` 复核。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 
