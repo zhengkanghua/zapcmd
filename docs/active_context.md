@@ -1,5 +1,14 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-27｜桌面 UI 技能收口）
+
+- 已删除 `frontend-skill`；桌面产品 UI 默认走 `ui-ux-pro-max` + impeccable，首次设计/大改优先 `frontend-design`，缺少 `.impeccable.md` 时先 `teach-impeccable`。
+
+## 补充（2026-03-27｜前端 UI 技能路由）
+
+- 项目 `.codex/skills` 已补装 `frontend-skill` 与 impeccable 技能集；`.ai/AGENTS.md` 现规定：UI 首次生成优先 `frontend-skill`，UI 修改/优化优先 impeccable，也可结合 `ui-ux-pro-max`。
+- 此条已被上方“桌面 UI 技能收口”取代；`frontend-skill` 已卸载，不再作为默认 UI skill。
+
 ## 补充（2026-03-27｜主滚动容器细滚动条精修）
 
 - 新增 `.scrollbar-subtle` utility；Settings 主内容区、Launcher CommandPanel、FlowPanel 空态 body 与列表区、StagingPanel 列表区已显式挂载；运行时代码已清除旧隐藏滚动条类。
