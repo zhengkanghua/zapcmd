@@ -818,3 +818,5 @@
 - 已确认新规：搜索有效高度仅=搜索框+结果区，不含拖拽区/底部呼吸留白；Command 进入先继承该有效高度，不够再补高；三面板共享最高高度仍取搜索页最大结果态。见 `docs/superpowers/specs/2026-03-20-launcher-search-effective-height-inheritance-design.md`。
 ## 补充（2026-03-27｜主滚动容器细滚动条 brainstorming 完成）
 - 已确认 A 向细滚动条 + 方案 2：在 `tailwind.css` 新增 `.scrollbar-subtle`，替换 Settings 的 `.scrollbar-none`，覆盖 Settings 主内容区与 Launcher 主列表/主面板滚动容器。
+## 补充（2026-03-27｜主滚动容器细滚动条 writing-plans 完成）
+- 已产出计划 `docs/superpowers/plans/2026-03-27-main-scrollbar-subtle-polish.md`：按 TDD 先锁 utility/contract，再迁移 Settings 与 Launcher 主滚动容器，并在执行末尾完成 Windows 手验。
