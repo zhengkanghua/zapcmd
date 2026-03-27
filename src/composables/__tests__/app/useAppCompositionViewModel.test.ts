@@ -143,8 +143,9 @@ describe("createAppCompositionViewModel", () => {
     expect(isRef(viewModel.settingsVm.defaultTerminal)).toBe(false);
     expect(viewModel.settingsVm.defaultTerminal).toBe("powershell");
     expect(appSource).toMatch(
-      /const\s*\{\s*isSettingsWindow,\s*launcherVm,\s*settingsVm,\s*appShellVm\s*\}\s*=\s*useAppCompositionRoot\(\);/s
+      /const\s*\{\s*launcherVm,\s*settingsVm,\s*appShellVm\s*\}\s*=\s*useAppCompositionRoot\(\);/s
     );
+    expect(appSource).not.toContain("import SettingsWindow");
   });
 
   it("submitParamInput 透传业务提交结果，且不再直接 popPage", () => {

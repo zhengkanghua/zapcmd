@@ -14,4 +14,14 @@ describe("settings bootstrap contract", () => {
       html.indexOf('/src/main-settings.ts')
     );
   });
+
+  it("keeps AppSettings as the only settings entry and removes SettingsWindow wiring from App.vue", () => {
+    const mainSettingsSource = readFileSync(resolve(process.cwd(), "src/main-settings.ts"), "utf8");
+    const appSource = readFileSync(resolve(process.cwd(), "src/App.vue"), "utf8");
+
+    expect(mainSettingsSource).toContain('import AppSettings from "./AppSettings.vue"');
+    expect(mainSettingsSource).toContain("createApp(AppSettings)");
+    expect(appSource).not.toContain("import SettingsWindow");
+    expect(appSource).not.toContain("<SettingsWindow");
+  });
 });

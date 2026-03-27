@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import { toRef } from "vue";
 import LauncherWindow from "./components/launcher/LauncherWindow.vue";
-import SettingsWindow from "./components/settings/SettingsWindow.vue";
 import { useAppCompositionRoot } from "./composables/app/useAppCompositionRoot";
 
-const {
-  isSettingsWindow,
-  launcherVm,
-  settingsVm,
-  appShellVm
-} = useAppCompositionRoot();
+const { launcherVm, settingsVm, appShellVm } = useAppCompositionRoot();
 
 const availableTerminals = toRef(settingsVm, "availableTerminals");
 const terminalLoading = toRef(settingsVm, "terminalLoading");
 
+// 主入口只保留 Launcher 渲染；这里继续暴露 settings 兼容字段给既有测试与壳层契约。
 function submitParamInput(): void {
   if (!launcherVm.submitParamInput()) {
     return;
@@ -30,7 +25,6 @@ defineExpose({
 
 <template>
   <LauncherWindow
-    v-if="!isSettingsWindow"
     :query="launcherVm.query"
     :executing="launcherVm.executing"
     :execution-feedback-message="launcherVm.executionFeedbackMessage"
@@ -91,67 +85,5 @@ defineExpose({
     @cancel-safety-execution="launcherVm.cancelSafetyExecution"
     @blank-pointerdown="appShellVm.hideMainWindow"
     @execution-feedback="appShellVm.setExecutionFeedback"
-  />
-
-  <SettingsWindow
-    v-else
-    :settings-nav-items="settingsVm.settingsNavItems"
-    :settings-route="settingsVm.settingsRoute"
-    :hotkey-global-fields="settingsVm.hotkeyGlobalFields"
-    :hotkey-search-fields="settingsVm.hotkeySearchFields"
-    :hotkey-queue-fields="settingsVm.hotkeyQueueFields"
-    :get-hotkey-value="settingsVm.getHotkeyValue"
-    :hotkey-error-fields="settingsVm.hotkeyErrorFields"
-    :hotkey-error-message="settingsVm.hotkeyErrorMessage"
-    :available-terminals="settingsVm.availableTerminals"
-    :terminal-loading="settingsVm.terminalLoading"
-    :default-terminal="settingsVm.defaultTerminal"
-    :terminal-reuse-policy="settingsVm.terminalReusePolicy"
-    :language="settingsVm.language"
-    :auto-check-update="settingsVm.autoCheckUpdate"
-    :launch-at-login="settingsVm.launchAtLogin"
-    :always-elevated-terminal="settingsVm.alwaysElevatedTerminal"
-    :show-always-elevated-terminal="settingsVm.showAlwaysElevatedTerminal"
-    :selected-terminal-path="settingsVm.selectedTerminalPath"
-    :language-options="settingsVm.languageOptions"
-    :app-version="settingsVm.appVersion"
-    :runtime-platform="settingsVm.runtimePlatform"
-    :update-status="settingsVm.updateStatus"
-    :command-rows="settingsVm.commandRows"
-    :command-summary="settingsVm.commandSummary"
-    :command-load-issues="settingsVm.commandLoadIssues"
-    :command-filtered-count="settingsVm.commandFilteredCount"
-    :command-view="settingsVm.commandView"
-    :command-source-options="settingsVm.commandSourceOptions"
-    :command-status-options="settingsVm.commandStatusOptions"
-    :command-category-options="settingsVm.commandCategoryOptions"
-    :command-override-options="settingsVm.commandOverrideOptions"
-    :command-issue-options="settingsVm.commandIssueOptions"
-    :command-sort-options="settingsVm.commandSortOptions"
-    :command-display-mode-options="settingsVm.commandDisplayModeOptions"
-    :command-source-file-options="settingsVm.commandSourceFileOptions"
-    :command-groups="settingsVm.commandGroups"
-    :window-opacity="settingsVm.windowOpacity"
-    :theme="settingsVm.theme"
-    :blur-enabled="settingsVm.blurEnabled"
-    :themes="settingsVm.themes"
-    @update-hotkey="settingsVm.applyHotkeyChange"
-    @navigate="settingsVm.navigateSettings"
-    @select-terminal="settingsVm.selectTerminalOption"
-    @select-language="settingsVm.selectLanguageOption"
-    @set-auto-check-update="settingsVm.setAutoCheckUpdate"
-    @set-launch-at-login="settingsVm.setLaunchAtLogin"
-    @set-always-elevated-terminal="settingsVm.setAlwaysElevatedTerminal"
-    @set-terminal-reuse-policy="settingsVm.setTerminalReusePolicy"
-    @toggle-command-enabled="settingsVm.toggleCommandEnabled"
-    @set-filtered-commands-enabled="settingsVm.setFilteredCommandsEnabled"
-    @update-command-view="settingsVm.updateCommandView"
-    @reset-command-filters="settingsVm.resetCommandFilters"
-    @update-opacity="settingsVm.setWindowOpacity"
-    @update-theme="settingsVm.setTheme"
-    @update-blur-enabled="settingsVm.setBlurEnabled"
-    @check-update="settingsVm.checkUpdate"
-    @download-update="settingsVm.downloadUpdate"
-    @open-homepage="settingsVm.openHomepage"
   />
 </template>

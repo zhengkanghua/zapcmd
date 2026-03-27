@@ -19,6 +19,7 @@ import {
 import { measureFlowPanelMinHeight } from "../composables/launcher/useWindowSizing/panelMeasurement";
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK } from "../composables/launcher/useWindowSizing/model";
 import App from "../App.vue";
+import AppSettings from "../AppSettings.vue";
 
 const hoisted = vi.hoisted(() => ({
   runMock:
@@ -218,6 +219,18 @@ async function waitForUi(): Promise<void> {
 
 async function mountApp(): Promise<VueWrapper> {
   const wrapper = mount(App, {
+    attachTo: document.body,
+    global: {
+      plugins: [createPinia()],
+    },
+  });
+  wrappers.push(wrapper);
+  await waitForUi();
+  return wrapper;
+}
+
+async function mountSettingsApp(): Promise<VueWrapper> {
+  const wrapper = mount(AppSettings, {
     attachTo: document.body,
     global: {
       plugins: [createPinia()],
@@ -570,7 +583,7 @@ describe("App failure and event regression", () => {
       return undefined;
     });
 
-    const wrapper = await mountApp();
+    const wrapper = await mountSettingsApp();
     const settingsStore = getSettingsStoreFromWrapper(wrapper);
 
     const launcherRecorder = findSettingsHotkeyRecorder(wrapper, "唤起窗口");
@@ -597,7 +610,7 @@ describe("App failure and event regression", () => {
     hoisted.isTauriMock.mockReturnValue(false);
     hoisted.invokeMock.mockResolvedValue(undefined);
 
-    await mountApp();
+    await mountSettingsApp();
     await waitForUi();
 
     expect(getInvokeCommandCallCount("open_settings_window")).toBe(0);
@@ -619,7 +632,7 @@ describe("App failure and event regression", () => {
     });
     vi.mocked(updaterCheck).mockRejectedValueOnce(new Error("update check failed"));
 
-    const wrapper = await mountApp();
+    const wrapper = await mountSettingsApp();
     await openSettingsRoute(wrapper, "关于");
 
     const checkButton = wrapper
@@ -639,7 +652,7 @@ describe("App failure and event regression", () => {
 
   it("reloads settings on storage event for tracked keys and ignores unrelated keys", async () => {
     hoisted.currentWindowLabel = "settings";
-    const wrapper = await mountApp();
+    const wrapper = await mountSettingsApp();
     const recorder = findSettingsHotkeyRecorder(wrapper, "唤起窗口");
     expect(recorder.text()).toContain("Alt");
     expect(recorder.text()).toContain("V");
@@ -662,7 +675,7 @@ describe("App failure and event regression", () => {
 
   it("reloads settings on broadcast sync message and ignores unknown payload", async () => {
     hoisted.currentWindowLabel = "settings";
-    const wrapper = await mountApp();
+    const wrapper = await mountSettingsApp();
     const recorder = findSettingsHotkeyRecorder(wrapper, "唤起窗口");
     expect(recorder.text()).toContain("Alt");
     expect(recorder.text()).toContain("V");
@@ -1232,7 +1245,7 @@ describe("App failure and event regression", () => {
       return undefined;
     });
 
-    const wrapper = await mountApp();
+    const wrapper = await mountSettingsApp();
     await openGeneralSettings(wrapper);
     const selectButton = getDefaultTerminalSelectTrigger(wrapper);
     await selectButton.trigger("click");
@@ -1257,7 +1270,7 @@ describe("App failure and event regression", () => {
       return undefined;
     });
 
-    const wrapper = await mountApp();
+    const wrapper = await mountSettingsApp();
     await openGeneralSettings(wrapper);
     const selectButton = getDefaultTerminalSelectTrigger(wrapper);
     await selectButton.trigger("click");
@@ -1287,7 +1300,7 @@ describe("App failure and event regression", () => {
       return undefined;
     });
 
-    const wrapper = await mountApp();
+    const wrapper = await mountSettingsApp();
     await openGeneralSettings(wrapper);
     const setupState = getSetupState(wrapper);
     const selectButton = getDefaultTerminalSelectTrigger(wrapper);
