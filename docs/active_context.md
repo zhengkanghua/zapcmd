@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-27｜FlowPanel 交互失活修复）
+
+- 移除 `tailwind.css` 中 `[data-tauri-drag-region]` 的 `app-region/-webkit-app-region` 注入，仅保留视觉提示；避免 Windows/WebView2 吞掉 FlowPanel 点击、滚动与拖拽交互，并新增样式契约防回归。
+
 ## 补充（2026-03-23｜Tailwind 原语迁移规划）
 
 - 开发分支试验 Tailwind（C：页面消费原语），保留 `themes/* + tokens.css` 多主题；Roadmap：`docs/superpowers/plans/2026-03-23-tailwind-primitives-migration.md`（含 Phase1/2/3 拆分）。

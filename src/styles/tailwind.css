@@ -21,17 +21,16 @@
 @tailwind utilities source(none);
 
 @layer base {
-  /* Tauri 窗口拖拽区域：保留选择器避免行为回归（从 shared.css 迁移）。 */
+  /* Tauri v2 的 data-tauri-drag-region 已由运行时处理拖拽语义。
+   * 这里只保留视觉提示，避免在 CSS 中再次注入 app-region，
+   * 否则 Windows/WebView2 上会把子元素误判为标题栏区域，吞掉点击/滚动/拖拽交互。
+   */
   [data-tauri-drag-region] {
-    -webkit-app-region: drag;
-    app-region: drag;
     cursor: move;
     background-color: rgba(var(--ui-black-rgb), 0.001);
   }
 
   [data-tauri-drag-region] :is(button, input, textarea, select, a, [contenteditable="true"]) {
-    -webkit-app-region: no-drag;
-    app-region: no-drag;
     cursor: auto;
   }
 

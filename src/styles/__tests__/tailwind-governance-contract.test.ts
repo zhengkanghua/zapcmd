@@ -26,6 +26,14 @@ function readProjectFile(relativePath: string): string {
 }
 
 describe("tailwind governance contract", () => {
+  it("Tauri drag region 只保留视觉提示，不在 CSS 中重复注入 app-region 语义", () => {
+    const tailwindSource = readProjectFile("src/styles/tailwind.css");
+
+    expect(tailwindSource).toContain("[data-tauri-drag-region]");
+    expect(tailwindSource).not.toMatch(/-webkit-app-region:\s*(drag|no-drag)/);
+    expect(tailwindSource).not.toMatch(/(?<!-webkit-)app-region:\s*(drag|no-drag)/);
+  });
+
   it("高风险 arbitrary token class 已收口为语义类", () => {
     const sources = [
       readProjectFile("src/components/settings/ui/SSegmentNav.vue"),
