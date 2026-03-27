@@ -72,25 +72,3 @@ function onInput(event: Event) {
     </span>
   </div>
 </template>
-
-<style scoped>
-.s-slider__input::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--ui-brand);
-  border: 2px solid var(--ui-bg);
-  box-shadow: 0 0 0 3px var(--ui-brand-soft);
-}
-
-.s-slider__input::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--ui-brand);
-  border: 2px solid var(--ui-bg);
-  box-shadow: 0 0 0 3px var(--ui-brand-soft);
-}
-
-</style>

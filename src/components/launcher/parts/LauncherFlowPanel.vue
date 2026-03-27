@@ -217,7 +217,7 @@ useFlowPanelHeightObservation({
     ></button>
     <section
       :ref="setReviewPanelRef"
-      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-launcher-flow-panel-highlight shadow-launcher-side-panel shadow-ui-black/35 transition-[width] duration-200 ease-in-out motion-reduce:transition-none"
+      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-launcher-flow-panel-highlight shadow-launcher-side-panel shadow-ui-black/35 transition-launcher-width duration-200 ease-in-out motion-reduce:transition-none"
       :class="[
         { 'flow-panel--has-list': props.stagedCommands.length > 0 },
         props.stagingDrawerState === 'opening'
@@ -326,7 +326,7 @@ useFlowPanelHeightObservation({
             @click="emit('focus-staging-index', index)"
           >
             <article
-              class="staging-card flow-panel__card group border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
+              class="staging-card flow-panel__card group border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-launcher-card duration-150 ease-launcher-emphasized active:cursor-grabbing"
               :class="{
                 'staging-card--active border-ui-brand/52 ring-1 ring-inset ring-ui-brand/20':
                   props.focusZone === 'staging' && index === props.stagingActiveIndex,
@@ -388,7 +388,7 @@ useFlowPanelHeightObservation({
                     </span>
                     <span
                       v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
-                      class="flow-card__param-value text-ui-accent cursor-pointer p-[2px_8px] bg-ui-brand/12 border border-ui-brand/20 rounded-[4px] transition-[background,border-color] duration-120 hover:bg-ui-brand/20 hover:border-ui-brand/35 font-mono"
+                      class="flow-card__param-value text-ui-accent cursor-pointer p-[2px_8px] bg-ui-brand/12 border border-ui-brand/20 rounded-[4px] transition-launcher-surface duration-120 hover:bg-ui-brand/20 hover:border-ui-brand/35 font-mono"
                       @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
                     >
                       {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}

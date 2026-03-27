@@ -44,6 +44,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
               v-for="themeMeta in props.themes"
               :key="themeMeta.id"
               type="button"
+              :data-theme-preview="themeMeta.id"
               :class="[
                 'theme-card flex cursor-pointer flex-col items-center gap-[8px] rounded-ui border border-settings-card-border bg-ui-text/[0.015] p-[12px] transition-[border-color,background,transform] duration-150 hover:border-ui-text/16 hover:bg-ui-text/3 hover:-translate-y-[1px]',
                 {
@@ -55,20 +56,16 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
             >
               <div class="theme-card__swatches flex gap-[4px]">
                 <span
-                  class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border"
-                  :style="{ background: themeMeta.preview.bg }"
+                  class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border bg-ui-bg"
                 />
                 <span
-                  class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border"
-                  :style="{ background: themeMeta.preview.surface }"
+                  class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border bg-ui-surface"
                 />
                 <span
-                  class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border"
-                  :style="{ background: themeMeta.preview.accent }"
+                  class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border bg-ui-accent"
                 />
                 <span
-                  class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border"
-                  :style="{ background: themeMeta.preview.text }"
+                  class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border bg-ui-text"
                 />
               </div>
               <span class="theme-card__name text-[12px] text-ui-text">{{ themeMeta.name }}</span>
@@ -141,7 +138,7 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
             class="appearance-preview-wrap grid h-[96px] w-full place-items-center overflow-hidden rounded-surface border border-settings-row-border bg-settings-preview-checker [background-size:16px_16px]"
           >
             <div
-              class="appearance-preview-panel flex h-[64px] w-[70%] flex-col items-center justify-center gap-[4px] rounded-surface border border-ui-text/14 shadow-[0_4px_12px_var(--tw-shadow-color)] shadow-ui-black/25"
+              class="appearance-preview-panel flex h-[64px] w-[70%] flex-col items-center justify-center gap-[4px] rounded-surface border border-ui-text/14 shadow-settings-preview-panel shadow-ui-black/25"
               :style="{ backgroundColor: `rgba(var(--ui-bg-rgb), ${props.windowOpacity})` }"
             >
               <span class="appearance-preview-text text-[16px] font-bold text-ui-text">ZapCmd</span>

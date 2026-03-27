@@ -99,4 +99,25 @@ describe("useSettingsWindow general actions", () => {
     expect(options.settingsStore.setTerminalReusePolicy).toHaveBeenCalledWith("normal-only");
     expect(persistSetting).toHaveBeenCalledTimes(1);
   });
+
+  it("loadAutoStartEnabled 遇到非布尔返回值时保留现有开机自启状态", async () => {
+    const options = createOptions({
+      isTauriRuntime: () => true,
+      launchAtLogin: ref(false),
+      readAutoStartEnabled: vi.fn(async () => undefined as unknown as boolean)
+    });
+    const state = createSettingsState();
+    const actions = createGeneralActions({
+      options,
+      state,
+      persistSetting: vi.fn(async () => {}),
+      applyAutoStartChange: vi.fn(async () => {})
+    });
+
+    await actions.loadAutoStartEnabled();
+
+    expect(options.launchAtLogin.value).toBe(false);
+    expect(state.launchAtLoginBaseline.value).toBe(false);
+    expect(state.launchAtLoginLoading.value).toBe(false);
+  });
 });

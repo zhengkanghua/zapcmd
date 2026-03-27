@@ -33,4 +33,19 @@ describe("SettingsAppearanceSection layout", () => {
 
     expect(wrapper.find(".theme-card--active").text()).toContain("黑曜石");
   });
+
+  it("theme swatches 通过 theme preview scope 派生颜色，而不是内联 preview 色值", () => {
+    const wrapper = mount(SettingsAppearanceSection, {
+      props: {
+        windowOpacity: 0.96,
+        theme: "obsidian",
+        blurEnabled: true,
+        themes: THEME_REGISTRY
+      }
+    });
+
+    const themeCard = wrapper.get(".theme-card");
+    expect(themeCard.attributes("data-theme-preview")).toBe("obsidian");
+    expect(wrapper.findAll(".theme-card__swatch").every((swatch) => !swatch.attributes("style"))).toBe(true);
+  });
 });

@@ -15,11 +15,13 @@ interface SDropdownProps {
   options: DropdownOption[];
   variant?: DropdownVariant;
   disabled?: boolean;
+  stretch?: boolean;
 }
 
 const props = withDefaults(defineProps<SDropdownProps>(), {
   variant: "default",
-  disabled: false
+  disabled: false,
+  stretch: false
 });
 
 const emit = defineEmits<{
@@ -239,14 +241,17 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="s-dropdown relative inline-flex">
+  <div class="s-dropdown relative inline-flex" :class="{ 'w-full': props.stretch }">
     <button
       ref="triggerRef"
       type="button"
       class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-surface transition-settings-interactive duration-150 ease-settings-emphasized focus-visible:outline-none focus-visible:shadow-settings-focus disabled:cursor-not-allowed disabled:opacity-50"
       :class="
         props.variant === 'ghost'
-          ? 's-dropdown__trigger--ghost min-w-0 w-auto border border-transparent bg-settings-badge px-2.5 py-1.5 text-settings-badge-text hover:bg-settings-dropdown-hover hover:text-ui-text'
+          ? [
+              's-dropdown__trigger--ghost min-w-0 border border-transparent bg-settings-badge px-2.5 py-1.5 text-settings-badge-text hover:bg-settings-dropdown-hover hover:text-ui-text',
+              props.stretch ? 'w-full' : 'w-auto'
+            ]
           : 's-dropdown__trigger--default w-full min-w-[180px] border border-settings-dropdown-border bg-settings-dropdown px-2.5 py-[7px] text-ui-text hover:border-ui-control-muted-hover-border'
       "
       :disabled="props.disabled || props.options.length === 0"

@@ -82,6 +82,37 @@ function createBaseProps(overrides: Record<string, unknown> = {}) {
 }
 
 describe("LauncherWindow CommandPanel wiring", () => {
+  it("挂载 LauncherWindow 时不会产生 Transition handler warning", async () => {
+    const warnHost = globalThis as typeof globalThis & {
+      __ZAPCMD_CONSOLE_WARN_SINK?: (...args: unknown[]) => void;
+    };
+    const originalWarnSink = warnHost.__ZAPCMD_CONSOLE_WARN_SINK;
+    const warnSpy = vi.fn((..._args: unknown[]) => {});
+    warnHost.__ZAPCMD_CONSOLE_WARN_SINK = warnSpy;
+
+    try {
+      mount(LauncherWindow, {
+        props: createBaseProps(),
+        global: {
+          stubs: {
+            LauncherSearchPanel: true,
+            LauncherFlowPanel: true,
+            LauncherCommandPanel: true,
+            LauncherSafetyOverlay: true
+          }
+        }
+      });
+      await nextTick();
+    } finally {
+      warnHost.__ZAPCMD_CONSOLE_WARN_SINK = originalWarnSink;
+    }
+
+    const transitionWarnings = warnSpy.mock.calls.filter((call) =>
+      String(call[0]).includes("Wrong type passed as event handler to onAfterEnter")
+    );
+    expect(transitionWarnings).toHaveLength(0);
+  });
+
   it("search 页面渲染 SearchPanel（不渲染 CommandPanel）", () => {
     const wrapper = mount(LauncherWindow, {
       props: createBaseProps(),

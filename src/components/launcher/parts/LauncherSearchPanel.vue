@@ -125,7 +125,7 @@ function onSearchInput(event: Event): void {
         <ul v-if="props.filteredResults.length > 0" class="result-list m-0 p-0 list-none">
           <li v-for="(item, index) in props.filteredResults" :key="item.id">
             <button
-              class="result-item group w-full m-0 h-[var(--drawer-row-height,44px)] min-h-[var(--drawer-row-height,44px)] px-[10px] py-[4px] pl-[12px] grid grid-cols-[minmax(0,1fr)_auto] items-center text-left gap-[10px] overflow-hidden border-0 rounded-surface bg-transparent text-ui-text cursor-pointer relative transition-[background-color,transform] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:scale-[0.985] hover:bg-ui-text/6 focus-visible:outline-none focus-visible:bg-ui-brand/12 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/22"
+              class="result-item group w-full m-0 h-[var(--drawer-row-height,44px)] min-h-[var(--drawer-row-height,44px)] px-[10px] py-[4px] pl-[12px] grid grid-cols-[minmax(0,1fr)_auto] items-center text-left gap-[10px] overflow-hidden border-0 rounded-surface bg-transparent text-ui-text cursor-pointer relative transition-launcher-pressable duration-150 ease-launcher-emphasized active:scale-[0.985] hover:bg-ui-text/6 focus-visible:outline-none focus-visible:bg-ui-brand/12 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/22"
               type="button"
               :class="{
                 'result-item--active bg-ui-brand-soft hover:bg-ui-brand-soft focus-visible:bg-ui-brand-soft': index === props.activeIndex,

@@ -72,18 +72,29 @@ describe("tailwind theme layer contract", () => {
   it("生成本轮新增的语义 transition / surface utility", () => {
     const requiredSemanticSelectors = [
       ".ease-settings-emphasized",
+      ".ease-launcher-emphasized",
       ".transition-settings-field",
       ".transition-settings-interactive",
       ".transition-settings-toggle-track",
       ".transition-settings-toggle-thumb",
+      ".transition-launcher-surface",
+      ".transition-launcher-pressable",
+      ".transition-launcher-card",
+      ".transition-launcher-field",
+      ".transition-launcher-interactive",
+      ".transition-launcher-emphasis",
+      ".transition-launcher-width",
+      ".shadow-settings-preview-panel",
       ".shadow-settings-toolbar",
+      ".shadow-launcher-chip-inset",
       ".shadow-launcher-search-indicator",
       ".shadow-launcher-drag-card",
       ".shadow-launcher-side-panel",
       ".bg-launcher-frame-highlight",
       ".bg-launcher-flow-panel-highlight",
       ".backdrop-blur-launcher-scrim",
-      ".backdrop-blur-launcher-dialog"
+      ".backdrop-blur-launcher-dialog",
+      ".bg-ui-surface"
     ];
 
     for (const selector of requiredSemanticSelectors) {

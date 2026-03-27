@@ -88,6 +88,26 @@
     padding: 6px 10px;
     font-size: 12px;
   }
+
+  /* Range input 的 vendor pseudo-element 仍需集中在全局层，避免组件回退到 scoped <style>。 */
+  .s-slider__input::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: var(--ui-brand);
+    border: 2px solid var(--ui-bg);
+    box-shadow: 0 0 0 3px var(--ui-brand-soft);
+  }
+
+  .s-slider__input::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: var(--ui-brand);
+    border: 2px solid var(--ui-bg);
+    box-shadow: 0 0 0 3px var(--ui-brand-soft);
+  }
 }
 
 @layer utilities {

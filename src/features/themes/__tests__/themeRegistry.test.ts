@@ -11,12 +11,9 @@ describe("themeRegistry", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("所有主题 preview 字段完整", () => {
+  it("主题元数据不再内嵌 preview 色值，由主题 token 派生预览", () => {
     for (const theme of THEME_REGISTRY) {
-      expect(theme.preview.bg).toBeTruthy();
-      expect(theme.preview.surface).toBeTruthy();
-      expect(theme.preview.accent).toBeTruthy();
-      expect(theme.preview.text).toBeTruthy();
+      expect("preview" in theme).toBe(false);
     }
   });
 

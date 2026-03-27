@@ -1,7 +1,8 @@
 /* ── 黑曜石主题 (Obsidian) ── */
 /* 温暖深灰 + 琥珀金，长时间使用最舒适 */
 
-:root[data-theme="obsidian"] {
+:root[data-theme="obsidian"],
+[data-theme-preview="obsidian"] {
   /* ── 材质 ── */
   --theme-bg:           #18181B;
   --theme-bg-rgb:       24, 24, 27;

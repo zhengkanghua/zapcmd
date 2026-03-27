@@ -32,6 +32,7 @@
 - 补充（2026-03-27）：组件模板里剩余 12 个 `var(--ui-*)` arbitrary 已清零；新增 launcher-shell/top-align/backdrop/window-shell/slider/checker/accent 语义类；`check:all` 全绿，Windows 视觉基线可按需复测。
 - 补充（2026-03-27）：Windows 视觉回归复测确认当前 Settings UI 为新基线形态，不是样式丢失；已用最新 `actual` 刷新 4 张 settings baselines，待 Windows 再跑 `npm run test:visual:ui` 复核。
 - 补充（2026-03-27）：继续收口 Tailwind 治理：新增 `ease-settings-emphasized`、`transition-settings-*`、`shadow-settings-toolbar`、`shadow/bg/backdrop-blur-launcher-*` 语义 utility，替换 Settings/Launcher 里高重复 transition 与高成本 glow/shadow/gradient arbitrary；`style-guard` 同步禁止旧写法回流，`npm run check:all` 全绿。
+- 补充（2026-03-27）：Tailwind 收口完成：Settings/Launcher 组件目录已无 `<style>`；SSlider 例外移除、theme preview 改为 token 单一事实源、Launcher transition/easing 语义化；`npm run check:all` 全绿。
 
 ## 补充（2026-03-21｜执行链与 Settings 分阶段加固计划包）
 

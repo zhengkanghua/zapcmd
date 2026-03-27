@@ -1,7 +1,8 @@
 /* ── 语义层变量 ── */
 /* 组件只引用 --ui-* 变量，不直接使用 --theme-* */
 
-:root {
+:root,
+[data-theme-preview] {
   /* ── 基础设定（不随主题变） ── */
   color-scheme: dark;
   font-family: "Segoe UI", "Helvetica Neue", "Noto Sans", sans-serif;

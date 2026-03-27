@@ -295,10 +295,11 @@ onBeforeUnmount(() => {
                   >{{ filter.label }}</span
                 >
                 <SDropdown
-                  class="settings-commands-toolbar__secondary-filter w-full [&_.s-dropdown__trigger]:w-full [&_.s-dropdown__trigger]:justify-between"
+                  class="settings-commands-toolbar__secondary-filter w-full"
                   :model-value="filter.modelValue"
                   :options="filter.options"
                   variant="ghost"
+                  stretch
                   @update:model-value="filter.onUpdate"
                 />
               </div>

@@ -43,12 +43,13 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
           >{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div
-          class="settings-hotkeys-row__recorder flex-none max-w-[min(100%,280px)] flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field\\_\\_label]:sr-only [&_.s-hotkey-recorder-field\\_\\_conflict]:justify-start"
+          class="settings-hotkeys-row__recorder flex-none max-w-[min(100%,280px)] flex justify-end"
         >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
             :label="t(`settings.hotkeys.fields.${field.id}`)"
             :conflict="getFieldConflict(field.id)"
+            hide-label
             @update:model-value="emit('update-hotkey', field.id, $event)"
           />
         </div>
@@ -77,12 +78,13 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
           >{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div
-          class="settings-hotkeys-row__recorder flex-none max-w-[min(100%,280px)] flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field\\_\\_label]:sr-only [&_.s-hotkey-recorder-field\\_\\_conflict]:justify-start"
+          class="settings-hotkeys-row__recorder flex-none max-w-[min(100%,280px)] flex justify-end"
         >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
             :label="t(`settings.hotkeys.fields.${field.id}`)"
             :conflict="getFieldConflict(field.id)"
+            hide-label
             @update:model-value="emit('update-hotkey', field.id, $event)"
           />
         </div>
@@ -111,12 +113,13 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
           >{{ t(`settings.hotkeys.fields.${field.id}`) }}</span>
         </div>
         <div
-          class="settings-hotkeys-row__recorder flex-none max-w-[min(100%,280px)] flex justify-end [&_.s-hotkey-recorder-field]:max-w-full [&_.s-hotkey-recorder-field\\_\\_label]:sr-only [&_.s-hotkey-recorder-field\\_\\_conflict]:justify-start"
+          class="settings-hotkeys-row__recorder flex-none max-w-[min(100%,280px)] flex justify-end"
         >
           <SHotkeyRecorder
             :model-value="props.getHotkeyValue(field.id)"
             :label="t(`settings.hotkeys.fields.${field.id}`)"
             :conflict="getFieldConflict(field.id)"
+            hide-label
             @update:model-value="emit('update-hotkey', field.id, $event)"
           />
         </div>

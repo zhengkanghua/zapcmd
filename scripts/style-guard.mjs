@@ -36,8 +36,7 @@ const allowedStyleIndexImports = new Set([
 ]);
 
 const allowedVueStyleBlockRelativePaths = new Set([
-  // `SSlider` 需要 pseudo-element 选择器（例如 range thumb/track），迁移期允许保留局部 `<style>`。
-  "src/components/settings/ui/SSlider.vue"
+  // 当前不再保留 Vue <style> 白名单；pseudo-element 统一收口到 src/styles/tailwind.css。
 ]);
 
 const excludedPathPatterns = [
@@ -84,10 +83,21 @@ const rules = [
       /ease-\[cubic-bezier\(0\.33,1,0\.68,1\)\]|transition-\[(background,border-color,color,box-shadow|border-color,box-shadow,background|background,box-shadow|transform,background)\]/
   },
   {
+    name: "launcher-transition-semantic",
+    description: "Launcher 交互态 transition/easing 必须使用语义 utility，禁止回退为重复 arbitrary",
+    regex:
+      /transition-\[(background-color,border-color|background-color,transform|transform,border-color,opacity,box-shadow|color,background-color,box-shadow|opacity,background-color,color,box-shadow|border-color,box-shadow,background-color|opacity,box-shadow|width|background,border-color)\]|ease-\[cubic-bezier\(0\.175,0\.885,0\.32,1\.15\)\]/
+  },
+  {
     name: "launcher-surface-semantic",
     description: "Launcher 高成本 glow/shadow/gradient/blur 必须使用语义 utility，禁止回退为 arbitrary",
     regex:
-      /shadow-\[0_0_10px_var\(--tw-shadow-color\)\]|shadow-\[-4px_0_24px_var\(--tw-shadow-color\)\]|shadow-\[0_14px_28px_var\(--tw-shadow-color\)\]|bg-\[linear-gradient\(180deg,var\(--tw-gradient-from\),transparent_60%\)\]|bg-\[linear-gradient\(180deg,var\(--tw-gradient-from\),var\(--tw-gradient-via\)_52%,transparent\)\]|backdrop-blur-\[(8|20)px\]/
+      /shadow-\[inset_0_1px_0_var\(--tw-shadow-color\)\]|shadow-\[0_4px_12px_var\(--tw-shadow-color\)\]|shadow-\[0_0_10px_var\(--tw-shadow-color\)\]|shadow-\[-4px_0_24px_var\(--tw-shadow-color\)\]|shadow-\[0_14px_28px_var\(--tw-shadow-color\)\]|bg-\[linear-gradient\(180deg,var\(--tw-gradient-from\),transparent_60%\)\]|bg-\[linear-gradient\(180deg,var\(--tw-gradient-from\),var\(--tw-gradient-via\)_52%,transparent\)\]|backdrop-blur-\[(8|20)px\]/
+  },
+  {
+    name: "descendant-arbitrary",
+    description: "禁止通过 descendant arbitrary selector 耦合子组件内部类名",
+    regex: /\[\&_.+\]/
   }
 ];
 

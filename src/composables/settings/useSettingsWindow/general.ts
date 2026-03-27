@@ -53,7 +53,12 @@ export function createGeneralActions(deps: {
       if (!options.isTauriRuntime()) {
         return;
       }
-      const enabled = await options.readAutoStartEnabled();
+      const rawEnabled = await options.readAutoStartEnabled();
+      if (typeof rawEnabled !== "boolean") {
+        state.launchAtLoginBaseline.value ??= options.launchAtLogin.value;
+        return;
+      }
+      const enabled = rawEnabled;
       options.launchAtLogin.value = enabled;
       state.launchAtLoginBaseline.value = enabled;
       clearSettingsErrorState(state);

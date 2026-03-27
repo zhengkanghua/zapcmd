@@ -34,9 +34,11 @@ module.exports = {
         "settings-focus": "0 0 0 3px var(--ui-settings-focus-ring)",
         "brand-soft-ring": "0 0 0 2px var(--ui-brand-soft)",
         "danger-soft-ring": "0 0 0 2px var(--ui-danger-soft)",
+        "settings-preview-panel": "0 4px 12px var(--tw-shadow-color)",
         "settings-toggle-track": "var(--ui-settings-toggle-track-shadow)",
         "settings-toggle-thumb": "var(--ui-settings-toggle-thumb-shadow)",
         "settings-toolbar": "0 18px 40px var(--tw-shadow-color)",
+        "launcher-chip-inset": "inset 0 1px 0 var(--tw-shadow-color)",
         "launcher-search-indicator": "0 0 10px var(--tw-shadow-color)",
         "launcher-side-panel": "-4px 0 24px var(--tw-shadow-color)",
         "launcher-drag-card": "0 14px 28px var(--tw-shadow-color)"
@@ -69,6 +71,7 @@ module.exports = {
           "bg-rgb": "rgba(var(--ui-bg-rgb), <alpha-value>)",
           "bg-deep": "var(--ui-bg-deep)",
           "bg-soft": "var(--ui-bg-soft)",
+          surface: "var(--ui-surface)",
           border: "var(--ui-border)",
           "border-light": "var(--ui-border-light)",
           text: "rgba(var(--ui-text-rgb), <alpha-value>)",
@@ -194,11 +197,19 @@ module.exports = {
         "settings-field": "background-color, border-color, box-shadow",
         "settings-interactive": "background-color, border-color, color, box-shadow",
         "settings-toggle-track": "background-color, box-shadow",
-        "settings-toggle-thumb": "transform, background-color"
+        "settings-toggle-thumb": "transform, background-color",
+        "launcher-surface": "background-color, border-color",
+        "launcher-pressable": "background-color, transform",
+        "launcher-card": "transform, border-color, opacity, box-shadow",
+        "launcher-field": "background-color, border-color, box-shadow",
+        "launcher-interactive": "background-color, border-color, color, box-shadow, opacity",
+        "launcher-emphasis": "opacity, box-shadow",
+        "launcher-width": "width"
       },
       transitionTimingFunction: {
         "nav-slide": "cubic-bezier(0.175,0.885,0.32,1.15)",
-        "settings-emphasized": "cubic-bezier(0.33,1,0.68,1)"
+        "settings-emphasized": "cubic-bezier(0.33,1,0.68,1)",
+        "launcher-emphasized": "cubic-bezier(0.175,0.885,0.32,1.15)"
       },
       gridTemplateRows: {
         "launcher-shell": "var(--ui-top-align-offset) auto",

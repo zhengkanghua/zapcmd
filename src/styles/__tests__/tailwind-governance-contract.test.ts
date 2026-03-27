@@ -127,4 +127,70 @@ describe("tailwind governance contract", () => {
       }
     }
   });
+
+  it("Launcher 高重复 transition/easing arbitrary 已收口为语义类", () => {
+    const sources = [
+      readProjectFile("src/components/launcher/parts/LauncherSearchPanel.vue"),
+      readProjectFile("src/components/launcher/parts/LauncherStagingPanel.vue"),
+      readProjectFile("src/components/launcher/parts/LauncherFlowPanel.vue"),
+      readProjectFile("src/components/launcher/parts/LauncherCommandPanel.vue"),
+      readProjectFile("src/components/launcher/parts/LauncherQueueSummaryPill.vue")
+    ];
+
+    const requiredClasses = [
+      "ease-launcher-emphasized",
+      "transition-launcher-surface",
+      "transition-launcher-pressable",
+      "transition-launcher-card",
+      "transition-launcher-field",
+      "transition-launcher-interactive",
+      "transition-launcher-emphasis",
+      "transition-launcher-width"
+    ];
+
+    for (const source of sources) {
+      const hasAnyRequiredClass = requiredClasses.some((className) => source.includes(className));
+      expect(hasAnyRequiredClass).toBe(true);
+    }
+
+    const bannedPatterns = [
+      /transition-\[background-color,border-color\]/,
+      /transition-\[background-color,transform\]/,
+      /transition-\[transform,border-color,opacity,box-shadow\]/,
+      /transition-\[color,background-color,box-shadow\]/,
+      /transition-\[opacity,background-color,color,box-shadow\]/,
+      /transition-\[border-color,box-shadow,background-color\]/,
+      /transition-\[opacity,box-shadow\]/,
+      /transition-\[width\]/,
+      /transition-\[background,border-color\]/,
+      /ease-\[cubic-bezier\(0\.175,0\.885,0\.32,1\.15\)\]/
+    ];
+
+    for (const source of sources) {
+      for (const pattern of bannedPatterns) {
+        expect(source).not.toMatch(pattern);
+      }
+    }
+  });
+
+  it("Settings 不再通过 descendant arbitrary 耦合子组件内部类名", () => {
+    const sources = [
+      readProjectFile("src/components/settings/parts/SettingsHotkeysSection.vue"),
+      readProjectFile("src/components/settings/parts/SettingsCommandsSection.vue")
+    ];
+
+    for (const source of sources) {
+      expect(source).not.toMatch(/\[&_.*\]/);
+    }
+  });
+
+  it("Vue 组件不再保留 <style> 样式块例外", () => {
+    const componentRoot = path.resolve(process.cwd(), "src/components");
+    const sourceFiles = collectComponentSourceFiles(componentRoot);
+
+    for (const filePath of sourceFiles.filter((candidate) => candidate.endsWith(".vue"))) {
+      const source = readFileSync(filePath, "utf8");
+      expect(source).not.toMatch(/<style\b/i);
+    }
+  });
 });

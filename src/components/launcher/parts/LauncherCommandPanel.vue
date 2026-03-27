@@ -96,7 +96,7 @@ function onSubmit(): void {
       <div class="command-panel__header-main flex items-center gap-[8px]" data-tauri-drag-region>
         <button
           type="button"
-          class="command-panel__back border-0 bg-transparent text-ui-subtle text-[18px] cursor-pointer p-[4px_8px] rounded-[6px] transition-[color,background-color,box-shadow] duration-150 hover:text-ui-text hover:bg-ui-text/6 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
+          class="command-panel__back border-0 bg-transparent text-ui-subtle text-[18px] cursor-pointer p-[4px_8px] rounded-[6px] transition-launcher-interactive duration-150 hover:text-ui-text hover:bg-ui-text/6 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           :aria-label="t('commandPanel.btn.cancel')"
           @click="onCancel"
         >
@@ -124,7 +124,7 @@ function onSubmit(): void {
 
         <button
           type="button"
-          class="command-panel__queue-btn border-0 bg-transparent cursor-pointer p-[4px_6px] rounded-[6px] text-ui-subtle opacity-85 transition-[opacity,background-color,color,box-shadow] duration-150 hover:opacity-100 hover:text-ui-text hover:bg-ui-text/6 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
+          class="command-panel__queue-btn border-0 bg-transparent cursor-pointer p-[4px_6px] rounded-[6px] text-ui-subtle opacity-85 transition-launcher-interactive duration-150 hover:opacity-100 hover:text-ui-text hover:bg-ui-text/6 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommandCount })"
           @click="emit('toggle-staging')"
         >
@@ -195,7 +195,7 @@ function onSubmit(): void {
           <select
             v-if="arg.argType === 'select' && arg.options?.length"
             :value="props.pendingArgValues[arg.key] ?? ''"
-            class="command-panel__select h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-[border-color,box-shadow,background-color] duration-140 focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
+            class="command-panel__select h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-launcher-field duration-140 focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
             @change="
               onArgInput(arg.key, ($event.target as HTMLSelectElement).value)
             "
@@ -211,7 +211,7 @@ function onSubmit(): void {
             :value="props.pendingArgValues[arg.key] ?? ''"
             :type="arg.argType === 'number' ? 'number' : 'text'"
             :placeholder="arg.placeholder"
-            class="command-panel__input h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-[border-color,box-shadow,background-color] duration-140 placeholder:text-ui-dim focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
+            class="command-panel__input h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-launcher-field duration-140 placeholder:text-ui-dim focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
             :class="{
               'command-panel__input--danger focus-visible:border-ui-danger/55 focus-visible:ring focus-visible:ring-ui-danger/18':
                 props.isDangerous
@@ -256,7 +256,7 @@ function onSubmit(): void {
 
         <button
           type="button"
-          class="command-panel__btn command-panel__btn--cancel p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-ui-text/8 bg-ui-text/6 text-ui-subtle transition-[background-color,color,opacity,box-shadow] duration-150 hover:bg-ui-text/10 hover:text-ui-text focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
+          class="command-panel__btn command-panel__btn--cancel p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-ui-text/8 bg-ui-text/6 text-ui-subtle transition-launcher-interactive duration-150 hover:bg-ui-text/10 hover:text-ui-text focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           @click="onCancel"
         >
           {{ t("commandPanel.btn.cancel") }}
@@ -264,7 +264,7 @@ function onSubmit(): void {
 
         <button
           type="button"
-          class="command-panel__btn command-panel__btn--confirm p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-transparent bg-ui-brand/95 text-ui-accent-text transition-[opacity,box-shadow] duration-150 hover:opacity-92 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
+          class="command-panel__btn command-panel__btn--confirm p-[8px_16px] rounded-surface text-[13px] font-semibold cursor-pointer border border-transparent bg-ui-brand/95 text-ui-accent-text transition-launcher-emphasis duration-150 hover:opacity-92 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           :class="{
             'command-panel__btn--danger bg-ui-danger text-ui-accent-text': isDangerBtn
           }"

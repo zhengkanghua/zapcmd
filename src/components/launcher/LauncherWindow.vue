@@ -173,7 +173,7 @@ function onNavAfterEnter(): void {
           leave-active-class="transition-transform duration-200 ease-in motion-reduce:transition-none"
           leave-from-class="translate-x-0"
           leave-to-class="translate-x-full"
-          @after-enter="onNavAfterEnter"
+          :on-after-enter="onNavAfterEnter"
         >
           <LauncherSearchPanel
             v-if="props.navCurrentPage.type === 'search'"

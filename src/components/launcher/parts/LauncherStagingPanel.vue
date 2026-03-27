@@ -63,7 +63,7 @@ const stagingHintText = computed(() => {
   >
     <button
       type="button"
-      class="staging-chip w-full min-h-[62px] grid justify-items-center content-center gap-[6px] border border-ui-border rounded-ui bg-ui-bg shadow-[inset_0_1px_0_var(--tw-shadow-color)] shadow-ui-text/4 text-ui-text cursor-pointer focus-visible:outline-none focus-visible:border-ui-brand/54 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/22"
+      class="staging-chip w-full min-h-[62px] grid justify-items-center content-center gap-[6px] border border-ui-border rounded-ui bg-ui-bg shadow-launcher-chip-inset shadow-ui-text/4 text-ui-text cursor-pointer focus-visible:outline-none focus-visible:border-ui-brand/54 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/22"
       :class="{
         'staging-chip--active border-ui-brand/48 bg-gradient-to-b from-ui-brand/22 to-ui-bg':
           props.stagingExpanded
@@ -121,7 +121,7 @@ const stagingHintText = computed(() => {
           @click="emit('focus-staging-index', index)"
         >
           <article
-            class="staging-card border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-[transform,border-color,opacity,box-shadow] duration-150 ease-[cubic-bezier(0.175,0.885,0.32,1.15)] active:cursor-grabbing"
+            class="staging-card border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-launcher-card duration-150 ease-launcher-emphasized active:cursor-grabbing"
             :class="{
               'staging-card--active border-ui-brand/52 ring-1 ring-inset ring-ui-brand/20':
                 props.focusZone === 'staging' && index === props.stagingActiveIndex
