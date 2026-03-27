@@ -138,6 +138,10 @@ interface FeedbackContract {
   guidanceSnippet?: string;
 }
 
+interface ProbeInvokePayload {
+  prerequisites?: Array<{ id: string; required: boolean }>;
+}
+
 function expectTerminalCommandContract(
   request: { terminalId: string; command: string } | undefined,
 ) {
@@ -341,6 +345,26 @@ function expectFeedbackContract(
   }
 }
 
+function resolveProbeInvoke(command: string, payload?: unknown): unknown {
+  if (command !== "probe_command_prerequisites") {
+    return undefined;
+  }
+
+  const prerequisites = Array.isArray(
+    (payload as ProbeInvokePayload | undefined)?.prerequisites,
+  )
+    ? (payload as ProbeInvokePayload).prerequisites!
+    : [];
+
+  return prerequisites.map((prerequisite) => ({
+    id: prerequisite.id,
+    ok: true,
+    code: "ok",
+    message: "",
+    required: prerequisite.required === true,
+  }));
+}
+
 function dispatchWindowKeydown(
   key: string,
   init: KeyboardEventInit = {},
@@ -438,7 +462,9 @@ beforeEach(() => {
   hoisted.runMock.mockReset();
   hoisted.runMock.mockResolvedValue(undefined);
   hoisted.invokeMock.mockReset();
-  hoisted.invokeMock.mockResolvedValue(undefined);
+  hoisted.invokeMock.mockImplementation(async (command: string, payload?: unknown) =>
+    resolveProbeInvoke(command, payload),
+  );
   hoisted.isTauriMock.mockReset();
   hoisted.isTauriMock.mockReturnValue(true);
   hoisted.currentWindowLabel = "main";

@@ -4,6 +4,7 @@ import type {
   CommandPrerequisite,
   CommandPrerequisiteProbeResult
 } from "../../../features/commands/prerequisiteTypes";
+import { createProbeFailureResults } from "../../../features/commands/prerequisiteProbeFailure";
 import { t } from "../../../i18n";
 import { CommandExecutionError } from "../../../services/commandExecutor";
 import {
@@ -160,7 +161,18 @@ export async function runCommandPreflight(
   if (!options.runCommandPreflight || !prerequisites || prerequisites.length === 0) {
     return [];
   }
-  return options.runCommandPreflight(prerequisites);
+
+  try {
+    const results = await options.runCommandPreflight(prerequisites);
+    if (!Array.isArray(results)) {
+      // UI 执行层额外做一层收口，避免 runner 漏掉 fail-closed 约束时把异常状态放行。
+      return createProbeFailureResults(prerequisites, "probe-invalid-response");
+    }
+    return results;
+  } catch (error) {
+    // preflight 异常必须转成 blocking result，单条与队列才能共享同一失败反馈口径。
+    return createProbeFailureResults(prerequisites, "probe-error", error);
+  }
 }
 
 export function collectBlockingPreflightIssues(

@@ -33,6 +33,10 @@ const wrappers: VueWrapper[] = [];
 let warnSpy: ReturnType<typeof vi.spyOn> | null = null;
 let errorSpy: ReturnType<typeof vi.spyOn> | null = null;
 
+interface ProbeInvokePayload {
+  prerequisites?: Array<{ id: string; required: boolean }>;
+}
+
 async function waitForUi(): Promise<void> {
   await nextTick();
   await new Promise((resolve) => setTimeout(resolve, 0));
@@ -102,10 +106,32 @@ async function openReviewByPill(wrapper: VueWrapper): Promise<void> {
   await waitForUi();
 }
 
+function resolveProbeInvoke(command: string, payload?: unknown): unknown {
+  if (command !== "probe_command_prerequisites") {
+    return undefined;
+  }
+
+  const prerequisites = Array.isArray(
+    (payload as ProbeInvokePayload | undefined)?.prerequisites
+  )
+    ? (payload as ProbeInvokePayload).prerequisites!
+    : [];
+
+  return prerequisites.map((prerequisite) => ({
+    id: prerequisite.id,
+    ok: true,
+    code: "ok",
+    message: "",
+    required: prerequisite.required === true
+  }));
+}
+
 beforeEach(() => {
   localStorage.clear();
   hoisted.invokeMock.mockReset();
-  hoisted.invokeMock.mockResolvedValue(undefined);
+  hoisted.invokeMock.mockImplementation(async (command: string, payload?: unknown) =>
+    resolveProbeInvoke(command, payload)
+  );
   hoisted.isTauriMock.mockReset();
   hoisted.isTauriMock.mockReturnValue(true);
   warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});

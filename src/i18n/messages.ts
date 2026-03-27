@@ -298,6 +298,8 @@ export const messages = {
       blockedWithNextStep: "执行已拦截：{reason}。下一步：{nextStep}",
       preflightBlockedWithNextStep: "执行前检查失败：{reason}。下一步：{nextStep}",
       preflightWarning: "预检告警：{reason}",
+      preflightProbeFailed: "执行前检查探测失败，请重试或查看日志。",
+      preflightProbeInvalidResponse: "执行前检查返回了无效结果，请重试或查看日志。",
       nextStepTerminalUnavailable: "检查并切换可用终端后重试。",
       nextStepInvalidParams: "检查必填参数与输入格式后重试。",
       nextStepPrerequisite: "补齐缺失依赖、环境变量或前置条件后重试。",
@@ -641,6 +643,9 @@ export const messages = {
       blockedWithNextStep: "Execution blocked: {reason}. Next step: {nextStep}",
       preflightBlockedWithNextStep: "Preflight check failed: {reason}. Next step: {nextStep}",
       preflightWarning: "Preflight warning: {reason}",
+      preflightProbeFailed: "Failed to probe prerequisites. Retry or check logs.",
+      preflightProbeInvalidResponse:
+        "Prerequisite probing returned an invalid response. Retry or check logs.",
       nextStepTerminalUnavailable: "Check available terminals and retry.",
       nextStepInvalidParams: "Fix required arguments or invalid input, then retry.",
       nextStepPrerequisite: "Install the missing dependency, env var, or prerequisite before retrying.",

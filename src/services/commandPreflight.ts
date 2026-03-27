@@ -5,6 +5,7 @@ import type {
   CommandPrerequisite,
   CommandPrerequisiteProbeResult
 } from "../features/commands/prerequisiteTypes";
+import { createProbeFailureResults } from "../features/commands/prerequisiteProbeFailure";
 
 interface CommandPreflightService {
   check(
@@ -41,16 +42,22 @@ class TauriCommandPreflightService implements CommandPreflightService {
       return [];
     }
 
-    const payload = await invoke<CommandPrerequisiteProbeResult[]>(
-      "probe_command_prerequisites",
-      { prerequisites }
-    );
+    try {
+      const payload = await invoke<CommandPrerequisiteProbeResult[]>(
+        "probe_command_prerequisites",
+        { prerequisites }
+      );
 
-    if (!Array.isArray(payload)) {
-      return [];
+      if (!Array.isArray(payload)) {
+        // probe contract 失真时必须 fail-closed，避免把未知状态当成“无问题”继续执行。
+        return createProbeFailureResults(prerequisites, "probe-invalid-response");
+      }
+
+      return payload.map(normalizeProbeResult);
+    } catch (error) {
+      // transport / invoke 异常同样视为 probe 失败，由调用方统一按 prerequisite failure 处理。
+      return createProbeFailureResults(prerequisites, "probe-error", error);
     }
-
-    return payload.map(normalizeProbeResult);
   }
 }
 

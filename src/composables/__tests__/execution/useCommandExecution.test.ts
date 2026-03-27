@@ -242,6 +242,20 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
+  it("blocks single execution when prerequisite probing throws", async () => {
+    const harness = createHarness();
+    const command = createPrerequisiteCommand();
+    harness.runCommandPreflight.mockRejectedValueOnce(new Error("probe transport failed"));
+
+    harness.execution.executeResult(command);
+    await flushExecution();
+
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("probe transport failed");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
+  });
+
   it("keeps execution but appends warning when optional prerequisite fails", async () => {
     const harness = createHarness();
     const command = createPrerequisiteCommand(
@@ -542,6 +556,23 @@ describe("useCommandExecution", () => {
     expect(harness.stagedCommands.value).toHaveLength(2);
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("docker not found");
+  });
+
+  it("blocks queue execution when prerequisite probing throws", async () => {
+    const harness = createHarness(true);
+
+    harness.execution.stageResult(createNoArgCommand());
+    harness.execution.stageResult(createPrerequisiteCommand());
+    harness.runCommandPreflight.mockRejectedValueOnce(new Error("probe transport failed"));
+
+    await harness.execution.executeStaged();
+
+    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.stagedCommands.value).toHaveLength(2);
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("probe transport failed");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
   it("treats unsupported prerequisite as blocking failure", async () => {
