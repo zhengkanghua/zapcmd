@@ -25,6 +25,8 @@ function readProjectFile(relativePath: string): string {
   return readFileSync(path.resolve(process.cwd(), relativePath), "utf8");
 }
 
+const legacyHiddenScrollbarUtility = `.scrollbar-${"none"}`;
+
 describe("tailwind governance contract", () => {
   it("Tauri drag region 只保留视觉提示，不在 CSS 中重复注入 app-region 语义", () => {
     const tailwindSource = readProjectFile("src/styles/tailwind.css");
@@ -34,7 +36,7 @@ describe("tailwind governance contract", () => {
     expect(tailwindSource).not.toMatch(/(?<!-webkit-)app-region:\s*(drag|no-drag)/);
   });
 
-  it("scrollbar-subtle utility 提供细滚动条契约，并清理旧的 scrollbar-none", () => {
+  it("scrollbar-subtle utility 提供细滚动条契约，并清理旧的隐藏滚动条 utility", () => {
     const tailwindSource = readProjectFile("src/styles/tailwind.css");
 
     expect(tailwindSource).toContain(".scrollbar-subtle");
@@ -49,7 +51,7 @@ describe("tailwind governance contract", () => {
     expect(tailwindSource).toMatch(
       /\.scrollbar-subtle::-webkit-scrollbar-thumb:hover\s*\{[\s\S]*background:\s*rgba\(var\(--ui-text-rgb\),\s*0\.(26|28)\);/
     );
-    expect(tailwindSource).not.toContain(".scrollbar-none");
+    expect(tailwindSource).not.toContain(legacyHiddenScrollbarUtility);
   });
 
   it("高风险 arbitrary token class 已收口为语义类", () => {

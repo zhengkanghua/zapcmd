@@ -108,7 +108,7 @@ const stagingHintText = computed(() => {
       <ul
         v-else
         :ref="props.setStagingListRef"
-        class="staging-list m-0 p-0 pr-[2px] list-none flex flex-col gap-[8px] overflow-y-auto"
+        class="staging-list m-0 p-0 pr-[2px] list-none flex flex-col gap-[8px] overflow-y-auto scrollbar-subtle"
       >
         <li
           v-for="(cmd, index) in props.stagedCommands"

@@ -62,6 +62,13 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
     expect(flowPanelSource).toMatch(/flow-panel__body[\s\S]{0,400}overflow-y-auto/);
   });
 
+  it("Launcher 主滚动容器挂载 subtle scrollbar utility", () => {
+    expectClassContract(commandPanelSource, "command-panel__content", "scrollbar-subtle");
+    expect(flowPanelSource).toMatch(/'scrollbar-subtle': props\.stagedCommands\.length === 0/);
+    expectClassContract(flowPanelSource, "flow-panel__list", "scrollbar-subtle");
+    expectClassContract(stagingPanelSource, "staging-list", "scrollbar-subtle");
+  });
+
   it("Launcher alpha arbitrary 不允许回退", () => {
     const banned = [
       /bg-\[rgba\(var\(--ui-/,

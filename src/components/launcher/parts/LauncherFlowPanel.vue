@@ -268,7 +268,8 @@ useFlowPanelHeightObservation({
         class="flow-panel__body min-h-0 flex flex-col gap-[12px] p-[12px_16px]"
         :class="{
           'overflow-hidden': props.stagedCommands.length > 0,
-          'overflow-y-auto': props.stagedCommands.length === 0
+          'overflow-y-auto': props.stagedCommands.length === 0,
+          'scrollbar-subtle': props.stagedCommands.length === 0
         }"
       >
         <p
@@ -314,7 +315,7 @@ useFlowPanelHeightObservation({
           :ref="setReviewListRef"
           tag="ul"
           name="flow-panel-list"
-          class="staging-list flow-panel__list flex-1 min-h-0 overflow-y-auto pr-[2px]"
+          class="staging-list flow-panel__list flex-1 min-h-0 overflow-y-auto scrollbar-subtle pr-[2px]"
           :class="{ 'flow-panel__list--grip-reordering': gripReorderActive }"
         >
           <li

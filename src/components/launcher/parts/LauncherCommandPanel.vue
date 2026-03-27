@@ -134,7 +134,7 @@ function onSubmit(): void {
       <div class="command-panel__divider command-panel__divider--header h-px w-full m-0 bg-ui-text/8" />
     </header>
 
-    <div class="command-panel__content min-h-0 overflow-y-auto p-[16px] flex flex-col gap-[16px]">
+    <div class="command-panel__content min-h-0 overflow-y-auto scrollbar-subtle p-[16px] flex flex-col gap-[16px]">
       <p
         v-if="props.executionFeedbackMessage"
         class="execution-feedback execution-toast ui-glass-toast animate-launcher-toast-slide-down motion-reduce:animate-none"

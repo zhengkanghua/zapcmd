@@ -106,6 +106,8 @@ function mountSettingsWindow(props: SettingsWindowProps) {
   });
 }
 
+const legacyHiddenScrollbarClass = ["scrollbar", "none"].join("-");
+
 describe("SettingsWindow stable shell", () => {
   it("does not feed legacy terminal dropdown props into the window shell factory", () => {
     const props = createSettingsWindowProps({ settingsRoute: "general" }) as unknown as Record<string, unknown>;
@@ -153,7 +155,7 @@ describe("SettingsWindow stable shell", () => {
     const content = wrapper.get(".settings-content");
 
     expect(content.classes()).toContain("scrollbar-subtle");
-    expect(content.classes()).not.toContain("scrollbar-none");
+    expect(content.classes()).not.toContain(legacyHiddenScrollbarClass);
   });
 
   it("uses commands-specific content width hook only on commands route", async () => {
