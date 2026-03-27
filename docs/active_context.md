@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜review 整改收口）
+
+- 已完成 Task 4/5/6：Settings 只保留 `settings.html -> main-settings.ts -> AppSettings.vue`；新增浅色 `linen` 主题与主题驱动 `color-scheme`/启动期 bootstrap；`feat/review-remediation` 待 push。
+
 ## 补充（2026-03-28｜review 整改分支与文档）
 
 - 已创建 `feat/review-remediation`；本轮先做 1/2/3/4/6，保留当前轻微弹性动画；双动画预设仅记入整改设计与实施计划，后续单独开发。

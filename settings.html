@@ -7,27 +7,43 @@
   <script>
     // 防闪烁：在 Vue 加载前同步应用主题
     ;(function () {
+      var themeBootstrap = {
+        obsidian: { colorScheme: "dark", backgroundColor: "#0b0b0c" },
+        linen: { colorScheme: "light", backgroundColor: "#ece4d6" }
+      };
+
       try {
         var raw = localStorage.getItem("zapcmd.settings");
+        var theme = "obsidian";
+        var blur = true;
         if (raw) {
           var stored = JSON.parse(raw);
-          var theme = (stored && stored.appearance && stored.appearance.theme) || "obsidian";
-          var blur = stored && stored.appearance && stored.appearance.blurEnabled !== false;
-          document.documentElement.dataset.theme = theme;
-          document.documentElement.dataset.blur = blur ? "on" : "off";
-        } else {
-          document.documentElement.dataset.theme = "obsidian";
-          document.documentElement.dataset.blur = "on";
+          theme = (stored && stored.appearance && stored.appearance.theme) || "obsidian";
+          blur = stored && stored.appearance && stored.appearance.blurEnabled !== false;
         }
+        var resolvedTheme = themeBootstrap[theme] ? theme : "obsidian";
+        var bootstrap = themeBootstrap[resolvedTheme];
+        document.documentElement.dataset.theme = resolvedTheme;
+        document.documentElement.dataset.blur = blur ? "on" : "off";
+        document.documentElement.style.colorScheme = bootstrap.colorScheme;
+        document.documentElement.style.backgroundColor = bootstrap.backgroundColor;
+        var style = document.createElement("style");
+        style.textContent =
+          "html,body,#app{background:" +
+          bootstrap.backgroundColor +
+          ";} html{color-scheme:" +
+          bootstrap.colorScheme +
+          ";}";
+        document.head.appendChild(style);
       } catch (_) {
         document.documentElement.dataset.theme = "obsidian";
         document.documentElement.dataset.blur = "on";
+        document.documentElement.style.colorScheme = themeBootstrap.obsidian.colorScheme;
+        document.documentElement.style.backgroundColor = themeBootstrap.obsidian.backgroundColor;
+        var fallbackStyle = document.createElement("style");
+        fallbackStyle.textContent = "html,body,#app{background:#0b0b0c;} html{color-scheme:dark;}";
+        document.head.appendChild(fallbackStyle);
       }
-      document.documentElement.style.colorScheme = "dark";
-      document.documentElement.style.backgroundColor = "#0b0b0c";
-      var style = document.createElement("style");
-      style.textContent = "html,body,#app{background:#0b0b0c;} html{color-scheme:dark;}";
-      document.head.appendChild(style);
     })();
   </script>
 </head>

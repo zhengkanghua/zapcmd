@@ -3,6 +3,8 @@
 
 :root[data-theme="obsidian"],
 [data-theme-preview="obsidian"] {
+  color-scheme: dark;
+
   /* ── 材质 ── */
   --theme-bg:           #18181B;
   --theme-bg-rgb:       24, 24, 27;

@@ -6,14 +6,16 @@ describe("useTheme", () => {
   beforeEach(() => {
     document.documentElement.removeAttribute("data-theme");
     document.documentElement.removeAttribute("data-blur");
+    document.documentElement.style.colorScheme = "";
   });
 
-  it("立即将 data-theme 设置为当前 themeId", () => {
+  it("立即将 data-theme 与 color-scheme 设置为当前主题", () => {
     const themeId = ref("obsidian");
     const blurEnabled = ref(true);
     useTheme({ themeId, blurEnabled });
 
     expect(document.documentElement.dataset.theme).toBe("obsidian");
+    expect(document.documentElement.style.colorScheme).toBe("dark");
   });
 
   it("立即将 data-blur 设置为 on 或 off", () => {
@@ -24,16 +26,16 @@ describe("useTheme", () => {
     expect(document.documentElement.dataset.blur).toBe("off");
   });
 
-  it("themeId 变更时更新 data-theme", async () => {
+  it("themeId 变更时更新 data-theme 与 color-scheme", async () => {
     const themeId = ref("obsidian");
     const blurEnabled = ref(true);
     useTheme({ themeId, blurEnabled });
 
-    themeId.value = "other-theme";
+    themeId.value = "linen";
     await nextTick();
 
-    // 无效主题回退到默认
-    expect(document.documentElement.dataset.theme).toBe("obsidian");
+    expect(document.documentElement.dataset.theme).toBe("linen");
+    expect(document.documentElement.style.colorScheme).toBe("light");
   });
 
   it("无效 themeId 回退到 obsidian", () => {
@@ -42,6 +44,7 @@ describe("useTheme", () => {
     useTheme({ themeId, blurEnabled });
 
     expect(document.documentElement.dataset.theme).toBe("obsidian");
+    expect(document.documentElement.style.colorScheme).toBe("dark");
   });
 
   it("blurEnabled 变更时更新 data-blur", async () => {

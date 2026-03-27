@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_THEME_ID, THEME_REGISTRY } from "../themeRegistry";
 
 describe("themeRegistry", () => {
-  it("包含至少一个主题", () => {
-    expect(THEME_REGISTRY.length).toBeGreaterThanOrEqual(1);
+  it("包含默认 obsidian 与浅色 linen 两个主题", () => {
+    const ids = THEME_REGISTRY.map((t) => t.id);
+
+    expect(THEME_REGISTRY.length).toBeGreaterThanOrEqual(2);
+    expect(ids).toContain("obsidian");
+    expect(ids).toContain("linen");
   });
 
   it("所有主题 id 唯一", () => {

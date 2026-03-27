@@ -1,7 +1,7 @@
 import { watch, type Ref } from "vue";
 import {
-  DEFAULT_THEME_ID,
   THEME_REGISTRY,
+  resolveThemeMeta,
 } from "../../features/themes/themeRegistry";
 
 export interface UseThemeOptions {
@@ -9,12 +9,10 @@ export interface UseThemeOptions {
   blurEnabled: Ref<boolean>;
 }
 
-function resolveThemeId(id: string): string {
-  return THEME_REGISTRY.some((t) => t.id === id) ? id : DEFAULT_THEME_ID;
-}
-
 function applyTheme(id: string): void {
-  document.documentElement.dataset.theme = resolveThemeId(id);
+  const theme = resolveThemeMeta(id);
+  document.documentElement.dataset.theme = theme.id;
+  document.documentElement.style.colorScheme = theme.colorScheme;
 }
 
 function applyBlur(enabled: boolean): void {

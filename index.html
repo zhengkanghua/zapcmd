@@ -6,6 +6,11 @@
     <title>ZapCmd</title>
     <script>
       (function () {
+        var themeBootstrap = {
+          obsidian: { colorScheme: "dark", backgroundColor: "#0b0b0c" },
+          linen: { colorScheme: "light", backgroundColor: "#ece4d6" }
+        };
+
         try {
           var stored = JSON.parse(
             localStorage.getItem("zapcmd.settings") || "{}"
@@ -20,11 +25,17 @@
             stored &&
             stored.appearance &&
             stored.appearance.blurEnabled !== false;
-          document.documentElement.dataset.theme = theme;
+          var resolvedTheme = themeBootstrap[theme] ? theme : "obsidian";
+          var bootstrap = themeBootstrap[resolvedTheme];
+          document.documentElement.dataset.theme = resolvedTheme;
           document.documentElement.dataset.blur = blur ? "on" : "off";
+          document.documentElement.style.colorScheme = bootstrap.colorScheme;
+          document.documentElement.style.backgroundColor = bootstrap.backgroundColor;
         } catch (e) {
           document.documentElement.dataset.theme = "obsidian";
           document.documentElement.dataset.blur = "on";
+          document.documentElement.style.colorScheme = themeBootstrap.obsidian.colorScheme;
+          document.documentElement.style.backgroundColor = themeBootstrap.obsidian.backgroundColor;
         }
       })();
     </script>

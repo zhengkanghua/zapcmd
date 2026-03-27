@@ -25,13 +25,30 @@ describe("SettingsAppearanceSection layout", () => {
     const wrapper = mount(SettingsAppearanceSection, {
       props: {
         windowOpacity: 0.96,
+        theme: "linen",
+        blurEnabled: true,
+        themes: THEME_REGISTRY
+      }
+    });
+
+    expect(wrapper.find(".theme-card--active").text()).toContain("亚麻纸");
+  });
+
+  it("renders both obsidian and linen theme cards", () => {
+    const wrapper = mount(SettingsAppearanceSection, {
+      props: {
+        windowOpacity: 0.96,
         theme: "obsidian",
         blurEnabled: true,
         themes: THEME_REGISTRY
       }
     });
 
-    expect(wrapper.find(".theme-card--active").text()).toContain("黑曜石");
+    const themeCards = wrapper.findAll(".theme-card");
+    expect(themeCards).toHaveLength(2);
+    expect(themeCards.map((card) => card.text())).toEqual(
+      expect.arrayContaining(["黑曜石", "亚麻纸"])
+    );
   });
 
   it("theme swatches 通过 theme preview scope 派生颜色，而不是内联 preview 色值", () => {
@@ -47,5 +64,18 @@ describe("SettingsAppearanceSection layout", () => {
     const themeCard = wrapper.get(".theme-card");
     expect(themeCard.attributes("data-theme-preview")).toBe("obsidian");
     expect(wrapper.findAll(".theme-card__swatch").every((swatch) => !swatch.attributes("style"))).toBe(true);
+  });
+
+  it("shows blur-off copy when blur effect is disabled", () => {
+    const wrapper = mount(SettingsAppearanceSection, {
+      props: {
+        windowOpacity: 0.96,
+        theme: "linen",
+        blurEnabled: false,
+        themes: THEME_REGISTRY
+      }
+    });
+
+    expect(wrapper.text()).toContain("已关闭");
   });
 });

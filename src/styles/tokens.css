@@ -4,7 +4,7 @@
 :root,
 [data-theme-preview] {
   /* ── 基础设定（不随主题变） ── */
-  color-scheme: dark;
+  /* color-scheme 由具体主题声明，避免浅色主题被全局 dark 锁死 */
   font-family: "Segoe UI", "Helvetica Neue", "Noto Sans", sans-serif;
 
   /* ── 布局常量 ── */

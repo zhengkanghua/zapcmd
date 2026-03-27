@@ -1,0 +1,83 @@
+/* ── 亚麻纸主题 (Linen) ── */
+/* 暖白纸面 + 古铜强调，适合白天与明亮环境下高密度扫读 */
+
+:root[data-theme="linen"],
+[data-theme-preview="linen"] {
+  color-scheme: light;
+
+  /* ── 材质 ── */
+  --theme-bg:           #F5EFE6;
+  --theme-bg-rgb:       245, 239, 230;
+  --theme-bg-deep:      #ECE4D6;
+  --theme-surface:      #FFFDF8;
+  --theme-surface-soft: rgba(255, 255, 255, 0.72);
+  --theme-surface-rgb: 255, 253, 248;
+  --theme-text-rgb:     47, 36, 24;
+
+  /* ── 边框与阴影 ── */
+  --theme-border:       rgba(95, 78, 54, 0.12);
+  --theme-border-light: rgba(95, 78, 54, 0.08);
+  --theme-ring:         rgba(165, 107, 42, 0.12);
+  --theme-shadow:       0 18px 38px rgba(111, 81, 39, 0.12);
+
+  /* ── 文字 ── */
+  --theme-text:         #2F2418;
+  --theme-text-muted:   #6F6254;
+  --theme-text-dim:     #9C8D7A;
+
+  /* ── 强调色（古铜/琥珀棕） ── */
+  --theme-accent:       #A56B2A;
+  --theme-accent-rgb:   165, 107, 42;
+  --theme-accent-soft:  rgba(165, 107, 42, 0.14);
+  --theme-accent-text:  #FFFDF8;
+
+  /* ── 状态色 ── */
+  --theme-success:      #0F766E;
+  --theme-success-rgb:  15, 118, 110;
+  --theme-danger:       #C2415A;
+  --theme-danger-rgb:   194, 65, 90;
+  --theme-danger-soft:  rgba(194, 65, 90, 0.12);
+
+  /* ── 交互态 ── */
+  --theme-hover:        rgba(95, 78, 54, 0.06);
+  --theme-control-muted-hover-bg:     rgba(95, 78, 54, 0.07);
+  --theme-control-muted-hover-border: rgba(95, 78, 54, 0.14);
+  --theme-selected:     rgba(165, 107, 42, 0.10);
+  --theme-kbd:          #F8F1E6;
+
+  /* ── 搜索高亮 ── */
+  --theme-search-hl:     #A56B2A;
+  --theme-search-hl-rgb: 165, 107, 42;
+
+  /* ── 毛玻璃 ── */
+  --theme-blur:         18px;
+  --theme-glass-bg:     rgba(250, 246, 239, 0.82);
+
+  /* ── 设置窗口 ── */
+  --theme-sidebar-bg:   rgba(243, 235, 224, 0.72);
+  --theme-input-bg:     #FFFCF7;
+  --theme-toggle-on:    #A56B2A;
+  --theme-toggle-off:   #D1C2AE;
+  --theme-settings-titlebar-bg: #F1E8DA;
+  --theme-settings-topbar-bg: rgba(244, 236, 225, 0.94);
+  --theme-settings-topbar-border: rgba(95, 78, 54, 0.08);
+  --theme-settings-toolbar-bg: rgba(248, 241, 232, 0.90);
+  --theme-settings-toolbar-sticky-bg: rgba(248, 241, 232, 0.96);
+  --theme-settings-dropdown-bg: rgba(255, 250, 243, 0.98);
+  --theme-settings-dropdown-border: rgba(95, 78, 54, 0.12);
+  --theme-settings-dropdown-hover: rgba(95, 78, 54, 0.06);
+  --theme-settings-badge-bg: rgba(95, 78, 54, 0.06);
+  --theme-settings-badge-text: rgba(47, 36, 24, 0.56);
+  --theme-settings-focus-ring: rgba(165, 107, 42, 0.18);
+  --theme-settings-toggle-off: #D1C2AE;
+  --theme-settings-toggle-thumb: #FFFDF8;
+  --theme-settings-table-row-hover: rgba(95, 78, 54, 0.05);
+  --theme-settings-tab-active-bg: rgba(165, 107, 42, 0.10);
+  --theme-settings-tab-active-border: rgba(165, 107, 42, 0.18);
+  --theme-settings-card-bg: rgba(255, 252, 247, 0.84);
+  --theme-settings-card-border: rgba(95, 78, 54, 0.12);
+  --theme-settings-card-title-color: rgba(47, 36, 24, 0.48);
+  --theme-settings-row-border: rgba(95, 78, 54, 0.10);
+  --theme-settings-row-hover: rgba(95, 78, 54, 0.035);
+  --theme-settings-hint-color: rgba(47, 36, 24, 0.46);
+}

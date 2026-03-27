@@ -24,4 +24,15 @@ describe("settings bootstrap contract", () => {
     expect(appSource).not.toContain("import SettingsWindow");
     expect(appSource).not.toContain("<SettingsWindow");
   });
+
+  it("boots both windows with theme-driven light/dark frame guards", () => {
+    const settingsHtml = readFileSync(resolve(process.cwd(), "settings.html"), "utf8");
+    const launcherHtml = readFileSync(resolve(process.cwd(), "index.html"), "utf8");
+
+    for (const html of [settingsHtml, launcherHtml]) {
+      expect(html).toContain('linen');
+      expect(html).toContain('colorScheme: "light"');
+      expect(html).toContain('backgroundColor: "#ece4d6"');
+    }
+  });
 });
