@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-27｜impeccable 命名空间与 gsd 退场）
+
+- `impeccable` skills 已从 `.codex/skills` 根目录收口到 `.codex/skills/impeccable`；当前桌面 UI 规则统一引用 impeccable 技能组。`.codex/get-shit-done` 与 `gsd-file-manifest.json` 已退场，活跃入口不再使用 `gsd-*`。
+
 ## 补充（2026-03-27｜桌面 UI 技能收口）
 
 - 已删除 `frontend-skill`；桌面产品 UI 默认走 `ui-ux-pro-max` + impeccable，首次设计/大改优先 `frontend-design`，缺少 `.impeccable.md` 时先 `teach-impeccable`。
@@ -242,13 +246,11 @@
 
 - 已完成 `06-CONTEXT.md` + `06-RESEARCH.md`，锁定安全回归口径：确认/取消/绕过、注入允许/拦截/边界、双语提示与不吞错。
 - 新增 `06-01-PLAN.md`、`06-02-PLAN.md`（同属 Wave 1 并行），分别覆盖逻辑层与 App 热键交互层回归。
-- `ROADMAP.md` 已同步 Phase 6 计划清单，下一步执行命令：`$gsd-execute-phase 06`。
 
 ## 补充（2026-03-06｜Phase 08 规划）
 
 - 已完成 `08-RESEARCH.md` 与 `08-01/02/03-PLAN.md`，覆盖 ARC-01/ARC-02。
 - 规划为两条并行主线（组合根解耦、settingsStore 拆分）+ 一条收敛验收（回归矩阵 + `check:all` + 架构文档）。
-- `ROADMAP.md` 已把 Phase 8 从 `TBD` 更新为 `0/3` 计划清单；下一步执行：`$gsd-execute-phase 8`。
 
 ## 补充（2026-03-06｜Phase 08 执行完成）
 
@@ -263,7 +265,6 @@
 
 ## 补充（2026-03-06｜里程碑补缺起步）
 
-- 已新增仓库根 `AGENTS.md`，强制新会话与 `$gsd-*` 前先读 `CLAUDE.md -> .ai/AGENTS.md -> .ai/TOOL.md`。
 - `v1.0` 审计结果为 `gaps_found`，已新增 Phase 11/12，分别处理 Phase 2/9 verification 缺口与 Phase 10 macOS gate 口径收敛。
 
 ## 补充（2026-03-06｜Phase 11 完成）
@@ -290,7 +291,6 @@
 - 已统一公开文档与 Phase 10 evidence：Windows desktop smoke 仍是唯一 blocking gate；macOS 仅保留 experimental / non-blocking probe。剩余 tech debt 仅为等待上游稳定性变化。
 
 ## 补充（2026-03-06｜v1.0 里程碑归档）
-- 已归档 v1.0：ROADMAP/REQUIREMENTS/audit 已入 .planning/milestones/，当前无 blocker，下一步改为 $gsd-new-milestone。
 
 ## 补充（2026-03-07｜UI 评审）
 - 已完成主窗口与 settings 截图评审：当前问题不在技术栈上，而在视觉系统与信息架构；后续优先收敛为更克制的深色专业风，弱化绿色品牌色，重做暂存区布局与 settings 卡片化层级。
@@ -310,7 +310,6 @@
 - 已在 `docs/ui-redesign/` 中明确写死：本轮只做 launcher 主窗口；`settings` 继续保持独立窗口，不并入 launcher，也不纳入本轮重构范围。后续若要做 settings 升级，另开独立专题。
 
 ## 补充（2026-03-07｜v2.0 里程碑启动）
-- 启动 v2.0「主窗口 B4 UI 重构」：已生成 `.planning/REQUIREMENTS.md`/`.planning/ROADMAP.md` 与 `.planning/research/*`，Phase 13-16（底座→Overlay→键盘→动效）待执行；下一步 `$gsd-plan-phase 13`。
 
 ## 补充（2026-03-07｜Git hooks 修复）
 - pre-commit hooks 改为平台目录：Windows=`.githooks/windows`（PowerShell），macOS/Linux=`.githooks/posix`（sh），规避 `sh.exe couldn't create signal pipe (Win32 error 5)`。
@@ -319,13 +318,10 @@
 - Phase 13 已生成 CONTEXT（`.planning/phases/13-b4-layout-sizing-foundation/13-CONTEXT.md`）：floor 仅“打开 Review 前”触发（0~3 结果），floor height 由“4 条结果高度 + 搜索框高度”计算，content height 只排除顶端 drag strip，并要求 P0 单测锁定“无假结果 DOM”。
 
 ## 补充（2026-03-07｜Phase 13 规划完成）
-- 已生成 `.planning/phases/13-b4-layout-sizing-foundation/13-RESEARCH.md` 与 `13-01/02/03-PLAN.md`（Wave 1：floor+filler、sizing 口径；Wave 2：回归单测）。下一步：`$gsd-execute-phase 13`。
 
 ## 补充（2026-03-08｜Phase 13 执行完成）
-- Phase 13 已完成：floor/filler（aria-hidden、无假结果 DOM、仅 `stagingExpanded=true` 且 0~3 结果触发）+ sizing 排除 drag strip + 回归单测；`npm run check:all` 全绿；下一步 `$gsd-plan-phase 14`。
 
 ## 补充（2026-03-08｜Phase 14 讨论完成）
-- 修复 gsd-tools 缺失 `core/state` 模块；并生成 Phase 14 `14-CONTEXT.md`：入口=搜索区 pill（仅队列非空）；关闭=按钮+点遮罩；面板宽度按搜索区宽度比例计算（推荐 2/3，clamp 到 420–480）、头尾固定列表内滚、轻 dim 锁背景；卡片=标题+摘要、复制+悬浮、参数仍可编辑。见 `.planning/phases/14-review-overlay/14-CONTEXT.md`。
 
 ## 补充（2026-03-09｜Phase 14 执行进展）
 - 已完成 14-01：搜索态单列 + 队列 pill 入口；入队/会话恢复不再自动打开 Review；Review 宽度口径 `2/3 + clamp(420~480)` 通过 CSS 变量集中管理。
@@ -338,7 +334,6 @@
 - Review 展开时：结果抽屉 inert/aria-hidden 锁定；点击搜索框关闭 Review，队列 pill 可切换；关闭后焦点回到搜索框。
 
 ## 补充（2026-03-09｜Phase 15 计划完成）
-- 已生成 Phase 15 的 3 个执行计划（15-01/02/03）：热键语义、Esc 分层后退、Review 初始焦点/Tab focus trap、P0 自动化回归更新。下一步：`$gsd-execute-phase 15`。
 
 ## 补充（2026-03-09｜Phase 15 执行完成待复验）
 - Phase 15 已落地：Tab/Ctrl+Tab 打开 Review、Review 内 Tab trap、Esc 先关 Review；但本容器无法跑 vitest（esbuild spawn EPERM），需本地 `npm run check:all` + 键盘 smoke（见 `.planning/phases/15-keyboard-focus-close-semantics/15-VERIFICATION.md`）。
@@ -350,7 +345,6 @@
 - 视觉基线选 Beta Graphite Cyan；交互激活态统一用品牌色（不再用绿色做品牌）；success 色值先留给执行者。Review 动效：dim→滑入、滑出→去 dim，约 200ms；默认 opacity 调到 0.96（范围仍 0.2~1.0）、壁纸弱化、Review 层级高一阶；Windows 若 resize 抖动明显则降级“一次性 resize + 内部动画”。
 
 ## 补充（2026-03-10｜Phase 16 规划完成）
-- 已生成 `.planning/phases/16-animation-visual-system/16-RESEARCH.md` 与 `16-01/02/03-PLAN.md`，并同步 `.planning/ROADMAP.md`；下一步：`$gsd-execute-phase 16`。
 
 ## 补充（2026-03-10｜Phase 16 研究完成）
 - 已生成 `.planning/phases/16-animation-visual-system/16-RESEARCH.md`：覆盖 `SIZE-03`/`VIS-01`/`VIS-02`，梳理动效/令牌/Windows resize 降级落点与相关代码路径。
@@ -376,7 +370,6 @@
 - 已落盘“面板内 2/3 覆盖抽屉（搜索框下方三层：结果→遮罩→抽屉；点击遮罩关闭并回焦搜索框）”设计稿，并追加到 v2.0 Roadmap：见 `docs/superpowers/specs/2026-03-10-launcher-review-drawer-overlay-design.md` 与 `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-CONTEXT.md`。
 
 ## 补充（2026-03-10｜Phase 17 规划完成）
-- 已生成 Phase 17 的 `17-01/02/03-*-PLAN.md`（3 waves）并补齐 `17-RESEARCH.md`，计划已校验通过；下一步执行：`$gsd-execute-phase 17`。
 
 ## 补充（2026-03-10｜Phase 17 执行完成）
 - Review 已回归为“面板内容区内 2/3 overlay 抽屉”，并切断“打开导致窗口变宽”的链路；回归护栏已补齐且 `npm run check:all` 全绿。已生成 `17-VERIFICATION.md`（status=`human_needed`）待 Windows smoke。
@@ -408,13 +401,11 @@
 
 - 已完成 `06-CONTEXT.md` + `06-RESEARCH.md`，锁定安全回归口径：确认/取消/绕过、注入允许/拦截/边界、双语提示与不吞错。
 - 新增 `06-01-PLAN.md`、`06-02-PLAN.md`（同属 Wave 1 并行），分别覆盖逻辑层与 App 热键交互层回归。
-- `ROADMAP.md` 已同步 Phase 6 计划清单，下一步执行命令：`$gsd-execute-phase 06`。
 
 ## 补充（2026-03-06｜Phase 08 规划）
 
 - 已完成 `08-RESEARCH.md` 与 `08-01/02/03-PLAN.md`，覆盖 ARC-01/ARC-02。
 - 规划为两条并行主线（组合根解耦、settingsStore 拆分）+ 一条收敛验收（回归矩阵 + `check:all` + 架构文档）。
-- `ROADMAP.md` 已把 Phase 8 从 `TBD` 更新为 `0/3` 计划清单；下一步执行：`$gsd-execute-phase 8`。
 
 ## 补充（2026-03-06｜Phase 08 执行完成）
 
@@ -429,7 +420,6 @@
 
 ## 补充（2026-03-06｜里程碑补缺起步）
 
-- 已新增仓库根 `AGENTS.md`，强制新会话与 `$gsd-*` 前先读 `CLAUDE.md -> .ai/AGENTS.md -> .ai/TOOL.md`。
 - `v1.0` 审计结果为 `gaps_found`，已新增 Phase 11/12，分别处理 Phase 2/9 verification 缺口与 Phase 10 macOS gate 口径收敛。
 
 ## 补充（2026-03-06｜Phase 11 完成）
@@ -456,7 +446,6 @@
 - 已统一公开文档与 Phase 10 evidence：Windows desktop smoke 仍是唯一 blocking gate；macOS 仅保留 experimental / non-blocking probe。剩余 tech debt 仅为等待上游稳定性变化。
 
 ## 补充（2026-03-06｜v1.0 里程碑归档）
-- 已归档 v1.0：ROADMAP/REQUIREMENTS/audit 已入 .planning/milestones/，当前无 blocker，下一步改为 $gsd-new-milestone。
 
 ## 补充（2026-03-07｜UI 评审）
 - 已完成主窗口与 settings 截图评审：当前问题不在技术栈上，而在视觉系统与信息架构；后续优先收敛为更克制的深色专业风，弱化绿色品牌色，重做暂存区布局与 settings 卡片化层级。
@@ -475,7 +464,6 @@
 - 已在 `docs/ui-redesign/` 中明确写死：本轮只做 launcher 主窗口；`settings` 继续保持独立窗口，不并入 launcher，也不纳入本轮重构范围。后续若要做 settings 升级，另开独立专题。
 
 ## 补充（2026-03-07｜v2.0 里程碑启动）
-- 启动 v2.0「主窗口 B4 UI 重构」：已生成 `.planning/REQUIREMENTS.md`/`.planning/ROADMAP.md` 与 `.planning/research/*`，Phase 13-16（底座→Overlay→键盘→动效）待执行；下一步 `$gsd-plan-phase 13`。
 
 ## 补充（2026-03-07｜Git hooks 修复）
 - pre-commit hooks 改为平台目录：Windows=`.githooks/windows`（PowerShell），macOS/Linux=`.githooks/posix`（sh），规避 `sh.exe couldn't create signal pipe (Win32 error 5)`。
@@ -484,13 +472,10 @@
 - Phase 13 已生成 CONTEXT（`.planning/phases/13-b4-layout-sizing-foundation/13-CONTEXT.md`）：floor 仅“打开 Review 前”触发（0~3 结果），floor height 由“4 条结果高度 + 搜索框高度”计算，content height 只排除顶端 drag strip，并要求 P0 单测锁定“无假结果 DOM”。
 
 ## 补充（2026-03-07｜Phase 13 规划完成）
-- 已生成 `.planning/phases/13-b4-layout-sizing-foundation/13-RESEARCH.md` 与 `13-01/02/03-PLAN.md`（Wave 1：floor+filler、sizing 口径；Wave 2：回归单测）。下一步：`$gsd-execute-phase 13`。
 
 ## 补充（2026-03-08｜Phase 13 执行完成）
-- Phase 13 已完成：floor/filler（aria-hidden、无假结果 DOM、仅 `stagingExpanded=true` 且 0~3 结果触发）+ sizing 排除 drag strip + 回归单测；`npm run check:all` 全绿；下一步 `$gsd-plan-phase 14`。
 
 ## 补充（2026-03-08｜Phase 14 讨论完成）
-- 修复 gsd-tools 缺失 `core/state` 模块；并生成 Phase 14 `14-CONTEXT.md`：入口=搜索区 pill（仅队列非空）；关闭=按钮+点遮罩；面板宽度按搜索区宽度比例计算（推荐 2/3，clamp 到 420–480）、头尾固定列表内滚、轻 dim 锁背景；卡片=标题+摘要、复制+悬浮、参数仍可编辑。见 `.planning/phases/14-review-overlay/14-CONTEXT.md`。
 
 ## 补充（2026-03-09｜Phase 14 执行进展）
 - 已完成 14-01：搜索态单列 + 队列 pill 入口；入队/会话恢复不再自动打开 Review；Review 宽度口径 `2/3 + clamp(420~480)` 通过 CSS 变量集中管理。
@@ -503,7 +488,6 @@
 - Review 展开时：结果抽屉 inert/aria-hidden 锁定；点击搜索框关闭 Review，队列 pill 可切换；关闭后焦点回到搜索框。
 
 ## 补充（2026-03-09｜Phase 15 计划完成）
-- 已生成 Phase 15 的 3 个执行计划（15-01/02/03）：热键语义、Esc 分层后退、Review 初始焦点/Tab focus trap、P0 自动化回归更新。下一步：`$gsd-execute-phase 15`。
 
 ## 补充（2026-03-09｜Phase 15 执行完成待复验）
 - Phase 15 已落地：Tab/Ctrl+Tab 打开 Review、Review 内 Tab trap、Esc 先关 Review；但本容器无法跑 vitest（esbuild spawn EPERM），需本地 `npm run check:all` + 键盘 smoke（见 `.planning/phases/15-keyboard-focus-close-semantics/15-VERIFICATION.md`）。
@@ -515,7 +499,6 @@
 - 视觉基线选 Beta Graphite Cyan；交互激活态统一用品牌色（不再用绿色做品牌）；success 色值先留给执行者。Review 动效：dim→滑入、滑出→去 dim，约 200ms；默认 opacity 调到 0.96（范围仍 0.2~1.0）、壁纸弱化、Review 层级高一阶；Windows 若 resize 抖动明显则降级“一次性 resize + 内部动画”。
 
 ## 补充（2026-03-10｜Phase 16 规划完成）
-- 已生成 `.planning/phases/16-animation-visual-system/16-RESEARCH.md` 与 `16-01/02/03-PLAN.md`，并同步 `.planning/ROADMAP.md`；下一步：`$gsd-execute-phase 16`。
 
 ## 补充（2026-03-10｜Phase 16 研究完成）
 - 已生成 `.planning/phases/16-animation-visual-system/16-RESEARCH.md`：覆盖 `SIZE-03`/`VIS-01`/`VIS-02`，梳理动效/令牌/Windows resize 降级落点与相关代码路径。
@@ -541,7 +524,6 @@
 - 已落盘“面板内 2/3 覆盖抽屉（搜索框下方三层：结果→遮罩→抽屉；点击遮罩关闭并回焦搜索框）”设计稿，并追加到 v2.0 Roadmap：见 `docs/superpowers/specs/2026-03-10-launcher-review-drawer-overlay-design.md` 与 `.planning/phases/17-2-3-in-panel-2-3-review-drawer-overlay/17-CONTEXT.md`。
 
 ## 补充（2026-03-10｜Phase 17 规划完成）
-- 已生成 Phase 17 的 `17-01/02/03-*-PLAN.md`（3 waves）并补齐 `17-RESEARCH.md`，计划已校验通过；下一步执行：`$gsd-execute-phase 17`。
 
 ## 补充（2026-03-10｜Phase 17 执行完成）
 - Review 已回归为“面板内容区内 2/3 overlay 抽屉”，并切断“打开导致窗口变宽”的链路；回归护栏已补齐且 `npm run check:all` 全绿。已生成 `17-VERIFICATION.md`（status=`human_needed`）待 Windows smoke。
