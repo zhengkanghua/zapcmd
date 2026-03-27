@@ -3,6 +3,11 @@
  * - preflight 已禁用：`@tailwind base` 不会注入 reset，避免视觉回归。
  * - 该文件在 `src/styles/index.css` 末尾引入，迁移期尽量降低层叠冲突风险。
  */
+/* Tailwind v4 的默认 scale（spacing / radius / font-weight 等）来自 theme layer。
+ * 若未引入 `tailwindcss/theme.css`，则诸如 `p-5/gap-4/rounded-2xl/font-semibold` 等
+ * 基于默认 token 的 utilities 不会生成，UI 会表现为“像旧版一样方且密度挤”。
+ */
+@import "tailwindcss/theme.css" layer(theme);
 @config "../../tailwind.config.cjs";
 @source "../../index.html";
 @source "../../settings.html";
