@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-27｜主滚动容器细滚动条精修）
+
+- 新增 `.scrollbar-subtle` utility；Settings 主内容区、Launcher CommandPanel、FlowPanel 空态 body 与列表区、StagingPanel 列表区已显式挂载；运行时代码已清除旧隐藏滚动条类。
+
 ## 补充（2026-03-27｜FlowPanel 交互失活修复）
 
 - 移除 `tailwind.css` 中 `[data-tauri-drag-region]` 的 `app-region/-webkit-app-region` 注入，仅保留视觉提示；避免 Windows/WebView2 吞掉 FlowPanel 点击、滚动与拖拽交互，并新增样式契约防回归。
