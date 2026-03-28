@@ -5,7 +5,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const http = require("node:http");
 const path = require("node:path");
-const { spawn } = require("node:child_process");
+const { execFileSync, spawn } = require("node:child_process");
 
 function nowIso() {
   return new Date().toISOString();
@@ -99,6 +99,14 @@ function buildBrowserArgs({ url, outPath, profileDir, width, height }) {
   ];
 }
 
+function createBrowserSpawnEnv(baseEnv = process.env) {
+  return {
+    ...baseEnv,
+    EDGE_CRASHPAD_PIPE_NAME: "",
+    CHROME_CRASHPAD_PIPE_NAME: ""
+  };
+}
+
 function writeBrowserSpawnLog({
   browserLabel,
   browserCommand,
@@ -134,6 +142,103 @@ function appendBrowserLog(logPath, line) {
   try {
     fs.appendFileSync(logPath, `${line}\n`, "utf8");
   } catch {}
+}
+
+function looksLikeWindowsPath(targetPath) {
+  return typeof targetPath === "string" && (/^[A-Za-z]:\\/.test(targetPath) || targetPath.startsWith("\\\\"));
+}
+
+function listWindowsBrowserProcessIds({
+  browserCommand,
+  cleanupQueryCommand,
+  platform = process.platform,
+  execFileSyncImpl = execFileSync
+}) {
+  const normalizedCleanupQueryCommand = typeof cleanupQueryCommand === "string" ? cleanupQueryCommand.trim() : "";
+  const queryCommand = normalizedCleanupQueryCommand || (platform === "win32" ? "powershell.exe" : "");
+  if (!queryCommand) {
+    return [];
+  }
+
+  const processName = path.win32.basename(typeof browserCommand === "string" ? browserCommand : "").trim() || "msedge.exe";
+  const script =
+    "$processName = [System.IO.Path]::GetFileNameWithoutExtension($env:ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME);" +
+    " Get-Process -Name $processName -ErrorAction SilentlyContinue" +
+    " | Select-Object -ExpandProperty Id";
+
+  try {
+    const output = String(
+      execFileSyncImpl(queryCommand, ["-NoProfile", "-Command", script], {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME: processName
+        }
+      })
+    ).trim();
+
+    if (!output) {
+      return [];
+    }
+
+    return output
+      .split(/\r?\n/)
+      .map((line) => Number.parseInt(line.trim(), 10))
+      .filter((pid) => Number.isInteger(pid) && pid > 0);
+  } catch {
+    return [];
+  }
+}
+
+function listWindowsBrowserProcessIdsForCleanup({
+  browserCommand,
+  profileDir,
+  cleanupQueryCommand,
+  platform = process.platform,
+  execFileSyncImpl = execFileSync
+}) {
+  const normalizedProfileDir = typeof profileDir === "string" ? profileDir.trim() : "";
+  const normalizedCleanupQueryCommand = typeof cleanupQueryCommand === "string" ? cleanupQueryCommand.trim() : "";
+  if (platform !== "win32" && normalizedProfileDir && !looksLikeWindowsPath(normalizedProfileDir)) {
+    return [];
+  }
+
+  const queryCommand = normalizedCleanupQueryCommand || (platform === "win32" ? "powershell.exe" : "");
+  if (!queryCommand) {
+    return [];
+  }
+
+  const processName = path.win32.basename(typeof browserCommand === "string" ? browserCommand : "").trim() || "msedge.exe";
+  const script =
+    "$needle = $env:ZAPCMD_VISUAL_CLEANUP_PROFILE;" +
+    " $processName = $env:ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME;" +
+    " Get-CimInstance Win32_Process -Filter \"name = '$processName'\"" +
+    " | Where-Object { -not $needle -or ($_.CommandLine -and $_.CommandLine.Contains($needle)) }" +
+    " | Select-Object -ExpandProperty ProcessId";
+
+  try {
+    const output = String(
+      execFileSyncImpl(queryCommand, ["-NoProfile", "-Command", script], {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME: processName,
+          ZAPCMD_VISUAL_CLEANUP_PROFILE: normalizedProfileDir
+        }
+      })
+    ).trim();
+
+    if (!output) {
+      return [];
+    }
+
+    return output
+      .split(/\r?\n/)
+      .map((line) => Number.parseInt(line.trim(), 10))
+      .filter((pid) => Number.isInteger(pid) && pid > 0);
+  } catch {
+    return [];
+  }
 }
 
 function terminateProcessTreeByPid(pid, { platform = process.platform, spawnImpl = spawn } = {}) {
@@ -173,11 +278,42 @@ function runBrowserScreenshot({
   environmentManifestPath,
   spawnImpl = spawn,
   terminateProcessTree = (pid) => terminateProcessTreeByPid(pid, { spawnImpl }),
+  cleanupQueryCommand,
+  cleanupQueryPlatform = process.platform,
+  cleanupQueryExecFileSyncImpl = execFileSync,
+  listProcessIdsForCleanup = ({ browserCommand, profileDir }) =>
+    listWindowsBrowserProcessIdsForCleanup({
+      browserCommand,
+      profileDir,
+      cleanupQueryCommand,
+      platform: cleanupQueryPlatform,
+      execFileSyncImpl: cleanupQueryExecFileSyncImpl
+    }),
+  listAllBrowserProcessIds = ({ browserCommand }) =>
+    listWindowsBrowserProcessIds({
+      browserCommand,
+      cleanupQueryCommand,
+      platform: cleanupQueryPlatform,
+      execFileSyncImpl: cleanupQueryExecFileSyncImpl
+    }),
   screenshotReadyPollIntervalMs = 100,
   timeoutMs = 35_000
 }) {
   return new Promise((resolve, reject) => {
     const args = buildBrowserArgs({ url, outPath, profileDir, width, height });
+    const existingBrowserPidSet = new Set();
+    const initialBrowserPidSnapshotPromise = Promise.resolve(listAllBrowserProcessIds({ browserCommand }))
+      .then((existingPids) => {
+        for (const pid of existingPids) {
+          if (Number.isInteger(pid) && pid > 0) {
+            existingBrowserPidSet.add(pid);
+          }
+        }
+      })
+      .catch((error) => {
+        appendBrowserLog(logPath, `[cleanup-snapshot-error] ${String(error)}`);
+      });
+
     writeBrowserSpawnLog({
       browserLabel,
       browserCommand,
@@ -192,6 +328,7 @@ function runBrowserScreenshot({
     });
 
     const child = spawnImpl(browserCommand, args, {
+      env: createBrowserSpawnEnv(),
       windowsHide: true,
       stdio: "ignore"
     });
@@ -218,13 +355,43 @@ function runBrowserScreenshot({
     };
 
     const requestBrowserShutdown = async (reason) => {
-      if (shutdownRequested || !Number.isInteger(child.pid) || child.pid <= 0) {
+      if (shutdownRequested) {
         return;
       }
       shutdownRequested = true;
-      appendBrowserLog(logPath, `[cleanup] reason=${reason} pid=${child.pid}`);
+
+      const cleanupPidSet = new Set();
+      if (Number.isInteger(child.pid) && child.pid > 0) {
+        cleanupPidSet.add(child.pid);
+      }
+
       try {
-        await terminateProcessTree(child.pid);
+        await initialBrowserPidSnapshotPromise;
+
+        const matchedPids = await listProcessIdsForCleanup({ browserCommand, profileDir });
+        for (const pid of matchedPids) {
+          cleanupPidSet.add(pid);
+        }
+
+        const currentBrowserPids = await listAllBrowserProcessIds({ browserCommand });
+        for (const pid of currentBrowserPids) {
+          if (!existingBrowserPidSet.has(pid)) {
+            cleanupPidSet.add(pid);
+          }
+        }
+      } catch (error) {
+        appendBrowserLog(logPath, `[cleanup-query-error] ${String(error)}`);
+      }
+
+      appendBrowserLog(
+        logPath,
+        `[cleanup] reason=${reason} pids=${cleanupPidSet.size > 0 ? [...cleanupPidSet].join(",") : "(none)"}`
+      );
+
+      try {
+        for (const pid of cleanupPidSet) {
+          await terminateProcessTree(pid);
+        }
       } catch (error) {
         appendBrowserLog(logPath, `[cleanup-error] ${String(error)}`);
       }
@@ -250,7 +417,18 @@ function runBrowserScreenshot({
     child.on("exit", (code, signal) => {
       appendBrowserLog(logPath, `[exit] code=${code ?? "null"} signal=${signal ?? "null"}`);
       if (fs.existsSync(outPath) || code === 0) {
-        settle("resolve");
+        void (async () => {
+          if (!fs.existsSync(outPath) && code === 0) {
+            await waitForFile(outPath, {
+              timeoutMs: Math.min(2_000, timeoutMs),
+              intervalMs: Math.min(screenshotReadyPollIntervalMs, 50)
+            });
+          }
+          if (fs.existsSync(outPath)) {
+            await requestBrowserShutdown("post-exit");
+          }
+          settle("resolve");
+        })();
         return;
       }
       settle("reject", new Error(`${browserLabel} 截图失败：code=${code ?? "null"} signal=${signal ?? "null"}`));
@@ -384,6 +562,7 @@ module.exports = {
   compareAgainstBaseline,
   createStaticServer,
   ensureDir,
+  listWindowsBrowserProcessIds,
   runBrowserScreenshot,
   waitForFile
 };

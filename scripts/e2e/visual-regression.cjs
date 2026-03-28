@@ -92,6 +92,7 @@ function buildRuntime() {
     serverBinding,
     baselineDir,
     outputDir,
+    runId: `${Date.now().toString(36)}-${process.pid}`,
     resolveBrowserPath: browserRuntime.useWindowsPaths ? resolveWindowsPath : (targetPath) => targetPath,
     resolveDiffPath: diffRuntime.useWindowsPaths ? resolveWindowsPath : (targetPath) => targetPath
   };
@@ -176,7 +177,7 @@ async function captureScreenshot(runtime, shot, port, environmentManifestPath) {
   const url = `http://${runtime.serverBinding.urlHost}:${port}/visual.html#${shot.hash}`;
   const actualPath = path.join(runtime.outputDir, `${shot.id}.actual.png`);
   const baselinePath = path.join(runtime.baselineDir, `${shot.id}.png`);
-  const profileDir = path.join(runtime.outputDir, `profile-${shot.id}`);
+  const profileDir = path.join(runtime.outputDir, "profiles", runtime.runId, `profile-${shot.id}`);
   const logPath = path.join(runtime.outputDir, `${shot.id}.browser.log`);
   const diffOutJsonPath = path.join(runtime.outputDir, `${shot.id}.diff.json`);
 
@@ -192,6 +193,7 @@ async function captureScreenshot(runtime, shot, port, environmentManifestPath) {
     url,
     outPath: runtime.resolveBrowserPath(actualPath),
     profileDir: runtime.resolveBrowserPath(profileDir),
+    cleanupQueryCommand: runtime.diffRuntime.command,
     width: shot.width,
     height: shot.height,
     logPath,

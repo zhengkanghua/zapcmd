@@ -1,5 +1,21 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜WSL visual cleanup）
+
+- 已补 WSL 桥接的 Edge 清理链路：`runBrowserScreenshot` 现可复用 Windows `pwsh.exe` 按 `profileDir` 查询并清理 `msedge.exe`，覆盖 `/mnt/c/.../msedge.exe + \\wsl.localhost\\...` 场景；新增回归测试，防止视觉回归残留多个 Edge 进程。
+
+## 补充（2026-03-28｜Windows stray Edge cleanup）
+
+- 继续修复 Windows 视觉回归偶发弹出可见 Edge 且不关闭的问题：runner 现会在截图前快照已有 `msedge.exe` PID，并在 cleanup 时额外清理本次 run 新增的 Edge 进程，不再只依赖 `profileDir` 命中。
+
+## 补充（2026-03-28｜Crashpad pipe crash）
+
+- 已定位 Windows 视觉回归首张图偶发 `2147483651` 根因：失败 run 生成的 dump 包含 `CreateNamedPipe` Crashpad 致命错误，说明子进程继承/复用的 Crashpad 管道环境导致 Edge 启动即崩。runner 现显式清空 `EDGE_CRASHPAD_PIPE_NAME`/`CHROME_CRASHPAD_PIPE_NAME`，并为每次 visual run 使用唯一 profile 子目录。
+
+## 补充（2026-03-28｜controlled-runner 自动关窗竞态修复）
+
+- 已确认“Edge 不自动关”根因是 `exit=0` 可能早于截图文件落盘，导致 cleanup 被跳过；runner 现改为成功退出后短等截图文件并执行 post-exit cleanup，且按 `profileDir` 补充清理，实机 `test:visual:ui:runner` 后不再残留 runner 临时 profile 进程。
+
 ## 补充（2026-03-28｜controlled-runner 绿灯修复）
 
 - 已为 visual runner 增加“截图落盘后主动 cleanup 浏览器进程树”，并把 launcher motion 场景在 visual harness 内静态化；`npm run test:visual:ui:update:runner` 与 `npm run test:visual:ui:runner` 已全绿。
