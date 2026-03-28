@@ -1,4 +1,5 @@
 import { hotkeyMatches } from "../../../shared/hotkeys";
+import { shouldDeferGlobalEscape } from "../escapeOwnership";
 import {
   ensureSearchFocusZone,
   handleMainGlobalHotkeys,
@@ -28,6 +29,14 @@ export function createWindowKeydownHandler<TItem>(
       return;
     }
     if (!hotkeyMatches(event, options.main.normalizedEscapeHotkey.value)) {
+      return;
+    }
+    if (
+      shouldDeferGlobalEscape(event, {
+        allowTypingTarget: options.main.searchInputRef.value,
+        isTypingTarget: options.main.isTypingElement
+      })
+    ) {
       return;
     }
 

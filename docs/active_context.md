@@ -1,5 +1,13 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜review remediation P2 收口）
+
+- 已修 Settings 剩余 3 个 36px 命中区与同步 appearance bootstrap；Linux/Windows visual baseline 已按预期更新并回绿，`check:all` 全绿。
+
+## 补充（2026-03-28｜review remediation 收口）
+
+- 已修 Escape ownership、Dropdown/Flow A11y、36px 命中区、Commands 首帧限额渲染与共享 appearance bootstrap；739 tests、`check:all` 全绿，Windows visual 仍是既有 7 项 baseline mismatch，Linux visual 全绿。
+
 ## 补充（2026-03-28｜全局 motion preset 落地）
 
 - 已完成 `appearance.motionPreset`：默认 `expressive` 保持基线，`steady-tool` 接入 Launcher/Settings；store/runtime/UI/motion contract 与 `check:all` 全绿，visual 场景已补，`test:visual:ui` 在当前 Linux 环境按脚本规则跳过。

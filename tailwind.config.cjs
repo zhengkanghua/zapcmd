@@ -223,8 +223,7 @@ module.exports = {
         "launcher-card": "transform, border-color, opacity, box-shadow",
         "launcher-field": "background-color, border-color, box-shadow",
         "launcher-interactive": "background-color, border-color, color, box-shadow, opacity",
-        "launcher-emphasis": "opacity, box-shadow",
-        "launcher-width": "width"
+        "launcher-emphasis": "opacity, box-shadow"
       },
       transitionTimingFunction: {
         "nav-slide": "cubic-bezier(0.175,0.885,0.32,1.15)",

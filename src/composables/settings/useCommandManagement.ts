@@ -31,6 +31,9 @@ interface UseCommandManagementOptions {
   setDisabledCommandIds: (ids: string[]) => void;
 };
 
+export const COMMAND_ROWS_INITIAL_RENDER_LIMIT = 120;
+export const COMMAND_ROWS_RENDER_CHUNK_SIZE = 80;
+
 function normalizeText(value: string): string {
   return value.trim().toLowerCase();
 }

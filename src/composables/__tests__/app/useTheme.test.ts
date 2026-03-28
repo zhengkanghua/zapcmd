@@ -59,4 +59,13 @@ describe("useTheme", () => {
 
     expect(document.documentElement.dataset.blur).toBe("off");
   });
+
+  it("exposes shared theme metadata with bootstrap frame colors", () => {
+    const themeId = ref("obsidian");
+    const blurEnabled = ref(true);
+    const model = useTheme({ themeId, blurEnabled });
+
+    expect(model.themes.length).toBeGreaterThan(0);
+    expect(model.themes.every((theme) => "frameBackgroundColor" in theme)).toBe(true);
+  });
 });

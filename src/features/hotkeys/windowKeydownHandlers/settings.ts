@@ -1,3 +1,4 @@
+import { shouldDeferGlobalEscape } from "../escapeOwnership";
 import type { SettingsHandlers } from "./types";
 
 export function handleSettingsWindowKeydown(
@@ -5,6 +6,9 @@ export function handleSettingsWindowKeydown(
   settings: SettingsHandlers
 ): void {
   if (event.key !== "Escape") {
+    return;
+  }
+  if (shouldDeferGlobalEscape(event)) {
     return;
   }
 

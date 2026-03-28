@@ -1,4 +1,5 @@
 import type { Ref } from "vue";
+import { isTypingElement as isEscapeOwnershipTypingElement } from "../../features/hotkeys/escapeOwnership";
 
 interface AppWindowLike {
   close(): Promise<void> | void;
@@ -20,14 +21,7 @@ interface UseMainWindowShellOptions {
 }
 
 export function isTypingElement(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-  if (target.isContentEditable) {
-    return true;
-  }
-  const tag = target.tagName.toLowerCase();
-  return tag === "input" || tag === "textarea" || tag === "select";
+  return isEscapeOwnershipTypingElement(target);
 }
 
 export function useMainWindowShell(options: UseMainWindowShellOptions) {

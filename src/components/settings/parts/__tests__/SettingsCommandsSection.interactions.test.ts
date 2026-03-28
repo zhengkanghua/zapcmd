@@ -106,6 +106,10 @@ describe("SettingsCommandsSection interactions", () => {
       props: createProps()
     });
 
+    expect(wrapper.get(".settings-commands-toolbar__search").attributes("aria-label")).toBe(
+      "搜索（title / id / category / source）"
+    );
+
     await wrapper.get(".settings-commands-toolbar__search").setValue("docker");
 
     const dropdowns = wrapper.findAllComponents(SDropdown);

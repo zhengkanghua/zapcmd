@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 
 import { useI18nText } from "../../../i18n";
+import {
+  COMMAND_ROWS_INITIAL_RENDER_LIMIT,
+  COMMAND_ROWS_RENDER_CHUNK_SIZE
+} from "../../../composables/settings/useCommandManagement";
 import type {
   CommandFilterIssue,
   CommandFilterOverride,
@@ -27,6 +31,8 @@ const emit = defineEmits<{
 
 const moreFiltersOpen = ref(false);
 const moreFiltersTriggerRef = ref<HTMLButtonElement | null>(null);
+const renderedCommandRowCount = ref(COMMAND_ROWS_INITIAL_RENDER_LIMIT);
+let deferredCommandRowTimer: number | null = null;
 
 const fileFilterOptions = computed(() => [
   { value: "all", label: t("settings.commands.allFiles") },
@@ -119,6 +125,36 @@ const hasActiveFilters = computed(() => {
   );
 });
 
+const visibleCommandRows = computed(() =>
+  props.commandRows.slice(0, renderedCommandRowCount.value)
+);
+
+function cancelDeferredCommandRows(): void {
+  if (deferredCommandRowTimer === null) {
+    return;
+  }
+  window.clearTimeout(deferredCommandRowTimer);
+  deferredCommandRowTimer = null;
+}
+
+function scheduleDeferredCommandRows(): void {
+  cancelDeferredCommandRows();
+  if (renderedCommandRowCount.value >= props.commandRows.length) {
+    return;
+  }
+
+  deferredCommandRowTimer = window.setTimeout(() => {
+    deferredCommandRowTimer = null;
+    renderedCommandRowCount.value = Math.min(
+      props.commandRows.length,
+      renderedCommandRowCount.value + COMMAND_ROWS_RENDER_CHUNK_SIZE
+    );
+    if (renderedCommandRowCount.value < props.commandRows.length) {
+      scheduleDeferredCommandRows();
+    }
+  }, 0);
+}
+
 function onQueryInput(event: Event): void {
   const target = event.target as HTMLInputElement | null;
   emit("update-view", { query: target?.value ?? "" });
@@ -168,6 +204,22 @@ function onResetFilters(): void {
   closeMoreFilters();
 }
 
+watch(
+  () => props.commandRows,
+  (rows) => {
+    cancelDeferredCommandRows();
+    renderedCommandRowCount.value = Math.min(rows.length, COMMAND_ROWS_INITIAL_RENDER_LIMIT);
+    if (rows.length > renderedCommandRowCount.value) {
+      scheduleDeferredCommandRows();
+    }
+  },
+  { immediate: true }
+);
+
+onBeforeUnmount(() => {
+  cancelDeferredCommandRows();
+});
+
 </script>
 
 <template>
@@ -181,6 +233,7 @@ function onResetFilters(): void {
           class="settings-commands-toolbar__search w-full h-[38px] px-3.5 border border-settings-dropdown-border rounded-[11px] bg-ui-text/[0.045] text-ui-text text-[13px] outline-none transition-settings-field duration-120 placeholder:text-ui-text/28 focus-visible:border-ui-brand/22 focus-visible:shadow-settings-focus focus-visible:bg-ui-text/[0.055]"
           type="search"
           :value="props.commandView.query"
+          :aria-label="t('settings.commands.queryLabel')"
           :placeholder="t('settings.commands.queryPlaceholder')"
           @input="onQueryInput"
         />
@@ -225,7 +278,7 @@ function onResetFilters(): void {
           <button
             ref="moreFiltersTriggerRef"
             type="button"
-            class="settings-commands-toolbar__more-filters min-h-[34px] inline-flex items-center gap-2 px-3 py-1.5 border border-transparent rounded-full bg-settings-badge text-settings-badge-text text-[12px] cursor-pointer transition-settings-interactive duration-150 ease-settings-emphasized hover:border-settings-dropdown-border hover:bg-settings-dropdown-hover hover:text-ui-text focus-visible:outline-none focus-visible:shadow-settings-focus"
+            class="settings-commands-toolbar__more-filters min-h-[36px] inline-flex items-center gap-2 px-3 py-1.5 border border-transparent rounded-full bg-settings-badge text-settings-badge-text text-[12px] cursor-pointer transition-settings-interactive duration-150 ease-settings-emphasized hover:border-settings-dropdown-border hover:bg-settings-dropdown-hover hover:text-ui-text focus-visible:outline-none focus-visible:shadow-settings-focus"
             :class="{
               'settings-commands-toolbar__more-filters--active text-ui-brand':
                 activeSecondaryFilterCount > 0 && !moreFiltersOpen,
@@ -263,6 +316,8 @@ function onResetFilters(): void {
         class="settings-commands-table__container grid gap-1.5 pt-1"
         role="table"
         aria-label="command-management-table"
+        :data-rendered-rows="visibleCommandRows.length"
+        :data-total-rows="props.commandRows.length"
       >
         <div
           class="settings-commands-table__header grid grid-cols-12 items-center gap-x-3 px-3.5 pt-0 pb-0.5 text-[11px] uppercase tracking-[0.6px] text-ui-text/30 settings-narrow:gap-x-2.5"
@@ -295,7 +350,7 @@ function onResetFilters(): void {
         </div>
 
         <div
-          v-for="row in props.commandRows"
+          v-for="row in visibleCommandRows"
           :key="row.id"
           :class="[
             'settings-commands-table__row grid grid-cols-12 items-center gap-x-3 px-3.5 py-3 border border-ui-text/6 rounded-panel bg-ui-text/[0.025] transition-[background,border-color,transform] duration-120 hover:bg-settings-table-row-hover hover:border-ui-text/11 hover:-translate-y-[1px] settings-narrow:gap-x-2.5',

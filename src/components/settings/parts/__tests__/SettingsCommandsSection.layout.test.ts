@@ -1,5 +1,6 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { nextTick } from "vue";
+import { describe, expect, it, vi } from "vitest";
 
 import SettingsCommandsSection from "../SettingsCommandsSection.vue";
 
@@ -66,6 +67,7 @@ describe("SettingsCommandsSection layout", () => {
     expect(wrapper.find(".settings-commands-toolbar__summary-row").exists()).toBe(true);
     expect(wrapper.findAll(".settings-commands-toolbar__primary-filter")).toHaveLength(4);
     expect(wrapper.find(".settings-commands-toolbar__more-filters").exists()).toBe(true);
+    expect(wrapper.find(".settings-commands-toolbar__more-filters").classes()).toContain("min-h-[36px]");
     expect(wrapper.text()).toContain("更多筛选");
     expect(wrapper.text()).not.toContain("全部文件");
 
@@ -77,5 +79,67 @@ describe("SettingsCommandsSection layout", () => {
     expect(wrapper.find(".settings-commands-table__container").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-table__badge").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-table__row--disabled").exists()).toBe(true);
+  });
+
+  it("caps first paint rows and progressively hydrates long command lists", async () => {
+    vi.useFakeTimers();
+
+    try {
+      const commandRows = Array.from({ length: 260 }, (_, index) => ({
+        id: `cmd-${index + 1}`,
+        title: `命令 ${index + 1}`,
+        category: index % 2 === 0 ? "docker" : "custom",
+        source: index % 3 === 0 ? ("user" as const) : ("builtin" as const),
+        enabled: index % 5 !== 0,
+        overridesBuiltin: false,
+        hasLoadIssue: false
+      }));
+
+      const wrapper = mount(SettingsCommandsSection, {
+        props: {
+          commandRows,
+          commandSummary: {
+            total: 260,
+            enabled: commandRows.filter((row) => row.enabled).length,
+            disabled: commandRows.filter((row) => !row.enabled).length,
+            userDefined: commandRows.filter((row) => row.source === "user").length,
+            overridden: 0
+          },
+          commandLoadIssues: [],
+          commandFilteredCount: 260,
+          commandView: {
+            query: "",
+            sourceFilter: "all",
+            statusFilter: "all",
+            categoryFilter: "all",
+            overrideFilter: "all",
+            issueFilter: "all",
+            fileFilter: "all",
+            sortBy: "default",
+            displayMode: "list"
+          },
+          commandSourceOptions: [{ value: "all", label: "全部来源" }],
+          commandStatusOptions: [{ value: "all", label: "全部状态" }],
+          commandCategoryOptions: [{ value: "all", label: "全部分类" }],
+          commandOverrideOptions: [{ value: "all", label: "全部冲突状态" }],
+          commandIssueOptions: [{ value: "all", label: "全部问题" }],
+          commandSortOptions: [{ value: "default", label: "默认" }],
+          commandDisplayModeOptions: [{ value: "list", label: "列表" }],
+          commandSourceFileOptions: [],
+          commandGroups: []
+        }
+      });
+
+      expect(wrapper.findAll(".settings-commands-table__row")).toHaveLength(120);
+      expect(wrapper.get(".settings-commands-table__container").attributes("data-rendered-rows")).toBe("120");
+
+      await vi.runAllTimersAsync();
+      await nextTick();
+
+      expect(wrapper.findAll(".settings-commands-table__row")).toHaveLength(260);
+      expect(wrapper.get(".settings-commands-table__container").attributes("data-rendered-rows")).toBe("260");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

@@ -151,7 +151,6 @@ function onNavAfterEnter(): void {
       :ref="props.setSearchShellRef"
       class="search-shell w-max max-w-full mt-[var(--launcher-shell-margin-top)] pb-[var(--launcher-shell-breathing-bottom)] relative grid grid-cols-[var(--search-main-width)_var(--staging-collapsed-width)] grid-rows-launcher-shell gap-x-[var(--shell-gap)] justify-start justify-items-stretch items-start"
       :style="props.searchShellStyle"
-      role="application"
       :aria-label="t('app.launcherAriaLabel')"
     >
       <div

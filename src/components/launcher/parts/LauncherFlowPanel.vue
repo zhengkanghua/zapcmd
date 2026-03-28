@@ -220,7 +220,7 @@ useFlowPanelHeightObservation({
     ></button>
     <section
       :ref="setReviewPanelRef"
-      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-launcher-flow-panel-highlight shadow-launcher-side-panel shadow-ui-black/35 transition-launcher-width duration-200 ease-in-out motion-reduce:transition-none"
+      class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-launcher-flow-panel-highlight shadow-launcher-side-panel shadow-ui-black/35"
       :class="[
         { 'flow-panel--has-list': props.stagedCommands.length > 0 },
         props.stagingDrawerState === 'opening'
@@ -253,7 +253,7 @@ useFlowPanelHeightObservation({
           </UiIconButton>
           <UiIconButton
             ref="closeButtonRef"
-            class="flow-panel__close min-w-[32px] min-h-[32px]"
+            class="flow-panel__close min-w-[36px] min-h-[36px]"
             :ariaLabel="t('common.close')"
             variant="muted"
             @click="closeReview"
@@ -275,6 +275,8 @@ useFlowPanelHeightObservation({
         <p
           v-if="props.executionFeedbackMessage"
           class="execution-feedback execution-toast ui-glass-toast animate-launcher-toast-slide-down motion-reduce:animate-none"
+          role="status"
+          aria-live="polite"
           :class="{
             'execution-feedback--neutral text-ui-brand': props.executionFeedbackTone === 'neutral',
             'execution-feedback--success text-ui-success': props.executionFeedbackTone === 'success',

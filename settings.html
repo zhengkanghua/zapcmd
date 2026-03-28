@@ -4,61 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZapCmd Settings</title>
-  <script>
-    // 防闪烁：在 Vue 加载前同步应用主题
-    ;(function () {
-      var themeBootstrap = {
-        obsidian: { colorScheme: "dark", backgroundColor: "#0b0b0c" },
-        linen: { colorScheme: "light", backgroundColor: "#ece4d6" }
-      };
-
-      try {
-        var raw = localStorage.getItem("zapcmd.settings");
-        var theme = "obsidian";
-        var blur = true;
-        var motionPreset = "expressive";
-        if (raw) {
-          var stored = JSON.parse(raw);
-          theme = (stored && stored.appearance && stored.appearance.theme) || "obsidian";
-          blur = stored && stored.appearance && stored.appearance.blurEnabled !== false;
-          motionPreset =
-            stored &&
-            stored.appearance &&
-            typeof stored.appearance.motionPreset === "string"
-              ? stored.appearance.motionPreset
-              : "expressive";
-        }
-        var resolvedTheme = themeBootstrap[theme] ? theme : "obsidian";
-        var resolvedMotionPreset =
-          motionPreset === "expressive" || motionPreset === "steady-tool"
-            ? motionPreset
-            : "expressive";
-        var bootstrap = themeBootstrap[resolvedTheme];
-        document.documentElement.dataset.theme = resolvedTheme;
-        document.documentElement.dataset.blur = blur ? "on" : "off";
-        document.documentElement.dataset.motionPreset = resolvedMotionPreset;
-        document.documentElement.style.colorScheme = bootstrap.colorScheme;
-        document.documentElement.style.backgroundColor = bootstrap.backgroundColor;
-        var style = document.createElement("style");
-        style.textContent =
-          "html,body,#app{background:" +
-          bootstrap.backgroundColor +
-          ";} html{color-scheme:" +
-          bootstrap.colorScheme +
-          ";}";
-        document.head.appendChild(style);
-      } catch (_) {
-        document.documentElement.dataset.theme = "obsidian";
-        document.documentElement.dataset.blur = "on";
-        document.documentElement.dataset.motionPreset = "expressive";
-        document.documentElement.style.colorScheme = themeBootstrap.obsidian.colorScheme;
-        document.documentElement.style.backgroundColor = themeBootstrap.obsidian.backgroundColor;
-        var fallbackStyle = document.createElement("style");
-        fallbackStyle.textContent = "html,body,#app{background:#0b0b0c;} html{color-scheme:dark;}";
-        document.head.appendChild(fallbackStyle);
-      }
-    })();
-  </script>
+  <script src="/appearance-bootstrap.js" data-zapcmd-appearance-mode="settings"></script>
 </head>
 <body>
   <div id="app"></div>

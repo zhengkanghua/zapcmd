@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch, type StyleValue } from "vue";
+
+defineOptions({
+  inheritAttrs: false
+});
 
 type DropdownVariant = "default" | "ghost";
 
@@ -28,6 +32,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
+const attrs = useAttrs();
 const listboxId = `s-dropdown-listbox-${Math.random().toString(36).slice(2)}`;
 
 const triggerRef = ref<HTMLButtonElement | null>(null);
@@ -43,6 +48,15 @@ const selectedIndex = computed(() =>
 const selectedOption = computed(() => {
   const selected = props.options[selectedIndex.value];
   return selected ?? props.options[0] ?? { value: "", label: "" };
+});
+
+const rootClass = computed(() => [attrs.class, { "w-full": props.stretch }]);
+const rootStyle = computed<StyleValue | undefined>(() => attrs.style as StyleValue | undefined);
+const triggerAttrs = computed(() => {
+  const forwarded = { ...attrs } as Record<string, unknown>;
+  delete forwarded.class;
+  delete forwarded.style;
+  return forwarded;
 });
 
 function setFocusedIndex(index: number): void {
@@ -241,11 +255,17 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="s-dropdown relative inline-flex" :class="{ 'w-full': props.stretch }">
+  <div
+    class="s-dropdown relative inline-flex"
+    :class="rootClass"
+    :style="rootStyle"
+    :data-local-escape-scope="open ? 'true' : undefined"
+  >
     <button
       ref="triggerRef"
       type="button"
-      class="s-dropdown__trigger inline-flex min-h-[34px] cursor-pointer items-center justify-between gap-2 rounded-surface transition-settings-interactive duration-150 ease-settings-emphasized focus-visible:outline-none focus-visible:shadow-settings-focus disabled:cursor-not-allowed disabled:opacity-50"
+      v-bind="triggerAttrs"
+      class="s-dropdown__trigger inline-flex min-h-[36px] cursor-pointer items-center justify-between gap-2 rounded-surface transition-settings-interactive duration-150 ease-settings-emphasized focus-visible:outline-none focus-visible:shadow-settings-focus disabled:cursor-not-allowed disabled:opacity-50"
       :class="
         props.variant === 'ghost'
           ? [
@@ -255,6 +275,7 @@ onBeforeUnmount(() => {
           : 's-dropdown__trigger--default w-full min-w-[180px] border border-settings-dropdown-border bg-settings-dropdown px-2.5 py-[7px] text-ui-text hover:border-ui-control-muted-hover-border'
       "
       :disabled="props.disabled || props.options.length === 0"
+      role="combobox"
       :aria-expanded="open"
       aria-haspopup="listbox"
       :aria-controls="open ? listboxId : undefined"

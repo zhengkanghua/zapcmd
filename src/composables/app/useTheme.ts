@@ -1,8 +1,8 @@
 import { watch, type Ref } from "vue";
 import {
-  THEME_REGISTRY,
-  resolveThemeMeta,
+  THEME_REGISTRY
 } from "../../features/themes/themeRegistry";
+import { applyBlurState, applyThemeState } from "../../features/themes/appearanceBootstrap";
 
 export interface UseThemeOptions {
   themeId: Ref<string>;
@@ -10,13 +10,11 @@ export interface UseThemeOptions {
 }
 
 function applyTheme(id: string): void {
-  const theme = resolveThemeMeta(id);
-  document.documentElement.dataset.theme = theme.id;
-  document.documentElement.style.colorScheme = theme.colorScheme;
+  applyThemeState(id);
 }
 
 function applyBlur(enabled: boolean): void {
-  document.documentElement.dataset.blur = enabled ? "on" : "off";
+  applyBlurState(enabled);
 }
 
 export function useTheme(options: UseThemeOptions) {
@@ -33,6 +31,6 @@ export function useTheme(options: UseThemeOptions) {
   );
 
   return {
-    themes: THEME_REGISTRY,
+    themes: THEME_REGISTRY
   };
 }

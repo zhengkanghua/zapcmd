@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_THEME_ID, THEME_REGISTRY } from "../themeRegistry";
+import { DEFAULT_THEME_ID, THEME_REGISTRY, resolveThemeMeta } from "../themeRegistry";
 
 describe("themeRegistry", () => {
   it("包含默认 obsidian 与浅色 linen 两个主题", () => {
@@ -30,5 +30,15 @@ describe("themeRegistry", () => {
     for (const theme of THEME_REGISTRY) {
       expect(theme.id).toMatch(/^[a-z][a-z0-9-]*$/);
     }
+  });
+
+  it("为启动期 frame guard 暴露稳定背景色", () => {
+    for (const theme of THEME_REGISTRY) {
+      expect(theme.frameBackgroundColor).toMatch(/^#[0-9a-f]{6}$/i);
+    }
+  });
+
+  it("resolveThemeMeta 对未知 id 回退到默认主题", () => {
+    expect(resolveThemeMeta("missing-theme").id).toBe(DEFAULT_THEME_ID);
   });
 });

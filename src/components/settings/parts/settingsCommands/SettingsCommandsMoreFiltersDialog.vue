@@ -128,6 +128,7 @@ onBeforeUnmount(() => {
     id="settings-commands-more-filters"
     ref="panelRef"
     class="settings-commands-toolbar__more-filters-panel absolute top-[calc(100%+8px)] right-0 w-[min(360px,calc(100vw-56px))] p-3 border border-settings-dropdown-border rounded-[16px] bg-settings-dropdown shadow-ui backdrop-blur-ui z-settings-popover settings-narrow:left-0 settings-narrow:right-auto settings-narrow:w-[min(100%,360px)]"
+    data-local-escape-scope="true"
     role="dialog"
     aria-modal="true"
     :aria-label="t('settings.commands.moreFilters')"

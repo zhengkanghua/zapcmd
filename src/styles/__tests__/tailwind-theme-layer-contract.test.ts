@@ -87,7 +87,6 @@ describe("tailwind theme layer contract", () => {
       ".transition-launcher-field",
       ".transition-launcher-interactive",
       ".transition-launcher-emphasis",
-      ".transition-launcher-width",
       ".shadow-settings-preview-panel",
       ".shadow-settings-toolbar",
       ".shadow-launcher-chip-inset",
@@ -104,5 +103,7 @@ describe("tailwind theme layer contract", () => {
     for (const selector of requiredSemanticSelectors) {
       expect(compiledCss).toContain(selector);
     }
+
+    expect(compiledCss).not.toContain(".transition-launcher-width");
   });
 });

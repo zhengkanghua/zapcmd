@@ -74,6 +74,16 @@ describe("SSegmentNav", () => {
     ]);
   });
 
+  it("keeps every tab at a 36px hit target floor", () => {
+    const wrapper = mount(SSegmentNav, {
+      props: { items, modelValue: "general" }
+    });
+
+    for (const tab of wrapper.findAll("[role='tab']")) {
+      expect(tab.classes()).toContain("min-h-[36px]");
+    }
+  });
+
   it("no-ops when there are no items", async () => {
     const wrapper = mount(SSegmentNav, {
       props: { items: [], modelValue: "missing" }

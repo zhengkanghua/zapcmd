@@ -130,6 +130,22 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(wrapper.find("launcher-command-panel-stub").exists()).toBe(false);
   });
 
+  it("launcher shell 不再使用 role=application", () => {
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps(),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherFlowPanel: true,
+          LauncherCommandPanel: true,
+          LauncherSafetyOverlay: true
+        }
+      }
+    });
+
+    expect(wrapper.get(".search-shell").attributes("role")).toBeUndefined();
+  });
+
   it("Search 页面 stagingExpanded=true 时 FlowPanel 由 LauncherWindow 挂载（SearchPanel 即使被 stub 也仍存在）", () => {
     const wrapper = mount(LauncherWindow, {
       props: createBaseProps({

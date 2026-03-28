@@ -205,6 +205,40 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     listWrapper.unmount();
   });
 
+  it("execution feedback uses a polite live region", () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        executionFeedbackMessage: "已复制命令",
+        executionFeedbackTone: "success"
+      })
+    });
+
+    const feedback = wrapper.get(".execution-feedback");
+    expect(feedback.attributes("role")).toBe("status");
+    expect(feedback.attributes("aria-live")).toBe("polite");
+    wrapper.unmount();
+  });
+
+  it("does not keep width transitions on the flow panel shell", () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps()
+    });
+
+    expect(wrapper.get(".flow-panel").classes()).not.toContain("transition-launcher-width");
+    wrapper.unmount();
+  });
+
+  it("keeps review header icon actions at a 36px hit target floor", () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps()
+    });
+
+    const closeButton = wrapper.get(".flow-panel__close");
+    expect(closeButton.classes()).toContain("min-w-[36px]");
+    expect(closeButton.classes()).toContain("min-h-[36px]");
+    wrapper.unmount();
+  });
+
   it("stagingDrawerState 从 opening -> open 时发出一次 flow-panel-settled", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({ stagingDrawerState: "opening" })

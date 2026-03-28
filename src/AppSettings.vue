@@ -2,10 +2,12 @@
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { currentLocale, setAppLocale } from "./i18n";
+import { isTypingElement } from "./composables/launcher/useMainWindowShell";
 import { useSettingsStore, type HotkeyFieldId } from "./stores/settingsStore";
 import { useMotionPreset } from "./composables/app/useMotionPreset";
 import { useTheme } from "./composables/app/useTheme";
 import { createAppCompositionRootPorts } from "./composables/app/useAppCompositionRoot/ports";
+import { shouldDeferGlobalEscape } from "./features/hotkeys/escapeOwnership";
 import { fallbackTerminalOptions } from "./features/terminals/fallbackTerminals";
 import {
   HOTKEY_DEFINITIONS,
@@ -253,6 +255,13 @@ function onSettingsBroadcast(event: MessageEvent): void {
 
 function onWindowKeydown(event: KeyboardEvent): void {
   if (event.key !== "Escape" || event.defaultPrevented) {
+    return;
+  }
+  if (
+    shouldDeferGlobalEscape(event, {
+      isTypingTarget: isTypingElement
+    })
+  ) {
     return;
   }
 

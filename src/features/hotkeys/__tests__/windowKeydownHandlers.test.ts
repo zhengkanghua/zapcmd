@@ -15,7 +15,7 @@ function createHarness() {
   const ensureActiveResultVisible = vi.fn();
   const executeResult = vi.fn();
   const stageResult = vi.fn();
-  const isTypingElement = vi.fn(() => false);
+  const isTypingElement = vi.fn<(target: EventTarget | null) => boolean>(() => false);
   const moveStagedCommand = vi.fn();
   const ensureActiveStagingVisible = vi.fn();
   const removeStagedCommand = vi.fn();
@@ -183,6 +183,44 @@ describe("windowKeydownHandlers", () => {
 
     expect(event.defaultPrevented).toBe(true);
     expect(spies.handleMainEscape).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not globally handle Escape for inline typing targets outside the launcher search input", () => {
+    const { handler, options, spies } = createHarness();
+    const inlineInput = document.createElement("input");
+    document.body.appendChild(inlineInput);
+    options.main.isTypingElement.mockImplementation((target: EventTarget | null) => target === inlineInput);
+
+    const event = new KeyboardEvent("keydown", { key: "Escape", cancelable: true });
+    Object.defineProperty(event, "target", {
+      configurable: true,
+      value: inlineInput
+    });
+
+    handler(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(spies.handleMainEscape).not.toHaveBeenCalled();
+  });
+
+  it("does not globally handle Escape for local popup scopes", () => {
+    const { handler, spies } = createHarness();
+    const localScope = document.createElement("div");
+    localScope.dataset.localEscapeScope = "true";
+    const trigger = document.createElement("button");
+    localScope.appendChild(trigger);
+    document.body.appendChild(localScope);
+
+    const event = new KeyboardEvent("keydown", { key: "Escape", cancelable: true });
+    Object.defineProperty(event, "target", {
+      configurable: true,
+      value: trigger
+    });
+
+    handler(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(spies.handleMainEscape).not.toHaveBeenCalled();
   });
 
   it("does not globally confirm safety by Enter; Escape routes to handleMainEscape", () => {

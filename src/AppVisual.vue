@@ -6,6 +6,11 @@ import type { StagedCommand } from "./features/launcher/types";
 import type { LauncherSafetyDialog } from "./components/launcher/types";
 import { MOTION_PRESET_REGISTRY } from "./features/motion/motionRegistry";
 import { THEME_REGISTRY } from "./features/themes/themeRegistry";
+import {
+  applyBlurState,
+  applyMotionPresetState,
+  applyThemeState
+} from "./features/themes/appearanceBootstrap";
 import LauncherFlowPanel from "./components/launcher/parts/LauncherFlowPanel.vue";
 import LauncherSafetyOverlay from "./components/launcher/parts/LauncherSafetyOverlay.vue";
 import LauncherSearchPanel from "./components/launcher/parts/LauncherSearchPanel.vue";
@@ -176,7 +181,23 @@ onMounted(async () => {
 watch(
   launcherMotionPreset,
   (value) => {
-    document.documentElement.dataset.motionPreset = value;
+    applyMotionPresetState(value);
+  },
+  { immediate: true }
+);
+
+watch(
+  appearanceTheme,
+  (value) => {
+    applyThemeState(value);
+  },
+  { immediate: true }
+);
+
+watch(
+  appearanceBlurEnabled,
+  (value) => {
+    applyBlurState(value);
   },
   { immediate: true }
 );

@@ -38,10 +38,10 @@ const buttonClass = computed(() => {
    * 这里用“枚举表”明确列出每个 variant/size 的 class 组合。
    */
   const sizeClasses: Record<UiButtonSize, Array<string>> = {
-    default: ["min-w-7", "min-h-7", "p-1.5", "inline-flex", "items-center", "justify-center"],
+    default: ["min-w-[36px]", "min-h-[36px]", "p-1.5", "inline-flex", "items-center", "justify-center"],
     small: [
-      "min-w-[26px]",
-      "min-h-[26px]",
+      "min-w-[36px]",
+      "min-h-[36px]",
       "p-[5px]",
       "inline-flex",
       "items-center",

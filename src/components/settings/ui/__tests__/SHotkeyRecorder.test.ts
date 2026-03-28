@@ -79,6 +79,14 @@ describe("SHotkeyRecorder", () => {
     expect(wrapper.text()).toContain("冲突");
   });
 
+  it("keeps a 36px hit target floor", () => {
+    const wrapper = mount(SHotkeyRecorder, {
+      props: { modelValue: "Ctrl+Enter", label: "录制快捷键" },
+    });
+
+    expect(wrapper.get(".s-hotkey-recorder").classes()).toContain("min-h-[36px]");
+  });
+
   it("renders a single compact key token for short hotkeys", () => {
     const wrapper = mount(SHotkeyRecorder, {
       props: { modelValue: "Tab", label: "切换焦点区域" },

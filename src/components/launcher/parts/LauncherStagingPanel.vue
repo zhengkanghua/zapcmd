@@ -31,6 +31,12 @@ function onStagingArgInput(id: string, key: string, event: Event): void {
   emit("update-staged-arg", id, key, (event.target as HTMLInputElement).value);
 }
 
+function getStagingArgInputId(commandId: string, argKey: string): string {
+  const safeCommandId = commandId.replace(/[^a-zA-Z0-9_-]/g, "-");
+  const safeArgKey = argKey.replace(/[^a-zA-Z0-9_-]/g, "-");
+  return `staging-arg-${safeCommandId}-${safeArgKey}`;
+}
+
 const stagingHintText = computed(() => {
   if (!props.stagingHints?.length) {
     return "";
@@ -148,10 +154,14 @@ const stagingHintText = computed(() => {
                 :key="`${cmd.id}-${arg.key}`"
                 class="staging-card__arg flex items-center gap-[6px] flex-[1_1_120px] min-w-0"
               >
-                <label class="text-[11px] text-ui-subtle whitespace-nowrap">
+                <label
+                  class="text-[11px] text-ui-subtle whitespace-nowrap"
+                  :for="getStagingArgInputId(cmd.id, arg.key)"
+                >
                   {{ arg.label }}
                 </label>
                 <input
+                  :id="getStagingArgInputId(cmd.id, arg.key)"
                   type="text"
                   :value="cmd.argValues[arg.key] ?? ''"
                   :placeholder="arg.placeholder"

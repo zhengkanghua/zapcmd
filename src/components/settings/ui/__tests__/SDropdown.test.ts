@@ -34,6 +34,20 @@ describe("SDropdown", () => {
     expect(wrapper.get(".s-dropdown__trigger").classes()).toContain("s-dropdown__trigger--default");
   });
 
+  it("keeps a 36px trigger hit target floor", () => {
+    const wrapper = mountDropdown({
+      props: {
+        modelValue: "powershell",
+        options: [
+          { value: "powershell", label: "PowerShell" },
+          { value: "cmd", label: "Command Prompt" }
+        ]
+      }
+    });
+
+    expect(wrapper.get(".s-dropdown__trigger").classes()).toContain("min-h-[36px]");
+  });
+
   it("renders ghost variant with toolbar style", () => {
     const wrapper = mountDropdown({
       props: {
@@ -97,18 +111,28 @@ describe("SDropdown", () => {
           { value: "cmd", label: "Command Prompt" }
         ]
       },
+      attrs: {
+        "aria-label": "默认终端"
+      },
       attachTo: document.body
     });
 
-    await wrapper.get(".s-dropdown__trigger").trigger("keydown", { key: "ArrowDown" });
-    await wrapper.get(".s-dropdown__trigger").trigger("keydown", { key: "ArrowDown" });
-    await wrapper.get(".s-dropdown__trigger").trigger("keydown", { key: "Enter" });
+    const trigger = wrapper.get(".s-dropdown__trigger");
+    expect(trigger.attributes("role")).toBe("combobox");
+    expect(trigger.attributes("aria-label")).toBe("默认终端");
+
+    await trigger.trigger("keydown", { key: "ArrowDown" });
+    await trigger.trigger("keydown", { key: "ArrowDown" });
+    await trigger.trigger("keydown", { key: "Enter" });
 
     expect(wrapper.emitted("update:modelValue")).toEqual([["cmd"]]);
 
     await wrapper.setProps({ modelValue: "cmd" });
-    await wrapper.get(".s-dropdown__trigger").trigger("click");
-    await wrapper.get(".s-dropdown__trigger").trigger("keydown", { key: "Escape" });
+    await trigger.trigger("click");
+    expect(trigger.attributes("aria-expanded")).toBe("true");
+    expect(trigger.attributes("aria-controls")).toBeTruthy();
+    expect(trigger.attributes("aria-activedescendant")).toContain("-option-");
+    await trigger.trigger("keydown", { key: "Escape" });
 
     expect(document.body.querySelector(".s-dropdown__panel")).toBeNull();
   });

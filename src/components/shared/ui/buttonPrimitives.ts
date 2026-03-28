@@ -68,9 +68,9 @@ export const uiButtonVariantBaseClasses = {
     "border-ui-danger/20",
     "text-ui-danger",
     "cursor-pointer",
-    "transition-all",
+    "transition-colors",
     "duration-150",
-    "ease-[ease]",
+    "ease-out",
     "enabled:hover:bg-ui-danger/18",
     "enabled:hover:border-ui-danger/35"
   ]

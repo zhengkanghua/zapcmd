@@ -74,4 +74,20 @@ describe("UiIconButton", () => {
     expect(button.attributes("class")).toContain("disabled:opacity-[0.56]");
     expect(button.attributes("class")).toContain("disabled:cursor-default");
   });
+
+  it("keeps a 36px hit target floor for both sizes", async () => {
+    const wrapper = mount(UiIconButton, {
+      props: { ariaLabel: "More", size: "default" },
+      slots: { default: "…" }
+    });
+
+    const button = wrapper.get("button");
+    expect(button.attributes("class")).toContain("min-w-[36px]");
+    expect(button.attributes("class")).toContain("min-h-[36px]");
+
+    await wrapper.setProps({ size: "small" });
+
+    expect(button.attributes("class")).toContain("min-w-[36px]");
+    expect(button.attributes("class")).toContain("min-h-[36px]");
+  });
 });

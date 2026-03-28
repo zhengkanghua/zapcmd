@@ -36,6 +36,14 @@ describe("SToggle", () => {
     expect(wrapper.find(".s-toggle__track").exists()).toBe(true);
   });
 
+  it("keeps a 36px hit target floor even in compact mode", () => {
+    const wrapper = mount(SToggle, { props: { modelValue: true, compact: true } });
+    const toggle = wrapper.get("[role='switch']");
+
+    expect(toggle.classes()).toContain("min-w-[36px]");
+    expect(toggle.classes()).toContain("min-h-[36px]");
+  });
+
   it("is disabled when disabled prop is true", async () => {
     const wrapper = mount(SToggle, { props: { modelValue: false, disabled: true } });
     await wrapper.find("[role='switch']").trigger("click");

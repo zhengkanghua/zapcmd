@@ -121,6 +121,25 @@ describe("LauncherStagingPanel", () => {
     expect(wrapper.emitted("execute-staged")).toHaveLength(1);
   });
 
+  it("binds staged arg labels to their inputs", () => {
+    const wrapper = mount(LauncherStagingPanel, {
+      props: createProps({
+        stagingExpanded: true,
+        stagedCommands: [
+          createStagedCommand({
+            args: [{ key: "tail", label: "行数", token: "{{tail}}", placeholder: "100" }],
+            argValues: { tail: "200" }
+          })
+        ]
+      })
+    });
+
+    const label = wrapper.get(".staging-card__arg label");
+    const input = wrapper.get(".staging-card__arg input");
+    expect(label.attributes("for")).toBeTruthy();
+    expect(input.attributes("id")).toBe(label.attributes("for"));
+  });
+
   it("disables execute button while executing or when queue is empty", async () => {
     const wrapper = mount(LauncherStagingPanel, {
       props: createProps({

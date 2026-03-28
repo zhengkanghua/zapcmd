@@ -31,7 +31,8 @@ describe("motion style contract", () => {
     expect(tailwindConfigSource).toContain("var(--motion-ease-emphasized)");
 
     expect(launcherWindowSource).toContain("ease-motion-emphasized");
-    expect(flowPanelSource).toContain("motion-reduce:transition-none");
+    expect(flowPanelSource).not.toContain("transition-launcher-width");
+    expect(flowPanelSource).toContain("motion-reduce:animate-none");
 
     expect(commandPanelSource).toContain("animate-launcher-toast-slide-down");
     expect(searchPanelSource).toContain("animate-launcher-toast-slide-down");

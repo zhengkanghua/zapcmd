@@ -12,6 +12,7 @@ function createHarness() {
   const drawerRef = ref<HTMLElement | null>(null);
   document.body.appendChild(searchInput);
   searchInput.focus();
+  const isTypingElement = vi.fn((target: EventTarget | null) => target === searchInput);
 
   const settingsWindow = {};
 
@@ -68,7 +69,7 @@ function createHarness() {
     ensureActiveStagingVisible: vi.fn(),
     handleMainEscape,
     hotkeyBindings,
-    isTypingElement: vi.fn(() => false)
+    isTypingElement
   });
 
   return {
@@ -78,7 +79,8 @@ function createHarness() {
     stagingQueue,
     commandExecution,
     closeSettingsWindow,
-    handleMainEscape
+    handleMainEscape,
+    isTypingElement
   };
 }
 
@@ -137,6 +139,39 @@ describe("useAppWindowKeydown", () => {
 
     expect(event.defaultPrevented).toBe(true);
     expect(harness.handleMainEscape).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps launcher search input on the global Escape path", () => {
+    const harness = createHarness();
+    const searchInput = document.activeElement as HTMLInputElement;
+    const event = new KeyboardEvent("keydown", { key: "Escape", cancelable: true });
+    Object.defineProperty(event, "target", {
+      configurable: true,
+      value: searchInput
+    });
+    harness.isTypingElement.mockImplementation((target: EventTarget | null) => target instanceof HTMLInputElement);
+
+    harness.handler(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(harness.handleMainEscape).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not route Escape to main escape when the target is a non-search typing field", () => {
+    const harness = createHarness();
+    const inlineInput = document.createElement("input");
+    document.body.appendChild(inlineInput);
+    harness.isTypingElement.mockImplementation((target: EventTarget | null) => target instanceof HTMLInputElement);
+    const event = new KeyboardEvent("keydown", { key: "Escape", cancelable: true });
+    Object.defineProperty(event, "target", {
+      configurable: true,
+      value: inlineInput
+    });
+
+    harness.handler(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(harness.handleMainEscape).not.toHaveBeenCalled();
   });
 
   it("safety dialog 打开时不全局捕获 Enter；Escape 仍走 main escape 优先级", () => {

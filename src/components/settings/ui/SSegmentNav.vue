@@ -59,7 +59,7 @@ function onKeydown(e: KeyboardEvent) {
       type="button"
       :class="[
         's-segment-nav__tab',
-        'flex items-center gap-[7px] min-h-[34px] px-4 py-2 rounded-surface border border-transparent bg-transparent cursor-pointer whitespace-nowrap text-[13px] font-medium text-settings-segment-tab-text hover:bg-settings-table-row-hover hover:text-settings-segment-tab-text-hover transition-[color,background-color] duration-130 focus-visible:outline-none focus-visible:shadow-brand-soft-ring',
+        'flex items-center gap-[7px] min-h-[36px] px-4 py-2 rounded-surface border border-transparent bg-transparent cursor-pointer whitespace-nowrap text-[13px] font-medium text-settings-segment-tab-text hover:bg-settings-table-row-hover hover:text-settings-segment-tab-text-hover transition-[color,background-color] duration-130 focus-visible:outline-none focus-visible:shadow-brand-soft-ring',
         modelValue === item.id
           ? 's-segment-nav__tab--active bg-settings-segment-tab-active text-settings-segment-tab-text-active font-semibold'
           : ''

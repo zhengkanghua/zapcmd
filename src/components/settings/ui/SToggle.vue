@@ -47,7 +47,7 @@ function onKeydown(e: KeyboardEvent) {
     type="button"
     role="switch"
     :class="[
-      's-toggle inline-flex shrink-0 items-center justify-center border-0 bg-transparent p-0 transition-opacity duration-150 ease-settings-emphasized cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:shadow-settings-focus',
+      's-toggle inline-flex min-w-[36px] min-h-[36px] shrink-0 items-center justify-center border-0 bg-transparent p-0 transition-opacity duration-150 ease-settings-emphasized cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:shadow-settings-focus',
       {
         's-toggle--on': modelValue,
         's-toggle--compact': compact,

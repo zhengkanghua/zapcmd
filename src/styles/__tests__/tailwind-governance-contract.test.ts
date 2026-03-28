@@ -157,12 +157,19 @@ describe("tailwind governance contract", () => {
   });
 
   it("Launcher 高重复 transition/easing arbitrary 已收口为语义类", () => {
+    const searchPanelSource = readProjectFile("src/components/launcher/parts/LauncherSearchPanel.vue");
+    const stagingPanelSource = readProjectFile("src/components/launcher/parts/LauncherStagingPanel.vue");
+    const flowPanelSource = readProjectFile("src/components/launcher/parts/LauncherFlowPanel.vue");
+    const commandPanelSource = readProjectFile("src/components/launcher/parts/LauncherCommandPanel.vue");
+    const queueSummaryPillSource = readProjectFile(
+      "src/components/launcher/parts/LauncherQueueSummaryPill.vue"
+    );
     const sources = [
-      readProjectFile("src/components/launcher/parts/LauncherSearchPanel.vue"),
-      readProjectFile("src/components/launcher/parts/LauncherStagingPanel.vue"),
-      readProjectFile("src/components/launcher/parts/LauncherFlowPanel.vue"),
-      readProjectFile("src/components/launcher/parts/LauncherCommandPanel.vue"),
-      readProjectFile("src/components/launcher/parts/LauncherQueueSummaryPill.vue")
+      searchPanelSource,
+      stagingPanelSource,
+      flowPanelSource,
+      commandPanelSource,
+      queueSummaryPillSource
     ];
 
     const requiredClasses = [
@@ -172,14 +179,15 @@ describe("tailwind governance contract", () => {
       "transition-launcher-card",
       "transition-launcher-field",
       "transition-launcher-interactive",
-      "transition-launcher-emphasis",
-      "transition-launcher-width"
+      "transition-launcher-emphasis"
     ];
 
     for (const source of sources) {
       const hasAnyRequiredClass = requiredClasses.some((className) => source.includes(className));
       expect(hasAnyRequiredClass).toBe(true);
     }
+
+    expect(flowPanelSource).not.toContain("transition-launcher-width");
 
     const bannedPatterns = [
       /transition-\[background-color,border-color\]/,
@@ -199,6 +207,17 @@ describe("tailwind governance contract", () => {
         expect(source).not.toMatch(pattern);
       }
     }
+  });
+
+  it("shared primitives 去掉 transition-all，并给高频控件保留 36px 命中区下限", () => {
+    const buttonPrimitivesSource = readProjectFile("src/components/shared/ui/buttonPrimitives.ts");
+    const queueSummaryPillSource = readProjectFile(
+      "src/components/launcher/parts/LauncherQueueSummaryPill.vue"
+    );
+
+    expect(buttonPrimitivesSource).not.toContain("transition-all");
+    expect(queueSummaryPillSource).toContain("w-[36px]");
+    expect(queueSummaryPillSource).toContain("h-[36px]");
   });
 
   it("Settings 不再通过 descendant arbitrary 耦合子组件内部类名", () => {

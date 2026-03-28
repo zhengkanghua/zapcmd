@@ -196,6 +196,22 @@ describe("AppSettings hotkeys regression", () => {
     expect(hoisted.closeSpy).not.toHaveBeenCalled();
   });
 
+  it("does not close settings window when Escape comes from the commands search input", async () => {
+    hoisted.isTauriRuntime = true;
+
+    const wrapper = await mountAppSettings();
+    const commandsNav = findSegmentTab(wrapper, "命令");
+    await commandsNav.trigger("click");
+    await waitForUi();
+
+    const search = wrapper.get("input.settings-commands-toolbar__search");
+    (search.element as HTMLInputElement).focus();
+    await search.trigger("keydown", { key: "Escape" });
+    await waitForUi();
+
+    expect(hoisted.closeSpy).not.toHaveBeenCalled();
+  });
+
   it("shows conflict state when duplicate hotkeys are entered", async () => {
     const wrapper = await mountAppSettings();
 
