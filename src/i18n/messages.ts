@@ -218,6 +218,8 @@ export const messages = {
       appearance: {
         title: "外观",
         themeLabel: "主题",
+        motionPresetLabel: "动画风格",
+        motionPresetHint: "为 Launcher 和 Settings 统一切换整套动效节奏。",
         blurLabel: "毛玻璃效果",
         blurOn: "已开启",
         blurOff: "已关闭",
@@ -225,7 +227,19 @@ export const messages = {
         opacityLabel: "窗口透明度",
         opacityHint: "调整主窗口的背景透明度，数值越小越通透。",
         opacityValue: "{value}%",
-        preview: "效果预览"
+        preview: "效果预览",
+        motionPresets: {
+          expressive: {
+            name: "Expressive",
+            description: "保留当前偏弹性、偏氛围化的默认反馈。",
+            badge: "当前默认"
+          },
+          "steady-tool": {
+            name: "Steady Tool",
+            description: "收紧回弹与位移，反馈更像稳态桌面工具。",
+            badge: "更稳"
+          }
+        }
       },
       commandFilters: {
         sourceAll: "全部来源",
@@ -563,6 +577,8 @@ export const messages = {
       appearance: {
         title: "Appearance",
         themeLabel: "Theme",
+        motionPresetLabel: "Motion style",
+        motionPresetHint: "Switch one shared motion preset for Launcher and Settings.",
         blurLabel: "Glassmorphism",
         blurOn: "On",
         blurOff: "Off",
@@ -570,7 +586,19 @@ export const messages = {
         opacityLabel: "Window opacity",
         opacityHint: "Adjust the background opacity of the main window. Lower values are more transparent.",
         opacityValue: "{value}%",
-        preview: "Preview"
+        preview: "Preview",
+        motionPresets: {
+          expressive: {
+            name: "Expressive",
+            description: "Keeps the current elastic, atmospheric default feedback.",
+            badge: "Default"
+          },
+          "steady-tool": {
+            name: "Steady Tool",
+            description: "Tightens bounce and travel for a steadier desktop-tool feel.",
+            badge: "Steadier"
+          }
+        }
       },
       commandFilters: {
         sourceAll: "All sources",

@@ -17,6 +17,7 @@ import { useSettingsWindow } from "./composables/settings/useSettingsWindow";
 import { useCommandCatalog } from "./composables/launcher/useCommandCatalog";
 import { useCommandManagement } from "./composables/settings/useCommandManagement";
 import { useUpdateManager } from "./composables/update/useUpdateManager";
+import { MOTION_PRESET_REGISTRY } from "./features/motion/motionRegistry";
 import { THEME_REGISTRY } from "./features/themes/themeRegistry";
 import type { CommandManagementViewState } from "./features/settings/types";
 import SettingsWindow from "./components/settings/SettingsWindow.vue";
@@ -219,6 +220,11 @@ function updateTheme(value: string): void {
   persistImmediate();
 }
 
+function updateMotionPreset(value: string): void {
+  settingsStore.setMotionPreset(value);
+  persistImmediate();
+}
+
 function updateBlurEnabled(value: boolean): void {
   settingsStore.setBlurEnabled(value);
   persistImmediate();
@@ -362,7 +368,9 @@ onBeforeUnmount(() => {
     :window-opacity="windowOpacity"
     :theme="theme"
     :blur-enabled="blurEnabled"
+    :motion-preset="motionPreset"
     :themes="THEME_REGISTRY"
+    :motion-presets="MOTION_PRESET_REGISTRY"
     @navigate="navigateSettings"
     @update-hotkey="onUpdateHotkey"
     @select-terminal="selectTerminalOption"
@@ -377,6 +385,7 @@ onBeforeUnmount(() => {
     @reset-command-filters="resetCommandFilters"
     @update-opacity="updateOpacity"
     @update-theme="updateTheme"
+    @update-motion-preset="updateMotionPreset"
     @update-blur-enabled="updateBlurEnabled"
     @check-update="checkUpdate"
     @download-update="downloadUpdate"

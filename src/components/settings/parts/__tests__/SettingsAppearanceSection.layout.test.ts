@@ -1,22 +1,26 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
+import { MOTION_PRESET_REGISTRY } from "../../../../features/motion/motionRegistry";
 import { THEME_REGISTRY } from "../../../../features/themes/themeRegistry";
 import SettingsAppearanceSection from "../SettingsAppearanceSection.vue";
 
 describe("SettingsAppearanceSection layout", () => {
-  it("renders theme, effects and preview cards", () => {
+  it("renders theme, motion, effects and preview cards", () => {
     const wrapper = mount(SettingsAppearanceSection, {
       props: {
         windowOpacity: 0.96,
         theme: "obsidian",
         blurEnabled: true,
-        themes: THEME_REGISTRY
+        motionPreset: "expressive",
+        themes: THEME_REGISTRY,
+        motionPresets: MOTION_PRESET_REGISTRY
       }
     });
 
     expect(wrapper.find("#settings-group-appearance").exists()).toBe(false);
     expect(wrapper.find(".appearance-card--theme").exists()).toBe(true);
+    expect(wrapper.find(".appearance-card--motion").exists()).toBe(true);
     expect(wrapper.find(".appearance-card--effects").exists()).toBe(true);
     expect(wrapper.find(".appearance-card--preview").exists()).toBe(true);
   });
@@ -27,7 +31,9 @@ describe("SettingsAppearanceSection layout", () => {
         windowOpacity: 0.96,
         theme: "linen",
         blurEnabled: true,
-        themes: THEME_REGISTRY
+        motionPreset: "expressive",
+        themes: THEME_REGISTRY,
+        motionPresets: MOTION_PRESET_REGISTRY
       }
     });
 
@@ -40,7 +46,9 @@ describe("SettingsAppearanceSection layout", () => {
         windowOpacity: 0.96,
         theme: "obsidian",
         blurEnabled: true,
-        themes: THEME_REGISTRY
+        motionPreset: "expressive",
+        themes: THEME_REGISTRY,
+        motionPresets: MOTION_PRESET_REGISTRY
       }
     });
 
@@ -57,7 +65,9 @@ describe("SettingsAppearanceSection layout", () => {
         windowOpacity: 0.96,
         theme: "obsidian",
         blurEnabled: true,
-        themes: THEME_REGISTRY
+        motionPreset: "expressive",
+        themes: THEME_REGISTRY,
+        motionPresets: MOTION_PRESET_REGISTRY
       }
     });
 
@@ -72,10 +82,31 @@ describe("SettingsAppearanceSection layout", () => {
         windowOpacity: 0.96,
         theme: "linen",
         blurEnabled: false,
-        themes: THEME_REGISTRY
+        motionPreset: "expressive",
+        themes: THEME_REGISTRY,
+        motionPresets: MOTION_PRESET_REGISTRY
       }
     });
 
     expect(wrapper.text()).toContain("已关闭");
+  });
+
+  it("renders two motion preset cards and marks the active one", () => {
+    const wrapper = mount(SettingsAppearanceSection, {
+      props: {
+        windowOpacity: 0.96,
+        theme: "obsidian",
+        blurEnabled: true,
+        motionPreset: "steady-tool",
+        themes: THEME_REGISTRY,
+        motionPresets: MOTION_PRESET_REGISTRY
+      }
+    });
+
+    expect(wrapper.findAll(".motion-preset-card")).toHaveLength(2);
+    expect(wrapper.find(".motion-preset-card--active").text()).toContain("steady-tool");
+    expect(wrapper.text()).toContain("动画风格");
+    expect(wrapper.text()).toContain("当前默认");
+    expect(wrapper.text()).toContain("更稳");
   });
 });

@@ -40,6 +40,7 @@ const emit = defineEmits<{
   (e: "reset-command-filters"): void;
   (e: "update-opacity", value: number): void;
   (e: "update-theme", value: string): void;
+  (e: "update-motion-preset", value: string): void;
   (e: "update-blur-enabled", value: boolean): void;
   (e: "check-update"): void;
   (e: "download-update"): void;
@@ -138,9 +139,12 @@ const emit = defineEmits<{
           :window-opacity="props.windowOpacity"
           :theme="props.theme"
           :blur-enabled="props.blurEnabled"
+          :motion-preset="props.motionPreset"
           :themes="props.themes"
+          :motion-presets="props.motionPresets"
           @update-opacity="emit('update-opacity', $event)"
           @update-theme="emit('update-theme', $event)"
+          @update-motion-preset="emit('update-motion-preset', $event)"
           @update-blur-enabled="emit('update-blur-enabled', $event)"
         />
       </div>

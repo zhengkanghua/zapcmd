@@ -1,6 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 
+import { MOTION_PRESET_REGISTRY } from "../../../features/motion/motionRegistry";
 import { THEME_REGISTRY } from "../../../features/themes/themeRegistry";
 import {
   createDefaultCommandViewState,
@@ -87,7 +88,9 @@ function createSettingsWindowProps(
     windowOpacity: defaults.appearance.windowOpacity,
     theme: defaults.appearance.theme,
     blurEnabled: defaults.appearance.blurEnabled,
+    motionPreset: defaults.appearance.motionPreset,
     themes: THEME_REGISTRY,
+    motionPresets: MOTION_PRESET_REGISTRY,
     appVersion: "1.0.0",
     runtimePlatform: "win32",
     updateStatus: { state: "idle" },
@@ -211,6 +214,7 @@ describe("SettingsWindow stable shell", () => {
               "<div>" +
               "<button class='opacity-stub' @click=\"$emit('update-opacity', 0.9)\">opacity</button>" +
               "<button class='theme-stub' @click=\"$emit('update-theme', 'aurora')\">theme</button>" +
+              "<button class='motion-preset-stub' @click=\"$emit('update-motion-preset', 'steady-tool')\">motion</button>" +
               "<button class='blur-stub' @click=\"$emit('update-blur-enabled', false)\">blur</button>" +
               "</div>"
           }
@@ -259,9 +263,11 @@ describe("SettingsWindow stable shell", () => {
     await wrapper.setProps({ settingsRoute: "appearance" });
     await wrapper.get(".opacity-stub").trigger("click");
     await wrapper.get(".theme-stub").trigger("click");
+    await wrapper.get(".motion-preset-stub").trigger("click");
     await wrapper.get(".blur-stub").trigger("click");
     expect(wrapper.emitted("update-opacity")?.[0]).toEqual([0.9]);
     expect(wrapper.emitted("update-theme")?.[0]).toEqual(["aurora"]);
+    expect(wrapper.emitted("update-motion-preset")?.[0]).toEqual(["steady-tool"]);
     expect(wrapper.emitted("update-blur-enabled")?.[0]).toEqual([false]);
   });
 });

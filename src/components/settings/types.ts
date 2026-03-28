@@ -1,3 +1,4 @@
+import type { MotionPresetMeta } from "../../features/motion/motionRegistry";
 import type {
   CommandDisplayMode,
   CommandFilterIssue,
@@ -80,7 +81,9 @@ export interface SettingsAppearanceProps {
   windowOpacity: number;
   theme: string;
   blurEnabled: boolean;
+  motionPreset: string;
   themes: ReadonlyArray<ThemeMeta>;
+  motionPresets: ReadonlyArray<MotionPresetMeta>;
 }
 
 export interface SettingsAboutProps {

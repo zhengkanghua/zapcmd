@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import type { MotionPresetMeta } from "../../../features/motion/motionRegistry";
 import { useI18nText } from "../../../i18n";
 import { MIN_WINDOW_OPACITY, MAX_WINDOW_OPACITY } from "../../../stores/settingsStore";
 import type { ThemeMeta } from "../../../features/themes/themeRegistry";
@@ -10,12 +11,15 @@ const props = defineProps<{
   windowOpacity: number;
   theme: string;
   blurEnabled: boolean;
+  motionPreset: string;
   themes: ReadonlyArray<ThemeMeta>;
+  motionPresets: ReadonlyArray<MotionPresetMeta>;
 }>();
 
 const emit = defineEmits<{
   (e: "update-opacity", value: number): void;
   (e: "update-theme", value: string): void;
+  (e: "update-motion-preset", value: string): void;
   (e: "update-blur-enabled", value: boolean): void;
 }>();
 const { t } = useI18nText();
@@ -25,6 +29,18 @@ const percentDisplay = computed(() =>
 );
 
 const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
+
+function getMotionPresetName(id: string): string {
+  return t(`settings.appearance.motionPresets.${id}.name`);
+}
+
+function getMotionPresetDescription(id: string): string {
+  return t(`settings.appearance.motionPresets.${id}.description`);
+}
+
+function getMotionPresetBadge(id: string): string {
+  return t(`settings.appearance.motionPresets.${id}.badge`);
+}
 </script>
 
 <template>
@@ -69,6 +85,53 @@ const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
                 />
               </div>
               <span class="theme-card__name text-[12px] text-ui-text">{{ themeMeta.name }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="appearance-card appearance-card--motion grid gap-[10px] rounded-panel border border-settings-card-border bg-settings-card p-[14px] min-[620px]:col-span-2"
+      >
+        <div class="appearance-card__header flex items-baseline justify-between gap-[12px]">
+          <div class="grid gap-[4px]">
+            <h3 class="appearance-card__title m-0 text-[12px] font-[650] text-ui-text">
+              {{ t("settings.appearance.motionPresetLabel") }}
+            </h3>
+            <p class="appearance-card__hint m-0 text-[11px] leading-[1.45] text-settings-hint">
+              {{ t("settings.appearance.motionPresetHint") }}
+            </p>
+          </div>
+        </div>
+        <div class="appearance-card__body">
+          <div class="motion-selector grid gap-[10px] min-[620px]:grid-cols-2">
+            <button
+              v-for="motionMeta in props.motionPresets"
+              :key="motionMeta.id"
+              type="button"
+              :class="[
+                'motion-preset-card grid gap-[10px] rounded-panel border border-settings-card-border bg-ui-text/[0.015] p-[14px] text-left transition-[border-color,background,transform,box-shadow] duration-150 hover:border-ui-text/16 hover:bg-ui-text/3 hover:-translate-y-[1px]',
+                {
+                  'motion-preset-card--active border-ui-accent bg-ui-brand/8 shadow-settings-focus':
+                    motionMeta.id === props.motionPreset
+                }
+              ]"
+              @click="emit('update-motion-preset', motionMeta.id)"
+            >
+              <div class="flex items-start justify-between gap-[12px]">
+                <div class="grid gap-[4px]">
+                  <span class="text-[13px] font-[650] text-ui-text">
+                    {{ getMotionPresetName(motionMeta.id) }}
+                  </span>
+                  <span class="text-[11px] leading-[1.45] text-settings-hint">
+                    {{ getMotionPresetDescription(motionMeta.id) }}
+                  </span>
+                </div>
+                <span class="rounded-full border border-ui-text/10 bg-ui-text/6 px-[8px] py-[2px] text-[11px] font-[600] text-ui-subtle">
+                  {{ getMotionPresetBadge(motionMeta.id) }}
+                </span>
+              </div>
+              <span class="sr-only">{{ motionMeta.id }}</span>
             </button>
           </div>
         </div>
