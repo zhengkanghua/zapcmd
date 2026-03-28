@@ -297,6 +297,7 @@ function runBrowserScreenshot({
       execFileSyncImpl: cleanupQueryExecFileSyncImpl
     }),
   screenshotReadyPollIntervalMs = 100,
+  postExitGracePeriodMs = 0,
   timeoutMs = 35_000
 }) {
   return new Promise((resolve, reject) => {
@@ -334,7 +335,10 @@ function runBrowserScreenshot({
     });
 
     let settled = false;
-    let shutdownRequested = false;
+    let screenshotCleanupRequested = false;
+    let cleanupInFlight = Promise.resolve();
+    let broadCleanupConsumed = false;
+    const terminatedPidSet = new Set();
 
     const clearRuntimeTimers = () => {
       clearTimeout(timeout);
@@ -354,53 +358,60 @@ function runBrowserScreenshot({
       reject(value);
     };
 
-    const requestBrowserShutdown = async (reason) => {
-      if (shutdownRequested) {
-        return;
-      }
-      shutdownRequested = true;
-
-      const cleanupPidSet = new Set();
-      if (Number.isInteger(child.pid) && child.pid > 0) {
-        cleanupPidSet.add(child.pid);
-      }
-
-      try {
-        await initialBrowserPidSnapshotPromise;
-
-        const matchedPids = await listProcessIdsForCleanup({ browserCommand, profileDir });
-        for (const pid of matchedPids) {
-          cleanupPidSet.add(pid);
-        }
-
-        const currentBrowserPids = await listAllBrowserProcessIds({ browserCommand });
-        for (const pid of currentBrowserPids) {
-          if (!existingBrowserPidSet.has(pid)) {
-            cleanupPidSet.add(pid);
+    const requestBrowserShutdown = (reason) => {
+      const includeNewBrowserPids = !broadCleanupConsumed;
+      broadCleanupConsumed = true;
+      cleanupInFlight = cleanupInFlight
+        .catch(() => {})
+        .then(async () => {
+          const cleanupPidSet = new Set();
+          if (Number.isInteger(child.pid) && child.pid > 0) {
+            cleanupPidSet.add(child.pid);
           }
-        }
-      } catch (error) {
-        appendBrowserLog(logPath, `[cleanup-query-error] ${String(error)}`);
-      }
 
-      appendBrowserLog(
-        logPath,
-        `[cleanup] reason=${reason} pids=${cleanupPidSet.size > 0 ? [...cleanupPidSet].join(",") : "(none)"}`
-      );
+          try {
+            await initialBrowserPidSnapshotPromise;
 
-      try {
-        for (const pid of cleanupPidSet) {
-          await terminateProcessTree(pid);
-        }
-      } catch (error) {
-        appendBrowserLog(logPath, `[cleanup-error] ${String(error)}`);
-      }
+            const matchedPids = await listProcessIdsForCleanup({ browserCommand, profileDir });
+            for (const pid of matchedPids) {
+              cleanupPidSet.add(pid);
+            }
+
+            // Only the first cleanup pass may use the broad "new browser pid" heuristic.
+            // Later passes are restricted to the current child/profile to avoid killing unrelated Edge windows.
+            if (includeNewBrowserPids) {
+              const currentBrowserPids = await listAllBrowserProcessIds({ browserCommand });
+              for (const pid of currentBrowserPids) {
+                if (!existingBrowserPidSet.has(pid)) {
+                  cleanupPidSet.add(pid);
+                }
+              }
+            }
+          } catch (error) {
+            appendBrowserLog(logPath, `[cleanup-query-error] ${String(error)}`);
+          }
+
+          const pendingPids = [...cleanupPidSet].filter((pid) => !terminatedPidSet.has(pid));
+          appendBrowserLog(logPath, `[cleanup] reason=${reason} pids=${pendingPids.length > 0 ? pendingPids.join(",") : "(none)"}`);
+
+          for (const pid of pendingPids) {
+            try {
+              await terminateProcessTree(pid);
+              terminatedPidSet.add(pid);
+            } catch (error) {
+              appendBrowserLog(logPath, `[cleanup-error] pid=${pid} ${String(error)}`);
+            }
+          }
+        });
+
+      return cleanupInFlight;
     };
 
     const screenshotReadyPoll = setInterval(() => {
-      if (!fs.existsSync(outPath)) {
+      if (screenshotCleanupRequested || !fs.existsSync(outPath)) {
         return;
       }
+      screenshotCleanupRequested = true;
       void requestBrowserShutdown("screenshot-ready");
     }, screenshotReadyPollIntervalMs);
 
@@ -426,6 +437,10 @@ function runBrowserScreenshot({
           }
           if (fs.existsSync(outPath)) {
             await requestBrowserShutdown("post-exit");
+            if (postExitGracePeriodMs > 0) {
+              await sleep(postExitGracePeriodMs);
+              await requestBrowserShutdown("post-exit-grace");
+            }
           }
           settle("resolve");
         })();
@@ -563,6 +578,8 @@ module.exports = {
   createStaticServer,
   ensureDir,
   listWindowsBrowserProcessIds,
+  listWindowsBrowserProcessIdsForCleanup,
   runBrowserScreenshot,
+  terminateProcessTreeByPid,
   waitForFile
 };

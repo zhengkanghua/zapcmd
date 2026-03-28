@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜visual cleanup scope refine）
+
+- 已移除 Windows visual 主流程的可见 Edge sweep；runner 改为仅首轮 cleanup 使用 broad pid heuristic，后续 post-exit/grace 只按 child/profile 精确清理；runner 单测补成受控 mock，避免真实 Edge 进程污染。`test:visual:ui` 7/7 与 `check:all` 全绿。
+
 ## 补充（2026-03-28｜visual env probe timeout）
 
 - 已修复 `test:visual:ui` 在 `outputDir` 后偶发卡住的问题：`collectVisualEnvironment()` 的同步外部探针现统一带短超时并保持 best-effort，focused env tests 已补齐并通过。

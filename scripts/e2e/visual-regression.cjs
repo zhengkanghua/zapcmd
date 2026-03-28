@@ -196,6 +196,7 @@ async function captureScreenshot(runtime, shot, port, environmentManifestPath) {
     cleanupQueryCommand: runtime.diffRuntime.command,
     width: shot.width,
     height: shot.height,
+    postExitGracePeriodMs: runtime.mode === VISUAL_MODES.linuxSmoke ? 0 : 250,
     logPath,
     environmentManifestPath
   });
