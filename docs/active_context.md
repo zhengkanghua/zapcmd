@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜全局 motion preset 实施计划）
+
+- 已落盘 `docs/superpowers/plans/2026-03-28-global-motion-preset.md`：按 store/migration → bootstrap/runtime → Settings UI → motion token 热点 → visual/check:all 拆 5 任务，含 reduced-motion 与迁移策略。
+
 ## 补充（2026-03-28｜全局多套动画 preset 设计）
 
 - 已确认后续采用全局 `appearance.motionPreset`：默认 `expressive` 保留当前动效，新增 `steady-tool` 可选；通过 `motionRegistry + useMotionPreset + data-motion-preset + --motion-*` 统一驱动 Launcher/Settings，拒绝组件内双份 class 分叉。
