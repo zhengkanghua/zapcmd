@@ -16,15 +16,27 @@
         var raw = localStorage.getItem("zapcmd.settings");
         var theme = "obsidian";
         var blur = true;
+        var motionPreset = "expressive";
         if (raw) {
           var stored = JSON.parse(raw);
           theme = (stored && stored.appearance && stored.appearance.theme) || "obsidian";
           blur = stored && stored.appearance && stored.appearance.blurEnabled !== false;
+          motionPreset =
+            stored &&
+            stored.appearance &&
+            typeof stored.appearance.motionPreset === "string"
+              ? stored.appearance.motionPreset
+              : "expressive";
         }
         var resolvedTheme = themeBootstrap[theme] ? theme : "obsidian";
+        var resolvedMotionPreset =
+          motionPreset === "expressive" || motionPreset === "steady-tool"
+            ? motionPreset
+            : "expressive";
         var bootstrap = themeBootstrap[resolvedTheme];
         document.documentElement.dataset.theme = resolvedTheme;
         document.documentElement.dataset.blur = blur ? "on" : "off";
+        document.documentElement.dataset.motionPreset = resolvedMotionPreset;
         document.documentElement.style.colorScheme = bootstrap.colorScheme;
         document.documentElement.style.backgroundColor = bootstrap.backgroundColor;
         var style = document.createElement("style");
@@ -38,6 +50,7 @@
       } catch (_) {
         document.documentElement.dataset.theme = "obsidian";
         document.documentElement.dataset.blur = "on";
+        document.documentElement.dataset.motionPreset = "expressive";
         document.documentElement.style.colorScheme = themeBootstrap.obsidian.colorScheme;
         document.documentElement.style.backgroundColor = themeBootstrap.obsidian.backgroundColor;
         var fallbackStyle = document.createElement("style");

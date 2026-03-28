@@ -7,6 +7,7 @@ import { createCommandExecutor } from "../../../services/commandExecutor";
 import { useSettingsStore } from "../../../stores/settingsStore";
 import { createAppWindowResolver } from "../useAppWindowResolver";
 import { useHotkeyBindings } from "../../settings/useHotkeyBindings";
+import { useMotionPreset } from "../useMotionPreset";
 import { useTheme } from "../useTheme";
 import { useCommandCatalog } from "../../launcher/useCommandCatalog";
 import { useLauncherDomBridge } from "../../launcher/useLauncherDomBridge";
@@ -94,7 +95,8 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     disabledCommandIds,
     windowOpacity,
     theme,
-    blurEnabled
+    blurEnabled,
+    motionPreset
   } = storeToRefs(settingsStore);
   const commandCatalog = useCommandCatalog({
     isTauriRuntime: ports.isTauriRuntime,
@@ -169,6 +171,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
   });
   bindSettingsSideEffects({ isSettingsWindow, updateManager, language, windowOpacity });
   const themeManager = useTheme({ themeId: theme, blurEnabled });
+  useMotionPreset({ presetId: motionPreset });
   const commandManagement = useCommandManagement({
     allCommandTemplates: commandCatalog.allCommandTemplates,
     disabledCommandIds,

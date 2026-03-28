@@ -31,6 +31,7 @@ describe("settings bootstrap contract", () => {
     expect(settingsHtml).toContain('linen');
     expect(settingsHtml).toContain('colorScheme: "light"');
     expect(settingsHtml).toContain('backgroundColor: "#ece4d6"');
+    expect(settingsHtml).toContain("document.documentElement.dataset.motionPreset");
   });
 
   it("keeps launcher bootstrap transparent while still syncing theme and color-scheme", () => {
@@ -40,5 +41,12 @@ describe("settings bootstrap contract", () => {
     expect(launcherHtml).toContain('colorScheme: "light"');
     expect(launcherHtml).not.toContain('style.backgroundColor');
     expect(launcherHtml).not.toContain('backgroundColor: "#ece4d6"');
+    expect(launcherHtml).toContain("document.documentElement.dataset.motionPreset");
+  });
+
+  it("pins visual bootstrap to expressive motion preset", () => {
+    const visualHtml = readFileSync(resolve(process.cwd(), "visual.html"), "utf8");
+
+    expect(visualHtml).toContain('document.documentElement.dataset.motionPreset = "expressive"');
   });
 });

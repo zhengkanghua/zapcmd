@@ -3,6 +3,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { currentLocale, setAppLocale } from "./i18n";
 import { useSettingsStore, type HotkeyFieldId } from "./stores/settingsStore";
+import { useMotionPreset } from "./composables/app/useMotionPreset";
 import { useTheme } from "./composables/app/useTheme";
 import { createAppCompositionRootPorts } from "./composables/app/useAppCompositionRoot/ports";
 import { fallbackTerminalOptions } from "./features/terminals/fallbackTerminals";
@@ -48,7 +49,8 @@ const {
   disabledCommandIds,
   windowOpacity,
   theme,
-  blurEnabled
+  blurEnabled,
+  motionPreset
 } = storeToRefs(settingsStore);
 
 watch(
@@ -68,6 +70,7 @@ watch(
 );
 
 useTheme({ themeId: theme, blurEnabled });
+useMotionPreset({ presetId: motionPreset });
 
 const isSettingsWindow = ref(true);
 const settingsSyncChannel = ref<BroadcastChannel | null>(null);
