@@ -6,6 +6,7 @@ const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 
 const { DIST_DIR, SCREENSHOTS, VISUAL_ENTRY_DIST_PATH } = require("./visual-regression-config.cjs");
+const { collectVisualEnvironment } = require("./visual-regression-env.cjs");
 const {
   VISUAL_MODES,
   probeWslHostIp,
@@ -118,7 +119,14 @@ function assertDiffReady(runtime) {
   throw new Error("未找到 PowerShell 运行时。请安装 pwsh，或设置 ZAPCMD_PWSH_PATH。");
 }
 
-async function captureScreenshot(runtime, shot, port) {
+function writeEnvironmentManifest(runtime) {
+  const environmentManifestPath = path.join(runtime.outputDir, "environment.json");
+  const manifest = collectVisualEnvironment(runtime);
+  fs.writeFileSync(environmentManifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  return environmentManifestPath;
+}
+
+async function captureScreenshot(runtime, shot, port, environmentManifestPath) {
   const url = `http://${runtime.serverBinding.urlHost}:${port}/visual.html#${shot.hash}`;
   const actualPath = path.join(runtime.outputDir, `${shot.id}.actual.png`);
   const baselinePath = path.join(runtime.baselineDir, `${shot.id}.png`);
@@ -140,7 +148,8 @@ async function captureScreenshot(runtime, shot, port) {
     profileDir: runtime.resolveBrowserPath(profileDir),
     width: shot.width,
     height: shot.height,
-    logPath
+    logPath,
+    environmentManifestPath
   });
 
   await waitForFile(actualPath, { timeoutMs: 2_000, intervalMs: 100 });
@@ -151,8 +160,8 @@ async function captureScreenshot(runtime, shot, port) {
   return { actualPath, baselinePath, diffOutJsonPath, logPath };
 }
 
-async function processShot(runtime, shot, port) {
-  const capture = await captureScreenshot(runtime, shot, port);
+async function processShot(runtime, shot, port, environmentManifestPath) {
+  const capture = await captureScreenshot(runtime, shot, port, environmentManifestPath);
   if (UPDATE_BASELINE) {
     fs.copyFileSync(capture.actualPath, capture.baselinePath);
     console.log(`[visual-regression] updated baseline: ${capture.baselinePath}`);
@@ -176,13 +185,14 @@ async function processShot(runtime, shot, port) {
     return "";
   }
 
-  return [
-    `❌ ${shot.id} mismatch`,
-    `- baseline: ${capture.baselinePath} (${result.baselineHash})`,
-    `- actual:   ${capture.actualPath} (${result.actualHash})`,
-    `- diff:     ${JSON.stringify(result.diff.payload)}`,
-    `- logs:     ${capture.logPath}`
-  ].join("\n");
+    return [
+      `❌ ${shot.id} mismatch`,
+      `- baseline: ${capture.baselinePath} (${result.baselineHash})`,
+      `- actual:   ${capture.actualPath} (${result.actualHash})`,
+      `- diff:     ${JSON.stringify(result.diff.payload)}`,
+      `- logs:     ${capture.logPath}`,
+      `- env:      ${environmentManifestPath}`
+    ].join("\n");
 }
 
 async function main() {
@@ -204,6 +214,10 @@ async function main() {
   ensureDir(runtime.baselineDir);
   ensureDir(runtime.outputDir);
   console.log(`[visual-regression] mode=${runtime.mode}`);
+  console.log(`[visual-regression] baselineDir=${runtime.baselineDir}`);
+  console.log(`[visual-regression] outputDir=${runtime.outputDir}`);
+  const environmentManifestPath = writeEnvironmentManifest(runtime);
+  console.log(`[visual-regression] env=${environmentManifestPath}`);
 
   const server = createStaticServer(DIST_DIR);
   await new Promise((resolve, reject) => {
@@ -221,7 +235,7 @@ async function main() {
   const failures = [];
   try {
     for (const shot of SCREENSHOTS) {
-      const failure = await processShot(runtime, shot, port);
+      const failure = await processShot(runtime, shot, port, environmentManifestPath);
       if (failure) {
         failures.push(failure);
       }

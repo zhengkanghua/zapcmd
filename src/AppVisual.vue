@@ -21,6 +21,7 @@ import SSegmentNav from "./components/settings/ui/SSegmentNav.vue";
 import SHotkeyRecorder from "./components/settings/ui/SHotkeyRecorder.vue";
 import SSlider from "./components/settings/ui/SSlider.vue";
 import SToggle from "./components/settings/ui/SToggle.vue";
+import type { SettingsNavIconName } from "./components/settings/ui/settingsNavIcon";
 
 type VisualScenarioId =
   | "settings-ui-overview"
@@ -63,10 +64,10 @@ const appearancePreviewOpacity = ref(0.96);
 const appearanceTheme = ref("obsidian");
 const appearanceBlurEnabled = ref(true);
 
-const segmentItems = [
-  { id: "general", label: "通用", icon: "⚙" },
-  { id: "appearance", label: "外观", icon: "✦" },
-  { id: "about", label: "关于", icon: "ℹ" }
+const segmentItems: Array<{ id: string; label: string; icon: SettingsNavIconName }> = [
+  { id: "general", label: "通用", icon: "general" },
+  { id: "appearance", label: "外观", icon: "appearance" },
+  { id: "about", label: "关于", icon: "about" }
 ];
 
 const dropdownOptions = [

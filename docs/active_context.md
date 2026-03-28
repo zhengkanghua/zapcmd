@@ -1,5 +1,17 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜Windows visual Task A+B）
+
+- 已完成环境清单 `environment.json` 落盘与 Settings 顶部导航 SVG icon 收口；scripts/settings focused 29 测试、`lint`、`typecheck`、`build`、`test:visual:ui:linux` 全绿。WSL 仍属 Windows baseline 口径。
+
+## 补充（2026-03-28｜Windows visual 稳定性实施计划）
+
+- 已新增 `docs/plan/2026-03-28_06-windows-visual-regression-stability-implementation-plan.md`：先做环境日志+canonical baseline 口径，再做 SVG icon 收口与 visual harness 稳定字体；本轮只出计划，不改实现。
+
+## 补充（2026-03-28｜Windows visual 跨设备不稳定归档）
+
+- 已确认 7 个 Windows visual mismatch 高概率属于跨设备字体/Unicode icon/Edge/系统渲染漂移，不是旧 dist 或 bridge 故障；问题已落盘 `docs/plan/2026-03-28_05-windows-visual-regression-cross-device-instability.md`。
+
 ## 补充（2026-03-28｜review remediation P2 收口）
 
 - 已修 Settings 剩余 3 个 36px 命中区与同步 appearance bootstrap；Linux/Windows visual baseline 已按预期更新并回绿，`check:all` 全绿。

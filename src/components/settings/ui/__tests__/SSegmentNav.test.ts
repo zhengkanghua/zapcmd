@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 import { mount } from "@vue/test-utils";
 
 import SSegmentNav from "../SSegmentNav.vue";
+import type { SettingsNavIconName } from "../settingsNavIcon";
 
-const items = [
-  { id: "hotkeys", label: "快捷键", icon: "⌨" },
-  { id: "general", label: "通用", icon: "⚙" },
-  { id: "commands", label: "命令", icon: "☰" }
+const items: Array<{ id: string; label: string; icon: SettingsNavIconName }> = [
+  { id: "hotkeys", label: "快捷键", icon: "hotkeys" },
+  { id: "general", label: "通用", icon: "general" },
+  { id: "commands", label: "命令", icon: "commands" }
 ];
 
 describe("SSegmentNav", () => {
@@ -26,6 +27,17 @@ describe("SSegmentNav", () => {
     const tabs = wrapper.findAll("[role='tab']");
     expect(tabs[1].attributes("aria-selected")).toBe("true");
     expect(tabs[0].attributes("aria-selected")).toBe("false");
+  });
+
+  it("renders controlled svg icons instead of raw icon name text", () => {
+    const wrapper = mount(SSegmentNav, {
+      props: { items, modelValue: "general" }
+    });
+
+    expect(wrapper.findAll(".s-segment-nav__icon svg")).toHaveLength(3);
+    expect(wrapper.text()).not.toContain("hotkeys");
+    expect(wrapper.text()).not.toContain("general");
+    expect(wrapper.text()).not.toContain("commands");
   });
 
   it("emits update:modelValue on click", async () => {

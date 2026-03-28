@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import SettingsNavIcon from "./SettingsNavIcon.vue";
+import type { SettingsNavIconName } from "./settingsNavIcon";
 
 interface SegmentNavItem {
   id: string;
   label: string;
-  icon: string;
+  icon: SettingsNavIconName;
 }
 
 const props = defineProps<{
@@ -68,7 +70,9 @@ function onKeydown(e: KeyboardEvent) {
       :tabindex="modelValue === item.id ? 0 : -1"
       @click="emit('update:modelValue', item.id)"
     >
-      <span class="s-segment-nav__icon text-[15px] leading-none">{{ item.icon }}</span>
+      <span class="s-segment-nav__icon text-[15px] leading-none">
+        <SettingsNavIcon :name="item.icon" />
+      </span>
       <span class="s-segment-nav__label text-[13px]">{{ item.label }}</span>
     </button>
   </nav>

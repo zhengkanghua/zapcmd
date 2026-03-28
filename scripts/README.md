@@ -74,6 +74,17 @@ npm run test:visual:ui
 - WSL：默认桥接到 Windows Edge
 - Linux：默认走 Linux Chromium smoke（baseline 位于 `scripts/e2e/visual-baselines/linux-chromium/`）
 
+### 2.2 Windows baseline 与跨设备诊断口径
+
+- Windows 仍是最终 blocking baseline，默认 baseline 目录为 `scripts/e2e/visual-baselines/`。
+- `WSL` 默认桥接到 Windows Edge，本质上是在复用同一套 Windows baseline；如果 `WSL` 跑出 mismatch，优先按“Windows 渲染环境差异”处理，而不是把它当作独立 Linux baseline 漂移。
+- `Linux` 使用独立的 `linux-chromium` baseline，只用于开发期 smoke 反馈，不参与 Windows blocking baseline 判定。
+- 更新 Windows baseline 只允许在约定的 canonical Windows 原生机器上执行；其他机器只做 compare，不直接 `--update`。
+- 任何 Windows / WSL mismatch 回传必须至少包含：
+  - `.tmp/e2e/visual-regression/**/environment.json`
+  - `.tmp/e2e/visual-regression/**/*.browser.log`
+  - `npm run build` 与 `npm run test:visual:ui` 的控制台输出
+
 显式模式：
 
 ```bash

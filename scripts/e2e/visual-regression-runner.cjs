@@ -99,7 +99,18 @@ function buildBrowserArgs({ url, outPath, profileDir, width, height }) {
   ];
 }
 
-function writeBrowserSpawnLog({ browserLabel, browserCommand, url, outPath, profileDir, width, height, args, logPath }) {
+function writeBrowserSpawnLog({
+  browserLabel,
+  browserCommand,
+  url,
+  outPath,
+  profileDir,
+  width,
+  height,
+  args,
+  logPath,
+  environmentManifestPath
+}) {
   fs.writeFileSync(
     logPath,
     [
@@ -110,6 +121,7 @@ function writeBrowserSpawnLog({ browserLabel, browserCommand, url, outPath, prof
       `profileDir=${profileDir}`,
       `width=${width}`,
       `height=${height}`,
+      `environmentManifestPath=${environmentManifestPath || ""}`,
       `args=${args.join(" ")}`,
       "",
       "NOTE: 当前脚本不捕获 stdout/stderr，避免在受限环境下触发 spawn 兼容问题。"
@@ -118,10 +130,31 @@ function writeBrowserSpawnLog({ browserLabel, browserCommand, url, outPath, prof
   );
 }
 
-function runBrowserScreenshot({ browserCommand, browserLabel, url, outPath, profileDir, width, height, logPath }) {
+function runBrowserScreenshot({
+  browserCommand,
+  browserLabel,
+  url,
+  outPath,
+  profileDir,
+  width,
+  height,
+  logPath,
+  environmentManifestPath
+}) {
   return new Promise((resolve, reject) => {
     const args = buildBrowserArgs({ url, outPath, profileDir, width, height });
-    writeBrowserSpawnLog({ browserLabel, browserCommand, url, outPath, profileDir, width, height, args, logPath });
+    writeBrowserSpawnLog({
+      browserLabel,
+      browserCommand,
+      url,
+      outPath,
+      profileDir,
+      width,
+      height,
+      args,
+      logPath,
+      environmentManifestPath
+    });
 
     const child = spawn(browserCommand, args, {
       windowsHide: true,

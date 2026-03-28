@@ -21,11 +21,12 @@ import type { TerminalOption } from "../../features/terminals/fallbackTerminals"
 import type { HotkeyFieldId, TerminalReusePolicy } from "../../stores/settingsStore";
 import type { AppLocale } from "../../i18n";
 import type { ThemeMeta } from "../../features/themes/themeRegistry";
+import type { SettingsNavIconName } from "./ui/settingsNavIcon";
 
 export interface SettingsNavItem {
   id: SettingsRoute;
   label: string;
-  icon: string;
+  icon: SettingsNavIconName;
 }
 
 export type SettingsWindowProps = SettingsHotkeysProps &

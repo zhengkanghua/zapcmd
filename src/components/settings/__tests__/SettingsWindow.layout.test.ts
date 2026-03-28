@@ -38,11 +38,11 @@ function createSettingsWindowProps(
 
   return {
     settingsNavItems: [
-      { id: "hotkeys", label: "快捷键", icon: "⌨" },
-      { id: "general", label: "通用", icon: "⚙" },
-      { id: "commands", label: "命令", icon: "☰" },
-      { id: "appearance", label: "外观", icon: "◐" },
-      { id: "about", label: "关于", icon: "ⓘ" }
+      { id: "hotkeys", label: "快捷键", icon: "hotkeys" },
+      { id: "general", label: "通用", icon: "general" },
+      { id: "commands", label: "命令", icon: "commands" },
+      { id: "appearance", label: "外观", icon: "appearance" },
+      { id: "about", label: "关于", icon: "about" }
     ],
     settingsRoute: "general",
     hotkeyGlobalFields: [{ id: "launcher", label: "打开启动器", scope: "global" }],
@@ -139,10 +139,12 @@ describe("SettingsWindow stable shell", () => {
     const topbar = wrapper.get(".settings-window-topbar");
 
     expect(topbar.find(".s-segment-nav").exists()).toBe(true);
+    expect(wrapper.findAll(".s-segment-nav__icon settings-nav-icon-stub")).toHaveLength(5);
     expect(wrapper.find(".settings-window-topbar__nav-shell").exists()).toBe(false);
     expect(topbar.attributes("data-tauri-drag-region")).toBeUndefined();
     expect(wrapper.find(".settings-drag-region__controls").exists()).toBe(false);
     expect(wrapper.text()).not.toContain("ZapCmd Settings");
+    expect(wrapper.text()).not.toContain("hotkeys");
   });
 
   it("keeps topbar outside the single application-level content container", () => {
