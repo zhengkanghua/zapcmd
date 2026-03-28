@@ -241,6 +241,62 @@ function listWindowsBrowserProcessIdsForCleanup({
   }
 }
 
+function listWindowsDescendantBrowserProcessIds({
+  browserCommand,
+  rootPid,
+  cleanupQueryCommand,
+  platform = process.platform,
+  execFileSyncImpl = execFileSync
+}) {
+  if (platform !== "win32" || !Number.isInteger(rootPid) || rootPid <= 0) {
+    return [];
+  }
+
+  const normalizedCleanupQueryCommand = typeof cleanupQueryCommand === "string" ? cleanupQueryCommand.trim() : "";
+  const queryCommand = normalizedCleanupQueryCommand || "powershell.exe";
+  const processName = path.win32.basename(typeof browserCommand === "string" ? browserCommand : "").trim() || "msedge.exe";
+  const script =
+    "$rootPid = [int]$env:ZAPCMD_VISUAL_CLEANUP_ROOT_PID;" +
+    " $processName = $env:ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME;" +
+    " $processes = @(Get-CimInstance Win32_Process -Filter \"name = '$processName'\" | Select-Object ProcessId, ParentProcessId);" +
+    " $seen = New-Object 'System.Collections.Generic.HashSet[int]';" +
+    " $queue = New-Object 'System.Collections.Generic.Queue[int]';" +
+    " $queue.Enqueue($rootPid);" +
+    " while ($queue.Count -gt 0) {" +
+    "   $current = $queue.Dequeue();" +
+    "   foreach ($process in $processes) {" +
+    "     if ($process.ParentProcessId -eq $current -and $seen.Add([int]$process.ProcessId)) {" +
+    "       $queue.Enqueue([int]$process.ProcessId);" +
+    "     }" +
+    "   }" +
+    " }" +
+    " $seen";
+
+  try {
+    const output = String(
+      execFileSyncImpl(queryCommand, ["-NoProfile", "-Command", script], {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME: processName,
+          ZAPCMD_VISUAL_CLEANUP_ROOT_PID: String(rootPid)
+        }
+      })
+    ).trim();
+
+    if (!output) {
+      return [];
+    }
+
+    return output
+      .split(/\r?\n/)
+      .map((line) => Number.parseInt(line.trim(), 10))
+      .filter((pid) => Number.isInteger(pid) && pid > 0);
+  } catch {
+    return [];
+  }
+}
+
 function terminateProcessTreeByPid(pid, { platform = process.platform, spawnImpl = spawn } = {}) {
   return new Promise((resolve) => {
     if (!Number.isInteger(pid) || pid <= 0) {
@@ -289,6 +345,15 @@ function runBrowserScreenshot({
       platform: cleanupQueryPlatform,
       execFileSyncImpl: cleanupQueryExecFileSyncImpl
     }),
+  trackDescendantBrowserProcessTree = false,
+  listTrackedProcessTreeIds = ({ browserCommand, rootPid }) =>
+    listWindowsDescendantBrowserProcessIds({
+      browserCommand,
+      rootPid,
+      cleanupQueryCommand,
+      platform: cleanupQueryPlatform,
+      execFileSyncImpl: cleanupQueryExecFileSyncImpl
+    }),
   listAllBrowserProcessIds = ({ browserCommand }) =>
     listWindowsBrowserProcessIds({
       browserCommand,
@@ -296,6 +361,7 @@ function runBrowserScreenshot({
       platform: cleanupQueryPlatform,
       execFileSyncImpl: cleanupQueryExecFileSyncImpl
     }),
+  processTreePollIntervalMs = 200,
   screenshotReadyPollIntervalMs = 100,
   postExitGracePeriodMs = 0,
   timeoutMs = 35_000
@@ -337,12 +403,18 @@ function runBrowserScreenshot({
     let settled = false;
     let screenshotCleanupRequested = false;
     let cleanupInFlight = Promise.resolve();
+    let trackedTreeQueryInFlight = Promise.resolve();
     let broadCleanupConsumed = false;
+    const trackedTreePidSet = new Set();
     const terminatedPidSet = new Set();
+    let processTreePoll = null;
 
     const clearRuntimeTimers = () => {
       clearTimeout(timeout);
       clearInterval(screenshotReadyPoll);
+      if (processTreePoll) {
+        clearInterval(processTreePoll);
+      }
     };
 
     const settle = (action, value) => {
@@ -358,6 +430,27 @@ function runBrowserScreenshot({
       reject(value);
     };
 
+    const trackBrowserTreePids = () => {
+      if (!trackDescendantBrowserProcessTree || !Number.isInteger(child.pid) || child.pid <= 0) {
+        return Promise.resolve();
+      }
+
+      trackedTreeQueryInFlight = trackedTreeQueryInFlight
+        .catch(() => {})
+        .then(async () => {
+          try {
+            const trackedPids = await listTrackedProcessTreeIds({ browserCommand, rootPid: child.pid });
+            for (const pid of trackedPids) {
+              trackedTreePidSet.add(pid);
+            }
+          } catch (error) {
+            appendBrowserLog(logPath, `[cleanup-tree-query-error] ${String(error)}`);
+          }
+        });
+
+      return trackedTreeQueryInFlight;
+    };
+
     const requestBrowserShutdown = (reason) => {
       const includeNewBrowserPids = !broadCleanupConsumed;
       broadCleanupConsumed = true;
@@ -371,9 +464,14 @@ function runBrowserScreenshot({
 
           try {
             await initialBrowserPidSnapshotPromise;
+            await trackBrowserTreePids();
 
             const matchedPids = await listProcessIdsForCleanup({ browserCommand, profileDir });
             for (const pid of matchedPids) {
+              cleanupPidSet.add(pid);
+            }
+
+            for (const pid of trackedTreePidSet) {
               cleanupPidSet.add(pid);
             }
 
@@ -394,7 +492,10 @@ function runBrowserScreenshot({
           const pendingPids = [...cleanupPidSet].filter((pid) => !terminatedPidSet.has(pid));
           appendBrowserLog(logPath, `[cleanup] reason=${reason} pids=${pendingPids.length > 0 ? pendingPids.join(",") : "(none)"}`);
 
-          for (const pid of pendingPids) {
+          const prioritizedPids = pendingPids.filter((pid) => pid === child.pid);
+          const remainingPids = pendingPids.filter((pid) => pid !== child.pid);
+
+          for (const pid of prioritizedPids) {
             try {
               await terminateProcessTree(pid);
               terminatedPidSet.add(pid);
@@ -402,10 +503,28 @@ function runBrowserScreenshot({
               appendBrowserLog(logPath, `[cleanup-error] pid=${pid} ${String(error)}`);
             }
           }
+
+          await Promise.all(
+            remainingPids.map(async (pid) => {
+              try {
+                await terminateProcessTree(pid);
+                terminatedPidSet.add(pid);
+              } catch (error) {
+                appendBrowserLog(logPath, `[cleanup-error] pid=${pid} ${String(error)}`);
+              }
+            })
+          );
         });
 
       return cleanupInFlight;
     };
+
+    if (trackDescendantBrowserProcessTree) {
+      void trackBrowserTreePids();
+      processTreePoll = setInterval(() => {
+        void trackBrowserTreePids();
+      }, processTreePollIntervalMs);
+    }
 
     const screenshotReadyPoll = setInterval(() => {
       if (screenshotCleanupRequested || !fs.existsSync(outPath)) {
@@ -429,6 +548,7 @@ function runBrowserScreenshot({
       appendBrowserLog(logPath, `[exit] code=${code ?? "null"} signal=${signal ?? "null"}`);
       if (fs.existsSync(outPath) || code === 0) {
         void (async () => {
+          clearRuntimeTimers();
           if (!fs.existsSync(outPath) && code === 0) {
             await waitForFile(outPath, {
               timeoutMs: Math.min(2_000, timeoutMs),

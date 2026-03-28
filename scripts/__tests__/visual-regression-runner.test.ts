@@ -439,4 +439,110 @@ describe("visual-regression-runner", () => {
 
     rmSync(tempDir, { recursive: true, force: true });
   });
+
+  it("cleans up tracked descendant browser pids even after they disappear from profile and broad pid queries", async () => {
+    const tempDir = mkdtempSync(path.join(tmpdir(), "zapcmd-visual-runner-"));
+    const outPath = path.join(tempDir, "tracked-descendant-window.png");
+    const logPath = path.join(tempDir, "tracked-descendant-window.log");
+    const child = createFakeBrowserProcess(4242);
+    const lateTrackedPid = 14780;
+    const terminateProcessTree = vi.fn(async () => {});
+    const listProcessIdsForCleanup = vi.fn(async () => [child.pid]);
+    const listAllBrowserProcessIds = vi
+      .fn()
+      .mockResolvedValueOnce([101, 202])
+      .mockResolvedValueOnce([101, 202, child.pid])
+      .mockResolvedValue([101, 202, child.pid]);
+    const listTrackedProcessTreeIds = vi
+      .fn()
+      .mockResolvedValueOnce([child.pid])
+      .mockResolvedValueOnce([child.pid, lateTrackedPid])
+      .mockResolvedValue([child.pid]);
+
+    const spawnImpl = vi.fn(() => {
+      setTimeout(() => {
+        writeFileSync(outPath, "png");
+      }, 5);
+      setTimeout(() => {
+        child.emit("exit", 0, null);
+      }, 20);
+      return child;
+    });
+
+    await expect(
+      runBrowserScreenshot({
+        browserCommand: "msedge.exe",
+        browserLabel: "Microsoft Edge",
+        url: "http://127.0.0.1:4173/visual.html#settings-ui-overview",
+        outPath,
+        profileDir: path.join(tempDir, "profile"),
+        width: 1100,
+        height: 900,
+        logPath,
+        environmentManifestPath: path.join(tempDir, "environment.json"),
+        spawnImpl,
+        terminateProcessTree,
+        listProcessIdsForCleanup,
+        listAllBrowserProcessIds,
+        listTrackedProcessTreeIds,
+        trackDescendantBrowserProcessTree: true,
+        processTreePollIntervalMs: 1,
+        screenshotReadyPollIntervalMs: 1_000,
+        postExitGracePeriodMs: 5,
+        timeoutMs: 1_000
+      })
+    ).resolves.toBeUndefined();
+
+    expect(listTrackedProcessTreeIds).toHaveBeenCalled();
+    expect(terminateProcessTree.mock.calls.map((call) => call[0])).toEqual(expect.arrayContaining([child.pid, lateTrackedPid]));
+
+    rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  it("does not timeout after a successful exit while post-exit cleanup is still draining", async () => {
+    const tempDir = mkdtempSync(path.join(tmpdir(), "zapcmd-visual-runner-"));
+    const outPath = path.join(tempDir, "slow-cleanup-window.png");
+    const logPath = path.join(tempDir, "slow-cleanup-window.log");
+    const child = createFakeBrowserProcess(4242);
+    const terminateProcessTree = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(resolve, 700);
+        })
+    );
+    const listProcessIdsForCleanup = vi.fn(async () => [child.pid, 9001]);
+
+    const spawnImpl = vi.fn(() => {
+      setTimeout(() => {
+        writeFileSync(outPath, "png");
+      }, 5);
+      setTimeout(() => {
+        child.emit("exit", 0, null);
+      }, 10);
+      return child;
+    });
+
+    await expect(
+      runBrowserScreenshot({
+        browserCommand: "msedge.exe",
+        browserLabel: "Microsoft Edge",
+        url: "http://127.0.0.1:4173/visual.html#settings-ui-overview",
+        outPath,
+        profileDir: path.join(tempDir, "profile"),
+        width: 1100,
+        height: 900,
+        logPath,
+        environmentManifestPath: path.join(tempDir, "environment.json"),
+        spawnImpl,
+        terminateProcessTree,
+        listProcessIdsForCleanup,
+        screenshotReadyPollIntervalMs: 1_000,
+        timeoutMs: 800
+      })
+    ).resolves.toBeUndefined();
+
+    expect(terminateProcessTree.mock.calls.map((call) => call[0])).toEqual(expect.arrayContaining([child.pid, 9001]));
+
+    rmSync(tempDir, { recursive: true, force: true });
+  });
 });

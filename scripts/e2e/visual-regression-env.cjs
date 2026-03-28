@@ -145,19 +145,10 @@ function resolveGitHead({ execFileSync }) {
 function probeBrowser(runtime, { execFileSync, spawnSync }) {
   const browserRuntime = runtime.browserRuntime || {};
   const expectedVersion = trimString(browserRuntime.expectedVersion);
-  let version =
-    runCapturedCommand({
-      command: browserRuntime.command,
-      args: ["--version"],
-      spawnSync
-    }) ||
-    runTextCommand({
-      command: browserRuntime.command,
-      args: ["--version"],
-      execFileSync
-    });
+  const preferWindowsFileVersion = runtime.mode !== VISUAL_MODES.linuxSmoke && trimString(runtime.diffRuntime?.command);
+  let version = "";
 
-  if (!looksLikeBrowserVersion(version) && runtime.mode !== VISUAL_MODES.linuxSmoke && trimString(runtime.diffRuntime?.command)) {
+  if (preferWindowsFileVersion) {
     const browserPath =
       typeof runtime.resolveBrowserPath === "function"
         ? runtime.resolveBrowserPath(browserRuntime.command)
@@ -168,6 +159,20 @@ function probeBrowser(runtime, { execFileSync, spawnSync }) {
       args: buildPowerShellArgs(buildWindowsFileVersionScript(browserPath)),
       execFileSync
     });
+  }
+
+  if (!looksLikeBrowserVersion(version)) {
+    version =
+      runCapturedCommand({
+        command: browserRuntime.command,
+        args: ["--version"],
+        spawnSync
+      }) ||
+      runTextCommand({
+        command: browserRuntime.command,
+        args: ["--version"],
+        execFileSync
+      });
   }
 
   return {

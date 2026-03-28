@@ -22,12 +22,12 @@ function createExecFileSyncStub(): ExecFileSync {
       return "261af33\n";
     }
 
-    if (command === "C:\\Edge\\msedge.exe" && joinedArgs === "--version") {
-      return "Microsoft Edge 134.0.3124.68\n";
-    }
-
     if (command === "pwsh" && joinedArgs.includes("$PSVersionTable.PSVersion.ToString()")) {
       return "7.5.0\n";
+    }
+
+    if (command === "pwsh" && joinedArgs.includes("VersionInfo")) {
+      return "Microsoft Edge 134.0.3124.68\n";
     }
 
     if (command === "pwsh" && joinedArgs.includes("WindowsProductName")) {
@@ -190,17 +190,8 @@ describe("visual-regression-env", () => {
       }
     );
 
-    expect(spawnOptions).not.toHaveLength(0);
+    expect(spawnOptions).toHaveLength(0);
     expect(execOptions).not.toHaveLength(0);
-    for (const options of spawnOptions) {
-      expect(options).toEqual(
-        expect.objectContaining({
-          encoding: "utf8",
-          windowsHide: true,
-          timeout: expect.any(Number)
-        })
-      );
-    }
     for (const options of execOptions) {
       expect(options).toEqual(
         expect.objectContaining({
@@ -330,12 +321,12 @@ describe("visual-regression-env", () => {
         return "c59ed05\n";
       }
 
-      if (command === "C:\\Edge\\msedge.exe" && joinedArgs === "--version") {
-        return "Microsoft Edge 134.0.3124.68\n";
-      }
-
       if (command === "pwsh" && joinedArgs.includes("$PSVersionTable.PSVersion.ToString()")) {
         return "7.5.5\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("VersionInfo")) {
+        return "Microsoft Edge 134.0.3124.68\n";
       }
 
       if (command === "pwsh" && joinedArgs.includes("WindowsProductName")) {
@@ -537,6 +528,78 @@ describe("visual-regression-env", () => {
       }
     );
 
+    expect(manifest.browser.version).toBe("146.0.3856.84");
+  });
+
+  it("prefers PowerShell file version on Windows without launching browser --version", () => {
+    const execFileSync: ExecFileSync = (command, args = []) => {
+      const joinedArgs = args.join(" ");
+
+      if (command === "git" && joinedArgs === "rev-parse --short HEAD") {
+        return "c59ed05\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("$PSVersionTable.PSVersion.ToString()")) {
+        return "7.5.5\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("VersionInfo")) {
+        return "146.0.3856.84\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("WindowsProductName")) {
+        return '{"platform":"windows","WindowsProductName":"Windows 11 Pro","WindowsVersion":"2009","OsBuildNumber":"22631"}';
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("Segoe UI (TrueType)")) {
+        return '{"Segoe UI":{"installed":true,"value":"segoeui.ttf"},"Segoe UI Variable":{"installed":false,"value":""},"Consolas":{"installed":true,"value":"consola.ttf"},"Fira Code":{"installed":false,"value":""},"JetBrains Mono":{"installed":false,"value":""},"Noto Sans":{"installed":false,"value":""},"Noto Sans SC":{"installed":true,"value":"NotoSansSC-VF.ttf"},"Microsoft YaHei":{"installed":true,"value":"msyh.ttc"}}';
+      }
+
+      throw new Error(`Unexpected command: ${command} ${joinedArgs}`);
+    };
+
+    let browserVersionLaunchCount = 0;
+    const spawnSync: SpawnSync = (command, args = []) => {
+      if (command === "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe" && args.join(" ") === "--version") {
+        browserVersionLaunchCount += 1;
+      }
+
+      return {
+        status: 1,
+        stdout: "",
+        stderr: ""
+      };
+    };
+
+    const manifest = collectVisualEnvironment(
+      {
+        mode: "windows-edge",
+        browserRuntime: {
+          name: "Microsoft Edge",
+          command: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          useWindowsPaths: false
+        },
+        diffRuntime: {
+          name: "PowerShell",
+          command: "pwsh",
+          useWindowsPaths: false
+        },
+        baselineDir: "scripts/e2e/visual-baselines",
+        outputDir: ".tmp/e2e/visual-regression",
+        serverBinding: {
+          listenHost: "127.0.0.1",
+          urlHost: "127.0.0.1"
+        },
+        resolveBrowserPath: (targetPath: string) => targetPath
+      },
+      {
+        execFileSync,
+        spawnSync,
+        now: () => "2026-03-28T10:17:43.586Z"
+      }
+    );
+
+    expect(browserVersionLaunchCount).toBe(0);
     expect(manifest.browser.version).toBe("146.0.3856.84");
   });
 });
