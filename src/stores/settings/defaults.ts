@@ -1,4 +1,5 @@
 import type { AppLocale } from "../../i18n";
+import { DEFAULT_MOTION_PRESET_ID } from "../../features/motion/motionRegistry";
 
 export const SETTINGS_STORAGE_KEY = "zapcmd.settings";
 export const SETTINGS_SCHEMA_VERSION = 1;
@@ -60,6 +61,7 @@ export interface PersistedSettingsSnapshot {
     windowOpacity: number;
     theme: string;
     blurEnabled: boolean;
+    motionPreset: string;
   };
 }
 
@@ -74,6 +76,7 @@ export const MIN_WINDOW_OPACITY = 0.2;
 export const MAX_WINDOW_OPACITY = 1.0;
 export const DEFAULT_THEME = "obsidian";
 export const DEFAULT_BLUR_ENABLED = true;
+export const DEFAULT_MOTION_PRESET = DEFAULT_MOTION_PRESET_ID;
 
 export const COMMAND_SOURCE_FILTERS = ["all", "builtin", "user"] as const;
 export const COMMAND_STATUS_FILTERS = ["all", "enabled", "disabled"] as const;
@@ -136,7 +139,8 @@ export function createDefaultSettingsSnapshot(): PersistedSettingsSnapshot {
     appearance: {
       windowOpacity: DEFAULT_WINDOW_OPACITY,
       theme: DEFAULT_THEME,
-      blurEnabled: DEFAULT_BLUR_ENABLED
+      blurEnabled: DEFAULT_BLUR_ENABLED,
+      motionPreset: DEFAULT_MOTION_PRESET
     }
   };
 }

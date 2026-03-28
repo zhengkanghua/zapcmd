@@ -1,5 +1,6 @@
 import { normalizeAppLocale, type AppLocale } from "../../i18n";
 import { normalizeHotkey } from "../../shared/hotkeys";
+import { resolveMotionPresetMeta } from "../../features/motion/motionRegistry";
 import {
   COMMAND_DISPLAY_MODES,
   COMMAND_ISSUE_FILTERS,
@@ -12,6 +13,7 @@ import {
   DEFAULT_BLUR_ENABLED,
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
+  DEFAULT_MOTION_PRESET,
   DEFAULT_TERMINAL,
   DEFAULT_TERMINAL_REUSE_POLICY,
   DEFAULT_THEME,
@@ -174,6 +176,18 @@ export function normalizeBlurEnabled(value: unknown): boolean {
   return normalizeBoolean(value, DEFAULT_BLUR_ENABLED);
 }
 
+/** 仅做类型/格式校验。preset 是否存在于注册表由 motionRegistry resolver 负责 */
+export function normalizeMotionPresetId(value: unknown): string {
+  if (typeof value !== "string") {
+    return DEFAULT_MOTION_PRESET;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return DEFAULT_MOTION_PRESET;
+  }
+  return /^[a-z][a-z0-9-]*$/.test(trimmed) ? trimmed : DEFAULT_MOTION_PRESET;
+}
+
 export function normalizePersistedSettingsSnapshot(
   snapshot: PersistedSettingsSnapshot
 ): PersistedSettingsSnapshot {
@@ -197,7 +211,8 @@ export function normalizePersistedSettingsSnapshot(
     appearance: {
       windowOpacity: normalizeWindowOpacity(snapshot.appearance.windowOpacity),
       theme: normalizeThemeId(snapshot.appearance.theme),
-      blurEnabled: normalizeBlurEnabled(snapshot.appearance.blurEnabled)
+      blurEnabled: normalizeBlurEnabled(snapshot.appearance.blurEnabled),
+      motionPreset: resolveMotionPresetMeta(normalizeMotionPresetId(snapshot.appearance.motionPreset)).id
     }
   };
 }

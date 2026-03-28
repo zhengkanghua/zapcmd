@@ -1,4 +1,5 @@
 import {
+  DEFAULT_MOTION_PRESET,
   DEFAULT_AUTO_CHECK_UPDATE,
   DEFAULT_ALWAYS_ELEVATED_TERMINAL,
   DEFAULT_BLUR_ENABLED,
@@ -14,6 +15,7 @@ import {
   type PersistedSettingsSnapshot
 } from "./defaults";
 import {
+  normalizeMotionPresetId,
   isRecord,
   normalizeBlurEnabled,
   normalizeBoolean,
@@ -25,6 +27,7 @@ import {
   normalizeThemeId,
   normalizeWindowOpacity
 } from "./normalization";
+import { resolveMotionPresetMeta } from "../../features/motion/motionRegistry";
 
 type SettingsPayload = Record<string, unknown>;
 
@@ -98,18 +101,21 @@ function extractAppearance(payload: SettingsPayload): {
   windowOpacity: number;
   theme: string;
   blurEnabled: boolean;
+  motionPreset: string;
 } {
   if (!isRecord(payload.appearance)) {
     return {
       windowOpacity: DEFAULT_WINDOW_OPACITY,
       theme: DEFAULT_THEME,
-      blurEnabled: DEFAULT_BLUR_ENABLED
+      blurEnabled: DEFAULT_BLUR_ENABLED,
+      motionPreset: DEFAULT_MOTION_PRESET
     };
   }
   return {
     windowOpacity: normalizeWindowOpacity(payload.appearance.windowOpacity),
     theme: normalizeThemeId(payload.appearance.theme),
-    blurEnabled: normalizeBlurEnabled(payload.appearance.blurEnabled)
+    blurEnabled: normalizeBlurEnabled(payload.appearance.blurEnabled),
+    motionPreset: resolveMotionPresetMeta(normalizeMotionPresetId(payload.appearance.motionPreset)).id
   };
 }
 

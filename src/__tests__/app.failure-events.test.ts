@@ -204,6 +204,7 @@ function buildSnapshot(
       windowOpacity: 0.96,
       theme: "obsidian",
       blurEnabled: true,
+      motionPreset: "expressive",
     },
     commands: {
       disabledCommandIds: [],

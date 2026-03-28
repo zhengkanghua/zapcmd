@@ -17,6 +17,7 @@ import {
   normalizeDisabledCommandIds,
   normalizeHotkeys,
   normalizeLanguage,
+  normalizeMotionPresetId,
   normalizePersistedSettingsSnapshot,
   normalizeTerminalId,
   normalizeTerminalReusePolicy,
@@ -68,6 +69,7 @@ interface SettingsState {
   windowOpacity: number;
   theme: string;
   blurEnabled: boolean;
+  motionPreset: string;
 }
 
 type SettingsGeneralState = Pick<
@@ -112,7 +114,8 @@ function snapshotFromState(state: SettingsState): PersistedSettingsSnapshot {
     appearance: {
       windowOpacity: state.windowOpacity,
       theme: state.theme,
-      blurEnabled: state.blurEnabled
+      blurEnabled: state.blurEnabled,
+      motionPreset: state.motionPreset
     }
   });
 }
@@ -136,7 +139,8 @@ export const useSettingsStore = defineStore("settings", {
       disabledCommandIds: defaults.commands.disabledCommandIds,
       windowOpacity: defaults.appearance.windowOpacity,
       theme: defaults.appearance.theme,
-      blurEnabled: defaults.appearance.blurEnabled
+      blurEnabled: defaults.appearance.blurEnabled,
+      motionPreset: defaults.appearance.motionPreset
     };
   },
   actions: {
@@ -155,6 +159,7 @@ export const useSettingsStore = defineStore("settings", {
       this.windowOpacity = normalized.appearance.windowOpacity;
       this.theme = normalized.appearance.theme;
       this.blurEnabled = normalized.appearance.blurEnabled;
+      this.motionPreset = normalized.appearance.motionPreset;
     },
     setHotkey(field: HotkeyFieldId, value: string): void {
       this.hotkeys = normalizeHotkeys({ ...this.hotkeys, [field]: value });
@@ -203,6 +208,9 @@ export const useSettingsStore = defineStore("settings", {
     setBlurEnabled(value: boolean): void {
       this.blurEnabled = normalizeBlurEnabled(value);
     },
+    setMotionPreset(value: string): void {
+      this.motionPreset = normalizeMotionPresetId(value);
+    },
     toSnapshot(): PersistedSettingsSnapshot {
       return snapshotFromState({
         schemaVersion: this.schemaVersion,
@@ -216,7 +224,8 @@ export const useSettingsStore = defineStore("settings", {
         disabledCommandIds: this.disabledCommandIds,
         windowOpacity: this.windowOpacity,
         theme: this.theme,
-        blurEnabled: this.blurEnabled
+        blurEnabled: this.blurEnabled,
+        motionPreset: this.motionPreset
       });
     },
     persist(adapter?: SettingsStorageAdapter): void {

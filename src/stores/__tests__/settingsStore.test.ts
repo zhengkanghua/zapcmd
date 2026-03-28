@@ -79,6 +79,12 @@ describe("settingsStore migration and persistence", () => {
     expect(createDefaultSettingsSnapshot().general.alwaysElevatedTerminal).toBe(false);
   });
 
+  it("defaults appearance.motionPreset to expressive", () => {
+    expect((createDefaultSettingsSnapshot().appearance as Record<string, unknown>).motionPreset).toBe(
+      "expressive"
+    );
+  });
+
   it("defaults terminalReusePolicy to never", () => {
     expect((createDefaultSettingsSnapshot().general as Record<string, unknown>).terminalReusePolicy).toBe(
       "never"
@@ -103,6 +109,19 @@ describe("settingsStore migration and persistence", () => {
     expect((migrated?.general as Record<string, unknown>).terminalReusePolicy).toBe(
       "normal-and-elevated"
     );
+  });
+
+  it("migrates missing appearance.motionPreset to expressive", () => {
+    const migrated = migrateSettingsPayload({ version: 1, appearance: { theme: "obsidian" } });
+    expect((migrated?.appearance as Record<string, unknown>).motionPreset).toBe("expressive");
+  });
+
+  it("falls back invalid appearance.motionPreset to expressive", () => {
+    const migrated = migrateSettingsPayload({
+      version: 1,
+      appearance: { motionPreset: "loud-mode" }
+    });
+    expect((migrated?.appearance as Record<string, unknown>).motionPreset).toBe("expressive");
   });
 
   it("normalizes booleans, disabled ids, and clamps window opacity", () => {
