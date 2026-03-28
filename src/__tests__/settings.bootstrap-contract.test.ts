@@ -25,14 +25,20 @@ describe("settings bootstrap contract", () => {
     expect(appSource).not.toContain("<SettingsWindow");
   });
 
-  it("boots both windows with theme-driven light/dark frame guards", () => {
+  it("boots settings with theme-driven light/dark frame guards", () => {
     const settingsHtml = readFileSync(resolve(process.cwd(), "settings.html"), "utf8");
+
+    expect(settingsHtml).toContain('linen');
+    expect(settingsHtml).toContain('colorScheme: "light"');
+    expect(settingsHtml).toContain('backgroundColor: "#ece4d6"');
+  });
+
+  it("keeps launcher bootstrap transparent while still syncing theme and color-scheme", () => {
     const launcherHtml = readFileSync(resolve(process.cwd(), "index.html"), "utf8");
 
-    for (const html of [settingsHtml, launcherHtml]) {
-      expect(html).toContain('linen');
-      expect(html).toContain('colorScheme: "light"');
-      expect(html).toContain('backgroundColor: "#ece4d6"');
-    }
+    expect(launcherHtml).toContain('linen');
+    expect(launcherHtml).toContain('colorScheme: "light"');
+    expect(launcherHtml).not.toContain('style.backgroundColor');
+    expect(launcherHtml).not.toContain('backgroundColor: "#ece4d6"');
   });
 });
