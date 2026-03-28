@@ -144,8 +144,19 @@ function appendBrowserLog(logPath, line) {
   } catch {}
 }
 
+function escapePowerShellSingleQuoted(value) {
+  return typeof value === "string" ? value.replaceAll("'", "''") : "";
+}
+
 function looksLikeWindowsPath(targetPath) {
   return typeof targetPath === "string" && (/^[A-Za-z]:\\/.test(targetPath) || targetPath.startsWith("\\\\"));
+}
+
+function looksLikeWindowsExecutablePath(targetPath) {
+  return (
+    looksLikeWindowsPath(targetPath) ||
+    (typeof targetPath === "string" && /^\/mnt\/[A-Za-z]\//.test(targetPath))
+  );
 }
 
 function listWindowsBrowserProcessIds({
@@ -159,21 +170,21 @@ function listWindowsBrowserProcessIds({
   if (!queryCommand) {
     return [];
   }
+  if (platform !== "win32" && !looksLikeWindowsExecutablePath(browserCommand)) {
+    return [];
+  }
 
   const processName = path.win32.basename(typeof browserCommand === "string" ? browserCommand : "").trim() || "msedge.exe";
+  const escapedProcessName = escapePowerShellSingleQuoted(processName);
   const script =
-    "$processName = [System.IO.Path]::GetFileNameWithoutExtension($env:ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME);" +
+    `$processName = [System.IO.Path]::GetFileNameWithoutExtension('${escapedProcessName}');` +
     " Get-Process -Name $processName -ErrorAction SilentlyContinue" +
     " | Select-Object -ExpandProperty Id";
 
   try {
     const output = String(
       execFileSyncImpl(queryCommand, ["-NoProfile", "-Command", script], {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME: processName
-        }
+        encoding: "utf8"
       })
     ).trim();
 
@@ -209,22 +220,18 @@ function listWindowsBrowserProcessIdsForCleanup({
   }
 
   const processName = path.win32.basename(typeof browserCommand === "string" ? browserCommand : "").trim() || "msedge.exe";
+  const escapedProcessName = escapePowerShellSingleQuoted(processName);
+  const escapedProfileDir = escapePowerShellSingleQuoted(normalizedProfileDir);
   const script =
-    "$needle = $env:ZAPCMD_VISUAL_CLEANUP_PROFILE;" +
-    " $processName = $env:ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME;" +
-    " Get-CimInstance Win32_Process -Filter \"name = '$processName'\"" +
+    `$needle = '${escapedProfileDir}';` +
+    ` Get-CimInstance Win32_Process -Filter \"name = '${escapedProcessName}'\"` +
     " | Where-Object { -not $needle -or ($_.CommandLine -and $_.CommandLine.Contains($needle)) }" +
     " | Select-Object -ExpandProperty ProcessId";
 
   try {
     const output = String(
       execFileSyncImpl(queryCommand, ["-NoProfile", "-Command", script], {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME: processName,
-          ZAPCMD_VISUAL_CLEANUP_PROFILE: normalizedProfileDir
-        }
+        encoding: "utf8"
       })
     ).trim();
 
@@ -255,10 +262,10 @@ function listWindowsDescendantBrowserProcessIds({
   const normalizedCleanupQueryCommand = typeof cleanupQueryCommand === "string" ? cleanupQueryCommand.trim() : "";
   const queryCommand = normalizedCleanupQueryCommand || "powershell.exe";
   const processName = path.win32.basename(typeof browserCommand === "string" ? browserCommand : "").trim() || "msedge.exe";
+  const escapedProcessName = escapePowerShellSingleQuoted(processName);
   const script =
-    "$rootPid = [int]$env:ZAPCMD_VISUAL_CLEANUP_ROOT_PID;" +
-    " $processName = $env:ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME;" +
-    " $processes = @(Get-CimInstance Win32_Process -Filter \"name = '$processName'\" | Select-Object ProcessId, ParentProcessId);" +
+    ` $rootPid = [int]${rootPid};` +
+    ` $processes = @(Get-CimInstance Win32_Process -Filter \"name = '${escapedProcessName}'\" | Select-Object ProcessId, ParentProcessId);` +
     " $seen = New-Object 'System.Collections.Generic.HashSet[int]';" +
     " $queue = New-Object 'System.Collections.Generic.Queue[int]';" +
     " $queue.Enqueue($rootPid);" +
@@ -275,12 +282,7 @@ function listWindowsDescendantBrowserProcessIds({
   try {
     const output = String(
       execFileSyncImpl(queryCommand, ["-NoProfile", "-Command", script], {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME: processName,
-          ZAPCMD_VISUAL_CLEANUP_ROOT_PID: String(rootPid)
-        }
+        encoding: "utf8"
       })
     ).trim();
 

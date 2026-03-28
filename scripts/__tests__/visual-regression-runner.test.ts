@@ -20,6 +20,21 @@ function createFakeBrowserProcess(pid = 4242) {
 }
 
 describe("visual-regression-runner", () => {
+  it("skips Windows snapshot cleanup queries for Linux browser commands on non-Windows runtimes", () => {
+    const execFileSyncImpl = vi.fn(() => "3144\r\n");
+
+    expect(
+      listWindowsBrowserProcessIds({
+        browserCommand: "/usr/bin/google-chrome",
+        cleanupQueryCommand: "/mnt/c/Program Files/PowerShell/7/pwsh.exe",
+        platform: "linux",
+        execFileSyncImpl
+      })
+    ).toEqual([]);
+
+    expect(execFileSyncImpl).not.toHaveBeenCalled();
+  });
+
   it("lists all browser process ids with Get-Process for snapshot cleanup", () => {
     const execFileSyncImpl = vi.fn(() => "3144\r\n6524\r\n20768\r\n");
 
@@ -35,12 +50,12 @@ describe("visual-regression-runner", () => {
       "powershell.exe",
       ["-NoProfile", "-Command", expect.stringContaining("Get-Process -Name $processName")],
       expect.objectContaining({
-        encoding: "utf8",
-        env: expect.objectContaining({
-          ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME: "msedge.exe"
-        })
+        encoding: "utf8"
       })
     );
+    const [, args, options] = execFileSyncImpl.mock.calls[0] ?? [];
+    expect(args?.[2]).toContain("GetFileNameWithoutExtension('msedge.exe')");
+    expect(options?.env ?? {}).not.toHaveProperty("ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME");
   });
 
   it("cleans up the browser process tree once screenshot output exists", async () => {
@@ -277,13 +292,14 @@ describe("visual-regression-runner", () => {
       cleanupQueryCommand,
       ["-NoProfile", "-Command", expect.stringContaining("Get-CimInstance Win32_Process")],
       expect.objectContaining({
-        encoding: "utf8",
-        env: expect.objectContaining({
-          ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME: "msedge.exe",
-          ZAPCMD_VISUAL_CLEANUP_PROFILE: wslProfileDir
-        })
+        encoding: "utf8"
       })
     );
+    const [, cleanupArgs, cleanupOptions] = cleanupQueryExecFileSyncImpl.mock.calls[0] ?? [];
+    expect(cleanupArgs?.[2]).toContain("name = 'msedge.exe'");
+    expect(cleanupArgs?.[2]).toContain(wslProfileDir);
+    expect(cleanupOptions?.env ?? {}).not.toHaveProperty("ZAPCMD_VISUAL_CLEANUP_PROCESS_NAME");
+    expect(cleanupOptions?.env ?? {}).not.toHaveProperty("ZAPCMD_VISUAL_CLEANUP_PROFILE");
     expect(terminateProcessTree.mock.calls.map((call) => call[0])).toEqual(
       expect.arrayContaining([child.pid, 9001, 9002])
     );

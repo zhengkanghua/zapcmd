@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-29｜visual bridge + linux baseline）
+
+- 已修 WSL visual cleanup 的 PowerShell 传参与 Windows system probe 超时，manifest `fontScope` 统一为 `visual-harness-controlled`；Linux baselines 已按当前受控字体口径刷新，`test:visual:ui:linux` 通过，WSL compare 继续保留 mismatch 供诊断。
+
 ## 补充（2026-03-28｜visual cleanup scope refine）
 
 - 已移除 Windows visual 主流程的可见 Edge sweep；runner 改为仅首轮 cleanup 使用 broad pid heuristic，后续 post-exit/grace 只按 child/profile 精确清理；runner 单测补成受控 mock，避免真实 Edge 进程污染。`test:visual:ui` 7/7 与 `check:all` 全绿。

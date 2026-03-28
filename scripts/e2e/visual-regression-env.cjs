@@ -5,6 +5,7 @@ const childProcess = require("node:child_process");
 const { VISUAL_MODES } = require("./visual-regression-lib.cjs");
 
 const VISUAL_ENV_PROBE_TIMEOUT_MS = 1_500;
+const VISUAL_ENV_SYSTEM_PROBE_TIMEOUT_MS = 4_000;
 
 const KEY_FONTS = Object.freeze([
   "Segoe UI",
@@ -25,7 +26,7 @@ function looksLikeBrowserVersion(value) {
   return /\d+\.\d+\.\d+\.\d+/.test(trimString(value));
 }
 
-function runTextCommand({ command, args = [], execFileSync = childProcess.execFileSync }) {
+function runTextCommand({ command, args = [], execFileSync = childProcess.execFileSync, timeoutMs = VISUAL_ENV_PROBE_TIMEOUT_MS }) {
   if (!trimString(command)) {
     return "";
   }
@@ -34,7 +35,7 @@ function runTextCommand({ command, args = [], execFileSync = childProcess.execFi
     return trimString(
       execFileSync(command, args, {
         encoding: "utf8",
-        timeout: VISUAL_ENV_PROBE_TIMEOUT_MS,
+        timeout: timeoutMs,
         windowsHide: true
       })
     );
@@ -203,7 +204,8 @@ function probeWindowsSystem(diffCommand, { execFileSync }) {
       args: buildPowerShellArgs(
         "Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsBuildNumber, OsHardwareAbstractionLayer | ConvertTo-Json -Compress"
       ),
-      execFileSync
+      execFileSync,
+      timeoutMs: VISUAL_ENV_SYSTEM_PROBE_TIMEOUT_MS
     }),
     {}
   );
@@ -305,7 +307,7 @@ function collectVisualEnvironment(
     system: probeSystemInfo(runtime, { execFileSync }),
     fonts: probeKeyFonts(runtime, { execFileSync }),
     baselineKind: runtime.mode === VISUAL_MODES.linuxSmoke ? "linux-smoke" : "controlled-runner",
-    fontScope: runtime.mode === VISUAL_MODES.controlledRunner ? "visual-harness-controlled" : "local-compare",
+    fontScope: "visual-harness-controlled",
     baselineDir: runtime.baselineDir,
     outputDir: runtime.outputDir,
     serverBinding: runtime.serverBinding

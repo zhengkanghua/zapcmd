@@ -113,6 +113,7 @@ describe("visual-regression-env", () => {
       listenHost: "127.0.0.1",
       urlHost: "127.0.0.1"
     });
+    expect(manifest.fontScope).toBe("visual-harness-controlled");
   });
 
   it("applies timeouts to external environment probes so manifest collection stays best-effort", () => {
@@ -235,6 +236,70 @@ describe("visual-regression-env", () => {
     expect(manifest.baselineKind).toBe("controlled-runner");
   });
 
+  it("uses a longer timeout for Windows system probes so WSL bridge can collect machine facts", () => {
+    const execFileSync: ExecFileSync = (command, args = [], options) => {
+      const joinedArgs = args.join(" ");
+
+      if (command === "git" && joinedArgs === "rev-parse --short HEAD") {
+        return "b40d610\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("$PSVersionTable.PSVersion.ToString()")) {
+        return "7.5.4\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("VersionInfo")) {
+        return "146.0.3856.72\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("WindowsProductName")) {
+        expect(options?.timeout).toBeGreaterThanOrEqual(2_500);
+        return '{"WindowsProductName":"Windows 10 Pro","WindowsVersion":"2009","OsBuildNumber":"19045","OsHardwareAbstractionLayer":"10.0.19041.5072"}';
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("Segoe UI (TrueType)")) {
+        return '{"Segoe UI":{"installed":true,"value":"segoeui.ttf"},"Segoe UI Variable":{"installed":false,"value":""},"Consolas":{"installed":true,"value":"consola.ttf"},"Fira Code":{"installed":false,"value":""},"JetBrains Mono":{"installed":false,"value":""},"Noto Sans":{"installed":false,"value":""},"Noto Sans SC":{"installed":false,"value":""},"Microsoft YaHei":{"installed":true,"value":"msyh.ttc"}}';
+      }
+
+      throw new Error(`Unexpected command: ${command} ${joinedArgs}`);
+    };
+
+    const manifest = collectVisualEnvironment(
+      {
+        mode: "wsl-windows-edge",
+        browserRuntime: {
+          name: "Microsoft Edge",
+          command: "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+          useWindowsPaths: true
+        },
+        diffRuntime: {
+          name: "PowerShell",
+          command: "pwsh",
+          useWindowsPaths: true
+        },
+        baselineDir: "scripts/e2e/visual-baselines/controlled-runner",
+        outputDir: ".tmp/e2e/visual-regression/windows-edge",
+        serverBinding: {
+          listenHost: "0.0.0.0",
+          urlHost: "172.31.53.148"
+        },
+        resolveBrowserPath: (targetPath: string) => targetPath
+      },
+      {
+        execFileSync,
+        now: () => "2026-03-28T17:10:57.328Z"
+      }
+    );
+
+    expect(manifest.system).toEqual({
+      platform: "windows",
+      WindowsProductName: "Windows 10 Pro",
+      WindowsVersion: "2009",
+      OsBuildNumber: "19045",
+      OsHardwareAbstractionLayer: "10.0.19041.5072"
+    });
+  });
+
   it("uses runner-specific baseline update hint", () => {
     expect(readFileSync(resolve(process.cwd(), "scripts/e2e/visual-regression-runner.cjs"), "utf8")).toContain(
       "test:visual:ui:update:runner"
@@ -299,6 +364,7 @@ describe("visual-regression-env", () => {
       platform: "linux",
       kernel: "Linux 6.8.0"
     });
+    expect(manifest.fontScope).toBe("visual-harness-controlled");
     expect(manifest.fonts["Segoe UI"]).toEqual({
       installed: true,
       value: "Segoe UI"
