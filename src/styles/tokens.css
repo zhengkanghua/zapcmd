@@ -11,6 +11,8 @@
   --ui-radius:           12px;
   --ui-radius-control:    8px;
   --ui-top-align-offset: 18px;
+  --ui-font-visual-sans: "Segoe UI", Arial, sans-serif;
+  --ui-font-visual-mono: Consolas, "Courier New", monospace;
   --ui-font-mono: "Fira Code", "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
 
   /* ── 运行时动态变量（由 JS 控制，不属于主题） ── */

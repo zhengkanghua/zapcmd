@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜Windows visual Task C）
+
+- 已给 `AppVisual.vue` 增加 visual-only 稳定字体作用域，并在 `tokens.css` 新增 `--ui-font-visual-*`；focused tests、lint、typecheck、build、`test:visual:ui:linux` 全绿，待原生 Windows 双机复测 residual diff。
+
 ## 补充（2026-03-28｜Windows env probe 修正）
 
 - 已修 Windows 原生 visual 环境探针：字体 PowerShell 脚本不再报 ParserError，浏览器版本增加 stderr/file-version fallback；待 Windows 复跑确认真实字体与 diff 面。

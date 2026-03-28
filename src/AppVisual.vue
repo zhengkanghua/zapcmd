@@ -205,7 +205,7 @@ watch(
 </script>
 
 <template>
-  <main class="min-h-screen px-8 py-10 text-ui-text">
+  <main class="visual-regression-root min-h-screen px-8 py-10 text-ui-text">
     <div class="mx-auto grid w-full max-w-[920px] gap-10">
       <header class="grid gap-3">
         <h1 class="text-[15px] font-semibold tracking-wide text-ui-text">Visual Regression Harness</h1>
@@ -464,3 +464,10 @@ watch(
     </div>
   </main>
 </template>
+
+<style scoped>
+.visual-regression-root {
+  font-family: var(--ui-font-visual-sans);
+  --ui-font-mono: var(--ui-font-visual-mono);
+}
+</style>
