@@ -3,6 +3,7 @@
 ## 补充（2026-03-28｜review 整改收口）
 
 - 已完成 Task 4/5/6：Settings 只保留 `settings.html -> main-settings.ts -> AppSettings.vue`；新增浅色 `linen` 主题与主题驱动 `color-scheme`/启动期 bootstrap；`feat/review-remediation` 待 push。
+- 已修复 Launcher 顶部/Command/Flow/Staging 拖拽区“只有拖拽光标但无法拖窗”：根 capture 层显式 `startDragging()`，并补 `allow-start-dragging` 权限与回归测试；`check:all` 全绿。
 
 ## 补充（2026-03-28｜review 整改分支与文档）
 

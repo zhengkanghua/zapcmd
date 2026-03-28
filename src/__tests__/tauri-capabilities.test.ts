@@ -15,6 +15,7 @@ describe("Tauri capabilities contract", () => {
 
     expect(capability.windows).toContain("settings");
     expect(capability.permissions).toContain("core:window:allow-close");
+    expect(capability.permissions).toContain("core:window:allow-start-dragging");
     expect(capability.permissions).toContain("updater:default");
   });
 
@@ -28,6 +29,7 @@ describe("Tauri capabilities contract", () => {
 
     expect(generated.default.windows).toContain("settings");
     expect(generated.default.permissions).toContain("core:window:allow-close");
+    expect(generated.default.permissions).toContain("core:window:allow-start-dragging");
     expect(generated.default.permissions).toContain("updater:default");
   });
 
