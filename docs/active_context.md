@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜Windows env probe 修正）
+
+- 已修 Windows 原生 visual 环境探针：字体 PowerShell 脚本不再报 ParserError，浏览器版本增加 stderr/file-version fallback；待 Windows 复跑确认真实字体与 diff 面。
+
 ## 补充（2026-03-28｜Windows visual Task A+B）
 
 - 已完成环境清单 `environment.json` 落盘与 Settings 顶部导航 SVG icon 收口；scripts/settings focused 29 测试、`lint`、`typecheck`、`build`、`test:visual:ui:linux` 全绿。WSL 仍属 Windows baseline 口径。

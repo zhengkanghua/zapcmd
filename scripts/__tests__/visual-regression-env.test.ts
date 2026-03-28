@@ -6,6 +6,11 @@ const require = createRequire(import.meta.url);
 const { collectVisualEnvironment } = require("../e2e/visual-regression-env.cjs");
 
 type ExecFileSync = (command: string, args?: string[], options?: { encoding?: string }) => string;
+type SpawnSync = (
+  command: string,
+  args?: string[],
+  options?: { encoding?: string; windowsHide?: boolean }
+) => { status: number | null; stdout?: string; stderr?: string; error?: Error };
 
 function createExecFileSyncStub(): ExecFileSync {
   return (command, args = []) => {
@@ -164,5 +169,139 @@ describe("visual-regression-env", () => {
       installed: false,
       value: ""
     });
+  });
+
+  it("builds a Windows font probe script without invalid hashtable syntax", () => {
+    const execFileSync: ExecFileSync = (command, args = []) => {
+      const joinedArgs = args.join(" ");
+
+      if (command === "git" && joinedArgs === "rev-parse --short HEAD") {
+        return "c59ed05\n";
+      }
+
+      if (command === "C:\\Edge\\msedge.exe" && joinedArgs === "--version") {
+        return "Microsoft Edge 134.0.3124.68\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("$PSVersionTable.PSVersion.ToString()")) {
+        return "7.5.5\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("WindowsProductName")) {
+        return '{"platform":"windows","WindowsProductName":"Windows 10 Pro","WindowsVersion":"2009","OsBuildNumber":"19045"}';
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("Segoe UI (TrueType)")) {
+        expect(joinedArgs).not.toContain("@{;");
+        return '{"Segoe UI":{"installed":true,"value":"segoeui.ttf"},"Segoe UI Variable":{"installed":false,"value":""},"Consolas":{"installed":true,"value":"consola.ttf"},"Fira Code":{"installed":false,"value":""},"JetBrains Mono":{"installed":false,"value":""},"Noto Sans":{"installed":false,"value":""}}';
+      }
+
+      throw new Error(`Unexpected command: ${command} ${joinedArgs}`);
+    };
+
+    const manifest = collectVisualEnvironment(
+      {
+        mode: "windows-edge",
+        browserRuntime: {
+          name: "Microsoft Edge",
+          command: "C:\\Edge\\msedge.exe",
+          useWindowsPaths: false
+        },
+        diffRuntime: {
+          name: "PowerShell",
+          command: "pwsh",
+          useWindowsPaths: false
+        },
+        baselineDir: "scripts/e2e/visual-baselines",
+        outputDir: ".tmp/e2e/visual-regression",
+        serverBinding: {
+          listenHost: "127.0.0.1",
+          urlHost: "127.0.0.1"
+        }
+      },
+      {
+        execFileSync,
+        now: () => "2026-03-28T10:17:43.586Z"
+      }
+    );
+
+    expect(manifest.fonts["Segoe UI"]).toEqual({
+      installed: true,
+      value: "segoeui.ttf"
+    });
+  });
+
+  it("falls back to PowerShell file version when browser --version returns empty", () => {
+    const execFileSync: ExecFileSync = (command, args = []) => {
+      const joinedArgs = args.join(" ");
+
+      if (command === "git" && joinedArgs === "rev-parse --short HEAD") {
+        return "c59ed05\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("$PSVersionTable.PSVersion.ToString()")) {
+        return "7.5.5\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("VersionInfo")) {
+        return "134.0.3124.68\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("WindowsProductName")) {
+        return '{"platform":"windows","WindowsProductName":"Windows 10 Pro","WindowsVersion":"2009","OsBuildNumber":"19045"}';
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("Segoe UI (TrueType)")) {
+        return '{"Segoe UI":{"installed":true,"value":"segoeui.ttf"},"Segoe UI Variable":{"installed":false,"value":""},"Consolas":{"installed":true,"value":"consola.ttf"},"Fira Code":{"installed":false,"value":""},"JetBrains Mono":{"installed":false,"value":""},"Noto Sans":{"installed":false,"value":""}}';
+      }
+
+      throw new Error(`Unexpected command: ${command} ${joinedArgs}`);
+    };
+
+    const spawnSync: SpawnSync = (command, args = []) => {
+      if (command === "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe" && args.join(" ") === "--version") {
+        return {
+          status: 0,
+          stdout: "",
+          stderr: ""
+        };
+      }
+
+      return {
+        status: 1,
+        stdout: "",
+        stderr: ""
+      };
+    };
+
+    const manifest = collectVisualEnvironment(
+      {
+        mode: "windows-edge",
+        browserRuntime: {
+          name: "Microsoft Edge",
+          command: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          useWindowsPaths: false
+        },
+        diffRuntime: {
+          name: "PowerShell",
+          command: "pwsh",
+          useWindowsPaths: false
+        },
+        baselineDir: "scripts/e2e/visual-baselines",
+        outputDir: ".tmp/e2e/visual-regression",
+        serverBinding: {
+          listenHost: "127.0.0.1",
+          urlHost: "127.0.0.1"
+        },
+        resolveBrowserPath: (targetPath: string) => targetPath
+      },
+      {
+        execFileSync,
+        spawnSync,
+        now: () => "2026-03-28T10:17:43.586Z"
+      }
+    );
+
+    expect(manifest.browser.version).toBe("134.0.3124.68");
   });
 });

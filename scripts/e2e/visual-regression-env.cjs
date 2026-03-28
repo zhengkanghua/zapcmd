@@ -29,6 +29,30 @@ function runTextCommand({ command, args = [], execFileSync = childProcess.execFi
   }
 }
 
+function runCapturedCommand({
+  command,
+  args = [],
+  spawnSync
+}) {
+  if (typeof spawnSync !== "function" || !trimString(command)) {
+    return "";
+  }
+
+  try {
+    const result = spawnSync(command, args, {
+      encoding: "utf8",
+      windowsHide: true
+    });
+    if (result?.error) {
+      return "";
+    }
+
+    return trimString(result?.stdout) || trimString(result?.stderr);
+  } catch {
+    return "";
+  }
+}
+
 function parseJson(text, fallback) {
   if (!text) {
     return fallback;
@@ -43,6 +67,30 @@ function parseJson(text, fallback) {
 
 function buildPowerShellArgs(script) {
   return ["-NoProfile", "-Command", script];
+}
+
+function escapePowerShellSingleQuoted(value) {
+  return trimString(value).replaceAll("'", "''");
+}
+
+function buildWindowsFileVersionScript(targetPath) {
+  const escapedPath = escapePowerShellSingleQuoted(targetPath);
+  return [
+    `$item = Get-Item -LiteralPath '${escapedPath}'`,
+    "if ($item) {",
+    "  @($item.VersionInfo.ProductVersion, $item.VersionInfo.FileVersion) | Where-Object { $_ } | Select-Object -First 1",
+    "}"
+  ].join(" ");
+}
+
+function buildWindowsFontRegistryScript() {
+  return [
+    "$fontProps = Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts'",
+    "$fontMap = [ordered]@{'Segoe UI'='Segoe UI (TrueType)'; 'Segoe UI Variable'='Segoe UI Variable (TrueType)'; 'Consolas'='Consolas (TrueType)'; 'Fira Code'='Fira Code (TrueType)'; 'JetBrains Mono'='JetBrains Mono (TrueType)'; 'Noto Sans'='Noto Sans (TrueType)'}",
+    "$result = [ordered]@{}",
+    "foreach ($entry in $fontMap.GetEnumerator()) { $registryKey = $entry.Value; $raw = ''; if ($fontProps.PSObject.Properties.Name -contains $registryKey) { $raw = [string]$fontProps.PSObject.Properties[$registryKey].Value }; $result[$entry.Key] = @{ installed = [bool]$raw; value = $raw } }",
+    "$result | ConvertTo-Json -Compress -Depth 4"
+  ].join("; ");
 }
 
 function createEmptyFontManifest() {
@@ -79,15 +127,37 @@ function resolveGitHead({ execFileSync }) {
   });
 }
 
-function probeBrowser(browserRuntime, { execFileSync }) {
-  return {
-    name: trimString(browserRuntime?.name),
-    command: trimString(browserRuntime?.command),
-    version: runTextCommand({
-      command: browserRuntime?.command,
+function probeBrowser(runtime, { execFileSync, spawnSync }) {
+  const browserRuntime = runtime.browserRuntime || {};
+  let version =
+    runCapturedCommand({
+      command: browserRuntime.command,
+      args: ["--version"],
+      spawnSync
+    }) ||
+    runTextCommand({
+      command: browserRuntime.command,
       args: ["--version"],
       execFileSync
-    })
+    });
+
+  if (!version && runtime.mode !== VISUAL_MODES.linuxSmoke && trimString(runtime.diffRuntime?.command)) {
+    const browserPath =
+      typeof runtime.resolveBrowserPath === "function"
+        ? runtime.resolveBrowserPath(browserRuntime.command)
+        : browserRuntime.command;
+
+    version = runTextCommand({
+      command: runtime.diffRuntime.command,
+      args: buildPowerShellArgs(buildWindowsFileVersionScript(browserPath)),
+      execFileSync
+    });
+  }
+
+  return {
+    name: trimString(browserRuntime.name),
+    command: trimString(browserRuntime.command),
+    version
   };
 }
 
@@ -147,29 +217,7 @@ function probeWindowsFonts(diffCommand, { execFileSync }) {
   const payload = parseJson(
     runTextCommand({
       command: diffCommand,
-      args: buildPowerShellArgs(
-        [
-          "$fontProps = Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts'",
-          "$fontMap = [ordered]@{",
-          "  'Segoe UI' = 'Segoe UI (TrueType)'",
-          "  'Segoe UI Variable' = 'Segoe UI Variable (TrueType)'",
-          "  'Consolas' = 'Consolas (TrueType)'",
-          "  'Fira Code' = 'Fira Code (TrueType)'",
-          "  'JetBrains Mono' = 'JetBrains Mono (TrueType)'",
-          "  'Noto Sans' = 'Noto Sans (TrueType)'",
-          "}",
-          "$result = [ordered]@{}",
-          "foreach ($entry in $fontMap.GetEnumerator()) {",
-          "  $registryKey = $entry.Value",
-          "  $raw = ''",
-          "  if ($fontProps.PSObject.Properties.Name -contains $registryKey) {",
-          "    $raw = [string]$fontProps.PSObject.Properties[$registryKey].Value",
-          "  }",
-          "  $result[$entry.Key] = @{ installed = [bool]$raw; value = $raw }",
-          "}",
-          "$result | ConvertTo-Json -Compress -Depth 4"
-        ].join("; ")
-      ),
+      args: buildPowerShellArgs(buildWindowsFontRegistryScript()),
       execFileSync
     }),
     {}
@@ -210,12 +258,19 @@ function probeKeyFonts(runtime, { execFileSync }) {
  * 收集视觉回归当前运行环境的关键事实，写入 artifact 后可用于跨设备 diff 诊断。
  * 该探针必须是 best-effort：即使个别命令失败，也不能阻断截图主流程。
  */
-function collectVisualEnvironment(runtime, { execFileSync = childProcess.execFileSync, now = () => new Date().toISOString() } = {}) {
+function collectVisualEnvironment(
+  runtime,
+  {
+    execFileSync = childProcess.execFileSync,
+    spawnSync = childProcess.spawnSync,
+    now = () => new Date().toISOString()
+  } = {}
+) {
   return {
     capturedAt: now(),
     gitHead: resolveGitHead({ execFileSync }),
     mode: runtime.mode,
-    browser: probeBrowser(runtime.browserRuntime, { execFileSync }),
+    browser: probeBrowser(runtime, { execFileSync, spawnSync }),
     diffRuntime: probeDiffRuntime(runtime.diffRuntime, { execFileSync }),
     system: probeSystemInfo(runtime, { execFileSync }),
     fonts: probeKeyFonts(runtime, { execFileSync }),
