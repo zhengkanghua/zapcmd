@@ -1,5 +1,22 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜controlled-runner 绿灯修复）
+
+- 已为 visual runner 增加“截图落盘后主动 cleanup 浏览器进程树”，并把 launcher motion 场景在 visual harness 内静态化；`npm run test:visual:ui:update:runner` 与 `npm run test:visual:ui:runner` 已全绿。
+
+## 补充（2026-03-28｜controlled-runner 实施收口）
+
+- 已切换 `controlled-runner` 为唯一 blocking visual gate；`verify:local` 默认 visual compare 非阻断；visual harness 改走受控字体入口；focused tests 与 `check:all` 全绿。当前仅剩 `launcher-motion-surfaces-*` 在 runner compare 下跨次截图仍漂移，需后续单独稳定化。
+
+## 补充（2026-03-28｜受控 visual runner 设计定稿）
+
+- 已确认方案2：blocking visual gate 不再依赖开发机本地 Edge/系统字体，改由受控 runner 执行固定浏览器+受控字体；本机 `test:visual:ui` 保留 compare/诊断口径，下一步写 `controlled-runner` 实施计划。
+- 已落盘 `docs/superpowers/plans/2026-03-28-controlled-visual-regression-runner.md`：按 mode/baseline 契约、runner 断言、visual-only 字体、verify/workflow/baseline 收口拆成 4 个 chunk。
+
+## 补充（2026-03-28｜Windows visual 设备2复测）
+
+- 已补 visual harness 的 `Microsoft YaHei` CJK fallback 与 env probe 的 `Noto Sans SC/Microsoft YaHei/Edge file-version fallback`；设备2 Windows visual diff 略降但仍 7 项 mismatch，当前环境 Edge=`146.0.3856.84`，残余更像浏览器/字体栅格化漂移。
+
 ## 补充（2026-03-28｜Windows visual Task C）
 
 - 已给 `AppVisual.vue` 增加 visual-only 稳定字体作用域，并在 `tokens.css` 新增 `--ui-font-visual-*`；focused tests、lint、typecheck、build、`test:visual:ui:linux` 全绿，待原生 Windows 双机复测 residual diff。

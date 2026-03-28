@@ -1,0 +1,27 @@
+@font-face {
+  font-family: "ZapCmd Visual Sans Controlled";
+  src: url("/fonts/visual-regression/zapcmd-visual-sans-subset.woff2") format("woff2");
+  font-display: block;
+}
+
+@font-face {
+  font-family: "ZapCmd Visual Mono Controlled";
+  src: url("/fonts/visual-regression/zapcmd-visual-mono-subset.woff2") format("woff2");
+  font-display: block;
+}
+
+.visual-regression-root {
+  font-family: var(--ui-font-visual-sans);
+  --ui-font-mono: var(--ui-font-visual-mono);
+  --ui-font-visual-sans: "ZapCmd Visual Sans Controlled", var(--ui-font-visual-sans-fallback);
+  --ui-font-visual-mono: "ZapCmd Visual Mono Controlled", var(--ui-font-visual-mono-fallback);
+}
+
+/* launcher motion 场景只验收稳定表面，禁用动画和过渡以消除截图时序漂移。 */
+.visual-regression-root--freeze-motion,
+.visual-regression-root--freeze-motion *,
+.visual-regression-root--freeze-motion *::before,
+.visual-regression-root--freeze-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}

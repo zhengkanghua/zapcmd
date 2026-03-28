@@ -9,6 +9,7 @@ const VISUAL_MODES = Object.freeze({
   windowsEdge: "windows-edge",
   wslBridge: "wsl-windows-edge",
   linuxSmoke: "linux-chromium",
+  controlledRunner: "controlled-runner",
   skip: "skip"
 });
 
@@ -57,13 +58,16 @@ function resolveBaselineDir({ rootDir, mode } = {}) {
   if (mode === VISUAL_MODES.linuxSmoke) {
     return path.join(baseRoot, "linux-chromium");
   }
-  return baseRoot;
+  return path.join(baseRoot, "controlled-runner");
 }
 
 function resolveOutputDir({ rootDir, mode } = {}) {
   const baseRoot = rootDir || path.resolve(".tmp/e2e/visual-regression");
   if (mode === VISUAL_MODES.linuxSmoke) {
     return path.join(baseRoot, "linux-chromium");
+  }
+  if (mode === VISUAL_MODES.controlledRunner) {
+    return path.join(baseRoot, "controlled-runner");
   }
   if (mode === VISUAL_MODES.wslBridge) {
     return path.join(baseRoot, "windows-edge");
@@ -262,6 +266,21 @@ function resolveDiffRuntime({ mode, env = process.env, existsSync = fs.existsSyn
   }
 
   const localPwsh = trimString(env.ZAPCMD_PWSH_PATH) || runCommandProbe("pwsh");
+  if (mode === VISUAL_MODES.controlledRunner) {
+    if (localPwsh) {
+      return { command: localPwsh, useWindowsPaths: false };
+    }
+
+    const windowsPwsh = resolveWindowsCommandPath({
+      envVarName: "ZAPCMD_PWSH_PATH",
+      env,
+      existsSync,
+      candidates: resolveWindowsPwshCandidates({ env })
+    });
+
+    return { command: windowsPwsh, useWindowsPaths: false };
+  }
+
   if (localPwsh && mode === VISUAL_MODES.linuxSmoke) {
     return { command: localPwsh, useWindowsPaths: false };
   }
@@ -281,6 +300,15 @@ function resolveDiffRuntime({ mode, env = process.env, existsSync = fs.existsSyn
 }
 
 function resolveBrowserRuntime({ mode, env = process.env, existsSync = fs.existsSync } = {}) {
+  if (mode === VISUAL_MODES.controlledRunner) {
+    return {
+      command: trimString(env.ZAPCMD_VISUAL_RUNNER_BROWSER_PATH),
+      name: "Controlled Chromium",
+      expectedVersion: trimString(env.ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION),
+      useWindowsPaths: false
+    };
+  }
+
   if (mode === VISUAL_MODES.wslBridge) {
     return {
       command: resolveWindowsCommandPath({

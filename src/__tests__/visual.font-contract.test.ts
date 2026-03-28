@@ -8,14 +8,30 @@ function readProjectFile(path: string): string {
 }
 
 describe("visual font contract", () => {
-  it("scopes stable font variables to the visual harness only", () => {
-    const appVisual = readProjectFile("src/AppVisual.vue");
+  it("scopes controlled fonts to the visual harness entry only", () => {
+    const mainVisual = readProjectFile("src/main-visual.ts");
+    const visualFonts = readProjectFile("src/styles/visual-fonts.css");
     const tokens = readProjectFile("src/styles/tokens.css");
 
-    expect(appVisual).toContain("visual-regression-root");
-    expect(appVisual).toContain("font-family: var(--ui-font-visual-sans);");
-    expect(appVisual).toContain("--ui-font-mono: var(--ui-font-visual-mono);");
-    expect(tokens).toContain("--ui-font-visual-sans:");
-    expect(tokens).toContain("--ui-font-visual-mono:");
+    expect(mainVisual).toContain('import "./styles/visual-fonts.css"');
+    expect(visualFonts).toContain("@font-face");
+    expect(visualFonts).toContain("/fonts/visual-regression/zapcmd-visual-sans-subset.woff2");
+    expect(visualFonts).toContain("/fonts/visual-regression/zapcmd-visual-mono-subset.woff2");
+    expect(tokens).toContain("--ui-font-visual-sans-fallback:");
+    expect(tokens).toContain("--ui-font-visual-sans: var(--ui-font-visual-sans-fallback);");
+    expect(tokens).toContain("--ui-font-visual-mono-fallback:");
+    expect(tokens).toContain("--ui-font-visual-mono: var(--ui-font-visual-mono-fallback);");
+  });
+
+  it("freezes launcher motion surfaces inside the visual harness", () => {
+    const visualApp = readProjectFile("src/AppVisual.vue");
+    const visualFonts = readProjectFile("src/styles/visual-fonts.css");
+
+    expect(visualApp).toContain("visual-regression-root--freeze-motion");
+    expect(visualApp).toContain("launcher-motion-surfaces-expressive");
+    expect(visualApp).toContain("launcher-motion-surfaces-steady-tool");
+    expect(visualFonts).toContain(".visual-regression-root--freeze-motion");
+    expect(visualFonts).toContain("animation: none !important;");
+    expect(visualFonts).toContain("transition: none !important;");
   });
 });

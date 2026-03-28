@@ -11,8 +11,11 @@
   --ui-radius:           12px;
   --ui-radius-control:    8px;
   --ui-top-align-offset: 18px;
-  --ui-font-visual-sans: "Segoe UI", Arial, sans-serif;
-  --ui-font-visual-mono: Consolas, "Courier New", monospace;
+  /* visual harness 通过独立入口覆盖受控字体；这里保留语义 fallback，避免污染真实产品运行时。 */
+  --ui-font-visual-sans-fallback: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif;
+  --ui-font-visual-mono-fallback: Consolas, "Courier New", monospace;
+  --ui-font-visual-sans: var(--ui-font-visual-sans-fallback);
+  --ui-font-visual-mono: var(--ui-font-visual-mono-fallback);
   --ui-font-mono: "Fira Code", "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
 
   /* ── 运行时动态变量（由 JS 控制，不属于主题） ── */

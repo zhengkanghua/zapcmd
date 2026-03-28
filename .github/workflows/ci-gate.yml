@@ -13,7 +13,8 @@ concurrency:
   group: ci-gate-${{ github.ref }}
   cancel-in-progress: true
 
-# Windows desktop WebDriver smoke + screenshot-level visual regression are blocking desktop gates in CI.
+# Windows desktop WebDriver smoke remains blocking.
+# Controlled visual runner is the only blocking screenshot-level visual gate.
 # macOS/Linux remain on cross-platform build/test/Rust smoke only.
 jobs:
   quality-gate:
@@ -83,8 +84,14 @@ jobs:
       - name: Run Windows-only blocking desktop E2E smoke
         run: npm run e2e:desktop:smoke
 
-      - name: Run screenshot-level visual regression gate
-        run: npm run test:visual:ui
+      - name: Run controlled visual regression gate
+        # runner 环境必须提供：
+        # - ZAPCMD_VISUAL_RUNNER_BROWSER_PATH
+        # - ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION
+        env:
+          ZAPCMD_VISUAL_RUNNER_BROWSER_PATH: ${{ vars.ZAPCMD_VISUAL_RUNNER_BROWSER_PATH }}
+          ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION: ${{ vars.ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION }}
+        run: npm run test:visual:ui:runner
 
       - name: Upload Windows blocking desktop smoke artifacts
         if: always()

@@ -152,6 +152,12 @@ const launcherMotionPreset = computed(() =>
   scenario.value === "launcher-motion-surfaces-steady-tool" ? "steady-tool" : "expressive"
 );
 
+const freezeLauncherMotionSurfaces = computed(
+  () =>
+    scenario.value === "launcher-motion-surfaces-expressive" ||
+    scenario.value === "launcher-motion-surfaces-steady-tool"
+);
+
 function onSliderValueUpdate(value: number) {
   sliderValue.value = value;
 }
@@ -205,7 +211,10 @@ watch(
 </script>
 
 <template>
-  <main class="visual-regression-root min-h-screen px-8 py-10 text-ui-text">
+  <main
+    class="visual-regression-root min-h-screen px-8 py-10 text-ui-text"
+    :class="{ 'visual-regression-root--freeze-motion': freezeLauncherMotionSurfaces }"
+  >
     <div class="mx-auto grid w-full max-w-[920px] gap-10">
       <header class="grid gap-3">
         <h1 class="text-[15px] font-semibold tracking-wide text-ui-text">Visual Regression Harness</h1>
@@ -465,9 +474,3 @@ watch(
   </main>
 </template>
 
-<style scoped>
-.visual-regression-root {
-  font-family: var(--ui-font-visual-sans);
-  --ui-font-mono: var(--ui-font-visual-mono);
-}
-</style>

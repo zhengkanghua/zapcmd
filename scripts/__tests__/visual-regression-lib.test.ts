@@ -45,6 +45,17 @@ describe("visual-regression-lib", () => {
     ).toBe(VISUAL_MODES.linuxSmoke);
   });
 
+  it("允许通过环境变量显式强制 controlled-runner 模式", () => {
+    expect(
+      resolveVisualMode({
+        platform: "linux",
+        env: {
+          ZAPCMD_VISUAL_MODE: "controlled-runner"
+        }
+      })
+    ).toBe("controlled-runner");
+  });
+
   it("会把 Linux smoke baseline 隔离到独立目录", () => {
     expect(
       resolveBaselineDir({
@@ -54,6 +65,17 @@ describe("visual-regression-lib", () => {
     ).toBe(path.join("/repo", "scripts", "e2e", "visual-baselines", "linux-chromium"));
   });
 
+  it("会把 Windows 与 WSL compare baseline 统一指向 controlled-runner 目录", () => {
+    const baselineRoot = path.join("/repo", "scripts", "e2e", "visual-baselines");
+
+    expect(resolveBaselineDir({ rootDir: baselineRoot, mode: VISUAL_MODES.windowsEdge })).toBe(
+      path.join(baselineRoot, "controlled-runner")
+    );
+    expect(resolveBaselineDir({ rootDir: baselineRoot, mode: VISUAL_MODES.wslBridge })).toBe(
+      path.join(baselineRoot, "controlled-runner")
+    );
+  });
+
   it("会把 Linux smoke 输出隔离到独立目录", () => {
     expect(
       resolveOutputDir({
@@ -61,6 +83,15 @@ describe("visual-regression-lib", () => {
         mode: VISUAL_MODES.linuxSmoke
       })
     ).toBe(path.join("/repo", ".tmp", "e2e", "visual-regression", "linux-chromium"));
+  });
+
+  it("会把 controlled-runner 产物隔离到独立目录", () => {
+    expect(
+      resolveOutputDir({
+        rootDir: path.join("/repo", ".tmp", "e2e", "visual-regression"),
+        mode: "controlled-runner"
+      })
+    ).toBe(path.join("/repo", ".tmp", "e2e", "visual-regression", "controlled-runner"));
   });
 
   it("WSL 桥接模式会把服务监听地址切到 0.0.0.0 并使用探测到的 WSL IP", () => {
@@ -91,20 +122,50 @@ describe("visual-regression-lib", () => {
     expect(
       resolveBrowserRuntime({
         mode: VISUAL_MODES.wslBridge,
-        env: {},
-        existsSync: (targetPath: string) =>
-          targetPath === "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
+        env: {
+          ZAPCMD_EDGE_PATH: "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
+        }
       }).command
     ).toBe("/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe");
+  });
+
+  it("controlled-runner 只读取专用浏览器契约环境变量", () => {
+    const runtime = resolveBrowserRuntime({
+      mode: "controlled-runner",
+      env: {
+        ZAPCMD_VISUAL_RUNNER_BROWSER_PATH: "C:\\controlled\\chrome.exe",
+        ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION: "146.0.0.0",
+        ZAPCMD_EDGE_PATH: "C:\\edge\\msedge.exe"
+      }
+    });
+
+    expect(runtime.command).toBe("C:\\controlled\\chrome.exe");
+    expect(runtime.expectedVersion).toBe("146.0.0.0");
+    expect(runtime.name).toBe("Controlled Chromium");
   });
 
   it("WSL 桥接模式下 diff 命令仍使用可执行的 /mnt/c 路径", () => {
     expect(
       resolveDiffRuntime({
         mode: VISUAL_MODES.wslBridge,
-        env: {},
-        existsSync: (targetPath: string) => targetPath === "/mnt/c/Program Files/PowerShell/7/pwsh.exe"
+        env: {
+          ZAPCMD_PWSH_PATH: "/mnt/c/Program Files/PowerShell/7/pwsh.exe"
+        }
       }).command
     ).toBe("/mnt/c/Program Files/PowerShell/7/pwsh.exe");
+  });
+
+  it("controlled-runner 在本机执行 compare 时不应依赖 wslpath 转换", () => {
+    expect(
+      resolveDiffRuntime({
+        mode: VISUAL_MODES.controlledRunner,
+        env: {
+          ZAPCMD_PWSH_PATH: "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
+        }
+      })
+    ).toEqual({
+      command: "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      useWindowsPaths: false
+    });
   });
 });

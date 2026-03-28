@@ -44,6 +44,7 @@ function printUsage() {
   console.log("  --mode=windows-edge      强制 Windows Edge baseline 模式");
   console.log("  --mode=wsl-windows-edge  强制 WSL -> Windows Edge 桥接模式");
   console.log("  --mode=linux-chromium    强制 Linux Chromium smoke 模式");
+  console.log("  --mode=controlled-runner 强制使用受控 runner visual gate 模式");
   console.log("  --help                   显示帮助");
   console.log("");
   console.log("环境变量:");
@@ -51,6 +52,8 @@ function printUsage() {
   console.log("  ZAPCMD_EDGE_PATH          指定 Edge 可执行文件路径");
   console.log("  ZAPCMD_LINUX_BROWSER_PATH 指定 Linux Chromium-family 浏览器路径");
   console.log("  ZAPCMD_PWSH_PATH          指定 visual-diff 使用的 PowerShell 路径");
+  console.log("  ZAPCMD_VISUAL_RUNNER_BROWSER_PATH    指定受控 runner 浏览器路径");
+  console.log("  ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION 指定受控 runner 浏览器期望版本");
 }
 
 function createRuntimeEnv() {
@@ -101,6 +104,10 @@ function assertDistReady() {
 }
 
 function assertBrowserReady(runtime) {
+  if (runtime.mode === VISUAL_MODES.controlledRunner) {
+    return;
+  }
+
   if (runtime.browserRuntime.command) {
     return;
   }
@@ -117,6 +124,45 @@ function assertDiffReady(runtime) {
     return;
   }
   throw new Error("未找到 PowerShell 运行时。请安装 pwsh，或设置 ZAPCMD_PWSH_PATH。");
+}
+
+function assertControlledRunnerBrowser(runtime, environmentManifestPath) {
+  const browserCommand = typeof runtime.browserRuntime.command === "string" ? runtime.browserRuntime.command.trim() : "";
+  if (!browserCommand) {
+    throw new Error(
+      [
+        "controlled-runner 缺少浏览器路径。",
+        "请设置 ZAPCMD_VISUAL_RUNNER_BROWSER_PATH。",
+        `env=${environmentManifestPath}`
+      ].join("\n")
+    );
+  }
+
+  const expectedVersion =
+    typeof runtime.browserRuntime.expectedVersion === "string" ? runtime.browserRuntime.expectedVersion.trim() : "";
+  if (!expectedVersion) {
+    throw new Error(
+      [
+        "controlled-runner 缺少浏览器期望版本。",
+        "请设置 ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION。",
+        `env=${environmentManifestPath}`
+      ].join("\n")
+    );
+  }
+
+  const manifest = JSON.parse(fs.readFileSync(environmentManifestPath, "utf8"));
+  const actualVersion =
+    typeof manifest?.browser?.version === "string" ? manifest.browser.version.trim() : "";
+  if (!actualVersion.includes(expectedVersion)) {
+    throw new Error(
+      [
+        "controlled-runner 浏览器版本与契约不匹配。",
+        `expected=${expectedVersion}`,
+        `actual=${actualVersion || "(missing)"}`,
+        `env=${environmentManifestPath}`
+      ].join("\n")
+    );
+  }
 }
 
 function writeEnvironmentManifest(runtime) {
@@ -169,6 +215,7 @@ async function processShot(runtime, shot, port, environmentManifestPath) {
   }
 
   const result = await compareAgainstBaseline({
+    mode: runtime.mode,
     actualPath: capture.actualPath,
     baselinePath: capture.baselinePath,
     diffCommand: runtime.diffRuntime.command,
@@ -218,6 +265,9 @@ async function main() {
   console.log(`[visual-regression] outputDir=${runtime.outputDir}`);
   const environmentManifestPath = writeEnvironmentManifest(runtime);
   console.log(`[visual-regression] env=${environmentManifestPath}`);
+  if (runtime.mode === VISUAL_MODES.controlledRunner) {
+    assertControlledRunnerBrowser(runtime, environmentManifestPath);
+  }
 
   const server = createStaticServer(DIST_DIR);
   await new Promise((resolve, reject) => {

@@ -10,11 +10,17 @@ const KEY_FONTS = Object.freeze([
   "Consolas",
   "Fira Code",
   "JetBrains Mono",
-  "Noto Sans"
+  "Noto Sans",
+  "Noto Sans SC",
+  "Microsoft YaHei"
 ]);
 
 function trimString(value) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function looksLikeBrowserVersion(value) {
+  return /\d+\.\d+\.\d+\.\d+/.test(trimString(value));
 }
 
 function runTextCommand({ command, args = [], execFileSync = childProcess.execFileSync }) {
@@ -80,13 +86,13 @@ function buildWindowsFileVersionScript(targetPath) {
     "if ($item) {",
     "  @($item.VersionInfo.ProductVersion, $item.VersionInfo.FileVersion) | Where-Object { $_ } | Select-Object -First 1",
     "}"
-  ].join(" ");
+  ].join("; ");
 }
 
 function buildWindowsFontRegistryScript() {
   return [
     "$fontProps = Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts'",
-    "$fontMap = [ordered]@{'Segoe UI'='Segoe UI (TrueType)'; 'Segoe UI Variable'='Segoe UI Variable (TrueType)'; 'Consolas'='Consolas (TrueType)'; 'Fira Code'='Fira Code (TrueType)'; 'JetBrains Mono'='JetBrains Mono (TrueType)'; 'Noto Sans'='Noto Sans (TrueType)'}",
+    "$fontMap = [ordered]@{'Segoe UI'='Segoe UI (TrueType)'; 'Segoe UI Variable'='Segoe UI Variable (TrueType)'; 'Consolas'='Consolas (TrueType)'; 'Fira Code'='Fira Code (TrueType)'; 'JetBrains Mono'='JetBrains Mono (TrueType)'; 'Noto Sans'='Noto Sans (TrueType)'; 'Noto Sans SC'='Noto Sans SC (TrueType)'; 'Microsoft YaHei'='Microsoft YaHei & Microsoft YaHei UI (TrueType)'}",
     "$result = [ordered]@{}",
     "foreach ($entry in $fontMap.GetEnumerator()) { $registryKey = $entry.Value; $raw = ''; if ($fontProps.PSObject.Properties.Name -contains $registryKey) { $raw = [string]$fontProps.PSObject.Properties[$registryKey].Value }; $result[$entry.Key] = @{ installed = [bool]$raw; value = $raw } }",
     "$result | ConvertTo-Json -Compress -Depth 4"
@@ -129,6 +135,7 @@ function resolveGitHead({ execFileSync }) {
 
 function probeBrowser(runtime, { execFileSync, spawnSync }) {
   const browserRuntime = runtime.browserRuntime || {};
+  const expectedVersion = trimString(browserRuntime.expectedVersion);
   let version =
     runCapturedCommand({
       command: browserRuntime.command,
@@ -141,7 +148,7 @@ function probeBrowser(runtime, { execFileSync, spawnSync }) {
       execFileSync
     });
 
-  if (!version && runtime.mode !== VISUAL_MODES.linuxSmoke && trimString(runtime.diffRuntime?.command)) {
+  if (!looksLikeBrowserVersion(version) && runtime.mode !== VISUAL_MODES.linuxSmoke && trimString(runtime.diffRuntime?.command)) {
     const browserPath =
       typeof runtime.resolveBrowserPath === "function"
         ? runtime.resolveBrowserPath(browserRuntime.command)
@@ -157,7 +164,9 @@ function probeBrowser(runtime, { execFileSync, spawnSync }) {
   return {
     name: trimString(browserRuntime.name),
     command: trimString(browserRuntime.command),
-    version
+    version,
+    expectedVersion,
+    versionMatchesExpected: expectedVersion ? trimString(version).includes(expectedVersion) : false
   };
 }
 
@@ -231,11 +240,18 @@ function probeLinuxFonts({ execFileSync }) {
     command: "fc-list",
     args: [":", "family"],
     execFileSync
-  }).toLowerCase();
+  });
+  const families = new Set(
+    output
+      .split(/\r?\n/)
+      .flatMap((line) => line.split(","))
+      .map((entry) => trimString(entry).toLowerCase())
+      .filter(Boolean)
+  );
 
   const fallback = createEmptyFontManifest();
   for (const fontName of KEY_FONTS) {
-    if (output.includes(fontName.toLowerCase())) {
+    if (families.has(fontName.toLowerCase())) {
       fallback[fontName] = {
         installed: true,
         value: fontName
@@ -274,6 +290,8 @@ function collectVisualEnvironment(
     diffRuntime: probeDiffRuntime(runtime.diffRuntime, { execFileSync }),
     system: probeSystemInfo(runtime, { execFileSync }),
     fonts: probeKeyFonts(runtime, { execFileSync }),
+    baselineKind: runtime.mode === VISUAL_MODES.linuxSmoke ? "linux-smoke" : "controlled-runner",
+    fontScope: runtime.mode === VISUAL_MODES.controlledRunner ? "visual-harness-controlled" : "local-compare",
     baselineDir: runtime.baselineDir,
     outputDir: runtime.outputDir,
     serverBinding: runtime.serverBinding

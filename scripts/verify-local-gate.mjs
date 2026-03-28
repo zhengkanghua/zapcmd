@@ -3,6 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
+import { buildLocalGatePlan } from "./verify-local-gate-lib.mjs";
+
 const flags = new Set(process.argv.slice(2));
 const isWindows = process.platform === "win32";
 const isWsl = process.platform === "linux" && Boolean(process.env.WSL_DISTRO_NAME || process.env.WSL_INTEROP);
@@ -34,7 +36,7 @@ function printUsage() {
   console.log("1) 运行 npm run check:all");
   console.log("2) Windows 上自动检测 WebDriver 依赖，缺失时自动安装");
   console.log(`3) Windows 上运行 npm run e2e:desktop:smoke；${macOSDefaultGateDescription}`);
-  console.log("4) Windows / WSL 上运行 npm run test:visual:ui（截图级视觉回归门禁）");
+  console.log("4) Windows / WSL 上运行 npm run test:visual:ui（non-blocking compare）");
   console.log(`   ${macOSExperimentalProbeDescription}`);
   console.log("");
   console.log("选项:");
@@ -90,6 +92,23 @@ function runCommand(command, stepName) {
       reject(new Error(`${stepName} 失败，退出码: ${code ?? "unknown"}`));
     });
   });
+}
+
+async function runOptionalCommand(command, stepName, artifactHint) {
+  if (dryRun) {
+    console.log(`[dry-run] ${stepName}: ${command}`);
+    return;
+  }
+
+  try {
+    await runCommand(command, stepName);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`[local-gate] warning: ${message}`);
+    if (artifactHint) {
+      console.warn(`[local-gate] visual compare artifacts: ${artifactHint}`);
+    }
+  }
 }
 
 function resolveCommandPath(command) {
@@ -323,6 +342,34 @@ async function runVisualRegressionIfNeeded() {
   await runCommand("npm run test:visual:ui", "运行截图级视觉回归门禁");
 }
 
+async function runPlannedGateSteps() {
+  const plan = buildLocalGatePlan({
+    platform: process.platform,
+    isWsl,
+    flags,
+    supportsDesktopE2E,
+    requireDesktopE2E,
+    macOSSkipDesktopSmokeMessage
+  });
+
+  if (plan.blockingError) {
+    throw new Error(plan.blockingError);
+  }
+
+  for (const notice of plan.notices) {
+    console.log(`[local-gate] ${notice}`);
+  }
+
+  for (const step of plan.steps) {
+    if (step.allowFailure) {
+      await runOptionalCommand(step.command, step.stepName, step.artifactHint);
+      continue;
+    }
+
+    await runCommand(step.command, step.stepName);
+  }
+}
+
 async function main() {
   if (shouldShowHelp()) {
     printUsage();
@@ -332,9 +379,7 @@ async function main() {
   assertFlags();
   await installDriversIfNeeded();
   await preflightDesktopDependenciesIfNeeded();
-  await runQualityGateIfNeeded();
-  await runDesktopSmokeIfNeeded();
-  await runVisualRegressionIfNeeded();
+  await runPlannedGateSteps();
   console.log("[local-gate] 本地验证完成");
 }
 

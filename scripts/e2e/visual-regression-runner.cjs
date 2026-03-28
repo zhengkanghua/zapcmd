@@ -130,6 +130,37 @@ function writeBrowserSpawnLog({
   );
 }
 
+function appendBrowserLog(logPath, line) {
+  try {
+    fs.appendFileSync(logPath, `${line}\n`, "utf8");
+  } catch {}
+}
+
+function terminateProcessTreeByPid(pid, { platform = process.platform, spawnImpl = spawn } = {}) {
+  return new Promise((resolve) => {
+    if (!Number.isInteger(pid) || pid <= 0) {
+      resolve();
+      return;
+    }
+
+    if (platform === "win32") {
+      const killer = spawnImpl("taskkill", ["/PID", String(pid), "/T", "/F"], {
+        windowsHide: true,
+        stdio: "ignore"
+      });
+
+      killer.on("error", () => resolve());
+      killer.on("exit", () => resolve());
+      return;
+    }
+
+    try {
+      process.kill(pid, "SIGKILL");
+    } catch {}
+    resolve();
+  });
+}
+
 function runBrowserScreenshot({
   browserCommand,
   browserLabel,
@@ -139,7 +170,11 @@ function runBrowserScreenshot({
   width,
   height,
   logPath,
-  environmentManifestPath
+  environmentManifestPath,
+  spawnImpl = spawn,
+  terminateProcessTree = (pid) => terminateProcessTreeByPid(pid, { spawnImpl }),
+  screenshotReadyPollIntervalMs = 100,
+  timeoutMs = 35_000
 }) {
   return new Promise((resolve, reject) => {
     const args = buildBrowserArgs({ url, outPath, profileDir, width, height });
@@ -156,36 +191,69 @@ function runBrowserScreenshot({
       environmentManifestPath
     });
 
-    const child = spawn(browserCommand, args, {
+    const child = spawnImpl(browserCommand, args, {
       windowsHide: true,
       stdio: "ignore"
     });
 
-    const timeout = setTimeout(() => {
+    let settled = false;
+    let shutdownRequested = false;
+
+    const clearRuntimeTimers = () => {
+      clearTimeout(timeout);
+      clearInterval(screenshotReadyPoll);
+    };
+
+    const settle = (action, value) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearRuntimeTimers();
+      if (action === "resolve") {
+        resolve(value);
+        return;
+      }
+      reject(value);
+    };
+
+    const requestBrowserShutdown = async (reason) => {
+      if (shutdownRequested || !Number.isInteger(child.pid) || child.pid <= 0) {
+        return;
+      }
+      shutdownRequested = true;
+      appendBrowserLog(logPath, `[cleanup] reason=${reason} pid=${child.pid}`);
       try {
-        child.kill();
-      } catch {}
-      reject(new Error(`${browserLabel} 截图超时（>35s）：${url}`));
-    }, 35_000);
+        await terminateProcessTree(child.pid);
+      } catch (error) {
+        appendBrowserLog(logPath, `[cleanup-error] ${String(error)}`);
+      }
+    };
+
+    const screenshotReadyPoll = setInterval(() => {
+      if (!fs.existsSync(outPath)) {
+        return;
+      }
+      void requestBrowserShutdown("screenshot-ready");
+    }, screenshotReadyPollIntervalMs);
+
+    const timeout = setTimeout(() => {
+      void requestBrowserShutdown("timeout");
+      settle("reject", new Error(`${browserLabel} 截图超时（>${Math.floor(timeoutMs / 1000)}s）：${url}`));
+    }, timeoutMs);
 
     child.on("error", (error) => {
-      clearTimeout(timeout);
-      try {
-        fs.appendFileSync(logPath, `\n[error] ${String(error)}\n`, "utf8");
-      } catch {}
-      reject(error);
+      appendBrowserLog(logPath, `[error] ${String(error)}`);
+      settle("reject", error);
     });
 
     child.on("exit", (code, signal) => {
-      clearTimeout(timeout);
-      try {
-        fs.appendFileSync(logPath, `\n[exit] code=${code ?? "null"} signal=${signal ?? "null"}\n`, "utf8");
-      } catch {}
-      if (code === 0) {
-        resolve();
+      appendBrowserLog(logPath, `[exit] code=${code ?? "null"} signal=${signal ?? "null"}`);
+      if (fs.existsSync(outPath) || code === 0) {
+        settle("resolve");
         return;
       }
-      reject(new Error(`${browserLabel} 截图失败：code=${code ?? "null"} signal=${signal ?? "null"}`));
+      settle("reject", new Error(`${browserLabel} 截图失败：code=${code ?? "null"} signal=${signal ?? "null"}`));
     });
   });
 }
@@ -266,6 +334,7 @@ function runVisualDiff({
 }
 
 async function compareAgainstBaseline({
+  mode,
   actualPath,
   baselinePath,
   diffCommand,
@@ -277,11 +346,14 @@ async function compareAgainstBaseline({
   resolveDiffPath
 }) {
   if (!fs.existsSync(baselinePath)) {
+    const updateCommand =
+      mode === "controlled-runner" ? "npm run test:visual:ui:update:runner" : "node scripts/e2e/visual-regression.cjs --update";
+
     throw new Error(
       [
         `缺少视觉回归 baseline：${baselinePath}`,
         "请先生成并提交 baseline：",
-        "  node scripts/e2e/visual-regression.cjs --update"
+        `  ${updateCommand}`
       ].join("\n")
     );
   }
