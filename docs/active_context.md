@@ -1,5 +1,13 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜visual env probe timeout）
+
+- 已修复 `test:visual:ui` 在 `outputDir` 后偶发卡住的问题：`collectVisualEnvironment()` 的同步外部探针现统一带短超时并保持 best-effort，focused env tests 已补齐并通过。
+
+## 补充（2026-03-28｜Windows visual 漏窗收口）
+
+- 已确认 Windows `test:visual:ui` 的可见 Edge 漏窗不是 `.tmp` 测试 profile 残留，而是默认个人 Edge 会话被接管。runner 已补 screenshot/post-exit 竞态清理，主流程再按“本次新增可见 Edge 窗口”做 run 级 sweep；visual focused tests 32 通过，实测不再新增可见窗口，旧漏窗已清掉。
+
 ## 补充（2026-03-28｜WSL visual cleanup）
 
 - 已补 WSL 桥接的 Edge 清理链路：`runBrowserScreenshot` 现可复用 Windows `pwsh.exe` 按 `profileDir` 查询并清理 `msedge.exe`，覆盖 `/mnt/c/.../msedge.exe + \\wsl.localhost\\...` 场景；新增回归测试，防止视觉回归残留多个 Edge 进程。

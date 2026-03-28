@@ -4,6 +4,8 @@ const childProcess = require("node:child_process");
 
 const { VISUAL_MODES } = require("./visual-regression-lib.cjs");
 
+const VISUAL_ENV_PROBE_TIMEOUT_MS = 1_500;
+
 const KEY_FONTS = Object.freeze([
   "Segoe UI",
   "Segoe UI Variable",
@@ -29,7 +31,13 @@ function runTextCommand({ command, args = [], execFileSync = childProcess.execFi
   }
 
   try {
-    return trimString(execFileSync(command, args, { encoding: "utf8" }));
+    return trimString(
+      execFileSync(command, args, {
+        encoding: "utf8",
+        timeout: VISUAL_ENV_PROBE_TIMEOUT_MS,
+        windowsHide: true
+      })
+    );
   } catch {
     return "";
   }
@@ -47,6 +55,7 @@ function runCapturedCommand({
   try {
     const result = spawnSync(command, args, {
       encoding: "utf8",
+      timeout: VISUAL_ENV_PROBE_TIMEOUT_MS,
       windowsHide: true
     });
     if (result?.error) {

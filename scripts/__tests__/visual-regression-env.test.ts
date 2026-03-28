@@ -7,11 +7,11 @@ const require = createRequire(import.meta.url);
 
 const { collectVisualEnvironment } = require("../e2e/visual-regression-env.cjs");
 
-type ExecFileSync = (command: string, args?: string[], options?: { encoding?: string }) => string;
+type ExecFileSync = (command: string, args?: string[], options?: { encoding?: string; timeout?: number; windowsHide?: boolean }) => string;
 type SpawnSync = (
   command: string,
   args?: string[],
-  options?: { encoding?: string; windowsHide?: boolean }
+  options?: { encoding?: string; timeout?: number; windowsHide?: boolean }
 ) => { status: number | null; stdout?: string; stderr?: string; error?: Error };
 
 function createExecFileSyncStub(): ExecFileSync {
@@ -113,6 +113,103 @@ describe("visual-regression-env", () => {
       listenHost: "127.0.0.1",
       urlHost: "127.0.0.1"
     });
+  });
+
+  it("applies timeouts to external environment probes so manifest collection stays best-effort", () => {
+    const execOptions: Array<{ encoding?: string; timeout?: number; windowsHide?: boolean } | undefined> = [];
+    const spawnOptions: Array<{ encoding?: string; timeout?: number; windowsHide?: boolean } | undefined> = [];
+    const execFileSync: ExecFileSync = (command, args = [], options) => {
+      execOptions.push(options);
+      const joinedArgs = args.join(" ");
+
+      if (command === "git" && joinedArgs === "rev-parse --short HEAD") {
+        return "261af33\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("$PSVersionTable.PSVersion.ToString()")) {
+        return "7.5.5\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("VersionInfo")) {
+        return "146.0.3856.84\n";
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("WindowsProductName")) {
+        return '{"platform":"windows","WindowsProductName":"Windows 11 Pro","WindowsVersion":"2009","OsBuildNumber":"22631"}';
+      }
+
+      if (command === "pwsh" && joinedArgs.includes("Segoe UI (TrueType)")) {
+        return '{"Segoe UI":{"installed":true,"value":"segoeui.ttf"},"Segoe UI Variable":{"installed":false,"value":""},"Consolas":{"installed":true,"value":"consola.ttf"},"Fira Code":{"installed":false,"value":""},"JetBrains Mono":{"installed":false,"value":""},"Noto Sans":{"installed":false,"value":""},"Noto Sans SC":{"installed":true,"value":"NotoSansSC-VF.ttf"},"Microsoft YaHei":{"installed":true,"value":"msyh.ttc"}}';
+      }
+
+      throw new Error(`Unexpected command: ${command} ${joinedArgs}`);
+    };
+
+    const spawnSync: SpawnSync = (command, args = [], options) => {
+      spawnOptions.push(options);
+      if (command === "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe" && args.join(" ") === "--version") {
+        return {
+          status: 0,
+          stdout: "Microsoft Edge 146.0.3856.84\n",
+          stderr: ""
+        };
+      }
+
+      return {
+        status: 1,
+        stdout: "",
+        stderr: ""
+      };
+    };
+
+    collectVisualEnvironment(
+      {
+        mode: "windows-edge",
+        browserRuntime: {
+          name: "Microsoft Edge",
+          command: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          useWindowsPaths: false
+        },
+        diffRuntime: {
+          name: "PowerShell",
+          command: "pwsh",
+          useWindowsPaths: false
+        },
+        baselineDir: "scripts/e2e/visual-baselines",
+        outputDir: ".tmp/e2e/visual-regression",
+        serverBinding: {
+          listenHost: "127.0.0.1",
+          urlHost: "127.0.0.1"
+        },
+        resolveBrowserPath: (targetPath: string) => targetPath
+      },
+      {
+        execFileSync,
+        spawnSync,
+        now: () => "2026-03-28T10:17:43.586Z"
+      }
+    );
+
+    expect(spawnOptions).not.toHaveLength(0);
+    expect(execOptions).not.toHaveLength(0);
+    for (const options of spawnOptions) {
+      expect(options).toEqual(
+        expect.objectContaining({
+          encoding: "utf8",
+          windowsHide: true,
+          timeout: expect.any(Number)
+        })
+      );
+    }
+    for (const options of execOptions) {
+      expect(options).toEqual(
+        expect.objectContaining({
+          encoding: "utf8",
+          windowsHide: true,
+          timeout: expect.any(Number)
+        })
+      );
+    }
   });
 
   it("records controlled-runner expected browser version and font mode", () => {
