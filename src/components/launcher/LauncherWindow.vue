@@ -167,10 +167,10 @@ function onNavAfterEnter(): void {
       >
         <Transition
           mode="out-in"
-          enter-active-class="transition-transform duration-250 ease-nav-slide motion-reduce:transition-none"
+          enter-active-class="transition-transform duration-motion-nav-enter ease-motion-emphasized motion-reduce:transition-none"
           enter-from-class="translate-x-full"
           enter-to-class="translate-x-0"
-          leave-active-class="transition-transform duration-200 ease-in motion-reduce:transition-none"
+          leave-active-class="transition-transform duration-motion-nav-exit ease-motion-exit motion-reduce:transition-none"
           leave-from-class="translate-x-0"
           leave-to-class="translate-x-full"
           :on-after-enter="onNavAfterEnter"

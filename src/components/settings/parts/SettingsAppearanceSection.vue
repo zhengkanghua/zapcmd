@@ -110,7 +110,7 @@ function getMotionPresetBadge(id: string): string {
               :key="motionMeta.id"
               type="button"
               :class="[
-                'motion-preset-card grid gap-[10px] rounded-panel border border-settings-card-border bg-ui-text/[0.015] p-[14px] text-left transition-[border-color,background,transform,box-shadow] duration-150 hover:border-ui-text/16 hover:bg-ui-text/3 hover:-translate-y-[1px]',
+                'motion-preset-card grid gap-[10px] rounded-panel border border-settings-card-border bg-ui-text/[0.015] p-[14px] text-left transition-[border-color,background,transform,box-shadow] duration-motion-press ease-motion-emphasized active:scale-motion-press-active hover:border-ui-text/16 hover:bg-ui-text/3 hover:-translate-y-[1px]',
                 {
                   'motion-preset-card--active border-ui-accent bg-ui-brand/8 shadow-settings-focus':
                     motionMeta.id === props.motionPreset

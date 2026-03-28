@@ -121,7 +121,7 @@ const stagingHintText = computed(() => {
           @click="emit('focus-staging-index', index)"
         >
           <article
-            class="staging-card border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-launcher-card duration-150 ease-launcher-emphasized active:cursor-grabbing"
+            class="staging-card border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-launcher-card duration-motion-press ease-motion-emphasized active:scale-motion-press-active active:cursor-grabbing"
             :class="{
               'staging-card--active border-ui-brand/52 ring-1 ring-inset ring-ui-brand/20':
                 props.focusZone === 'staging' && index === props.stagingActiveIndex

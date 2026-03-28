@@ -1,0 +1,54 @@
+:root,
+[data-motion-preset="expressive"] {
+  --motion-duration-nav-enter: 250ms;
+  --motion-duration-nav-exit: 200ms;
+  --motion-duration-toast: 350ms;
+  --motion-duration-panel-enter: 300ms;
+  --motion-duration-panel-exit: 200ms;
+  --motion-duration-dialog-enter: 300ms;
+  --motion-duration-press: 150ms;
+  --motion-ease-emphasized: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --motion-ease-exit: ease-in;
+  --motion-distance-toast-y: 10px;
+  --motion-distance-panel-y: 10px;
+  --motion-distance-dialog-y: 10px;
+  --motion-scale-dialog-enter: 0.95;
+  --motion-scale-press-active: 0.985;
+}
+
+[data-motion-preset="steady-tool"] {
+  --motion-duration-nav-enter: 220ms;
+  --motion-duration-nav-exit: 180ms;
+  --motion-duration-toast: 320ms;
+  --motion-duration-panel-enter: 260ms;
+  --motion-duration-panel-exit: 180ms;
+  --motion-duration-dialog-enter: 260ms;
+  --motion-duration-press: 130ms;
+  --motion-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-exit: ease-in;
+  --motion-distance-toast-y: 7px;
+  --motion-distance-panel-y: 8px;
+  --motion-distance-dialog-y: 7px;
+  --motion-scale-dialog-enter: 0.975;
+  --motion-scale-press-active: 0.992;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  [data-motion-preset] {
+    --motion-duration-nav-enter: 1ms;
+    --motion-duration-nav-exit: 1ms;
+    --motion-duration-toast: 1ms;
+    --motion-duration-panel-enter: 1ms;
+    --motion-duration-panel-exit: 1ms;
+    --motion-duration-dialog-enter: 1ms;
+    --motion-duration-press: 1ms;
+    --motion-ease-emphasized: linear;
+    --motion-ease-exit: linear;
+    --motion-distance-toast-y: 0px;
+    --motion-distance-panel-y: 0px;
+    --motion-distance-dialog-y: 0px;
+    --motion-scale-dialog-enter: 1;
+    --motion-scale-press-active: 1;
+  }
+}
