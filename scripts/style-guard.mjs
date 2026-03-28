@@ -32,6 +32,7 @@ const allowedStyleIndexImports = new Set([
   "./reset.css",
   "./themes/_index.css",
   "./tokens.css",
+  "./motion.css",
   "./tailwind.css"
 ]);
 
@@ -227,7 +228,7 @@ function scanStylesIndexImports() {
       file: styleIndexRelativePath,
       line: lineNumber,
       rule: "styles-index-import-whitelist",
-      message: "src/styles/index.css 只允许导入 reset/themes/tokens/tailwind 白名单文件",
+      message: "src/styles/index.css 只允许导入 reset/themes/tokens/motion/tailwind 白名单文件",
       preview: line.trim()
     });
   }

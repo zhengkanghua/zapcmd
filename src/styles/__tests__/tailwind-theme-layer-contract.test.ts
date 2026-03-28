@@ -72,7 +72,11 @@ describe("tailwind theme layer contract", () => {
   it("生成本轮新增的语义 transition / surface utility", () => {
     const requiredSemanticSelectors = [
       ".ease-settings-emphasized",
-      ".ease-launcher-emphasized",
+      ".ease-motion-emphasized",
+      ".ease-motion-exit",
+      ".duration-motion-nav-enter",
+      ".duration-motion-nav-exit",
+      ".duration-motion-press",
       ".transition-settings-field",
       ".transition-settings-interactive",
       ".transition-settings-toggle-track",

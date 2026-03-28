@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-28｜全局 motion preset 落地）
+
+- 已完成 `appearance.motionPreset`：默认 `expressive` 保持基线，`steady-tool` 接入 Launcher/Settings；store/runtime/UI/motion contract 与 `check:all` 全绿，visual 场景已补，`test:visual:ui` 在当前 Linux 环境按脚本规则跳过。
+
 ## 补充（2026-03-28｜全局 motion preset 实施计划）
 
 - 已落盘 `docs/superpowers/plans/2026-03-28-global-motion-preset.md`：按 store/migration → bootstrap/runtime → Settings UI → motion token 热点 → visual/check:all 拆 5 任务，含 reduced-motion 与迁移策略。

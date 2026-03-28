@@ -50,6 +50,33 @@ const SCREENSHOTS = [
     maxDiffRatio: 0.005,
     pixelTolerance: 0,
     sampleStep: 1
+  },
+  {
+    id: "settings-appearance-motion-preset",
+    hash: "settings-appearance-motion-preset",
+    width: 1400,
+    height: 1800,
+    maxDiffRatio: 0.005,
+    pixelTolerance: 0,
+    sampleStep: 1
+  },
+  {
+    id: "launcher-motion-surfaces-expressive",
+    hash: "launcher-motion-surfaces-expressive",
+    width: 1400,
+    height: 1800,
+    maxDiffRatio: 0.005,
+    pixelTolerance: 0,
+    sampleStep: 1
+  },
+  {
+    id: "launcher-motion-surfaces-steady-tool",
+    hash: "launcher-motion-surfaces-steady-tool",
+    width: 1400,
+    height: 1800,
+    maxDiffRatio: 0.005,
+    pixelTolerance: 0,
+    sampleStep: 1
   }
 ];
 

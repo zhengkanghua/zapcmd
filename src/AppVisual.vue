@@ -1,6 +1,16 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 
+import type { CommandTemplate } from "./features/commands/types";
+import type { StagedCommand } from "./features/launcher/types";
+import type { LauncherSafetyDialog } from "./components/launcher/types";
+import { MOTION_PRESET_REGISTRY } from "./features/motion/motionRegistry";
+import { THEME_REGISTRY } from "./features/themes/themeRegistry";
+import LauncherFlowPanel from "./components/launcher/parts/LauncherFlowPanel.vue";
+import LauncherSafetyOverlay from "./components/launcher/parts/LauncherSafetyOverlay.vue";
+import LauncherSearchPanel from "./components/launcher/parts/LauncherSearchPanel.vue";
+import LauncherStagingPanel from "./components/launcher/parts/LauncherStagingPanel.vue";
+import SettingsAppearanceSection from "./components/settings/parts/SettingsAppearanceSection.vue";
 import SDropdown from "./components/settings/ui/SDropdown.vue";
 import SSegmentNav from "./components/settings/ui/SSegmentNav.vue";
 import SHotkeyRecorder from "./components/settings/ui/SHotkeyRecorder.vue";
@@ -11,10 +21,22 @@ type VisualScenarioId =
   | "settings-ui-overview"
   | "settings-ui-dropdown-open"
   | "settings-ui-slider"
-  | "settings-ui-hotkey-recorder";
+  | "settings-ui-hotkey-recorder"
+  | "settings-appearance-motion-preset"
+  | "launcher-motion-surfaces-expressive"
+  | "launcher-motion-surfaces-steady-tool";
 
 function normalizeScenario(hash: string): VisualScenarioId {
   const normalized = hash.replace(/^#/, "");
+  if (normalized === "settings-appearance-motion-preset") {
+    return "settings-appearance-motion-preset";
+  }
+  if (normalized === "launcher-motion-surfaces-expressive") {
+    return "launcher-motion-surfaces-expressive";
+  }
+  if (normalized === "launcher-motion-surfaces-steady-tool") {
+    return "launcher-motion-surfaces-steady-tool";
+  }
   if (normalized === "settings-ui-dropdown-open") {
     return "settings-ui-dropdown-open";
   }
@@ -32,6 +54,9 @@ const scenario = computed<VisualScenarioId>(() => normalizeScenario(window.locat
 const dropdownOpenHost = ref<HTMLElement | null>(null);
 const hotkeyRecorderHost = ref<HTMLElement | null>(null);
 const sliderValue = ref(0.72);
+const appearancePreviewOpacity = ref(0.96);
+const appearanceTheme = ref("obsidian");
+const appearanceBlurEnabled = ref(true);
 
 const segmentItems = [
   { id: "general", label: "通用", icon: "⚙" },
@@ -47,6 +72,79 @@ const dropdownOptions = [
 
 const selectedTerminal = ref("powershell");
 const formatSliderValue = (v: number) => `${Math.round(v * 100)}%`;
+const noopElementRef = () => {};
+const noopIndexedElementRef = (_el: unknown, _index: number) => {};
+
+const visualSearchResults: CommandTemplate[] = [
+  {
+    id: "cmd-docker-logs",
+    title: "Docker Logs",
+    description: "查看容器最近日志",
+    preview: "docker logs app --tail 120",
+    folder: "Builtins",
+    category: "devops",
+    needsArgs: false
+  },
+  {
+    id: "cmd-sync-logs",
+    title: "Sync Logs",
+    description: "同步 prod 集群日志",
+    preview: "sync-logs --target prod-cluster --since 7d",
+    folder: "Workspace",
+    category: "ops",
+    needsArgs: false
+  }
+];
+
+const visualStagedCommands: StagedCommand[] = [
+  {
+    id: "stage-1",
+    title: "Docker Logs",
+    renderedCommand: "docker logs app --tail 120",
+    rawPreview: "docker logs app --tail 120",
+    args: [],
+    argValues: {}
+  },
+  {
+    id: "stage-2",
+    title: "Sync Logs",
+    renderedCommand: "sync-logs --target prod-cluster --since 7d",
+    rawPreview: "sync-logs --target prod-cluster --since 7d",
+    args: [
+      {
+        key: "target",
+        label: "Target",
+        token: "{target}",
+        placeholder: "prod-cluster"
+      }
+    ],
+    argValues: {
+      target: "prod-cluster"
+    }
+  }
+];
+
+const visualSafetyDialog: LauncherSafetyDialog = {
+  mode: "queue",
+  title: "执行前确认高风险命令",
+  description: "以下命令可能修改生产环境或删除资源，请再次确认。",
+  items: [
+    {
+      title: "Docker prune",
+      renderedCommand: "docker system prune -af",
+      reasons: ["会删除未使用镜像与容器", "可能影响正在排查的问题现场"]
+    },
+    {
+      title: "Sync Logs",
+      renderedCommand: "sync-logs --target prod-cluster --since 7d",
+      reasons: ["会访问生产日志源", "命令包含远端集群上下文"]
+    }
+  ]
+};
+
+const launcherMotionPreset = computed(() =>
+  scenario.value === "launcher-motion-surfaces-steady-tool" ? "steady-tool" : "expressive"
+);
 
 function onSliderValueUpdate(value: number) {
   sliderValue.value = value;
@@ -74,6 +172,14 @@ onMounted(async () => {
   );
   trigger?.click();
 });
+
+watch(
+  launcherMotionPreset,
+  (value) => {
+    document.documentElement.dataset.motionPreset = value;
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -199,6 +305,139 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+      </section>
+
+      <section v-else-if="scenario === 'settings-appearance-motion-preset'" class="grid gap-8">
+        <div class="grid gap-3">
+          <h2 class="text-[13px] font-semibold text-ui-text">SettingsAppearanceSection Motion Preset</h2>
+          <p class="text-[12.5px] leading-snug text-ui-subtle">
+            使用真实 Appearance section 同时展示 `expressive` 与 `steady-tool` 的 active 态。
+          </p>
+          <div class="grid gap-4 min-[1100px]:grid-cols-2">
+            <section class="grid gap-2 rounded-panel border border-ui-border bg-ui-bg-deep p-4">
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="text-[12px] font-semibold text-ui-text">Expressive</h3>
+                <span class="rounded-full border border-ui-text/10 bg-ui-text/6 px-2 py-0.5 text-[11px] text-ui-subtle">
+                  默认
+                </span>
+              </div>
+              <SettingsAppearanceSection
+                :window-opacity="appearancePreviewOpacity"
+                :theme="appearanceTheme"
+                :blur-enabled="appearanceBlurEnabled"
+                motion-preset="expressive"
+                :themes="THEME_REGISTRY"
+                :motion-presets="MOTION_PRESET_REGISTRY"
+              />
+            </section>
+
+            <section class="grid gap-2 rounded-panel border border-ui-border bg-ui-bg-deep p-4">
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="text-[12px] font-semibold text-ui-text">Steady Tool</h3>
+                <span class="rounded-full border border-ui-text/10 bg-ui-text/6 px-2 py-0.5 text-[11px] text-ui-subtle">
+                  收紧
+                </span>
+              </div>
+              <SettingsAppearanceSection
+                :window-opacity="appearancePreviewOpacity"
+                :theme="appearanceTheme"
+                :blur-enabled="appearanceBlurEnabled"
+                motion-preset="steady-tool"
+                :themes="THEME_REGISTRY"
+                :motion-presets="MOTION_PRESET_REGISTRY"
+              />
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section
+        v-else-if="
+          scenario === 'launcher-motion-surfaces-expressive' ||
+          scenario === 'launcher-motion-surfaces-steady-tool'
+        "
+        class="grid gap-8"
+      >
+        <div class="grid gap-3">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-[13px] font-semibold text-ui-text">Launcher Motion Surfaces</h2>
+            <span class="rounded-full border border-ui-text/10 bg-ui-text/6 px-2.5 py-1 text-[11px] text-ui-subtle">
+              {{ launcherMotionPreset }}
+            </span>
+          </div>
+          <p class="text-[12.5px] leading-snug text-ui-subtle">
+            覆盖：toast、search result pressable、flow overlay/panel、staging card、safety dialog。
+          </p>
+        </div>
+
+        <section class="grid gap-4 rounded-panel border border-ui-border bg-ui-bg-deep p-4">
+          <h3 class="text-[12px] font-semibold text-ui-text">Search + Toast</h3>
+          <LauncherSearchPanel
+            query="logs"
+            :executing="false"
+            execution-feedback-message="已加入 Flow"
+            execution-feedback-tone="success"
+            :drawer-open="true"
+            :drawer-viewport-height="220"
+            :keyboard-hints="[{ keys: ['Enter'], action: '执行' }, { keys: ['Tab'], action: '入队' }]"
+            :filtered-results="visualSearchResults"
+            :active-index="0"
+            staged-feedback-command-id="cmd-sync-logs"
+            :staged-command-count="visualStagedCommands.length"
+            :flow-open="false"
+            :review-open="false"
+            :set-search-input-ref="noopElementRef"
+            :set-drawer-ref="noopElementRef"
+            :set-result-button-ref="noopIndexedElementRef"
+          />
+        </section>
+
+        <section class="grid gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_320px]">
+          <div class="grid gap-4 rounded-panel border border-ui-border bg-ui-bg-deep p-4">
+            <h3 class="text-[12px] font-semibold text-ui-text">Flow Overlay + Safety Dialog</h3>
+            <div class="relative h-[420px] overflow-hidden rounded-ui border border-ui-border bg-ui-bg">
+              <LauncherFlowPanel
+                staging-drawer-state="open"
+                :staging-expanded="true"
+                :staged-commands="visualStagedCommands"
+                :staging-hints="[{ keys: ['Ctrl+Enter'], action: '执行全部' }]"
+                focus-zone="staging"
+                :staging-active-index="0"
+                :flow-open="true"
+                :executing="false"
+                execution-feedback-message="Flow 已就绪"
+                execution-feedback-tone="neutral"
+                :set-staging-panel-ref="noopElementRef"
+                :set-staging-list-ref="noopElementRef"
+              />
+            </div>
+
+            <div class="relative h-[320px] overflow-hidden rounded-ui border border-ui-border bg-ui-bg">
+              <LauncherSafetyOverlay
+                :safety-dialog="visualSafetyDialog"
+                :executing="false"
+              />
+            </div>
+          </div>
+
+          <div class="grid gap-4 rounded-panel border border-ui-border bg-ui-bg-deep p-4">
+            <h3 class="text-[12px] font-semibold text-ui-text">Staging Panel</h3>
+            <div class="grid grid-cols-[var(--staging-collapsed-width)] grid-rows-launcher-shell">
+              <div class="col-span-full row-start-1 min-h-ui-top-align" aria-hidden="true"></div>
+              <LauncherStagingPanel
+                staging-drawer-state="open"
+                :staging-expanded="true"
+                :staged-commands="visualStagedCommands"
+                :staging-hints="[{ keys: ['Esc'], action: '关闭' }]"
+                focus-zone="staging"
+                :staging-active-index="0"
+                :executing="false"
+                :set-staging-panel-ref="noopElementRef"
+                :set-staging-list-ref="noopElementRef"
+              />
+            </div>
+          </div>
+        </section>
       </section>
     </div>
   </main>
