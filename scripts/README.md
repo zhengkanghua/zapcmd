@@ -22,7 +22,8 @@ node scripts/sync-keys.mjs
 
 平台口径：
 
-- **Windows**：`npm run verify:local` 会先跑 `npm run check:all`，再执行默认 blocking 的 `npm run e2e:desktop:smoke`。
+- **Windows**：`npm run verify:local` 会先跑 `npm run check:all`，再执行默认 blocking 的 `npm run e2e:desktop:smoke` 与 `npm run test:visual:ui`。
+- **WSL**：`npm run verify:local` 会先跑 `npm run check:all`，跳过桌面 smoke，但会执行 `npm run test:visual:ui`，由 WSL 工作区桥接到 Windows Edge 做截图。
 - **macOS**：`npm run verify:local` 默认只跑 `npm run check:all`，**不会**把 desktop smoke 当作默认 blocking gate。
 - **macOS experimental**：仅在显式传入 `--macos-desktop-e2e-experimental`，或设置兼容环境变量 `ZAPCMD_E2E_EXPERIMENTAL_MACOS=1` 时，才手动探测 desktop smoke；该路径仅用于实验性探测，不代表稳定 gate。
 
@@ -33,6 +34,7 @@ npm run verify:local
 ```
 
 说明：在 Windows 上会自动检测 `tauri-driver` / `msedgedriver`，缺失时先补装再继续执行。
+在 WSL 上，视觉回归默认复用当前 Linux worktree 的 `dist` 与 baseline，并调用 Windows `msedge.exe` / `pwsh.exe` 完成截图与 diff。
 在 macOS 上，只有显式启用 experimental probe 时才会预检 `tauri-driver` / `safaridriver`；前置不满足时直接失败并给出修复指引。
 
 Windows 显式预装模式（每次都先执行驱动安装）：
@@ -61,6 +63,23 @@ safaridriver --enable
 ```
 
 > 注意：以上 macOS 路径仅用于手动试验 unsupported / experimental 探测，不应视为默认 blocking gate。
+
+### 2.1 视觉回归模式
+
+```bash
+npm run test:visual:ui
+```
+
+- Windows：原生 Windows Edge baseline
+- WSL：默认桥接到 Windows Edge
+- Linux：默认走 Linux Chromium smoke（baseline 位于 `scripts/e2e/visual-baselines/linux-chromium/`）
+
+显式模式：
+
+```bash
+npm run test:visual:ui:wsl-bridge
+npm run test:visual:ui:linux
+```
 
 仅预览将执行的命令（不实际执行）：
 

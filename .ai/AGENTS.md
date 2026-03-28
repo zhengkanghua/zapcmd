@@ -95,6 +95,14 @@
 - **提交前校验 (pre-commit)**：必须依次通过 `lint`、`typecheck`、`test:related`。
 - **Check 链路**：必须包含并按顺序执行 `lint` -> `typecheck` -> `test:coverage` -> `build` -> `check:rust`。
 
+### 🖥️ WSL / Windows 视觉回归约束
+- 当前视觉回归支持三种口径：Windows 原生 `test:visual:ui`、WSL 桥接 Windows `test:visual:ui`、Linux smoke `test:visual:ui:linux`。
+- **Windows 仍是最终 blocking visual baseline**；Linux smoke 只用于开发期快速反馈，baseline 必须落在 `scripts/e2e/visual-baselines/linux-chromium/`，禁止与 Windows baseline 混用。
+- **WSL 桥接的边界**：构建产物、静态服务、baseline、actual、diff JSON、浏览器 profile 都来自当前 WSL worktree；Windows 侧只负责启动 `msedge.exe` / `pwsh.exe` 并读写映射到当前仓库的 `\\wsl.localhost\\<distro>\\...` 路径。
+- **禁止**把 WSL 桥接扩展成“直接写 Windows 工作目录”或“在 Windows 侧另建 checkout 再回传产物”；这会破坏基线归属并增加误删风险。
+- 如需修改视觉回归脚本，必须保持以下安全边界：1）删除/覆盖操作只允许发生在仓库内的 `.tmp/e2e/visual-regression/**` 与 `scripts/e2e/visual-baselines/**`；2）Windows 可执行文件路径与 Windows 读写参数路径必须区分处理，命令本身继续走 WSL 可执行路径（如 `/mnt/c/.../msedge.exe`），不能直接把 `C:\\...` 当作 `spawn()` 命令。
+- 在 WSL 中给用户或其他 Agent 说明视觉回归结果时，必须明确区分“桥接已打通但与现有 Windows baseline 不一致”和“桥接基础设施失败”两类状态，禁止混淆。
+
 ### 🏗️ 架构与前端规范
 - **设计原则**：遵循 SOLID、DRY、关注点分离。复用已有 composable/service/store，禁止在 `App.vue` 堆砌逻辑。
 - **语义与交互**：优先语义化 HTML（`main/section/nav/button` 等），禁止为样式牺牲语义。新增 UI 必须同步键盘可达性（focus、Esc 关闭等）。

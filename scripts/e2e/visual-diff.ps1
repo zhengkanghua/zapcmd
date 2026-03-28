@@ -34,6 +34,21 @@ function Convert-ToArgb32Bitmap([System.Drawing.Bitmap]$Source) {
   return $dest
 }
 
+function Read-BitmapFromFile([string]$ImagePath) {
+  $bytes = [System.IO.File]::ReadAllBytes($ImagePath)
+  $stream = New-Object System.IO.MemoryStream(, $bytes)
+  try {
+    $decoded = [System.Drawing.Bitmap]::new($stream)
+    try {
+      return New-Object System.Drawing.Bitmap $decoded
+    } finally {
+      $decoded.Dispose()
+    }
+  } finally {
+    $stream.Dispose()
+  }
+}
+
 function Compare-Bitmaps(
   [System.Drawing.Bitmap]$Baseline,
   [System.Drawing.Bitmap]$Actual,
@@ -140,8 +155,8 @@ if (-not (Test-Path -LiteralPath $ActualPath)) {
   exit 2
 }
 
-$baselineBitmap = [System.Drawing.Bitmap]::new((Resolve-Path -LiteralPath $BaselinePath).Path)
-$actualBitmap = [System.Drawing.Bitmap]::new((Resolve-Path -LiteralPath $ActualPath).Path)
+$baselineBitmap = Read-BitmapFromFile -ImagePath $BaselinePath
+$actualBitmap = Read-BitmapFromFile -ImagePath $ActualPath
 $baselineArgb = $null
 $actualArgb = $null
 

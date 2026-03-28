@@ -5,6 +5,7 @@ import process from "node:process";
 
 const flags = new Set(process.argv.slice(2));
 const isWindows = process.platform === "win32";
+const isWsl = process.platform === "linux" && Boolean(process.env.WSL_DISTRO_NAME || process.env.WSL_INTEROP);
 const isMacOS = process.platform === "darwin";
 const macOSDesktopE2EExperimentalFlag = "--macos-desktop-e2e-experimental";
 const macOSDesktopE2EExperimentalEnv = "ZAPCMD_E2E_EXPERIMENTAL_MACOS";
@@ -33,7 +34,7 @@ function printUsage() {
   console.log("1) 运行 npm run check:all");
   console.log("2) Windows 上自动检测 WebDriver 依赖，缺失时自动安装");
   console.log(`3) Windows 上运行 npm run e2e:desktop:smoke；${macOSDefaultGateDescription}`);
-  console.log("4) Windows 上运行 npm run test:visual:ui（截图级视觉回归门禁）");
+  console.log("4) Windows / WSL 上运行 npm run test:visual:ui（截图级视觉回归门禁）");
   console.log(`   ${macOSExperimentalProbeDescription}`);
   console.log("");
   console.log("选项:");
@@ -315,7 +316,7 @@ async function runVisualRegressionIfNeeded() {
     return;
   }
 
-  if (!isWindows) {
+  if (!isWindows && !isWsl) {
     return;
   }
 

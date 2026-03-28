@@ -3,6 +3,8 @@
 ## 补充（2026-03-28｜全局 motion preset 落地）
 
 - 已完成 `appearance.motionPreset`：默认 `expressive` 保持基线，`steady-tool` 接入 Launcher/Settings；store/runtime/UI/motion contract 与 `check:all` 全绿，visual 场景已补，`test:visual:ui` 在当前 Linux 环境按脚本规则跳过。
+- 已补齐视觉回归跨平台：WSL 默认桥接 Windows Edge/Pwsh，可完整跑 `test:visual:ui` 并暴露现有 Windows baseline 差异；新增 `test:visual:ui:linux` 与 `linux-chromium` baselines，本机已全绿。
+- `.ai/AGENTS.md` 已补 WSL/Windows 视觉回归约束：Windows 仍是最终 baseline，WSL 桥接只允许操作当前 repo 的 `.tmp/e2e/visual-regression/**` 与 `scripts/e2e/visual-baselines/**`。
 
 ## 补充（2026-03-28｜全局 motion preset 实施计划）
 
