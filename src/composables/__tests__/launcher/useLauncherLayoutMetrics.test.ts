@@ -204,4 +204,24 @@ describe("useLauncherLayoutMetrics", () => {
       SEARCH_CAPSULE_HEIGHT_PX + LAUNCHER_DRAWER_MAX_VIEWPORT_HEIGHT_DESIGN_PX
     );
   });
+
+  it("sharedPanelMaxHeight 与 drawerViewportHeight 共用同一 search drawer chrome 口径", () => {
+    setScreenSize(1600, 900);
+    const metrics = useLauncherLayoutMetrics({
+      query: ref("docker"),
+      filteredResults: ref(Array.from({ length: 10 }, (_, idx) => ({ id: idx }))),
+      stagedCommands: ref([]),
+      stagingExpanded: ref(false),
+      flowOpen: ref(false)
+    });
+
+    expect(metrics.drawerViewportHeight.value).toBe(
+      10 * LAUNCHER_DRAWER_ROW_HEIGHT_PX + LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX
+    );
+    expect(metrics.sharedPanelMaxHeight.value).toBe(
+      SEARCH_CAPSULE_HEIGHT_PX +
+        10 * LAUNCHER_DRAWER_ROW_HEIGHT_PX +
+        LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX
+    );
+  });
 });

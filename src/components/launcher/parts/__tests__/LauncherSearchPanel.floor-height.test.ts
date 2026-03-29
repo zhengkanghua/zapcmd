@@ -14,6 +14,8 @@ import LauncherSearchPanel from "../LauncherSearchPanel.vue";
 
 const DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX =
   LAUNCHER_DRAWER_FLOOR_ROWS * LAUNCHER_DRAWER_ROW_HEIGHT_PX + LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX;
+const TEN_ROWS_VIEWPORT_HEIGHT_PX =
+  10 * LAUNCHER_DRAWER_ROW_HEIGHT_PX + LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX;
 
 function createCommandTemplate(id: string): CommandTemplate {
   return {
@@ -95,6 +97,41 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     expect(drawer.attributes("style")).toContain("max-height: 24px;");
     expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
     expect(wrapper.find('[data-testid="result-drawer-floor"]').exists()).toBe(false);
+  });
+
+  it("10 条结果时 drawer 高度等于 10 行 token + 固定 chrome，不提前滚动", () => {
+    const filteredResults = Array.from({ length: 10 }, (_, idx) =>
+      createCommandTemplate(String(idx))
+    );
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        filteredResults,
+        drawerViewportHeight: TEN_ROWS_VIEWPORT_HEIGHT_PX
+      }),
+      global: {
+        stubs: {
+          LauncherHighlightText: { template: "<span />" }
+        }
+      }
+    });
+
+    const drawer = wrapper.get('[data-testid="result-drawer"]');
+    expect(drawer.attributes("style")).toContain(`max-height: ${TEN_ROWS_VIEWPORT_HEIGHT_PX}px;`);
+    expect(wrapper.findAll(".result-item")).toHaveLength(10);
+  });
+
+  it("keyboard hint 区保持单行固定高度，不因 wrap 抬高 drawer viewport", () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        keyboardHints: [
+          { keys: ["Ctrl", "J"], action: "动作一" },
+          { keys: ["Ctrl", "K"], action: "动作二" },
+          { keys: ["Ctrl", "L"], action: "动作三" }
+        ]
+      })
+    });
+
+    expect(wrapper.get(".keyboard-hint").classes()).toContain("flex-nowrap");
   });
 
   it("drawerOpen=false 时不再渲染 result-drawer-floor 占位", () => {
