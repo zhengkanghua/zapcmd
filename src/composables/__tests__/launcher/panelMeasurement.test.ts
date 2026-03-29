@@ -240,6 +240,35 @@ describe("panelMeasurement", () => {
     expect(measureFlowPanelMinHeight(shell)).toBe(232);
   });
 
+  it("FlowPanel 空态若缺少有效布局实测，应返回 null 而不是把 body padding 误判为真实高度", () => {
+    const shell = document.createElement("div");
+    const panel = document.createElement("section");
+    panel.className = "flow-panel";
+
+    const header = document.createElement("header");
+    header.className = "flow-panel__header";
+
+    const body = document.createElement("div");
+    body.className = "flow-panel__body";
+    body.style.paddingTop = "12px";
+    body.style.paddingBottom = "12px";
+
+    const empty = document.createElement("div");
+    empty.className = "flow-panel__empty";
+    body.appendChild(empty);
+
+    const footer = document.createElement("footer");
+    footer.className = "flow-panel__footer";
+
+    panel.appendChild(header);
+    panel.appendChild(body);
+    panel.appendChild(footer);
+    shell.appendChild(panel);
+    document.body.appendChild(shell);
+
+    expect(measureFlowPanelMinHeight(shell)).toBeNull();
+  });
+
   it("FlowPanel 非空态按前 2 张真实异高卡片 + body padding + 卡片间距 求和", () => {
     const shell = buildFlowShell({
       headerHeight: 52,

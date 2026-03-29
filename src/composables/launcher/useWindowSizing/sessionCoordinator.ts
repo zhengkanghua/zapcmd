@@ -107,7 +107,14 @@ export function syncPanelHeightSessions(
   }
 
   if (flowPanelActive && !state.flowPanelActive) {
-    beginFlowPanelSession(session, resolveCurrentPanelEffectiveHeight(options));
+    const flowPanelEntryHeight = resolveCurrentPanelEffectiveHeight(options);
+    const primedFlowPanelEntryHeight = shouldPrimeFlowPanelHeightOnSearchCapsuleEntry(options)
+      ? Math.max(flowPanelEntryHeight, resolveFlowPanelFallbackMinHeight(options))
+      : flowPanelEntryHeight;
+    // 纯搜索胶囊场景若等到 Flow settled 后再补高，面板会先出现后被窗口裁切。
+    // 这里提前抬高 Flow 会话的继承高度，让 Rust 扩窗与 opening 动画同步开始；
+    // settled 后仍保留首轮真实测量的锁高机会，不会被兜底值“锁死”。
+    beginFlowPanelSession(session, primedFlowPanelEntryHeight);
     state.flowPanelActive = true;
     state.flowPanelSettled = false;
     stopFlowPanelObservation(state);
@@ -137,6 +144,16 @@ function resolveFlowPanelFallbackMinHeight(options: UseWindowSizingOptions): num
     options.constants.stagingCardEstHeight * 2 +
     options.constants.stagingListGap
   );
+}
+
+function shouldPrimeFlowPanelHeightOnSearchCapsuleEntry(
+  options: UseWindowSizingOptions
+): boolean {
+  if (options.pendingCommand.value !== null) {
+    return false;
+  }
+
+  return resolveSearchPanelEffectiveHeight(options) <= SEARCH_CAPSULE_HEIGHT_PX;
 }
 
 function maybeLockCommandPanelHeight(
@@ -188,10 +205,12 @@ function maybeLockFlowPanelHeight(
     fallbackMinHeight: resolveFlowPanelFallbackMinHeight(options),
     measuredMinHeight
   });
+  const settledFlowPanelBaseHeight = shouldPrimeFlowPanelHeightOnSearchCapsuleEntry(options)
+    ? resolveSearchPanelEffectiveHeight(options)
+    : options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight;
   const resolvedFlowPanelHeight = resolvePanelHeight({
     panelMaxHeight: frameMaxHeight,
-    inheritedPanelHeight:
-      options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
+    inheritedPanelHeight: settledFlowPanelBaseHeight,
     panelMinHeight
   });
 

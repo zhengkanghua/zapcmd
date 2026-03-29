@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-29｜Launcher Flow 首帧扩窗）
+
+- 已修复“仅搜索胶囊”打开 Flow 时先出面板、后扩窗的两段式时序：Flow 会话首帧先预抬继承高度，让 Rust `animate_main_window_size` 与 opening 同步启动；同时过滤空态无效 0 高度量测，避免 settled 后误缩回搜索高度。相关 controller / panelMeasurement / app failure tests 全绿。
+
 ## 补充（2026-03-29｜Launcher 搜索胶囊高度回归）
 
 - 已确认回归根因是 queue pill 升到 44px 后，SearchPanel 仍保留 `p-[12px]`，实际胶囊高度被抬到 68px，导致 Flow 打开补高卡顿与少量结果也出现滚动；现改为 `px-[12px] py-[9px]` 并补契约测试锁定。

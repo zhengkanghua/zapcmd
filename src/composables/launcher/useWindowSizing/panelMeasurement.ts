@@ -185,6 +185,12 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
     return null;
   }
 
+  const headerHeight = measureElementBoxHeight(header);
+  const footerHeight = measureElementBoxHeight(footer);
+  if (headerHeight <= 0 || footerHeight <= 0) {
+    return null;
+  }
+
   const emptyState = body.querySelector<HTMLElement>(".flow-panel__empty");
   const bodyVerticalPadding = measureVerticalPadding(
     body,
@@ -192,13 +198,18 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
   );
   const panelVerticalBorder = measureVerticalBorder(panel);
   if (emptyState) {
+    const emptyStateHeight = measureElementBoxHeight(emptyState, true);
+    if (emptyStateHeight <= 0) {
+      return null;
+    }
+
     return (
-      measureElementBoxHeight(header) +
+      headerHeight +
       panelVerticalBorder +
       bodyVerticalPadding +
-      measureElementBoxHeight(emptyState, true) +
+      emptyStateHeight +
       measureMinorVerticalOverflow(body, FLOW_PANEL_SCROLL_OVERFLOW_GUARD_MAX_PX) +
-      measureElementBoxHeight(footer)
+      footerHeight
     );
   }
 
@@ -220,13 +231,17 @@ export function measureFlowPanelMinHeight(shell: HTMLElement): number | null {
     list,
     FLOW_PANEL_SCROLL_OVERFLOW_GUARD_MAX_PX
   );
+  const measuredListHeight = Math.max(listItemsSpanHeight, cardHeight + interCardGap);
+  if (measuredListHeight <= 0) {
+    return null;
+  }
 
   return (
-    measureElementBoxHeight(header) +
+    headerHeight +
     panelVerticalBorder +
     bodyVerticalPadding +
-    Math.max(listItemsSpanHeight, cardHeight + interCardGap) +
+    measuredListHeight +
     listOverflowGuard +
-    measureElementBoxHeight(footer)
+    footerHeight
   );
 }

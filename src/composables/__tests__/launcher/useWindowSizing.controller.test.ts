@@ -800,7 +800,7 @@ describe("createWindowSizingController（Flow 会话）", () => {
     );
   });
 
-  it("搜索 -> Flow：先继承搜索当前高度，settled 后仅在不足时补高一次", async () => {
+  it("仅搜索胶囊 -> Flow：打开瞬间就补到安全最小高度，不等待 settled", async () => {
     const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
     const expectedFlowMinHeight =
       WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
@@ -810,17 +810,8 @@ describe("createWindowSizingController（Flow 会话）", () => {
     harness.state.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
 
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
-      expect.any(Number),
-      SEARCH_CAPSULE_HEIGHT_PX +
-        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
-        SEARCH_SHELL_OUTER_CHROME_PX
-    );
-
-    harness.controller.notifyFlowPanelSettled();
-    await harness.controller.syncWindowSize();
-
-    expect(harness.state.flowPanelLockedHeight.value).toBe(expectedFlowMinHeight);
+    expect(harness.state.flowPanelInheritedHeight.value).toBe(expectedFlowMinHeight);
+    expect(harness.state.flowPanelLockedHeight.value).toBeNull();
     expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
       expect.any(Number),
       expectedFlowMinHeight +
