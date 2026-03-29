@@ -2,19 +2,7 @@
 import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { useI18nText } from "../../../../i18n";
 import SDropdown from "../../ui/SDropdown.vue";
-
-interface FilterOption {
-  value: string;
-  label: string;
-}
-
-interface SecondaryFilter {
-  key: string;
-  label: string;
-  modelValue: string;
-  options: FilterOption[];
-  onUpdate: (value: string) => void;
-}
+import type { SecondaryFilter } from "./toolbarFilters";
 
 const props = defineProps<{
   filters: SecondaryFilter[];

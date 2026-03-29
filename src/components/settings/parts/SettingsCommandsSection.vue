@@ -1,30 +1,20 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
-
-import { useI18nText } from "../../../i18n";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import {
   COMMAND_ROWS_INITIAL_RENDER_LIMIT,
   COMMAND_ROWS_RENDER_CHUNK_SIZE
 } from "../../../composables/settings/useCommandManagement";
-import type {
-  CommandFilterIssue,
-  CommandFilterOverride,
-  CommandFilterSource,
-  CommandFilterStatus,
-  CommandManagementViewState,
-  CommandSortBy
-} from "../../../features/settings/types";
+import type { CommandManagementViewState } from "../../../features/settings/types";
+import { useI18nText } from "../../../i18n";
 import type { SettingsCommandsProps } from "../types";
-import SDropdown from "../ui/SDropdown.vue";
-import SToggle from "../ui/SToggle.vue";
-import SettingsCommandsMoreFiltersDialog from "./settingsCommands/SettingsCommandsMoreFiltersDialog.vue";
+import SettingsCommandsIssues from "./settingsCommands/SettingsCommandsIssues.vue";
+import SettingsCommandsTable from "./settingsCommands/SettingsCommandsTable.vue";
+import SettingsCommandsToolbar from "./settingsCommands/SettingsCommandsToolbar.vue";
 
 const props = defineProps<SettingsCommandsProps>();
 const { t } = useI18nText();
-// 可达性：为命令管理区与工具栏提供稳定的语义标题 id。
 const commandsRegionHeadingId = "settings-commands-region-heading";
 const commandsToolbarHeadingId = "settings-commands-toolbar-heading";
-// 可达性：导入问题区域使用显式标题关联。
 const commandsIssuesHeadingId = "settings-commands-issues-heading";
 
 const emit = defineEmits<{
@@ -35,100 +25,8 @@ const emit = defineEmits<{
 }>();
 
 const moreFiltersOpen = ref(false);
-const moreFiltersTriggerRef = ref<HTMLButtonElement | null>(null);
 const renderedCommandRowCount = ref(COMMAND_ROWS_INITIAL_RENDER_LIMIT);
 let deferredCommandRowTimer: number | null = null;
-
-const fileFilterOptions = computed(() => [
-  { value: "all", label: t("settings.commands.allFiles") },
-  ...props.commandSourceFileOptions.map((item) => ({
-    value: item.value,
-    label: `${item.label} (${item.count})`
-  }))
-]);
-
-const primaryFilters = computed(() => [
-  {
-    key: "sourceFilter",
-    label: t("settings.commands.sourceFilter"),
-    modelValue: props.commandView.sourceFilter,
-    options: props.commandSourceOptions,
-    onUpdate: setSourceFilter
-  },
-  {
-    key: "categoryFilter",
-    label: t("settings.commands.tableHeaderCategory"),
-    modelValue: props.commandView.categoryFilter,
-    options: props.commandCategoryOptions,
-    onUpdate: setCategoryFilter
-  },
-  {
-    key: "statusFilter",
-    label: t("settings.commands.statusFilter"),
-    modelValue: props.commandView.statusFilter,
-    options: props.commandStatusOptions,
-    onUpdate: setStatusFilter
-  },
-  {
-    key: "sortBy",
-    label: t("settings.commands.sortLabel"),
-    modelValue: props.commandView.sortBy,
-    options: props.commandSortOptions,
-    onUpdate: setSortBy
-  }
-]);
-
-const secondaryFilters = computed(() => [
-  {
-    key: "fileFilter",
-    label: t("settings.commands.fileFilter"),
-    modelValue: props.commandView.fileFilter,
-    options: fileFilterOptions.value,
-    onUpdate: setFileFilter
-  },
-  {
-    key: "overrideFilter",
-    label: t("settings.commands.overrideFilter"),
-    modelValue: props.commandView.overrideFilter,
-    options: props.commandOverrideOptions,
-    onUpdate: setOverrideFilter
-  },
-  {
-    key: "issueFilter",
-    label: t("settings.commands.issueFilter"),
-    modelValue: props.commandView.issueFilter,
-    options: props.commandIssueOptions,
-    onUpdate: setIssueFilter
-  }
-]);
-
-const activeSecondaryFilterCount = computed(() => {
-  let count = 0;
-  if (props.commandView.fileFilter !== "all") {
-    count += 1;
-  }
-  if (props.commandView.overrideFilter !== "all") {
-    count += 1;
-  }
-  if (props.commandView.issueFilter !== "all") {
-    count += 1;
-  }
-  return count;
-});
-
-const hasActiveFilters = computed(() => {
-  const view = props.commandView;
-  return (
-    view.query.trim().length > 0 ||
-    view.sourceFilter !== "all" ||
-    view.statusFilter !== "all" ||
-    view.categoryFilter !== "all" ||
-    view.overrideFilter !== "all" ||
-    view.issueFilter !== "all" ||
-    view.fileFilter !== "all" ||
-    view.sortBy !== "default"
-  );
-});
 
 const visibleCommandRows = computed(() =>
   props.commandRows.slice(0, renderedCommandRowCount.value)
@@ -160,55 +58,6 @@ function scheduleDeferredCommandRows(): void {
   }, 0);
 }
 
-function onQueryInput(event: Event): void {
-  const target = event.target as HTMLInputElement | null;
-  emit("update-view", { query: target?.value ?? "" });
-}
-
-function setSourceFilter(value: string): void {
-  emit("update-view", { sourceFilter: value as CommandFilterSource });
-}
-
-function setStatusFilter(value: string): void {
-  emit("update-view", { statusFilter: value as CommandFilterStatus });
-}
-
-function setCategoryFilter(value: string): void {
-  emit("update-view", { categoryFilter: value });
-}
-
-function setFileFilter(value: string): void {
-  emit("update-view", { fileFilter: value });
-}
-
-function setOverrideFilter(value: string): void {
-  emit("update-view", { overrideFilter: value as CommandFilterOverride });
-}
-
-function setIssueFilter(value: string): void {
-  emit("update-view", { issueFilter: value as CommandFilterIssue });
-}
-
-function setSortBy(value: string): void {
-  emit("update-view", { sortBy: value as CommandSortBy });
-}
-
-function closeMoreFilters(): void {
-  moreFiltersOpen.value = false;
-  void nextTick(() => {
-    moreFiltersTriggerRef.value?.focus({ preventScroll: true });
-  });
-}
-
-function toggleMoreFilters(): void {
-  moreFiltersOpen.value = !moreFiltersOpen.value;
-}
-
-function onResetFilters(): void {
-  emit("reset-filters");
-  closeMoreFilters();
-}
-
 watch(
   () => props.commandRows,
   (rows) => {
@@ -224,238 +73,42 @@ watch(
 onBeforeUnmount(() => {
   cancelDeferredCommandRows();
 });
-
 </script>
 
 <template>
   <section class="settings-commands grid gap-3.5 content-start" :aria-labelledby="commandsRegionHeadingId">
-    <!-- 可达性：命令管理区域标题 -->
     <h2 :id="commandsRegionHeadingId" class="sr-only">
       {{ t("settings.aria.commandsRegion") }}
     </h2>
-    <div
-      class="settings-commands-toolbar settings-commands-toolbar--sticky settings-commands-toolbar--underlap relative grid gap-3 p-3.5 border border-settings-card-border rounded-[18px] bg-settings-toolbar-sticky bg-gradient-to-b from-ui-text/[0.03] to-ui-text/0 shadow-settings-toolbar shadow-ui-black/18 overflow-visible sticky top-[-12px] z-settings-toolbar backdrop-blur-ui-70"
-      :aria-labelledby="commandsToolbarHeadingId"
-    >
-      <!-- 可达性：工具栏标题 -->
-      <h3 :id="commandsToolbarHeadingId" class="sr-only">
-        {{ t("settings.aria.commandsToolbar") }}
-      </h3>
-      <div class="settings-commands-toolbar__search-row min-w-0 grid gap-2.5">
-        <input
-          class="settings-commands-toolbar__search w-full h-[38px] px-3.5 border border-settings-dropdown-border rounded-[11px] bg-ui-text/[0.045] text-ui-text text-[13px] outline-none transition-settings-field duration-120 placeholder:text-ui-text/28 focus-visible:border-ui-brand/22 focus-visible:shadow-settings-focus focus-visible:bg-ui-text/[0.055]"
-          type="search"
-          :value="props.commandView.query"
-          :aria-label="t('settings.commands.queryLabel')"
-          :placeholder="t('settings.commands.queryPlaceholder')"
-          @input="onQueryInput"
-        />
-      </div>
-      <div
-        class="settings-commands-toolbar__summary settings-commands-toolbar__summary-row flex flex-wrap items-center justify-start gap-2 settings-narrow:flex-col settings-narrow:items-start"
-        :aria-labelledby="commandsToolbarHeadingId"
-        aria-live="polite"
-      >
-        <span
-          class="settings-commands-toolbar__badge px-2.5 py-[5px] border border-ui-text/7 rounded-full bg-settings-badge text-settings-badge-text text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
-        >
-          {{ t("settings.commands.summaryFiltered", { filtered: props.commandFilteredCount }) }}
-        </span>
-        <span
-          class="settings-commands-toolbar__badge px-2.5 py-[5px] border border-ui-text/7 rounded-full bg-settings-badge text-settings-badge-text text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
-        >
-          {{ t("settings.commands.summaryTotal", { total: props.commandSummary.total }) }}
-        </span>
-        <span
-          class="settings-commands-toolbar__badge settings-commands-toolbar__badge--accent px-2.5 py-[5px] border border-ui-brand/24 rounded-full bg-ui-brand/10 text-ui-brand text-[11.5px] [font-variant-numeric:tabular-nums] tracking-[0.01em]"
-        >
-          {{ t("settings.commands.summaryEnabled", { enabled: props.commandSummary.enabled }) }}
-        </span>
-      </div>
-      <div class="settings-commands-toolbar__filters-row flex flex-wrap items-center gap-2">
-        <SDropdown
-          v-for="filter in primaryFilters"
-          :key="filter.key"
-          class="settings-commands-toolbar__primary-filter flex-none"
-          :model-value="filter.modelValue"
-          :options="filter.options"
-          variant="ghost"
-          :aria-label="filter.label"
-          @update:model-value="filter.onUpdate"
-        />
 
-        <div class="settings-commands-toolbar__more-filters-wrap relative ml-auto flex-none settings-narrow:ml-0">
-          <button
-            ref="moreFiltersTriggerRef"
-            type="button"
-            class="settings-commands-toolbar__more-filters min-h-[36px] inline-flex items-center gap-2 px-3 py-1.5 border border-transparent rounded-full bg-settings-badge text-settings-badge-text text-[12px] cursor-pointer transition-settings-interactive duration-150 ease-settings-emphasized hover:border-settings-dropdown-border hover:bg-settings-dropdown-hover hover:text-ui-text focus-visible:outline-none focus-visible:shadow-settings-focus"
-            :class="{
-              'settings-commands-toolbar__more-filters--active text-ui-brand':
-                activeSecondaryFilterCount > 0 && !moreFiltersOpen,
-              'border-settings-dropdown-border bg-settings-dropdown-hover text-ui-text':
-                moreFiltersOpen
-            }"
-            :aria-expanded="moreFiltersOpen"
-            aria-haspopup="dialog"
-            aria-controls="settings-commands-more-filters"
-            @click="toggleMoreFilters"
-          >
-            <span>{{ t("settings.commands.moreFilters") }}</span>
-            <span
-              v-if="activeSecondaryFilterCount > 0"
-              class="settings-commands-toolbar__more-filters-count min-w-[18px] px-1.5 py-[1px] rounded-full bg-ui-brand/18 text-ui-brand text-[11px] leading-[1.4] text-center"
-            >
-              {{ activeSecondaryFilterCount }}
-            </span>
-          </button>
+    <SettingsCommandsToolbar
+      :command-filtered-count="props.commandFilteredCount"
+      :command-summary="props.commandSummary"
+      :command-view="props.commandView"
+      :command-source-options="props.commandSourceOptions"
+      :command-status-options="props.commandStatusOptions"
+      :command-category-options="props.commandCategoryOptions"
+      :command-override-options="props.commandOverrideOptions"
+      :command-issue-options="props.commandIssueOptions"
+      :command-sort-options="props.commandSortOptions"
+      :command-source-file-options="props.commandSourceFileOptions"
+      :more-filters-open="moreFiltersOpen"
+      :toolbar-heading-id="commandsToolbarHeadingId"
+      @set-more-filters-open="moreFiltersOpen = $event"
+      @update-view="emit('update-view', $event)"
+      @reset-filters="emit('reset-filters')"
+    />
 
-          <SettingsCommandsMoreFiltersDialog
-            v-if="moreFiltersOpen"
-            :filters="secondaryFilters"
-            :has-active-filters="hasActiveFilters"
-            :trigger-element="moreFiltersTriggerRef"
-            @close="closeMoreFilters"
-            @reset-filters="onResetFilters"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-commands-table min-w-0 grid gap-2.5">
-      <div
-        class="settings-commands-table__container grid gap-1.5 pt-1"
-        role="table"
-        :aria-label="t('settings.aria.commandsTable')"
-        :data-rendered-rows="visibleCommandRows.length"
-        :data-total-rows="props.commandRows.length"
-      >
-        <div
-          class="settings-commands-table__header grid grid-cols-12 items-center gap-x-3 px-3.5 pt-0 pb-0.5 text-[11px] uppercase tracking-[0.6px] text-ui-text/30 settings-narrow:gap-x-2.5"
-          role="row"
-        >
-          <div
-            class="settings-commands-table__cell settings-commands-table__cell--command min-w-0 col-span-6 settings-narrow:col-span-7"
-            role="columnheader"
-          >
-            {{ t("settings.commands.tableHeaderCommand") }}
-          </div>
-          <div
-            class="settings-commands-table__cell settings-commands-table__cell--category min-w-0 col-span-3 settings-narrow:col-span-3"
-            role="columnheader"
-          >
-            {{ t("settings.commands.tableHeaderCategory") }}
-          </div>
-          <div
-            class="settings-commands-table__cell settings-commands-table__cell--source min-w-0 col-span-2 settings-narrow:col-start-1 settings-narrow:col-span-8 settings-narrow:mt-1"
-            role="columnheader"
-          >
-            {{ t("settings.commands.tableHeaderSource") }}
-          </div>
-          <div
-            class="settings-commands-table__cell settings-commands-table__cell--toggle min-w-0 col-span-1 text-right settings-narrow:col-start-11 settings-narrow:col-span-2"
-            role="columnheader"
-          >
-            {{ t("settings.commands.tableHeaderEnabled") }}
-          </div>
-        </div>
-
-        <div
-          v-for="row in visibleCommandRows"
-          :key="row.id"
-          :class="[
-            'settings-commands-table__row grid grid-cols-12 items-center gap-x-3 px-3.5 py-3 border border-ui-text/6 rounded-panel bg-ui-text/[0.025] transition-[background,border-color,transform] duration-120 hover:bg-settings-table-row-hover hover:border-ui-text/11 hover:-translate-y-[1px] settings-narrow:gap-x-2.5',
-            {
-              'settings-commands-table__row--disabled': !row.enabled,
-              'opacity-[0.58]': !row.enabled
-            }
-          ]"
-          role="row"
-          :title="row.sourcePath ?? undefined"
-        >
-          <div
-            class="settings-commands-table__cell settings-commands-table__cell--command min-w-0 col-span-6 settings-narrow:col-span-7"
-            role="cell"
-          >
-            <div class="settings-commands-table__title text-[13px] text-ui-text/88 font-[450]">
-              {{ row.title }}
-            </div>
-            <code
-              class="settings-commands-table__id block mt-[3px] text-[11px] text-ui-text/30 font-mono truncate"
-              >{{ row.id }}</code
-            >
-          </div>
-
-          <div
-            class="settings-commands-table__cell settings-commands-table__cell--category min-w-0 col-span-3 settings-narrow:col-span-3"
-            role="cell"
-          >
-            <span
-              class="settings-commands-table__badge inline-flex items-center max-w-full min-w-0 px-2.5 py-[5px] border border-ui-text/7 rounded-full bg-ui-text/5 text-ui-text/68 text-[11.5px] whitespace-nowrap overflow-hidden [text-overflow:ellipsis]"
-              >{{ row.category }}</span
-            >
-          </div>
-
-          <div
-            class="settings-commands-table__cell settings-commands-table__cell--source min-w-0 col-span-2 inline-flex items-center settings-narrow:col-start-1 settings-narrow:col-span-8 settings-narrow:mt-1"
-            role="cell"
-          >
-            <span
-              class="settings-commands-table__source-dot inline-block w-[7px] h-[7px] rounded-full mr-1.5 bg-ui-text/25"
-              :class="{
-                'settings-commands-table__source-dot--user': row.source === 'user',
-                'bg-ui-brand': row.source === 'user',
-                'settings-commands-table__source-dot--builtin': row.source === 'builtin',
-                'bg-ui-text/24': row.source === 'builtin'
-              }"
-              aria-hidden="true"
-            />
-            <span class="settings-commands-table__source-text text-[12px] text-ui-text/44 whitespace-nowrap">
-              {{ row.source === "user" ? t("settings.commands.sourceUser") : t("settings.commands.sourceBuiltin") }}
-            </span>
-          </div>
-
-          <div
-            class="settings-commands-table__cell settings-commands-table__cell--toggle min-w-0 col-span-1 flex justify-end settings-narrow:col-start-11 settings-narrow:col-span-2"
-            role="cell"
-          >
-            <SToggle
-              compact
-              :model-value="row.enabled"
-              @update:model-value="emit('toggle-command-enabled', row.id, $event)"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <SettingsCommandsTable
+      :command-rows="props.commandRows"
+      :visible-command-rows="visibleCommandRows"
+      @toggle-command-enabled="(commandId, enabled) => emit('toggle-command-enabled', commandId, enabled)"
+    />
   </section>
 
-  <section
+  <SettingsCommandsIssues
     v-if="props.commandLoadIssues.length > 0"
-    class="settings-card rounded-2xl border border-settings-card-border bg-settings-card overflow-hidden"
-    :aria-labelledby="commandsIssuesHeadingId"
-  >
-    <h2
-      :id="commandsIssuesHeadingId"
-      class="settings-card__title m-0 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.8px] text-settings-card-title bg-ui-text/[0.015] border-b border-b-settings-row-border"
-    >
-      {{ t("settings.commands.loadIssuesTitle") }}
-    </h2>
-    <p class="settings-hint m-0 px-4 pt-2.5 pb-3 text-[12px] text-settings-hint leading-[1.5]">
-      {{ t("settings.commands.loadIssuesHint") }}
-    </p>
-    <ul class="settings-command-issues m-0 p-0 list-none grid gap-2 text-[12px] text-ui-danger">
-      <li
-        v-for="issue in props.commandLoadIssues"
-        :key="`${issue.code}:${issue.stage}:${issue.sourceId}:${issue.commandId ?? ''}`"
-        class="settings-command-issues__item grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 px-3 py-[9px] border border-ui-danger/28 rounded-surface bg-ui-danger/7"
-      >
-        <span
-          class="settings-command-issues__icon text-ui-danger text-[14px] leading-[1.2]"
-          aria-hidden="true"
-          >⚠</span
-        >
-        <span>{{ issue.message }}</span>
-      </li>
-    </ul>
-  </section>
+    :command-load-issues="props.commandLoadIssues"
+    :heading-id="commandsIssuesHeadingId"
+  />
 </template>

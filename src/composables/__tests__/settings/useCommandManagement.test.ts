@@ -2,7 +2,11 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import type { CommandLoadIssue } from "../../../features/commands/runtimeLoader";
 import type { CommandManagementViewState } from "../../../features/settings/types";
-import { useCommandManagement } from "../../settings/useCommandManagement";
+import {
+  COMMAND_ROWS_INITIAL_RENDER_LIMIT,
+  COMMAND_ROWS_RENDER_CHUNK_SIZE,
+  useCommandManagement
+} from "../../settings/useCommandManagement";
 
 const BUILTIN_PATH = "assets/runtime_templates/commands/builtin/_docker.json";
 const USER_PATH = "C:\\Users\\test\\.zapcmd\\commands\\custom.json";
@@ -104,6 +108,11 @@ function createFixture() {
 }
 
 describe("useCommandManagement", () => {
+  it("exports stable render chunk constants", () => {
+    expect(COMMAND_ROWS_INITIAL_RENDER_LIMIT).toBe(120);
+    expect(COMMAND_ROWS_RENDER_CHUNK_SIZE).toBe(80);
+  });
+
   it("formats issue messages for all known codes", () => {
     const { model, refs } = createFixture();
     refs.loadIssues.value = [

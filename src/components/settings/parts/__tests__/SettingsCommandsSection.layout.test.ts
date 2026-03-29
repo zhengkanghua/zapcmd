@@ -3,6 +3,8 @@ import { nextTick } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import SettingsCommandsSection from "../SettingsCommandsSection.vue";
+import SettingsCommandsTable from "../settingsCommands/SettingsCommandsTable.vue";
+import SettingsCommandsToolbar from "../settingsCommands/SettingsCommandsToolbar.vue";
 
 describe("SettingsCommandsSection layout", () => {
   it("renders a two-stage toolbar and a bounded table structure", () => {
@@ -61,6 +63,7 @@ describe("SettingsCommandsSection layout", () => {
     });
 
     expect(wrapper.find(".settings-commands-toolbar--sticky").exists()).toBe(true);
+    expect(wrapper.findComponent(SettingsCommandsToolbar).exists()).toBe(true);
     expect(wrapper.find(".settings-commands-toolbar--underlap").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-toolbar__search-row").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-toolbar__search").exists()).toBe(true);
@@ -77,6 +80,7 @@ describe("SettingsCommandsSection layout", () => {
     expect(headers).toEqual(["命令", "分类", "来源", "启用"]);
 
     expect(wrapper.find(".settings-commands-table__container").exists()).toBe(true);
+    expect(wrapper.findComponent(SettingsCommandsTable).exists()).toBe(true);
     expect(wrapper.find(".settings-commands-table__badge").exists()).toBe(true);
     expect(wrapper.find(".settings-commands-table__row--disabled").exists()).toBe(true);
   });

@@ -6,6 +6,8 @@ import type { CommandManagementViewState } from "../../../../features/settings/t
 import type { SettingsCommandsProps } from "../../types";
 import SDropdown from "../../ui/SDropdown.vue";
 import SettingsCommandsSection from "../SettingsCommandsSection.vue";
+import SettingsCommandsIssues from "../settingsCommands/SettingsCommandsIssues.vue";
+import SettingsCommandsToolbar from "../settingsCommands/SettingsCommandsToolbar.vue";
 
 function createCommandView(
   overrides: Partial<CommandManagementViewState> = {}
@@ -106,6 +108,8 @@ describe("SettingsCommandsSection interactions", () => {
       props: createProps()
     });
 
+    expect(wrapper.findComponent(SettingsCommandsToolbar).exists()).toBe(true);
+
     const toolbar = wrapper.get(".settings-commands-toolbar");
     const toolbarLabelId = toolbar.attributes("aria-labelledby");
     const summary = wrapper.get(".settings-commands-toolbar__summary");
@@ -162,6 +166,8 @@ describe("SettingsCommandsSection interactions", () => {
         })
       })
     });
+
+    expect(wrapper.findComponent(SettingsCommandsIssues).exists()).toBe(true);
 
     const issuesSection = wrapper.get("section.settings-card");
     const issuesLabelId = issuesSection.attributes("aria-labelledby");
