@@ -502,6 +502,13 @@ afterEach(() => {
 });
 
 describe("App failure and event regression", () => {
+  it("mounts AppSettings without surfacing homepage configuration failure", async () => {
+    const wrapper = await mountSettingsApp();
+
+    expect(wrapper.findComponent({ name: "SettingsWindow" }).exists()).toBe(true);
+    expect(wrapper.text()).not.toContain("homepage url is not configured");
+  });
+
   it("shows no-result empty state with next-step hint", async () => {
     const wrapper = await mountApp();
 

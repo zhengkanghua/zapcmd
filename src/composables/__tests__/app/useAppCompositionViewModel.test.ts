@@ -22,53 +22,107 @@ function createDeepStub(): unknown {
   });
 }
 
+function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> } = {}) {
+  const hotkeyBindings = createDeepStub();
+  const settingsWindow = createDeepStub();
+  const commandManagement = createDeepStub();
+  const themeManager = createDeepStub();
+  const defaultTerminal = ref("powershell");
+  const terminalReusePolicy = ref("never");
+  const language = ref("zh-CN");
+  const autoCheckUpdate = ref(true);
+  const launchAtLogin = ref(false);
+  const alwaysElevatedTerminal = ref(false);
+  const appVersion = ref("1.0.1");
+  const runtimePlatform = options.runtimePlatform ?? ref("windows");
+  const updateStatus = ref(null);
+  const windowOpacity = ref(0.96);
+  const theme = ref("obsidian");
+  const blurEnabled = ref(true);
+  const checkUpdate = vi.fn();
+  const downloadUpdate = vi.fn();
+  const openHomepage = vi.fn();
+  const settingsStore = {
+    setWindowOpacity: vi.fn(),
+    setTheme: vi.fn(),
+    setBlurEnabled: vi.fn()
+  };
+  const settingsScene = {
+    hotkeyBindings,
+    settingsWindow,
+    commandManagement,
+    themeManager,
+    defaultTerminal,
+    terminalReusePolicy,
+    language,
+    autoCheckUpdate,
+    launchAtLogin,
+    alwaysElevatedTerminal,
+    appVersion,
+    updateManager: {
+      runtimePlatform,
+      updateStatus,
+      checkUpdate,
+      downloadUpdate
+    },
+    windowOpacity,
+    theme,
+    blurEnabled,
+    openHomepage,
+    settingsStore
+  };
+
+  return {
+    isSettingsWindow: ref(false),
+    search: {
+      query: ref(""),
+      filteredResults: ref([]),
+      activeIndex: ref(0),
+      onQueryInput: vi.fn()
+    },
+    domBridge: {
+      setSearchShellRef: vi.fn(),
+      setSearchInputRef: vi.fn(),
+      setDrawerRef: vi.fn(),
+      setStagingPanelRef: vi.fn(),
+      setStagingListRef: vi.fn(),
+      setResultButtonRef: vi.fn(),
+      setParamInputRef: vi.fn()
+    },
+    stagedFeedback: {
+      stagedFeedbackCommandId: ref(null)
+    },
+    stagedCommands: ref([]),
+    stagingGripReorderActive: ref(false),
+    hotkeyBindings,
+    settingsWindow,
+    commandManagement,
+    themeManager,
+    defaultTerminal,
+    terminalReusePolicy,
+    language,
+    autoCheckUpdate,
+    launchAtLogin,
+    alwaysElevatedTerminal,
+    appVersion,
+    runtimePlatform,
+    updateStatus,
+    setWindowOpacity: settingsStore.setWindowOpacity,
+    setTheme: settingsStore.setTheme,
+    setBlurEnabled: settingsStore.setBlurEnabled,
+    windowOpacity,
+    theme,
+    blurEnabled,
+    checkUpdate,
+    downloadUpdate,
+    openHomepage,
+    settingsScene
+  };
+}
+
 describe("createAppCompositionViewModel", () => {
   it("returns segmented launcher/settings/app-shell view models and App consumes only those roots", () => {
-    const context = {
-      isSettingsWindow: ref(false),
-      search: {
-        query: ref(""),
-        filteredResults: ref([]),
-        activeIndex: ref(0),
-        onQueryInput: vi.fn()
-      },
-      domBridge: {
-        setSearchShellRef: vi.fn(),
-        setSearchInputRef: vi.fn(),
-        setDrawerRef: vi.fn(),
-        setStagingPanelRef: vi.fn(),
-        setStagingListRef: vi.fn(),
-        setResultButtonRef: vi.fn(),
-        setParamInputRef: vi.fn()
-      },
-      stagedFeedback: {
-        stagedFeedbackCommandId: ref(null)
-      },
-      stagedCommands: ref([]),
-      stagingGripReorderActive: ref(false),
-      hotkeyBindings: createDeepStub(),
-      settingsWindow: createDeepStub(),
-      commandManagement: createDeepStub(),
-      themeManager: createDeepStub(),
-      defaultTerminal: ref("powershell"),
-      terminalReusePolicy: ref("never"),
-      language: ref("zh-CN"),
-      autoCheckUpdate: ref(true),
-      launchAtLogin: ref(false),
-      alwaysElevatedTerminal: ref(false),
-      appVersion: ref("1.0.1"),
-      runtimePlatform: ref("windows"),
-      updateStatus: ref(null),
-      setWindowOpacity: vi.fn(),
-      setTheme: vi.fn(),
-      setBlurEnabled: vi.fn(),
-      windowOpacity: ref(0.96),
-      theme: ref("obsidian"),
-      blurEnabled: ref(true),
-      checkUpdate: vi.fn(),
-      downloadUpdate: vi.fn(),
-      openHomepage: vi.fn()
-    };
+    const context = createContextStub();
 
     const runtime = {
       commandExecution: {
@@ -152,51 +206,7 @@ describe("createAppCompositionViewModel", () => {
     const submitParamInput = vi.fn();
     const popPage = vi.fn();
 
-    const context = {
-      isSettingsWindow: ref(false),
-      search: {
-        query: ref(""),
-        filteredResults: ref([]),
-        activeIndex: ref(0),
-        onQueryInput: vi.fn()
-      },
-      domBridge: {
-        setSearchShellRef: vi.fn(),
-        setSearchInputRef: vi.fn(),
-        setDrawerRef: vi.fn(),
-        setStagingPanelRef: vi.fn(),
-        setStagingListRef: vi.fn(),
-        setResultButtonRef: vi.fn(),
-        setParamInputRef: vi.fn()
-      },
-      stagedFeedback: {
-        stagedFeedbackCommandId: ref(null)
-      },
-      stagedCommands: ref([]),
-      stagingGripReorderActive: ref(false),
-      hotkeyBindings: createDeepStub(),
-      settingsWindow: createDeepStub(),
-      commandManagement: createDeepStub(),
-      themeManager: createDeepStub(),
-      defaultTerminal: ref("powershell"),
-      terminalReusePolicy: ref("never"),
-      language: ref("zh-CN"),
-      autoCheckUpdate: ref(true),
-      launchAtLogin: ref(false),
-      alwaysElevatedTerminal: ref(false),
-      appVersion: ref("1.0.1"),
-      runtimePlatform: ref("windows"),
-      updateStatus: ref(null),
-      setWindowOpacity: vi.fn(),
-      setTheme: vi.fn(),
-      setBlurEnabled: vi.fn(),
-      windowOpacity: ref(0.96),
-      theme: ref("obsidian"),
-      blurEnabled: ref(true),
-      checkUpdate: vi.fn(),
-      downloadUpdate: vi.fn(),
-      openHomepage: vi.fn()
-    };
+    const context = createContextStub();
 
     const runtime = {
       commandExecution: {
@@ -287,51 +297,7 @@ describe("createAppCompositionViewModel", () => {
 
   it("showAlwaysElevatedTerminal 会响应 runtimePlatform 的异步更新", () => {
     const runtimePlatform = ref("");
-    const context = {
-      isSettingsWindow: ref(false),
-      search: {
-        query: ref(""),
-        filteredResults: ref([]),
-        activeIndex: ref(0),
-        onQueryInput: vi.fn()
-      },
-      domBridge: {
-        setSearchShellRef: vi.fn(),
-        setSearchInputRef: vi.fn(),
-        setDrawerRef: vi.fn(),
-        setStagingPanelRef: vi.fn(),
-        setStagingListRef: vi.fn(),
-        setResultButtonRef: vi.fn(),
-        setParamInputRef: vi.fn()
-      },
-      stagedFeedback: {
-        stagedFeedbackCommandId: ref(null)
-      },
-      stagedCommands: ref([]),
-      stagingGripReorderActive: ref(false),
-      hotkeyBindings: createDeepStub(),
-      settingsWindow: createDeepStub(),
-      commandManagement: createDeepStub(),
-      themeManager: createDeepStub(),
-      defaultTerminal: ref("powershell"),
-      terminalReusePolicy: ref("never"),
-      language: ref("zh-CN"),
-      autoCheckUpdate: ref(true),
-      launchAtLogin: ref(false),
-      alwaysElevatedTerminal: ref(false),
-      appVersion: ref("1.0.1"),
-      runtimePlatform,
-      updateStatus: ref(null),
-      setWindowOpacity: vi.fn(),
-      setTheme: vi.fn(),
-      setBlurEnabled: vi.fn(),
-      windowOpacity: ref(0.96),
-      theme: ref("obsidian"),
-      blurEnabled: ref(true),
-      checkUpdate: vi.fn(),
-      downloadUpdate: vi.fn(),
-      openHomepage: vi.fn()
-    };
+    const context = createContextStub({ runtimePlatform });
 
     const runtime = {
       commandExecution: {

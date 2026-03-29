@@ -1,115 +1,45 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { storeToRefs } from "pinia";
-import { currentLocale, setAppLocale } from "./i18n";
+import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { isTypingElement } from "./composables/launcher/useMainWindowShell";
-import { useSettingsStore, type HotkeyFieldId } from "./stores/settingsStore";
-import { useMotionPreset } from "./composables/app/useMotionPreset";
-import { useTheme } from "./composables/app/useTheme";
+import type { HotkeyFieldId } from "./stores/settingsStore";
 import { createAppCompositionRootPorts } from "./composables/app/useAppCompositionRoot/ports";
+import { createSettingsScene } from "./composables/app/useAppCompositionRoot/settingsScene";
 import { shouldDeferGlobalEscape } from "./features/hotkeys/escapeOwnership";
-import { fallbackTerminalOptions } from "./features/terminals/fallbackTerminals";
 import {
-  HOTKEY_DEFINITIONS,
-  SETTINGS_HASH_PREFIX,
   SETTINGS_STORAGE_KEYS
 } from "./composables/app/useAppCompositionRoot/constants";
-import { useHotkeyBindings } from "./composables/settings/useHotkeyBindings";
-import { useSettingsWindow } from "./composables/settings/useSettingsWindow";
-import { useCommandCatalog } from "./composables/launcher/useCommandCatalog";
-import { useCommandManagement } from "./composables/settings/useCommandManagement";
-import { useUpdateManager } from "./composables/update/useUpdateManager";
-import { MOTION_PRESET_REGISTRY } from "./features/motion/motionRegistry";
-import { THEME_REGISTRY } from "./features/themes/themeRegistry";
 import type { CommandManagementViewState } from "./features/settings/types";
 import SettingsWindow from "./components/settings/SettingsWindow.vue";
 
-const FALLBACK_APP_VERSION = "";
-
-function resolveAppVersion(): string {
-  return typeof __APP_VERSION__ === "string" ? __APP_VERSION__ : FALLBACK_APP_VERSION;
-}
-
-function resolveHomepageUrl(): string | null {
-  const owner = typeof __GITHUB_OWNER__ === "string" ? __GITHUB_OWNER__.trim() : "";
-  const repo = typeof __GITHUB_REPO__ === "string" ? __GITHUB_REPO__.trim() : "";
-  return owner && repo ? `https://github.com/${owner}/${repo}` : null;
-}
-
 const ports = createAppCompositionRootPorts();
-const settingsStore = useSettingsStore();
-settingsStore.hydrateFromStorage();
+const isSettingsWindow = ref(true);
+const settingsSyncChannel = ref<BroadcastChannel | null>(null);
 const settingsStorageKeys: readonly string[] = SETTINGS_STORAGE_KEYS;
-
+const settingsScene = createSettingsScene({
+  ports,
+  isSettingsWindow,
+  settingsSyncChannel
+});
 const {
-  hotkeys,
+  settingsStore,
+  hotkeyBindings,
   defaultTerminal,
   terminalReusePolicy,
   language,
   autoCheckUpdate,
   launchAtLogin,
   alwaysElevatedTerminal,
-  disabledCommandIds,
   windowOpacity,
   theme,
   blurEnabled,
-  motionPreset
-} = storeToRefs(settingsStore);
-
-watch(
-  language,
-  (value) => {
-    setAppLocale(value);
-  },
-  { immediate: true }
-);
-
-watch(
-  windowOpacity,
-  (value) => {
-    document.documentElement.style.setProperty("--ui-opacity", String(value));
-  },
-  { immediate: true }
-);
-
-useTheme({ themeId: theme, blurEnabled });
-useMotionPreset({ presetId: motionPreset });
-
-const isSettingsWindow = ref(true);
-const settingsSyncChannel = ref<BroadcastChannel | null>(null);
-const updateManager = useUpdateManager();
-const appVersion = ref(resolveAppVersion());
-
-const hotkeyBindings = useHotkeyBindings({
-  hotkeys,
-  setHotkey: (field, value) => {
-    settingsStore.setHotkey(field, value);
-  }
-});
-
-const settingsWindow = useSettingsWindow({
-  settingsHashPrefix: SETTINGS_HASH_PREFIX,
-  hotkeyDefinitions: HOTKEY_DEFINITIONS,
-  isSettingsWindow,
-  defaultTerminal,
-  terminalReusePolicy,
-  language,
-  autoCheckUpdate,
-  launchAtLogin,
-  alwaysElevatedTerminal,
-  settingsStore,
-  getHotkeyValue: hotkeyBindings.getHotkeyValue,
-  setHotkeyValue: hotkeyBindings.setHotkeyValue,
-  isTauriRuntime: ports.isTauriRuntime,
-  readAvailableTerminals: ports.readAvailableTerminals,
-  readAutoStartEnabled: ports.readAutoStartEnabled,
-  writeAutoStartEnabled: ports.writeAutoStartEnabled,
-  writeLauncherHotkey: ports.writeLauncherHotkey,
-  fallbackTerminalOptions,
-  broadcastSettingsUpdated: () => {
-    settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
-  }
-});
+  motionPreset,
+  appVersion,
+  themeManager,
+  motionPresetManager
+} = settingsScene;
+const settingsWindow = settingsScene.settingsWindow;
+const commandManagement = settingsScene.commandManagement;
+const updateManager = settingsScene.updateManager;
 
 const {
   settingsNavItems,
@@ -137,25 +67,6 @@ const {
   persistSetting: persistSettingSetting,
   applyHotkeyChange: applyHotkeyChangeSetting
 } = settingsWindow;
-
-const commandCatalog = useCommandCatalog({
-  isTauriRuntime: ports.isTauriRuntime,
-  readUserCommandFiles: ports.readUserCommandFiles,
-  readRuntimePlatform: ports.readRuntimePlatform,
-  disabledCommandIds,
-  locale: currentLocale
-});
-
-const commandManagement = useCommandManagement({
-  allCommandTemplates: commandCatalog.allCommandTemplates,
-  disabledCommandIds,
-  commandSourceById: commandCatalog.commandSourceById,
-  userCommandSourceById: commandCatalog.userCommandSourceById,
-  overriddenCommandIds: commandCatalog.overriddenCommandIds,
-  loadIssues: commandCatalog.loadIssues,
-  setCommandEnabled: settingsStore.setCommandEnabled.bind(settingsStore),
-  setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore)
-});
 
 const {
   commandRows,
@@ -223,7 +134,7 @@ function updateTheme(value: string): void {
 }
 
 function updateMotionPreset(value: string): void {
-  settingsStore.setMotionPreset(value);
+  settingsScene.settingsStore.setMotionPreset(value);
   persistImmediate();
 }
 
@@ -233,12 +144,7 @@ function updateBlurEnabled(value: boolean): void {
 }
 
 async function openHomepage(): Promise<void> {
-  const url = resolveHomepageUrl();
-  if (!url) {
-    ports.logError("homepage url is not configured");
-    return;
-  }
-  await ports.openExternalUrl(url);
+  await settingsScene.openHomepage();
 }
 
 function onSettingsStorageChanged(event: StorageEvent): void {
@@ -378,8 +284,8 @@ onBeforeUnmount(() => {
     :theme="theme"
     :blur-enabled="blurEnabled"
     :motion-preset="motionPreset"
-    :themes="THEME_REGISTRY"
-    :motion-presets="MOTION_PRESET_REGISTRY"
+    :themes="themeManager.themes"
+    :motion-presets="motionPresetManager.motionPresets"
     @navigate="navigateSettings"
     @update-hotkey="onUpdateHotkey"
     @select-terminal="selectTerminalOption"

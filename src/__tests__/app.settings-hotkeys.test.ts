@@ -133,8 +133,9 @@ describe("AppSettings hotkeys regression", () => {
   it("requests show_settings_window_when_ready after the settings shell mounts", async () => {
     hoisted.isTauriRuntime = true;
 
-    await mountAppSettings();
+    const wrapper = await mountAppSettings();
 
+    expect(wrapper.findComponent({ name: "SettingsWindow" }).exists()).toBe(true);
     expect(hoisted.invokeSpy).toHaveBeenCalledWith("show_settings_window_when_ready");
   });
 
@@ -240,6 +241,7 @@ describe("AppSettings hotkeys regression", () => {
     await appearanceNav.trigger("click");
     await waitForUi();
 
+    expect(wrapper.get("[role='tabpanel']").attributes("id")).toBe("settings-panel-appearance");
     expect(wrapper.find(".s-slider__input").exists()).toBe(true);
   });
 
