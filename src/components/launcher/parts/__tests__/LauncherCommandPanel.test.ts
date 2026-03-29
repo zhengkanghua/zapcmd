@@ -107,14 +107,14 @@ describe("LauncherCommandPanel", () => {
       expect(btn.text()).toContain("直接执行");
     });
 
-    it("stage 模式显示加入执行流按钮", () => {
+    it("stage 模式显示加入队列按钮", () => {
       const wrapper = mountPanel({
         command: createCommand({ dangerous: false }),
         mode: "stage",
         isDangerous: false
       });
       const btn = wrapper.find("[data-testid='confirm-btn']");
-      expect(btn.text()).toContain("加入执行流");
+      expect(btn.text()).toContain("加入队列");
     });
 
     it("不显示高危横幅", () => {
@@ -186,7 +186,7 @@ describe("LauncherCommandPanel", () => {
         isDangerous: true
       });
       const btn = wrapper.find("[data-testid='confirm-btn']");
-      expect(btn.text()).toContain("加入执行流");
+      expect(btn.text()).toContain("加入队列");
       expect(btn.classes()).toContain("command-panel__btn--danger");
     });
   });

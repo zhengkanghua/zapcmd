@@ -320,14 +320,14 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
           searchInput.value = el instanceof HTMLInputElement ? el : null;
         };
 
-        async function onToggleStaging(): Promise<void> {
+        async function onToggleQueue(): Promise<void> {
           reviewOpen.value = false;
           stagingDrawerState.value = "closed";
           await nextTick();
           searchInput.value?.focus();
         }
 
-        return { reviewOpen, stagingDrawerState, setSearchInputRef, onToggleStaging, drawerHeight };
+        return { reviewOpen, stagingDrawerState, setSearchInputRef, onToggleQueue, drawerHeight };
       },
       template: `
         <div>
@@ -348,7 +348,7 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
             :set-search-input-ref="setSearchInputRef"
             :set-drawer-ref="() => {}"
             :set-result-button-ref="() => {}"
-            @toggle-staging="onToggleStaging"
+            @toggle-queue="onToggleQueue"
           />
 
           <LauncherFlowPanel
@@ -365,7 +365,7 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
             :execution-feedback-tone="'neutral'"
             :set-staging-panel-ref="() => {}"
             :set-staging-list-ref="() => {}"
-            @toggle-staging="onToggleStaging"
+            @toggle-queue="onToggleQueue"
           />
         </div>
       `

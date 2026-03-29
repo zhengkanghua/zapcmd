@@ -973,3 +973,5 @@
 - 已确认设计稿：修复 Settings tab 语义与 aria/i18n，抽共享设置装配，收窄 Launcher contract，统一 Queue 命名，命令 schema 改为 schema 真源 + 预编译 validator。
 ## 补充（2026-03-29｜Launcher / Settings / Schema 整改 writing-plans 完成）
 - 已产出实施计划 `plan/2026-03-29-launcher-settings-schema-remediation-implementation-plan.md`：按 Settings 语义、共享 settings scene、Launcher contract/Queue 命名、schema 方案 3、命令管理拆分五个 chunk 推进。
+## 补充（2026-03-29｜Chunk 3 Task 7 已落地）
+- `launcherVm` 已拆成 search/command/queue/nav/dom/actions，`App.vue -> LauncherWindow.vue` 收口为单 prop；Queue 文案与 `toggle-queue` 关键事件已切换并通过定向测试。剩余：旧路径/`useStagingQueue` 迁移与 review 面板拆分。

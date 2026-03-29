@@ -7,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "toggle-staging"): void;
+  (e: "toggle-queue"): void;
 }>();
 
 const { t } = useI18nText();
@@ -26,7 +26,7 @@ function formatCount(count: number): string {
     class="queue-summary-pill relative inline-flex items-center justify-center w-[44px] h-[44px] p-0 border border-ui-brand/34 rounded-surface bg-ui-brand/12 text-ui-text leading-none cursor-pointer transition-launcher-surface duration-150 hover:border-ui-brand/44 hover:bg-ui-brand-soft focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24"
     :aria-label="t('launcher.queueToggleAria', { count: props.count })"
     :title="t('launcher.queueTitle', { count: props.count })"
-    @click="emit('toggle-staging')"
+    @click="emit('toggle-queue')"
   >
     <LauncherIcon name="queue" />
     <span

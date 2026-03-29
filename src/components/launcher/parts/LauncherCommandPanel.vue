@@ -15,7 +15,7 @@ const props = defineProps<LauncherCommandPanelProps>();
 const emit = defineEmits<{
   submit: [args: Record<string, string>, dismissDanger: boolean];
   cancel: [];
-  "toggle-staging": [];
+  "toggle-queue": [];
   "arg-input": [key: string, value: string];
 }>();
 
@@ -163,7 +163,7 @@ function onSubmit(): void {
           type="button"
           class="command-panel__queue-btn border-0 bg-transparent cursor-pointer p-[4px_6px] rounded-[6px] text-ui-subtle opacity-85 transition-launcher-interactive duration-150 hover:opacity-100 hover:text-ui-text hover:bg-ui-text/6 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
           :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommandCount })"
-          @click="emit('toggle-staging')"
+          @click="emit('toggle-queue')"
         >
           <LauncherIcon name="queue" />
         </button>

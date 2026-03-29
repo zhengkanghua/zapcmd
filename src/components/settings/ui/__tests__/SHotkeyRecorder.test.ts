@@ -13,7 +13,7 @@ describe("SHotkeyRecorder", () => {
 
   it("shows placeholder when no hotkey is set", () => {
     const wrapper = mount(SHotkeyRecorder, {
-      props: { modelValue: "", label: "显示/隐藏执行流" },
+      props: { modelValue: "", label: "显示/隐藏队列" },
     });
     expect(wrapper.find(".s-hotkey-recorder--empty").exists()).toBe(true);
   });
@@ -73,7 +73,7 @@ describe("SHotkeyRecorder", () => {
 
   it("shows conflict state", () => {
     const wrapper = mount(SHotkeyRecorder, {
-      props: { modelValue: "Ctrl+Enter", label: "test", conflict: "与「加入执行流」冲突" },
+      props: { modelValue: "Ctrl+Enter", label: "test", conflict: "与「加入队列」冲突" },
     });
     expect(wrapper.find(".s-hotkey-recorder--conflict").exists()).toBe(true);
     expect(wrapper.text()).toContain("冲突");

@@ -130,7 +130,7 @@ function mountLauncherWindow(
   const wrapper = mount(LauncherWindow, {
     props: {
       launcherVm
-    } as Record<string, unknown>,
+    },
     global: {
       stubs: {
         LauncherSearchPanel: true,

@@ -224,7 +224,7 @@ describe("App UI hotkeys regression", () => {
     dispatchWindowKeydown("Enter", { ctrlKey: true });
     await waitForUi();
     expect(wrapper.find(".command-panel").exists()).toBe(true);
-    expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("加入执行流");
+    expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("加入队列");
 
     const inputs = wrapper.findAll(".command-panel__form .command-panel__input");
     expect(inputs.length).toBeGreaterThanOrEqual(2);
@@ -297,7 +297,7 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
 
     expect(wrapper.find(".command-panel").exists()).toBe(true);
-    expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("加入执行流");
+    expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("加入队列");
   });
 
   it("keeps param overlay open when required arg is empty", async () => {

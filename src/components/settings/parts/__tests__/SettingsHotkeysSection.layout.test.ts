@@ -18,7 +18,7 @@ describe("SettingsHotkeysSection layout", () => {
     });
 
     const titles = wrapper.findAll(".settings-hotkeys-group__title").map((item) => item.text().trim());
-    expect(titles).toEqual(["全局快捷键", "搜索区快捷键", "执行流快捷键"]);
+    expect(titles).toEqual(["全局快捷键", "搜索区快捷键", "队列快捷键"]);
     expect(wrapper.find(".settings-card__title").exists()).toBe(false);
     expect(wrapper.findAll(".settings-hotkeys-group")).toHaveLength(3);
     expect(wrapper.findAll(".settings-card")).toHaveLength(3);

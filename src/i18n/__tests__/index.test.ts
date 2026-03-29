@@ -17,11 +17,11 @@ describe("i18n runtime", () => {
 
   it("translates by current locale and supports interpolation", () => {
     expect(t("settings.title")).toBe("设置");
-    expect(t("launcher.queueTitle", { count: 3 })).toBe("执行流 3");
+    expect(t("launcher.queueTitle", { count: 3 })).toBe("队列 3");
 
     setAppLocale("en-US");
     expect(t("settings.title")).toBe("Settings");
-    expect(t("launcher.queueTitle", { count: 3 })).toBe("Flow 3");
+    expect(t("launcher.queueTitle", { count: 3 })).toBe("Queue 3");
   });
 
   it("falls back to message key when translation key is missing", () => {

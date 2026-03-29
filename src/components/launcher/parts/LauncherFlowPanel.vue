@@ -12,7 +12,7 @@ const props = defineProps<LauncherFlowPanelProps>();
 const { t } = useI18nText();
 
 const emit = defineEmits<{
-  (e: "toggle-staging"): void;
+  (e: "toggle-queue"): void;
   (e: "staging-drag-start", index: number, event: DragEvent): void;
   (e: "staging-drag-over", index: number, event: DragEvent): void;
   (e: "staging-drag-end"): void;
@@ -35,7 +35,7 @@ const reviewListRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<{ focus: (options?: { preventScroll?: boolean }) => void } | null>(null);
 
 function closeReview(): void {
-  emit("toggle-staging");
+  emit("toggle-queue");
 }
 
 function setReviewPanelRef(el: ElementRefArg): void {
