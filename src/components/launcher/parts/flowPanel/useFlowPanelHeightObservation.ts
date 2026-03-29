@@ -8,11 +8,13 @@ interface FlowPanelHeightObservationDeps {
   props: LauncherFlowPanelProps;
   reviewPanelRef: Ref<HTMLElement | null>;
   focusActiveCardOrFallback: () => void;
+  emitFlowPanelPrepared: () => void;
   emitFlowPanelHeightChange: () => void;
   emitFlowPanelSettled: () => void;
 }
 
 interface FlowPanelHeightObservationState {
+  flowPanelPreparedEmitted: Ref<boolean>;
   flowPanelSettledEmitted: Ref<boolean>;
   observer: ResizeObserver | null;
   idleTimer: ReturnType<typeof setTimeout> | null;
@@ -160,8 +162,30 @@ async function emitFlowPanelSettledOnce(
   beginFlowPanelHeightObservation(state, deps);
 }
 
+async function emitFlowPanelPreparedOnce(
+  state: FlowPanelHeightObservationState,
+  deps: FlowPanelHeightObservationDeps
+): Promise<void> {
+  if (state.flowPanelPreparedEmitted.value) {
+    return;
+  }
+
+  await nextTick();
+  if (
+    state.flowPanelPreparedEmitted.value ||
+    (deps.props.stagingDrawerState !== "preparing" &&
+      deps.props.stagingDrawerState !== "resizing")
+  ) {
+    return;
+  }
+
+  state.flowPanelPreparedEmitted.value = true;
+  deps.emitFlowPanelPrepared();
+}
+
 export function useFlowPanelHeightObservation(deps: FlowPanelHeightObservationDeps) {
   const state: FlowPanelHeightObservationState = {
+    flowPanelPreparedEmitted: ref(false),
     flowPanelSettledEmitted: ref(false),
     observer: null,
     idleTimer: null,
@@ -170,9 +194,9 @@ export function useFlowPanelHeightObservation(deps: FlowPanelHeightObservationDe
   };
 
   watch(
-    () => deps.props.stagingExpanded,
-    async (expanded) => {
-      if (!expanded) {
+    () => deps.props.stagingDrawerState,
+    async (stateName) => {
+      if (stateName !== "opening" && stateName !== "open") {
         return;
       }
       await nextTick();
@@ -184,6 +208,17 @@ export function useFlowPanelHeightObservation(deps: FlowPanelHeightObservationDe
   watch(
     () => deps.props.stagingDrawerState,
     (stage, previousStage) => {
+      if (stage === "preparing" || stage === "resizing") {
+        state.flowPanelSettledEmitted.value = false;
+        stopFlowPanelHeightObservation(state);
+        void emitFlowPanelPreparedOnce(state, deps);
+        return;
+      }
+
+      if (stage === "closed") {
+        state.flowPanelPreparedEmitted.value = false;
+      }
+
       if (stage !== "open") {
         state.flowPanelSettledEmitted.value = false;
         stopFlowPanelHeightObservation(state);
@@ -206,6 +241,14 @@ export function useFlowPanelHeightObservation(deps: FlowPanelHeightObservationDe
   );
 
   onMounted(() => {
+    if (
+      deps.props.stagingDrawerState === "preparing" ||
+      deps.props.stagingDrawerState === "resizing"
+    ) {
+      state.flowPanelPreparedEmitted.value = false;
+      void emitFlowPanelPreparedOnce(state, deps);
+      return;
+    }
     if (deps.props.stagingDrawerState === "open") {
       state.flowPanelSettledEmitted.value = false;
       void emitFlowPanelSettledOnce(state, deps);

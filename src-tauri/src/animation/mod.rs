@@ -21,6 +21,12 @@ const MIN_WIDTH: f64 = 320.0;
 /// 窗口最小高度
 const MIN_HEIGHT: f64 = 124.0;
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum ResizeCommandMode {
+    Animated,
+    Reveal,
+}
+
 /// 窗口动画控制器 -- 通过 Tauri managed state 注册
 pub(crate) struct AnimationController {
     /// 动画代纪计数器：每次启动新动画时递增，旧动画检测到代纪变化自动退出
@@ -46,12 +52,16 @@ pub(crate) fn ease_out_cubic(t: f64) -> f64 {
     1.0 - (1.0 - t).powi(3)
 }
 
-#[tauri::command]
-pub(crate) async fn animate_main_window_size(
+pub(crate) fn should_block_until_animation_complete(mode: ResizeCommandMode) -> bool {
+    matches!(mode, ResizeCommandMode::Reveal)
+}
+
+async fn run_resize_main_window_command(
     window: WebviewWindow,
     state: State<'_, AnimationController>,
     width: f64,
     height: f64,
+    mode: ResizeCommandMode,
 ) -> Result<(), String> {
     let target_w = width.max(MIN_WIDTH);
     let target_h = height.max(MIN_HEIGHT);
@@ -74,6 +84,14 @@ pub(crate) async fn animate_main_window_size(
 
     // 等高时走扩展路径（即时动画），避免纯宽度变化等 300ms
     let is_expand = target_h >= current_h;
+
+    if should_block_until_animation_complete(mode) {
+        state.shrink_delay_gen.fetch_add(1, Ordering::SeqCst);
+        let gen = state.animation_gen.fetch_add(1, Ordering::SeqCst) + 1;
+        let app = window.app_handle().clone();
+        run_animation(&window, &app, gen, target_w, target_h).await;
+        return Ok(());
+    }
 
     if is_expand {
         // 扩展或等高：取消收缩延迟 + 立即启动动画
@@ -102,6 +120,26 @@ pub(crate) async fn animate_main_window_size(
     }
 
     Ok(())
+}
+
+#[tauri::command]
+pub(crate) async fn animate_main_window_size(
+    window: WebviewWindow,
+    state: State<'_, AnimationController>,
+    width: f64,
+    height: f64,
+) -> Result<(), String> {
+    run_resize_main_window_command(window, state, width, height, ResizeCommandMode::Animated).await
+}
+
+#[tauri::command]
+pub(crate) async fn resize_main_window_for_reveal(
+    window: WebviewWindow,
+    state: State<'_, AnimationController>,
+    width: f64,
+    height: f64,
+) -> Result<(), String> {
+    run_resize_main_window_command(window, state, width, height, ResizeCommandMode::Reveal).await
 }
 
 /// 帧步进动画循环

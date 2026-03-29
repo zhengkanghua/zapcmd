@@ -68,6 +68,7 @@ export function createLauncherVm(
     submitParamInput,
     requestCommandPanelExit: runtime.requestCommandPanelExit,
     notifyCommandPageSettled: runtime.notifyCommandPageSettled,
+    notifyFlowPanelPrepared: runtime.notifyFlowPanelPrepared,
     notifyFlowPanelHeightChange: runtime.notifyFlowPanelHeightChange,
     notifyFlowPanelSettled: runtime.notifyFlowPanelSettled,
     notifySearchPageSettled: runtime.notifySearchPageSettled,

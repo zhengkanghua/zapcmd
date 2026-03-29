@@ -1,4 +1,4 @@
-use super::{ease_out_cubic, size_cache::WindowSizeCache};
+use super::{ease_out_cubic, should_block_until_animation_complete, size_cache::WindowSizeCache, ResizeCommandMode};
 
 #[test]
 fn ease_out_cubic_at_zero() {
@@ -64,4 +64,14 @@ fn window_size_cache_recovers_after_poison() {
     cache.write_or_recover(800.0, 600.0);
 
     assert_eq!(cache.read_or_recover(), (800.0, 600.0));
+}
+
+#[test]
+fn reveal_resize_uses_blocking_mode() {
+    assert!(should_block_until_animation_complete(ResizeCommandMode::Reveal));
+}
+
+#[test]
+fn normal_animate_resize_keeps_non_blocking_mode() {
+    assert!(!should_block_until_animation_complete(ResizeCommandMode::Animated));
 }

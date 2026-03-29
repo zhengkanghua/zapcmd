@@ -35,6 +35,7 @@ export interface UseWindowSizingOptions {
   resolveAppWindow: () => AppWindowLike | null;
   requestSetMainWindowSize: (width: number, height: number) => Promise<void>;
   requestAnimateMainWindowSize: (width: number, height: number) => Promise<void>;
+  requestResizeMainWindowForReveal: (width: number, height: number) => Promise<void>;
   searchShellRef: Ref<HTMLElement | null>;
   stagingPanelRef: Ref<HTMLElement | null>;
   stagingExpanded: Ref<boolean>;

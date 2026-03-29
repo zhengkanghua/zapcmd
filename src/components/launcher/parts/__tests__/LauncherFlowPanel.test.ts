@@ -239,6 +239,29 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     wrapper.unmount();
   });
 
+  it("stagingDrawerState=preparing 时面板已挂载但完全不可见", () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({ stagingDrawerState: "preparing" })
+    });
+
+    expect(wrapper.find(".flow-panel").exists()).toBe(true);
+    expect(wrapper.get(".flow-panel").classes()).toContain("invisible");
+    expect(wrapper.get(".flow-panel-overlay__scrim").classes()).toContain("invisible");
+    wrapper.unmount();
+  });
+
+  it("stagingDrawerState 从 preparing 进入 reveal 前会先发出 flow-panel-prepared", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({ stagingDrawerState: "preparing" })
+    });
+
+    expect(wrapper.emitted("flow-panel-prepared")).toBeUndefined();
+    await nextTick();
+
+    expect(wrapper.emitted("flow-panel-prepared")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
   it("stagingDrawerState 从 opening -> open 时发出一次 flow-panel-settled", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({ stagingDrawerState: "opening" })

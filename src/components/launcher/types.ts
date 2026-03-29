@@ -9,7 +9,13 @@ export interface KeyboardHint {
 
 export type ParamSubmitMode = "stage" | "execute";
 export type FocusZone = "search" | "paging" | "results" | "staging";
-export type StagingDrawerState = "closed" | "opening" | "open" | "closing";
+export type StagingDrawerState =
+  | "closed"
+  | "preparing"
+  | "resizing"
+  | "opening"
+  | "open"
+  | "closing";
 
 export type ElementRefArg = Element | ComponentPublicInstance | null;
 

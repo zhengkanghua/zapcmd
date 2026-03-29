@@ -26,7 +26,7 @@ use windowing::{
     set_main_window_size,
     show_settings_window_when_ready,
 };
-use animation::{animate_main_window_size, AnimationController};
+use animation::{animate_main_window_size, resize_main_window_for_reveal, AnimationController};
 use autostart::{get_autostart_enabled, set_autostart_enabled};
 
 pub fn run() {
@@ -56,6 +56,7 @@ pub fn run() {
             ping,
             set_main_window_size,
             animate_main_window_size,
+            resize_main_window_for_reveal,
             get_launcher_hotkey,
             update_launcher_hotkey,
             open_settings_window,

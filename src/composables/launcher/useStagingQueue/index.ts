@@ -2,14 +2,19 @@ import { computed, ref } from "vue";
 import { createDrawerActions } from "./drawer";
 import { createFocusAndReorderActions } from "./focus";
 import { bindDrawerGuards, bindQueueGuards } from "./guards";
-import type { StagedCommandLike, UseStagingQueueOptions, UseStagingQueueResult } from "./model";
+import type {
+  StagedCommandLike,
+  StagingDrawerState,
+  UseStagingQueueOptions,
+  UseStagingQueueResult
+} from "./model";
 
 export function useStagingQueue<T extends StagedCommandLike>(
   options: UseStagingQueueOptions<T>
 ): UseStagingQueueResult {
   const focusZone = ref<"search" | "staging">("search");
   const stagingActiveIndex = ref(0);
-  const stagingDrawerState = ref<"closed" | "opening" | "open" | "closing">("closed");
+  const stagingDrawerState = ref<StagingDrawerState>("closed");
   const stagingExpanded = computed(() => stagingDrawerState.value !== "closed");
 
   const drawer = createDrawerActions({

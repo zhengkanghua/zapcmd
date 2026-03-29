@@ -43,6 +43,12 @@ async function waitForUi(): Promise<void> {
   await nextTick();
 }
 
+async function waitForFlowReveal(): Promise<void> {
+  await waitForUi();
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  await waitForUi();
+}
+
 async function mountApp(): Promise<VueWrapper> {
   const wrapper = mount(App, {
     attachTo: document.body,
@@ -159,13 +165,13 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
-    await waitForUi();
-    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-(opening|open)/);
+    await waitForFlowReveal();
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
 
     const panel = wrapper.get(".flow-panel").element as HTMLElement;
     dispatchElementKeydown(panel, "Tab");
     await waitForUi();
-    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-(opening|open)/);
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
@@ -492,9 +498,9 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.findAll(".result-item").length).toBeGreaterThan(0);
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
-    await waitForUi();
+    await waitForFlowReveal();
 
-    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-(opening|open)/);
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();
@@ -541,9 +547,9 @@ describe("App UI hotkeys regression", () => {
     await waitForUi();
 
     dispatchWindowKeydown("Tab", { ctrlKey: true });
-    await waitForUi();
+    await waitForFlowReveal();
 
-    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-(opening|open)/);
+    expect(wrapper.get(".flow-panel-overlay").classes().join(" ")).toMatch(/state-open/);
 
     dispatchWindowKeydown("Escape");
     await waitForUi();

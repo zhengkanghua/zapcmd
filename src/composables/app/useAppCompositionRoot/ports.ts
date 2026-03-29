@@ -9,6 +9,7 @@ import {
   readUserCommandFiles,
   requestAnimateMainWindowSize,
   requestHideMainWindow,
+  requestResizeMainWindowForReveal,
   requestSetMainWindowSize,
   writeAutoStartEnabled,
   writeLauncherHotkey
@@ -40,6 +41,7 @@ export interface AppCompositionRootPorts {
   requestHideMainWindow: typeof requestHideMainWindow;
   requestSetMainWindowSize: typeof requestSetMainWindowSize;
   requestAnimateMainWindowSize: typeof requestAnimateMainWindowSize;
+  requestResizeMainWindowForReveal: typeof requestResizeMainWindowForReveal;
   logWarn: (message: string, payload?: unknown) => void;
   logError: (message: string, payload?: unknown) => void;
 }
@@ -70,6 +72,7 @@ export function createDefaultAppCompositionRootPorts(): AppCompositionRootPorts 
     requestHideMainWindow,
     requestSetMainWindowSize,
     requestAnimateMainWindowSize,
+    requestResizeMainWindowForReveal,
     logWarn: (message, payload) => {
       console.warn(message, payload);
     },

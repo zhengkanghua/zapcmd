@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-29｜Launcher Search / Flow reveal contract 收口）
+
+- 已完成 Search `44px x 10` 固定 token + chrome contract、Flow `preparing -> resizing -> opening -> open` reveal 状态机与 Rust 阻塞式扩窗门闩；focused tests、coverage、`npm run check:all` 全绿。
+
 ## 补充（2026-03-29｜Launcher Search / Flow 高度时序设计）
 
 - 已确认新 contract：Search 保留 `44px x 10` 固定 token 并收紧抽屉 chrome；Flow 改按空态/前1条/前2条真实卡片测量；打开顺序改为 `preparing -> resizing -> opening`，Rust 扩窗完成后再 reveal。

@@ -12,6 +12,7 @@ export function createDrawerActions<T extends StagedCommandLike>(deps: {
 } {
   const { options, stagingDrawerState } = deps;
   let stagingStateTimer: ReturnType<typeof setTimeout> | null = null;
+  let openGeneration = 0;
 
   function clearStagingTransitionTimer(): void {
     if (!stagingStateTimer) {
@@ -26,24 +27,52 @@ export function createDrawerActions<T extends StagedCommandLike>(deps: {
     options.onDrawerStateChanged?.(next);
   }
 
-  function openStagingDrawer(): void {
-    if (stagingDrawerState.value === "open" || stagingDrawerState.value === "opening") {
+  async function runOpenStagingDrawer(currentGeneration: number): Promise<void> {
+    setStagingDrawerState("preparing");
+    await Promise.resolve();
+    if (openGeneration !== currentGeneration || stagingDrawerState.value !== "preparing") {
       return;
     }
-    clearStagingTransitionTimer();
+
+    setStagingDrawerState("resizing");
+    await options.prepareDrawerReveal?.();
+    if (
+      openGeneration !== currentGeneration ||
+      (stagingDrawerState.value !== "preparing" && stagingDrawerState.value !== "resizing")
+    ) {
+      return;
+    }
+
     setStagingDrawerState("opening");
     stagingStateTimer = setTimeout(() => {
-      if (stagingDrawerState.value === "opening") {
+      if (openGeneration === currentGeneration && stagingDrawerState.value === "opening") {
         setStagingDrawerState("open");
       }
       stagingStateTimer = null;
     }, options.transitionMs);
   }
 
+  function openStagingDrawer(): void {
+    if (
+      stagingDrawerState.value === "preparing" ||
+      stagingDrawerState.value === "resizing" ||
+      stagingDrawerState.value === "opening" ||
+      stagingDrawerState.value === "open"
+    ) {
+      return;
+    }
+
+    const currentGeneration = ++openGeneration;
+    clearStagingTransitionTimer();
+    void runOpenStagingDrawer(currentGeneration);
+  }
+
   function closeStagingDrawer(): void {
     if (stagingDrawerState.value === "closed" || stagingDrawerState.value === "closing") {
       return;
     }
+
+    openGeneration += 1;
     clearStagingTransitionTimer();
     setStagingDrawerState("closing");
     stagingStateTimer = setTimeout(() => {
@@ -56,7 +85,7 @@ export function createDrawerActions<T extends StagedCommandLike>(deps: {
   }
 
   function toggleStaging(): void {
-    if (stagingDrawerState.value === "open" || stagingDrawerState.value === "opening") {
+    if (stagingDrawerState.value !== "closed" && stagingDrawerState.value !== "closing") {
       closeStagingDrawer();
       return;
     }

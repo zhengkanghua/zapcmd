@@ -34,6 +34,9 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
   const requestAnimateMainWindowSize = vi.fn<UseWindowSizingOptions["requestAnimateMainWindowSize"]>(
     async (_width, _height) => {}
   );
+  const requestResizeMainWindowForReveal = vi.fn<
+    UseWindowSizingOptions["requestResizeMainWindowForReveal"]
+  >(async (_width, _height) => {});
 
   const baseOptions: UseWindowSizingOptions = {
     constants: WINDOW_SIZING_CONSTANTS,
@@ -42,6 +45,7 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
     resolveAppWindow: () => null,
     requestSetMainWindowSize: async () => {},
     requestAnimateMainWindowSize,
+    requestResizeMainWindowForReveal,
     searchShellRef: ref(null),
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),
@@ -81,7 +85,8 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
       flowPanelLockedHeight
     },
     spies: {
-      requestAnimateMainWindowSize
+      requestAnimateMainWindowSize,
+      requestResizeMainWindowForReveal
     }
   };
 }
@@ -385,6 +390,7 @@ function createExitHarness() {
     resolveAppWindow: () => null,
     requestSetMainWindowSize: async () => {},
     requestAnimateMainWindowSize,
+    requestResizeMainWindowForReveal: requestAnimateMainWindowSize,
     searchShellRef: ref(null),
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),
@@ -457,6 +463,7 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
       resolveAppWindow: () => null,
       requestSetMainWindowSize: async () => {},
       requestAnimateMainWindowSize,
+      requestResizeMainWindowForReveal: requestAnimateMainWindowSize,
       searchShellRef: ref(null),
       stagingPanelRef: ref(null),
       stagingExpanded: ref(false),
@@ -534,6 +541,7 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
       resolveAppWindow: () => null,
       requestSetMainWindowSize: async () => {},
       requestAnimateMainWindowSize,
+      requestResizeMainWindowForReveal: requestAnimateMainWindowSize,
       searchShellRef: ref(shell),
       stagingPanelRef: ref(null),
       stagingExpanded: ref(false),
@@ -727,14 +735,19 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
 
     await harness.controller.syncWindowSize();
     harness.spies.requestAnimateMainWindowSize.mockClear();
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220]
+    });
 
     harness.options.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
-    harness.controller.notifyFlowPanelSettled();
-    await harness.controller.syncWindowSize();
+    const revealController = harness.controller as unknown as FlowRevealController;
+    await revealController.prepareFlowPanelReveal();
 
-    expect(harness.state.flowPanelLockedHeight.value).toBe(406);
-    expect(shell.style.getPropertyValue("--launcher-frame-height")).toBe("406px");
+    expect(harness.state.flowPanelLockedHeight.value).toBe(532);
+    expect(shell.style.getPropertyValue("--launcher-frame-height")).toBe("532px");
   });
 
   it("Flow 从 Command 关闭回落时，launcher-frame height 不应滞留在旧的 Flow 高度", async () => {
@@ -856,6 +869,7 @@ describe("createWindowSizingController（Flow 会话）", () => {
 
   it("上级面板高度高于两条门槛时，Flow 继承更高高度而不是回落", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 620 });
+    harness.options.sharedPanelMaxHeight.value = 700;
     harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
       headerHeight: 52,
       footerHeight: 60,
@@ -993,15 +1007,17 @@ describe("createWindowSizingController（Flow 会话）", () => {
 
     const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
     harness.options.searchShellRef.value = shell;
-    const expectedFlowMinHeight =
-      WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
-      WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
-      WINDOW_SIZING_CONSTANTS.stagingListGap;
+    const expectedFlowMinHeight = 364;
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [96, 124]
+    });
 
     harness.state.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
-    harness.controller.notifyFlowPanelSettled();
-    await harness.controller.syncWindowSize();
+    const revealController = harness.controller as unknown as FlowRevealController;
+    await revealController.prepareFlowPanelReveal();
 
     expect(shell.style.getPropertyValue("--launcher-frame-height")).toBe(
       `${expectedFlowMinHeight}px`
@@ -1010,21 +1026,23 @@ describe("createWindowSizingController（Flow 会话）", () => {
 
   it("搜索 -> Flow 因最小高度被补高后，关闭 Flow 会恢复到打开前的 Search 高度", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 280 });
-    const expectedFlowMinHeight =
-      WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
-      WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
-      WINDOW_SIZING_CONSTANTS.stagingListGap;
+    const expectedFlowMinHeight = 364;
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [96, 124]
+    });
 
     await harness.controller.syncWindowSize();
     harness.spies.requestAnimateMainWindowSize.mockClear();
 
     harness.state.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
-    harness.controller.notifyFlowPanelSettled();
-    await harness.controller.syncWindowSize();
+    const revealController = harness.controller as unknown as FlowRevealController;
+    await revealController.prepareFlowPanelReveal();
 
     expect(harness.state.flowPanelLockedHeight.value).toBe(expectedFlowMinHeight);
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+    expect(harness.spies.requestResizeMainWindowForReveal).toHaveBeenLastCalledWith(
       expect.any(Number),
       expectedFlowMinHeight +
         UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
@@ -1069,6 +1087,11 @@ describe("createWindowSizingController（Flow 会话）", () => {
 
   it("notifyFlowPanelSettled 首次写入 flowPanelLockedHeight，再次通知不覆写已锁高度", async () => {
     const harness = createFlowHarness({ lastFrameHeight: 420 });
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [96, 124]
+    });
 
     await harness.controller.syncWindowSize();
     harness.state.drawerOpen.value = false;
@@ -1078,16 +1101,16 @@ describe("createWindowSizingController（Flow 会话）", () => {
     await harness.controller.syncWindowSize();
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
 
-    harness.controller.notifyFlowPanelSettled();
-    await harness.controller.syncWindowSize();
+    const revealController = harness.controller as unknown as FlowRevealController;
+    await revealController.prepareFlowPanelReveal();
 
-    expect(harness.state.flowPanelLockedHeight.value).toBe(harness.lastFrameHeight);
+    expect(harness.state.flowPanelLockedHeight.value).toBe(420);
 
     harness.state.flowPanelInheritedHeight.value = 640;
     harness.controller.notifyFlowPanelSettled();
     await harness.controller.syncWindowSize();
 
-    expect(harness.state.flowPanelLockedHeight.value).toBe(harness.lastFrameHeight);
+    expect(harness.state.flowPanelLockedHeight.value).toBe(420);
   });
 
   it("Flow settled 后在短时观察窗口内允许按最新实测继续补高，稳定后冻结", async () => {
@@ -1174,10 +1197,7 @@ describe("createWindowSizingController（Flow 会话）", () => {
     const flowPanelLockedHeight = ref<number | null>(null);
     const stagingExpanded = ref(false);
     const pendingCommand = ref<unknown>({ id: "pending" });
-    const expectedFlowMinHeight =
-      WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
-      WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
-      WINDOW_SIZING_CONSTANTS.stagingListGap;
+    const expectedFlowMinHeight = 532;
 
     const harness = createWindowSizingHarness({
       commandPanelInheritedHeight,
@@ -1188,17 +1208,22 @@ describe("createWindowSizingController（Flow 会话）", () => {
       pendingCommand,
       searchPanelEffectiveHeight: ref(280)
     });
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220]
+    });
 
     await harness.controller.syncWindowSize();
     harness.spies.requestAnimateMainWindowSize.mockClear();
 
     stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
-    harness.controller.notifyFlowPanelSettled();
-    await harness.controller.syncWindowSize();
+    const revealController = harness.controller as unknown as FlowRevealController;
+    await revealController.prepareFlowPanelReveal();
 
     expect(flowPanelLockedHeight.value).toBe(expectedFlowMinHeight);
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
+    expect(harness.spies.requestResizeMainWindowForReveal).toHaveBeenLastCalledWith(
       expect.any(Number),
       expectedFlowMinHeight +
         UI_TOP_ALIGN_OFFSET_PX_FALLBACK +

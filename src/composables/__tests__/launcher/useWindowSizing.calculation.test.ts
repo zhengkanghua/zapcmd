@@ -58,6 +58,7 @@ function createBaseOptions(
     resolveAppWindow: () => null,
     requestSetMainWindowSize: async () => {},
     requestAnimateMainWindowSize: async () => {},
+    requestResizeMainWindowForReveal: async () => {},
     searchShellRef: ref(null),
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),

@@ -32,7 +32,7 @@ export function bindDrawerGuards<T extends StagedCommandLike>(deps: {
   stagingDrawerState: Ref<StagingDrawerState>;
 }): void {
   watch(deps.stagingDrawerState, (state) => {
-    if ((state === "opening" || state === "open") && deps.focusZone.value === "search") {
+    if (state !== "closed" && state !== "closing" && deps.focusZone.value === "search") {
       deps.focusZone.value = "staging";
     }
     if (state === "closed" && deps.focusZone.value === "staging") {

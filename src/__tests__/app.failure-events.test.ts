@@ -1112,7 +1112,7 @@ describe("App failure and event regression", () => {
       await waitForUi();
       expectQueueCount(wrapper, 2);
 
-      const baselineAnimateCount = getInvokeCommandCallCount("animate_main_window_size");
+      const baselineRevealCount = getInvokeCommandCallCount("resize_main_window_for_reveal");
       const preciseFlowFrameHeight = 52 + 24 + 168 + 220 + 8 + 60;
       const staticFallbackFrameHeight =
         WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
@@ -1161,8 +1161,8 @@ describe("App failure and event regression", () => {
       await new Promise((resolve) => setTimeout(resolve, 250));
       await waitForUi();
 
-      const openCalls = getInvokeCommandCalls("animate_main_window_size").slice(
-        baselineAnimateCount,
+      const openCalls = getInvokeCommandCalls("resize_main_window_for_reveal").slice(
+        baselineRevealCount,
       );
       expect(openCalls.length).toBeGreaterThan(0);
       expect(openCalls.at(-1)?.[1]).toMatchObject({

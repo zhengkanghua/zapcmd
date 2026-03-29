@@ -190,6 +190,60 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
   });
 
+  it("stagingDrawerState=preparing 时 FlowPanel 仍由 LauncherWindow 挂载，但用户不可见", () => {
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: { type: "search" },
+        stagingExpanded: true,
+        stagingDrawerState: "preparing",
+        stagedCommands: [
+          {
+            id: "cmd-1",
+            title: "示例命令",
+            rawPreview: "echo preview",
+            renderedCommand: "echo preview",
+            args: [],
+            argValues: {}
+          }
+        ]
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherCommandPanel: true,
+          LauncherSafetyOverlay: true
+        }
+      }
+    });
+
+    expect(wrapper.findComponent({ name: "LauncherFlowPanel" }).exists()).toBe(true);
+    expect(wrapper.get(".flow-panel").classes()).toContain("invisible");
+  });
+
+  it("FlowPanel 发出 flow-panel-prepared 时，LauncherWindow 向上透传同名事件", async () => {
+    const wrapper = mount(LauncherWindow, {
+      props: createBaseProps({
+        navCurrentPage: { type: "search" },
+        stagingExpanded: true,
+        stagingDrawerState: "preparing"
+      }),
+      global: {
+        stubs: {
+          LauncherSearchPanel: true,
+          LauncherCommandPanel: true,
+          LauncherSafetyOverlay: true,
+          LauncherFlowPanel: {
+            template:
+              "<button class='stub-flow-prepared' @click=\"$emit('flow-panel-prepared')\">flow prepared</button>"
+          }
+        }
+      }
+    });
+
+    await wrapper.get(".stub-flow-prepared").trigger("click");
+    expect(wrapper.emitted("flow-panel-prepared")).toHaveLength(1);
+  });
+
   it("FlowPanel 发出 flow-panel-height-change 时，LauncherWindow 向上透传同名事件", async () => {
     const wrapper = mount(LauncherWindow, {
       props: createBaseProps({

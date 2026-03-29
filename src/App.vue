@@ -77,6 +77,7 @@ defineExpose({
     @submit-param-input="submitParamInput"
     @request-command-panel-exit="launcherVm.requestCommandPanelExit"
     @command-page-settled="launcherVm.notifyCommandPageSettled"
+    @flow-panel-prepared="launcherVm.notifyFlowPanelPrepared"
     @flow-panel-height-change="launcherVm.notifyFlowPanelHeightChange"
     @flow-panel-settled="launcherVm.notifyFlowPanelSettled"
     @search-page-settled="launcherVm.notifySearchPageSettled"

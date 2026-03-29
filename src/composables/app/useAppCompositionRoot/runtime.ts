@@ -32,10 +32,14 @@ type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 type LauncherRuntime = ReturnType<typeof createLauncherRuntime>;
 
 function createLauncherRuntime(context: AppCompositionContext) {
+  const prepareDrawerRevealRef = {
+    value: async () => {}
+  };
   const stagingQueue = useStagingQueue({
     stagedCommands: context.stagedCommands,
     transitionMs: STAGING_TRANSITION_MS,
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
+    prepareDrawerReveal: () => prepareDrawerRevealRef.value(),
     ensureActiveStagingVisible: () => {
       context.ensureActiveStagingVisibleRef.value();
     }
@@ -107,6 +111,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
   );
 
   return {
+    prepareDrawerRevealRef,
     stagingQueue,
     navStack,
     layoutMetrics,
@@ -205,6 +210,9 @@ function createWindowSizingSettleNotifiers(windowSizing: ReturnType<typeof useWi
     notifyFlowPanelHeightChange(): void {
       windowSizing.notifyFlowPanelHeightChange();
     },
+    notifyFlowPanelPrepared(): void {
+      windowSizing.notifyFlowPanelPrepared();
+    },
     notifyFlowPanelSettled(): void {
       windowSizing.notifyFlowPanelSettled();
     }
@@ -223,6 +231,7 @@ function createWindowSizingOptions(
     resolveAppWindow: context.resolveAppWindow,
     requestSetMainWindowSize: context.ports.requestSetMainWindowSize,
     requestAnimateMainWindowSize: context.ports.requestAnimateMainWindowSize,
+    requestResizeMainWindowForReveal: context.ports.requestResizeMainWindowForReveal,
     searchShellRef: context.domBridge.searchShellRef,
     stagingPanelRef: context.domBridge.stagingPanelRef,
     stagingExpanded: launcherRuntime.stagingQueue.stagingExpanded,
@@ -255,10 +264,12 @@ function bindAppRuntime(
   const {
     notifySearchPageSettled,
     notifyCommandPageSettled,
+    notifyFlowPanelPrepared,
     notifyFlowPanelHeightChange,
     notifyFlowPanelSettled
   } =
     createWindowSizingSettleNotifiers(windowSizing);
+  launcherRuntime.prepareDrawerRevealRef.value = () => windowSizing.prepareFlowPanelReveal();
   function requestCommandPanelExit(): void {
     const onCommandActionPage = launcherRuntime.navStack.currentPage.value.type === "command-action";
     if (!onCommandActionPage && launcherRuntime.commandExecution.pendingCommand.value === null) {
@@ -348,6 +359,7 @@ function bindAppRuntime(
     requestCommandPanelExit,
     notifySearchPageSettled,
     notifyCommandPageSettled,
+    notifyFlowPanelPrepared,
     notifyFlowPanelHeightChange,
     notifyFlowPanelSettled
   };

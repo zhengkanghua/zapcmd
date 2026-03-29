@@ -15,8 +15,7 @@ import {
 import {
   measureCommandPanelFullNaturalHeight,
   measureFlowPanelMinHeight,
-  resolveCommandPanelMinHeight,
-  resolveFlowPanelMinHeight
+  resolveCommandPanelMinHeight
 } from "./panelMeasurement";
 import { stopFlowPanelObservation, type FlowObservationState } from "./flowObservation";
 import { SEARCH_CAPSULE_HEIGHT_PX } from "../useLauncherLayoutMetrics";
@@ -37,7 +36,7 @@ export function createPanelHeightSessionView(options: UseWindowSizingOptions): P
   };
 }
 
-function resolveSearchPanelEffectiveHeight(options: UseWindowSizingOptions): number {
+export function resolveSearchPanelEffectiveHeight(options: UseWindowSizingOptions): number {
   const effectiveHeight = options.searchPanelEffectiveHeight.value;
   if (Number.isFinite(effectiveHeight) && effectiveHeight > 0) {
     return effectiveHeight;
@@ -49,7 +48,7 @@ function resolveSearchPanelEffectiveHeight(options: UseWindowSizingOptions): num
  * 解析当前左/右面板用于会话继承的“有效高度”。
  * Search 来源必须只认 searchPanelEffectiveHeight，避免 breathing 污染 Command / Flow 入口基线。
  */
-function resolveCurrentPanelEffectiveHeight(options: UseWindowSizingOptions): number {
+export function resolveCurrentPanelEffectiveHeight(options: UseWindowSizingOptions): number {
   if (options.pendingCommand.value !== null) {
     return (
       options.commandPanelLockedHeight.value ??
@@ -73,12 +72,28 @@ function resolveCommandPanelEntryHeight(options: UseWindowSizingOptions): number
   return resolveSearchPanelEffectiveHeight(options);
 }
 
-function resolveFrameMaxHeight(options: UseWindowSizingOptions, dragStripHeight: number): number {
+export function resolveFrameMaxHeight(
+  options: UseWindowSizingOptions,
+  dragStripHeight: number
+): number {
   const screenCapFrame = Math.max(
     0,
     options.windowHeightCap.value - resolveWindowChromeHeight(dragStripHeight)
   );
   return Math.min(screenCapFrame, options.sharedPanelMaxHeight.value);
+}
+
+export function resolveFlowPanelRevealTargetHeight(
+  options: UseWindowSizingOptions,
+  dragStripHeight: number,
+  measuredMinHeight: number
+): number {
+  return resolvePanelHeight({
+    panelMaxHeight: resolveFrameMaxHeight(options, dragStripHeight),
+    inheritedPanelHeight:
+      options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
+    panelMinHeight: measuredMinHeight
+  });
 }
 
 export function syncPanelHeightSessions(
@@ -107,14 +122,7 @@ export function syncPanelHeightSessions(
   }
 
   if (flowPanelActive && !state.flowPanelActive) {
-    const flowPanelEntryHeight = resolveCurrentPanelEffectiveHeight(options);
-    const primedFlowPanelEntryHeight = shouldPrimeFlowPanelHeightOnSearchCapsuleEntry(options)
-      ? Math.max(flowPanelEntryHeight, resolveFlowPanelFallbackMinHeight(options))
-      : flowPanelEntryHeight;
-    // 纯搜索胶囊场景若等到 Flow settled 后再补高，面板会先出现后被窗口裁切。
-    // 这里提前抬高 Flow 会话的继承高度，让 Rust 扩窗与 opening 动画同步开始；
-    // settled 后仍保留首轮真实测量的锁高机会，不会被兜底值“锁死”。
-    beginFlowPanelSession(session, primedFlowPanelEntryHeight);
+    beginFlowPanelSession(session, resolveCurrentPanelEffectiveHeight(options));
     state.flowPanelActive = true;
     state.flowPanelSettled = false;
     stopFlowPanelObservation(state);
@@ -136,24 +144,6 @@ export function lockSettledPanelHeights(
   const frameMaxHeight = resolveFrameMaxHeight(options, dragStripHeight);
   maybeLockCommandPanelHeight(options, state, frameMaxHeight);
   maybeLockFlowPanelHeight(options, state, frameMaxHeight);
-}
-
-function resolveFlowPanelFallbackMinHeight(options: UseWindowSizingOptions): number {
-  return (
-    options.constants.stagingChromeHeight +
-    options.constants.stagingCardEstHeight * 2 +
-    options.constants.stagingListGap
-  );
-}
-
-function shouldPrimeFlowPanelHeightOnSearchCapsuleEntry(
-  options: UseWindowSizingOptions
-): boolean {
-  if (options.pendingCommand.value !== null) {
-    return false;
-  }
-
-  return resolveSearchPanelEffectiveHeight(options) <= SEARCH_CAPSULE_HEIGHT_PX;
 }
 
 function maybeLockCommandPanelHeight(
@@ -201,17 +191,19 @@ function maybeLockFlowPanelHeight(
   const measuredMinHeight = options.stagingPanelRef.value
     ? measureFlowPanelMinHeight(options.stagingPanelRef.value)
     : null;
-  const panelMinHeight = resolveFlowPanelMinHeight({
-    fallbackMinHeight: resolveFlowPanelFallbackMinHeight(options),
-    measuredMinHeight
-  });
-  const settledFlowPanelBaseHeight = shouldPrimeFlowPanelHeightOnSearchCapsuleEntry(options)
-    ? resolveSearchPanelEffectiveHeight(options)
-    : options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight;
+  if (
+    measuredMinHeight === null ||
+    !Number.isFinite(measuredMinHeight) ||
+    measuredMinHeight <= 0
+  ) {
+    return;
+  }
+
   const resolvedFlowPanelHeight = resolvePanelHeight({
     panelMaxHeight: frameMaxHeight,
-    inheritedPanelHeight: settledFlowPanelBaseHeight,
-    panelMinHeight
+    inheritedPanelHeight:
+      options.flowPanelInheritedHeight.value ?? options.constants.windowBaseHeight,
+    panelMinHeight: measuredMinHeight
   });
 
   if (options.flowPanelLockedHeight.value === null) {
@@ -228,7 +220,7 @@ function maybeLockFlowPanelHeight(
     resolvePanelHeight({
       panelMaxHeight: frameMaxHeight,
       inheritedPanelHeight: options.flowPanelLockedHeight.value,
-      panelMinHeight
+      panelMinHeight: measuredMinHeight
     })
   );
 }

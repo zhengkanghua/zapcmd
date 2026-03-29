@@ -23,6 +23,7 @@ const emit = defineEmits<{
   (e: "clear-staging"): void;
   (e: "execute-staged"): void;
   (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
+  (e: "flow-panel-prepared"): void;
   (e: "flow-panel-height-change"): void;
   (e: "flow-panel-settled"): void;
 }>();
@@ -183,6 +184,7 @@ useFlowPanelHeightObservation({
   props,
   reviewPanelRef,
   focusActiveCardOrFallback,
+  emitFlowPanelPrepared: () => emit("flow-panel-prepared"),
   emitFlowPanelHeightChange: () => emit("flow-panel-height-change"),
   emitFlowPanelSettled: () => emit("flow-panel-settled")
 });
@@ -194,7 +196,10 @@ useFlowPanelHeightObservation({
     data-hit-zone="overlay"
     :class="[
       `state-${props.stagingDrawerState}`,
-      props.stagingDrawerState === 'closing' || props.stagingDrawerState === 'closed'
+      props.stagingDrawerState === 'closing' ||
+      props.stagingDrawerState === 'closed' ||
+      props.stagingDrawerState === 'preparing' ||
+      props.stagingDrawerState === 'resizing'
         ? 'pointer-events-none'
         : '',
       props.stagingDrawerState === 'open' || props.stagingDrawerState === 'opening'
@@ -208,6 +213,9 @@ useFlowPanelHeightObservation({
       data-hit-zone="overlay"
       :aria-label="t('common.close')"
       :class="[
+        props.stagingDrawerState === 'preparing' || props.stagingDrawerState === 'resizing'
+          ? 'invisible opacity-0'
+          : '',
         props.stagingDrawerState === 'opening'
           ? 'animate-launcher-review-overlay-scrim-in motion-reduce:animate-none'
           : '',
@@ -223,6 +231,9 @@ useFlowPanelHeightObservation({
       class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-launcher-flow-panel-highlight shadow-launcher-side-panel shadow-ui-black/35"
       :class="[
         { 'flow-panel--has-list': props.stagedCommands.length > 0 },
+        props.stagingDrawerState === 'preparing' || props.stagingDrawerState === 'resizing'
+          ? 'invisible opacity-0 pointer-events-none'
+          : '',
         props.stagingDrawerState === 'opening'
           ? 'animate-launcher-review-overlay-panel-in motion-reduce:animate-none'
           : '',

@@ -8,11 +8,15 @@ import {
   stopFlowPanelObservation
 } from "./flowObservation";
 import type { UseWindowSizingOptions } from "./model";
+import { lockFlowPanelHeight } from "./panelHeightSession";
 import {
+  createPanelHeightSessionView,
   lockSettledPanelHeights,
+  resolveFlowPanelRevealTargetHeight,
   syncPanelHeightSessions,
   type WindowSizingSessionState
 } from "./sessionCoordinator";
+import { measureFlowPanelMinHeight } from "./panelMeasurement";
 import {
   applyWindowSize,
   handleSearchSettlingResize,
@@ -23,6 +27,12 @@ import {
 
 interface WindowSizingState extends SearchSettlingState, WindowSizingSessionState {
   syncingWindowSize: boolean;
+}
+
+interface FlowPanelPreparedGate {
+  prepared: boolean;
+  promise: Promise<void> | null;
+  resolve: (() => void) | null;
 }
 
 function createWindowSizingState(options: UseWindowSizingOptions): WindowSizingState {
@@ -50,6 +60,7 @@ function createSyncWindowSizeCore(
   options: UseWindowSizingOptions,
   state: WindowSizingState,
   commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>,
+  flowPanelPreparedGate: FlowPanelPreparedGate,
   scheduleWindowSync: () => void
 ) {
   return async function syncWindowSizeCore(bridge: ResizeBridge): Promise<void> {
@@ -67,6 +78,11 @@ function createSyncWindowSizeCore(
       const dragStripHeight = resolveShellDragStripHeightFromDom(options);
       const hadActiveFlowPanel = state.flowPanelActive;
       syncPanelHeightSessions(options, state, commandPanelExit.snapshot().phase);
+      if ((!hadActiveFlowPanel && state.flowPanelActive) || (hadActiveFlowPanel && !state.flowPanelActive)) {
+        flowPanelPreparedGate.prepared = false;
+        flowPanelPreparedGate.promise = null;
+        flowPanelPreparedGate.resolve = null;
+      }
       lockSettledPanelHeights(options, state, dragStripHeight);
       const preferWindowHeightForLauncherFrame =
         options.stagingExpanded.value || hadActiveFlowPanel;
@@ -103,6 +119,48 @@ function createSyncWindowSizeCore(
   };
 }
 
+async function waitForFlowPanelPrepared(
+  options: UseWindowSizingOptions,
+  gate: FlowPanelPreparedGate
+): Promise<void> {
+  if (options.stagingPanelRef.value) {
+    gate.prepared = true;
+    return;
+  }
+  if (gate.prepared) {
+    return;
+  }
+  if (gate.promise === null) {
+    gate.promise = new Promise<void>((resolve) => {
+      gate.resolve = () => {
+        gate.prepared = true;
+        gate.promise = null;
+        gate.resolve = null;
+        resolve();
+      };
+    });
+  }
+  await gate.promise;
+}
+
+async function measureFlowPanelMinHeightForReveal(
+  options: UseWindowSizingOptions
+): Promise<number | null> {
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const panel = options.stagingPanelRef.value;
+    const measuredMinHeight = panel ? measureFlowPanelMinHeight(panel) : null;
+    if (Number.isFinite(measuredMinHeight) && (measuredMinHeight ?? 0) > 0) {
+      return measuredMinHeight as number;
+    }
+    await nextTick();
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0);
+    });
+  }
+
+  return null;
+}
+
 function createRequestCommandPanelExit(
   options: UseWindowSizingOptions,
   state: WindowSizingState,
@@ -137,6 +195,11 @@ function createOnAppFocused(
 export function createWindowSizingController(options: UseWindowSizingOptions) {
   const state = createWindowSizingState(options);
   const commandPanelExit = createCommandPanelExitCoordinator();
+  const flowPanelPreparedGate: FlowPanelPreparedGate = {
+    prepared: false,
+    promise: null,
+    resolve: null
+  };
 
   /** 缓动动画路径，用于 watcher 触发的响应式更新。 */
   const scheduleWindowSync = (): void => {
@@ -146,6 +209,7 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     options,
     state,
     commandPanelExit,
+    flowPanelPreparedGate,
     scheduleWindowSync
   );
   async function syncWindowSize(): Promise<void> {
@@ -163,6 +227,48 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     commandPanelExit
   );
 
+  async function prepareFlowPanelReveal(): Promise<void> {
+    if (options.isSettingsWindow.value || !options.stagingExpanded.value) {
+      return;
+    }
+
+    syncPanelHeightSessions(options, state, commandPanelExit.snapshot().phase);
+    if (!state.flowPanelActive) {
+      return;
+    }
+
+    await waitForFlowPanelPrepared(options, flowPanelPreparedGate);
+
+    const measuredMinHeight = await measureFlowPanelMinHeightForReveal(options);
+    if (
+      measuredMinHeight === null ||
+      !Number.isFinite(measuredMinHeight) ||
+      measuredMinHeight <= 0
+    ) {
+      return;
+    }
+
+    const dragStripHeight = resolveShellDragStripHeightFromDom(options);
+    const resolvedFlowPanelHeight = resolveFlowPanelRevealTargetHeight(
+      options,
+      dragStripHeight,
+      measuredMinHeight
+    );
+    lockFlowPanelHeight(createPanelHeightSessionView(options), resolvedFlowPanelHeight);
+
+    const commandPanelExitFrameHeightLock = commandPanelExit.snapshot().lockedExitFrameHeight;
+    await applyWindowSize(
+      options,
+      state,
+      options.requestResizeMainWindowForReveal,
+      resolveWindowSize(options, { commandPanelExitFrameHeightLock }),
+      {
+        frameHeightLock: commandPanelExitFrameHeightLock,
+        preferWindowHeight: true
+      }
+    );
+  }
+
   const notifySearchPageSettled = (): void => {
     commandPanelExit.markSearchSettled();
     scheduleWindowSync();
@@ -175,6 +281,10 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
     state.flowPanelSettled = true;
     beginFlowPanelObservation(state);
     scheduleWindowSync();
+  };
+  const notifyFlowPanelPrepared = (): void => {
+    flowPanelPreparedGate.prepared = true;
+    flowPanelPreparedGate.resolve?.();
   };
   const notifyFlowPanelHeightChange = (): void => {
     if (!state.flowPanelActive || !state.flowPanelSettled || !state.flowPanelObservationActive) {
@@ -195,7 +305,9 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
   return {
     onViewportResize,
     onAppFocused,
+    notifyFlowPanelPrepared,
     requestCommandPanelExit,
+    prepareFlowPanelReveal,
     notifyCommandPageSettled,
     notifyFlowPanelHeightChange,
     notifyFlowPanelSettled,

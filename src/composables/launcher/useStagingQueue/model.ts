@@ -1,6 +1,12 @@
 import type { Ref } from "vue";
 
-export type StagingDrawerState = "closed" | "opening" | "open" | "closing";
+export type StagingDrawerState =
+  | "closed"
+  | "preparing"
+  | "resizing"
+  | "opening"
+  | "open"
+  | "closing";
 export type FocusZone = "search" | "staging";
 
 export interface StagedCommandLike {
@@ -12,6 +18,7 @@ export interface UseStagingQueueOptions<T extends StagedCommandLike> {
   transitionMs: number;
   scheduleSearchInputFocus: (selectText?: boolean) => void;
   ensureActiveStagingVisible: () => void;
+  prepareDrawerReveal?: () => Promise<void>;
   onDrawerStateChanged?: (state: StagingDrawerState) => void;
 }
 
