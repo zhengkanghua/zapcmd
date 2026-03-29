@@ -4,6 +4,10 @@
 
 - 已确认新 contract：Search 保留 `44px x 10` 固定 token 并收紧抽屉 chrome；Flow 改按空态/前1条/前2条真实卡片测量；打开顺序改为 `preparing -> resizing -> opening`，Rust 扩窗完成后再 reveal。
 
+## 补充（2026-03-29｜Launcher Search / Flow 高度时序实施计划）
+
+- 已落盘实施计划：先收紧 Search 10 条高度 contract，再改 Flow 真实门槛、reveal 状态机与 Rust 阻塞式扩窗门闩；计划文件为 `docs/superpowers/plans/2026-03-29-launcher-search-flow-height-reveal-contract.md`。
+
 ## 补充（2026-03-29｜Launcher Flow 首帧扩窗）
 
 - 已修复“仅搜索胶囊”打开 Flow 时先出面板、后扩窗的两段式时序：Flow 会话首帧先预抬继承高度，让 Rust `animate_main_window_size` 与 opening 同步启动；同时过滤空态无效 0 高度量测，避免 settled 后误缩回搜索高度。相关 controller / panelMeasurement / app failure tests 全绿。
