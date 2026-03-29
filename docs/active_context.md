@@ -979,3 +979,5 @@
 - 已完成 Queue rename：`useCommandQueue`、`LauncherQueueReviewPanel`、`queueReview` 路径与公共 contract 全切到 queue/enqueue；删除 visual-only `LauncherStagingPanel`。Task 8 定向 13 文件 144 测试通过。
 ## 补充（2026-03-29｜Chunk 3 Task 9 已落地）
 - 已把 QueueReview 面板拆成 Header/EmptyState/List 三个子组件，主壳仅保留 overlay、focus trap 与 composable 接线；Flow/Search 定向 57 测试通过。
+## 补充（2026-03-29｜Chunk 4 Task 10 已落地）
+- 已新增 schemaValidation 红灯与 loader/business-rule 测试：当前按预期卡在 `schemaValidation` 模块缺失和 `min>max` 规则未接通，作为 schema 方案 3 的 TDD 起点。

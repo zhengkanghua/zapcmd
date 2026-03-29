@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { mapRuntimeCommandToTemplate } from "../../commands/runtimeMapper";
+import type { RuntimeCommand } from "../../commands/runtimeTypes";
 import {
   checkQueueCommandSafety,
   checkSingleCommandSafety,
@@ -195,6 +197,46 @@ describe("commandSafety", () => {
       ],
       argValues: {
         port: "99999"
+      }
+    });
+
+    expect(result.blockedMessage).toContain("port");
+  });
+
+  it("keeps runtime min max rules after mapping into command safety", () => {
+    const template = mapRuntimeCommandToTemplate({
+      id: "runtime-port-guard",
+      name: "Runtime Port Guard",
+      tags: ["network"],
+      category: "custom",
+      platform: "win",
+      template: "echo {{port}}",
+      adminRequired: false,
+      args: [
+        {
+          key: "port",
+          label: "port",
+          type: "number",
+          required: true,
+          validation: {
+            min: 1000,
+            max: 9000
+          }
+        }
+      ]
+    } satisfies RuntimeCommand);
+
+    expect(template.args?.[0]).toMatchObject({
+      min: 1000,
+      max: 9000
+    });
+
+    const result = checkSingleCommandSafety({
+      title: template.title,
+      renderedCommand: "echo 22",
+      args: template.args,
+      argValues: {
+        port: "22"
       }
     });
 

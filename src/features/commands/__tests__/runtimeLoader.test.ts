@@ -93,6 +93,57 @@ describe("runtimeLoader", () => {
     }
   });
 
+  it("reports business-rule validation failures with readable reason", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const loaded = loadUserCommandTemplatesWithReport(
+        [
+          {
+            path: "C:/Users/test/.zapcmd/commands/min-max-conflict.json",
+            content: JSON.stringify({
+              commands: [
+                {
+                  id: "port-range-conflict",
+                  name: "Port Range Conflict",
+                  tags: ["test"],
+                  category: "custom",
+                  platform: "win",
+                  template: "echo {{port}}",
+                  adminRequired: false,
+                  args: [
+                    {
+                      key: "port",
+                      label: "port",
+                      type: "number",
+                      required: true,
+                      validation: {
+                        min: 100,
+                        max: 1
+                      }
+                    }
+                  ]
+                }
+              ]
+            }),
+            modifiedMs: 1
+          }
+        ],
+        { runtimePlatform: "win" }
+      );
+
+      expect(loaded.templates).toHaveLength(0);
+      const issue = loaded.issues.find((item) => item.code === "invalid-schema");
+      expect(issue).toMatchObject({
+        code: "invalid-schema",
+        stage: "schema",
+        sourceId: "C:/Users/test/.zapcmd/commands/min-max-conflict.json"
+      });
+      expect(issue?.reason).toContain("min");
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it("reports duplicate ids with merge stage reason", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {
