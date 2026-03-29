@@ -134,6 +134,17 @@ afterEach(() => {
 });
 
 describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
+  it("close 按钮使用 Queue 语义事件", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps()
+    });
+
+    expect(wrapper.text()).toContain("队列");
+    await wrapper.get(".flow-panel__close").trigger("click");
+    expect(wrapper.emitted("toggle-queue")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
   it("delegates height observation, grip reorder and inline args state out of the main file", () => {
     const source = readFileSync("src/components/launcher/parts/LauncherFlowPanel.vue", "utf8");
 
@@ -468,7 +479,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
 
     expect(wrapper.find(".flow-panel-overlay").exists()).toBe(true);
     expect(wrapper.find(".flow-panel__empty").exists()).toBe(true);
-    expect(wrapper.emitted("toggle-staging")).toBeUndefined();
+    expect(wrapper.emitted("toggle-queue")).toBeUndefined();
   });
 
   it("Flow 打开时禁用执行队列：按钮呈现禁用态，点击只 toast 不执行", async () => {

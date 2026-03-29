@@ -192,14 +192,18 @@ describe("createAppCompositionViewModel", () => {
     expect(viewModel.appShellVm).toBeDefined();
     expect("query" in viewModel).toBe(false);
     expect("settingsNavItems" in viewModel).toBe(false);
-    expect(isRef(viewModel.launcherVm.query)).toBe(false);
-    expect(viewModel.launcherVm.query).toBe("");
+    expect("query" in viewModel.launcherVm).toBe(false);
+    expect(isRef(viewModel.launcherVm.search.query)).toBe(false);
+    expect(viewModel.launcherVm.search.query).toBe("");
+    expect(viewModel.launcherVm.queue.items).toEqual([]);
+    expect(viewModel.launcherVm.actions.toggleQueue).toBeTypeOf("function");
     expect(isRef(viewModel.settingsVm.defaultTerminal)).toBe(false);
     expect(viewModel.settingsVm.defaultTerminal).toBe("powershell");
     expect(appSource).toMatch(
       /const\s*\{\s*launcherVm,\s*settingsVm,\s*appShellVm\s*\}\s*=\s*useAppCompositionRoot\(\);/s
     );
     expect(appSource).not.toContain("import SettingsWindow");
+    expect(appSource).toContain("<LauncherWindow :launcher-vm=\"launcherVm\"");
   });
 
   it("submitParamInput 透传业务提交结果，且不再直接 popPage", () => {
@@ -277,8 +281,8 @@ describe("createAppCompositionViewModel", () => {
       runtime as never
     );
 
-    expect(viewModel.launcherVm.notifyFlowPanelSettled).toBeTypeOf("function");
-    expect(viewModel.launcherVm.notifyFlowPanelHeightChange).toBeTypeOf("function");
+    expect(viewModel.launcherVm.actions.notifyFlowPanelSettled).toBeTypeOf("function");
+    expect(viewModel.launcherVm.actions.notifyFlowPanelHeightChange).toBeTypeOf("function");
     expect("drawerFloorViewportHeight" in viewModel).toBe(false);
     expect("stagingListMaxHeight" in viewModel).toBe(false);
     expect("settingsErrorRoute" in viewModel).toBe(false);
@@ -288,7 +292,7 @@ describe("createAppCompositionViewModel", () => {
     expect("isHotkeyRecording" in viewModel).toBe(false);
     expect("getHotkeyDisplay" in viewModel).toBe(false);
 
-    const submitted = viewModel.launcherVm.submitParamInput();
+    const submitted = viewModel.launcherVm.actions.submitParamInput();
 
     expect(submitted).toBe(true);
     expect(submitParamInput).toHaveBeenCalledTimes(1);

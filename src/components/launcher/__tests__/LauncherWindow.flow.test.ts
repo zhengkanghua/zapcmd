@@ -34,51 +34,115 @@ function createSafetyDialog(): LauncherSafetyDialog {
   };
 }
 
-function createBaseProps(overrides: Record<string, unknown> = {}) {
+function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
   const searchPage: NavPage = { type: "search" };
-  return {
-    query: "",
-    executing: false,
-    executionFeedbackMessage: "",
-    executionFeedbackTone: "neutral" as const,
-    searchShellStyle: {} as Record<string, string>,
-    stagingExpanded: false,
-    drawerOpen: false,
-    drawerViewportHeight: 0,
-    drawerFloorViewportHeight: 0,
-    drawerFillerHeight: 0,
-    keyboardHints: [],
-    filteredResults: [],
-    activeIndex: 0,
-    stagedFeedbackCommandId: null,
-    stagedCommands: [],
-    stagingDrawerState: "closed" as const,
-    stagingHints: [],
-    stagingListShouldScroll: false,
-    stagingListMaxHeight: "0px",
-    focusZone: "search" as const,
-    stagingActiveIndex: 0,
-    pendingCommand: null,
-    pendingArgs: [],
-    pendingArgValues: {},
-    pendingSubmitHint: "",
-    pendingSubmitMode: "stage" as const,
-    safetyDialog: null,
-    navCurrentPage: searchPage,
-    navCanGoBack: false,
-    navPushPage: vi.fn(),
-    navPopPage: vi.fn(),
-    navResetToSearch: vi.fn(),
-    navStack: [searchPage],
-    setSearchShellRef: () => {},
-    setSearchInputRef: () => {},
-    setDrawerRef: () => {},
-    setStagingPanelRef: () => {},
-    setStagingListRef: () => {},
-    setResultButtonRef: () => {},
-    setParamInputRef: () => {},
-    ...overrides
+  const base = {
+    search: {
+      query: "",
+      keyboardHints: [],
+      filteredResults: [],
+      activeIndex: 0,
+      searchShellStyle: {} as Record<string, string>,
+      drawerOpen: false,
+      drawerViewportHeight: 0,
+      stagedFeedbackCommandId: null
+    },
+    command: {
+      pendingCommand: null,
+      pendingArgs: [],
+      pendingArgValues: {},
+      submitHint: "",
+      submitMode: "stage" as const,
+      safetyDialog: null,
+      executing: false,
+      executionFeedbackMessage: "",
+      executionFeedbackTone: "neutral" as const
+    },
+    queue: {
+      items: [],
+      queueOpen: false,
+      panelState: "closed" as const,
+      hints: [],
+      focusZone: "search" as const,
+      activeIndex: 0
+    },
+    nav: {
+      currentPage: searchPage,
+      canGoBack: false,
+      pushPage: vi.fn(),
+      popPage: vi.fn(),
+      resetToSearch: vi.fn(),
+      stack: [searchPage]
+    },
+    dom: {
+      setSearchShellRef: () => {},
+      setSearchInputRef: () => {},
+      setDrawerRef: () => {},
+      setQueuePanelRef: () => {},
+      setQueueListRef: () => {},
+      setResultButtonRef: () => {},
+      setParamInputRef: () => {}
+    },
+    actions: {
+      onQueryInput: vi.fn(),
+      enqueueResult: vi.fn(),
+      executeResult: vi.fn(),
+      toggleQueue: vi.fn(),
+      onQueueDragStart: vi.fn(),
+      onQueueDragOver: vi.fn(),
+      onQueueDragEnd: vi.fn(),
+      onFocusQueueIndex: vi.fn(),
+      removeQueuedCommand: vi.fn(),
+      updateQueuedArg: vi.fn(),
+      clearQueue: vi.fn(),
+      executeQueue: vi.fn(),
+      setQueueGripReorderActive: vi.fn(),
+      submitParamInput: vi.fn(),
+      requestCommandPanelExit: vi.fn(),
+      notifyCommandPageSettled: vi.fn(),
+      notifyFlowPanelPrepared: vi.fn(),
+      notifyFlowPanelHeightChange: vi.fn(),
+      notifyFlowPanelSettled: vi.fn(),
+      notifySearchPageSettled: vi.fn(),
+      updatePendingArgValue: vi.fn(),
+      confirmSafetyExecution: vi.fn(),
+      cancelSafetyExecution: vi.fn()
+    }
   };
+
+  return {
+    ...base,
+    ...overrides,
+    search: { ...base.search, ...(overrides.search as Record<string, unknown> | undefined) },
+    command: { ...base.command, ...(overrides.command as Record<string, unknown> | undefined) },
+    queue: { ...base.queue, ...(overrides.queue as Record<string, unknown> | undefined) },
+    nav: { ...base.nav, ...(overrides.nav as Record<string, unknown> | undefined) },
+    dom: { ...base.dom, ...(overrides.dom as Record<string, unknown> | undefined) },
+    actions: { ...base.actions, ...(overrides.actions as Record<string, unknown> | undefined) }
+  };
+}
+
+function mountLauncherWindow(
+  launcherVmOverrides: Record<string, unknown> = {},
+  stubs: Record<string, unknown> = {}
+) {
+  const launcherVm = createLauncherVmStub(launcherVmOverrides);
+  const wrapper = mount(LauncherWindow, {
+    props: {
+      launcherVm
+    } as Record<string, unknown>,
+    global: {
+      stubs: {
+        LauncherSearchPanel: true,
+        LauncherQueueReviewPanel: true,
+        LauncherCommandPanel: true,
+        LauncherSafetyOverlay: true,
+        ...stubs
+      }
+    }
+  });
+
+  return { wrapper, launcherVm };
 }
 
 describe("LauncherWindow CommandPanel wiring", () => {
@@ -91,17 +155,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     warnHost.__ZAPCMD_CONSOLE_WARN_SINK = warnSpy;
 
     try {
-      mount(LauncherWindow, {
-        props: createBaseProps(),
-        global: {
-          stubs: {
-            LauncherSearchPanel: true,
-            LauncherFlowPanel: true,
-            LauncherCommandPanel: true,
-            LauncherSafetyOverlay: true
-          }
-        }
-      });
+      mountLauncherWindow();
       await nextTick();
     } finally {
       warnHost.__ZAPCMD_CONSOLE_WARN_SINK = originalWarnSink;
@@ -114,155 +168,128 @@ describe("LauncherWindow CommandPanel wiring", () => {
   });
 
   it("search 页面渲染 SearchPanel（不渲染 CommandPanel）", () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps(),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherFlowPanel: true,
-          LauncherCommandPanel: true,
-          LauncherSafetyOverlay: true
-        }
-      }
-    });
+    const { wrapper } = mountLauncherWindow();
 
     expect(wrapper.find("launcher-search-panel-stub").exists()).toBe(true);
     expect(wrapper.find("launcher-command-panel-stub").exists()).toBe(false);
   });
 
   it("launcher shell 不再使用 role=application", () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps(),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherFlowPanel: true,
-          LauncherCommandPanel: true,
-          LauncherSafetyOverlay: true
-        }
-      }
-    });
+    const { wrapper } = mountLauncherWindow();
 
     expect(wrapper.get(".search-shell").attributes("role")).toBeUndefined();
   });
 
-  it("Search 页面 stagingExpanded=true 时 FlowPanel 由 LauncherWindow 挂载（SearchPanel 即使被 stub 也仍存在）", () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: { type: "search" },
-        stagingExpanded: true,
-        stagingDrawerState: "open"
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherCommandPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherFlowPanel: true
-        }
+  it("Search 页面 queueOpen=true 时 QueueReviewPanel 由 LauncherWindow 挂载（SearchPanel 即使被 stub 也仍存在）", () => {
+    const { wrapper } = mountLauncherWindow({
+      nav: {
+        currentPage: { type: "search" }
+      },
+      queue: {
+        queueOpen: true,
+        panelState: "open"
       }
     });
 
-    expect(wrapper.find("launcher-flow-panel-stub").exists()).toBe(true);
+    expect(wrapper.find("launcher-queue-review-panel-stub").exists()).toBe(true);
   });
 
-  it("FlowPanel 发出 flow-panel-settled 时，LauncherWindow 向上透传同名事件", async () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: { type: "search" },
-        stagingExpanded: true,
-        stagingDrawerState: "open"
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherCommandPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherFlowPanel: {
-            template:
-              "<button class='stub-flow-settled' @click=\"$emit('flow-panel-settled')\">flow settled</button>"
-          }
+  it("QueueReviewPanel 发出 flow-panel-settled 时，LauncherWindow 向上透传同名事件", async () => {
+    const { wrapper } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: { type: "search" }
+        },
+        queue: {
+          queueOpen: true,
+          panelState: "open"
+        }
+      },
+      {
+        LauncherQueueReviewPanel: {
+          template:
+            "<button class='stub-flow-settled' @click=\"$emit('flow-panel-settled')\">flow settled</button>"
         }
       }
-    });
+    );
 
     await wrapper.get(".stub-flow-settled").trigger("click");
     expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
   });
 
-  it("stagingDrawerState=preparing 时 FlowPanel 仍由 LauncherWindow 挂载，但用户不可见", () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: { type: "search" },
-        stagingExpanded: true,
-        stagingDrawerState: "preparing",
-        stagedCommands: [
-          {
-            id: "cmd-1",
-            title: "示例命令",
-            rawPreview: "echo preview",
-            renderedCommand: "echo preview",
-            args: [],
-            argValues: {}
-          }
-        ]
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherCommandPanel: true,
-          LauncherSafetyOverlay: true
+  it("queue panelState=preparing 时 QueueReviewPanel 仍由 LauncherWindow 挂载", () => {
+    const { wrapper } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: { type: "search" }
+        },
+        queue: {
+          items: [
+            {
+              id: "cmd-1",
+              title: "示例命令",
+              rawPreview: "echo preview",
+              renderedCommand: "echo preview",
+              args: [],
+              argValues: {}
+            }
+          ],
+          queueOpen: true,
+          panelState: "preparing"
+        }
+      },
+      {
+        LauncherQueueReviewPanel: {
+          template: "<aside class='queue-review-panel invisible'>queue review</aside>"
         }
       }
-    });
+    );
 
-    expect(wrapper.findComponent({ name: "LauncherFlowPanel" }).exists()).toBe(true);
-    expect(wrapper.get(".flow-panel").classes()).toContain("invisible");
+    expect(wrapper.find(".queue-review-panel").exists()).toBe(true);
+    expect(wrapper.get(".queue-review-panel").classes()).toContain("invisible");
   });
 
-  it("FlowPanel 发出 flow-panel-prepared 时，LauncherWindow 向上透传同名事件", async () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: { type: "search" },
-        stagingExpanded: true,
-        stagingDrawerState: "preparing"
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherCommandPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherFlowPanel: {
-            template:
-              "<button class='stub-flow-prepared' @click=\"$emit('flow-panel-prepared')\">flow prepared</button>"
-          }
+  it("QueueReviewPanel 发出 flow-panel-prepared 时，LauncherWindow 向上透传同名事件", async () => {
+    const { wrapper } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: { type: "search" }
+        },
+        queue: {
+          queueOpen: true,
+          panelState: "preparing"
+        }
+      },
+      {
+        LauncherQueueReviewPanel: {
+          template:
+            "<button class='stub-flow-prepared' @click=\"$emit('flow-panel-prepared')\">flow prepared</button>"
         }
       }
-    });
+    );
 
     await wrapper.get(".stub-flow-prepared").trigger("click");
     expect(wrapper.emitted("flow-panel-prepared")).toHaveLength(1);
   });
 
-  it("FlowPanel 发出 flow-panel-height-change 时，LauncherWindow 向上透传同名事件", async () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: { type: "search" },
-        stagingExpanded: true,
-        stagingDrawerState: "open"
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherCommandPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherFlowPanel: {
-            template:
-              "<button class='stub-flow-height-change' @click=\"$emit('flow-panel-height-change')\">flow height change</button>"
-          }
+  it("QueueReviewPanel 发出 flow-panel-height-change 时，LauncherWindow 向上透传同名事件", async () => {
+    const { wrapper } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: { type: "search" }
+        },
+        queue: {
+          queueOpen: true,
+          panelState: "open"
+        }
+      },
+      {
+        LauncherQueueReviewPanel: {
+          template:
+            "<button class='stub-flow-height-change' @click=\"$emit('flow-panel-height-change')\">flow height change</button>"
         }
       }
-    });
+    );
 
     await wrapper.get(".stub-flow-height-change").trigger("click");
     expect(wrapper.emitted("flow-panel-height-change")).toHaveLength(1);
@@ -275,32 +302,29 @@ describe("LauncherWindow CommandPanel wiring", () => {
       props: { command, mode: "execute", isDangerous: false }
     };
 
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: commandPage,
-        navCanGoBack: true,
-        navStack: [{ type: "search" }, commandPage]
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherFlowPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherCommandPanel: {
-            template:
-              "<div><button class='stub-cancel' @click=\"$emit('cancel')\" />" +
-              "<button class='stub-submit' @click=\"$emit('submit', { value: 'x' }, false)\" /></div>"
-          }
+    const { wrapper, launcherVm } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: commandPage,
+          canGoBack: true,
+          stack: [{ type: "search" }, commandPage]
+        }
+      },
+      {
+        LauncherCommandPanel: {
+          template:
+            "<div><button class='stub-cancel' @click=\"$emit('cancel')\" />" +
+            "<button class='stub-submit' @click=\"$emit('submit', { value: 'x' }, false)\" /></div>"
         }
       }
-    });
+    );
 
     expect(wrapper.find("launcher-search-panel-stub").exists()).toBe(false);
     expect(wrapper.find(".stub-cancel").exists()).toBe(true);
 
     await wrapper.get(".stub-cancel").trigger("click");
     expect(wrapper.emitted("request-command-panel-exit")).toHaveLength(1);
-    expect((wrapper.props("navPopPage") as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
+    expect(launcherVm.nav.popPage).not.toHaveBeenCalled();
 
     await wrapper.get(".stub-submit").trigger("click");
     expect(wrapper.emitted("submit-param-input")).toHaveLength(1);
@@ -313,28 +337,25 @@ describe("LauncherWindow CommandPanel wiring", () => {
       props: { command, mode: "execute", isDangerous: false }
     };
 
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: commandPage,
-        navCanGoBack: true,
-        navStack: [{ type: "search" }, commandPage]
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherFlowPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherCommandPanel: {
-            template: "<button class='stub-cancel' @click=\"$emit('cancel')\">cancel</button>"
-          }
+    const { wrapper, launcherVm } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: commandPage,
+          canGoBack: true,
+          stack: [{ type: "search" }, commandPage]
+        }
+      },
+      {
+        LauncherCommandPanel: {
+          template: "<button class='stub-cancel' @click=\"$emit('cancel')\">cancel</button>"
         }
       }
-    });
+    );
 
     await wrapper.get(".stub-cancel").trigger("click");
 
     expect(wrapper.emitted("request-command-panel-exit")).toHaveLength(1);
-    expect((wrapper.props("navPopPage") as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
+    expect(launcherVm.nav.popPage).not.toHaveBeenCalled();
   });
 
   it("command-action 页面点击任意内容不应触发 blank-pointerdown（命中兜底）", async () => {
@@ -344,46 +365,42 @@ describe("LauncherWindow CommandPanel wiring", () => {
       props: { command, mode: "execute", isDangerous: false }
     };
 
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: commandPage,
-        navStack: [{ type: "search" }, commandPage]
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherFlowPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherCommandPanel: {
-            template: "<button class='inside-command-panel'>inside</button>"
-          }
+    const { wrapper } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: commandPage,
+          stack: [{ type: "search" }, commandPage]
+        }
+      },
+      {
+        LauncherCommandPanel: {
+          template: "<button class='inside-command-panel'>inside</button>"
         }
       }
-    });
+    );
 
     await wrapper.get(".inside-command-panel").trigger("pointerdown");
     expect(wrapper.emitted("blank-pointerdown")).toBeUndefined();
   });
 
   it("safetyDialog 存在时渲染 SafetyOverlay，并透传 cancel/confirm", async () => {
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        safetyDialog: createSafetyDialog(),
-        navCurrentPage: { type: "search" }
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherFlowPanel: true,
-          LauncherCommandPanel: true,
-          LauncherSafetyOverlay: {
-            template:
-              "<div><button class='stub-safety-cancel' @click=\"$emit('cancel-safety-execution')\" />" +
-              "<button class='stub-safety-confirm' @click=\"$emit('confirm-safety-execution')\" /></div>"
-          }
+    const { wrapper } = mountLauncherWindow(
+      {
+        command: {
+          safetyDialog: createSafetyDialog()
+        },
+        nav: {
+          currentPage: { type: "search" }
+        }
+      },
+      {
+        LauncherSafetyOverlay: {
+          template:
+            "<div><button class='stub-safety-cancel' @click=\"$emit('cancel-safety-execution')\" />" +
+            "<button class='stub-safety-confirm' @click=\"$emit('confirm-safety-execution')\" /></div>"
         }
       }
-    });
+    );
 
     await wrapper.get(".stub-safety-cancel").trigger("click");
     expect(wrapper.emitted("cancel-safety-execution")).toHaveLength(1);
@@ -399,26 +416,22 @@ describe("LauncherWindow CommandPanel wiring", () => {
       props: { command, mode: "execute", isDangerous: false }
     };
 
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: commandPage,
-        navCanGoBack: true,
-        navStack: [{ type: "search" }, commandPage]
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherFlowPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherCommandPanel: true
-        }
+    const { wrapper } = mountLauncherWindow({
+      nav: {
+        currentPage: commandPage,
+        canGoBack: true,
+        stack: [{ type: "search" }, commandPage]
       }
     });
 
     await wrapper.setProps({
-      navCurrentPage: { type: "search" },
-      navCanGoBack: false,
-      navStack: [{ type: "search" }]
+      launcherVm: createLauncherVmStub({
+        nav: {
+          currentPage: { type: "search" },
+          canGoBack: false,
+          stack: [{ type: "search" }]
+        }
+      })
     });
     (wrapper.vm as unknown as { onNavAfterEnter: () => void }).onNavAfterEnter();
     await nextTick();
@@ -433,26 +446,22 @@ describe("LauncherWindow CommandPanel wiring", () => {
       props: { command, mode: "execute", isDangerous: false }
     };
 
-    const wrapper = mount(LauncherWindow, {
-      props: createBaseProps({
-        navCurrentPage: { type: "search" },
-        navCanGoBack: false,
-        navStack: [{ type: "search" }]
-      }),
-      global: {
-        stubs: {
-          LauncherSearchPanel: true,
-          LauncherFlowPanel: true,
-          LauncherSafetyOverlay: true,
-          LauncherCommandPanel: true
-        }
+    const { wrapper } = mountLauncherWindow({
+      nav: {
+        currentPage: { type: "search" },
+        canGoBack: false,
+        stack: [{ type: "search" }]
       }
     });
 
     await wrapper.setProps({
-      navCurrentPage: commandPage,
-      navCanGoBack: true,
-      navStack: [{ type: "search" }, commandPage]
+      launcherVm: createLauncherVmStub({
+        nav: {
+          currentPage: commandPage,
+          canGoBack: true,
+          stack: [{ type: "search" }, commandPage]
+        }
+      })
     });
     (wrapper.vm as unknown as { onNavAfterEnter: () => void }).onNavAfterEnter();
     await nextTick();

@@ -4,6 +4,16 @@ import { describe, expect, it } from "vitest";
 import LauncherQueueSummaryPill from "../LauncherQueueSummaryPill.vue";
 
 describe("LauncherQueueSummaryPill", () => {
+  it("uses Queue naming and emits toggle-queue", async () => {
+    const wrapper = mount(LauncherQueueSummaryPill, {
+      props: { count: 3 }
+    });
+
+    expect(wrapper.get(".queue-summary-pill").attributes("title")).toContain("队列");
+    await wrapper.get(".queue-summary-pill").trigger("click");
+    expect(wrapper.emitted("toggle-queue")).toHaveLength(1);
+  });
+
   it("keeps a 44px hit target floor", () => {
     const wrapper = mount(LauncherQueueSummaryPill, {
       props: { count: 3 }
