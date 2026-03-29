@@ -31,6 +31,10 @@ interface UseCommandManagementOptions {
   setDisabledCommandIds: (ids: string[]) => void;
 };
 
+interface CommandManagementIndexedRow extends CommandManagementRow {
+  normalizedSearchText: string;
+}
+
 export const COMMAND_ROWS_INITIAL_RENDER_LIMIT = 120;
 export const COMMAND_ROWS_RENDER_CHUNK_SIZE = 80;
 
@@ -91,14 +95,11 @@ function formatIssue(issue: CommandLoadIssue): string {
   });
 }
 
-function matchesQuery(row: CommandManagementRow, query: string): boolean {
+function matchesQuery(row: CommandManagementIndexedRow, query: string): boolean {
   if (!query) {
     return true;
   }
-  const haystack = [row.title, row.id, row.category, row.sourcePath ?? "", row.sourceFileLabel ?? ""]
-    .join(" ")
-    .toLowerCase();
-  return haystack.includes(query);
+  return row.normalizedSearchText.includes(query);
 }
 
 function compareByDefault(left: CommandManagementRow, right: CommandManagementRow): number {
@@ -133,13 +134,14 @@ function compareRows(left: CommandManagementRow, right: CommandManagementRow, so
 }
 
 function createAllRows(options: UseCommandManagementOptions) {
-  return computed<CommandManagementRow[]>(() => {
+  return computed<CommandManagementIndexedRow[]>(() => {
     const disabledSet = new Set(options.disabledCommandIds.value);
     const overriddenSet = new Set(options.overriddenCommandIds.value);
     const issueSourceSet = new Set(options.loadIssues.value.map((item) => item.sourceId));
 
     return options.allCommandTemplates.value.map((template) => {
       const sourcePath = options.commandSourceById.value[template.id];
+      const sourceFileLabel = sourcePath ? toSourceFileLabel(sourcePath) : undefined;
       const source: CommandManagementRow["source"] = options.userCommandSourceById.value[template.id]
         ? "user"
         : "builtin";
@@ -149,21 +151,43 @@ function createAllRows(options: UseCommandManagementOptions) {
         category: template.category,
         source,
         sourcePath,
-        sourceFileLabel: sourcePath ? toSourceFileLabel(sourcePath) : undefined,
+        sourceFileLabel,
         overridesBuiltin: overriddenSet.has(template.id),
         enabled: !disabledSet.has(template.id),
-        hasLoadIssue: Boolean(sourcePath) && issueSourceSet.has(sourcePath)
+        hasLoadIssue: Boolean(sourcePath) && issueSourceSet.has(sourcePath),
+        normalizedSearchText: [
+          template.title,
+          template.id,
+          template.category,
+          sourcePath ?? "",
+          sourceFileLabel ?? ""
+        ]
+          .join(" ")
+          .toLowerCase()
       };
     });
   });
 }
 
-function createSummary(rows: Readonly<Ref<CommandManagementRow[]>>) {
+function createSummary(rows: Readonly<Ref<CommandManagementIndexedRow[]>>) {
   return computed<CommandManagementSummary>(() => {
     const total = rows.value.length;
-    const disabled = rows.value.filter((item) => !item.enabled).length;
-    const userDefined = rows.value.filter((item) => item.source === "user").length;
-    const overridden = rows.value.filter((item) => item.overridesBuiltin).length;
+    let disabled = 0;
+    let userDefined = 0;
+    let overridden = 0;
+
+    for (const row of rows.value) {
+      if (!row.enabled) {
+        disabled += 1;
+      }
+      if (row.source === "user") {
+        userDefined += 1;
+      }
+      if (row.overridesBuiltin) {
+        overridden += 1;
+      }
+    }
+
     return {
       total,
       enabled: total - disabled,
@@ -187,7 +211,7 @@ function createIssueViews(loadIssues: Readonly<Ref<CommandLoadIssue[]>>) {
   );
 }
 
-function createSourceFileOptions(rows: Readonly<Ref<CommandManagementRow[]>>) {
+function createSourceFileOptions(rows: Readonly<Ref<CommandManagementIndexedRow[]>>) {
   return computed<CommandSourceFileOption[]>(() => {
     const byPath = new Map<string, CommandSourceFileOption>();
     for (const row of rows.value) {
@@ -212,7 +236,7 @@ function createSourceFileOptions(rows: Readonly<Ref<CommandManagementRow[]>>) {
 }
 
 function createFilteredRows(
-  rows: Readonly<Ref<CommandManagementRow[]>>,
+  rows: Readonly<Ref<CommandManagementIndexedRow[]>>,
   commandView: Readonly<Ref<CommandManagementViewState>>
 ) {
   return computed<CommandManagementRow[]>(() => {
@@ -252,7 +276,7 @@ function createFilteredRows(
   });
 }
 
-function createCategoryOptions(rows: Readonly<Ref<CommandManagementRow[]>>) {
+function createCategoryOptions(rows: Readonly<Ref<CommandManagementIndexedRow[]>>) {
   return computed<CommandSelectOption<string>[]>(() => {
     const locale = getCurrentLocale();
     const seen = new Set<string>();

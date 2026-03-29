@@ -4,58 +4,77 @@ import type { CommandTemplate } from "../../features/commands/types";
 
 const MAX_FILTERED_RESULTS = 500;
 
+interface SearchableCommand {
+  command: CommandTemplate;
+  index: number;
+  searchText: string;
+  title: string;
+  description: string;
+  preview: string;
+  folder: string;
+  category: string;
+}
+
 function tokenizeQuery(query: string): string[] {
   return query.split(/\s+/).filter(Boolean);
 }
 
-function getSearchText(command: CommandTemplate): string {
-  return `${command.title} ${command.description} ${command.preview} ${command.folder} ${command.category}`.toLowerCase();
-}
-
-function matchCommand(tokens: string[], command: CommandTemplate): boolean {
-  const searchText = getSearchText(command);
-  return tokens.every((token) => searchText.includes(token));
-}
-
-function scoreCommand(
-  query: string,
-  tokens: string[],
-  command: CommandTemplate,
-): number {
+function createSearchableCommand(command: CommandTemplate, index: number): SearchableCommand {
   const title = command.title.toLowerCase();
   const description = command.description.toLowerCase();
   const preview = command.preview.toLowerCase();
   const folder = command.folder.toLowerCase();
   const category = command.category.toLowerCase();
 
+  return {
+    command,
+    index,
+    searchText: `${title} ${description} ${preview} ${folder} ${category}`,
+    title,
+    description,
+    preview,
+    folder,
+    category
+  };
+}
+
+function matchCommand(tokens: string[], command: SearchableCommand): boolean {
+  return tokens.every((token) => command.searchText.includes(token));
+}
+
+function scoreCommand(
+  query: string,
+  tokens: string[],
+  command: SearchableCommand
+): number {
   let score = 0;
-  if (title.startsWith(query)) {
+  if (command.title.startsWith(query)) {
     score += 120;
   }
-  if (title.includes(query)) {
+  if (command.title.includes(query)) {
     score += 80;
   }
-  if (description.includes(query)) {
+  if (command.description.includes(query)) {
     score += 30;
   }
-  if (preview.includes(query)) {
+  if (command.preview.includes(query)) {
     score += 20;
   }
-  if (folder.includes(query) || category.includes(query)) {
+  if (command.folder.includes(query) || command.category.includes(query)) {
     score += 10;
   }
 
   for (const token of tokens) {
-    if (title.startsWith(token)) {
+    if (command.title.startsWith(token)) {
       score += 12;
-    } else if (title.includes(token)) {
+    } else if (command.title.includes(token)) {
       score += 8;
     }
 
-    if (description.includes(token)) {
+    if (command.description.includes(token)) {
       score += 4;
     }
-    if (preview.includes(token)) {
+    if (command.preview.includes(token)) {
       score += 3;
     }
   }
@@ -71,6 +90,9 @@ export function useLauncherSearch(options: UseLauncherSearchOptions = {}) {
   const commandSource = options.commandSource ?? ref(commandTemplates);
   const query = ref("");
   const activeIndex = ref(0);
+  const searchableCommands = computed<SearchableCommand[]>(() =>
+    commandSource.value.map((command, index) => createSearchableCommand(command, index))
+  );
 
   const filteredResults = computed<CommandTemplate[]>(() => {
     const normalized = query.value.trim().toLowerCase();
@@ -79,20 +101,17 @@ export function useLauncherSearch(options: UseLauncherSearchOptions = {}) {
     }
     const tokens = tokenizeQuery(normalized);
 
-    return commandSource.value
-      .map((cmd, index) => ({ cmd, index }))
-      .filter((item) => matchCommand(tokens, item.cmd))
+    return searchableCommands.value
+      .filter((item) => matchCommand(tokens, item))
       .sort((left, right) => {
-        const scoreDiff =
-          scoreCommand(normalized, tokens, right.cmd) -
-          scoreCommand(normalized, tokens, left.cmd);
+        const scoreDiff = scoreCommand(normalized, tokens, right) - scoreCommand(normalized, tokens, left);
         if (scoreDiff !== 0) {
           return scoreDiff;
         }
         return left.index - right.index;
       })
       .slice(0, MAX_FILTERED_RESULTS)
-      .map((item) => item.cmd);
+      .map((item) => item.command);
   });
 
   function normalizeActiveIndex(): void {
@@ -116,6 +135,6 @@ export function useLauncherSearch(options: UseLauncherSearchOptions = {}) {
     activeIndex,
     filteredResults,
     onQueryInput,
-    clearSearchQueryAndSelection,
+    clearSearchQueryAndSelection
   };
 }

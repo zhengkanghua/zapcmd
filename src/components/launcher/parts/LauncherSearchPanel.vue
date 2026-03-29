@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import { computed, ref, watch } from "vue";
+
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import { useI18nText } from "../../../i18n";
-import type { LauncherSearchPanelProps } from "../types";
+import type { ElementRefArg, LauncherSearchPanelProps } from "../types";
 import LauncherHighlightText from "./LauncherHighlightText.vue";
 import LauncherIcon from "./LauncherIcon.vue";
 import LauncherQueueSummaryPill from "./LauncherQueueSummaryPill.vue";
+
+const SEARCH_RESULTS_INITIAL_RENDER_LIMIT = 60;
+const SEARCH_RESULTS_RENDER_CHUNK_SIZE = 60;
+const SEARCH_RESULTS_SCROLL_PREFETCH_PX = 88;
 
 const props = defineProps<LauncherSearchPanelProps>();
 const { t } = useI18nText();
@@ -16,6 +22,35 @@ const emit = defineEmits<{
   (e: "toggle-staging"): void;
   (e: "search-capsule-back"): void;
 }>();
+
+const drawerRef = ref<HTMLElement | null>(null);
+const renderedResultCount = ref(SEARCH_RESULTS_INITIAL_RENDER_LIMIT);
+const visibleResults = computed(() =>
+  props.filteredResults.slice(0, renderedResultCount.value)
+);
+
+function normalizeToHTMLElement(el: ElementRefArg): HTMLElement | null {
+  if (el instanceof HTMLElement) {
+    return el;
+  }
+  if (el && typeof el === "object" && "$el" in el) {
+    const maybeElement = (el as { $el?: unknown }).$el;
+    return maybeElement instanceof HTMLElement ? maybeElement : null;
+  }
+  return null;
+}
+
+function growRenderedResults(targetCount = renderedResultCount.value + SEARCH_RESULTS_RENDER_CHUNK_SIZE): void {
+  if (renderedResultCount.value >= props.filteredResults.length) {
+    return;
+  }
+  renderedResultCount.value = Math.min(props.filteredResults.length, targetCount);
+}
+
+function setDrawerElementRef(el: ElementRefArg): void {
+  props.setDrawerRef(el);
+  drawerRef.value = normalizeToHTMLElement(el);
+}
 
 function onSearchFormPointerDown(event: PointerEvent): void {
   if (!props.reviewOpen && !props.flowOpen) {
@@ -37,6 +72,38 @@ function onSearchInput(event: Event): void {
   }
   emit("query-input", (event.target as HTMLInputElement).value);
 }
+
+function onDrawerScroll(): void {
+  const drawer = drawerRef.value;
+  if (!drawer || renderedResultCount.value >= props.filteredResults.length) {
+    return;
+  }
+
+  const remaining = drawer.scrollHeight - (drawer.scrollTop + drawer.clientHeight);
+  if (remaining <= SEARCH_RESULTS_SCROLL_PREFETCH_PX) {
+    growRenderedResults();
+  }
+}
+
+watch(
+  () => props.filteredResults,
+  (results) => {
+    renderedResultCount.value = Math.min(results.length, SEARCH_RESULTS_INITIAL_RENDER_LIMIT);
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.activeIndex,
+  (activeIndex) => {
+    if (activeIndex < renderedResultCount.value) {
+      return;
+    }
+
+    const chunkCount = Math.ceil((activeIndex + 1) / SEARCH_RESULTS_RENDER_CHUNK_SIZE);
+    growRenderedResults(Math.max(SEARCH_RESULTS_INITIAL_RENDER_LIMIT, chunkCount * SEARCH_RESULTS_RENDER_CHUNK_SIZE));
+  }
+);
 </script>
 
 <template>
@@ -88,13 +155,14 @@ function onSearchInput(event: Event): void {
     <section class="relative">
       <section
         v-if="props.drawerOpen"
-        :ref="props.setDrawerRef"
+        :ref="setDrawerElementRef"
         class="result-drawer w-full m-0 border-t border-t-ui-text/8 border-x-0 border-b-0 rounded-none bg-transparent shadow-none p-[6px] overflow-auto"
         :inert="props.reviewOpen || props.flowOpen ? true : undefined"
         :aria-hidden="props.reviewOpen || props.flowOpen ? 'true' : undefined"
         :style="{ maxHeight: `${props.drawerViewportHeight}px` }"
         aria-label="result-drawer"
         data-testid="result-drawer"
+        @scroll="onDrawerScroll"
       >
         <p
           v-if="props.keyboardHints?.length"
@@ -123,7 +191,7 @@ function onSearchInput(event: Event): void {
           </span>
         </p>
         <ul v-if="props.filteredResults.length > 0" class="result-list m-0 p-0 list-none">
-          <li v-for="(item, index) in props.filteredResults" :key="item.id">
+          <li v-for="(item, index) in visibleResults" :key="item.id">
             <button
               class="result-item group w-full m-0 h-[var(--drawer-row-height,44px)] min-h-[var(--drawer-row-height,44px)] px-[10px] py-[4px] pl-[12px] grid grid-cols-[minmax(0,1fr)_auto] items-center text-left gap-[10px] overflow-hidden border-0 rounded-surface bg-transparent text-ui-text cursor-pointer relative transition-launcher-pressable duration-motion-press ease-motion-emphasized active:scale-motion-press-active hover:bg-ui-text/6 focus-visible:outline-none focus-visible:bg-ui-brand/12 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/22"
               type="button"

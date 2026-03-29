@@ -115,6 +115,136 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     expect(wrapper.find('[data-testid="result-drawer-floor"]').exists()).toBe(false);
     expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
   });
+
+  it("普通搜索态点击 search capsule 不会错误触发回退", async () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        reviewOpen: false,
+        flowOpen: false
+      })
+    });
+
+    await wrapper.get(".search-form").trigger("pointerdown");
+    expect(wrapper.emitted("search-capsule-back")).toBeUndefined();
+  });
+
+  it("点击 queue pill 时不会把事件误判为 search capsule 回退", async () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        reviewOpen: true,
+        flowOpen: false
+      }),
+      global: {
+        stubs: {
+          LauncherQueueSummaryPill: {
+            template: "<button class='queue-summary-pill'>queue</button>"
+          }
+        }
+      }
+    });
+
+    await wrapper.get(".queue-summary-pill").trigger("pointerdown");
+    expect(wrapper.emitted("search-capsule-back")).toBeUndefined();
+  });
+
+  it("长结果集首屏仅渲染首批结果，避免一次性挂载全部 DOM", () => {
+    const filteredResults = Array.from({ length: 260 }, (_, idx) => createCommandTemplate(String(idx)));
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({ filteredResults }),
+      global: {
+        stubs: {
+          LauncherHighlightText: { template: "<span />" }
+        }
+      }
+    });
+
+    expect(wrapper.findAll(".result-item")).toHaveLength(60);
+  });
+
+  it("长结果集在接近抽屉底部滚动时按批补齐结果 DOM", async () => {
+    const filteredResults = Array.from({ length: 260 }, (_, idx) => createCommandTemplate(String(idx)));
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({ filteredResults }),
+      global: {
+        stubs: {
+          LauncherHighlightText: { template: "<span />" }
+        }
+      }
+    });
+
+    const drawer = wrapper.get('[data-testid="result-drawer"]');
+    Object.defineProperty(drawer.element, "clientHeight", {
+      configurable: true,
+      value: 240
+    });
+    Object.defineProperty(drawer.element, "scrollHeight", {
+      configurable: true,
+      value: 1200
+    });
+    Object.defineProperty(drawer.element, "scrollTop", {
+      configurable: true,
+      value: 940,
+      writable: true
+    });
+
+    await drawer.trigger("scroll");
+    await nextTick();
+
+    expect(wrapper.findAll(".result-item")).toHaveLength(120);
+  });
+
+  it("滚动未接近抽屉底部时不会提前扩容结果 DOM", async () => {
+    const filteredResults = Array.from({ length: 260 }, (_, idx) => createCommandTemplate(String(idx)));
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({ filteredResults }),
+      global: {
+        stubs: {
+          LauncherHighlightText: { template: "<span />" }
+        }
+      }
+    });
+
+    const drawer = wrapper.get('[data-testid="result-drawer"]');
+    Object.defineProperty(drawer.element, "clientHeight", {
+      configurable: true,
+      value: 240
+    });
+    Object.defineProperty(drawer.element, "scrollHeight", {
+      configurable: true,
+      value: 1200
+    });
+    Object.defineProperty(drawer.element, "scrollTop", {
+      configurable: true,
+      value: 200,
+      writable: true
+    });
+
+    await drawer.trigger("scroll");
+    await nextTick();
+
+    expect(wrapper.findAll(".result-item")).toHaveLength(60);
+  });
+
+  it("activeIndex 超出首批范围时会补齐到当前激活项，保证键盘导航可达", async () => {
+    const filteredResults = Array.from({ length: 260 }, (_, idx) => createCommandTemplate(String(idx)));
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({ filteredResults }),
+      global: {
+        stubs: {
+          LauncherHighlightText: { template: "<span />" }
+        }
+      }
+    });
+
+    expect(wrapper.findAll(".result-item")).toHaveLength(60);
+
+    await wrapper.setProps({
+      activeIndex: 85
+    });
+    await nextTick();
+
+    expect(wrapper.findAll(".result-item")).toHaveLength(120);
+  });
 });
 
 describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () => {
