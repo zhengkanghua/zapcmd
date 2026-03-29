@@ -85,13 +85,26 @@ describe("tailwind governance contract", () => {
   it("Launcher 重复 keycap / toast 样式改为共享 primitive", () => {
     const commandPanelSource = readProjectFile("src/components/launcher/parts/LauncherCommandPanel.vue");
     const searchPanelSource = readProjectFile("src/components/launcher/parts/LauncherSearchPanel.vue");
-    const flowPanelSource = readProjectFile("src/components/launcher/parts/LauncherQueueReviewPanel.vue");
+    const queueReviewPanelSource = readProjectFile(
+      "src/components/launcher/parts/LauncherQueueReviewPanel.vue"
+    );
+    const queueReviewEmptyStateSource = readProjectFile(
+      "src/components/launcher/parts/queueReview/QueueReviewEmptyState.vue"
+    );
+    const queueReviewListSource = readProjectFile(
+      "src/components/launcher/parts/queueReview/QueueReviewList.vue"
+    );
+    const queueReviewSource = [
+      queueReviewPanelSource,
+      queueReviewEmptyStateSource,
+      queueReviewListSource
+    ].join("\n");
 
-    for (const source of [commandPanelSource, searchPanelSource, flowPanelSource]) {
+    for (const source of [commandPanelSource, searchPanelSource, queueReviewPanelSource]) {
       expect(source).toContain("ui-glass-toast");
     }
 
-    for (const source of [searchPanelSource, flowPanelSource]) {
+    for (const source of [searchPanelSource, queueReviewSource]) {
       expect(source).toContain("ui-keycap");
       expect(source).not.toContain(
         "shadow-[0_1px_1px_rgba(var(--ui-black-rgb),0.2),inset_0_1px_0_rgba(var(--ui-text-rgb),0.1)]"
@@ -158,12 +171,29 @@ describe("tailwind governance contract", () => {
 
   it("Launcher 高重复 transition/easing arbitrary 已收口为语义类", () => {
     const searchPanelSource = readProjectFile("src/components/launcher/parts/LauncherSearchPanel.vue");
-    const flowPanelSource = readProjectFile("src/components/launcher/parts/LauncherQueueReviewPanel.vue");
+    const queueReviewPanelSource = readProjectFile(
+      "src/components/launcher/parts/LauncherQueueReviewPanel.vue"
+    );
+    const queueReviewHeaderSource = readProjectFile(
+      "src/components/launcher/parts/queueReview/QueueReviewHeader.vue"
+    );
+    const queueReviewEmptyStateSource = readProjectFile(
+      "src/components/launcher/parts/queueReview/QueueReviewEmptyState.vue"
+    );
+    const queueReviewListSource = readProjectFile(
+      "src/components/launcher/parts/queueReview/QueueReviewList.vue"
+    );
+    const queueReviewSource = [
+      queueReviewPanelSource,
+      queueReviewHeaderSource,
+      queueReviewEmptyStateSource,
+      queueReviewListSource
+    ].join("\n");
     const commandPanelSource = readProjectFile("src/components/launcher/parts/LauncherCommandPanel.vue");
     const queueSummaryPillSource = readProjectFile(
       "src/components/launcher/parts/LauncherQueueSummaryPill.vue"
     );
-    const sources = [searchPanelSource, flowPanelSource, commandPanelSource, queueSummaryPillSource];
+    const sources = [searchPanelSource, queueReviewSource, commandPanelSource, queueSummaryPillSource];
 
     const requiredClasses = [
       "ease-launcher-emphasized",
@@ -180,7 +210,7 @@ describe("tailwind governance contract", () => {
       expect(hasAnyRequiredClass).toBe(true);
     }
 
-    expect(flowPanelSource).not.toContain("transition-launcher-width");
+    expect(queueReviewSource).not.toContain("transition-launcher-width");
 
     const bannedPatterns = [
       /transition-\[background-color,border-color\]/,

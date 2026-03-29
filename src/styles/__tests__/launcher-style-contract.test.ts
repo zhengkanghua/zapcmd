@@ -18,6 +18,18 @@ const flowPanelSource = readFileSync(
   path.resolve(process.cwd(), "src/components/launcher/parts/LauncherQueueReviewPanel.vue"),
   "utf8"
 );
+const queueReviewHeaderSource = readFileSync(
+  path.resolve(process.cwd(), "src/components/launcher/parts/queueReview/QueueReviewHeader.vue"),
+  "utf8"
+);
+const queueReviewEmptyStateSource = readFileSync(
+  path.resolve(process.cwd(), "src/components/launcher/parts/queueReview/QueueReviewEmptyState.vue"),
+  "utf8"
+);
+const queueReviewListSource = readFileSync(
+  path.resolve(process.cwd(), "src/components/launcher/parts/queueReview/QueueReviewList.vue"),
+  "utf8"
+);
 const searchPanelSource = readFileSync(
   path.resolve(process.cwd(), "src/components/launcher/parts/LauncherSearchPanel.vue"),
   "utf8"
@@ -34,6 +46,12 @@ const buttonPrimitivesSource = readFileSync(
   path.resolve(process.cwd(), "src/components/shared/ui/buttonPrimitives.ts"),
   "utf8"
 );
+const queueReviewSource = [
+  flowPanelSource,
+  queueReviewHeaderSource,
+  queueReviewEmptyStateSource,
+  queueReviewListSource
+].join("\n");
 
 function expectClassContract(source: string, baseClass: string, requiredClass: string): void {
   const base = escapeRegExp(baseClass);
@@ -61,7 +79,7 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
   it("Launcher 主滚动容器挂载 subtle scrollbar utility", () => {
     expectClassContract(commandPanelSource, "command-panel__content", "scrollbar-subtle");
     expect(flowPanelSource).toMatch(/'scrollbar-subtle': props\.queuedCommands\.length === 0/);
-    expectClassContract(flowPanelSource, "flow-panel__list", "scrollbar-subtle");
+    expectClassContract(queueReviewListSource, "flow-panel__list", "scrollbar-subtle");
   });
 
   it("visual-only staging panel 旧组件已删除", () => {
@@ -88,7 +106,7 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
     const sources = [
       commandPanelSource,
       searchPanelSource,
-      flowPanelSource,
+      queueReviewSource,
       queueSummaryPillSource,
       buttonPrimitivesSource
     ];
@@ -110,7 +128,12 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
       "backdrop-blur-launcher-dialog"
     ];
 
-    const requiredSources = [launcherWindowSource, flowPanelSource, searchPanelSource, safetyOverlaySource];
+    const requiredSources = [
+      launcherWindowSource,
+      queueReviewSource,
+      searchPanelSource,
+      safetyOverlaySource
+    ];
     for (const className of requiredClasses) {
       const found = requiredSources.some((source) => source.includes(className));
       expect(found).toBe(true);
@@ -126,7 +149,12 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
       /backdrop-blur-\[20px\]/
     ];
 
-    const launcherSources = [launcherWindowSource, flowPanelSource, searchPanelSource, safetyOverlaySource];
+    const launcherSources = [
+      launcherWindowSource,
+      queueReviewSource,
+      searchPanelSource,
+      safetyOverlaySource
+    ];
     for (const source of launcherSources) {
       for (const pattern of bannedPatterns) {
         expect(source).not.toMatch(pattern);
