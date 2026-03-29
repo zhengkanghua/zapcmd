@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-29｜Launcher/Settings schema 整改 Chunk 5）
+
+- 已完成命令管理拆分：`useCommandManagement` 改目录模块，Settings Commands 拆成 toolbar/summary/table/issues；关键回归、lint/typecheck、`check:all` 全绿。
+
 ## 补充（2026-03-29｜Launcher/Settings schema 整改 Chunk 1）
 
 - 已完成 Settings 顶部 `tablist/tab/tabpanel` 语义与基础 aria i18n 收口，命令管理区改为 heading-led aria contract；focused tests 4 文件 25/25 通过。

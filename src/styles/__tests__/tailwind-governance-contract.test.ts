@@ -138,7 +138,7 @@ describe("tailwind governance contract", () => {
       readProjectFile("src/components/settings/ui/SToggle.vue"),
       readProjectFile("src/components/settings/ui/SDropdown.vue"),
       readProjectFile("src/components/settings/ui/SHotkeyRecorder.vue"),
-      readProjectFile("src/components/settings/parts/SettingsCommandsSection.vue")
+      readProjectFile("src/components/settings/parts/settingsCommands/SettingsCommandsToolbar.vue")
     ];
 
     const requiredClasses = [
