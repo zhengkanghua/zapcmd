@@ -961,3 +961,5 @@
 - 已确认 A 向细滚动条 + 方案 2：在 `tailwind.css` 新增 `.scrollbar-subtle`，替换 Settings 的 `.scrollbar-none`，覆盖 Settings 主内容区与 Launcher 主列表/主面板滚动容器。
 ## 补充（2026-03-27｜主滚动容器细滚动条 writing-plans 完成）
 - 已产出计划 `docs/superpowers/plans/2026-03-27-main-scrollbar-subtle-polish.md`：按 TDD 先锁 utility/contract，再迁移 Settings 与 Launcher 主滚动容器，并在执行末尾完成 Windows 手验。
+## 补充（2026-03-29｜Launcher / Settings / Schema 整改 brainstorming 完成）
+- 已确认设计稿：修复 Settings tab 语义与 aria/i18n，抽共享设置装配，收窄 Launcher contract，统一 Queue 命名，命令 schema 改为 schema 真源 + 预编译 validator。
