@@ -69,6 +69,13 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
     expectClassContract(stagingPanelSource, "staging-list", "scrollbar-subtle");
   });
 
+  it("44px 的队列按钮命中面不能抬高搜索胶囊基线", () => {
+    expectClassContract(queueSummaryPillSource, "queue-summary-pill", "w-[44px]");
+    expectClassContract(queueSummaryPillSource, "queue-summary-pill", "h-[44px]");
+    expectClassContract(searchPanelSource, "search-form", "px-[12px]");
+    expectClassContract(searchPanelSource, "search-form", "py-[9px]");
+  });
+
   it("Launcher alpha arbitrary 不允许回退", () => {
     const banned = [
       /bg-\[rgba\(var\(--ui-/,

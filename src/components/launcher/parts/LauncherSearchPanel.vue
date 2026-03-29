@@ -110,7 +110,7 @@ watch(
   <section class="search-panel w-full min-w-0">
     <section class="search-capsule w-full" aria-label="search-capsule">
       <form
-        class="search-form grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-[10px] p-[12px]"
+        class="search-form grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-[10px] px-[12px] py-[9px]"
         @submit.prevent
         @pointerdown.capture="onSearchFormPointerDown"
       >

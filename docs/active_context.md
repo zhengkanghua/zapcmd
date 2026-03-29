@@ -1,5 +1,10 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-29｜Launcher 搜索胶囊高度回归）
+
+- 已确认回归根因是 queue pill 升到 44px 后，SearchPanel 仍保留 `p-[12px]`，实际胶囊高度被抬到 68px，导致 Flow 打开补高卡顿与少量结果也出现滚动；现改为 `px-[12px] py-[9px]` 并补契约测试锁定。
+- 已补跑 visual：`linux-chromium` baseline 已按修复后 Launcher 画面刷新并 compare 回绿；`wsl-windows-edge` 桥接可运行，但当前仍整体 mismatch，属桥接口径对 controlled-runner baseline 的 compare 差异，不是桥接基础设施失败。
+
 ## 补充（2026-03-29｜UI 审查遗留项计划）
 
 - 已落盘非性能遗留项修复计划：Launcher queue pill / Flow close 的 36px 命中区，以及 Flow 参数值编辑缺少按钮语义；见 `docs/plan/2026-03-29_02-ui-audit-non-performance-remediation-plan.md`。
