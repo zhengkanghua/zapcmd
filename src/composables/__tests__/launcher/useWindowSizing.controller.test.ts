@@ -19,6 +19,10 @@ const SEARCH_SHELL_OUTER_CHROME_PX =
 
 type PanelHeightHarnessOverrides = Partial<UseWindowSizingOptions>;
 
+interface FlowRevealController {
+  prepareFlowPanelReveal: () => Promise<void>;
+}
+
 function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) {
   const {
     commandPanelInheritedHeight = ref<number | null>(null),
@@ -207,7 +211,8 @@ function buildCommandPanelShellForLock(input: {
 function buildFlowPanelShellForLock(input: {
   headerHeight: number;
   footerHeight: number;
-  cardHeights: number[];
+  cardHeights?: number[];
+  emptyHeight?: number;
   itemHeights?: number[];
   listClientHeight?: number;
   listScrollHeight?: number;
@@ -227,54 +232,61 @@ function buildFlowPanelShellForLock(input: {
   body.style.paddingLeft = "16px";
   body.style.paddingRight = "16px";
 
-  const list = document.createElement("ul");
-  list.className = "flow-panel__list";
-  list.style.display = "flex";
-  list.style.flexDirection = "column";
-  list.style.rowGap = "8px";
-  let currentTop = 0;
-  input.cardHeights.forEach((height, index) => {
-    const item = document.createElement("li");
-    item.className = "flow-panel__list-item";
-    item.dataset.stagingIndex = String(index);
-    const itemHeight = input.itemHeights?.[index] ?? height;
-    const itemTop = currentTop;
-    Object.defineProperty(item, "offsetHeight", {
-      configurable: true,
-      value: itemHeight
-    });
-    Object.defineProperty(item, "clientHeight", {
-      configurable: true,
-      value: itemHeight
-    });
-    Object.defineProperty(item, "scrollHeight", {
-      configurable: true,
-      value: itemHeight
-    });
-    Object.defineProperty(item, "getBoundingClientRect", {
-      configurable: true,
-      value: () => createDomRect({ top: itemTop, bottom: itemTop + itemHeight, height: itemHeight })
-    });
+  if (typeof input.emptyHeight === "number") {
+    const empty = document.createElement("div");
+    empty.className = "flow-panel__empty";
+    mockElementHeight(empty, input.emptyHeight, input.emptyHeight);
+    body.appendChild(empty);
+  } else {
+    const list = document.createElement("ul");
+    list.className = "flow-panel__list";
+    list.style.display = "flex";
+    list.style.flexDirection = "column";
+    list.style.rowGap = "8px";
+    let currentTop = 0;
+    (input.cardHeights ?? []).forEach((height, index) => {
+      const item = document.createElement("li");
+      item.className = "flow-panel__list-item";
+      item.dataset.stagingIndex = String(index);
+      const itemHeight = input.itemHeights?.[index] ?? height;
+      const itemTop = currentTop;
+      Object.defineProperty(item, "offsetHeight", {
+        configurable: true,
+        value: itemHeight
+      });
+      Object.defineProperty(item, "clientHeight", {
+        configurable: true,
+        value: itemHeight
+      });
+      Object.defineProperty(item, "scrollHeight", {
+        configurable: true,
+        value: itemHeight
+      });
+      Object.defineProperty(item, "getBoundingClientRect", {
+        configurable: true,
+        value: () => createDomRect({ top: itemTop, bottom: itemTop + itemHeight, height: itemHeight })
+      });
 
-    const card = document.createElement("article");
-    card.className = "flow-panel__card staging-card";
-    mockElementHeight(card, height, height);
+      const card = document.createElement("article");
+      card.className = "flow-panel__card staging-card";
+      mockElementHeight(card, height, height);
 
-    item.appendChild(card);
-    list.appendChild(item);
-    currentTop += itemHeight + 8;
-  });
-  if (
-    typeof input.listClientHeight === "number" ||
-    typeof input.listScrollHeight === "number"
-  ) {
-    mockElementHeight(
-      list,
-      input.listClientHeight ?? input.listScrollHeight ?? 0,
-      input.listScrollHeight ?? input.listClientHeight ?? 0
-    );
+      item.appendChild(card);
+      list.appendChild(item);
+      currentTop += itemHeight + 8;
+    });
+    if (
+      typeof input.listClientHeight === "number" ||
+      typeof input.listScrollHeight === "number"
+    ) {
+      mockElementHeight(
+        list,
+        input.listClientHeight ?? input.listScrollHeight ?? 0,
+        input.listScrollHeight ?? input.listClientHeight ?? 0
+      );
+    }
+    body.appendChild(list);
   }
-  body.appendChild(list);
 
   const footer = document.createElement("footer");
   footer.className = "flow-panel__footer";
@@ -800,24 +812,62 @@ describe("createWindowSizingController（Flow 会话）", () => {
     );
   });
 
-  it("仅搜索胶囊 -> Flow：打开瞬间就补到安全最小高度，不等待 settled", async () => {
+  it("仅搜索胶囊 -> Flow 首帧只继承 Search 高度，不再提前抬到静态 fallback", async () => {
     const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
-    const expectedFlowMinHeight =
-      WINDOW_SIZING_CONSTANTS.stagingChromeHeight +
-      WINDOW_SIZING_CONSTANTS.stagingCardEstHeight * 2 +
-      WINDOW_SIZING_CONSTANTS.stagingListGap;
 
     harness.state.stagingExpanded.value = true;
     await harness.controller.syncWindowSize();
 
-    expect(harness.state.flowPanelInheritedHeight.value).toBe(expectedFlowMinHeight);
+    expect(harness.state.flowPanelInheritedHeight.value).toBe(SEARCH_CAPSULE_HEIGHT_PX);
     expect(harness.state.flowPanelLockedHeight.value).toBeNull();
-    expect(harness.spies.requestAnimateMainWindowSize).toHaveBeenLastCalledWith(
-      expect.any(Number),
-      expectedFlowMinHeight +
-        UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
-        SEARCH_SHELL_OUTER_CHROME_PX
-    );
+  });
+
+  it("空态 Flow 只按 empty-state 真实高度锁高，不强行抬到静态两卡片门槛", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      emptyHeight: 96
+    });
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    const revealController = harness.controller as unknown as FlowRevealController;
+    await revealController.prepareFlowPanelReveal();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(232);
+  });
+
+  it("只有 1 条命令时按 1 条真实卡片高度锁高", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: SEARCH_CAPSULE_HEIGHT_PX });
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [188]
+    });
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    const revealController = harness.controller as unknown as FlowRevealController;
+    await revealController.prepareFlowPanelReveal();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(324);
+  });
+
+  it("上级面板高度高于两条门槛时，Flow 继承更高高度而不是回落", async () => {
+    const harness = createFlowHarness({ lastFrameHeight: 620 });
+    harness.options.stagingPanelRef.value = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [168, 220]
+    });
+
+    harness.state.stagingExpanded.value = true;
+    await harness.controller.syncWindowSize();
+    const revealController = harness.controller as unknown as FlowRevealController;
+    await revealController.prepareFlowPanelReveal();
+
+    expect(harness.state.flowPanelLockedHeight.value).toBe(620);
   });
 
   it("搜索 -> Flow settled 后若已有真实卡片实测，则按 header + 前两张卡片 + footer 精准锁高", async () => {

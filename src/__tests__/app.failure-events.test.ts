@@ -1177,6 +1177,107 @@ describe("App failure and event regression", () => {
     }
   });
 
+  it("纯搜索胶囊打开 Flow 时不再先用静态 fallback 扩到接近 3 条再回缩", async () => {
+    hoisted.isTauriMock.mockReturnValue(true);
+    hoisted.invokeMock.mockImplementation(async (command: string) => {
+      if (command === "get_available_terminals") {
+        return [
+          { id: "powershell", label: "PowerShell", path: "powershell.exe" },
+        ];
+      }
+      if (command === "get_autostart_enabled") {
+        return false;
+      }
+      return undefined;
+    });
+
+    seedLauncherSessionSnapshot([
+      {
+        id: "cmd-flow-short",
+        title: "查看容器日志",
+        renderedCommand: "docker logs container-a --tail 20",
+        args: [
+          { key: "container", label: "容器", required: true, defaultValue: "container-a" },
+        ],
+        argValues: {
+          container: "container-a",
+        },
+      },
+      {
+        id: "cmd-flow-mid",
+        title: "同步容器状态",
+        renderedCommand: "docker inspect container-a --format '{{json .State}}'",
+        args: [
+          { key: "container", label: "容器", required: true, defaultValue: "container-a" },
+        ],
+        argValues: {
+          container: "container-a",
+        },
+      },
+    ]);
+
+    const wrapper = await mountApp();
+    await waitForUi();
+    expectQueueCount(wrapper, 2);
+
+    const baselineRevealCount = getInvokeCommandCallCount("resize_main_window_for_reveal");
+    const baselineAnimateCount = getInvokeCommandCallCount("animate_main_window_size");
+    const expectedFrameHeight = 52 + 24 + 96 + 124 + 8 + 60;
+    const expectedWindowHeight = expectedFrameHeight + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + 16;
+
+    await openReviewByPill(wrapper);
+
+    const body = wrapper.get(".flow-panel__body").element as HTMLElement;
+    body.style.paddingTop = "12px";
+    body.style.paddingBottom = "12px";
+    body.style.paddingLeft = "16px";
+    body.style.paddingRight = "16px";
+
+    const list = wrapper.get(".flow-panel__list").element as HTMLElement;
+    list.style.display = "flex";
+    list.style.flexDirection = "column";
+    list.style.rowGap = "8px";
+
+    mockElementBoxHeight(wrapper.get(".flow-panel__header").element as HTMLElement, {
+      height: 52,
+    });
+    mockElementBoxHeight(wrapper.get(".flow-panel__footer").element as HTMLElement, {
+      height: 60,
+    });
+
+    const cards = wrapper.findAll(".flow-panel__card");
+    expect(cards).toHaveLength(2);
+    mockElementBoxHeight(cards[0]!.element as HTMLElement, {
+      height: 96,
+      scrollHeight: 96,
+    });
+    mockElementBoxHeight(cards[1]!.element as HTMLElement, {
+      height: 124,
+      scrollHeight: 124,
+    });
+
+    expect(
+      measureFlowPanelMinHeight(wrapper.get(".flow-panel").element as HTMLElement),
+    ).toBe(expectedFrameHeight);
+
+    await waitForUi();
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await waitForUi();
+
+    const revealCalls = getInvokeCommandCalls("resize_main_window_for_reveal").slice(
+      baselineRevealCount,
+    );
+    expect(revealCalls).toHaveLength(1);
+    expect(revealCalls[0]?.[1]).toMatchObject({ height: expectedWindowHeight });
+
+    const animateCalls = getInvokeCommandCalls("animate_main_window_size").slice(
+      baselineAnimateCount,
+    );
+    expect(
+      animateCalls.some(([, payload]) => Number(payload?.height) > expectedWindowHeight),
+    ).toBe(false);
+  });
+
   it("skips duplicate window resize command when size has not changed", async () => {
     hoisted.isTauriMock.mockReturnValue(true);
     hoisted.invokeMock.mockImplementation(async (command: string) => {
