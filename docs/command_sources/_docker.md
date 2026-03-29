@@ -14,7 +14,7 @@
 | 7 | `docker-restart` | 重启容器 | all | `docker restart {{container}}` | container(text) | - | false | docker | docker 容器 重启 restart container 容器管理 |
 | 8 | `docker-rm` | 删除容器 | all | `docker rm {{container}}` | container(text) | - | false | docker | docker 容器 删除 rm remove container |
 | 9 | `docker-rmi` | 删除镜像 | all | `docker rmi {{image}}` | image(text) | - | false | docker | docker 容器 删除镜像 rmi 删除 remove 镜像 image |
-| 10 | `docker-logs` | 查看容器日志 | all | `docker logs --tail {{lines}} {{container}}` | container(text), lines(number, default:100) | - | false | docker | docker 容器 日志 logs 查看 show log container |
+| 10 | `docker-logs` | 查看容器日志 | all | `docker logs --tail {{lines}} {{container}}` | container(text), lines(number, default:100, min:1, max:10000) | - | false | docker | docker 容器 日志 logs 查看 show log container |
 | 11 | `docker-logs-follow` | 实时查看容器日志 | all | `docker logs -f {{container}}` | container(text) | - | false | docker | docker 容器 日志 logs 实时 follow 查看 show log container |
 | 12 | `docker-exec` | 进入容器 Shell | all | `docker exec -it {{container}} {{shell}}` | container(text), shell(select: /bin/sh, /bin/bash) | - | false | docker | docker 容器 执行 exec container |
 | 13 | `docker-inspect` | 查看容器详情 | all | `docker inspect {{container}}` | container(text) | - | false | docker | docker 容器 详情 inspect 查看 show container |

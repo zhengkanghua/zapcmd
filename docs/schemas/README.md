@@ -23,6 +23,25 @@
 - 生成时按规则转换后，产出的每条命令对象必须满足 schema。
 - 自动合并与生成由 `scripts/generate_builtin_commands.ps1` 完成（见 `docs/command_sources/README.md`）。
 
+## 运行时口径（schema 方案 3）
+
+1. `docs/schemas/command-file.schema.json` 是唯一结构真源。
+2. 运行时消费 committed 的 standalone validator：`src/features/commands/generated/commandSchemaValidator.ts`。
+3. 结构校验之外的跨字段规则仍由手写层承担，例如 `min <= max`、number `default` 范围、template token 对齐。
+4. 可用命令：
+   - `npm run commands:schema:generate`
+   - `npm run commands:schema:check`
+
+## builtin Markdown DSL 边界
+
+本轮只为 `docs/command_sources/_*.md` 增加 `number` 参数的 `min/max` 写法，例如：
+
+```md
+port(number, default:8000, min:1, max:65535)
+```
+
+`pattern`、`errorMessage` 等更复杂规则暂不进入 Markdown DSL，继续保留给 schema / 用户 JSON 文件入口。
+
 ## 首次启动写入建议
 
 建议首次启动时将 schema 写入用户目录：

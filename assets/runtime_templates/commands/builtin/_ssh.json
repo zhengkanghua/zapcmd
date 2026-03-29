@@ -77,7 +77,11 @@
           "key": "port",
           "label": "port",
           "type": "number",
-          "required": true
+          "required": true,
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
         }
       ],
       "prerequisites": [
@@ -366,7 +370,11 @@
           "key": "local_port",
           "label": "local_port",
           "type": "number",
-          "required": true
+          "required": true,
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
         },
         {
           "key": "target_host",
@@ -378,7 +386,11 @@
           "key": "target_port",
           "label": "target_port",
           "type": "number",
-          "required": true
+          "required": true,
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
         },
         {
           "key": "user",

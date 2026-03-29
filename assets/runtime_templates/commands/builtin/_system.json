@@ -150,7 +150,11 @@
           "key": "pid",
           "label": "pid",
           "type": "number",
-          "required": true
+          "required": true,
+          "validation": {
+            "min": 1,
+            "max": 2147483647
+          }
         }
       ],
       "prerequisites": [
@@ -185,7 +189,11 @@
           "key": "pid",
           "label": "pid",
           "type": "number",
-          "required": true
+          "required": true,
+          "validation": {
+            "min": 1,
+            "max": 2147483647
+          }
         }
       ],
       "prerequisites": [
@@ -220,7 +228,11 @@
           "key": "pid",
           "label": "pid",
           "type": "number",
-          "required": true
+          "required": true,
+          "validation": {
+            "min": 1,
+            "max": 2147483647
+          }
         }
       ],
       "prerequisites": [

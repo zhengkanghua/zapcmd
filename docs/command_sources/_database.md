@@ -11,6 +11,5 @@
 | 4 | `redis-set` | Redis SET | all | `redis-cli set "{{key}}" "{{value}}"` | key(text), value(text) | - | false | redis-cli | 数据库 database redis set 写入 write key value |
 | 5 | `redis-del` | Redis DEL | all | `redis-cli del "{{key}}"` | key(text) | - | false | redis-cli | 数据库 database redis del 删除 delete key |
 | 6 | `redis-ttl` | Redis TTL | all | `redis-cli ttl "{{key}}"` | key(text) | - | false | redis-cli | 数据库 database redis ttl key |
-| 7 | `redis-scan` | Redis SCAN | all | `redis-cli --scan --pattern "{{pattern}}" --count {{count}}` | pattern(text, default:*), count(number, default:100) | - | false | redis-cli | 数据库 database redis scan 查询 query pattern |
+| 7 | `redis-scan` | Redis SCAN | all | `redis-cli --scan --pattern "{{pattern}}" --count {{count}}` | pattern(text, default:*), count(number, default:100, min:1, max:1000) | - | false | redis-cli | 数据库 database redis scan 查询 query pattern |
 | 8 | `redis-keys` | Redis KEYS（慎用） | all | `redis-cli keys "{{pattern}}"` | pattern(text, default:*) | ⚠️ | false | redis-cli | 数据库 database redis keys 查询 query pattern 慎用 |
-

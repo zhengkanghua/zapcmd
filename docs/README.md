@@ -18,7 +18,9 @@
 3. 生成清单：`assets/runtime_templates/commands/builtin/index.json`
 4. 生成 Markdown 快照：`docs/builtin_commands.generated.md`（必须提交）
 5. 生成命令：`./scripts/generate_builtin_commands.ps1`
-6. CI 会阻断以上生成产物的未提交漂移
+6. schema 同步检查：`npm run commands:schema:check`
+7. builtin Markdown 参数 DSL 本轮只扩 `min/max`
+8. CI 会阻断以上生成产物的未提交漂移
 
 ## 其他文档
 

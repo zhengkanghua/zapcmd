@@ -11,7 +11,7 @@
 | 4 | `find-content-win` | 按内容搜索文件 | win | `Select-String -Recurse -Pattern "{{pattern}}" -Path "{{path}}"` | pattern(text), path(path, default:.) | - | false | select-string | 文件 file 查找 find 内容 content |
 | 5 | `list-files` | 列出目录内容 | mac/linux | `ls -la {{path}}` | path(path, default:.) | - | false | ls | 文件 file 列表 list files 目录 directory |
 | 6 | `list-files-win` | 列出目录内容 | win | `Get-ChildItem -Force {{path}}` | path(path, default:.) | - | false | powershell, get-childitem | 文件 file 列表 list files 目录 directory |
-| 7 | `tree` | 目录树结构 | mac/linux | `tree -L {{depth}} {{path}}` | path(path, default:.), depth(number, default:3) | - | false | tree | 文件 file 树 tree 目录 directory |
+| 7 | `tree` | 目录树结构 | mac/linux | `tree -L {{depth}} {{path}}` | path(path, default:.), depth(number, default:3, min:1, max:10) | - | false | tree | 文件 file 树 tree 目录 directory |
 | 8 | `tree-win` | 目录树结构 | win | `tree /F {{path}}` | path(path, default:.) | - | false | tree | 文件 file 树 tree 目录 directory |
 | 9 | `file-size` | 查看文件大小 | mac/linux | `ls -lh {{file}}` | file(path) | - | false | ls | 文件 file 大小 size 查看 show |
 | 10 | `file-count` | 统计文件数量 | mac/linux | `find {{path}} -type f \| wc -l` | path(path, default:.) | - | false | find, wc | 文件 file count |
@@ -25,8 +25,8 @@
 | 18 | `extract-zip-win` | ZIP 解压 | win | `Expand-Archive -Path "{{file}}" -DestinationPath "{{dest}}" -Force` | file(path), dest(path, default:.) | - | false | powershell, expand-archive | 文件 file 解压 extract zip |
 | 19 | `watch-file` | 监听文件变化 | mac/linux | `fswatch {{path}}` | path(path) | - | false | fswatch | 文件 file 监听 watch |
 | 20 | `tail-log` | 实时查看日志 | mac/linux | `tail -f {{file}}` | file(path) | - | false | tail | 文件 file tail 日志 log 查看 show |
-| 21 | `tail-log-win` | 实时查看日志 | win | `Get-Content -Path "{{file}}" -Tail {{lines}} -Wait` | file(path), lines(number, default:100) | - | false | powershell, get-content | 文件 file tail 日志 log 查看 show |
-| 22 | `head-file` | 查看文件前 N 行 | mac/linux | `head -n {{lines}} {{file}}` | file(path), lines(number, default:20) | - | false | head | 文件 file head 查看 show |
-| 23 | `head-file-win` | 查看文件前 N 行 | win | `Get-Content -Path "{{file}}" -TotalCount {{lines}}` | file(path), lines(number, default:20) | - | false | powershell, get-content | 文件 file head 查看 show |
+| 21 | `tail-log-win` | 实时查看日志 | win | `Get-Content -Path "{{file}}" -Tail {{lines}} -Wait` | file(path), lines(number, default:100, min:1, max:10000) | - | false | powershell, get-content | 文件 file tail 日志 log 查看 show |
+| 22 | `head-file` | 查看文件前 N 行 | mac/linux | `head -n {{lines}} {{file}}` | file(path), lines(number, default:20, min:1, max:10000) | - | false | head | 文件 file head 查看 show |
+| 23 | `head-file-win` | 查看文件前 N 行 | win | `Get-Content -Path "{{file}}" -TotalCount {{lines}}` | file(path), lines(number, default:20, min:1, max:10000) | - | false | powershell, get-content | 文件 file head 查看 show |
 | 24 | `wc-lines` | 统计文件行数 | mac/linux | `wc -l {{file}}` | file(path) | - | false | wc | 文件 file 行数 wc 行 lines |
 | 25 | `wc-lines-win` | 统计文件行数 | win | `(Get-Content -Path "{{file}}" \| Measure-Object -Line).Lines` | file(path) | - | false | powershell, get-content, measure-object | 文件 file 行数 wc 行 lines |

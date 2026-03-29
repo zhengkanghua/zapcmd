@@ -17,8 +17,8 @@
 | 10 | `timestamp-convert` | 时间戳转日期 | mac | `date -r {{timestamp}}` | timestamp(number) | - | false | date | 开发 dev 时间戳 timestamp 转换 convert |
 | 11 | `timestamp-convert-linux` | 时间戳转日期 | linux | `date -d @{{timestamp}}` | timestamp(number) | - | false | date | 开发 dev 时间戳 timestamp 转换 convert |
 | 12 | `uuid-gen` | 生成 UUID | mac/linux | `uuidgen` | - | - | false | uuidgen | 开发 dev uuid gen |
-| 13 | `random-string` | 生成随机字符串 | mac/linux | `openssl rand -hex {{length}}` | length(number, default:16) | - | false | openssl | 开发 dev 随机 random 字符串 string |
-| 14 | `http-server` | 快速启动 HTTP 服务 | all | `python3 -m http.server {{port}}` | port(number, default:8000) | - | false | python3 | 开发 dev http 服务 server 启动 start |
+| 13 | `random-string` | 生成随机字符串 | mac/linux | `openssl rand -hex {{length}}` | length(number, default:16, min:1, max:1024) | - | false | openssl | 开发 dev 随机 random 字符串 string |
+| 14 | `http-server` | 快速启动 HTTP 服务 | all | `python3 -m http.server {{port}}` | port(number, default:8000, min:1, max:65535) | - | false | python3 | 开发 dev http 服务 server 启动 start |
 | 15 | `regex-test-mac` | 正则表达式测试 | mac | `echo "{{text}}" \| grep -oE "{{pattern}}"` | text(text), pattern(text) | - | false | grep, echo | 开发 dev 正则 regex test 测试 |
 | 16 | `regex-test-linux` | 正则表达式测试 | linux | `echo "{{text}}" \| grep -oP "{{pattern}}"` | text(text), pattern(text) | - | false | grep, echo | 开发 dev 正则 regex test 测试 |
 | 17 | `url-encode` | URL 编码 | all | `python3 -c "import urllib.parse; print(urllib.parse.quote('{{text}}'))"` | text(text) | - | false | python3 | 开发 dev url 编码 encode |

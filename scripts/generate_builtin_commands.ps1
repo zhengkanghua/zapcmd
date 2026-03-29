@@ -43,6 +43,16 @@ function Split-TopLevel {
   return @($result)
 }
 
+function Convert-NumberLiteral {
+  param([Parameter(Mandatory = $true)][string]$Value)
+
+  $parsed = [double]::Parse($Value, [System.Globalization.CultureInfo]::InvariantCulture)
+  if ($parsed -eq [math]::Truncate($parsed)) {
+    return [int]$parsed
+  }
+  return $parsed
+}
+
 function Convert-ArgsSpec {
   param([string]$Spec)
 
@@ -92,11 +102,24 @@ function Convert-ArgsSpec {
       }
 
       if ($innerParts.Count -gt 1) {
+        $validation = [ordered]@{}
         for ($i = 1; $i -lt $innerParts.Count; $i++) {
           $kv = $innerParts[$i]
           if ($kv -match '^\s*default\s*:\s*(.+)\s*$') {
             $arg.default = $matches[1].Trim()
+            continue
           }
+          if ($kv -match '^\s*min\s*:\s*(.+)\s*$') {
+            $validation.min = Convert-NumberLiteral -Value $matches[1].Trim()
+            continue
+          }
+          if ($kv -match '^\s*max\s*:\s*(.+)\s*$') {
+            $validation.max = Convert-NumberLiteral -Value $matches[1].Trim()
+            continue
+          }
+        }
+        if ($validation.Count -gt 0) {
+          $arg.validation = $validation
         }
       }
     }
@@ -186,7 +209,7 @@ if (-not (Test-Path $SourceDir)) {
   throw "Source directory not found: $SourceDir"
 }
 
-$sourceFiles = Get-ChildItem -Path $SourceDir -Filter $SourcePattern -File | Sort-Object Name
+$sourceFiles = @(Get-ChildItem -Path $SourceDir -Filter $SourcePattern -File | Sort-Object Name)
 if ($sourceFiles.Count -eq 0) {
   throw "No source markdown matched '$SourcePattern' in '$SourceDir'"
 }
@@ -357,4 +380,3 @@ Write-Output "  Physical: $physicalCount"
 Write-Output "  Output: $OutputDir"
 Write-Output "  Manifest: $ManifestPath"
 Write-Output "  Snapshot: $GeneratedMarkdownPath"
-

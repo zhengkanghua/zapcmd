@@ -238,6 +238,10 @@
 - 计划差异 1：真实代码里 `cancelHotkeyRecording` 还残留在 `useAppLifecycle` / `useAppLifecycleBridge` / `useMainWindowShell` 这条壳层链路；为避免 Task 2 后留下类型断裂，本轮一并做了最小收口。
 - 计划差异 2：`SHotkeyRecorder.vue` 与 `SettingsHotkeysSection.vue` 的生产实现实际上已先于计划满足目标 contract，因此 Task 3 无需改业务代码，只补强组件级与应用级回归来锁定这条真实路径。
 
+## 补充（2026-03-29｜Launcher/Settings schema 整改 Chunk 4）
+
+- 已完成 Task 12：builtin md DSL 仅新增 `min/max`，生成脚本、内置命令产物与文档已同步；schema sync、生成器、runtime loader、command safety、preflight 回归全绿。
+
 ## 补充（2026-03-21｜Adapter 边界与窗口缓存加固）
 
 - 计划 4 已完成：`viewModel.ts` 已收口成 `launcherVm / settingsVm / appShellVm` 三段边界，`App.vue` 根部只消费这三个 VM；三个 VM 统一改走 `proxyRefs`，避免模板消费 nested ref 时再把 `Ref/ComputedRef` 直接透传给子组件。

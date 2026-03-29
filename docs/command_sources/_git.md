@@ -6,8 +6,8 @@
 | # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | `git-status` | 查看仓库状态 | all | `git status` | - | - | false | git | git 版本控制 状态 status 查看 show |
-| 2 | `git-log` | 查看提交历史 | all | `git log --oneline -{{count}}` | count(number, default:20) | - | false | git | git 版本控制 日志 log 查看 show 提交 commit |
-| 3 | `git-log-graph` | 图形化提交历史 | all | `git log --oneline --graph --all -{{count}}` | count(number, default:30) | - | false | git | git 版本控制 日志 log 图谱 graph 提交 commit |
+| 2 | `git-log` | 查看提交历史 | all | `git log --oneline -{{count}}` | count(number, default:20, min:1, max:200) | - | false | git | git 版本控制 日志 log 查看 show 提交 commit |
+| 3 | `git-log-graph` | 图形化提交历史 | all | `git log --oneline --graph --all -{{count}}` | count(number, default:30, min:1, max:200) | - | false | git | git 版本控制 日志 log 图谱 graph 提交 commit |
 | 4 | `git-diff` | 查看未暂存更改 | all | `git diff` | - | - | false | git | git 版本控制 diff 差异 查看 show |
 | 5 | `git-diff-staged` | 查看已暂存更改 | all | `git diff --staged` | - | - | false | git | git 版本控制 diff 差异 暂存区 staged 查看 show |
 | 6 | `git-add-all` | 暂存所有更改 | all | `git add -A` | - | - | false | git | git 版本控制 添加 add 全部 all |

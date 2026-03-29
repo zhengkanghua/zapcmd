@@ -50,4 +50,6 @@ CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_
 3. `adminRequired`：需要管理员权限时标记为 `true`（Windows 会按需拉起管理员终端；若执行流中任一步为 `true`，则整队整体升权，ZapCmd 主进程本身不提权）。
 4. `prerequisites`：逗号分隔，例如 `git,docker,powershell`。
 5. `tags`：空格分隔，用于搜索与分类。
-6. `参数`：使用 `key(type, ...)` 形式描述（例如 `path(path)`、`count(number, default:10)`、`mode(select:a/b/c)`）。
+6. `参数`：使用 `key(type, ...)` 形式描述（例如 `path(path)`、`count(number, default:10, min:1, max:200)`、`mode(select:a/b/c)`）。
+7. 本轮 builtin Markdown DSL 只新增 `min/max`，不支持在这里继续扩 `pattern/errorMessage` 等更复杂语法。
+8. `min/max` 主要用于 number 参数；若同时写了 `default` 与 `min/max`，生成器会保留 `default` 并合并到同一个 `validation` 对象。

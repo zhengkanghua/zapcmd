@@ -5,10 +5,10 @@
 
 | # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | `query-port-lsof` | 查询端口占用 (lsof) | mac/linux | `lsof -i :{{port}}` | port(number) | - | false | lsof | 网络 network 查询 query 端口 port lsof 占用 冲突 端口占用 查端口 |
-| 2 | `query-port-netstat` | 查询端口占用 (netstat) | win | `netstat -ano \| findstr :{{port}}` | port(number) | - | false | netstat, findstr | 网络 network 查询 query 端口 port netstat 占用 冲突 端口占用 查端口 |
-| 3 | `kill-port-mac` | 解除端口占用 | mac/linux | `lsof -t -i:{{port}} \| xargs kill -9` | port(number) | ⚠️ | false | lsof, kill | 网络 network kill 终止 结束 端口 port 占用 冲突 端口占用 释放端口 |
-| 4 | `kill-port-win` | 解除端口占用 | win | `Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force` | port(number) | ⚠️ | false | powershell, stop-process, get-nettcpconnection | 网络 network kill 终止 结束 端口 port 占用 冲突 端口占用 释放端口 |
+| 1 | `query-port-lsof` | 查询端口占用 (lsof) | mac/linux | `lsof -i :{{port}}` | port(number, min:1, max:65535) | - | false | lsof | 网络 network 查询 query 端口 port lsof 占用 冲突 端口占用 查端口 |
+| 2 | `query-port-netstat` | 查询端口占用 (netstat) | win | `netstat -ano \| findstr :{{port}}` | port(number, min:1, max:65535) | - | false | netstat, findstr | 网络 network 查询 query 端口 port netstat 占用 冲突 端口占用 查端口 |
+| 3 | `kill-port-mac` | 解除端口占用 | mac/linux | `lsof -t -i:{{port}} \| xargs kill -9` | port(number, min:1, max:65535) | ⚠️ | false | lsof, kill | 网络 network kill 终止 结束 端口 port 占用 冲突 端口占用 释放端口 |
+| 4 | `kill-port-win` | 解除端口占用 | win | `Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force` | port(number, min:1, max:65535) | ⚠️ | false | powershell, stop-process, get-nettcpconnection | 网络 network kill 终止 结束 端口 port 占用 冲突 端口占用 释放端口 |
 | 5 | `ping` | Ping 主机 | all | `ping {{host}}` | host(text) | - | false | ping | 网络 network ping |
 | 6 | `curl-get` | HTTP GET 请求 | all | `curl -s {{url}}` | url(text) | - | false | curl | 网络 network curl http 获取 get |
 | 7 | `curl-post` | HTTP POST 请求 | all | `curl -X POST -H "Content-Type: application/json" -d '{{body}}' {{url}}` | url(text), body(text) | - | false | curl | 网络 network curl http post |
@@ -21,8 +21,8 @@
 | 14 | `local-ip-win` | 查看本机局域网 IP | win | `ipconfig` | - | - | false | ipconfig | 网络 network 本地 local ip 查看 show |
 | 15 | `traceroute` | 路由追踪 | mac/linux | `traceroute {{host}}` | host(text) | - | false | traceroute | 网络 network traceroute 路由追踪 |
 | 16 | `tracert-win` | 路由追踪 | win | `tracert {{host}}` | host(text) | - | false | tracert | 网络 network tracert 路由追踪 |
-| 17 | `check-open-ports` | 检查远程端口是否开放 | mac/linux | `nc -zv {{host}} {{port}}` | host(text), port(number) | - | false | nc | 网络 network 检查 check open ports 端口 port |
-| 18 | `check-open-ports-win` | 检查远程端口是否开放 | win | `Test-NetConnection -ComputerName "{{host}}" -Port {{port}} \| Select-Object ComputerName,RemotePort,TcpTestSucceeded` | host(text), port(number) | - | false | powershell, test-netconnection | 网络 network 检查 check open ports 端口 port |
+| 17 | `check-open-ports` | 检查远程端口是否开放 | mac/linux | `nc -zv {{host}} {{port}}` | host(text), port(number, min:1, max:65535) | - | false | nc | 网络 network 检查 check open ports 端口 port |
+| 18 | `check-open-ports-win` | 检查远程端口是否开放 | win | `Test-NetConnection -ComputerName "{{host}}" -Port {{port}} \| Select-Object ComputerName,RemotePort,TcpTestSucceeded` | host(text), port(number, min:1, max:65535) | - | false | powershell, test-netconnection | 网络 network 检查 check open ports 端口 port |
 | 19 | `wget-download` | 下载文件 | mac/linux | `wget -O {{filename}} {{url}}` | url(text), filename(text) | - | false | wget | 网络 network wget 下载 download 文件 file |
 | 20 | `curl-download` | 下载文件 | all | `curl -L -o {{filename}} {{url}}` | url(text), filename(text) | - | false | curl | 网络 network curl http 下载 download 文件 file |
 | 21 | `list-listening-ports` | 查看所有监听端口 | mac/linux | `netstat -tlnp` | - | - | false | netstat | 网络 network 列表 list listening ports 端口 port 查看 show |

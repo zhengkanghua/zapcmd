@@ -7,8 +7,8 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | `ps-find` | 按名称查找进程 | mac/linux | `ps aux \| grep {{name}}` | name(text) | - | false | ps, grep | 系统 system 进程 ps 查找 find process |
 | 2 | `ps-find-win` | 按名称查找进程 | win | `tasklist \| findstr /i {{name}}` | name(text) | - | false | findstr, tasklist | 系统 system 进程 ps 查找 find process |
-| 3 | `kill-pid` | 按 PID 杀进程 | mac/linux | `kill -9 {{pid}}` | pid(number) | ⚠️ | false | kill | 系统 system kill 终止 结束 pid 进程 process |
-| 4 | `kill-pid-win` | 按 PID 杀进程 | win | `taskkill /F /PID {{pid}}` | pid(number) | ⚠️ | false | taskkill | 系统 system kill 终止 结束 pid 进程 process |
+| 3 | `kill-pid` | 按 PID 杀进程 | mac/linux | `kill -9 {{pid}}` | pid(number, min:1, max:2147483647) | ⚠️ | false | kill | 系统 system kill 终止 结束 pid 进程 process |
+| 4 | `kill-pid-win` | 按 PID 杀进程 | win | `taskkill /F /PID {{pid}}` | pid(number, min:1, max:2147483647) | ⚠️ | false | taskkill | 系统 system kill 终止 结束 pid 进程 process |
 | 5 | `kill-name` | 按名称杀进程 | mac/linux | `pkill -f {{name}}` | name(text) | ⚠️ | false | pkill | 系统 system kill 终止 结束 名称 name 进程 process |
 | 6 | `kill-name-win` | 按名称杀进程 | win | `taskkill /F /IM {{name}}` | name(text) | ⚠️ | false | taskkill | 系统 system kill 终止 结束 名称 name 进程 process |
 | 7 | `disk-usage` | 查看磁盘空间 | mac/linux | `df -h` | - | - | false | df | 系统 system 磁盘 disk 使用率 usage 查看 show |
