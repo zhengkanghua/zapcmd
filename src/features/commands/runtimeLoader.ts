@@ -1,7 +1,7 @@
 import type { CommandTemplate } from "./types";
 import type { RuntimeCommandFile, RuntimePlatform } from "./runtimeTypes";
 import { mapRuntimeCommandToTemplate } from "./runtimeMapper";
-import { validateRuntimeCommandFile } from "./schemaGuard";
+import { validateRuntimeCommandFile } from "./schemaValidation";
 
 const builtinModules = import.meta.glob("../../../assets/runtime_templates/commands/builtin/_*.json", {
   eager: true

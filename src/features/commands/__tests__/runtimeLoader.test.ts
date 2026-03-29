@@ -242,4 +242,21 @@ describe("runtimeLoader", () => {
     );
     expect(issue.reason).toContain("permission denied");
   });
+
+  it("normalizes string read failures and truncates oversized reasons", () => {
+    const issue = createReadFailedIssue(
+      "C:/Users/test/.zapcmd/commands",
+      `  ${"permission denied ".repeat(20)}  `
+    );
+
+    expect(issue.reason.endsWith("...")).toBe(true);
+    expect(issue.reason.length).toBe(180);
+    expect(issue.reason).not.toContain("  ");
+  });
+
+  it("falls back to default read failure reason for unknown error shapes", () => {
+    const issue = createReadFailedIssue("C:/Users/test/.zapcmd/commands", { code: "EACCES" });
+
+    expect(issue.reason).toBe("Failed to read command source.");
+  });
 });

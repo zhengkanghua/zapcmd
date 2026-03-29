@@ -29,7 +29,7 @@ export default defineConfig({
         "src/services/**/*.ts",
         "src/stores/**/*.ts"
       ],
-      exclude: ["**/*.d.ts"],
+      exclude: ["**/*.d.ts", "src/features/commands/generated/**"],
       thresholds: {
         lines: 90,
         functions: 90,

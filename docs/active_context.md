@@ -981,3 +981,9 @@
 - 已把 QueueReview 面板拆成 Header/EmptyState/List 三个子组件，主壳仅保留 overlay、focus trap 与 composable 接线；Flow/Search 定向 57 测试通过。
 ## 补充（2026-03-29｜Chunk 4 Task 10 已落地）
 - 已新增 schemaValidation 红灯与 loader/business-rule 测试：当前按预期卡在 `schemaValidation` 模块缺失和 `min>max` 规则未接通，作为 schema 方案 3 的 TDD 起点。
+## 补充（2026-03-29｜Chunk 4 Task 11 已落地）
+- 已接入 Ajv standalone validator、schemaValidation/businessRules/errorFormatter，并保留 `schemaGuard` 兼容出口；schemaValidation/runtimeLoader/schemaGuard 定向 71 测试通过。
+## 补充（2026-03-29｜Chunk 4 Task 11 回归已收口）
+- 已修正模板 token 业务规则只校验合法 arg key，占位字面量如 `{{.Names}}` 不再误判；`useCommandCatalog` 等 76 测试与 lint/typecheck/test:related 已通过。
+## 补充（2026-03-29｜Chunk 4 Task 11 门禁已打通）
+- 已将 generated validator 排除出覆盖统计，并补齐 schema/runtime 分支测试；`test:coverage` 达到 branch 90.15%，Task 11 现可正常提交。

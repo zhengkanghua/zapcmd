@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { validateRuntimeCommandFile } from "../schemaValidation";
+import type { RuntimeCommandFile } from "../runtimeTypes";
 
-function createValidPayload() {
+function createValidPayload(): RuntimeCommandFile {
   return {
     commands: [
       {
@@ -30,10 +31,23 @@ function createValidPayload() {
   };
 }
 
-function createPayloadWithMinMax(min: number, max: number) {
+function createPayloadWithMinMax(min: number, max: number): RuntimeCommandFile {
   const payload = createValidPayload();
-  payload.commands[0].args[0].validation = { min, max };
+  const firstArg = payload.commands[0].args?.[0];
+  if (!firstArg) {
+    throw new Error("expected first arg to exist");
+  }
+  firstArg.validation = { min, max };
   return payload;
+}
+
+function expectInvalidReason(payload: RuntimeCommandFile): string {
+  const result = validateRuntimeCommandFile(payload);
+  expect(result.valid).toBe(false);
+  if (result.valid) {
+    throw new Error("expected invalid result");
+  }
+  return result.reason;
 }
 
 describe("schemaValidation", () => {
@@ -53,6 +67,9 @@ describe("schemaValidation", () => {
     });
 
     expect(result.valid).toBe(false);
+    if (result.valid) {
+      throw new Error("expected invalid schema result");
+    }
     expect(result.reason).toContain("commands[0].id");
   });
 
@@ -60,6 +77,91 @@ describe("schemaValidation", () => {
     const result = validateRuntimeCommandFile(createPayloadWithMinMax(100, 1));
 
     expect(result.valid).toBe(false);
+    if (result.valid) {
+      throw new Error("expected invalid business-rule result");
+    }
     expect(result.reason).toContain("min");
+  });
+
+  it("allows non-argument handlebars syntax inside template literals", () => {
+    const payload = createValidPayload();
+    payload.commands[0].template = "docker ps --format '{{.Names}}'";
+    payload.commands[0].args = undefined;
+
+    const result = validateRuntimeCommandFile(payload);
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects templates that reference undefined argument tokens", () => {
+    const payload = createValidPayload();
+    payload.commands[0].template = "echo {{port}} {{missing}}";
+
+    expect(expectInvalidReason(payload)).toContain('undefined token "missing"');
+  });
+
+  it("rejects number defaults that cannot be parsed", () => {
+    const payload = createValidPayload();
+    const firstArg = payload.commands[0].args?.[0];
+    if (!firstArg) {
+      throw new Error("expected first arg to exist");
+    }
+    firstArg.default = "oops";
+
+    expect(expectInvalidReason(payload)).toContain("valid number string");
+  });
+
+  it("rejects number defaults below min", () => {
+    const payload = createValidPayload();
+    const firstArg = payload.commands[0].args?.[0];
+    if (!firstArg) {
+      throw new Error("expected first arg to exist");
+    }
+    firstArg.default = "0";
+
+    expect(expectInvalidReason(payload)).toContain("greater than or equal to min");
+  });
+
+  it("rejects duplicate arg keys within the same command", () => {
+    const payload = createValidPayload();
+    payload.commands[0].args?.push({
+      key: "port",
+      label: "Port copy",
+      type: "number"
+    });
+
+    expect(expectInvalidReason(payload)).toContain("must be unique");
+  });
+
+  it("rejects blank localized locale keys that schema cannot express", () => {
+    const payload = createValidPayload();
+    payload.commands[0].name = {
+      "": "bad"
+    };
+
+    expect(expectInvalidReason(payload)).toContain("empty locale key");
+  });
+
+  it("rejects whitespace-only meta author values", () => {
+    const payload = createValidPayload();
+    payload._meta = {
+      author: "   "
+    };
+
+    expect(expectInvalidReason(payload)).toContain("_meta.author");
+  });
+
+  it("rejects blank prerequisite checks after structural validation", () => {
+    const payload = createValidPayload();
+    payload.commands[0].prerequisites = [
+      {
+        id: "docker",
+        type: "binary",
+        required: true,
+        check: " "
+      }
+    ];
+
+    expect(expectInvalidReason(payload)).toContain("prerequisites[0].check");
   });
 });
