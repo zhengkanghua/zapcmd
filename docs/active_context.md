@@ -963,3 +963,5 @@
 - 已产出计划 `docs/superpowers/plans/2026-03-27-main-scrollbar-subtle-polish.md`：按 TDD 先锁 utility/contract，再迁移 Settings 与 Launcher 主滚动容器，并在执行末尾完成 Windows 手验。
 ## 补充（2026-03-29｜Launcher / Settings / Schema 整改 brainstorming 完成）
 - 已确认设计稿：修复 Settings tab 语义与 aria/i18n，抽共享设置装配，收窄 Launcher contract，统一 Queue 命名，命令 schema 改为 schema 真源 + 预编译 validator。
+## 补充（2026-03-29｜Launcher / Settings / Schema 整改 writing-plans 完成）
+- 已产出实施计划 `plan/2026-03-29-launcher-settings-schema-remediation-implementation-plan.md`：按 Settings 语义、共享 settings scene、Launcher contract/Queue 命名、schema 方案 3、命令管理拆分五个 chunk 推进。
