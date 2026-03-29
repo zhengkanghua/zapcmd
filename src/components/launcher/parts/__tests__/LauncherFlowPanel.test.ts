@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -6,6 +6,49 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { StagedCommand } from "../../../../features/launcher/types";
 import type { KeyboardHint, LauncherQueueReviewPanelProps } from "../../types";
 import LauncherFlowPanel from "../LauncherQueueReviewPanel.vue";
+
+describe("QueueReviewPanel 结构契约", () => {
+  it("主文件导入并使用 QueueReviewHeader / QueueReviewEmptyState / QueueReviewList，行数低于 400", () => {
+    const source = readFileSync(
+      "src/components/launcher/parts/LauncherQueueReviewPanel.vue",
+      "utf8"
+    );
+
+    expect(source).toContain('import QueueReviewHeader from "./queueReview/QueueReviewHeader.vue"');
+    expect(source).toContain(
+      'import QueueReviewEmptyState from "./queueReview/QueueReviewEmptyState.vue"'
+    );
+    expect(source).toContain('import QueueReviewList from "./queueReview/QueueReviewList.vue"');
+    expect(source).toContain("<QueueReviewHeader");
+    expect(source).toContain("<QueueReviewEmptyState");
+    expect(source).toContain("<QueueReviewList");
+
+    const lineCount = source.split(/\r?\n/).length;
+    expect(lineCount).toBeLessThan(400);
+  });
+
+  it("拆分文件存在并保留 flow-panel__header / flow-panel__empty / flow-panel__list 类名", () => {
+    const headerPath = "src/components/launcher/parts/queueReview/QueueReviewHeader.vue";
+    const emptyPath = "src/components/launcher/parts/queueReview/QueueReviewEmptyState.vue";
+    const listPath = "src/components/launcher/parts/queueReview/QueueReviewList.vue";
+
+    expect(existsSync(headerPath)).toBe(true);
+    expect(existsSync(emptyPath)).toBe(true);
+    expect(existsSync(listPath)).toBe(true);
+
+    const headerSource = readFileSync(headerPath, "utf8");
+    const emptySource = readFileSync(emptyPath, "utf8");
+    const listSource = readFileSync(listPath, "utf8");
+
+    expect(headerSource).toContain("flow-panel__header");
+    expect(headerSource).toContain("flow-panel__close");
+    expect(emptySource).toContain("flow-panel__empty");
+    expect(emptySource).toContain("flow-panel__empty-shortcut");
+    expect(listSource).toContain("flow-panel__list");
+    expect(listSource).toContain("flow-panel__list-item");
+    expect(listSource).toContain("TransitionGroup");
+  });
+});
 
 class ResizeObserverMock {
   static instances: ResizeObserverMock[] = [];

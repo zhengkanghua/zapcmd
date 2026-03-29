@@ -977,3 +977,5 @@
 - `launcherVm` 已拆成 search/command/queue/nav/dom/actions，`App.vue -> LauncherWindow.vue` 收口为单 prop；Queue 文案与 `toggle-queue` 关键事件已切换并通过定向测试。剩余：旧路径/`useStagingQueue` 迁移与 review 面板拆分。
 ## 补充（2026-03-29｜Chunk 3 Task 8 已落地）
 - 已完成 Queue rename：`useCommandQueue`、`LauncherQueueReviewPanel`、`queueReview` 路径与公共 contract 全切到 queue/enqueue；删除 visual-only `LauncherStagingPanel`。Task 8 定向 13 文件 144 测试通过。
+## 补充（2026-03-29｜Chunk 3 Task 9 已落地）
+- 已把 QueueReview 面板拆成 Header/EmptyState/List 三个子组件，主壳仅保留 overlay、focus trap 与 composable 接线；Flow/Search 定向 57 测试通过。
