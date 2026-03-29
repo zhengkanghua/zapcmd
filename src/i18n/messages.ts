@@ -75,6 +75,14 @@ export const messages = {
         appearance: "外观",
         about: "关于"
       },
+      aria: {
+        sections: "设置分区",
+        content: "设置内容",
+        commandsRegion: "命令管理区域",
+        commandsToolbar: "命令管理工具栏",
+        commandsTable: "命令管理表格",
+        commandsIssues: "命令管理导入问题"
+      },
       hotkeys: {
         hint: "点击任一快捷键项后，直接按键录制。录制过程中按 Esc 可取消。",
         sectionGlobal: "全局快捷键",
@@ -427,6 +435,14 @@ export const messages = {
         commands: "Commands",
         appearance: "Appearance",
         about: "About"
+      },
+      aria: {
+        sections: "Settings sections",
+        content: "Settings content",
+        commandsRegion: "Command management region",
+        commandsToolbar: "Command management toolbar",
+        commandsTable: "Command management table",
+        commandsIssues: "Command import issues"
       },
       hotkeys: {
         hint:

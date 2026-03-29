@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, nextTick, ref, type ComponentPublicInstance } from "vue";
 import SettingsNavIcon from "./SettingsNavIcon.vue";
-import type { SettingsNavIconName } from "./settingsNavIcon";
-
-interface SegmentNavItem {
-  id: string;
-  label: string;
-  icon: SettingsNavIconName;
-}
+import type { SettingsSegmentNavItem } from "../types";
 
 const props = defineProps<{
-  items: SegmentNavItem[];
+  items: SettingsSegmentNavItem[];
   modelValue: string;
+  ariaLabel: string;
 }>();
 
 const emit = defineEmits<{
@@ -21,6 +16,12 @@ const emit = defineEmits<{
 const activeIndex = computed(() =>
   props.items.findIndex((item) => item.id === props.modelValue)
 );
+
+const tabRefs = ref<Array<HTMLButtonElement | null>>([]);
+
+function setTabRef(element: Element | ComponentPublicInstance | null, index: number) {
+  tabRefs.value[index] = element instanceof HTMLButtonElement ? element : null;
+}
 
 function onKeydown(e: KeyboardEvent) {
   if (props.items.length === 0) {
@@ -44,6 +45,9 @@ function onKeydown(e: KeyboardEvent) {
   }
   e.preventDefault();
   emit("update:modelValue", props.items[next].id);
+  nextTick(() => {
+    tabRefs.value[next]?.focus();
+  });
 }
 </script>
 
@@ -51,12 +55,14 @@ function onKeydown(e: KeyboardEvent) {
   <nav
     class="s-segment-nav flex justify-center gap-2.5 w-fit max-w-[min(100%,720px)] mx-auto pt-2 pb-2.5"
     role="tablist"
-    aria-label="Settings sections"
+    :aria-label="ariaLabel"
     @keydown="onKeydown"
   >
     <button
-      v-for="item in items"
+      v-for="(item, index) in items"
       :key="item.id"
+      :id="`settings-tab-${item.id}`"
+      :ref="(element) => setTabRef(element, index)"
       role="tab"
       type="button"
       :class="[
@@ -66,6 +72,7 @@ function onKeydown(e: KeyboardEvent) {
           ? 's-segment-nav__tab--active bg-settings-segment-tab-active text-settings-segment-tab-text-active font-semibold'
           : ''
       ]"
+      :aria-controls="item.panelId"
       :aria-selected="modelValue === item.id"
       :tabindex="modelValue === item.id ? 0 : -1"
       @click="emit('update:modelValue', item.id)"

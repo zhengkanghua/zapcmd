@@ -106,6 +106,19 @@ describe("SettingsCommandsSection interactions", () => {
       props: createProps()
     });
 
+    const toolbar = wrapper.get(".settings-commands-toolbar");
+    const toolbarLabelId = toolbar.attributes("aria-labelledby");
+    const summary = wrapper.get(".settings-commands-toolbar__summary");
+    expect(summary.attributes("aria-labelledby")).toBe(toolbarLabelId);
+    const table = wrapper.get(".settings-commands-table__container");
+    const tableLabel = table.attributes("aria-label");
+    expect(tableLabel?.trim().length ?? 0).toBeGreaterThan(0);
+    expect(wrapper.find("[aria-label='command-management']").exists()).toBe(false);
+    expect(wrapper.find("[aria-label='command-management-toolbar']").exists()).toBe(false);
+    expect(wrapper.find("[aria-label='command-management-summary']").exists()).toBe(false);
+    expect(wrapper.find("[aria-label='command-management-filters']").exists()).toBe(false);
+    expect(wrapper.find("[aria-label='command-management-table']").exists()).toBe(false);
+
     expect(wrapper.get(".settings-commands-toolbar__search").attributes("aria-label")).toBe(
       "搜索（title / id / category / source）"
     );
@@ -150,7 +163,14 @@ describe("SettingsCommandsSection interactions", () => {
       })
     });
 
-    expect(wrapper.get("[aria-label='command-load-issues']").text()).toContain("user.json 解析失败");
+    const issuesSection = wrapper.get("section.settings-card");
+    const issuesLabelId = issuesSection.attributes("aria-labelledby");
+    expect(issuesLabelId).toBeTruthy();
+    const issuesHeading = issuesSection.get(`#${issuesLabelId}`);
+    expect(issuesHeading.element.tagName).toBe("H2");
+    expect(issuesHeading.text().trim().length).toBeGreaterThan(0);
+    expect(issuesSection.text()).toContain("user.json 解析失败");
+    expect(wrapper.find("[aria-label='command-load-issues']").exists()).toBe(false);
     expect(wrapper.get(".settings-commands-toolbar__more-filters-count").text()).toBe("1");
 
     const moreFiltersButton = wrapper.get(".settings-commands-toolbar__more-filters");

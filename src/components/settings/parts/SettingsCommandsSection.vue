@@ -21,6 +21,11 @@ import SettingsCommandsMoreFiltersDialog from "./settingsCommands/SettingsComman
 
 const props = defineProps<SettingsCommandsProps>();
 const { t } = useI18nText();
+// 可达性：为命令管理区与工具栏提供稳定的语义标题 id。
+const commandsRegionHeadingId = "settings-commands-region-heading";
+const commandsToolbarHeadingId = "settings-commands-toolbar-heading";
+// 可达性：导入问题区域使用显式标题关联。
+const commandsIssuesHeadingId = "settings-commands-issues-heading";
 
 const emit = defineEmits<{
   (e: "toggle-command-enabled", commandId: string, enabled: boolean): void;
@@ -223,11 +228,19 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="settings-commands grid gap-3.5 content-start" aria-label="command-management">
+  <section class="settings-commands grid gap-3.5 content-start" :aria-labelledby="commandsRegionHeadingId">
+    <!-- 可达性：命令管理区域标题 -->
+    <h2 :id="commandsRegionHeadingId" class="sr-only">
+      {{ t("settings.aria.commandsRegion") }}
+    </h2>
     <div
       class="settings-commands-toolbar settings-commands-toolbar--sticky settings-commands-toolbar--underlap relative grid gap-3 p-3.5 border border-settings-card-border rounded-[18px] bg-settings-toolbar-sticky bg-gradient-to-b from-ui-text/[0.03] to-ui-text/0 shadow-settings-toolbar shadow-ui-black/18 overflow-visible sticky top-[-12px] z-settings-toolbar backdrop-blur-ui-70"
-      aria-label="command-management-toolbar"
+      :aria-labelledby="commandsToolbarHeadingId"
     >
+      <!-- 可达性：工具栏标题 -->
+      <h3 :id="commandsToolbarHeadingId" class="sr-only">
+        {{ t("settings.aria.commandsToolbar") }}
+      </h3>
       <div class="settings-commands-toolbar__search-row min-w-0 grid gap-2.5">
         <input
           class="settings-commands-toolbar__search w-full h-[38px] px-3.5 border border-settings-dropdown-border rounded-[11px] bg-ui-text/[0.045] text-ui-text text-[13px] outline-none transition-settings-field duration-120 placeholder:text-ui-text/28 focus-visible:border-ui-brand/22 focus-visible:shadow-settings-focus focus-visible:bg-ui-text/[0.055]"
@@ -240,7 +253,7 @@ onBeforeUnmount(() => {
       </div>
       <div
         class="settings-commands-toolbar__summary settings-commands-toolbar__summary-row flex flex-wrap items-center justify-start gap-2 settings-narrow:flex-col settings-narrow:items-start"
-        aria-label="command-management-summary"
+        :aria-labelledby="commandsToolbarHeadingId"
         aria-live="polite"
       >
         <span
@@ -259,10 +272,7 @@ onBeforeUnmount(() => {
           {{ t("settings.commands.summaryEnabled", { enabled: props.commandSummary.enabled }) }}
         </span>
       </div>
-      <div
-        class="settings-commands-toolbar__filters-row flex flex-wrap items-center gap-2"
-        aria-label="command-management-filters"
-      >
+      <div class="settings-commands-toolbar__filters-row flex flex-wrap items-center gap-2">
         <SDropdown
           v-for="filter in primaryFilters"
           :key="filter.key"
@@ -315,7 +325,7 @@ onBeforeUnmount(() => {
       <div
         class="settings-commands-table__container grid gap-1.5 pt-1"
         role="table"
-        aria-label="command-management-table"
+        :aria-label="t('settings.aria.commandsTable')"
         :data-rendered-rows="visibleCommandRows.length"
         :data-total-rows="props.commandRows.length"
       >
@@ -422,9 +432,10 @@ onBeforeUnmount(() => {
   <section
     v-if="props.commandLoadIssues.length > 0"
     class="settings-card rounded-2xl border border-settings-card-border bg-settings-card overflow-hidden"
-    aria-label="command-load-issues"
+    :aria-labelledby="commandsIssuesHeadingId"
   >
     <h2
+      :id="commandsIssuesHeadingId"
       class="settings-card__title m-0 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.8px] text-settings-card-title bg-ui-text/[0.015] border-b border-b-settings-row-border"
     >
       {{ t("settings.commands.loadIssuesTitle") }}

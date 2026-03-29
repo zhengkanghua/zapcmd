@@ -29,6 +29,10 @@ export interface SettingsNavItem {
   icon: SettingsNavIconName;
 }
 
+export interface SettingsSegmentNavItem extends SettingsNavItem {
+  panelId: string;
+}
+
 export type SettingsWindowProps = SettingsHotkeysProps &
   SettingsCommandsProps &
   SettingsGeneralProps &

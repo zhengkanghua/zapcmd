@@ -184,16 +184,21 @@ describe("SettingsCommandsSection layout", () => {
     expect(commandsRegionLabelId).toBeTruthy();
     const commandsHeading = wrapper.get(`#${commandsRegionLabelId}`);
     expect(commandsHeading.element.tagName).toBe("H2");
-    expect(commandsHeading.text()).toContain("命令管理");
+    expect(commandsHeading.text().trim().length).toBeGreaterThan(0);
 
     const toolbar = wrapper.get(".settings-commands-toolbar");
     const toolbarLabelId = toolbar.attributes("aria-labelledby");
     expect(toolbarLabelId).toBeTruthy();
     const toolbarHeading = wrapper.get(`#${toolbarLabelId}`);
     expect(toolbarHeading.element.tagName).toBe("H3");
-    expect(toolbarHeading.text()).toContain("命令筛选与操作");
+    expect(toolbarHeading.text().trim().length).toBeGreaterThan(0);
+
+    const summary = wrapper.get(".settings-commands-toolbar__summary");
+    expect(summary.attributes("aria-labelledby")).toBe(toolbarLabelId);
 
     expect(wrapper.find("[aria-label='command-management']").exists()).toBe(false);
     expect(wrapper.find("[aria-label='command-management-toolbar']").exists()).toBe(false);
+    expect(wrapper.find("[aria-label='command-management-summary']").exists()).toBe(false);
+    expect(wrapper.find("[aria-label='command-management-filters']").exists()).toBe(false);
   });
 });

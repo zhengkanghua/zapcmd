@@ -21,7 +21,7 @@ import SSegmentNav from "./components/settings/ui/SSegmentNav.vue";
 import SHotkeyRecorder from "./components/settings/ui/SHotkeyRecorder.vue";
 import SSlider from "./components/settings/ui/SSlider.vue";
 import SToggle from "./components/settings/ui/SToggle.vue";
-import type { SettingsNavIconName } from "./components/settings/ui/settingsNavIcon";
+import type { SettingsSegmentNavItem } from "./components/settings/types";
 
 type VisualScenarioId =
   | "settings-ui-overview"
@@ -64,10 +64,10 @@ const appearancePreviewOpacity = ref(0.96);
 const appearanceTheme = ref("obsidian");
 const appearanceBlurEnabled = ref(true);
 
-const segmentItems: Array<{ id: string; label: string; icon: SettingsNavIconName }> = [
-  { id: "general", label: "通用", icon: "general" },
-  { id: "appearance", label: "外观", icon: "appearance" },
-  { id: "about", label: "关于", icon: "about" }
+const segmentItems: SettingsSegmentNavItem[] = [
+  { id: "general", label: "通用", icon: "general", panelId: "settings-panel-general" },
+  { id: "appearance", label: "外观", icon: "appearance", panelId: "settings-panel-appearance" },
+  { id: "about", label: "关于", icon: "about", panelId: "settings-panel-about" }
 ];
 
 const dropdownOptions = [
@@ -227,7 +227,7 @@ watch(
         <div class="grid gap-3">
           <h2 class="text-[13px] font-semibold text-ui-text">SSegmentNav</h2>
           <div class="rounded-panel border border-ui-border bg-ui-bg-deep p-4">
-            <SSegmentNav :items="segmentItems" model-value="general" />
+            <SSegmentNav :items="segmentItems" model-value="general" ariaLabel="设置分区" />
           </div>
         </div>
 

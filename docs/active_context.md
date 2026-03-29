@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-29｜Launcher/Settings schema 整改 Chunk 1）
+
+- 已完成 Settings 顶部 `tablist/tab/tabpanel` 语义与基础 aria i18n 收口，命令管理区改为 heading-led aria contract；focused tests 4 文件 25/25 通过。
+
 ## 补充（2026-03-29｜Launcher Search / Flow reveal contract 收口）
 
 - 已完成 Search `44px x 10` 固定 token + chrome contract、Flow `preparing -> resizing -> opening -> open` reveal 状态机与 Rust 阻塞式扩窗门闩；focused tests、coverage、`npm run check:all` 全绿。

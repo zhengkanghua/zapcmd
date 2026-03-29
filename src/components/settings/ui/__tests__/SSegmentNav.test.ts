@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest";
 import { mount } from "@vue/test-utils";
 
 import SSegmentNav from "../SSegmentNav.vue";
-import type { SettingsNavIconName } from "../settingsNavIcon";
+import type { SettingsSegmentNavItem } from "../../types";
 
-const items: Array<{ id: string; label: string; icon: SettingsNavIconName }> = [
-  { id: "hotkeys", label: "快捷键", icon: "hotkeys" },
-  { id: "general", label: "通用", icon: "general" },
-  { id: "commands", label: "命令", icon: "commands" }
+const items: SettingsSegmentNavItem[] = [
+  { id: "hotkeys", label: "快捷键", icon: "hotkeys", panelId: "settings-panel-hotkeys" },
+  { id: "general", label: "通用", icon: "general", panelId: "settings-panel-general" },
+  { id: "commands", label: "命令", icon: "commands", panelId: "settings-panel-commands" }
 ];
 
 describe("SSegmentNav", () => {
   it("renders all nav items", () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items, modelValue: "hotkeys" }
+      props: { items, modelValue: "hotkeys", ariaLabel: "设置分区" }
     });
     expect(wrapper.get("[role='tablist']").classes()).toContain("s-segment-nav");
     expect(wrapper.findAll("[role='tab']")).toHaveLength(3);
@@ -22,7 +22,7 @@ describe("SSegmentNav", () => {
 
   it("marks active tab with aria-selected", () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items, modelValue: "general" }
+      props: { items, modelValue: "general", ariaLabel: "设置分区" }
     });
     const tabs = wrapper.findAll("[role='tab']");
     expect(tabs[1].attributes("aria-selected")).toBe("true");
@@ -31,7 +31,7 @@ describe("SSegmentNav", () => {
 
   it("renders controlled svg icons instead of raw icon name text", () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items, modelValue: "general" }
+      props: { items, modelValue: "general", ariaLabel: "设置分区" }
     });
 
     expect(wrapper.findAll(".s-segment-nav__icon svg")).toHaveLength(3);
@@ -42,7 +42,7 @@ describe("SSegmentNav", () => {
 
   it("emits update:modelValue on click", async () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items, modelValue: "hotkeys" }
+      props: { items, modelValue: "hotkeys", ariaLabel: "设置分区" }
     });
     await wrapper.findAll("[role='tab']")[2].trigger("click");
     expect(wrapper.emitted("update:modelValue")).toEqual([["commands"]]);
@@ -50,7 +50,7 @@ describe("SSegmentNav", () => {
 
   it("supports keyboard navigation with ArrowRight/ArrowLeft", async () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items, modelValue: "hotkeys" }
+      props: { items, modelValue: "hotkeys", ariaLabel: "设置分区" }
     });
     const tablist = wrapper.find("[role='tablist']");
     await tablist.trigger("keydown", { key: "ArrowRight" });
@@ -58,12 +58,7 @@ describe("SSegmentNav", () => {
   });
 
   it("associates tabs with their panels and keeps focus in sync", async () => {
-    const itemsWithPanel: Array<{
-      id: string;
-      label: string;
-      icon: SettingsNavIconName;
-      panelId: string;
-    }> = [
+    const itemsWithPanel: SettingsSegmentNavItem[] = [
       { id: "hotkeys", label: "快捷键", icon: "hotkeys", panelId: "settings-panel-hotkeys" },
       { id: "general", label: "通用", icon: "general", panelId: "settings-panel-general" }
     ];
@@ -77,7 +72,12 @@ describe("SSegmentNav", () => {
     };
 
     wrapper = mount(SSegmentNav, {
-      props: { items: itemsWithPanel, modelValue: "hotkeys", "onUpdate:modelValue": handleModelUpdate },
+      props: {
+        items: itemsWithPanel,
+        modelValue: "hotkeys",
+        ariaLabel: "设置分区",
+        "onUpdate:modelValue": handleModelUpdate
+      },
       attachTo: attachPoint
     });
 
@@ -102,7 +102,7 @@ describe("SSegmentNav", () => {
 
   it("keeps tablist semantics without relying on a shell wrapper", () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items, modelValue: "hotkeys" }
+      props: { items, modelValue: "hotkeys", ariaLabel: "设置分区" }
     });
 
     expect(wrapper.get("[role='tablist']").classes()).toContain("s-segment-nav");
@@ -111,7 +111,7 @@ describe("SSegmentNav", () => {
 
   it("supports ArrowDown/ArrowUp/Home/End and ignores unrelated keys", async () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items, modelValue: "general" }
+      props: { items, modelValue: "general", ariaLabel: "设置分区" }
     });
 
     const tablist = wrapper.get("[role='tablist']");
@@ -131,7 +131,7 @@ describe("SSegmentNav", () => {
 
   it("keeps every tab at a 36px hit target floor", () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items, modelValue: "general" }
+      props: { items, modelValue: "general", ariaLabel: "设置分区" }
     });
 
     for (const tab of wrapper.findAll("[role='tab']")) {
@@ -141,7 +141,7 @@ describe("SSegmentNav", () => {
 
   it("no-ops when there are no items", async () => {
     const wrapper = mount(SSegmentNav, {
-      props: { items: [], modelValue: "missing" }
+      props: { items: [], modelValue: "missing", ariaLabel: "设置分区" }
     });
 
     await wrapper.get("[role='tablist']").trigger("keydown", { key: "ArrowRight" });
