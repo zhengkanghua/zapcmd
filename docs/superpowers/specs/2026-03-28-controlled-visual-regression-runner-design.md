@@ -22,7 +22,7 @@
 2. `environment.json` / `browser.log` 诊断产物
 3. visual harness 的 SVG icon 与稳定字体作用域
 
-但这条链路仍把 blocking baseline 建立在“开发机自己的 Edge + 系统字体栈”上。  
+但这条链路仍把 blocking baseline 建立在“开发机自己的 Edge + 系统字体栈”上。
 设备1 可以通过，设备2 在同一提交、fresh build 下仍稳定出现 7 项 mismatch；最新诊断已经确认设备2 的运行环境为：
 
 1. Edge `146.0.3856.84`
@@ -31,7 +31,7 @@
 
 这说明当前问题已经不是脚本缺陷，而是 baseline 继续暴露在“本机浏览器版本 + 本机字体栅格化”的漂移面上。
 
-如果继续要求每一台 Windows 开发机都跑出同一组 blocking baseline，后续设备3、设备4 仍会重复同样的问题。  
+如果继续要求每一台 Windows 开发机都跑出同一组 blocking baseline，后续设备3、设备4 仍会重复同样的问题。
 因此，本轮不再追求“每台本机都必须过同一 baseline”，而是把 blocking gate 收口到单一受控环境。
 
 ---
@@ -135,7 +135,7 @@ scripts/e2e/visual-baselines/linux-chromium/
 
 ### 6.1 浏览器来源
 
-`controlled-runner` 不再依赖系统安装的 Edge。  
+`controlled-runner` 不再依赖系统安装的 Edge。
 改为由仓库脚本明确指向固定版本的 Chromium-family 二进制。
 
 优先级：
@@ -151,7 +151,7 @@ scripts/e2e/visual-baselines/linux-chromium/
 
 ### 6.2 现有 screenshot runner 复用
 
-不重写现有 screenshot 逻辑。  
+不重写现有 screenshot 逻辑。
 继续复用：
 
 1. headless 启动参数
@@ -167,7 +167,7 @@ scripts/e2e/visual-baselines/linux-chromium/
 
 ### 7.1 字体策略
 
-阻断级视觉回归不能再依赖系统字体回退。  
+阻断级视觉回归不能再依赖系统字体回退。
 `controlled-runner` 必须只使用仓库内受控字体资源。
 
 约束：
@@ -211,7 +211,7 @@ scripts/e2e/visual-baselines/linux-chromium/
 
 ### 8.1 保持业务 UI 不变
 
-真实产品窗口不改。  
+真实产品窗口不改。
 只改：
 
 1. `visual.html`
@@ -328,5 +328,5 @@ src/styles/visual-fonts.css
 1. 开发机本地 compare：用于诊断，不负责定义最终真相
 2. 受控 runner baseline：用于 blocking gate，才是唯一像素事实源
 
-这条路线能直接消除“设备2 修好了，设备3 又坏了”的无限循环。  
+这条路线能直接消除“设备2 修好了，设备3 又坏了”的无限循环。
 后续实现的核心不是继续微调系统字体栈，而是把 blocking 结果从本机环境中剥离出来。

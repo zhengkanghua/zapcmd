@@ -58,19 +58,19 @@
 
 ## 重点测试矩阵
 
-1. 脚本 mode/baseline/env contract  
+1. 脚本 mode/baseline/env contract
    `npm run test:run -- scripts/__tests__/visual-regression-lib.test.ts scripts/__tests__/visual-regression-env.test.ts`
-2. 本地 gate / workflow / docs contract  
+2. 本地 gate / workflow / docs contract
    `npm run test:run -- scripts/__tests__/verify-local-gate-lib.test.ts scripts/__tests__/controlled-visual-runner-contract.test.ts`
-3. visual font contract  
+3. visual font contract
    `npm run test:run -- src/__tests__/visual.font-contract.test.ts`
-4. runner 实机验证  
+4. runner 实机验证
    `npm run test:visual:ui:runner`
-5. 本机 compare / smoke 回归  
-   `npm run test:visual:ui`  
-   `npm run test:visual:ui:wsl-bridge`  
+5. 本机 compare / smoke 回归
+   `npm run test:visual:ui`
+   `npm run test:visual:ui:wsl-bridge`
    `npm run test:visual:ui:linux`
-6. 最终门禁  
+6. 最终门禁
    `npm run check:all`
 
 ## Chunk 1: `controlled-runner` 模式与 baseline 契约
