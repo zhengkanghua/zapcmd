@@ -166,12 +166,12 @@ watch(
       >
         <p
           v-if="props.keyboardHints?.length"
-          class="keyboard-hint m-0 min-h-[20px] flex flex-wrap items-center gap-[6px] p-[2px_6px_6px] text-[10px] font-medium tracking-[0.03em] text-ui-subtle"
+          class="keyboard-hint m-0 h-[22px] min-h-[22px] flex flex-nowrap items-center gap-[6px] overflow-hidden p-[2px_6px_6px] text-[10px] font-medium tracking-[0.03em] text-ui-subtle whitespace-nowrap"
         >
           <span
             v-for="(hint, index) in props.keyboardHints"
             :key="index"
-            class="keyboard-hint__item inline-flex items-center gap-[4px]"
+            class="keyboard-hint__item inline-flex shrink-0 items-center gap-[4px]"
           >
             <span class="keyboard-hint__keys inline-flex items-center gap-[2px]">
                 <kbd
@@ -258,7 +258,7 @@ watch(
             </span>
           </div>
           <span
-            class="keyboard-hint m-0 min-h-0 flex flex-wrap items-center gap-[6px] p-0 text-[10px] font-medium tracking-[0.03em] text-ui-subtle"
+            class="keyboard-hint m-0 min-h-0 flex flex-nowrap items-center gap-[6px] overflow-hidden p-0 text-[10px] font-medium tracking-[0.03em] text-ui-subtle whitespace-nowrap"
           >
             <span class="keyboard-hint__item inline-flex items-center gap-[4px]">
               <span class="keyboard-hint__keys inline-flex items-center gap-[2px]"
