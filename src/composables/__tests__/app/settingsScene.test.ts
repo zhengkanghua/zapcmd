@@ -4,7 +4,10 @@ import { defineComponent, ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppCompositionRootPorts } from "../../app/useAppCompositionRoot/ports";
-import { createSettingsScene } from "../../app/useAppCompositionRoot/settingsScene";
+import {
+  createSettingsScene,
+  type SettingsScene
+} from "../../app/useAppCompositionRoot/settingsScene";
 
 function createPortsStub() {
   return createAppCompositionRootPorts({
@@ -16,7 +19,7 @@ function createPortsStub() {
 
 describe("createSettingsScene", () => {
   it("creates a reusable settings scene with settingsWindow/commandManagement/updateManager", async () => {
-    let scene: ReturnType<typeof createSettingsScene> | null = null;
+    let scene: SettingsScene | undefined;
 
     const Harness = defineComponent({
       setup() {
@@ -36,11 +39,13 @@ describe("createSettingsScene", () => {
       }
     });
 
-    expect(scene).not.toBeNull();
-    expect(scene?.settingsWindow).toBeDefined();
-    expect(scene?.commandCatalog).toBeDefined();
-    expect(scene?.commandManagement).toBeDefined();
-    expect(scene?.updateManager).toBeDefined();
-    expect(scene?.openHomepage).toBeTypeOf("function");
+    expect(scene).toBeDefined();
+    const resolvedScene = scene as SettingsScene;
+
+    expect(resolvedScene.settingsWindow).toBeDefined();
+    expect(resolvedScene.commandCatalog).toBeDefined();
+    expect(resolvedScene.commandManagement).toBeDefined();
+    expect(resolvedScene.updateManager).toBeDefined();
+    expect(resolvedScene.openHomepage).toBeTypeOf("function");
   });
 });

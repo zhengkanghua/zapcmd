@@ -15,7 +15,6 @@ import type { AppCompositionRootPorts } from "./ports";
 
 const FALLBACK_APP_VERSION = "";
 
-type BooleanValueRef = Readonly<Pick<Ref<boolean>, "value">>;
 type SettingsStoreRefs = ReturnType<typeof createSettingsStoreRefs>;
 
 /**
@@ -37,7 +36,7 @@ export type SettingsScene = SettingsStoreRefs & {
 
 export interface CreateSettingsSceneOptions {
   ports: AppCompositionRootPorts;
-  isSettingsWindow: BooleanValueRef;
+  isSettingsWindow: Ref<boolean>;
   settingsSyncChannel: Ref<BroadcastChannel | null>;
 }
 
@@ -66,7 +65,7 @@ async function openHomepageInBrowser(ports: AppCompositionRootPorts): Promise<vo
 }
 
 function bindSettingsSideEffects(deps: {
-  isSettingsWindow: BooleanValueRef;
+  isSettingsWindow: Ref<boolean>;
   updateManager: ReturnType<typeof useUpdateManager>;
   language: { value: string };
   windowOpacity: { value: number };
