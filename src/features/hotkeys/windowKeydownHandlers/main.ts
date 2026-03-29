@@ -10,16 +10,16 @@ export function ensureSearchFocusZone<TItem>(
   }
 }
 
-function switchFocusWithStagingOpen<TItem>(main: MainHandlers<TItem>): void {
-  if (!main.stagingExpanded.value) {
-    main.openStagingDrawer();
+function switchFocusWithQueueOpen<TItem>(main: MainHandlers<TItem>): void {
+  if (!main.queueOpen.value) {
+    main.openQueuePanel();
   }
   if (main.focusZone.value === "search") {
     main.switchFocusZone();
     return;
   }
 
-  main.toggleStaging();
+  main.toggleQueue();
   main.switchFocusZone();
 }
 
@@ -29,34 +29,34 @@ export function handleMainGlobalHotkeys<TItem>(
 ): boolean {
   if ((event.ctrlKey || event.metaKey) && event.key === "Tab") {
     event.preventDefault();
-    switchFocusWithStagingOpen(main);
+    switchFocusWithQueueOpen(main);
     return true;
   }
   if (hotkeyMatches(event, main.normalizedSwitchFocusHotkey.value)) {
     event.preventDefault();
-    switchFocusWithStagingOpen(main);
+    switchFocusWithQueueOpen(main);
     return true;
   }
   if (hotkeyMatches(event, main.normalizedToggleQueueHotkey.value)) {
-    if (main.stagingExpanded.value && main.normalizedToggleQueueHotkey.value === "Tab") {
+    if (main.queueOpen.value && main.normalizedToggleQueueHotkey.value === "Tab") {
       return false;
     }
     event.preventDefault();
-    main.toggleStaging();
+    main.toggleQueue();
     return true;
   }
   if (hotkeyMatches(event, main.normalizedExecuteQueueHotkey.value)) {
     const flowOpen = main.commandPanelOpen.value;
     if (
       !flowOpen &&
-      !main.stagingExpanded.value &&
+      !main.queueOpen.value &&
       main.focusZone.value === "search" &&
-      hotkeyMatches(event, main.normalizedStageSelectedHotkey.value)
+      hotkeyMatches(event, main.normalizedEnqueueSelectedHotkey.value)
     ) {
       return false;
     }
     event.preventDefault();
-    void main.executeStaged();
+    void main.executeQueue();
     return true;
   }
   if (!hotkeyMatches(event, main.normalizedClearQueueHotkey.value)) {
@@ -64,7 +64,7 @@ export function handleMainGlobalHotkeys<TItem>(
   }
 
   event.preventDefault();
-  main.clearStaging();
+  main.clearQueue();
   return true;
 }
 
@@ -106,23 +106,23 @@ export function handleSearchZoneHotkeys<TItem>(
     main.executeResult(main.filteredResults.value[main.activeIndex.value]);
     return true;
   }
-  if (!hotkeyMatches(event, main.normalizedStageSelectedHotkey.value)) {
+  if (!hotkeyMatches(event, main.normalizedEnqueueSelectedHotkey.value)) {
     return false;
   }
 
   event.preventDefault();
-  main.stageResult(main.filteredResults.value[main.activeIndex.value]);
+  main.enqueueResult(main.filteredResults.value[main.activeIndex.value]);
   return true;
 }
 
-export function handleStagingZoneHotkeys<TItem>(
+export function handleQueueZoneHotkeys<TItem>(
   event: KeyboardEvent,
   main: MainHandlers<TItem>
 ): boolean {
   if (
-    main.focusZone.value !== "staging" ||
-    !main.stagingExpanded.value ||
-    main.stagedCommands.value.length === 0 ||
+    main.focusZone.value !== "queue" ||
+    !main.queueOpen.value ||
+    main.queuedCommands.value.length === 0 ||
     main.isTypingElement(event.target)
   ) {
     return false;
@@ -130,30 +130,30 @@ export function handleStagingZoneHotkeys<TItem>(
 
   if (hotkeyMatches(event, main.normalizedReorderUpHotkey.value)) {
     event.preventDefault();
-    main.moveStagedCommand(main.stagingActiveIndex.value, Math.max(main.stagingActiveIndex.value - 1, 0));
+    main.moveQueuedCommand(main.queueActiveIndex.value, Math.max(main.queueActiveIndex.value - 1, 0));
     return true;
   }
   if (hotkeyMatches(event, main.normalizedReorderDownHotkey.value)) {
     event.preventDefault();
-    main.moveStagedCommand(
-      main.stagingActiveIndex.value,
-      Math.min(main.stagingActiveIndex.value + 1, main.stagedCommands.value.length - 1)
+    main.moveQueuedCommand(
+      main.queueActiveIndex.value,
+      Math.min(main.queueActiveIndex.value + 1, main.queuedCommands.value.length - 1)
     );
     return true;
   }
   if (hotkeyMatches(event, main.normalizedNavigateDownHotkey.value)) {
     event.preventDefault();
-    main.stagingActiveIndex.value = Math.min(
-      main.stagingActiveIndex.value + 1,
-      main.stagedCommands.value.length - 1
+    main.queueActiveIndex.value = Math.min(
+      main.queueActiveIndex.value + 1,
+      main.queuedCommands.value.length - 1
     );
-    main.queuePostUpdate(() => main.ensureActiveStagingVisible());
+    main.queuePostUpdate(() => main.ensureActiveQueueVisible());
     return true;
   }
   if (hotkeyMatches(event, main.normalizedNavigateUpHotkey.value)) {
     event.preventDefault();
-    main.stagingActiveIndex.value = Math.max(main.stagingActiveIndex.value - 1, 0);
-    main.queuePostUpdate(() => main.ensureActiveStagingVisible());
+    main.queueActiveIndex.value = Math.max(main.queueActiveIndex.value - 1, 0);
+    main.queuePostUpdate(() => main.ensureActiveQueueVisible());
     return true;
   }
   if (!hotkeyMatches(event, main.normalizedRemoveQueueItemHotkey.value)) {
@@ -161,9 +161,9 @@ export function handleStagingZoneHotkeys<TItem>(
   }
 
   event.preventDefault();
-  const target = main.stagedCommands.value[main.stagingActiveIndex.value];
+  const target = main.queuedCommands.value[main.queueActiveIndex.value];
   if (target) {
-    main.removeStagedCommand(target.id);
+    main.removeQueuedCommand(target.id);
   }
   return true;
 }

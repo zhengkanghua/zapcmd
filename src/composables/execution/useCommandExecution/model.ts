@@ -5,7 +5,7 @@ import type {
   CommandPrerequisiteProbeResult
 } from "../../../features/commands/prerequisiteTypes";
 import type { StagedCommand } from "../../../features/launcher/types";
-import type { FocusZone } from "../../launcher/useStagingQueue";
+import type { FocusZone } from "../../launcher/useCommandQueue";
 
 export type ParamSubmitMode = "stage" | "execute";
 export type ExecutionFeedbackTone = "neutral" | "success" | "error";

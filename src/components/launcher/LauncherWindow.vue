@@ -6,7 +6,7 @@ import { useLauncherHitZones } from "../../composables/launcher/useLauncherHitZo
 import { LAUNCHER_NAV_STACK_KEY, type LauncherNavStack } from "../../composables/launcher/useLauncherNavStack";
 import type { LauncherVm } from "../../composables/app/useAppCompositionRoot/launcherVm";
 import { dismissDanger } from "../../features/security/dangerDismiss";
-import LauncherQueueReviewPanel from "./parts/LauncherFlowPanel.vue";
+import LauncherQueueReviewPanel from "./parts/LauncherQueueReviewPanel.vue";
 import LauncherCommandPanel from "./parts/LauncherCommandPanel.vue";
 import LauncherSearchPanel from "./parts/LauncherSearchPanel.vue";
 import LauncherSafetyOverlay from "./parts/LauncherSafetyOverlay.vue";
@@ -18,18 +18,18 @@ const { t } = useI18nText();
 
 const emit = defineEmits<{
   (e: "query-input", value: string): void;
-  (e: "stage-result", command: CommandTemplate): void;
+  (e: "enqueue-result", command: CommandTemplate): void;
   (e: "execute-result", command: CommandTemplate): void;
   (e: "toggle-queue"): void;
-  (e: "staging-drag-start", index: number, event: DragEvent): void;
-  (e: "staging-drag-over", index: number, event: DragEvent): void;
-  (e: "staging-drag-end"): void;
+  (e: "queue-drag-start", index: number, event: DragEvent): void;
+  (e: "queue-drag-over", index: number, event: DragEvent): void;
+  (e: "queue-drag-end"): void;
   (e: "grip-reorder-active-change", value: boolean): void;
-  (e: "focus-staging-index", index: number): void;
-  (e: "remove-staged-command", id: string): void;
-  (e: "update-staged-arg", id: string, key: string, value: string): void;
-  (e: "clear-staging"): void;
-  (e: "execute-staged"): void;
+  (e: "focus-queue-index", index: number): void;
+  (e: "remove-queued-command", id: string): void;
+  (e: "update-queued-arg", id: string, key: string, value: string): void;
+  (e: "clear-queue"): void;
+  (e: "execute-queue"): void;
   (e: "submit-param-input"): void;
   (e: "request-command-panel-exit"): void;
   (e: "command-page-settled"): void;
@@ -72,7 +72,7 @@ function onQueryInput(value: string): void {
 
 function onEnqueueResult(command: CommandTemplate): void {
   props.launcherVm.actions.enqueueResult(command);
-  emit("stage-result", command);
+  emit("enqueue-result", command);
 }
 
 function onExecuteResult(command: CommandTemplate): void {
@@ -87,17 +87,17 @@ function toggleQueue(): void {
 
 function onQueueDragStart(index: number, event: DragEvent): void {
   props.launcherVm.actions.onQueueDragStart(index, event);
-  emit("staging-drag-start", index, event);
+  emit("queue-drag-start", index, event);
 }
 
 function onQueueDragOver(index: number, event: DragEvent): void {
   props.launcherVm.actions.onQueueDragOver(index, event);
-  emit("staging-drag-over", index, event);
+  emit("queue-drag-over", index, event);
 }
 
 function onQueueDragEnd(): void {
   props.launcherVm.actions.onQueueDragEnd();
-  emit("staging-drag-end");
+  emit("queue-drag-end");
 }
 
 function onQueueGripReorderActiveChange(value: boolean): void {
@@ -107,27 +107,27 @@ function onQueueGripReorderActiveChange(value: boolean): void {
 
 function onFocusQueueIndex(index: number): void {
   props.launcherVm.actions.onFocusQueueIndex(index);
-  emit("focus-staging-index", index);
+  emit("focus-queue-index", index);
 }
 
 function onRemoveQueuedCommand(id: string): void {
   props.launcherVm.actions.removeQueuedCommand(id);
-  emit("remove-staged-command", id);
+  emit("remove-queued-command", id);
 }
 
 function onUpdateQueuedArg(id: string, key: string, value: string): void {
   props.launcherVm.actions.updateQueuedArg(id, key, value);
-  emit("update-staged-arg", id, key, value);
+  emit("update-queued-arg", id, key, value);
 }
 
 function onClearQueue(): void {
   props.launcherVm.actions.clearQueue();
-  emit("clear-staging");
+  emit("clear-queue");
 }
 
 function onExecuteQueue(): void {
   props.launcherVm.actions.executeQueue();
-  emit("execute-staged");
+  emit("execute-queue");
 }
 
 function onSearchCapsuleBack(): void {
@@ -248,15 +248,15 @@ function onNavAfterEnter(): void {
             :keyboard-hints="props.launcherVm.search.keyboardHints"
             :filtered-results="props.launcherVm.search.filteredResults"
             :active-index="props.launcherVm.search.activeIndex"
-            :staged-feedback-command-id="props.launcherVm.search.stagedFeedbackCommandId"
-            :staged-command-count="props.launcherVm.queue.items.length"
+            :queued-feedback-command-id="props.launcherVm.search.queuedFeedbackCommandId"
+            :queued-command-count="props.launcherVm.queue.items.length"
             :flow-open="props.launcherVm.nav.currentPage.type !== 'search'"
             :review-open="props.launcherVm.queue.queueOpen"
             :set-search-input-ref="props.launcherVm.dom.setSearchInputRef"
             :set-drawer-ref="props.launcherVm.dom.setDrawerRef"
             :set-result-button-ref="props.launcherVm.dom.setResultButtonRef"
             @query-input="onQueryInput"
-            @stage-result="onEnqueueResult"
+            @enqueue-result="onEnqueueResult"
             @execute-result="onExecuteResult"
             @toggle-queue="toggleQueue"
             @search-capsule-back="onSearchCapsuleBack"
@@ -269,7 +269,7 @@ function onNavAfterEnter(): void {
             :mode="props.launcherVm.nav.currentPage.props?.mode ?? 'execute'"
             :is-dangerous="props.launcherVm.nav.currentPage.props?.isDangerous ?? false"
             :pending-arg-values="props.launcherVm.command.pendingArgValues"
-            :staged-command-count="props.launcherVm.queue.items.length"
+            :queued-command-count="props.launcherVm.queue.items.length"
             :execution-feedback-message="props.launcherVm.command.executionFeedbackMessage"
             :execution-feedback-tone="props.launcherVm.command.executionFeedbackTone"
             @submit="onCommandPanelSubmit"
@@ -289,28 +289,28 @@ function onNavAfterEnter(): void {
 
         <LauncherQueueReviewPanel
           v-if="props.launcherVm.queue.queueOpen"
-          :staging-drawer-state="props.launcherVm.queue.panelState"
-          :staging-expanded="props.launcherVm.queue.queueOpen"
-          :staged-commands="props.launcherVm.queue.items"
-          :staging-hints="props.launcherVm.queue.hints"
+          :queue-panel-state="props.launcherVm.queue.panelState"
+          :queue-open="props.launcherVm.queue.queueOpen"
+          :queued-commands="props.launcherVm.queue.items"
+          :queue-hints="props.launcherVm.queue.hints"
           :focus-zone="props.launcherVm.queue.focusZone"
-          :staging-active-index="props.launcherVm.queue.activeIndex"
+          :queue-active-index="props.launcherVm.queue.activeIndex"
           :flow-open="props.launcherVm.nav.currentPage.type !== 'search'"
           :executing="props.launcherVm.command.executing"
           :execution-feedback-message="props.launcherVm.command.executionFeedbackMessage"
           :execution-feedback-tone="props.launcherVm.command.executionFeedbackTone"
-          :set-staging-panel-ref="props.launcherVm.dom.setQueuePanelRef"
-          :set-staging-list-ref="props.launcherVm.dom.setQueueListRef"
+          :set-queue-panel-ref="props.launcherVm.dom.setQueuePanelRef"
+          :set-queue-list-ref="props.launcherVm.dom.setQueueListRef"
           @toggle-queue="toggleQueue"
-          @staging-drag-start="onQueueDragStart"
-          @staging-drag-over="onQueueDragOver"
-          @staging-drag-end="onQueueDragEnd"
+          @queue-drag-start="onQueueDragStart"
+          @queue-drag-over="onQueueDragOver"
+          @queue-drag-end="onQueueDragEnd"
           @grip-reorder-active-change="onQueueGripReorderActiveChange"
-          @focus-staging-index="onFocusQueueIndex"
-          @remove-staged-command="onRemoveQueuedCommand"
-          @update-staged-arg="onUpdateQueuedArg"
-          @clear-staging="onClearQueue"
-          @execute-staged="onExecuteQueue"
+          @focus-queue-index="onFocusQueueIndex"
+          @remove-queued-command="onRemoveQueuedCommand"
+          @update-queued-arg="onUpdateQueuedArg"
+          @clear-queue="onClearQueue"
+          @execute-queue="onExecuteQueue"
           @flow-panel-prepared="onFlowPanelPrepared"
           @flow-panel-height-change="onFlowPanelHeightChange"
           @flow-panel-settled="onFlowPanelSettled"

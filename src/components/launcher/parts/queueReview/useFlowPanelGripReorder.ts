@@ -1,8 +1,8 @@
 import { onBeforeUnmount, ref, type Ref } from "vue";
-import type { LauncherFlowPanelProps } from "../../types";
+import type { LauncherQueueReviewPanelProps } from "../../types";
 
 interface FlowPanelGripReorderDeps {
-  props: LauncherFlowPanelProps;
+  props: LauncherQueueReviewPanelProps;
   reviewListRef: Ref<HTMLElement | null>;
   cancelInlineEdit: () => void;
   emitGripReorderActiveChange: (value: boolean) => void;
@@ -57,14 +57,14 @@ function maybeEmitGripReorder(
   clientY: number,
   currentTarget: HTMLElement | null
 ): void {
-  state.dragOverCommandId.value = deps.props.stagedCommands[index]?.id ?? null;
+  state.dragOverCommandId.value = deps.props.queuedCommands[index]?.id ?? null;
 
   const draggingId = state.draggingCommandId.value;
   if (!draggingId) {
     return;
   }
 
-  const draggingIndex = deps.props.stagedCommands.findIndex((cmd) => cmd.id === draggingId);
+  const draggingIndex = deps.props.queuedCommands.findIndex((cmd) => cmd.id === draggingId);
   if (draggingIndex < 0 || draggingIndex === index) {
     return;
   }
@@ -162,7 +162,7 @@ export function useFlowPanelGripReorder(deps: FlowPanelGripReorderDeps) {
       state.previousBodyUserSelect = document.body.style.userSelect;
       document.body.style.userSelect = "none";
     }
-    state.draggingCommandId.value = deps.props.stagedCommands[index]?.id ?? null;
+    state.draggingCommandId.value = deps.props.queuedCommands[index]?.id ?? null;
     state.dragOverCommandId.value = state.draggingCommandId.value;
     deps.emitStagingDragStart(index, createSyntheticDragEvent("dragstart"));
 
@@ -185,14 +185,14 @@ export function useFlowPanelGripReorder(deps: FlowPanelGripReorderDeps) {
       return;
     }
     endGripReorder(state, deps);
-    state.draggingCommandId.value = deps.props.stagedCommands[index]?.id ?? null;
+    state.draggingCommandId.value = deps.props.queuedCommands[index]?.id ?? null;
     state.dragOverCommandId.value = state.draggingCommandId.value;
     deps.cancelInlineEdit();
     deps.emitStagingDragStart(index, event);
   }
 
   function onStagingDragOver(index: number, event: DragEvent): void {
-    state.dragOverCommandId.value = deps.props.stagedCommands[index]?.id ?? null;
+    state.dragOverCommandId.value = deps.props.queuedCommands[index]?.id ?? null;
     deps.emitStagingDragOver(index, event);
   }
 

@@ -80,7 +80,7 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
   const scheduleSearchInputFocus = vi.fn();
   const syncWindowSize = vi.fn(async () => {});
   const clearResizeTimer = vi.fn();
-  const clearStagingTransitionTimer = vi.fn();
+  const clearQueueTransitionTimer = vi.fn();
   const clearStagedFeedbackTimer = vi.fn();
   const clearExecutionFeedbackTimer = vi.fn();
 
@@ -114,7 +114,7 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
         scheduleSearchInputFocus,
         syncWindowSize,
         clearResizeTimer,
-        clearStagingTransitionTimer,
+        clearQueueTransitionTimer,
         clearStagedFeedbackTimer,
         clearExecutionFeedbackTimer
       });
@@ -141,7 +141,7 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
       scheduleSearchInputFocus,
       syncWindowSize,
       clearResizeTimer,
-      clearStagingTransitionTimer,
+      clearQueueTransitionTimer,
       clearStagedFeedbackTimer,
       clearExecutionFeedbackTimer
     }
@@ -206,7 +206,7 @@ describe("useAppLifecycle", () => {
 
     wrapper.unmount();
     expect(spies.clearResizeTimer).toHaveBeenCalledTimes(1);
-    expect(spies.clearStagingTransitionTimer).toHaveBeenCalledTimes(1);
+    expect(spies.clearQueueTransitionTimer).toHaveBeenCalledTimes(1);
     expect(spies.clearStagedFeedbackTimer).toHaveBeenCalledTimes(1);
     expect(spies.clearExecutionFeedbackTimer).toHaveBeenCalledTimes(1);
     expect(state.settingsSyncChannel.value).toBeNull();

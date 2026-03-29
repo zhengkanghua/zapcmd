@@ -17,7 +17,7 @@ const { t } = useI18nText();
 
 const emit = defineEmits<{
   (e: "query-input", value: string): void;
-  (e: "stage-result", command: CommandTemplate): void;
+  (e: "enqueue-result", command: CommandTemplate): void;
   (e: "execute-result", command: CommandTemplate): void;
   (e: "toggle-queue"): void;
   (e: "search-capsule-back"): void;
@@ -134,7 +134,7 @@ watch(
           autocomplete="off"
           @input="onSearchInput"
         />
-        <LauncherQueueSummaryPill :count="props.stagedCommandCount" @toggle-queue="emit('toggle-queue')" />
+        <LauncherQueueSummaryPill :count="props.queuedCommandCount" @toggle-queue="emit('toggle-queue')" />
       </form>
       <!-- search-capsule 内的 toast：仅在 FlowPanel 关闭时显示 -->
       <p
@@ -198,11 +198,11 @@ watch(
               :class="{
                 'result-item--active bg-ui-brand-soft hover:bg-ui-brand-soft focus-visible:bg-ui-brand-soft': index === props.activeIndex,
                 'result-item--staged-feedback animate-launcher-staged-feedback motion-reduce:animate-none':
-                  item.id === props.stagedFeedbackCommandId
+                  item.id === props.queuedFeedbackCommandId
               }"
               :ref="(el) => props.setResultButtonRef(el, index)"
               @click="emit('execute-result', item)"
-              @contextmenu.prevent="emit('stage-result', item)"
+              @contextmenu.prevent="emit('enqueue-result', item)"
             >
               <span
                 aria-hidden="true"

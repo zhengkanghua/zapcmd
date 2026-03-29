@@ -7,28 +7,28 @@ export interface SettingsHandlers {
 }
 
 export interface MainHandlers<TItem> {
-  focusZone: RefLike<"search" | "staging">;
+  focusZone: RefLike<"search" | "queue">;
   searchInputRef: RefLike<HTMLInputElement | null>;
   drawerRef: RefLike<HTMLElement | null>;
   commandPanelOpen: RefLike<boolean>;
-  stagingExpanded: RefLike<boolean>;
-  openStagingDrawer: () => void;
+  queueOpen: RefLike<boolean>;
+  openQueuePanel: () => void;
   switchFocusZone: () => void;
-  toggleStaging: () => void;
-  executeStaged: () => Promise<void>;
-  clearStaging: () => void;
+  toggleQueue: () => void;
+  executeQueue: () => Promise<void>;
+  clearQueue: () => void;
   drawerOpen: RefLike<boolean>;
   filteredResults: RefLike<TItem[]>;
   activeIndex: RefLike<number>;
   ensureActiveResultVisible: () => void;
   executeResult: (item: TItem) => void;
-  stageResult: (item: TItem) => void;
-  stagedCommands: RefLike<Array<{ id: string }>>;
+  enqueueResult: (item: TItem) => void;
+  queuedCommands: RefLike<Array<{ id: string }>>;
   isTypingElement: (target: EventTarget | null) => boolean;
-  moveStagedCommand: (fromIndex: number, toIndex: number) => void;
-  stagingActiveIndex: RefLike<number>;
-  ensureActiveStagingVisible: () => void;
-  removeStagedCommand: (id: string) => void;
+  moveQueuedCommand: (fromIndex: number, toIndex: number) => void;
+  queueActiveIndex: RefLike<number>;
+  ensureActiveQueueVisible: () => void;
+  removeQueuedCommand: (id: string) => void;
   confirmSafetyExecution: () => Promise<void>;
   cancelSafetyExecution: () => void;
   handleMainEscape: () => void;
@@ -40,7 +40,7 @@ export interface MainHandlers<TItem> {
   normalizedNavigateDownHotkey: RefLike<string>;
   normalizedNavigateUpHotkey: RefLike<string>;
   normalizedExecuteSelectedHotkey: RefLike<string>;
-  normalizedStageSelectedHotkey: RefLike<string>;
+  normalizedEnqueueSelectedHotkey: RefLike<string>;
   normalizedReorderUpHotkey: RefLike<string>;
   normalizedReorderDownHotkey: RefLike<string>;
   normalizedRemoveQueueItemHotkey: RefLike<string>;

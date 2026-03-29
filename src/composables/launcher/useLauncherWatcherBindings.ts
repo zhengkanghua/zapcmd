@@ -1,6 +1,6 @@
 import type { Ref } from "vue";
 import { useLauncherWatchers } from "./useLauncherWatchers";
-import type { StagingDrawerState } from "./useStagingQueue";
+import type { QueuePanelState } from "./useCommandQueue";
 
 interface WindowSizingWatcherModule {
   scheduleWindowSync: () => void;
@@ -10,7 +10,7 @@ interface UseLauncherWatcherBindingsOptions {
   drawerOpen: Ref<boolean>;
   drawerVisibleRows: Ref<number>;
   pendingCommand: Ref<unknown>;
-  stagingDrawerState: Ref<StagingDrawerState>;
+  stagingDrawerState: Ref<QueuePanelState>;
   filteredResults: Ref<unknown[]>;
   resultButtons: Ref<Array<HTMLElement | null>>;
   activeIndex: Ref<number>;

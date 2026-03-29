@@ -1,11 +1,11 @@
 import { nextTick, watch, type Ref } from "vue";
-import type { StagingDrawerState } from "./useStagingQueue";
+import type { QueuePanelState } from "./useCommandQueue";
 
 interface UseLauncherWatchersOptions {
   drawerOpen: Ref<boolean>;
   drawerVisibleRows: Ref<number>;
   pendingCommand: Ref<unknown>;
-  stagingDrawerState: Ref<StagingDrawerState>;
+  stagingDrawerState: Ref<QueuePanelState>;
   scheduleWindowSync: () => void;
   filteredResults: Ref<unknown[]>;
   resultButtons: Ref<Array<HTMLElement | null>>;

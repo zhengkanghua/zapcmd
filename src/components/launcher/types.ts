@@ -1,6 +1,6 @@
 import type { ComponentPublicInstance } from "vue";
-import type { CommandTemplate } from "../../features/commands/commandTemplates";
-import type { StagedCommand } from "../../features/launcher/types";
+import type { CommandArg, CommandTemplate } from "../../features/commands/commandTemplates";
+import type { CommandPrerequisite } from "../../features/commands/prerequisiteTypes";
 
 export interface KeyboardHint {
   keys: string[];
@@ -8,8 +8,8 @@ export interface KeyboardHint {
 }
 
 export type ParamSubmitMode = "stage" | "execute";
-export type FocusZone = "search" | "paging" | "results" | "staging";
-export type StagingDrawerState =
+export type FocusZone = "search" | "paging" | "results" | "queue";
+export type QueuePanelState =
   | "closed"
   | "preparing"
   | "resizing"
@@ -18,6 +18,18 @@ export type StagingDrawerState =
   | "closing";
 
 export type ElementRefArg = Element | ComponentPublicInstance | null;
+
+export interface QueuedCommand {
+  id: string;
+  title: string;
+  renderedCommand: string;
+  rawPreview: string;
+  args: CommandArg[];
+  argValues: Record<string, string>;
+  prerequisites?: CommandPrerequisite[];
+  adminRequired?: boolean;
+  dangerous?: boolean;
+}
 
 export interface LauncherSearchPanelProps {
   query: string;
@@ -29,8 +41,8 @@ export interface LauncherSearchPanelProps {
   keyboardHints: KeyboardHint[];
   filteredResults: CommandTemplate[];
   activeIndex: number;
-  stagedFeedbackCommandId: string | null;
-  stagedCommandCount: number;
+  queuedFeedbackCommandId: string | null;
+  queuedCommandCount: number;
   flowOpen: boolean; // 导航栈是否处于非搜索页面（CommandPanel 打开）
   reviewOpen: boolean;
   setSearchInputRef: (el: ElementRefArg) => void;
@@ -38,31 +50,19 @@ export interface LauncherSearchPanelProps {
   setResultButtonRef: (el: ElementRefArg, index: number) => void;
 }
 
-export interface LauncherStagingPanelProps {
-  stagingDrawerState: StagingDrawerState;
-  stagingExpanded: boolean;
-  stagedCommands: StagedCommand[];
-  stagingHints: KeyboardHint[];
+export interface LauncherQueueReviewPanelProps {
+  queuePanelState: QueuePanelState;
+  queueOpen: boolean;
+  queuedCommands: QueuedCommand[];
+  queueHints: KeyboardHint[];
   focusZone: FocusZone;
-  stagingActiveIndex: number;
-  executing: boolean;
-  setStagingPanelRef: (el: ElementRefArg) => void;
-  setStagingListRef: (el: ElementRefArg) => void;
-}
-
-export interface LauncherFlowPanelProps {
-  stagingDrawerState: StagingDrawerState;
-  stagingExpanded: boolean;
-  stagedCommands: StagedCommand[];
-  stagingHints: KeyboardHint[];
-  focusZone: FocusZone;
-  stagingActiveIndex: number;
+  queueActiveIndex: number;
   flowOpen: boolean;
   executing: boolean;
   executionFeedbackMessage: string;
   executionFeedbackTone: "neutral" | "success" | "error";
-  setStagingPanelRef: (el: ElementRefArg) => void;
-  setStagingListRef: (el: ElementRefArg) => void;
+  setQueuePanelRef: (el: ElementRefArg) => void;
+  setQueueListRef: (el: ElementRefArg) => void;
 }
 
 export interface LauncherSafetyDialog {
@@ -81,7 +81,7 @@ export interface LauncherCommandPanelProps {
   mode: ParamSubmitMode;
   isDangerous: boolean;
   pendingArgValues: Record<string, string>;
-  stagedCommandCount: number;
+  queuedCommandCount: number;
   executionFeedbackMessage: string;
   executionFeedbackTone: "neutral" | "success" | "error";
 }

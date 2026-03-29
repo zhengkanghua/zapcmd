@@ -31,7 +31,7 @@ describe("useAppLifecycleBridge", () => {
       clearResizeTimer: vi.fn()
     };
     const queue = {
-      clearStagingTransitionTimer: vi.fn()
+      clearQueueTransitionTimer: vi.fn()
     };
     const stagedFeedback = {
       clearStagedFeedbackTimer: vi.fn()

@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -85,7 +85,7 @@ describe("tailwind governance contract", () => {
   it("Launcher 重复 keycap / toast 样式改为共享 primitive", () => {
     const commandPanelSource = readProjectFile("src/components/launcher/parts/LauncherCommandPanel.vue");
     const searchPanelSource = readProjectFile("src/components/launcher/parts/LauncherSearchPanel.vue");
-    const flowPanelSource = readProjectFile("src/components/launcher/parts/LauncherFlowPanel.vue");
+    const flowPanelSource = readProjectFile("src/components/launcher/parts/LauncherQueueReviewPanel.vue");
 
     for (const source of [commandPanelSource, searchPanelSource, flowPanelSource]) {
       expect(source).toContain("ui-glass-toast");
@@ -158,19 +158,12 @@ describe("tailwind governance contract", () => {
 
   it("Launcher 高重复 transition/easing arbitrary 已收口为语义类", () => {
     const searchPanelSource = readProjectFile("src/components/launcher/parts/LauncherSearchPanel.vue");
-    const stagingPanelSource = readProjectFile("src/components/launcher/parts/LauncherStagingPanel.vue");
-    const flowPanelSource = readProjectFile("src/components/launcher/parts/LauncherFlowPanel.vue");
+    const flowPanelSource = readProjectFile("src/components/launcher/parts/LauncherQueueReviewPanel.vue");
     const commandPanelSource = readProjectFile("src/components/launcher/parts/LauncherCommandPanel.vue");
     const queueSummaryPillSource = readProjectFile(
       "src/components/launcher/parts/LauncherQueueSummaryPill.vue"
     );
-    const sources = [
-      searchPanelSource,
-      stagingPanelSource,
-      flowPanelSource,
-      commandPanelSource,
-      queueSummaryPillSource
-    ];
+    const sources = [searchPanelSource, flowPanelSource, commandPanelSource, queueSummaryPillSource];
 
     const requiredClasses = [
       "ease-launcher-emphasized",
@@ -207,6 +200,12 @@ describe("tailwind governance contract", () => {
         expect(source).not.toMatch(pattern);
       }
     }
+  });
+
+  it("Launcher visual-only staging panel 旧路径已清理", () => {
+    expect(existsSync(path.resolve(process.cwd(), "src/components/launcher/parts/LauncherStagingPanel.vue"))).toBe(
+      false
+    );
   });
 
   it("shared primitives 去掉 transition-all，并把 queue summary pill 提升到 44px 命中区", () => {

@@ -12,7 +12,7 @@ import {
 } from "../../../features/security/dangerDismiss";
 import { CommandExecutionError } from "../../../services/commandExecutor";
 import { useCommandExecution } from "../../execution/useCommandExecution";
-import type { FocusZone } from "../../launcher/useStagingQueue";
+import type { FocusZone } from "../../launcher/useCommandQueue";
 
 interface Harness {
   stagedCommands: { value: StagedCommand[] };

@@ -1,8 +1,8 @@
 import { nextTick, ref } from "vue";
-import type { LauncherFlowPanelProps } from "../../types";
+import type { LauncherQueueReviewPanelProps } from "../../types";
 
 interface FlowPanelInlineArgsDeps {
-  props: LauncherFlowPanelProps;
+  props: LauncherQueueReviewPanelProps;
   t: (key: string) => string;
   emitUpdateStagedArg: (id: string, key: string, value: string) => void;
   emitExecuteStaged: () => void;

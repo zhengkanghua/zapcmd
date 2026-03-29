@@ -1,7 +1,7 @@
 import { effectScope, nextTick, ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useLauncherWatchers } from "../../launcher/useLauncherWatchers";
-import type { StagingDrawerState } from "../../launcher/useStagingQueue";
+import type { QueuePanelState } from "../../launcher/useCommandQueue";
 
 async function flushWatchers(): Promise<void> {
   await nextTick();
@@ -13,7 +13,7 @@ function createHarness() {
   const drawerOpen = ref(false);
   const drawerVisibleRows = ref(0);
   const pendingCommand = ref<unknown>(null);
-  const stagingDrawerState = ref<StagingDrawerState>("closed");
+  const stagingDrawerState = ref<QueuePanelState>("closed");
   const filteredResults = ref<unknown[]>([]);
   const resultButtons = ref<Array<HTMLElement | null>>([document.createElement("button")]);
   const activeIndex = ref(2);

@@ -3,8 +3,8 @@ import { shouldDeferGlobalEscape } from "../escapeOwnership";
 import {
   ensureSearchFocusZone,
   handleMainGlobalHotkeys,
+  handleQueueZoneHotkeys,
   handleSearchZoneHotkeys,
-  handleStagingZoneHotkeys
 } from "./main";
 import { handleSettingsWindowKeydown } from "./settings";
 import type { WindowKeydownHandlerOptions } from "./types";
@@ -24,7 +24,7 @@ export function createWindowKeydownHandler<TItem>(
     if (
       handleMainGlobalHotkeys(event, options.main) ||
       (!flowOpen && handleSearchZoneHotkeys(event, options.main)) ||
-      handleStagingZoneHotkeys(event, options.main)
+      handleQueueZoneHotkeys(event, options.main)
     ) {
       return;
     }

@@ -4,8 +4,8 @@ import { nextTick } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { StagedCommand } from "../../../../features/launcher/types";
-import type { KeyboardHint, LauncherFlowPanelProps } from "../../types";
-import LauncherFlowPanel from "../LauncherFlowPanel.vue";
+import type { KeyboardHint, LauncherQueueReviewPanelProps } from "../../types";
+import LauncherFlowPanel from "../LauncherQueueReviewPanel.vue";
 
 class ResizeObserverMock {
   static instances: ResizeObserverMock[] = [];
@@ -62,29 +62,29 @@ function createStagedCommand(overrides: Partial<StagedCommand> = {}): StagedComm
 }
 
 function createProps(
-  overrides: Partial<LauncherFlowPanelProps> = {}
-): LauncherFlowPanelProps {
-  const stagingHints: KeyboardHint[] = [
+  overrides: Record<string, unknown> = {}
+): LauncherQueueReviewPanelProps {
+  const queueHints: KeyboardHint[] = [
     {
       keys: ["Esc"],
       action: "返回"
     }
   ];
   return {
-    stagingDrawerState: "open",
-    stagingExpanded: true,
-    stagedCommands: [createStagedCommand()],
-    stagingHints,
-    focusZone: "staging",
-    stagingActiveIndex: 0,
+    queuePanelState: "open",
+    queueOpen: true,
+    queuedCommands: [createStagedCommand()],
+    queueHints,
+    focusZone: "queue",
+    queueActiveIndex: 0,
     flowOpen: false,
     executing: false,
     executionFeedbackMessage: "",
     executionFeedbackTone: "neutral",
-    setStagingPanelRef: () => {},
-    setStagingListRef: () => {},
+    setQueuePanelRef: () => {},
+    setQueueListRef: () => {},
     ...overrides
-  };
+  } as LauncherQueueReviewPanelProps;
 }
 
 function mockScrollable(
@@ -146,7 +146,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
   });
 
   it("delegates height observation, grip reorder and inline args state out of the main file", () => {
-    const source = readFileSync("src/components/launcher/parts/LauncherFlowPanel.vue", "utf8");
+    const source = readFileSync("src/components/launcher/parts/LauncherQueueReviewPanel.vue", "utf8");
 
     expect(source).toContain("useFlowPanelHeightObservation");
     expect(source).toContain("useFlowPanelGripReorder");
@@ -156,11 +156,20 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     expect(source).not.toContain("const editingParam = ref");
   });
 
+  it("QueueReview public props 使用 QueuedCommand 别名，不再直接暴露 StagedCommand", () => {
+    const typesSource = readFileSync("src/components/launcher/types.ts", "utf8");
+
+    expect(typesSource).toContain("export interface QueuedCommand {");
+    expect(typesSource).toContain("queuedCommands: QueuedCommand[];");
+    expect(typesSource).not.toContain("export type QueuedCommand = StagedCommand;");
+    expect(typesSource).not.toContain("queuedCommands: StagedCommand[];");
+  });
+
   it("keeps settled, grip drag-end and inline arg update emits stable", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       attachTo: document.body,
       props: createProps({
-        stagedCommands: [
+        queuedCommands: [
           createArgCommand(),
           createStagedCommand({ id: "cmd-2", title: "命令 2" })
         ]
@@ -179,7 +188,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     });
     window.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
     await nextTick();
-    expect(wrapper.emitted("staging-drag-end")).toBeTruthy();
+    expect(wrapper.emitted("queue-drag-end")).toBeTruthy();
 
     await wrapper.get(".flow-card__param-value").trigger("click");
     await nextTick();
@@ -187,14 +196,14 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     await input.setValue("8080");
     await input.trigger("keydown.enter");
     await nextTick();
-    expect(wrapper.emitted("update-staged-arg")).toBeTruthy();
+    expect(wrapper.emitted("update-queued-arg")).toBeTruthy();
 
     wrapper.unmount();
   });
 
   it("FlowPanel 采用 header + body + footer 三段式，空态与列表态都挂在 body 内", () => {
     const emptyWrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagedCommands: [] })
+      props: createProps({ queuedCommands: [] })
     });
     expect(emptyWrapper.find(".flow-panel__header").exists()).toBe(true);
     expect(emptyWrapper.find(".flow-panel__body").exists()).toBe(true);
@@ -205,7 +214,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 
     const listWrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
+        queuedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
       })
     });
     expect(listWrapper.find(".flow-panel__header").exists()).toBe(true);
@@ -250,9 +259,9 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     wrapper.unmount();
   });
 
-  it("stagingDrawerState=preparing 时面板已挂载但完全不可见", () => {
+  it("queuePanelState=preparing 时面板已挂载但完全不可见", () => {
     const wrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagingDrawerState: "preparing" })
+      props: createProps({ queuePanelState: "preparing" })
     });
 
     expect(wrapper.find(".flow-panel").exists()).toBe(true);
@@ -261,9 +270,9 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     wrapper.unmount();
   });
 
-  it("stagingDrawerState 从 preparing 进入 reveal 前会先发出 flow-panel-prepared", async () => {
+  it("queuePanelState 从 preparing 进入 reveal 前会先发出 flow-panel-prepared", async () => {
     const wrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagingDrawerState: "preparing" })
+      props: createProps({ queuePanelState: "preparing" })
     });
 
     expect(wrapper.emitted("flow-panel-prepared")).toBeUndefined();
@@ -273,13 +282,13 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     wrapper.unmount();
   });
 
-  it("stagingDrawerState 从 opening -> open 时发出一次 flow-panel-settled", async () => {
+  it("queuePanelState 从 opening -> open 时发出一次 flow-panel-settled", async () => {
     const wrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagingDrawerState: "opening" })
+      props: createProps({ queuePanelState: "opening" })
     });
     expect(wrapper.emitted("flow-panel-settled")).toBeUndefined();
 
-    await wrapper.setProps({ stagingDrawerState: "open" });
+    await wrapper.setProps({ queuePanelState: "open" });
     await nextTick();
 
     expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
@@ -288,7 +297,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 
   it("组件首帧即 open 时，mounted 后补发一次 flow-panel-settled", async () => {
     const wrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagingDrawerState: "open" })
+      props: createProps({ queuePanelState: "open" })
     });
 
     // 首帧 mount 同步阶段不应立即发出，必须在 mounted/nextTick 后补发。
@@ -302,16 +311,16 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 
   it("同一轮 open 生命周期不会重复发出 flow-panel-settled", async () => {
     const wrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagingDrawerState: "opening" })
+      props: createProps({ queuePanelState: "opening" })
     });
 
-    await wrapper.setProps({ stagingDrawerState: "open" });
+    await wrapper.setProps({ queuePanelState: "open" });
     await nextTick();
     expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
 
     await wrapper.setProps({
-      stagingDrawerState: "open",
-      stagingActiveIndex: 1
+      queuePanelState: "open",
+      queueActiveIndex: 1
     });
     await nextTick();
 
@@ -325,7 +334,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
+        queuedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
       })
     });
 
@@ -350,7 +359,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 
   it("body/list 保持单一滚动宿主：空态滚 body，列表态滚 list", async () => {
     const emptyWrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagedCommands: [] })
+      props: createProps({ queuedCommands: [] })
     });
     const emptyScrim = emptyWrapper.get(".flow-panel-overlay__scrim");
     const emptyBody = emptyWrapper.get(".flow-panel__body").element as HTMLElement;
@@ -364,7 +373,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 
     const listWrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
+        queuedCommands: [createStagedCommand(), createStagedCommand({ id: "cmd-2" })]
       })
     });
     const listScrim = listWrapper.get(".flow-panel-overlay__scrim");
@@ -384,7 +393,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
   it("列表态挂载 flow-panel--has-list，空态不挂载该 modifier", () => {
     const listWrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createStagedCommand()]
+        queuedCommands: [createStagedCommand()]
       })
     });
     expect(listWrapper.get(".flow-panel").classes()).toContain("flow-panel--has-list");
@@ -392,7 +401,7 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 
     const emptyWrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: []
+        queuedCommands: []
       })
     });
     expect(emptyWrapper.get(".flow-panel").classes()).not.toContain("flow-panel--has-list");
@@ -403,17 +412,17 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
 describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
   it("open/opening 态的 overlay 不应残留 pointer-events-none，closing 态必须禁交互", async () => {
     const wrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagingDrawerState: "open" })
+      props: createProps({ queuePanelState: "open" })
     });
 
     expect(wrapper.get(".flow-panel-overlay").classes()).toContain("pointer-events-auto");
     expect(wrapper.get(".flow-panel-overlay").classes()).not.toContain("pointer-events-none");
 
-    await wrapper.setProps({ stagingDrawerState: "opening" });
+    await wrapper.setProps({ queuePanelState: "opening" });
     expect(wrapper.get(".flow-panel-overlay").classes()).toContain("pointer-events-auto");
     expect(wrapper.get(".flow-panel-overlay").classes()).not.toContain("pointer-events-none");
 
-    await wrapper.setProps({ stagingDrawerState: "closing" });
+    await wrapper.setProps({ queuePanelState: "closing" });
     expect(wrapper.get(".flow-panel-overlay").classes()).toContain("pointer-events-none");
     wrapper.unmount();
   });
@@ -454,7 +463,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
 
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createStagedCommand({ renderedCommand: longCommand })]
+        queuedCommands: [createStagedCommand({ renderedCommand: longCommand })]
       })
     });
 
@@ -474,7 +483,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
 
   it("队列为空时渲染空态且不自动关闭", async () => {
     const wrapper = mount(LauncherFlowPanel, {
-      props: createProps({ stagedCommands: [] })
+      props: createProps({ queuedCommands: [] })
     });
 
     expect(wrapper.find(".flow-panel-overlay").exists()).toBe(true);
@@ -486,7 +495,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
         flowOpen: true,
-        stagedCommands: [createStagedCommand()]
+        queuedCommands: [createStagedCommand()]
       })
     });
 
@@ -494,7 +503,7 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
     expect(executeButton.attributes("aria-disabled")).toBe("true");
 
     await executeButton.trigger("click");
-    expect(wrapper.emitted("execute-staged")).toBeUndefined();
+    expect(wrapper.emitted("execute-queue")).toBeUndefined();
 
     const feedback = wrapper.emitted("execution-feedback");
     expect(feedback?.length).toBe(1);
@@ -564,7 +573,7 @@ describe("LauncherFlowPanel 紧凑参数标签", () => {
   it("有参数卡片渲染 key: value 紧凑标签", () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createArgCommand()]
+        queuedCommands: [createArgCommand()]
       })
     });
 
@@ -592,7 +601,7 @@ describe("LauncherFlowPanel 紧凑参数标签", () => {
   it("无参数卡片不渲染参数标签区域", () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createStagedCommand({ args: [], argValues: {} })]
+        queuedCommands: [createStagedCommand({ args: [], argValues: {} })]
       })
     });
 
@@ -605,7 +614,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
     for (const keydownEvent of ["keydown.enter", "keydown.space"] as const) {
       const wrapper = mount(LauncherFlowPanel, {
         props: createProps({
-          stagedCommands: [createArgCommand()]
+          queuedCommands: [createArgCommand()]
         })
       });
 
@@ -625,7 +634,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
   it("点击 value 进入编辑态，显示输入框", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createArgCommand()]
+        queuedCommands: [createArgCommand()]
       })
     });
 
@@ -648,7 +657,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
   it("缺少显式值时回退 defaultValue，并把它带进按钮语义与编辑输入", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [
+        queuedCommands: [
           createStagedCommand({
             args: [{ key: "port", label: "端口", token: "{{port}}", defaultValue: "8080" }],
             argValues: {}
@@ -670,7 +679,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
   it("缺少显式值与 defaultValue 时显示占位符，并以空字符串进入编辑", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [
+        queuedCommands: [
           createStagedCommand({
             args: [{ key: "port", label: "端口", token: "{{port}}" }],
             argValues: {}
@@ -689,10 +698,10 @@ describe("LauncherFlowPanel 内联编辑", () => {
     expect((wrapper.get(".flow-card__param-input").element as HTMLInputElement).value).toBe("");
   });
 
-  it("Enter 确认编辑并 emit update-staged-arg", async () => {
+  it("Enter 确认编辑并 emit update-queued-arg", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createArgCommand()]
+        queuedCommands: [createArgCommand()]
       })
     });
 
@@ -710,8 +719,8 @@ describe("LauncherFlowPanel 内联编辑", () => {
     await input.trigger("keydown.enter");
     await nextTick();
 
-    // 应该 emit update-staged-arg
-    const events = wrapper.emitted("update-staged-arg");
+    // 应该 emit update-queued-arg
+    const events = wrapper.emitted("update-queued-arg");
     expect(events).toBeDefined();
     // 至少在确认时 emit 一次，参数为 [cmdId, argKey, value]
     const lastEvent = events![events!.length - 1];
@@ -724,7 +733,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
   it("Esc 取消编辑并恢复原值", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createArgCommand()]
+        queuedCommands: [createArgCommand()]
       })
     });
 
@@ -746,7 +755,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
     expect(wrapper.find(".flow-card__param-input").exists()).toBe(false);
 
     // Esc 时应 emit 恢复原值（cancelParamEdit emit 了 originalValue）
-    const events = wrapper.emitted("update-staged-arg");
+    const events = wrapper.emitted("update-queued-arg");
     expect(events).toBeDefined();
     const lastEvent = events![events!.length - 1];
     expect(lastEvent).toEqual(["cmd-1", "port", "3000"]);
@@ -756,7 +765,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
     const wrapper = mount(LauncherFlowPanel, {
       attachTo: document.body,
       props: createProps({
-        stagedCommands: [createArgCommand()]
+        queuedCommands: [createArgCommand()]
       })
     });
 
@@ -776,7 +785,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
     expect(wrapper.find(".flow-card__param-input").exists()).toBe(false);
 
     // blur 走 commitParamEdit，应 emit 新值
-    const events = wrapper.emitted("update-staged-arg");
+    const events = wrapper.emitted("update-queued-arg");
     expect(events).toBeDefined();
     const lastEvent = events![events!.length - 1];
     expect(lastEvent).toEqual(["cmd-1", "port", "4000"]);
@@ -789,7 +798,7 @@ describe("LauncherFlowPanel 拖拽冲突", () => {
   it("dragstart 时取消正在进行的参数编辑", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        stagedCommands: [createArgCommand()]
+        queuedCommands: [createArgCommand()]
       })
     });
 
@@ -810,7 +819,7 @@ describe("LauncherFlowPanel 拖拽冲突", () => {
     expect(wrapper.find(".flow-card__param-input").exists()).toBe(false);
 
     // 恢复原值的 emit 应存在
-    const events = wrapper.emitted("update-staged-arg");
+    const events = wrapper.emitted("update-queued-arg");
     expect(events).toBeDefined();
     const lastEvent = events![events!.length - 1];
     expect(lastEvent).toEqual(["cmd-1", "port", "3000"]);
@@ -864,7 +873,7 @@ describe("LauncherFlowPanel 抓手重排跟手性", () => {
     const wrapper = mount(LauncherFlowPanel, {
       attachTo: document.body,
       props: createProps({
-        stagedCommands: [
+        queuedCommands: [
           createStagedCommand({ id: "cmd-1", title: "命令 1" }),
           createStagedCommand({ id: "cmd-2", title: "命令 2" })
         ]
@@ -912,7 +921,7 @@ describe("LauncherFlowPanel 抓手重排跟手性", () => {
     );
     await nextTick();
 
-    const dragOverEvents = wrapper.emitted("staging-drag-over");
+    const dragOverEvents = wrapper.emitted("queue-drag-over");
     expect(dragOverEvents).toBeDefined();
     expect(dragOverEvents?.[0]?.[0]).toBe(1);
     expect(elementFromPointSpy).toHaveBeenCalledWith(80, 180);
@@ -926,7 +935,7 @@ describe("LauncherFlowPanel 抓手重排跟手性", () => {
     const wrapper = mount(LauncherFlowPanel, {
       attachTo: document.body,
       props: createProps({
-        stagedCommands: [createStagedCommand({ id: "cmd-1", title: "命令 1" })]
+        queuedCommands: [createStagedCommand({ id: "cmd-1", title: "命令 1" })]
       })
     });
 
@@ -937,7 +946,7 @@ describe("LauncherFlowPanel 抓手重排跟手性", () => {
       clientY: 120
     });
 
-    expect(wrapper.emitted("staging-drag-start")).toHaveLength(1);
+    expect(wrapper.emitted("queue-drag-start")).toHaveLength(1);
 
     const nativeDragStartEvent = new Event("dragstart", {
       bubbles: true,
@@ -947,7 +956,7 @@ describe("LauncherFlowPanel 抓手重排跟手性", () => {
     await nextTick();
 
     expect(nativeDragStartEvent.defaultPrevented).toBe(true);
-    expect(wrapper.emitted("staging-drag-start")).toHaveLength(1);
+    expect(wrapper.emitted("queue-drag-start")).toHaveLength(1);
 
     window.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
     await nextTick();

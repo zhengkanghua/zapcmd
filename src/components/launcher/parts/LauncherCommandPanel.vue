@@ -162,7 +162,7 @@ function onSubmit(): void {
         <button
           type="button"
           class="command-panel__queue-btn border-0 bg-transparent cursor-pointer p-[4px_6px] rounded-[6px] text-ui-subtle opacity-85 transition-launcher-interactive duration-150 hover:opacity-100 hover:text-ui-text hover:bg-ui-text/6 focus-visible:outline-none focus-visible:ring focus-visible:ring-ui-search-hl/18"
-          :aria-label="t('launcher.queueToggleAria', { count: props.stagedCommandCount })"
+          :aria-label="t('launcher.queueToggleAria', { count: props.queuedCommandCount })"
           @click="emit('toggle-queue')"
         >
           <LauncherIcon name="queue" />

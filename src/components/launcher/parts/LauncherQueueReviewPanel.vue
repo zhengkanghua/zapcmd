@@ -2,26 +2,26 @@
 import { ref } from "vue";
 import { useI18nText } from "../../../i18n";
 import UiIconButton from "../../shared/ui/UiIconButton.vue";
-import type { ElementRefArg, LauncherFlowPanelProps } from "../types";
-import { useFlowPanelGripReorder } from "./flowPanel/useFlowPanelGripReorder";
-import { useFlowPanelHeightObservation } from "./flowPanel/useFlowPanelHeightObservation";
-import { useFlowPanelInlineArgs } from "./flowPanel/useFlowPanelInlineArgs";
+import type { ElementRefArg, LauncherQueueReviewPanelProps } from "../types";
+import { useFlowPanelGripReorder } from "./queueReview/useFlowPanelGripReorder";
+import { useFlowPanelHeightObservation } from "./queueReview/useFlowPanelHeightObservation";
+import { useFlowPanelInlineArgs } from "./queueReview/useFlowPanelInlineArgs";
 import LauncherIcon from "./LauncherIcon.vue";
 
-const props = defineProps<LauncherFlowPanelProps>();
+const props = defineProps<LauncherQueueReviewPanelProps>();
 const { t } = useI18nText();
 
 const emit = defineEmits<{
   (e: "toggle-queue"): void;
-  (e: "staging-drag-start", index: number, event: DragEvent): void;
-  (e: "staging-drag-over", index: number, event: DragEvent): void;
-  (e: "staging-drag-end"): void;
+  (e: "queue-drag-start", index: number, event: DragEvent): void;
+  (e: "queue-drag-over", index: number, event: DragEvent): void;
+  (e: "queue-drag-end"): void;
   (e: "grip-reorder-active-change", value: boolean): void;
-  (e: "focus-staging-index", index: number): void;
-  (e: "remove-staged-command", id: string): void;
-  (e: "update-staged-arg", id: string, key: string, value: string): void;
-  (e: "clear-staging"): void;
-  (e: "execute-staged"): void;
+  (e: "focus-queue-index", index: number): void;
+  (e: "remove-queued-command", id: string): void;
+  (e: "update-queued-arg", id: string, key: string, value: string): void;
+  (e: "clear-queue"): void;
+  (e: "execute-queue"): void;
   (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
   (e: "flow-panel-prepared"): void;
   (e: "flow-panel-height-change"): void;
@@ -39,7 +39,7 @@ function closeReview(): void {
 }
 
 function setReviewPanelRef(el: ElementRefArg): void {
-  props.setStagingPanelRef(el);
+  props.setQueuePanelRef(el);
   reviewPanelRef.value = el instanceof HTMLElement ? el : null;
 }
 
@@ -56,14 +56,14 @@ function normalizeToHTMLElement(el: ElementRefArg): HTMLElement | null {
 
 function setReviewListRef(el: ElementRefArg): void {
   const element = normalizeToHTMLElement(el);
-  props.setStagingListRef(element);
+  props.setQueueListRef(element);
   reviewListRef.value = element;
 }
 
 function focusActiveCardOrFallback(): void {
   const list = reviewListRef.value;
   const activeCard = list?.querySelector<HTMLElement>(
-    `[data-staging-index="${props.stagingActiveIndex}"] .staging-card`
+    `[data-staging-index="${props.queueActiveIndex}"] .staging-card`
   );
   if (activeCard) {
     activeCard.focus({ preventScroll: true });
@@ -74,7 +74,7 @@ function focusActiveCardOrFallback(): void {
 }
 
 function resolveReviewScrollContainer(): HTMLElement | null {
-  if (props.stagedCommands.length > 0) {
+  if (props.queuedCommands.length > 0) {
     return reviewListRef.value;
   }
   return reviewBodyRef.value;
@@ -157,8 +157,8 @@ const {
 } = useFlowPanelInlineArgs({
   props,
   t,
-  emitUpdateStagedArg: (id, key, value) => emit("update-staged-arg", id, key, value),
-  emitExecuteStaged: () => emit("execute-staged"),
+  emitUpdateStagedArg: (id, key, value) => emit("update-queued-arg", id, key, value),
+  emitExecuteStaged: () => emit("execute-queue"),
   emitExecutionFeedback: (tone, message) => emit("execution-feedback", tone, message)
 });
 
@@ -175,9 +175,9 @@ const {
   reviewListRef,
   cancelInlineEdit: cancelParamEdit,
   emitGripReorderActiveChange: (value) => emit("grip-reorder-active-change", value),
-  emitStagingDragStart: (index, event) => emit("staging-drag-start", index, event),
-  emitStagingDragOver: (index, event) => emit("staging-drag-over", index, event),
-  emitStagingDragEnd: () => emit("staging-drag-end")
+  emitStagingDragStart: (index, event) => emit("queue-drag-start", index, event),
+  emitStagingDragOver: (index, event) => emit("queue-drag-over", index, event),
+  emitStagingDragEnd: () => emit("queue-drag-end")
 });
 
 useFlowPanelHeightObservation({
@@ -195,14 +195,14 @@ useFlowPanelHeightObservation({
     class="flow-panel-overlay absolute inset-0 flex items-stretch w-full min-w-0 min-h-0 z-[20]"
     data-hit-zone="overlay"
     :class="[
-      `state-${props.stagingDrawerState}`,
-      props.stagingDrawerState === 'closing' ||
-      props.stagingDrawerState === 'closed' ||
-      props.stagingDrawerState === 'preparing' ||
-      props.stagingDrawerState === 'resizing'
+      `state-${props.queuePanelState}`,
+      props.queuePanelState === 'closing' ||
+      props.queuePanelState === 'closed' ||
+      props.queuePanelState === 'preparing' ||
+      props.queuePanelState === 'resizing'
         ? 'pointer-events-none'
         : '',
-      props.stagingDrawerState === 'open' || props.stagingDrawerState === 'opening'
+      props.queuePanelState === 'open' || props.queuePanelState === 'opening'
         ? 'pointer-events-auto'
         : ''
     ]"
@@ -213,13 +213,13 @@ useFlowPanelHeightObservation({
       data-hit-zone="overlay"
       :aria-label="t('common.close')"
       :class="[
-        props.stagingDrawerState === 'preparing' || props.stagingDrawerState === 'resizing'
+        props.queuePanelState === 'preparing' || props.queuePanelState === 'resizing'
           ? 'invisible opacity-0'
           : '',
-        props.stagingDrawerState === 'opening'
+        props.queuePanelState === 'opening'
           ? 'animate-launcher-review-overlay-scrim-in motion-reduce:animate-none'
           : '',
-        props.stagingDrawerState === 'closing'
+        props.queuePanelState === 'closing'
           ? 'pointer-events-none animate-launcher-review-overlay-scrim-out motion-reduce:animate-none'
           : ''
       ]"
@@ -230,35 +230,35 @@ useFlowPanelHeightObservation({
       :ref="setReviewPanelRef"
       class="flow-panel relative z-[1] ml-auto mr-0 w-[min(var(--flow-panel-width,67%),100%)] min-w-[min(420px,100%)] max-w-full h-full min-h-0 overflow-hidden grid grid-rows-launcher-panel border border-ui-text/14 rounded-l-ui rounded-r-none bg-ui-bg from-ui-text/6 via-ui-text/2 bg-launcher-flow-panel-highlight shadow-launcher-side-panel shadow-ui-black/35"
       :class="[
-        { 'flow-panel--has-list': props.stagedCommands.length > 0 },
-        props.stagingDrawerState === 'preparing' || props.stagingDrawerState === 'resizing'
+        { 'flow-panel--has-list': props.queuedCommands.length > 0 },
+        props.queuePanelState === 'preparing' || props.queuePanelState === 'resizing'
           ? 'invisible opacity-0 pointer-events-none'
           : '',
-        props.stagingDrawerState === 'opening'
+        props.queuePanelState === 'opening'
           ? 'animate-launcher-review-overlay-panel-in motion-reduce:animate-none'
           : '',
-        props.stagingDrawerState === 'closing'
+        props.queuePanelState === 'closing'
           ? 'pointer-events-none animate-launcher-review-overlay-panel-out motion-reduce:animate-none'
           : ''
       ]"
       data-hit-zone="overlay"
       role="dialog"
       aria-modal="true"
-      :aria-label="t('launcher.queueTitle', { count: props.stagedCommands.length })"
+      :aria-label="t('launcher.queueTitle', { count: props.queuedCommands.length })"
       @keydown="onReviewPanelKeydown"
     >
       <header class="flow-panel__header flex items-center justify-between gap-[8px] p-[12px_16px] border-b border-b-ui-border" data-tauri-drag-region>
         <div class="flow-panel__title-group flex items-center gap-[8px] min-w-0" data-tauri-drag-region>
           <h2 class="flow-panel__heading text-[14px] font-semibold text-ui-text" data-tauri-drag-region>
-            {{ t('launcher.queueTitle', { count: props.stagedCommands.length }) }}
+            {{ t('launcher.queueTitle', { count: props.queuedCommands.length }) }}
           </h2>
         </div>
         <div class="flow-panel__header-actions flex items-center gap-[4px]">
           <UiIconButton
             variant="danger"
             :ariaLabel="t('common.clear')"
-            :disabled="props.stagedCommands.length === 0"
-            @click="emit('clear-staging')"
+            :disabled="props.queuedCommands.length === 0"
+            @click="emit('clear-queue')"
           >
             <LauncherIcon name="trash" />
           </UiIconButton>
@@ -278,9 +278,9 @@ useFlowPanelHeightObservation({
         ref="reviewBodyRef"
         class="flow-panel__body min-h-0 flex flex-col gap-[12px] p-[12px_16px]"
         :class="{
-          'overflow-hidden': props.stagedCommands.length > 0,
-          'overflow-y-auto': props.stagedCommands.length === 0,
-          'scrollbar-subtle': props.stagedCommands.length === 0
+          'overflow-hidden': props.queuedCommands.length > 0,
+          'overflow-y-auto': props.queuedCommands.length === 0,
+          'scrollbar-subtle': props.queuedCommands.length === 0
         }"
       >
         <p
@@ -298,7 +298,7 @@ useFlowPanelHeightObservation({
         </p>
 
         <div
-          v-if="props.stagedCommands.length === 0"
+          v-if="props.queuedCommands.length === 0"
           class="flow-panel__empty m-0 p-[16px_14px] flex items-center justify-between gap-[12px] border border-dashed border-ui-text/16 rounded-[8px] text-ui-subtle text-[12px]"
         >
           <div class="flow-panel__empty-copy flex items-center gap-[8px]">
@@ -332,7 +332,7 @@ useFlowPanelHeightObservation({
           :class="{ 'flow-panel__list--grip-reordering': gripReorderActive }"
         >
           <li
-            v-for="(cmd, index) in props.stagedCommands"
+            v-for="(cmd, index) in props.queuedCommands"
             :key="cmd.id"
             :data-staging-index="index"
             class="flow-panel__list-item"
@@ -340,19 +340,19 @@ useFlowPanelHeightObservation({
             @dragstart="onDragStartWithEditGuard($event, index)"
             @dragover="onStagingDragOver(index, $event)"
             @dragend="onDragEnd"
-            @click="emit('focus-staging-index', index)"
+            @click="emit('focus-queue-index', index)"
           >
             <article
               class="staging-card flow-panel__card group border border-ui-text/8 rounded-surface bg-ui-black/17 p-[12px_14px] flex items-stretch gap-[10px] min-h-[56px] cursor-default transition-launcher-card duration-motion-press ease-motion-emphasized active:scale-motion-press-active active:cursor-grabbing"
               :class="{
                 'staging-card--active border-ui-brand/52 ring-1 ring-inset ring-ui-brand/20':
-                  props.focusZone === 'staging' && index === props.stagingActiveIndex,
+                  props.focusZone === 'queue' && index === props.queueActiveIndex,
                 'staging-card--dragging opacity-[0.62] scale-[1.02] border-ui-brand/45 shadow-launcher-drag-card shadow-ui-black/28 cursor-grabbing':
                   draggingCommandId === cmd.id,
                 'staging-card--drag-over border-ui-brand/65 ring-1 ring-inset ring-ui-brand/18':
                   dragOverCommandId === cmd.id && draggingCommandId !== cmd.id
               }"
-              :tabindex="index === props.stagingActiveIndex ? 0 : -1"
+              :tabindex="index === props.queueActiveIndex ? 0 : -1"
             >
               <div
                 class="flow-card__grip flex items-center shrink-0 text-ui-dim cursor-grab opacity-50 transition-opacity duration-150 group-hover:opacity-100 active:cursor-grabbing"
@@ -385,7 +385,7 @@ useFlowPanelHeightObservation({
                       size="small"
                       :disabled="props.executing"
                       :title="t('common.remove')"
-                      @click.stop="emit('remove-staged-command', cmd.id)"
+                      @click.stop="emit('remove-queued-command', cmd.id)"
                     >
                       <LauncherIcon name="x" />
                     </UiIconButton>
@@ -439,7 +439,7 @@ useFlowPanelHeightObservation({
         <button
           type="button"
           class="flow-panel__execute-btn w-full p-[10px_0] border-0 rounded-control bg-ui-accent text-ui-accent-text text-[14px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-92 disabled:bg-ui-hover disabled:text-ui-dim disabled:cursor-not-allowed"
-          :disabled="props.stagedCommands.length === 0 || props.executing"
+          :disabled="props.queuedCommands.length === 0 || props.executing"
           :aria-disabled="props.flowOpen ? 'true' : undefined"
           @click="onExecuteStagedClick"
         >

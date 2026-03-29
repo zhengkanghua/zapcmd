@@ -16,22 +16,22 @@ function createHarness() {
 
   const settingsWindow = {};
 
-  const stagingQueue = {
-    focusZone: ref<"search" | "staging">("search"),
-    stagingExpanded: ref(false),
-    openStagingDrawer: vi.fn(),
+  const queue = {
+    focusZone: ref<"search" | "queue">("search"),
+    queueOpen: ref(false),
+    openQueuePanel: vi.fn(),
     switchFocusZone: vi.fn(),
-    toggleStaging: vi.fn(),
-    moveStagedCommand: vi.fn(),
-    stagingActiveIndex: ref(0)
+    toggleQueue: vi.fn(),
+    moveQueuedCommand: vi.fn(),
+    queueActiveIndex: ref(0)
   };
 
   const commandExecution = {
-    executeStaged: vi.fn(async () => {}),
-    clearStaging: vi.fn(),
+    executeQueue: vi.fn(async () => {}),
+    clearQueue: vi.fn(),
     executeResult: vi.fn(),
-    stageResult: vi.fn(),
-    removeStagedCommand: vi.fn(),
+    enqueueResult: vi.fn(),
+    removeQueuedCommand: vi.fn(),
     pendingCommand: ref<unknown>(null),
     safetyDialog: ref<unknown>(null),
     confirmSafetyExecution: vi.fn(async () => {}),
@@ -46,7 +46,7 @@ function createHarness() {
     normalizedNavigateDownHotkey: ref("ArrowDown"),
     normalizedNavigateUpHotkey: ref("ArrowUp"),
     normalizedExecuteSelectedHotkey: ref("Enter"),
-    normalizedStageSelectedHotkey: ref("ArrowRight"),
+    normalizedEnqueueSelectedHotkey: ref("ArrowRight"),
     normalizedReorderUpHotkey: ref("Alt+ArrowUp"),
     normalizedReorderDownHotkey: ref("Alt+ArrowDown"),
     normalizedRemoveQueueItemHotkey: ref("Delete"),
@@ -57,7 +57,7 @@ function createHarness() {
     isSettingsWindow,
     settingsWindow,
     closeSettingsWindow,
-    stagingQueue,
+    queue,
     commandExecution,
     searchInputRef,
     drawerRef,
@@ -65,8 +65,8 @@ function createHarness() {
     filteredResults: ref([{ id: "result-1" }, { id: "result-2" }]),
     activeIndex: ref(0),
     ensureActiveResultVisible: vi.fn(),
-    stagedCommands: ref([{ id: "queue-1" }]),
-    ensureActiveStagingVisible: vi.fn(),
+    queuedCommands: ref([{ id: "queue-1" }]),
+    ensureActiveQueueVisible: vi.fn(),
     handleMainEscape,
     hotkeyBindings,
     isTypingElement
@@ -76,7 +76,7 @@ function createHarness() {
     handler,
     isSettingsWindow,
     settingsWindow,
-    stagingQueue,
+    queue,
     commandExecution,
     closeSettingsWindow,
     handleMainEscape,
@@ -106,14 +106,14 @@ describe("useAppWindowKeydown", () => {
     expect(harness.closeSettingsWindow).toHaveBeenCalledTimes(1);
   });
 
-  it("routes Ctrl+Tab to staging focus switch in main window", () => {
+  it("routes Ctrl+Tab to queue focus switch in main window", () => {
     const harness = createHarness();
     harness.isSettingsWindow.value = false;
 
     harness.handler(new KeyboardEvent("keydown", { key: "Tab", ctrlKey: true }));
 
-    expect(harness.stagingQueue.openStagingDrawer).toHaveBeenCalledTimes(1);
-    expect(harness.stagingQueue.switchFocusZone).toHaveBeenCalledTimes(1);
+    expect(harness.queue.openQueuePanel).toHaveBeenCalledTimes(1);
+    expect(harness.queue.switchFocusZone).toHaveBeenCalledTimes(1);
   });
 
   it("pendingCommand 打开时不触发搜索区 Enter 执行；Escape 仍走 main escape", () => {

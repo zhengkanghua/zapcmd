@@ -975,3 +975,5 @@
 - 已产出实施计划 `plan/2026-03-29-launcher-settings-schema-remediation-implementation-plan.md`：按 Settings 语义、共享 settings scene、Launcher contract/Queue 命名、schema 方案 3、命令管理拆分五个 chunk 推进。
 ## 补充（2026-03-29｜Chunk 3 Task 7 已落地）
 - `launcherVm` 已拆成 search/command/queue/nav/dom/actions，`App.vue -> LauncherWindow.vue` 收口为单 prop；Queue 文案与 `toggle-queue` 关键事件已切换并通过定向测试。剩余：旧路径/`useStagingQueue` 迁移与 review 面板拆分。
+## 补充（2026-03-29｜Chunk 3 Task 8 已落地）
+- 已完成 Queue rename：`useCommandQueue`、`LauncherQueueReviewPanel`、`queueReview` 路径与公共 contract 全切到 queue/enqueue；删除 visual-only `LauncherStagingPanel`。Task 8 定向 13 文件 144 测试通过。

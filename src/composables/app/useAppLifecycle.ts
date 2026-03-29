@@ -25,7 +25,7 @@ interface UseAppLifecycleOptions {
   scheduleSearchInputFocus: (selectText?: boolean) => void;
   syncWindowSize: () => Promise<void>;
   clearResizeTimer: () => void;
-  clearStagingTransitionTimer: () => void;
+  clearQueueTransitionTimer: () => void;
   clearStagedFeedbackTimer: () => void;
   clearExecutionFeedbackTimer: () => void;
   onMainReady?: () => void;
@@ -149,7 +149,7 @@ export function useAppLifecycle(options: UseAppLifecycleOptions): void {
     }
 
     options.clearResizeTimer();
-    options.clearStagingTransitionTimer();
+    options.clearQueueTransitionTimer();
     options.clearStagedFeedbackTimer();
     options.clearExecutionFeedbackTimer();
   });

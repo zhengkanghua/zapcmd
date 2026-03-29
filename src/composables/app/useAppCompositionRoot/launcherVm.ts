@@ -17,7 +17,7 @@ function createSearchVm(
     searchShellStyle: runtime.layoutMetrics.searchShellStyle,
     drawerOpen: runtime.layoutMetrics.drawerOpen,
     drawerViewportHeight: runtime.layoutMetrics.drawerViewportHeight,
-    stagedFeedbackCommandId: context.stagedFeedback.stagedFeedbackCommandId
+    queuedFeedbackCommandId: context.stagedFeedback.stagedFeedbackCommandId
   });
 }
 
@@ -44,11 +44,11 @@ function createQueueVm(
 ) {
   return proxyRefs({
     items: context.stagedCommands,
-    queueOpen: runtime.stagingQueue.stagingExpanded,
-    panelState: runtime.stagingQueue.stagingDrawerState,
+    queueOpen: runtime.stagingQueue.queueOpen,
+    panelState: runtime.stagingQueue.queuePanelState,
     hints: context.hotkeyBindings.stagingHints,
     focusZone: runtime.stagingQueue.focusZone,
-    activeIndex: runtime.stagingQueue.stagingActiveIndex
+    activeIndex: runtime.stagingQueue.queueActiveIndex
   });
 }
 
@@ -87,11 +87,11 @@ function createActionVm(
     onQueryInput: context.search.onQueryInput,
     enqueueResult: runtime.commandExecution.stageResult,
     executeResult: runtime.commandExecution.executeResult,
-    toggleQueue: runtime.stagingQueue.toggleStaging,
-    onQueueDragStart: runtime.stagingQueue.onStagingDragStart,
-    onQueueDragOver: runtime.stagingQueue.onStagingDragOver,
-    onQueueDragEnd: runtime.stagingQueue.onStagingDragEnd,
-    onFocusQueueIndex: runtime.stagingQueue.onFocusStagingIndex,
+    toggleQueue: runtime.stagingQueue.toggleQueue,
+    onQueueDragStart: runtime.stagingQueue.onQueueDragStart,
+    onQueueDragOver: runtime.stagingQueue.onQueueDragOver,
+    onQueueDragEnd: runtime.stagingQueue.onQueueDragEnd,
+    onFocusQueueIndex: runtime.stagingQueue.onFocusQueueIndex,
     removeQueuedCommand: runtime.commandExecution.removeStagedCommand,
     updateQueuedArg: runtime.commandExecution.updateStagedArg,
     clearQueue: runtime.commandExecution.clearStaging,

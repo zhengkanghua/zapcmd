@@ -26,7 +26,7 @@ interface WindowSizingModule {
 }
 
 interface QueueModule {
-  clearStagingTransitionTimer: () => void;
+  clearQueueTransitionTimer: () => void;
 }
 
 interface StagedFeedbackModule {
@@ -75,7 +75,7 @@ export function useAppLifecycleBridge(options: UseAppLifecycleBridgeOptions): vo
     scheduleSearchInputFocus: options.scheduleSearchInputFocus,
     syncWindowSize: options.windowSizing.syncWindowSize,
     clearResizeTimer: options.windowSizing.clearResizeTimer,
-    clearStagingTransitionTimer: options.queue.clearStagingTransitionTimer,
+    clearQueueTransitionTimer: options.queue.clearQueueTransitionTimer,
     clearStagedFeedbackTimer: options.stagedFeedback.clearStagedFeedbackTimer,
     clearExecutionFeedbackTimer: options.execution.clearExecutionFeedbackTimer,
     onMainReady: options.onMainReady,

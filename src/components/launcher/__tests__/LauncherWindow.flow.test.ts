@@ -45,7 +45,7 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
       searchShellStyle: {} as Record<string, string>,
       drawerOpen: false,
       drawerViewportHeight: 0,
-      stagedFeedbackCommandId: null
+      queuedFeedbackCommandId: null
     },
     command: {
       pendingCommand: null,

@@ -1,51 +1,51 @@
 import { ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createDrawerActions } from "../../launcher/useStagingQueue/drawer";
+import { createDrawerActions } from "../../launcher/useCommandQueue/drawer";
 import type {
-  StagedCommandLike,
-  StagingDrawerState,
-  UseStagingQueueOptions
-} from "../../launcher/useStagingQueue/model";
+  QueuedCommandLike,
+  QueuePanelState,
+  UseCommandQueueOptions
+} from "../../launcher/useCommandQueue/model";
 
-interface FakeStagedCommand extends StagedCommandLike {
+interface FakeQueuedCommand extends QueuedCommandLike {
   id: string;
 }
 
 function createDrawerHarness(
-  overrides: Partial<UseStagingQueueOptions<FakeStagedCommand>> = {},
-  initialState: StagingDrawerState = "closed"
+  overrides: Partial<UseCommandQueueOptions<FakeQueuedCommand>> = {},
+  initialState: QueuePanelState = "closed"
 ) {
-  const stagingDrawerState = ref<StagingDrawerState>(initialState);
-  const stagedCommands = ref<FakeStagedCommand[]>([]);
-  const prepareDrawerReveal = vi.fn(async () => {});
+  const queuePanelState = ref<QueuePanelState>(initialState);
+  const queuedCommands = ref<FakeQueuedCommand[]>([]);
+  const preparePanelReveal = vi.fn(async () => {});
   const scheduleSearchInputFocus = vi.fn();
-  const ensureActiveStagingVisible = vi.fn();
-  const onDrawerStateChanged = vi.fn();
+  const ensureActiveQueueVisible = vi.fn();
+  const onPanelStateChanged = vi.fn();
 
-  const options: UseStagingQueueOptions<FakeStagedCommand> = {
-    stagedCommands,
+  const options: UseCommandQueueOptions<FakeQueuedCommand> = {
+    queuedCommands,
     transitionMs: 120,
     scheduleSearchInputFocus,
-    ensureActiveStagingVisible,
-    prepareDrawerReveal,
-    onDrawerStateChanged,
+    ensureActiveQueueVisible,
+    preparePanelReveal,
+    onPanelStateChanged,
     ...overrides
   };
 
   const actions = createDrawerActions({
     options,
-    stagingDrawerState
+    queuePanelState
   });
 
   return {
     actions,
     options,
-    stagingDrawerState,
+    queuePanelState,
     spies: {
-      prepareDrawerReveal,
+      preparePanelReveal,
       scheduleSearchInputFocus,
-      onDrawerStateChanged
+      onPanelStateChanged
     }
   };
 }
@@ -64,7 +64,7 @@ describe("createDrawerActions", () => {
     vi.useFakeTimers();
     let resolveReveal!: () => void;
     const harness = createDrawerHarness({
-      prepareDrawerReveal: vi.fn(
+      preparePanelReveal: vi.fn(
         () =>
           new Promise<void>((resolve) => {
             resolveReveal = resolve;
@@ -72,11 +72,11 @@ describe("createDrawerActions", () => {
       )
     });
 
-    harness.actions.openStagingDrawer();
+    harness.actions.openQueuePanel();
     await flushMicrotasks();
 
-    expect(harness.stagingDrawerState.value).toBe("resizing");
-    expect(harness.spies.onDrawerStateChanged.mock.calls.map(([state]) => state)).toEqual([
+    expect(harness.queuePanelState.value).toBe("resizing");
+    expect(harness.spies.onPanelStateChanged.mock.calls.map(([state]) => state)).toEqual([
       "preparing",
       "resizing"
     ]);
@@ -84,12 +84,12 @@ describe("createDrawerActions", () => {
     resolveReveal();
     await flushMicrotasks();
 
-    expect(harness.stagingDrawerState.value).toBe("opening");
+    expect(harness.queuePanelState.value).toBe("opening");
     vi.advanceTimersByTime(harness.options.transitionMs);
     await flushMicrotasks();
 
-    expect(harness.stagingDrawerState.value).toBe("open");
-    expect(harness.spies.onDrawerStateChanged.mock.calls.map(([state]) => state)).toEqual([
+    expect(harness.queuePanelState.value).toBe("open");
+    expect(harness.spies.onPanelStateChanged.mock.calls.map(([state]) => state)).toEqual([
       "preparing",
       "resizing",
       "opening",
@@ -100,42 +100,42 @@ describe("createDrawerActions", () => {
   it("在 preparing 或 reveal 过程中再次 open 会被忽略", async () => {
     vi.useFakeTimers();
     let resolveReveal!: () => void;
-    const prepareDrawerReveal = vi.fn(
+    const preparePanelReveal = vi.fn(
       () =>
         new Promise<void>((resolve) => {
           resolveReveal = resolve;
         })
     );
-    const harness = createDrawerHarness({ prepareDrawerReveal });
+    const harness = createDrawerHarness({ preparePanelReveal });
 
-    harness.actions.openStagingDrawer();
-    harness.actions.openStagingDrawer();
+    harness.actions.openQueuePanel();
+    harness.actions.openQueuePanel();
     await flushMicrotasks();
 
-    expect(prepareDrawerReveal).toHaveBeenCalledTimes(1);
-    expect(harness.stagingDrawerState.value).toBe("resizing");
+    expect(preparePanelReveal).toHaveBeenCalledTimes(1);
+    expect(harness.queuePanelState.value).toBe("resizing");
 
-    harness.actions.openStagingDrawer();
-    expect(prepareDrawerReveal).toHaveBeenCalledTimes(1);
+    harness.actions.openQueuePanel();
+    expect(preparePanelReveal).toHaveBeenCalledTimes(1);
 
     resolveReveal();
     await flushMicrotasks();
-    expect(harness.stagingDrawerState.value).toBe("opening");
+    expect(harness.queuePanelState.value).toBe("opening");
 
-    harness.actions.openStagingDrawer();
+    harness.actions.openQueuePanel();
     vi.advanceTimersByTime(harness.options.transitionMs);
     await flushMicrotasks();
-    expect(harness.stagingDrawerState.value).toBe("open");
+    expect(harness.queuePanelState.value).toBe("open");
 
-    harness.actions.openStagingDrawer();
-    expect(prepareDrawerReveal).toHaveBeenCalledTimes(1);
+    harness.actions.openQueuePanel();
+    expect(preparePanelReveal).toHaveBeenCalledTimes(1);
   });
 
   it("close 会在 reveal 未完成时取消迟到 reopen，并在动画结束后回到 closed", async () => {
     vi.useFakeTimers();
     let resolveReveal!: () => void;
     const harness = createDrawerHarness({
-      prepareDrawerReveal: vi.fn(
+      preparePanelReveal: vi.fn(
         () =>
           new Promise<void>((resolve) => {
             resolveReveal = resolve;
@@ -143,23 +143,23 @@ describe("createDrawerActions", () => {
       )
     });
 
-    harness.actions.openStagingDrawer();
+    harness.actions.openQueuePanel();
     await flushMicrotasks();
-    expect(harness.stagingDrawerState.value).toBe("resizing");
+    expect(harness.queuePanelState.value).toBe("resizing");
 
-    harness.actions.closeStagingDrawer();
-    expect(harness.stagingDrawerState.value).toBe("closing");
+    harness.actions.closeQueuePanel();
+    expect(harness.queuePanelState.value).toBe("closing");
 
     resolveReveal();
     await flushMicrotasks();
-    expect(harness.stagingDrawerState.value).toBe("closing");
+    expect(harness.queuePanelState.value).toBe("closing");
 
     vi.advanceTimersByTime(harness.options.transitionMs);
     await flushMicrotasks();
 
-    expect(harness.stagingDrawerState.value).toBe("closed");
+    expect(harness.queuePanelState.value).toBe("closed");
     expect(harness.spies.scheduleSearchInputFocus).toHaveBeenCalledWith(false);
-    expect(harness.spies.onDrawerStateChanged.mock.calls.map(([state]) => state)).toContain(
+    expect(harness.spies.onPanelStateChanged.mock.calls.map(([state]) => state)).toContain(
       "closing"
     );
   });
@@ -167,15 +167,15 @@ describe("createDrawerActions", () => {
   it("closed/closing 的 close 与 toggle 分支保持稳定", async () => {
     vi.useFakeTimers();
     const closedHarness = createDrawerHarness({}, "closed");
-    closedHarness.actions.closeStagingDrawer();
-    expect(closedHarness.stagingDrawerState.value).toBe("closed");
+    closedHarness.actions.closeQueuePanel();
+    expect(closedHarness.queuePanelState.value).toBe("closed");
 
     const closingHarness = createDrawerHarness({}, "closing");
-    closingHarness.actions.closeStagingDrawer();
-    expect(closingHarness.stagingDrawerState.value).toBe("closing");
+    closingHarness.actions.closeQueuePanel();
+    expect(closingHarness.queuePanelState.value).toBe("closing");
 
-    closingHarness.actions.toggleStaging();
+    closingHarness.actions.toggleQueue();
     await flushMicrotasks();
-    expect(closingHarness.stagingDrawerState.value).toBe("opening");
+    expect(closingHarness.queuePanelState.value).toBe("opening");
   });
 });

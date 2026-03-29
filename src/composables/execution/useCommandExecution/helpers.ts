@@ -293,7 +293,7 @@ export function appendToStaging(
   options.scheduleSearchInputFocus(true);
   options.triggerStagedFeedback(command.id);
 
-  if (options.focusZone.value === "staging") {
+  if (options.focusZone.value === "queue") {
     options.stagingActiveIndex.value = options.stagedCommands.value.length - 1;
     void nextTick(() => options.ensureActiveStagingVisible());
   }

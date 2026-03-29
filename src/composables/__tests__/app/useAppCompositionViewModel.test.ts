@@ -159,15 +159,15 @@ describe("createAppCompositionViewModel", () => {
         drawerViewportHeight: ref(0)
       },
       stagingQueue: {
-        stagingExpanded: ref(false),
-        stagingDrawerState: ref("closed"),
+        queueOpen: ref(false),
+        queuePanelState: ref("closed"),
         focusZone: ref("search"),
-        stagingActiveIndex: ref(0),
-        toggleStaging: vi.fn(),
-        onStagingDragStart: vi.fn(),
-        onStagingDragOver: vi.fn(),
-        onStagingDragEnd: vi.fn(),
-        onFocusStagingIndex: vi.fn()
+        queueActiveIndex: ref(0),
+        toggleQueue: vi.fn(),
+        onQueueDragStart: vi.fn(),
+        onQueueDragOver: vi.fn(),
+        onQueueDragEnd: vi.fn(),
+        onFocusQueueIndex: vi.fn()
       },
       pendingArgs: ref([]),
       pendingSubmitHint: ref(""),
@@ -254,15 +254,15 @@ describe("createAppCompositionViewModel", () => {
         stagingListMaxHeight: ref("0px")
       },
       stagingQueue: {
-        stagingExpanded: ref(false),
-        stagingDrawerState: ref("closed"),
+        queueOpen: ref(false),
+        queuePanelState: ref("closed"),
         focusZone: ref("search"),
-        stagingActiveIndex: ref(0),
-        toggleStaging: vi.fn(),
-        onStagingDragStart: vi.fn(),
-        onStagingDragOver: vi.fn(),
-        onStagingDragEnd: vi.fn(),
-        onFocusStagingIndex: vi.fn()
+        queueActiveIndex: ref(0),
+        toggleQueue: vi.fn(),
+        onQueueDragStart: vi.fn(),
+        onQueueDragOver: vi.fn(),
+        onQueueDragEnd: vi.fn(),
+        onFocusQueueIndex: vi.fn()
       },
       pendingArgs: ref([]),
       pendingSubmitHint: ref(""),
@@ -338,15 +338,15 @@ describe("createAppCompositionViewModel", () => {
         drawerViewportHeight: ref(0)
       },
       stagingQueue: {
-        stagingExpanded: ref(false),
-        stagingDrawerState: ref("closed"),
+        queueOpen: ref(false),
+        queuePanelState: ref("closed"),
         focusZone: ref("search"),
-        stagingActiveIndex: ref(0),
-        toggleStaging: vi.fn(),
-        onStagingDragStart: vi.fn(),
-        onStagingDragOver: vi.fn(),
-        onStagingDragEnd: vi.fn(),
-        onFocusStagingIndex: vi.fn()
+        queueActiveIndex: ref(0),
+        toggleQueue: vi.fn(),
+        onQueueDragStart: vi.fn(),
+        onQueueDragOver: vi.fn(),
+        onQueueDragEnd: vi.fn(),
+        onFocusQueueIndex: vi.fn()
       },
       pendingArgs: ref([]),
       pendingSubmitHint: ref(""),

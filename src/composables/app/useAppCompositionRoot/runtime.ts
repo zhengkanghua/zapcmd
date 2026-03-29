@@ -18,7 +18,7 @@ import { useLauncherWatcherBindings } from "../../launcher/useLauncherWatcherBin
 import { useLauncherSessionState } from "../../launcher/useLauncherSessionState";
 import { useCommandExecution } from "../../execution/useCommandExecution";
 import { useLauncherNavStack } from "../../launcher/useLauncherNavStack";
-import { useStagingQueue } from "../../launcher/useStagingQueue";
+import { useCommandQueue } from "../../launcher/useCommandQueue";
 import { useWindowSizing } from "../../launcher/useWindowSizing";
 import type { createAppCompositionContext } from "./context";
 import { SETTINGS_STORAGE_KEYS } from "./constants";
@@ -35,21 +35,21 @@ function createLauncherRuntime(context: AppCompositionContext) {
   const prepareDrawerRevealRef = {
     value: async () => {}
   };
-  const stagingQueue = useStagingQueue({
-    stagedCommands: context.stagedCommands,
+  const stagingQueue = useCommandQueue({
+    queuedCommands: context.stagedCommands,
     transitionMs: STAGING_TRANSITION_MS,
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
-    prepareDrawerReveal: () => prepareDrawerRevealRef.value(),
-    ensureActiveStagingVisible: () => {
+    preparePanelReveal: () => prepareDrawerRevealRef.value(),
+    ensureActiveQueueVisible: () => {
       context.ensureActiveStagingVisibleRef.value();
     }
   });
   useLauncherSessionState({
     enabled: computed(() => !context.isSettingsWindow.value),
     stagedCommands: context.stagedCommands,
-    stagingExpanded: stagingQueue.stagingExpanded,
+    stagingExpanded: stagingQueue.queueOpen,
     suspendPersistence: context.stagingGripReorderActive,
-    openStagingDrawer: stagingQueue.openStagingDrawer
+    openStagingDrawer: stagingQueue.openQueuePanel
   });
 
   const navStack = useLauncherNavStack();
@@ -59,8 +59,8 @@ function createLauncherRuntime(context: AppCompositionContext) {
   const commandExecution = useCommandExecution({
     stagedCommands: context.stagedCommands,
     focusZone: stagingQueue.focusZone,
-    stagingActiveIndex: stagingQueue.stagingActiveIndex,
-    openStagingDrawer: stagingQueue.openStagingDrawer,
+    stagingActiveIndex: stagingQueue.queueActiveIndex,
+    openStagingDrawer: stagingQueue.openQueuePanel,
     ensureActiveStagingVisible: () => context.ensureActiveStagingVisibleRef.value(),
     clearSearchQueryAndSelection: context.search.clearSearchQueryAndSelection,
     triggerStagedFeedback: context.stagedFeedback.triggerStagedFeedback,
@@ -83,20 +83,20 @@ function createLauncherRuntime(context: AppCompositionContext) {
     query: context.search.query,
     filteredResults: context.search.filteredResults,
     stagedCommands: context.stagedCommands,
-    stagingExpanded: stagingQueue.stagingExpanded,
+    stagingExpanded: stagingQueue.queueOpen,
     flowOpen
   });
   const visibility = useLauncherVisibility({
     drawerOpen: layoutMetrics.drawerOpen,
     activeIndex: context.search.activeIndex,
-    stagingExpanded: stagingQueue.stagingExpanded,
-    stagingActiveIndex: stagingQueue.stagingActiveIndex,
+    stagingExpanded: stagingQueue.queueOpen,
+    stagingActiveIndex: stagingQueue.queueActiveIndex,
     ensureResultVisible: context.domBridge.ensureResultVisible,
     ensureStagingVisible: context.domBridge.ensureStagingVisible
   });
   context.ensureActiveStagingVisibleRef.value = visibility.ensureActiveStagingVisible;
   context.shouldBlockSearchInputFocusRef.value = () =>
-    stagingQueue.stagingExpanded.value ||
+    stagingQueue.queueOpen.value ||
     commandExecution.executing.value ||
     commandExecution.pendingCommand.value !== null ||
     commandExecution.safetyDialog.value !== null;
@@ -234,7 +234,7 @@ function createWindowSizingOptions(
     requestResizeMainWindowForReveal: context.ports.requestResizeMainWindowForReveal,
     searchShellRef: context.domBridge.searchShellRef,
     stagingPanelRef: context.domBridge.stagingPanelRef,
-    stagingExpanded: launcherRuntime.stagingQueue.stagingExpanded,
+    stagingExpanded: launcherRuntime.stagingQueue.queueOpen,
     pendingCommand: launcherRuntime.commandExecution.pendingCommand,
     commandPanelInheritedHeight: panelHeightSession.commandPanelInheritedHeight,
     commandPanelLockedHeight: panelHeightSession.commandPanelLockedHeight,
@@ -301,7 +301,7 @@ function bindAppRuntime(
     query: context.search.query,
     stagingExpanded: computed(
       () =>
-        launcherRuntime.stagingQueue.stagingExpanded.value ||
+        launcherRuntime.stagingQueue.queueOpen.value ||
         launcherRuntime.commandExecution.safetyDialog.value !== null
     ),
     closeStagingDrawer: () => {
@@ -309,7 +309,7 @@ function bindAppRuntime(
         launcherRuntime.commandExecution.cancelSafetyExecution();
         return;
       }
-      launcherRuntime.stagingQueue.closeStagingDrawer();
+      launcherRuntime.stagingQueue.closeQueuePanel();
     },
     navStackCanGoBack: launcherRuntime.navStack.canGoBack,
     navStackPopPage: launcherRuntime.navStack.popPage
@@ -321,18 +321,31 @@ function bindAppRuntime(
     isSettingsWindow: context.isSettingsWindow,
     settingsWindow: context.settingsWindow,
     closeSettingsWindow: requestCloseSettingsWindow,
-    stagingQueue: launcherRuntime.stagingQueue,
-    commandExecution: launcherRuntime.commandExecution,
+    queue: launcherRuntime.stagingQueue,
+    commandExecution: {
+      executeQueue: launcherRuntime.commandExecution.executeStaged,
+      clearQueue: launcherRuntime.commandExecution.clearStaging,
+      executeResult: launcherRuntime.commandExecution.executeResult,
+      enqueueResult: launcherRuntime.commandExecution.stageResult,
+      removeQueuedCommand: launcherRuntime.commandExecution.removeStagedCommand,
+      pendingCommand: launcherRuntime.commandExecution.pendingCommand,
+      safetyDialog: launcherRuntime.commandExecution.safetyDialog,
+      confirmSafetyExecution: launcherRuntime.commandExecution.confirmSafetyExecution,
+      cancelSafetyExecution: launcherRuntime.commandExecution.cancelSafetyExecution
+    },
     searchInputRef: context.domBridge.searchInputRef,
     drawerRef: context.domBridge.drawerRef,
     drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
     filteredResults: context.search.filteredResults,
     activeIndex: context.search.activeIndex,
     ensureActiveResultVisible: launcherRuntime.visibility.ensureActiveResultVisible,
-    stagedCommands: context.stagedCommands,
-    ensureActiveStagingVisible: launcherRuntime.visibility.ensureActiveStagingVisible,
+    queuedCommands: context.stagedCommands,
+    ensureActiveQueueVisible: launcherRuntime.visibility.ensureActiveStagingVisible,
     handleMainEscape,
-    hotkeyBindings: context.hotkeyBindings,
+    hotkeyBindings: {
+      ...context.hotkeyBindings,
+      normalizedEnqueueSelectedHotkey: context.hotkeyBindings.normalizedStageSelectedHotkey
+    },
     isTypingElement
   });
 
@@ -342,7 +355,7 @@ function bindAppRuntime(
     drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
     drawerVisibleRows: launcherRuntime.layoutMetrics.drawerVisibleRows,
     pendingCommand: launcherRuntime.commandExecution.pendingCommand,
-    stagingDrawerState: launcherRuntime.stagingQueue.stagingDrawerState,
+    stagingDrawerState: launcherRuntime.stagingQueue.queuePanelState,
     filteredResults: context.search.filteredResults,
     resultButtons: context.domBridge.resultButtons,
     activeIndex: context.search.activeIndex,

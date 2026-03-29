@@ -9,7 +9,7 @@ import {
   LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX
 } from "../../../../composables/launcher/useLauncherLayoutMetrics";
 import type { KeyboardHint, LauncherSearchPanelProps } from "../../types";
-import LauncherFlowPanel from "../LauncherFlowPanel.vue";
+import LauncherQueueReviewPanel from "../LauncherQueueReviewPanel.vue";
 import LauncherSearchPanel from "../LauncherSearchPanel.vue";
 
 const DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX =
@@ -48,8 +48,8 @@ function createProps(
     keyboardHints,
     filteredResults: [],
     activeIndex: 0,
-    stagedFeedbackCommandId: null,
-    stagedCommandCount: 0,
+    queuedFeedbackCommandId: null,
+    queuedCommandCount: 0,
     flowOpen: false,
     reviewOpen: false,
     setSearchInputRef: () => {},
@@ -310,10 +310,10 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
 
   it("点击 scrim 关闭后焦点回到搜索输入框（由父层 scheduleSearchInputFocus 等价模拟）", async () => {
     const Harness = defineComponent({
-      components: { LauncherSearchPanel, LauncherFlowPanel },
+      components: { LauncherSearchPanel, LauncherQueueReviewPanel },
       setup() {
         const reviewOpen = ref(true);
-        const stagingDrawerState = ref<"open" | "closed">("open");
+        const queuePanelState = ref<"open" | "closed">("open");
         const searchInput = ref<HTMLInputElement | null>(null);
         const drawerHeight = DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX;
         const setSearchInputRef = (el: unknown) => {
@@ -322,12 +322,12 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
 
         async function onToggleQueue(): Promise<void> {
           reviewOpen.value = false;
-          stagingDrawerState.value = "closed";
+          queuePanelState.value = "closed";
           await nextTick();
           searchInput.value?.focus();
         }
 
-        return { reviewOpen, stagingDrawerState, setSearchInputRef, onToggleQueue, drawerHeight };
+        return { reviewOpen, queuePanelState, setSearchInputRef, onToggleQueue, drawerHeight };
       },
       template: `
         <div>
@@ -341,8 +341,8 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
             :keyboard-hints="[{ keys: ['Esc'], action: '返回' }]"
             :filtered-results="[]"
             :active-index="0"
-            :staged-feedback-command-id="null"
-            :staged-command-count="1"
+            :queued-feedback-command-id="null"
+            :queued-command-count="1"
             :flow-open="false"
             :review-open="reviewOpen"
             :set-search-input-ref="setSearchInputRef"
@@ -351,20 +351,20 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
             @toggle-queue="onToggleQueue"
           />
 
-          <LauncherFlowPanel
+          <LauncherQueueReviewPanel
             v-if="reviewOpen"
-            :staging-drawer-state="stagingDrawerState"
-            :staging-expanded="reviewOpen"
-            :staged-commands="[{ id: 'cmd-1', title: '示例命令', rawPreview: 'echo preview', renderedCommand: 'echo preview', args: [], argValues: {} }]"
-            :staging-hints="[{ keys: ['Esc'], action: '返回' }]"
-            :focus-zone="'staging'"
-            :staging-active-index="0"
+            :queue-panel-state="queuePanelState"
+            :queue-open="reviewOpen"
+            :queued-commands="[{ id: 'cmd-1', title: '示例命令', rawPreview: 'echo preview', renderedCommand: 'echo preview', args: [], argValues: {} }]"
+            :queue-hints="[{ keys: ['Esc'], action: '返回' }]"
+            :focus-zone="'queue'"
+            :queue-active-index="0"
             :flow-open="false"
             :executing="false"
             :execution-feedback-message="''"
             :execution-feedback-tone="'neutral'"
-            :set-staging-panel-ref="() => {}"
-            :set-staging-list-ref="() => {}"
+            :set-queue-panel-ref="() => {}"
+            :set-queue-list-ref="() => {}"
             @toggle-queue="onToggleQueue"
           />
         </div>

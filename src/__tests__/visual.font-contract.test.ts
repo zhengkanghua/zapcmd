@@ -30,6 +30,8 @@ describe("visual font contract", () => {
     expect(visualApp).toContain("visual-regression-root--freeze-motion");
     expect(visualApp).toContain("launcher-motion-surfaces-expressive");
     expect(visualApp).toContain("launcher-motion-surfaces-steady-tool");
+    expect(visualApp).not.toContain("LauncherStagingPanel");
+    expect(visualApp).not.toContain("Staging Panel");
     expect(visualFonts).toContain(".visual-regression-root--freeze-motion");
     expect(visualFonts).toContain("animation: none !important;");
     expect(visualFonts).toContain("transition: none !important;");

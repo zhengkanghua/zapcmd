@@ -44,7 +44,7 @@ function mountPanel(
     mode: "execute" | "stage";
     isDangerous: boolean;
     pendingArgValues: Record<string, string>;
-    stagedCommandCount: number;
+    queuedCommandCount: number;
   }> = {}
 ) {
   const navStack = createNavStackMock();
@@ -54,7 +54,7 @@ function mountPanel(
       mode: "execute",
       isDangerous: false,
       pendingArgValues: {},
-      stagedCommandCount: 0,
+      queuedCommandCount: 0,
       executionFeedbackMessage: "",
       executionFeedbackTone: "neutral",
       ...props
@@ -231,7 +231,7 @@ describe("LauncherCommandPanel", () => {
           mode: "execute",
           isDangerous: false,
           pendingArgValues: {},
-          stagedCommandCount: 0,
+          queuedCommandCount: 0,
           executionFeedbackMessage: "",
           executionFeedbackTone: "neutral"
         },

@@ -11,10 +11,9 @@ import {
   applyMotionPresetState,
   applyThemeState
 } from "./features/themes/appearanceBootstrap";
-import LauncherFlowPanel from "./components/launcher/parts/LauncherFlowPanel.vue";
+import LauncherQueueReviewPanel from "./components/launcher/parts/LauncherQueueReviewPanel.vue";
 import LauncherSafetyOverlay from "./components/launcher/parts/LauncherSafetyOverlay.vue";
 import LauncherSearchPanel from "./components/launcher/parts/LauncherSearchPanel.vue";
-import LauncherStagingPanel from "./components/launcher/parts/LauncherStagingPanel.vue";
 import SettingsAppearanceSection from "./components/settings/parts/SettingsAppearanceSection.vue";
 import SDropdown from "./components/settings/ui/SDropdown.vue";
 import SSegmentNav from "./components/settings/ui/SSegmentNav.vue";
@@ -397,7 +396,7 @@ watch(
             </span>
           </div>
           <p class="text-[12.5px] leading-snug text-ui-subtle">
-            覆盖：toast、search result pressable、flow overlay/panel、staging card、safety dialog。
+            覆盖：toast、search result pressable、queue review overlay/panel、review card、safety dialog。
           </p>
         </div>
 
@@ -413,8 +412,8 @@ watch(
             :keyboard-hints="[{ keys: ['Enter'], action: '执行' }, { keys: ['Tab'], action: '入队' }]"
             :filtered-results="visualSearchResults"
             :active-index="0"
-            staged-feedback-command-id="cmd-sync-logs"
-            :staged-command-count="visualStagedCommands.length"
+            queued-feedback-command-id="cmd-sync-logs"
+            :queued-command-count="visualStagedCommands.length"
             :flow-open="false"
             :review-open="false"
             :set-search-input-ref="noopElementRef"
@@ -423,50 +422,30 @@ watch(
           />
         </section>
 
-        <section class="grid gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_320px]">
-          <div class="grid gap-4 rounded-panel border border-ui-border bg-ui-bg-deep p-4">
-            <h3 class="text-[12px] font-semibold text-ui-text">Flow Overlay + Safety Dialog</h3>
-            <div class="relative h-[420px] overflow-hidden rounded-ui border border-ui-border bg-ui-bg">
-              <LauncherFlowPanel
-                staging-drawer-state="open"
-                :staging-expanded="true"
-                :staged-commands="visualStagedCommands"
-                :staging-hints="[{ keys: ['Ctrl+Enter'], action: '执行全部' }]"
-                focus-zone="staging"
-                :staging-active-index="0"
-                :flow-open="true"
-                :executing="false"
-                execution-feedback-message="Flow 已就绪"
-                execution-feedback-tone="neutral"
-                :set-staging-panel-ref="noopElementRef"
-                :set-staging-list-ref="noopElementRef"
-              />
-            </div>
-
-            <div class="relative h-[320px] overflow-hidden rounded-ui border border-ui-border bg-ui-bg">
-              <LauncherSafetyOverlay
-                :safety-dialog="visualSafetyDialog"
-                :executing="false"
-              />
-            </div>
+        <section class="grid gap-4 rounded-panel border border-ui-border bg-ui-bg-deep p-4">
+          <h3 class="text-[12px] font-semibold text-ui-text">Queue Review + Safety Dialog</h3>
+          <div class="relative h-[420px] overflow-hidden rounded-ui border border-ui-border bg-ui-bg">
+            <LauncherQueueReviewPanel
+              queue-panel-state="open"
+              :queue-open="true"
+              :queued-commands="visualStagedCommands"
+              :queue-hints="[{ keys: ['Ctrl+Enter'], action: '执行全部' }]"
+              focus-zone="queue"
+              :queue-active-index="0"
+              :flow-open="true"
+              :executing="false"
+              execution-feedback-message="Flow 已就绪"
+              execution-feedback-tone="neutral"
+              :set-queue-panel-ref="noopElementRef"
+              :set-queue-list-ref="noopElementRef"
+            />
           </div>
 
-          <div class="grid gap-4 rounded-panel border border-ui-border bg-ui-bg-deep p-4">
-            <h3 class="text-[12px] font-semibold text-ui-text">Staging Panel</h3>
-            <div class="grid grid-cols-[var(--staging-collapsed-width)] grid-rows-launcher-shell">
-              <div class="col-span-full row-start-1 min-h-ui-top-align" aria-hidden="true"></div>
-              <LauncherStagingPanel
-                staging-drawer-state="open"
-                :staging-expanded="true"
-                :staged-commands="visualStagedCommands"
-                :staging-hints="[{ keys: ['Esc'], action: '关闭' }]"
-                focus-zone="staging"
-                :staging-active-index="0"
-                :executing="false"
-                :set-staging-panel-ref="noopElementRef"
-                :set-staging-list-ref="noopElementRef"
-              />
-            </div>
+          <div class="relative h-[320px] overflow-hidden rounded-ui border border-ui-border bg-ui-bg">
+            <LauncherSafetyOverlay
+              :safety-dialog="visualSafetyDialog"
+              :executing="false"
+            />
           </div>
         </section>
       </section>

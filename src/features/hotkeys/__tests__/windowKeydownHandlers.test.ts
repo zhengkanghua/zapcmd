@@ -7,18 +7,18 @@ function makeRef<T>(value: T): { value: T } {
 
 function createHarness() {
   const closeSettingsWindow = vi.fn();
-  const openStagingDrawer = vi.fn();
+  const openQueuePanel = vi.fn();
   const switchFocusZone = vi.fn();
-  const toggleStaging = vi.fn();
-  const executeStaged = vi.fn(async () => {});
-  const clearStaging = vi.fn();
+  const toggleQueue = vi.fn();
+  const executeQueue = vi.fn(async () => {});
+  const clearQueue = vi.fn();
   const ensureActiveResultVisible = vi.fn();
   const executeResult = vi.fn();
-  const stageResult = vi.fn();
+  const enqueueResult = vi.fn();
   const isTypingElement = vi.fn<(target: EventTarget | null) => boolean>(() => false);
-  const moveStagedCommand = vi.fn();
-  const ensureActiveStagingVisible = vi.fn();
-  const removeStagedCommand = vi.fn();
+  const moveQueuedCommand = vi.fn();
+  const ensureActiveQueueVisible = vi.fn();
+  const removeQueuedCommand = vi.fn();
   const confirmSafetyExecution = vi.fn(async () => {});
   const cancelSafetyExecution = vi.fn();
   const handleMainEscape = vi.fn();
@@ -34,28 +34,28 @@ function createHarness() {
       closeSettingsWindow
     },
     main: {
-      focusZone: makeRef<"search" | "staging">("search"),
+      focusZone: makeRef<"search" | "queue">("search"),
       searchInputRef: makeRef<HTMLInputElement | null>(searchInput),
       drawerRef: makeRef<HTMLElement | null>(null),
       commandPanelOpen: makeRef(false),
-      stagingExpanded: makeRef(false),
-      openStagingDrawer,
+      queueOpen: makeRef(false),
+      openQueuePanel,
       switchFocusZone,
-      toggleStaging,
-      executeStaged,
-      clearStaging,
+      toggleQueue,
+      executeQueue,
+      clearQueue,
       drawerOpen: makeRef(true),
       filteredResults: makeRef([{ id: "r1" }, { id: "r2" }]),
       activeIndex: makeRef(0),
       ensureActiveResultVisible,
       executeResult,
-      stageResult,
-      stagedCommands: makeRef([{ id: "q1" }]),
+      enqueueResult,
+      queuedCommands: makeRef([{ id: "q1" }]),
       isTypingElement,
-      moveStagedCommand,
-      stagingActiveIndex: makeRef(0),
-      ensureActiveStagingVisible,
-      removeStagedCommand,
+      moveQueuedCommand,
+      queueActiveIndex: makeRef(0),
+      ensureActiveQueueVisible,
+      removeQueuedCommand,
       confirmSafetyExecution,
       cancelSafetyExecution,
       handleMainEscape,
@@ -67,7 +67,7 @@ function createHarness() {
       normalizedNavigateDownHotkey: makeRef("ArrowDown"),
       normalizedNavigateUpHotkey: makeRef("ArrowUp"),
       normalizedExecuteSelectedHotkey: makeRef("Enter"),
-      normalizedStageSelectedHotkey: makeRef("ArrowRight"),
+      normalizedEnqueueSelectedHotkey: makeRef("ArrowRight"),
       normalizedReorderUpHotkey: makeRef("Alt+ArrowUp"),
       normalizedReorderDownHotkey: makeRef("Alt+ArrowDown"),
       normalizedRemoveQueueItemHotkey: makeRef("Delete"),
@@ -80,17 +80,17 @@ function createHarness() {
     handler: createWindowKeydownHandler(options),
     spies: {
       closeSettingsWindow,
-      openStagingDrawer,
+      openQueuePanel,
       switchFocusZone,
-      toggleStaging,
-      executeStaged,
-      clearStaging,
+      toggleQueue,
+      executeQueue,
+      clearQueue,
       ensureActiveResultVisible,
       executeResult,
-      stageResult,
-      moveStagedCommand,
-      ensureActiveStagingVisible,
-      removeStagedCommand,
+      enqueueResult,
+      moveQueuedCommand,
+      ensureActiveQueueVisible,
+      removeQueuedCommand,
       confirmSafetyExecution,
       cancelSafetyExecution,
       handleMainEscape,
@@ -132,24 +132,24 @@ describe("windowKeydownHandlers", () => {
 
   it("switches focus with Ctrl+Tab in main window", () => {
     const { handler, options, spies } = createHarness();
-    options.main.stagingExpanded.value = false;
+    options.main.queueOpen.value = false;
 
     handler(new KeyboardEvent("keydown", { key: "Tab", ctrlKey: true }));
 
-    expect(spies.openStagingDrawer).toHaveBeenCalledTimes(1);
+    expect(spies.openQueuePanel).toHaveBeenCalledTimes(1);
     expect(spies.switchFocusZone).toHaveBeenCalledTimes(1);
   });
 
   it("does not toggle staging on Tab when Review is open and toggleQueue=Tab", () => {
     const { handler, options, spies } = createHarness();
-    options.main.stagingExpanded.value = true;
+    options.main.queueOpen.value = true;
     options.main.normalizedToggleQueueHotkey.value = "Tab";
     const event = new KeyboardEvent("keydown", { key: "Tab", cancelable: true });
 
     handler(event);
 
     expect(event.defaultPrevented).toBe(false);
-    expect(spies.toggleStaging).not.toHaveBeenCalled();
+    expect(spies.toggleQueue).not.toHaveBeenCalled();
   });
 
   it("moves active search result with ArrowDown", () => {
@@ -165,14 +165,14 @@ describe("windowKeydownHandlers", () => {
 
   it("removes staging item with remove hotkey", () => {
     const { handler, options, spies } = createHarness();
-    options.main.focusZone.value = "staging";
-    options.main.stagingExpanded.value = true;
-    options.main.stagedCommands.value = [{ id: "q-1" }];
-    options.main.stagingActiveIndex.value = 0;
+    options.main.focusZone.value = "queue";
+    options.main.queueOpen.value = true;
+    options.main.queuedCommands.value = [{ id: "q-1" }];
+    options.main.queueActiveIndex.value = 0;
 
     handler(new KeyboardEvent("keydown", { key: "Delete" }));
 
-    expect(spies.removeStagedCommand).toHaveBeenCalledWith("q-1");
+    expect(spies.removeQueuedCommand).toHaveBeenCalledWith("q-1");
   });
 
   it("handles Escape in main window with preventDefault", () => {
@@ -252,7 +252,7 @@ describe("windowKeydownHandlers", () => {
     expect(event.defaultPrevented).toBe(true);
     expect(spies.confirmSafetyExecution).not.toHaveBeenCalled();
     expect(spies.cancelSafetyExecution).not.toHaveBeenCalled();
-    expect(spies.executeStaged).toHaveBeenCalledTimes(1);
+    expect(spies.executeQueue).toHaveBeenCalledTimes(1);
   });
 
   it("keeps toggle queue hotkey available when param flow is open", () => {
@@ -262,7 +262,7 @@ describe("windowKeydownHandlers", () => {
 
     handler(new KeyboardEvent("keydown", { key: "q", ctrlKey: true, cancelable: true }));
 
-    expect(spies.toggleStaging).toHaveBeenCalledTimes(1);
+    expect(spies.toggleQueue).toHaveBeenCalledTimes(1);
   });
 
   it("keeps toggle queue hotkey available when safety flow is open", () => {
@@ -272,6 +272,6 @@ describe("windowKeydownHandlers", () => {
 
     handler(new KeyboardEvent("keydown", { key: "q", ctrlKey: true, cancelable: true }));
 
-    expect(spies.toggleStaging).toHaveBeenCalledTimes(1);
+    expect(spies.toggleQueue).toHaveBeenCalledTimes(1);
   });
 });

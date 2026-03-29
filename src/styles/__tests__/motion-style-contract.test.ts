@@ -8,8 +8,7 @@ const tailwindConfigPath = path.resolve(process.cwd(), "tailwind.config.cjs");
 const launcherWindowPath = path.resolve(process.cwd(), "src/components/launcher/LauncherWindow.vue");
 const commandPanelPath = path.resolve(process.cwd(), "src/components/launcher/parts/LauncherCommandPanel.vue");
 const searchPanelPath = path.resolve(process.cwd(), "src/components/launcher/parts/LauncherSearchPanel.vue");
-const flowPanelPath = path.resolve(process.cwd(), "src/components/launcher/parts/LauncherFlowPanel.vue");
-const stagingPanelPath = path.resolve(process.cwd(), "src/components/launcher/parts/LauncherStagingPanel.vue");
+const flowPanelPath = path.resolve(process.cwd(), "src/components/launcher/parts/LauncherQueueReviewPanel.vue");
 const safetyOverlayPath = path.resolve(process.cwd(), "src/components/launcher/parts/LauncherSafetyOverlay.vue");
 
 describe("motion style contract", () => {
@@ -20,7 +19,6 @@ describe("motion style contract", () => {
     const commandPanelSource = readFileSync(commandPanelPath, "utf8");
     const searchPanelSource = readFileSync(searchPanelPath, "utf8");
     const flowPanelSource = readFileSync(flowPanelPath, "utf8");
-    const stagingPanelSource = readFileSync(stagingPanelPath, "utf8");
     const safetyOverlaySource = readFileSync(safetyOverlayPath, "utf8");
 
     expect(motionCss).toContain('[data-motion-preset="expressive"]');
@@ -37,7 +35,6 @@ describe("motion style contract", () => {
     expect(commandPanelSource).toContain("animate-launcher-toast-slide-down");
     expect(searchPanelSource).toContain("animate-launcher-toast-slide-down");
     expect(flowPanelSource).toContain("animate-launcher-review-overlay-panel-in");
-    expect(stagingPanelSource).toContain("animate-launcher-staging-panel-enter");
     expect(safetyOverlaySource).toContain("animate-launcher-dialog-scale-in");
   });
 });

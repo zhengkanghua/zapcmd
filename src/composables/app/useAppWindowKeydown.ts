@@ -3,22 +3,22 @@ import { createWindowKeydownHandler } from "../../features/hotkeys/windowKeydown
 
 type SettingsWindowLike = object;
 
-interface StagingQueueLike {
-  focusZone: Ref<"search" | "staging">;
-  stagingExpanded: Ref<boolean>;
-  openStagingDrawer: () => void;
+interface CommandQueueLike {
+  focusZone: Ref<"search" | "queue">;
+  queueOpen: Ref<boolean>;
+  openQueuePanel: () => void;
   switchFocusZone: () => void;
-  toggleStaging: () => void;
-  moveStagedCommand: (fromIndex: number, toIndex: number) => void;
-  stagingActiveIndex: Ref<number>;
+  toggleQueue: () => void;
+  moveQueuedCommand: (fromIndex: number, toIndex: number) => void;
+  queueActiveIndex: Ref<number>;
 }
 
 interface CommandExecutionLike<TItem> {
-  executeStaged: () => Promise<void>;
-  clearStaging: () => void;
+  executeQueue: () => Promise<void>;
+  clearQueue: () => void;
   executeResult: (item: TItem) => void;
-  stageResult: (item: TItem) => void;
-  removeStagedCommand: (id: string) => void;
+  enqueueResult: (item: TItem) => void;
+  removeQueuedCommand: (id: string) => void;
   pendingCommand: Ref<unknown>;
   safetyDialog: Ref<unknown>;
   confirmSafetyExecution: () => Promise<void>;
@@ -33,7 +33,7 @@ interface HotkeyBindingsLike {
   normalizedNavigateDownHotkey: Ref<string>;
   normalizedNavigateUpHotkey: Ref<string>;
   normalizedExecuteSelectedHotkey: Ref<string>;
-  normalizedStageSelectedHotkey: Ref<string>;
+  normalizedEnqueueSelectedHotkey: Ref<string>;
   normalizedReorderUpHotkey: Ref<string>;
   normalizedReorderDownHotkey: Ref<string>;
   normalizedRemoveQueueItemHotkey: Ref<string>;
@@ -44,7 +44,7 @@ interface UseAppWindowKeydownOptions<TItem> {
   isSettingsWindow: Ref<boolean>;
   settingsWindow: SettingsWindowLike;
   closeSettingsWindow: () => void;
-  stagingQueue: StagingQueueLike;
+  queue: CommandQueueLike;
   commandExecution: CommandExecutionLike<TItem>;
   searchInputRef: Ref<HTMLInputElement | null>;
   drawerRef: Ref<HTMLElement | null>;
@@ -52,8 +52,8 @@ interface UseAppWindowKeydownOptions<TItem> {
   filteredResults: Ref<TItem[]>;
   activeIndex: Ref<number>;
   ensureActiveResultVisible: () => void;
-  stagedCommands: Ref<Array<{ id: string }>>;
-  ensureActiveStagingVisible: () => void;
+  queuedCommands: Ref<Array<{ id: string }>>;
+  ensureActiveQueueVisible: () => void;
   handleMainEscape: () => void;
   hotkeyBindings: HotkeyBindingsLike;
   isTypingElement: (target: EventTarget | null) => boolean;
@@ -72,27 +72,27 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
       closeSettingsWindow: options.closeSettingsWindow
     },
     main: {
-      focusZone: options.stagingQueue.focusZone,
+      focusZone: options.queue.focusZone,
       searchInputRef: options.searchInputRef,
       drawerRef: options.drawerRef,
-      stagingExpanded: options.stagingQueue.stagingExpanded,
-      openStagingDrawer: options.stagingQueue.openStagingDrawer,
-      switchFocusZone: options.stagingQueue.switchFocusZone,
-      toggleStaging: options.stagingQueue.toggleStaging,
-      executeStaged: options.commandExecution.executeStaged,
-      clearStaging: options.commandExecution.clearStaging,
+      queueOpen: options.queue.queueOpen,
+      openQueuePanel: options.queue.openQueuePanel,
+      switchFocusZone: options.queue.switchFocusZone,
+      toggleQueue: options.queue.toggleQueue,
+      executeQueue: options.commandExecution.executeQueue,
+      clearQueue: options.commandExecution.clearQueue,
       drawerOpen: options.drawerOpen,
       filteredResults: options.filteredResults,
       activeIndex: options.activeIndex,
       ensureActiveResultVisible: options.ensureActiveResultVisible,
       executeResult: options.commandExecution.executeResult,
-      stageResult: options.commandExecution.stageResult,
-      stagedCommands: options.stagedCommands,
+      enqueueResult: options.commandExecution.enqueueResult,
+      queuedCommands: options.queuedCommands,
       isTypingElement: options.isTypingElement,
-      moveStagedCommand: options.stagingQueue.moveStagedCommand,
-      stagingActiveIndex: options.stagingQueue.stagingActiveIndex,
-      ensureActiveStagingVisible: options.ensureActiveStagingVisible,
-      removeStagedCommand: options.commandExecution.removeStagedCommand,
+      moveQueuedCommand: options.queue.moveQueuedCommand,
+      queueActiveIndex: options.queue.queueActiveIndex,
+      ensureActiveQueueVisible: options.ensureActiveQueueVisible,
+      removeQueuedCommand: options.commandExecution.removeQueuedCommand,
       commandPanelOpen,
       confirmSafetyExecution: options.commandExecution.confirmSafetyExecution,
       cancelSafetyExecution: options.commandExecution.cancelSafetyExecution,
@@ -107,7 +107,7 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
       normalizedNavigateDownHotkey: options.hotkeyBindings.normalizedNavigateDownHotkey,
       normalizedNavigateUpHotkey: options.hotkeyBindings.normalizedNavigateUpHotkey,
       normalizedExecuteSelectedHotkey: options.hotkeyBindings.normalizedExecuteSelectedHotkey,
-      normalizedStageSelectedHotkey: options.hotkeyBindings.normalizedStageSelectedHotkey,
+      normalizedEnqueueSelectedHotkey: options.hotkeyBindings.normalizedEnqueueSelectedHotkey,
       normalizedReorderUpHotkey: options.hotkeyBindings.normalizedReorderUpHotkey,
       normalizedReorderDownHotkey: options.hotkeyBindings.normalizedReorderDownHotkey,
       normalizedRemoveQueueItemHotkey: options.hotkeyBindings.normalizedRemoveQueueItemHotkey,

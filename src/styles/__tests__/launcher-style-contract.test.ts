@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -15,7 +15,7 @@ const commandPanelSource = readFileSync(
   "utf8"
 );
 const flowPanelSource = readFileSync(
-  path.resolve(process.cwd(), "src/components/launcher/parts/LauncherFlowPanel.vue"),
+  path.resolve(process.cwd(), "src/components/launcher/parts/LauncherQueueReviewPanel.vue"),
   "utf8"
 );
 const searchPanelSource = readFileSync(
@@ -24,10 +24,6 @@ const searchPanelSource = readFileSync(
 );
 const safetyOverlaySource = readFileSync(
   path.resolve(process.cwd(), "src/components/launcher/parts/LauncherSafetyOverlay.vue"),
-  "utf8"
-);
-const stagingPanelSource = readFileSync(
-  path.resolve(process.cwd(), "src/components/launcher/parts/LauncherStagingPanel.vue"),
   "utf8"
 );
 const queueSummaryPillSource = readFileSync(
@@ -64,9 +60,14 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
 
   it("Launcher 主滚动容器挂载 subtle scrollbar utility", () => {
     expectClassContract(commandPanelSource, "command-panel__content", "scrollbar-subtle");
-    expect(flowPanelSource).toMatch(/'scrollbar-subtle': props\.stagedCommands\.length === 0/);
+    expect(flowPanelSource).toMatch(/'scrollbar-subtle': props\.queuedCommands\.length === 0/);
     expectClassContract(flowPanelSource, "flow-panel__list", "scrollbar-subtle");
-    expectClassContract(stagingPanelSource, "staging-list", "scrollbar-subtle");
+  });
+
+  it("visual-only staging panel 旧组件已删除", () => {
+    expect(existsSync(path.resolve(process.cwd(), "src/components/launcher/parts/LauncherStagingPanel.vue"))).toBe(
+      false
+    );
   });
 
   it("44px 的队列按钮命中面不能抬高搜索胶囊基线", () => {
@@ -88,7 +89,6 @@ function expectClassContract(source: string, baseClass: string, requiredClass: s
       commandPanelSource,
       searchPanelSource,
       flowPanelSource,
-      stagingPanelSource,
       queueSummaryPillSource,
       buttonPrimitivesSource
     ];
