@@ -147,6 +147,19 @@ describe("SettingsWindow stable shell", () => {
     expect(wrapper.text()).not.toContain("hotkeys");
   });
 
+  it("renders the active section as a labelled tabpanel with localized aria labels", () => {
+    const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "hotkeys" }));
+    const panel = wrapper.find("[role='tabpanel']");
+    const tabList = wrapper.get("nav[role='tablist']");
+    const content = wrapper.get(".settings-content");
+
+    expect(panel.exists()).toBe(true);
+    expect(panel.attributes("id")).toBe("settings-panel-hotkeys");
+    expect(panel.attributes("aria-labelledby")).toBe("settings-tab-hotkeys");
+    expect(tabList.attributes("aria-label")).toBe("设置分区");
+    expect(content.attributes("aria-label")).toBe("设置内容");
+  });
+
   it("keeps topbar outside the single application-level content container", () => {
     const wrapper = mountSettingsWindow(createSettingsWindowProps({ settingsRoute: "general" }));
 

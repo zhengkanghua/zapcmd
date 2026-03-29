@@ -142,4 +142,58 @@ describe("SettingsCommandsSection layout", () => {
       vi.useRealTimers();
     }
   });
+
+  it("enforces heading-led aria contracts for the commands section", () => {
+    const wrapper = mount(SettingsCommandsSection, {
+      props: {
+        commandRows: [],
+        commandSummary: {
+          total: 0,
+          enabled: 0,
+          disabled: 0,
+          userDefined: 0,
+          overridden: 0
+        },
+        commandLoadIssues: [],
+        commandFilteredCount: 0,
+        commandView: {
+          query: "",
+          sourceFilter: "all",
+          statusFilter: "all",
+          categoryFilter: "all",
+          overrideFilter: "all",
+          issueFilter: "all",
+          fileFilter: "all",
+          sortBy: "default",
+          displayMode: "list"
+        },
+        commandSourceOptions: [{ value: "all", label: "全部来源" }],
+        commandStatusOptions: [{ value: "all", label: "全部状态" }],
+        commandCategoryOptions: [{ value: "all", label: "全部分类" }],
+        commandOverrideOptions: [{ value: "all", label: "全部冲突状态" }],
+        commandIssueOptions: [{ value: "all", label: "全部问题" }],
+        commandSortOptions: [{ value: "default", label: "默认" }],
+        commandDisplayModeOptions: [{ value: "list", label: "列表" }],
+        commandSourceFileOptions: [],
+        commandGroups: []
+      }
+    });
+
+    const commandsSection = wrapper.get("section.settings-commands");
+    const commandsRegionLabelId = commandsSection.attributes("aria-labelledby");
+    expect(commandsRegionLabelId).toBeTruthy();
+    const commandsHeading = wrapper.get(`#${commandsRegionLabelId}`);
+    expect(commandsHeading.element.tagName).toBe("H2");
+    expect(commandsHeading.text()).toContain("命令管理");
+
+    const toolbar = wrapper.get(".settings-commands-toolbar");
+    const toolbarLabelId = toolbar.attributes("aria-labelledby");
+    expect(toolbarLabelId).toBeTruthy();
+    const toolbarHeading = wrapper.get(`#${toolbarLabelId}`);
+    expect(toolbarHeading.element.tagName).toBe("H3");
+    expect(toolbarHeading.text()).toContain("命令筛选与操作");
+
+    expect(wrapper.find("[aria-label='command-management']").exists()).toBe(false);
+    expect(wrapper.find("[aria-label='command-management-toolbar']").exists()).toBe(false);
+  });
 });

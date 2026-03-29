@@ -57,6 +57,49 @@ describe("SSegmentNav", () => {
     expect(wrapper.emitted("update:modelValue")).toEqual([["general"]]);
   });
 
+  it("associates tabs with their panels and keeps focus in sync", async () => {
+    const itemsWithPanel: Array<{
+      id: string;
+      label: string;
+      icon: SettingsNavIconName;
+      panelId: string;
+    }> = [
+      { id: "hotkeys", label: "快捷键", icon: "hotkeys", panelId: "settings-panel-hotkeys" },
+      { id: "general", label: "通用", icon: "general", panelId: "settings-panel-general" }
+    ];
+
+    const attachPoint = document.createElement("div");
+    document.body.appendChild(attachPoint);
+
+    let wrapper: ReturnType<typeof mount> | null = null;
+    const handleModelUpdate = (value: string) => {
+      wrapper?.setProps({ modelValue: value });
+    };
+
+    wrapper = mount(SSegmentNav, {
+      props: { items: itemsWithPanel, modelValue: "hotkeys", "onUpdate:modelValue": handleModelUpdate },
+      attachTo: attachPoint
+    });
+
+    try {
+      const tabs = wrapper.findAll("[role='tab']");
+      expect(tabs[0].attributes("id")).toBe("settings-tab-hotkeys");
+      expect(tabs[0].attributes("aria-controls")).toBe("settings-panel-hotkeys");
+
+      const firstTabButton = tabs[0].element as HTMLButtonElement;
+      firstTabButton.focus();
+      await tabs[0].trigger("keydown", { key: "ArrowRight" });
+
+      expect(document.activeElement).toBe(tabs[1].element);
+      expect(tabs[1].attributes("aria-selected")).toBe("true");
+      expect(tabs[1].attributes("tabindex")).toBe("0");
+      expect(tabs[0].attributes("tabindex")).toBe("-1");
+    } finally {
+      wrapper?.unmount();
+      attachPoint.remove();
+    }
+  });
+
   it("keeps tablist semantics without relying on a shell wrapper", () => {
     const wrapper = mount(SSegmentNav, {
       props: { items, modelValue: "hotkeys" }
