@@ -253,7 +253,7 @@ useFlowPanelHeightObservation({
           </UiIconButton>
           <UiIconButton
             ref="closeButtonRef"
-            class="flow-panel__close min-w-[36px] min-h-[36px]"
+            class="flow-panel__close min-w-[44px] min-h-[44px]"
             :ariaLabel="t('common.close')"
             variant="muted"
             @click="closeReview"
@@ -392,13 +392,17 @@ useFlowPanelHeightObservation({
                     <span class="flow-card__param-key text-ui-subtle shrink-0">
                       {{ arg.label }}:
                     </span>
-                    <span
+                    <button
                       v-if="editingParam?.cmdId !== cmd.id || editingParam?.argKey !== arg.key"
-                      class="flow-card__param-value text-ui-accent cursor-pointer p-[2px_8px] bg-ui-brand/12 border border-ui-brand/20 rounded-[4px] transition-launcher-surface duration-120 hover:bg-ui-brand/20 hover:border-ui-brand/35 font-mono"
+                      type="button"
+                      class="flow-card__param-value inline-flex min-w-0 items-center text-left text-ui-accent cursor-pointer p-[2px_8px] bg-ui-brand/12 border border-ui-brand/20 rounded-[4px] transition-launcher-surface duration-120 hover:bg-ui-brand/20 hover:border-ui-brand/35 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24 font-mono"
+                      :aria-label="`${arg.label}: ${cmd.argValues[arg.key] || arg.defaultValue || '...'}`"
                       @click.stop="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
+                      @keydown.enter.stop.prevent="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
+                      @keydown.space.stop.prevent="startParamEdit(cmd.id, arg.key, cmd.argValues[arg.key] || arg.defaultValue || '')"
                     >
                       {{ cmd.argValues[arg.key] || arg.defaultValue || '...' }}
-                    </span>
+                    </button>
                     <input
                       v-else
                       class="flow-card__param-input bg-ui-text/8 border border-ui-accent rounded-[4px] text-ui-accent text-[12px] font-mono p-[2px_8px] outline-none w-auto min-w-[60px]"

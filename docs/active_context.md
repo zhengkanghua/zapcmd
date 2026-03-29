@@ -1,5 +1,17 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-29｜UI 审查遗留项计划）
+
+- 已落盘非性能遗留项修复计划：Launcher queue pill / Flow close 的 36px 命中区，以及 Flow 参数值编辑缺少按钮语义；见 `docs/plan/2026-03-29_02-ui-audit-non-performance-remediation-plan.md`。
+
+## 补充（2026-03-29｜UI 非性能遗留项收口）
+
+- 已将 LauncherQueueSummaryPill 与 Flow close 命中区提升到 44px；Flow 参数值入口改为 button 语义并支持 Enter/Space 进入编辑；focused tests、coverage 与 `npm run check:all` 全绿。
+
+## 补充（2026-03-29｜UI 性能收口）
+
+- 已完成 Launcher 搜索抽屉分批渲染（首屏 60 条，滚动/键盘增量扩容），并收口搜索高亮、命令管理归一化开销；focused tests、coverage、build 与 `npm run check:all` 全绿。
+
 ## 补充（2026-03-29｜visual bridge + linux baseline）
 
 - 已修 WSL visual cleanup 的 PowerShell 传参与 Windows system probe 超时，manifest `fontScope` 统一为 `visual-harness-controlled`；Linux baselines 已按当前受控字体口径刷新，`test:visual:ui:linux` 通过，WSL compare 继续保留 mismatch 供诊断。

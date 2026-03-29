@@ -228,14 +228,14 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     wrapper.unmount();
   });
 
-  it("keeps review header icon actions at a 36px hit target floor", () => {
+  it("keeps the review close button at a 44px hit target floor", () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps()
     });
 
     const closeButton = wrapper.get(".flow-panel__close");
-    expect(closeButton.classes()).toContain("min-w-[36px]");
-    expect(closeButton.classes()).toContain("min-h-[36px]");
+    expect(closeButton.classes()).toContain("min-w-[44px]");
+    expect(closeButton.classes()).toContain("min-h-[44px]");
     wrapper.unmount();
   });
 
@@ -567,6 +567,27 @@ describe("LauncherFlowPanel 紧凑参数标签", () => {
 });
 
 describe("LauncherFlowPanel 内联编辑", () => {
+  it("参数值入口使用 button 语义，并提供 Enter / Space 键盘入口", async () => {
+    for (const keydownEvent of ["keydown.enter", "keydown.space"] as const) {
+      const wrapper = mount(LauncherFlowPanel, {
+        props: createProps({
+          stagedCommands: [createArgCommand()]
+        })
+      });
+
+      const valueButton = wrapper.get(".flow-card__param-value");
+      expect(valueButton.element.tagName).toBe("BUTTON");
+      expect(valueButton.attributes("type")).toBe("button");
+      expect(valueButton.attributes("aria-label")).toContain("端口");
+
+      await valueButton.trigger(keydownEvent);
+      await nextTick();
+
+      expect(wrapper.find(".flow-card__param-input").exists()).toBe(true);
+      wrapper.unmount();
+    }
+  });
+
   it("点击 value 进入编辑态，显示输入框", async () => {
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
@@ -577,6 +598,7 @@ describe("LauncherFlowPanel 内联编辑", () => {
     // 初始状态：显示值标签，无输入框
     expect(wrapper.find(".flow-card__param-input").exists()).toBe(false);
     const valueSpan = wrapper.get(".flow-card__param-value");
+    expect(valueSpan.element.tagName).toBe("BUTTON");
     expect(valueSpan.text()).toBe("3000");
 
     // 点击值标签
@@ -587,6 +609,50 @@ describe("LauncherFlowPanel 内联编辑", () => {
     const input = wrapper.find(".flow-card__param-input");
     expect(input.exists()).toBe(true);
     expect((input.element as HTMLInputElement).value).toBe("3000");
+  });
+
+  it("缺少显式值时回退 defaultValue，并把它带进按钮语义与编辑输入", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        stagedCommands: [
+          createStagedCommand({
+            args: [{ key: "port", label: "端口", token: "{{port}}", defaultValue: "8080" }],
+            argValues: {}
+          })
+        ]
+      })
+    });
+
+    const valueButton = wrapper.get(".flow-card__param-value");
+    expect(valueButton.text()).toBe("8080");
+    expect(valueButton.attributes("aria-label")).toContain("8080");
+
+    await valueButton.trigger("click");
+    await nextTick();
+
+    expect((wrapper.get(".flow-card__param-input").element as HTMLInputElement).value).toBe("8080");
+  });
+
+  it("缺少显式值与 defaultValue 时显示占位符，并以空字符串进入编辑", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        stagedCommands: [
+          createStagedCommand({
+            args: [{ key: "port", label: "端口", token: "{{port}}" }],
+            argValues: {}
+          })
+        ]
+      })
+    });
+
+    const valueButton = wrapper.get(".flow-card__param-value");
+    expect(valueButton.text()).toBe("...");
+    expect(valueButton.attributes("aria-label")).toContain("...");
+
+    await valueButton.trigger("click");
+    await nextTick();
+
+    expect((wrapper.get(".flow-card__param-input").element as HTMLInputElement).value).toBe("");
   });
 
   it("Enter 确认编辑并 emit update-staged-arg", async () => {

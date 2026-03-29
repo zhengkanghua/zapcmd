@@ -209,15 +209,15 @@ describe("tailwind governance contract", () => {
     }
   });
 
-  it("shared primitives 去掉 transition-all，并给高频控件保留 36px 命中区下限", () => {
+  it("shared primitives 去掉 transition-all，并把 queue summary pill 提升到 44px 命中区", () => {
     const buttonPrimitivesSource = readProjectFile("src/components/shared/ui/buttonPrimitives.ts");
     const queueSummaryPillSource = readProjectFile(
       "src/components/launcher/parts/LauncherQueueSummaryPill.vue"
     );
 
     expect(buttonPrimitivesSource).not.toContain("transition-all");
-    expect(queueSummaryPillSource).toContain("w-[36px]");
-    expect(queueSummaryPillSource).toContain("h-[36px]");
+    expect(queueSummaryPillSource).toContain("w-[44px]");
+    expect(queueSummaryPillSource).toContain("h-[44px]");
   });
 
   it("Settings 不再通过 descendant arbitrary 耦合子组件内部类名", () => {
