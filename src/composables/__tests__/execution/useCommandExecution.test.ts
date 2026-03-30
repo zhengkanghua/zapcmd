@@ -57,6 +57,30 @@ function createArgCommand(): CommandTemplate {
   };
 }
 
+function createValidatedArgCommand(): CommandTemplate {
+  return {
+    id: "open-port-validated",
+    title: "开放端口",
+    description: "带校验的参数测试命令",
+    preview: "sudo ufw allow {{port}}/tcp",
+    folder: "@_sys",
+    category: "network",
+    needsArgs: true,
+    args: [
+      {
+        key: "port",
+        label: "端口",
+        token: "{{port}}",
+        placeholder: "3000",
+        required: true,
+        argType: "number",
+        min: 1,
+        max: 65535
+      }
+    ]
+  };
+}
+
 function createAdminCommand(): CommandTemplate {
   return {
     ...createNoArgCommand(),
@@ -185,6 +209,24 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("不能为空");
     expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
+  });
+
+  it("blocks staged submit when argument violates validation rule", () => {
+    const harness = createHarness();
+    const command = createValidatedArgCommand();
+
+    harness.execution.stageResult(command);
+    harness.execution.updatePendingArgValue("port", "70000");
+    const submitted = harness.execution.submitParamInput();
+
+    expect(submitted).toBe(false);
+    expect(harness.execution.pendingCommand.value?.id).toBe(command.id);
+    expect(harness.stagedCommands.value).toHaveLength(0);
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("不能大于 65535");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("检查必填参数与输入格式后重试");
+    expect(harness.execution.executionFeedbackMessage.value).not.toContain("移除高风险或注入片段后重试");
   });
 
   it("executes command from pending execute mode", async () => {
@@ -517,18 +559,18 @@ describe("useCommandExecution", () => {
     });
   });
 
-  it("blocks queue execution on injection hit, keeps queue, and does not call terminal runners", async () => {
+  it("blocks staged submit on injection hit before enqueue, and does not call terminal runners", async () => {
     const harness = createHarness(true);
     const command = createArgCommand();
 
     harness.execution.stageResult(command);
     harness.execution.updatePendingArgValue("value", " 8080; whoami ");
-    harness.execution.submitParamInput();
-    await harness.execution.executeStaged();
+    const submitted = harness.execution.submitParamInput();
 
+    expect(submitted).toBe(false);
     expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
-    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.stagedCommands.value).toHaveLength(0);
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("执行已拦截");
     expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");

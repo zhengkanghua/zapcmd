@@ -39,18 +39,30 @@ const reviewListRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<FocusableButton | null>(null);
 
 function closeReview(): void {
+  if (guardInvalidDraft()) {
+    return;
+  }
   emit("toggle-queue");
 }
 
 function clearQueue(): void {
+  if (guardInvalidDraft()) {
+    return;
+  }
   emit("clear-queue");
 }
 
 function focusQueueIndex(index: number): void {
+  if (guardInvalidDraft()) {
+    return;
+  }
   emit("focus-queue-index", index);
 }
 
 function removeQueuedCommand(id: string): void {
+  if (guardInvalidDraft()) {
+    return;
+  }
   emit("remove-queued-command", id);
 }
 
@@ -178,7 +190,9 @@ function onScrimWheel(event: WheelEvent): void {
 
 const {
   editingParam,
+  editingParamError,
   paramEditInputRef,
+  guardInvalidDraft,
   startParamEdit,
   onParamEditInput,
   commitParamEdit,
@@ -192,6 +206,13 @@ const {
   emitExecuteStaged: () => emit("execute-queue"),
   emitExecutionFeedback: (tone, message) => emit("execution-feedback", tone, message)
 });
+
+function startParamEditWithGuard(cmdId: string, argKey: string, currentValue: string): void {
+  if (guardInvalidDraft()) {
+    return;
+  }
+  startParamEdit(cmdId, argKey, currentValue);
+}
 
 const {
   gripReorderActive,
@@ -210,6 +231,22 @@ const {
   emitStagingDragOver: (index, event) => emit("queue-drag-over", index, event),
   emitStagingDragEnd: () => emit("queue-drag-end")
 });
+
+function startGripReorderWithGuard(index: number, event: MouseEvent): void {
+  if (guardInvalidDraft()) {
+    event.preventDefault();
+    return;
+  }
+  startGripReorder(index, event);
+}
+
+function onDragStartWithInlineGuard(event: DragEvent, index: number): void {
+  if (guardInvalidDraft()) {
+    event.preventDefault();
+    return;
+  }
+  onDragStartWithEditGuard(event, index);
+}
 
 useFlowPanelHeightObservation({
   props,
@@ -319,16 +356,17 @@ useFlowPanelHeightObservation({
           :dragging-command-id="draggingCommandId"
           :drag-over-command-id="dragOverCommandId"
           :editing-param="editingParam"
+          :editing-param-error="editingParamError"
           :set-param-edit-input-ref="setParamEditInputRef"
           :set-review-list-ref="setReviewListRef"
-          :start-grip-reorder="startGripReorder"
-          :on-drag-start-with-edit-guard="onDragStartWithEditGuard"
+          :start-grip-reorder="startGripReorderWithGuard"
+          :on-drag-start-with-edit-guard="onDragStartWithInlineGuard"
           :on-staging-drag-over="onStagingDragOver"
           :on-drag-end="onDragEnd"
           :focus-queue-index="focusQueueIndex"
           :copy-command="copyCommand"
           :remove-queued-command="removeQueuedCommand"
-          :start-param-edit="startParamEdit"
+          :start-param-edit="startParamEditWithGuard"
           :on-param-edit-input="onParamEditInput"
           :commit-param-edit="commitParamEdit"
           :cancel-param-edit="cancelParamEdit"

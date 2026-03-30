@@ -1614,7 +1614,7 @@ describe("App failure and event regression", () => {
     expect(hoisted.runMock).toHaveBeenCalledTimes(1);
   });
 
-  it("shows blocked feedback in zh-CN and does not execute injected argument", async () => {
+  it("shows inline validation in zh-CN and does not execute injected argument", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
@@ -1626,19 +1626,16 @@ describe("App failure and event regression", () => {
     expect(inputs.length).toBeGreaterThanOrEqual(2);
     await inputs[0].setValue("demo; whoami");
     await inputs[1].setValue("50");
-    await wrapper.get("[data-testid='confirm-btn']").trigger("click");
     await waitForUi();
 
     expect(wrapper.find(".safety-overlay").exists()).toBe(false);
     expect(hoisted.runMock).not.toHaveBeenCalled();
-    expectFeedbackContract(wrapper, {
-      tone: "error",
-      reasonSnippet: "执行已拦截",
-      guidanceSnippet: "包含潜在注入",
-    });
+    expect(wrapper.get("[data-testid='confirm-btn']").attributes("disabled")).toBeDefined();
+    expect(inputs[0]?.attributes("aria-invalid")).toBe("true");
+    expect(wrapper.get(".command-panel__field-error").text()).toContain("包含潜在注入");
   });
 
-  it("shows blocked feedback in en-US and does not execute injected argument", async () => {
+  it("shows inline validation in en-US and does not execute injected argument", async () => {
     const wrapper = await mountApp();
     const settingsStore = getSettingsStoreFromWrapper(wrapper);
     settingsStore.setLanguage("en-US");
@@ -1655,18 +1652,14 @@ describe("App failure and event regression", () => {
     expect(inputs.length).toBeGreaterThanOrEqual(2);
     await inputs[0].setValue("demo; whoami");
     await inputs[1].setValue("50");
-    await wrapper.get("[data-testid='confirm-btn']").trigger("click");
     await waitForUi();
 
     expect(wrapper.find(".safety-overlay").exists()).toBe(false);
     expect(hoisted.runMock).not.toHaveBeenCalled();
-    expectFeedbackContract(wrapper, {
-      tone: "error",
-      reasonSnippet: "Execution blocked",
-      guidanceSnippet: "contains potential injection",
-    });
-    expect(wrapper.get(".execution-feedback--error").text()).toContain(
-      "Next step",
+    expect(wrapper.get("[data-testid='confirm-btn']").attributes("disabled")).toBeDefined();
+    expect(inputs[0]?.attributes("aria-invalid")).toBe("true");
+    expect(wrapper.get(".command-panel__field-error").text()).toContain(
+      "contains potential injection"
     );
   });
 });

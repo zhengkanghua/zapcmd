@@ -259,6 +259,10 @@
 
 ## 补充（2026-03-30｜schema validator ESM 导入修复）
 
+## 补充（2026-03-30｜Launcher 参数即时校验）
+
+- 已把参数校验前移到填写阶段：`LauncherCommandPanel` 即时显示字段错误并禁用确认，`stage` 提交前也会拦截无效参数；Queue Review 内联编辑遇到无效值会保留编辑态并显示错误，规则复用共享 `commandArgValidation` helper。
+
 - 已修 standalone validator 生成器：Ajv runtime import 统一补 `.js` 扩展，提交产物已重生；Node 导入、schema focused tests 与 `npm run check:all` 全绿。
 
 ## 补充（2026-03-21｜文档事实与 coverage 口径对齐）

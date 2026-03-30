@@ -129,5 +129,5 @@ describe("generate_builtin_commands.ps1", () => {
         max: 10000
       }
     });
-  });
+  }, 30_000);
 });

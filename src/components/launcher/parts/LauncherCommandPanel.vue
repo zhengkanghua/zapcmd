@@ -6,6 +6,7 @@ import {
   buildSafetyInputFromTemplate,
   checkSingleCommandSafety,
 } from "../../../features/security/commandSafety";
+import { collectCommandArgValidationErrors } from "../../../features/security/commandArgValidation";
 import type { LauncherCommandPanelProps } from "../types";
 import type { CommandArg } from "../../../features/commands/commandTemplates";
 import LauncherIcon from "./LauncherIcon.vue";
@@ -38,6 +39,10 @@ const dangerReasons = computed(() => {
   const result = checkSingleCommandSafety(input);
   return result.confirmationReasons;
 });
+const argValidationErrors = computed(() =>
+  collectCommandArgValidationErrors(args.value, props.pendingArgValues)
+);
+const hasArgValidationErrors = computed(() => Object.keys(argValidationErrors.value).length > 0);
 
 const badge = computed(() => {
   if (props.isDangerous && hasArgs.value) {
@@ -101,6 +106,10 @@ function getArgRequiredHintId(argKey: string, index: number): string {
   return `${getArgIdBase(argKey, index)}-required`;
 }
 
+function getArgErrorId(argKey: string, index: number): string {
+  return `${getArgIdBase(argKey, index)}-error`;
+}
+
 function getArgDescribedBy(arg: CommandArg, index: number): string | undefined {
   const describedBy: string[] = [];
   if (arg.required !== false) {
@@ -109,7 +118,14 @@ function getArgDescribedBy(arg: CommandArg, index: number): string | undefined {
   if (props.isDangerous) {
     describedBy.push(dangerDescriptionId.value);
   }
+  if (argValidationErrors.value[arg.key]) {
+    describedBy.push(getArgErrorId(arg.key, index));
+  }
   return describedBy.length > 0 ? describedBy.join(" ") : undefined;
+}
+
+function getArgError(argKey: string): string | undefined {
+  return argValidationErrors.value[argKey];
 }
 
 function onArgInput(key: string, value: string): void {
@@ -121,6 +137,9 @@ function onCancel(): void {
 }
 
 function onSubmit(): void {
+  if (hasArgValidationErrors.value) {
+    return;
+  }
   emit("submit", props.pendingArgValues, dismissChecked.value);
 }
 </script>
@@ -251,7 +270,12 @@ function onSubmit(): void {
             :required="arg.required !== false"
             :aria-required="arg.required !== false ? 'true' : undefined"
             :aria-describedby="getArgDescribedBy(arg, i)"
+            :aria-invalid="getArgError(arg.key) ? 'true' : undefined"
             class="command-panel__select h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-launcher-field duration-140 focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
+            :class="{
+              'border-ui-danger/45 focus-visible:border-ui-danger/55 focus-visible:ring-ui-danger/18':
+                !!getArgError(arg.key)
+            }"
             @change="
               onArgInput(arg.key, ($event.target as HTMLSelectElement).value)
             "
@@ -272,8 +296,11 @@ function onSubmit(): void {
             :required="arg.required !== false"
             :aria-required="arg.required !== false ? 'true' : undefined"
             :aria-describedby="getArgDescribedBy(arg, i)"
+            :aria-invalid="getArgError(arg.key) ? 'true' : undefined"
             class="command-panel__input h-[34px] p-[0_10px] border border-ui-border rounded-[8px] bg-ui-black/20 text-ui-text outline-none transition-launcher-field duration-140 placeholder:text-ui-dim focus-visible:border-ui-search-hl/50 focus-visible:ring focus-visible:ring-ui-search-hl/18"
             :class="{
+              'border-ui-danger/45 focus-visible:border-ui-danger/55 focus-visible:ring-ui-danger/18':
+                !!getArgError(arg.key),
               'command-panel__input--danger focus-visible:border-ui-danger/55 focus-visible:ring focus-visible:ring-ui-danger/18':
                 props.isDangerous
             }"
@@ -282,6 +309,13 @@ function onSubmit(): void {
               onArgInput(arg.key, ($event.target as HTMLInputElement).value)
             "
           />
+          <p
+            v-if="getArgError(arg.key)"
+            :id="getArgErrorId(arg.key, i)"
+            class="command-panel__field-error m-0 text-[12px] text-ui-danger"
+          >
+            {{ getArgError(arg.key) }}
+          </p>
         </div>
       </form>
 
@@ -329,6 +363,8 @@ function onSubmit(): void {
           :class="{
             'command-panel__btn--danger bg-ui-danger text-ui-accent-text': isDangerBtn
           }"
+          :disabled="hasArgValidationErrors"
+          :aria-disabled="hasArgValidationErrors ? 'true' : undefined"
           data-testid="confirm-btn"
           @click="onSubmit"
         >

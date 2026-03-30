@@ -12,6 +12,7 @@ import {
   getCommandArgs,
   renderCommand
 } from "../../../features/launcher/commandRuntime";
+import { findFirstCommandArgValidationError } from "../../../features/security/commandArgValidation";
 import type { StagedCommand } from "../../../features/launcher/types";
 import type { CommandExecutionState, UseCommandExecutionOptions } from "./model";
 
@@ -136,6 +137,7 @@ export function summarizeCommandForFeedback(command: string): string {
 export interface PendingSubmitRejection {
   reason: string;
   nextStep: string;
+  mode: "failed" | "blocked";
 }
 
 export interface CommandPreflightIssue {
@@ -213,19 +215,20 @@ export function getPendingSubmitRejection(
   pendingArgValues: Record<string, string>
 ): PendingSubmitRejection | null {
   const args = getCommandArgs(command);
-  for (const arg of args) {
-    if (arg.required === false) {
-      continue;
-    }
-    const value = pendingArgValues[arg.key]?.trim() ?? "";
-    if (value.length === 0) {
-      return {
-        reason: t("safety.validation.required", { label: arg.label }),
-        nextStep: t("execution.nextStepInvalidParams")
-      };
-    }
+  const firstError = findFirstCommandArgValidationError(args, pendingArgValues);
+  if (!firstError) {
+    return null;
   }
-  return null;
+
+  return {
+    reason: firstError.message,
+    nextStep: t(
+      firstError.kind === "blocked"
+        ? "execution.nextStepBlocked"
+        : "execution.nextStepInvalidParams"
+    ),
+    mode: firstError.kind === "blocked" ? "blocked" : "failed"
+  };
 }
 
 function buildStagedCommand(

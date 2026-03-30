@@ -27,6 +27,24 @@ function createCommand(overrides: Partial<CommandTemplate> = {}): CommandTemplat
   };
 }
 
+function createValidatedNumberCommand(): CommandTemplate {
+  return createCommand({
+    preview: "sudo ufw allow {{port}}/tcp",
+    args: [
+      {
+        key: "port",
+        label: "端口",
+        token: "{{port}}",
+        placeholder: "3000",
+        required: true,
+        argType: "number",
+        min: 1,
+        max: 65535
+      }
+    ]
+  });
+}
+
 function createNavStackMock() {
   return {
     stack: ref([{ type: "search" as const }]),
@@ -319,6 +337,23 @@ describe("LauncherCommandPanel", () => {
       expect(requiredHint.text()).toContain("不能为空");
       expect(dangerHint.text()).toContain("敏感系统资源");
       expect(input.attributes("aria-required")).toBe("true");
+    });
+
+    it("参数无效时挂接字段错误并禁用确认按钮", async () => {
+      const wrapper = mountPanel({
+        command: createValidatedNumberCommand(),
+        pendingArgValues: { port: "70000" }
+      });
+
+      const input = wrapper.get(".command-panel__input");
+      const confirmBtn = wrapper.get("[data-testid='confirm-btn']");
+
+      expect(input.attributes("aria-invalid")).toBe("true");
+      expect(wrapper.get(".command-panel__field-error").text()).toContain("不能大于 65535");
+      expect(confirmBtn.attributes("disabled")).toBeDefined();
+
+      await confirmBtn.trigger("click");
+      expect(wrapper.emitted("submit")).toBeUndefined();
     });
   });
 });

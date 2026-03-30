@@ -1,5 +1,6 @@
 import type { CommandArg, CommandTemplate } from "../commands/types";
 import { t } from "../../i18n";
+import { findFirstCommandArgValidationError } from "./commandArgValidation";
 
 export interface SafetyCommandInput {
   title: string;
@@ -36,69 +37,12 @@ const DANGEROUS_COMMAND_PATTERNS: Array<{ pattern: RegExp; reasonKey: string }> 
   { pattern: /\bkill\s+-9\b/i, reasonKey: "safety.reasons.kill9" }
 ];
 
-// Block common shell control tokens in argument values before template substitution.
-const INJECTION_PATTERN = /(?:\r|\n|[|&`<>]|;\s*|\$\(|\$\{)/;
-const loggedInvalidValidationPatterns = new Set<string>();
-
 function sanitizeCommandSummary(value: string): string {
   const collapsed = value.replace(/\s+/g, " ").trim();
   if (!collapsed) {
     return t("execution.emptyCommand");
   }
   return collapsed.length > 120 ? `${collapsed.slice(0, 120)}...` : collapsed;
-}
-
-function validateArgumentValue(arg: CommandArg, argValue: string | undefined): string | null {
-  const value = (argValue ?? "").trim();
-  if (arg.required !== false && value.length === 0) {
-    return t("safety.validation.required", { label: arg.label });
-  }
-  if (value.length === 0) {
-    return null;
-  }
-
-  if (arg.argType === "number") {
-    if (!/^-?\d+(\.\d+)?$/.test(value)) {
-      return t("safety.validation.number", { label: arg.label });
-    }
-
-    const numericValue = Number(value);
-    if (typeof arg.min === "number" && numericValue < arg.min) {
-      return arg.validationError?.trim() || t("safety.validation.min", { label: arg.label, min: arg.min });
-    }
-    if (typeof arg.max === "number" && numericValue > arg.max) {
-      return arg.validationError?.trim() || t("safety.validation.max", { label: arg.label, max: arg.max });
-    }
-  }
-
-  if (arg.options && arg.options.length > 0 && !arg.options.includes(value)) {
-    return t("safety.validation.options", { label: arg.label });
-  }
-
-  if (arg.validationPattern) {
-    try {
-      const regex = new RegExp(arg.validationPattern);
-      if (!regex.test(value)) {
-        return arg.validationError?.trim() || t("safety.validation.pattern", { label: arg.label });
-      }
-    } catch (error) {
-      if (!loggedInvalidValidationPatterns.has(arg.validationPattern)) {
-        loggedInvalidValidationPatterns.add(arg.validationPattern);
-        console.warn("command arg validationPattern is invalid", {
-          label: arg.label,
-          pattern: arg.validationPattern,
-          error
-        });
-      }
-      return t("safety.validation.invalidPattern", { label: arg.label });
-    }
-  }
-
-  if (INJECTION_PATTERN.test(value)) {
-    return t("safety.validation.injection", { label: arg.label });
-  }
-
-  return null;
 }
 
 function collectConfirmationReasons(input: SafetyCommandInput): string[] {
@@ -120,16 +64,7 @@ function collectConfirmationReasons(input: SafetyCommandInput): string[] {
 }
 
 function validateArguments(args: CommandArg[] | undefined, argValues: Record<string, string> | undefined): string | null {
-  if (!args || args.length === 0) {
-    return null;
-  }
-  for (const arg of args) {
-    const message = validateArgumentValue(arg, argValues?.[arg.key]);
-    if (message) {
-      return message;
-    }
-  }
-  return null;
+  return findFirstCommandArgValidationError(args, argValues)?.message ?? null;
 }
 
 export function checkSingleCommandSafety(input: SafetyCommandInput): SingleCommandSafetyResult {

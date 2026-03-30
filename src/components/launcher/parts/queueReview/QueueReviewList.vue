@@ -20,6 +20,7 @@ const props = defineProps<{
   draggingCommandId: string | null;
   dragOverCommandId: string | null;
   editingParam: EditingParamState | null;
+  editingParamError: string | null;
   setParamEditInputRef: (value: ElementRefArg) => void;
   setReviewListRef: (el: ElementRefArg) => void;
   startGripReorder: (index: number, event: MouseEvent) => void;
@@ -36,6 +37,10 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18nText();
+
+function getInlineErrorId(cmdId: string, argKey: string): string {
+  return `queue-inline-arg-${cmdId}-${argKey}-error`;
+}
 </script>
 
 <template>
@@ -113,56 +118,76 @@ const { t } = useI18nText();
             <div
               v-for="arg in cmd.args"
               :key="arg.key"
-              class="flow-card__param flex items-center gap-[8px] text-[12px]"
+              class="flow-card__param flex items-start gap-[8px] text-[12px]"
             >
               <span class="flow-card__param-key text-ui-subtle shrink-0">
                 {{ arg.label }}:
               </span>
-              <button
-                v-if="props.editingParam?.cmdId !== cmd.id || props.editingParam?.argKey !== arg.key"
-                type="button"
-                class="flow-card__param-value inline-flex min-w-0 items-center text-left text-ui-accent cursor-pointer p-[2px_8px] bg-ui-brand/12 border border-ui-brand/20 rounded-[4px] transition-launcher-surface duration-120 hover:bg-ui-brand/20 hover:border-ui-brand/35 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24 font-mono"
-                :aria-label="`${arg.label}: ${cmd.argValues[arg.key] || arg.defaultValue || '...'}`"
-                @click.stop="
-                  props.startParamEdit(
-                    cmd.id,
-                    arg.key,
-                    cmd.argValues[arg.key] || arg.defaultValue || ''
-                  )
-                "
-                @keydown.enter.stop.prevent="
-                  props.startParamEdit(
-                    cmd.id,
-                    arg.key,
-                    cmd.argValues[arg.key] || arg.defaultValue || ''
-                  )
-                "
-                @keydown.space.stop.prevent="
-                  props.startParamEdit(
-                    cmd.id,
-                    arg.key,
-                    cmd.argValues[arg.key] || arg.defaultValue || ''
-                  )
-                "
-              >
-                {{ cmd.argValues[arg.key] || arg.defaultValue || "..." }}
-              </button>
-              <input
-                v-else
-                :ref="props.setParamEditInputRef"
-                class="flow-card__param-input bg-ui-text/8 border border-ui-accent rounded-[4px] text-ui-accent text-[12px] font-mono p-[2px_8px] outline-none w-auto min-w-[60px]"
-                :value="props.editingParam.currentValue"
-                @input="
-                  props.onParamEditInput(
-                    cmd.id,
-                    arg.key,
-                    ($event.target as HTMLInputElement).value
-                  )
-                "
-                @keydown.enter.stop="props.commitParamEdit(cmd.id, arg.key)"
-                @keydown.escape.stop="props.cancelParamEdit()"
-                @blur="props.commitParamEdit(cmd.id, arg.key)"
-              />
+              <div class="flow-card__param-main flex min-w-0 flex-1 flex-col gap-[4px]">
+                <button
+                  v-if="props.editingParam?.cmdId !== cmd.id || props.editingParam?.argKey !== arg.key"
+                  type="button"
+                  class="flow-card__param-value inline-flex min-w-0 items-center text-left text-ui-accent cursor-pointer p-[2px_8px] bg-ui-brand/12 border border-ui-brand/20 rounded-[4px] transition-launcher-surface duration-120 hover:bg-ui-brand/20 hover:border-ui-brand/35 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24 font-mono"
+                  :aria-label="`${arg.label}: ${cmd.argValues[arg.key] || arg.defaultValue || '...'}`"
+                  @click.stop="
+                    props.startParamEdit(
+                      cmd.id,
+                      arg.key,
+                      cmd.argValues[arg.key] || arg.defaultValue || ''
+                    )
+                  "
+                  @keydown.enter.stop.prevent="
+                    props.startParamEdit(
+                      cmd.id,
+                      arg.key,
+                      cmd.argValues[arg.key] || arg.defaultValue || ''
+                    )
+                  "
+                  @keydown.space.stop.prevent="
+                    props.startParamEdit(
+                      cmd.id,
+                      arg.key,
+                      cmd.argValues[arg.key] || arg.defaultValue || ''
+                    )
+                  "
+                >
+                  {{ cmd.argValues[arg.key] || arg.defaultValue || "..." }}
+                </button>
+                <input
+                  v-else
+                  :ref="props.setParamEditInputRef"
+                  class="flow-card__param-input bg-ui-text/8 border border-ui-accent rounded-[4px] text-ui-accent text-[12px] font-mono p-[2px_8px] outline-none w-auto min-w-[60px]"
+                  :class="{
+                    'border-ui-danger/45 text-ui-danger': !!props.editingParamError
+                  }"
+                  :value="props.editingParam.currentValue"
+                  :aria-invalid="props.editingParamError ? 'true' : undefined"
+                  :aria-describedby="
+                    props.editingParamError ? getInlineErrorId(cmd.id, arg.key) : undefined
+                  "
+                  @input="
+                    props.onParamEditInput(
+                      cmd.id,
+                      arg.key,
+                      ($event.target as HTMLInputElement).value
+                    )
+                  "
+                  @keydown.enter.stop="props.commitParamEdit(cmd.id, arg.key)"
+                  @keydown.escape.stop="props.cancelParamEdit()"
+                  @blur="props.commitParamEdit(cmd.id, arg.key)"
+                />
+                <p
+                  v-if="
+                    props.editingParam?.cmdId === cmd.id &&
+                    props.editingParam?.argKey === arg.key &&
+                    props.editingParamError
+                  "
+                  :id="getInlineErrorId(cmd.id, arg.key)"
+                  class="flow-card__param-error m-0 text-[11px] text-ui-danger"
+                >
+                  {{ props.editingParamError }}
+                </p>
+              </div>
             </div>
           </div>
           <code

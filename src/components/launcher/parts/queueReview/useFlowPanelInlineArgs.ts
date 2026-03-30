@@ -1,5 +1,6 @@
 import { nextTick, ref } from "vue";
 import type { LauncherQueueReviewPanelProps } from "../../types";
+import { validateCommandArgValue } from "../../../../features/security/commandArgValidation";
 
 interface FlowPanelInlineArgsDeps {
   props: LauncherQueueReviewPanelProps;
@@ -19,10 +20,10 @@ export function useFlowPanelInlineArgs(deps: FlowPanelInlineArgsDeps) {
     currentValue: string;
     originalValue: string;
   } | null>(null);
+  const editingParamError = ref<string | null>(null);
   const paramEditInputRef = ref<HTMLInputElement | HTMLInputElement[] | null>(null);
 
-  function startParamEdit(cmdId: string, argKey: string, currentValue: string): void {
-    editingParam.value = { cmdId, argKey, currentValue, originalValue: currentValue };
+  function focusParamInput(): void {
     void nextTick(() => {
       const el = paramEditInputRef.value;
       const input = Array.isArray(el) ? el[0] : el;
@@ -32,11 +33,42 @@ export function useFlowPanelInlineArgs(deps: FlowPanelInlineArgsDeps) {
     });
   }
 
+  function resolveEditingArg(cmdId: string, argKey: string) {
+    const command = deps.props.queuedCommands.find((item) => item.id === cmdId);
+    return command?.args.find((arg) => arg.key === argKey) ?? null;
+  }
+
+  function validateEditingValue(cmdId: string, argKey: string, value: string): string | null {
+    const arg = resolveEditingArg(cmdId, argKey);
+    if (!arg) {
+      return null;
+    }
+    return validateCommandArgValue(arg, value);
+  }
+
+  function guardInvalidDraft(): boolean {
+    if (!editingParam.value || !editingParamError.value) {
+      return false;
+    }
+    deps.emitExecutionFeedback("error", editingParamError.value);
+    focusParamInput();
+    return true;
+  }
+
+  function startParamEdit(cmdId: string, argKey: string, currentValue: string): void {
+    if (guardInvalidDraft()) {
+      return;
+    }
+    editingParam.value = { cmdId, argKey, currentValue, originalValue: currentValue };
+    editingParamError.value = null;
+    focusParamInput();
+  }
+
   function onParamEditInput(cmdId: string, argKey: string, value: string): void {
     if (editingParam.value) {
       editingParam.value.currentValue = value;
     }
-    deps.emitUpdateStagedArg(cmdId, argKey, value);
+    editingParamError.value = validateEditingValue(cmdId, argKey, value);
   }
 
   function commitParamEdit(cmdId: string, argKey: string): void {
@@ -44,6 +76,13 @@ export function useFlowPanelInlineArgs(deps: FlowPanelInlineArgsDeps) {
       return;
     }
     const newValue = editingParam.value.currentValue;
+    const message = validateEditingValue(cmdId, argKey, newValue);
+    if (message) {
+      editingParamError.value = message;
+      focusParamInput();
+      return;
+    }
+    editingParamError.value = null;
     editingParam.value = null;
     deps.emitUpdateStagedArg(cmdId, argKey, newValue);
   }
@@ -53,11 +92,15 @@ export function useFlowPanelInlineArgs(deps: FlowPanelInlineArgsDeps) {
       return;
     }
     const { cmdId, argKey, originalValue } = editingParam.value;
+    editingParamError.value = null;
     editingParam.value = null;
     deps.emitUpdateStagedArg(cmdId, argKey, originalValue);
   }
 
   function onExecuteStagedClick(): void {
+    if (guardInvalidDraft()) {
+      return;
+    }
     if (deps.props.flowOpen) {
       deps.emitExecutionFeedback("neutral", deps.t("execution.flowInProgress"));
       return;
@@ -66,6 +109,9 @@ export function useFlowPanelInlineArgs(deps: FlowPanelInlineArgsDeps) {
   }
 
   async function copyCommand(command: string): Promise<void> {
+    if (guardInvalidDraft()) {
+      return;
+    }
     try {
       if (!navigator.clipboard?.writeText) {
         throw new Error("clipboard API unavailable");
@@ -80,7 +126,10 @@ export function useFlowPanelInlineArgs(deps: FlowPanelInlineArgsDeps) {
 
   return {
     editingParam,
+    editingParamError,
     paramEditInputRef,
+    guardInvalidDraft,
+    focusParamInput,
     startParamEdit,
     onParamEditInput,
     commitParamEdit,

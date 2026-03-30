@@ -612,6 +612,23 @@ function createArgCommand(overrides: Partial<StagedCommand> = {}): StagedCommand
   });
 }
 
+function createValidatedInlineArgCommand(overrides: Partial<StagedCommand> = {}): StagedCommand {
+  return createStagedCommand({
+    args: [
+      {
+        key: "port",
+        label: "端口",
+        token: "{{port}}",
+        argType: "number",
+        min: 1,
+        max: 65535
+      }
+    ],
+    argValues: { port: "3000" },
+    ...overrides
+  });
+}
+
 describe("LauncherFlowPanel 紧凑参数标签", () => {
   it("有参数卡片渲染 key: value 紧凑标签", () => {
     const wrapper = mount(LauncherFlowPanel, {
@@ -832,6 +849,78 @@ describe("LauncherFlowPanel 内联编辑", () => {
     expect(events).toBeDefined();
     const lastEvent = events![events!.length - 1];
     expect(lastEvent).toEqual(["cmd-1", "port", "4000"]);
+
+    wrapper.unmount();
+  });
+
+  for (const commitEvent of ["keydown.enter", "blur"] as const) {
+    it(`${commitEvent} 遇到无效 number 时保持编辑态并显示错误`, async () => {
+      const wrapper = mount(LauncherFlowPanel, {
+        attachTo: document.body,
+        props: createProps({
+          queuedCommands: [createValidatedInlineArgCommand()]
+        })
+      });
+
+      await wrapper.get(".flow-card__param-value").trigger("click");
+      await nextTick();
+
+      const input = wrapper.get(".flow-card__param-input");
+      await input.setValue("70000");
+      await input.trigger(commitEvent);
+      await nextTick();
+
+      expect(wrapper.find(".flow-card__param-input").exists()).toBe(true);
+      expect(wrapper.get(".flow-card__param-input").attributes("aria-invalid")).toBe("true");
+      expect(wrapper.get(".flow-card__param-error").text()).toContain("不能大于 65535");
+      expect(wrapper.emitted("update-queued-arg")).toBeUndefined();
+
+      wrapper.unmount();
+    });
+  }
+
+  it("无效草稿时点击执行全部不会继续按旧值执行", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      attachTo: document.body,
+      props: createProps({
+        queuedCommands: [createValidatedInlineArgCommand()]
+      })
+    });
+
+    await wrapper.get(".flow-card__param-value").trigger("click");
+    await nextTick();
+
+    const input = wrapper.get(".flow-card__param-input");
+    await input.setValue("70000");
+    await wrapper.get(".flow-panel__execute-btn").trigger("click");
+    await nextTick();
+
+    expect(wrapper.find(".flow-card__param-input").exists()).toBe(true);
+    expect(wrapper.get(".flow-card__param-error").text()).toContain("不能大于 65535");
+    expect(wrapper.emitted("execute-queue")).toBeUndefined();
+
+    wrapper.unmount();
+  });
+
+  it("无效草稿时点击关闭不会退出编辑态", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      attachTo: document.body,
+      props: createProps({
+        queuedCommands: [createValidatedInlineArgCommand()]
+      })
+    });
+
+    await wrapper.get(".flow-card__param-value").trigger("click");
+    await nextTick();
+
+    const input = wrapper.get(".flow-card__param-input");
+    await input.setValue("70000");
+    await wrapper.get(".flow-panel__close").trigger("click");
+    await nextTick();
+
+    expect(wrapper.find(".flow-card__param-input").exists()).toBe(true);
+    expect(wrapper.get(".flow-card__param-error").text()).toContain("不能大于 65535");
+    expect(wrapper.emitted("toggle-queue")).toBeUndefined();
 
     wrapper.unmount();
   });

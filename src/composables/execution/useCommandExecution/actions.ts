@@ -309,10 +309,15 @@ function createPendingCommandActions(
     if (rejection) {
       state.setExecutionFeedback(
         "error",
-        t("execution.failedWithNextStep", {
+        t(
+          rejection.mode === "blocked"
+            ? "execution.blockedWithNextStep"
+            : "execution.failedWithNextStep",
+          {
           reason: rejection.reason,
           nextStep: rejection.nextStep
-        })
+          }
+        )
       );
       return false;
     }
@@ -320,23 +325,6 @@ function createPendingCommandActions(
     const submitMode = state.pendingSubmitMode.value;
 
     if (submitMode === "execute") {
-      const args = getCommandArgs(command);
-      const rendered = renderCommand(command, values);
-      const { blockedMessage } = checkSingleCommandSafety(
-        buildSafetyInputFromTemplate(command, rendered, values, args)
-      );
-
-      if (blockedMessage) {
-        state.setExecutionFeedback(
-          "error",
-          t("execution.blockedWithNextStep", {
-            reason: blockedMessage,
-            nextStep: t("execution.nextStepBlocked")
-          })
-        );
-        return false;
-      }
-
       resetPendingCommand();
       void requestSingleExecution(command, values, true);
       return true;
