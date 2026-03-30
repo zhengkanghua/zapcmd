@@ -168,4 +168,22 @@ describe("visual-regression-lib", () => {
       useWindowsPaths: false
     });
   });
+
+  it("controlled-runner 在 Windows 上不得误用 Git Bash 风格的 pwsh 路径", () => {
+    expect(
+      resolveDiffRuntime({
+        platform: "win32",
+        mode: VISUAL_MODES.controlledRunner,
+        env: {
+          ProgramFiles: "C:\\Program Files",
+          SystemRoot: "C:\\Windows"
+        },
+        commandProbe: () => "/c/Program Files/PowerShell/7/pwsh",
+        existsSync: (targetPath: string) => targetPath === "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
+      })
+    ).toEqual({
+      command: "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      useWindowsPaths: false
+    });
+  });
 });

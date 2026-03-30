@@ -1009,3 +1009,5 @@
 - 已将 generated validator 排除出覆盖统计，并补齐 schema/runtime 分支测试；`test:coverage` 达到 branch 90.15%，Task 11 现可正常提交。
 ## 补充（2026-03-30｜CI controlled-runner 契约兜底）
 - 已修复 `.github/workflows/ci-gate.yml`：仓库 vars 为空时，Windows CI 会自动探测 Edge 路径与版本并写入 `GITHUB_ENV`，避免 `test:visual:ui:runner` 因空浏览器契约硬失败；定向契约测试已通过。
+## 补充（2026-03-30｜CI pwsh 路径解析修复）
+- 已修复 `controlled-runner` 在 Windows 上误采 Git Bash 风格 `/c/.../pwsh` 路径的问题；`resolveDiffRuntime` 现优先走原生 Windows `pwsh.exe`，避免环境探针拿不到浏览器文件版本而写出 `actual=(missing)`。

@@ -140,15 +140,46 @@ function normalizeWindowsRuntimePath(targetPath, { convertWslPath = defaultConve
   return convertWslPath(normalized);
 }
 
-function normalizeWindowsCommandPath(targetPath, { convertWindowsPath = defaultConvertWindowsPath } = {}) {
+function normalizeGitBashWindowsPath(targetPath, { existsSync = fs.existsSync } = {}) {
+  const normalized = trimString(targetPath);
+  const match = normalized.match(/^\/([A-Za-z])\/(.+)$/);
+  if (!match) {
+    return "";
+  }
+
+  const driveLetter = match[1].toUpperCase();
+  const rawPath = match[2].replaceAll("/", "\\");
+  const convertedPath = `${driveLetter}:\\${rawPath}`;
+  if (path.extname(convertedPath)) {
+    return convertedPath;
+  }
+
+  const executablePath = `${convertedPath}.exe`;
+  if (typeof existsSync === "function" && existsSync(executablePath)) {
+    return executablePath;
+  }
+
+  return convertedPath;
+}
+
+function normalizeWindowsCommandPath(
+  targetPath,
+  { convertWindowsPath = defaultConvertWindowsPath, platform = process.platform, existsSync = fs.existsSync } = {}
+) {
   const normalized = trimString(targetPath);
   if (!normalized) {
     return "";
   }
   if (normalized.startsWith("/")) {
+    if (platform === "win32") {
+      return normalizeGitBashWindowsPath(normalized, { existsSync });
+    }
     return normalized;
   }
   if (looksLikeWindowsPath(normalized)) {
+    if (platform === "win32") {
+      return normalized;
+    }
     return convertWindowsPath(normalized);
   }
   return normalized;
@@ -177,6 +208,7 @@ function resolveWindowsExecutablePath({
 
 function resolveWindowsCommandPath({
   envVarName,
+  platform = process.platform,
   env = process.env,
   existsSync = fs.existsSync,
   candidates,
@@ -184,7 +216,7 @@ function resolveWindowsCommandPath({
 }) {
   const overridden = trimString(env[envVarName]);
   if (overridden) {
-    return normalizeWindowsCommandPath(overridden, { convertWindowsPath });
+    return normalizeWindowsCommandPath(overridden, { convertWindowsPath, platform, existsSync });
   }
 
   for (const candidate of candidates) {
@@ -201,9 +233,10 @@ function resolveWindowsEdgeCandidates({ platform = process.platform, env = proce
     return DEFAULT_WINDOWS_EDGE_CANDIDATES;
   }
 
+  const winPath = path.win32;
   return [env["ProgramFiles(x86)"], env.ProgramFiles]
     .filter(Boolean)
-    .map((baseDir) => path.join(baseDir, "Microsoft", "Edge", "Application", "msedge.exe"));
+    .map((baseDir) => winPath.join(baseDir, "Microsoft", "Edge", "Application", "msedge.exe"));
 }
 
 function resolveWindowsPwshCandidates({ platform = process.platform, env = process.env } = {}) {
@@ -211,9 +244,10 @@ function resolveWindowsPwshCandidates({ platform = process.platform, env = proce
     return DEFAULT_WINDOWS_PWSH_CANDIDATES;
   }
 
+  const winPath = path.win32;
   return [
-    env.ProgramFiles ? path.join(env.ProgramFiles, "PowerShell", "7", "pwsh.exe") : "",
-    env.SystemRoot ? path.join(env.SystemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe") : ""
+    env.ProgramFiles ? winPath.join(env.ProgramFiles, "PowerShell", "7", "pwsh.exe") : "",
+    env.SystemRoot ? winPath.join(env.SystemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe") : ""
   ].filter(Boolean);
 }
 
@@ -260,23 +294,34 @@ function probeWslHostIp() {
   }
 }
 
-function resolveDiffRuntime({ mode, env = process.env, existsSync = fs.existsSync } = {}) {
+function resolveDiffRuntime({
+  platform = process.platform,
+  mode,
+  env = process.env,
+  existsSync = fs.existsSync,
+  commandProbe = runCommandProbe
+} = {}) {
   if (mode === VISUAL_MODES.windowsEdge) {
     return { command: "pwsh", useWindowsPaths: false };
   }
 
-  const localPwsh = trimString(env.ZAPCMD_PWSH_PATH) || runCommandProbe("pwsh");
+  const localPwsh = trimString(env.ZAPCMD_PWSH_PATH) || (platform === "win32" ? "" : commandProbe("pwsh"));
   if (mode === VISUAL_MODES.controlledRunner) {
+    const windowsPwsh = resolveWindowsCommandPath({
+      envVarName: "ZAPCMD_PWSH_PATH",
+      platform,
+      env,
+      existsSync,
+      candidates: resolveWindowsPwshCandidates({ platform, env })
+    });
+
+    if (platform === "win32") {
+      return { command: windowsPwsh, useWindowsPaths: false };
+    }
+
     if (localPwsh) {
       return { command: localPwsh, useWindowsPaths: false };
     }
-
-    const windowsPwsh = resolveWindowsCommandPath({
-      envVarName: "ZAPCMD_PWSH_PATH",
-      env,
-      existsSync,
-      candidates: resolveWindowsPwshCandidates({ env })
-    });
 
     return { command: windowsPwsh, useWindowsPaths: false };
   }
@@ -287,9 +332,10 @@ function resolveDiffRuntime({ mode, env = process.env, existsSync = fs.existsSyn
 
   const windowsPwsh = resolveWindowsCommandPath({
     envVarName: "ZAPCMD_PWSH_PATH",
+    platform,
     env,
     existsSync,
-    candidates: resolveWindowsPwshCandidates({ env })
+    candidates: resolveWindowsPwshCandidates({ platform, env })
   });
 
   if (windowsPwsh) {
