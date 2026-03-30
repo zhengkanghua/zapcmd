@@ -8,6 +8,12 @@ Format rule / 格式规则：
 2. Use bilingual entries in one line when possible: `中文 / English`.
 3. Release workflow extracts the matching version section into GitHub Release notes.
 
+## [1.1.1] - 2026-03-30
+
+### Fixes / 修复
+
+1. 修复 Windows x64 Release / Dry Run workflow 的 bundle 上传路径，确保 Tauri `--target x86_64-pc-windows-msvc` 构建产物能被正确收集并发布到 GitHub Releases / Fix Windows x64 Release / Dry Run workflow bundle upload path so Tauri `--target x86_64-pc-windows-msvc` artifacts are collected and published correctly
+
 ## [1.1.0] - 2026-03-30
   ### Highlights / 亮点
   做了大量的优化和bug修复，这里开始算第一版吧

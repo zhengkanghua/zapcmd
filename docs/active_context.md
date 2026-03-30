@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-30｜Windows x64 release artifact 路径修复）
+
+- 已修复 release / dry-run workflow 上传目录错误：`tauri:build:windows:x64` 产物实际位于 `src-tauri/target/x86_64-pc-windows-msvc/release/bundle/`；新增 contract test 防止回归。
+
 ## 补充（2026-03-30｜Windows x64 发布收敛）
 
 - 已将 release / dry-run workflow 收敛为仅构建并发布 Windows x64，新增 `tauri:build:windows:x64`；README 与维护者发版文档已同步改为“Windows x64 官方发布，macOS/Linux 仅保留源码构建”口径。
