@@ -38,10 +38,15 @@ export function createCommandSchemaValidatorSource() {
   const validate = ajv.compile(schema);
   const rawGeneratedSource = standaloneCode(ajv, validate);
   const runtimeImports = [];
+
+  function toEsmImportPath(modulePath) {
+    return modulePath.endsWith(".js") ? modulePath : `${modulePath}.js`;
+  }
+
   const generatedSource = rawGeneratedSource.replace(
     /const (\w+) = require\("([^"]+)"\)\.default;/gu,
     (_, symbolName, modulePath) => {
-      runtimeImports.push(`import ${symbolName} from "${modulePath}";`);
+      runtimeImports.push(`import ${symbolName} from "${toEsmImportPath(modulePath)}";`);
       return "";
     }
   );

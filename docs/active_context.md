@@ -257,6 +257,10 @@
 - 计划差异 3：Task 1 计划只写了“拆三段 VM 边界”，但真实 `App.vue` 模板和 app 级回归仍依赖顶层 setupState 自动解包/直访；最终通过 `proxyRefs + 顶层兼容别名` 做最小收口，保持边界目标不变，同时让 `vue-tsc` 与历史回归夹具继续成立。
 - 计划 4 最终验证已通过：`useAppCompositionViewModel`、`LauncherFlowPanel`、`useWindowSizing` focused tests、Rust `animation::tests_logic` 与 `npm run check:all` 全绿。
 
+## 补充（2026-03-30｜schema validator ESM 导入修复）
+
+- 已修 standalone validator 生成器：Ajv runtime import 统一补 `.js` 扩展，提交产物已重生；Node 导入、schema focused tests 与 `npm run check:all` 全绿。
+
 ## 补充（2026-03-21｜文档事实与 coverage 口径对齐）
 
 - 计划 5 已完成：README / 中文 README / `docs/README.md` / `docs/command_sources/README.md` 已统一为“内置命令生成产物必须提交”，明确 `assets/runtime_templates/commands/builtin` 与 `docs/builtin_commands.generated.md` 都受 CI gate 约束；样式入口、Tailwind 现状、搜索字段与 GitHub workflow 引用也都改到当前真实实现。
