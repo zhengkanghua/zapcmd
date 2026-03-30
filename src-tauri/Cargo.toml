@@ -1,6 +1,6 @@
 [package]
 name = "zapcmd"
-version = "1.0.1"
+version = "1.1.0"
 description = "ZapCmd desktop launcher"
 authors = ["zapcmd contributors"]
 edition = "2021"

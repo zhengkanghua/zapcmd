@@ -1,6 +1,6 @@
 {
   "name": "zapcmd",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "packageManager": "npm@11.7.0",

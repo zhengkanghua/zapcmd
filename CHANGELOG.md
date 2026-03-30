@@ -8,6 +8,15 @@ Format rule / 格式规则：
 2. Use bilingual entries in one line when possible: `中文 / English`.
 3. Release workflow extracts the matching version section into GitHub Release notes.
 
+## [1.1.0] - 2026-03-30
+  ### Highlights / 亮点
+  做了大量的优化和bug修复，这里开始算第一版吧
+  ### Features / 功能
+  很多优化
+  ### Fixes / 修复
+  很多修复
+
+
 ## [1.0.1] - 2026-02-28
 
 ### Fixes / 修复
