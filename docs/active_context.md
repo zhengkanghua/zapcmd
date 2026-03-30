@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-30｜Windows x64 发布收敛）
+
+- 已将 release / dry-run workflow 收敛为仅构建并发布 Windows x64，新增 `tauri:build:windows:x64`；README 与维护者发版文档已同步改为“Windows x64 官方发布，macOS/Linux 仅保留源码构建”口径。
+
 ## 补充（2026-03-29｜Launcher/Settings schema 整改 Chunk 5）
 
 - 已完成命令管理拆分：`useCommandManagement` 改目录模块，Settings Commands 拆成 toolbar/summary/table/issues；关键回归、lint/typecheck、`check:all` 全绿。

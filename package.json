@@ -15,6 +15,7 @@
     "tauri:build:debug": "npm run version:sync && npm run keys:sync && tauri build --debug --no-bundle",
     "tauri:build": "npm run version:sync && npm run keys:sync && tauri build --bundles msi",
     "tauri:build:all": "npm run version:sync && npm run keys:sync && tauri build",
+    "tauri:build:windows:x64": "npm run version:sync && npm run keys:sync && rustup target add x86_64-pc-windows-msvc && tauri build --target x86_64-pc-windows-msvc",
     "e2e:desktop:smoke": "npm run version:sync && npm run keys:sync && npm run build && tauri build --debug --no-bundle --config scripts/e2e/tauri.debug-skip-before-build.json && node scripts/e2e/desktop-smoke.cjs",
     "verify:local": "node scripts/verify-local-gate.mjs",
     "check:rust": "cargo check --manifest-path src-tauri/Cargo.toml",

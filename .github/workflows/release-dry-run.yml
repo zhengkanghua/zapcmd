@@ -1,26 +1,14 @@
-name: Release Dry Run Build
+name: Release Dry Run Build (Windows x64)
 
 on:
   workflow_dispatch:
-    inputs:
-      platform:
-        description: "Build target platform"
-        required: true
-        default: "all"
-        type: choice
-        options:
-          - all
-          - windows
-          - macos
-          - linux
 
 concurrency:
   group: release-dry-run-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-windows:
-    if: ${{ inputs.platform == 'all' || inputs.platform == 'windows' }}
+  build-windows-x64:
     runs-on: windows-latest
     timeout-minutes: 120
     steps:
@@ -39,82 +27,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build bundles (dry-run)
-        run: npm run tauri:build:all
+      - name: Build Windows x64 bundles (dry-run)
+        run: npm run tauri:build:windows:x64
 
-      - name: Upload dry-run artifacts (windows)
+      - name: Upload dry-run artifacts (windows x64)
         uses: actions/upload-artifact@v4
         with:
-          name: zapcmd-dryrun-windows-bundle
-          path: src-tauri/target/release/bundle/
-          if-no-files-found: error
-
-  build-macos:
-    if: ${{ inputs.platform == 'all' || inputs.platform == 'macos' }}
-    runs-on: macos-latest
-    timeout-minutes: 120
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build bundles (dry-run)
-        run: npm run tauri:build:all
-
-      - name: Upload dry-run artifacts (macos)
-        uses: actions/upload-artifact@v4
-        with:
-          name: zapcmd-dryrun-macos-bundle
-          path: src-tauri/target/release/bundle/
-          if-no-files-found: error
-
-  build-linux:
-    if: ${{ inputs.platform == 'all' || inputs.platform == 'linux' }}
-    runs-on: ubuntu-22.04
-    timeout-minutes: 120
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install Linux build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libgtk-3-dev \
-            libwebkit2gtk-4.1-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
-            patchelf
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build bundles (dry-run)
-        run: npm run tauri:build:all
-
-      - name: Upload dry-run artifacts (linux)
-        uses: actions/upload-artifact@v4
-        with:
-          name: zapcmd-dryrun-linux-bundle
+          name: zapcmd-dryrun-windows-x64-bundle
           path: src-tauri/target/release/bundle/
           if-no-files-found: error

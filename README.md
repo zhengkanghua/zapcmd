@@ -36,13 +36,13 @@ Logo and icon asset: `docs/img/logo.png`
 ## Downloads
 
 - GitHub Releases: https://github.com/zhengkanghua/zapcmd/releases
-- Build artifacts and release assets are generated when pushing `vX.Y.Z` tags.
+- Build artifacts and release assets are generated when pushing `vX.Y.Z` tags (Windows x64 only).
 
 Install notes:
 
-1. Download the package for your OS (Windows/macOS/Linux).
+1. Download the Windows x64 package.
 2. Verify integrity with `SHA256SUMS` (included in each release).
-3. macOS packages are currently unsigned/not notarized (may require manual allow on first launch).
+3. macOS/Linux are currently source-build only and do not ship official GitHub Release assets.
 
 ## Run From Source (Dev)
 
@@ -131,7 +131,7 @@ npm run verify:local -- --macos-desktop-e2e-experimental
 ```
 
 Current remote gate wording matches `.github/workflows/ci-gate.yml`: Windows desktop smoke is the only blocking desktop gate in CI; macOS/Linux stay in cross-platform smoke (build/test) only.
-Release tags keep the same boundary: Windows release quality gate includes desktop smoke, while macOS only participates in multi-platform bundle builds.
+Release tags keep the same boundary: Windows x64 release quality gate includes desktop smoke and publishes the official release assets.
 
 See `CONTRIBUTING.md` for details.
 
@@ -141,8 +141,8 @@ Build:
 # local default build
 npm run tauri:build
 
-# all bundle targets (needs NSIS download access)
-npm run tauri:build:all
+# official release bundle (Windows x64)
+npm run tauri:build:windows:x64
 ```
 
 ## User Commands (`~/.zapcmd/commands`)
@@ -222,16 +222,16 @@ Roadmap:
 
 ## Support Matrix (v1)
 
-1. Windows x64: supported
-2. macOS arm64 (Apple Silicon): supported
-3. Linux x64: supported
+1. Windows x64: officially released and supported
+2. macOS arm64 (Apple Silicon): source build only, no official GitHub Release asset
+3. Linux x64: source build only, no official GitHub Release asset
 4. Other architectures: not guaranteed in current version
 
 ## Known Limitations
 
-1. macOS packages are currently unsigned/not notarized.
+1. Official GitHub Release assets currently provide Windows x64 only.
 2. User command JSON changes take effect after app restart.
-3. Desktop-shell E2E automation currently runs as blocking smoke on Windows; macOS remains experimental / non-blocking until upstream WebDriver support stabilizes.
+3. Desktop-shell E2E automation currently runs as blocking smoke on Windows only.
 
 ## Report Issues And Contribute
 
@@ -270,7 +270,7 @@ Review and merge policy:
 - Command file schema: `docs/schemas/README.md`
 - GitHub automation: `.github/workflows/ci-gate.yml`
 - Only maintainers with repository write/release permission should push `v*.*.*` tags.
-- Pushing a `vX.Y.Z` tag will trigger multi-platform builds and publish a GitHub Release.
+- Pushing a `vX.Y.Z` tag will trigger the Windows x64 build and publish a GitHub Release.
 
 ## Docs
 

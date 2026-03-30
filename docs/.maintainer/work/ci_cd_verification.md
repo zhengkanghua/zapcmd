@@ -28,8 +28,8 @@
 3. 仓库 `Actions` 页能看到这些 workflow（至少）：
    - `CI Gate`（`.github/workflows/ci-gate.yml`）
    - `CodeQL`（`.github/workflows/codeql.yml`）
-   - `Release Build Matrix`（`.github/workflows/release-build.yml`）
-   - `Release Dry Run Build`（`.github/workflows/release-dry-run.yml`）
+   - `Release Build (Windows x64)`（`.github/workflows/release-build.yml`）
+   - `Release Dry Run Build (Windows x64)`（`.github/workflows/release-dry-run.yml`）
 
 ---
 
@@ -78,9 +78,9 @@
 
 ### 5.1 Dry-run（不发布，只验证能构建）
 
-1. 仓库 `Actions` → `Release Dry Run Build`
-2. 点击 `Run workflow`，platform 选 `all`
-3. 预期：三平台构建成功并上传 artifacts
+1. 仓库 `Actions` → `Release Dry Run Build (Windows x64)`
+2. 点击 `Run workflow`
+3. 预期：Windows x64 构建成功并上传 artifacts
 
 ### 5.2 正式发版（会发布到 GitHub Releases）
 
@@ -91,5 +91,5 @@
    - `git tag vX.Y.Z`
    - `git push origin vX.Y.Z`
 3. 预期：
-   - `Release Build Matrix` 自动运行
-   - GitHub Releases 出现对应版本资产 + `SHA256SUMS`
+   - `Release Build (Windows x64)` 自动运行
+   - GitHub Releases 出现对应 Windows x64 资产 + `SHA256SUMS`
