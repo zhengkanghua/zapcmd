@@ -172,7 +172,7 @@ function normalizeWindowsCommandPath(
   }
   if (normalized.startsWith("/")) {
     if (platform === "win32") {
-      return normalizeGitBashWindowsPath(normalized, { existsSync });
+      return normalizeGitBashWindowsPath(normalized, { existsSync }) || normalized;
     }
     return normalized;
   }
