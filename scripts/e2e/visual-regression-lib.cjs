@@ -307,15 +307,14 @@ function resolveDiffRuntime({
 
   const localPwsh = trimString(env.ZAPCMD_PWSH_PATH) || (platform === "win32" ? "" : commandProbe("pwsh"));
   if (mode === VISUAL_MODES.controlledRunner) {
-    const windowsPwsh = resolveWindowsCommandPath({
-      envVarName: "ZAPCMD_PWSH_PATH",
-      platform,
-      env,
-      existsSync,
-      candidates: resolveWindowsPwshCandidates({ platform, env })
-    });
-
     if (platform === "win32") {
+      const windowsPwsh = resolveWindowsCommandPath({
+        envVarName: "ZAPCMD_PWSH_PATH",
+        platform,
+        env,
+        existsSync,
+        candidates: resolveWindowsPwshCandidates({ platform, env })
+      });
       return { command: windowsPwsh, useWindowsPaths: false };
     }
 
@@ -323,6 +322,13 @@ function resolveDiffRuntime({
       return { command: localPwsh, useWindowsPaths: false };
     }
 
+    const windowsPwsh = resolveWindowsCommandPath({
+      envVarName: "ZAPCMD_PWSH_PATH",
+      platform,
+      env,
+      existsSync,
+      candidates: resolveWindowsPwshCandidates({ platform, env })
+    });
     return { command: windowsPwsh, useWindowsPaths: false };
   }
 

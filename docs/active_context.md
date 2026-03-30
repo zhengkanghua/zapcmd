@@ -1012,3 +1012,4 @@
 ## 补充（2026-03-30｜CI pwsh 路径解析修复）
 - 已修复 `controlled-runner` 在 Windows 上误采 Git Bash 风格 `/c/.../pwsh` 路径的问题；`resolveDiffRuntime` 现优先走原生 Windows `pwsh.exe`，避免环境探针拿不到浏览器文件版本而写出 `actual=(missing)`。
 - 同步修正 win32 下显式传入 `/mnt/c/...` 的兼容分支，避免 WSL bridge 相关测试把可执行路径误清空。
+- 再补一处顺序修复：`controlled-runner` 在非 Windows 平台不再先 eager 解析 `windowsPwsh`，避免 macOS/Linux smoke 测试因缺少 `wslpath` 而在本机 compare contract 上误炸。
