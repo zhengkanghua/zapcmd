@@ -1007,3 +1007,5 @@
 - 已修正模板 token 业务规则只校验合法 arg key，占位字面量如 `{{.Names}}` 不再误判；`useCommandCatalog` 等 76 测试与 lint/typecheck/test:related 已通过。
 ## 补充（2026-03-29｜Chunk 4 Task 11 门禁已打通）
 - 已将 generated validator 排除出覆盖统计，并补齐 schema/runtime 分支测试；`test:coverage` 达到 branch 90.15%，Task 11 现可正常提交。
+## 补充（2026-03-30｜CI controlled-runner 契约兜底）
+- 已修复 `.github/workflows/ci-gate.yml`：仓库 vars 为空时，Windows CI 会自动探测 Edge 路径与版本并写入 `GITHUB_ENV`，避免 `test:visual:ui:runner` 因空浏览器契约硬失败；定向契约测试已通过。

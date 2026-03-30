@@ -84,13 +84,75 @@ jobs:
       - name: Run Windows-only blocking desktop E2E smoke
         run: npm run e2e:desktop:smoke
 
-      - name: Run controlled visual regression gate
-        # runner 环境必须提供：
-        # - ZAPCMD_VISUAL_RUNNER_BROWSER_PATH
-        # - ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION
+      - name: Resolve controlled runner browser contract
+        shell: pwsh
         env:
           ZAPCMD_VISUAL_RUNNER_BROWSER_PATH: ${{ vars.ZAPCMD_VISUAL_RUNNER_BROWSER_PATH }}
           ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION: ${{ vars.ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION }}
+        run: |
+          $browserPath = $env:ZAPCMD_VISUAL_RUNNER_BROWSER_PATH
+          if (-not $browserPath) {
+            $candidates = @()
+
+            try {
+              $edgeCommand = Get-Command "msedge" -ErrorAction SilentlyContinue
+              if ($edgeCommand -and $edgeCommand.Source) {
+                $candidates += $edgeCommand.Source
+              }
+            } catch {}
+
+            if ($env:ProgramFiles) {
+              $candidates += (Join-Path $env:ProgramFiles "Microsoft\Edge\Application\msedge.exe")
+            }
+
+            if (${env:ProgramFiles(x86)}) {
+              $candidates += (Join-Path ${env:ProgramFiles(x86)} "Microsoft\Edge\Application\msedge.exe")
+            }
+
+            foreach ($candidate in ($candidates | Where-Object { $_ } | Select-Object -Unique)) {
+              if (Test-Path -LiteralPath $candidate) {
+                $browserPath = (Resolve-Path -LiteralPath $candidate).Path
+                break
+              }
+            }
+          }
+
+          if (-not $browserPath) {
+            throw "未能解析 controlled-runner 浏览器路径。请设置仓库变量 ZAPCMD_VISUAL_RUNNER_BROWSER_PATH，或确认 Windows runner 已安装 Edge。"
+          }
+
+          $browserVersion = $env:ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION
+          if (-not $browserVersion) {
+            try {
+              $versionInfo = (Get-Item -LiteralPath $browserPath).VersionInfo
+              foreach ($candidate in @($versionInfo.ProductVersion, $versionInfo.FileVersion)) {
+                if ($candidate -match "(\d+\.\d+\.\d+\.\d+)") {
+                  $browserVersion = $Matches[1]
+                  break
+                }
+              }
+            } catch {}
+          }
+
+          if (-not $browserVersion) {
+            try {
+              $probeOutput = (& $browserPath --version | Out-String).Trim()
+              if ($probeOutput -match "(\d+\.\d+\.\d+\.\d+)") {
+                $browserVersion = $Matches[1]
+              }
+            } catch {}
+          }
+
+          if (-not $browserVersion) {
+            throw "未能解析 controlled-runner 浏览器版本。请设置仓库变量 ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION。"
+          }
+
+          Add-Content -Path $env:GITHUB_ENV -Encoding utf8 -Value "ZAPCMD_VISUAL_RUNNER_BROWSER_PATH=$browserPath"
+          Add-Content -Path $env:GITHUB_ENV -Encoding utf8 -Value "ZAPCMD_VISUAL_RUNNER_BROWSER_VERSION=$browserVersion"
+          Write-Host "controlled-runner browser: $browserPath ($browserVersion)"
+
+      - name: Run controlled visual regression gate
+        # 优先使用仓库变量；若为空，则由前一步在 Windows runner 上探测 Edge 并导出契约。
         run: npm run test:visual:ui:runner
 
       - name: Upload Windows blocking desktop smoke artifacts
