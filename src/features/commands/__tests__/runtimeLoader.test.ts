@@ -31,6 +31,14 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.category === "database")).toBe(false);
   });
 
+  it("loads mysql/postgres/sqlite builtin categories", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.category === "mysql")).toBe(true);
+    expect(templates.some((item) => item.category === "postgres")).toBe(true);
+    expect(templates.some((item) => item.category === "sqlite")).toBe(true);
+  });
+
   it("reports invalid user command files", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {

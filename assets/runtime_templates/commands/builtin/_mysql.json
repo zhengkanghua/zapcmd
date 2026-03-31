@@ -1,0 +1,588 @@
+{
+  "_meta": {
+    "name": "MySQL",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_mysql.md"
+  },
+  "commands": [
+    {
+      "id": "mysql-shell",
+      "name": "MySQL Shell",
+      "tags": [
+        "mysql",
+        "shell",
+        "cli",
+        "入口",
+        "控制台"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-ping",
+      "name": "MySQL PING",
+      "tags": [
+        "mysql",
+        "ping",
+        "健康检查",
+        "health"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysqladmin -h {{host}} -P {{port}} -u {{user}} ping -p",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysqladmin",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysqladmin"
+        }
+      ]
+    },
+    {
+      "id": "mysql-show-databases",
+      "name": "MySQL 显示数据库",
+      "tags": [
+        "mysql",
+        "show",
+        "databases",
+        "列表"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"SHOW DATABASES;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-show-tables",
+      "name": "MySQL 显示数据表",
+      "tags": [
+        "mysql",
+        "show",
+        "tables",
+        "列表",
+        "database"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW TABLES;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-describe-table",
+      "name": "MySQL 查看表结构",
+      "tags": [
+        "mysql",
+        "describe",
+        "table",
+        "schema",
+        "database"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"DESCRIBE {{table}};\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        },
+        {
+          "key": "table",
+          "label": "table",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-query",
+      "name": "MySQL 执行 SQL",
+      "tags": [
+        "mysql",
+        "query",
+        "sql",
+        "database"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"{{sql}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        },
+        {
+          "key": "sql",
+          "label": "sql",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-dump",
+      "name": "MySQL 导出数据库",
+      "tags": [
+        "mysql",
+        "dump",
+        "export",
+        "database",
+        "backup"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysqldump -h {{host}} -P {{port}} -u {{user}} -p {{database}} > \"{{output}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        },
+        {
+          "key": "output",
+          "label": "output",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysqldump",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysqldump"
+        }
+      ]
+    },
+    {
+      "id": "mysql-import",
+      "name": "MySQL 导入 SQL 文件",
+      "tags": [
+        "mysql",
+        "import",
+        "restore",
+        "database",
+        "sql"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p {{database}} < \"{{file}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        },
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-create-database",
+      "name": "MySQL 创建数据库",
+      "tags": [
+        "mysql",
+        "create",
+        "database"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"CREATE DATABASE {{database}};\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-drop-database",
+      "name": "MySQL 删除数据库",
+      "tags": [
+        "mysql",
+        "drop",
+        "database",
+        "删除",
+        "delete",
+        "高危"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"DROP DATABASE {{database}};\"",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    }
+  ]
+}

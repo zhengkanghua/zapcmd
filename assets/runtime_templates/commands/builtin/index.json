@@ -1,8 +1,8 @@
 {
   "sourceDir": "docs/command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 199,
-  "physicalCommandCount": 240,
+  "logicalCommandCount": 226,
+  "physicalCommandCount": 267,
   "generatedFiles": [
     {
       "file": "_dev.json",
@@ -33,6 +33,13 @@
       "physicalCount": 28
     },
     {
+      "file": "_mysql.json",
+      "sourceFile": "_mysql.md",
+      "category": "mysql",
+      "logicalCount": 10,
+      "physicalCount": 10
+    },
+    {
       "file": "_network.json",
       "sourceFile": "_network.md",
       "category": "network",
@@ -47,11 +54,25 @@
       "physicalCount": 23
     },
     {
+      "file": "_postgres.json",
+      "sourceFile": "_postgres.md",
+      "category": "postgres",
+      "logicalCount": 10,
+      "physicalCount": 10
+    },
+    {
       "file": "_redis.json",
       "sourceFile": "_redis.md",
       "category": "redis",
       "logicalCount": 20,
       "physicalCount": 20
+    },
+    {
+      "file": "_sqlite.json",
+      "sourceFile": "_sqlite.md",
+      "category": "sqlite",
+      "logicalCount": 7,
+      "physicalCount": 7
     },
     {
       "file": "_ssh.json",

@@ -6,8 +6,8 @@
 
 ## Summary
 
-- Logical commands: 199
-- Physical commands (after platform split): 240
+- Logical commands: 226
+- Physical commands (after platform split): 267
 - Output directory: assets/runtime_templates/commands/builtin
 
 ## Files
@@ -18,8 +18,11 @@
 | _docker.json | _docker.md | docker | 24 | 24 |
 | _file.json | _file.md | file | 25 | 41 |
 | _git.json | _git.md | git | 28 | 28 |
+| _mysql.json | _mysql.md | mysql | 10 | 10 |
 | _network.json | _network.md | network | 26 | 33 |
 | _package.json | _package.md | package | 23 | 23 |
+| _postgres.json | _postgres.md | postgres | 10 | 10 |
 | _redis.json | _redis.md | redis | 20 | 20 |
+| _sqlite.json | _sqlite.md | sqlite | 7 | 7 |
 | _ssh.json | _ssh.md | ssh | 10 | 11 |
 | _system.json | _system.md | system | 25 | 37 |

@@ -1,0 +1,17 @@
+# _postgres
+
+> 分类：Postgres
+> 说明：此文件为 JSON 生成源（人维护）。
+
+| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | `psql-shell` | Postgres Shell | all | `psql -h {{host}} -p {{port}} -U {{user}} -d {{database}}` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres), database(text, default:postgres) | - | false | psql | postgres psql shell cli 入口 控制台 |
+| 2 | `postgres-is-ready` | Postgres 就绪检查 | all | `pg_isready -h {{host}} -p {{port}}` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535) | - | false | pg_isready | postgres ready health 检查 |
+| 3 | `postgres-list-databases` | Postgres 列出数据库 | all | `psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c "\l"` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres) | - | false | psql | postgres list databases 数据库 列表 |
+| 4 | `postgres-list-tables` | Postgres 列出数据表 | all | `psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c "\dt"` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres), database(text, default:postgres) | - | false | psql | postgres list tables 数据表 列表 |
+| 5 | `postgres-describe-table` | Postgres 查看表结构 | all | `psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c "\d {{table}}"` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres), database(text, default:postgres), table(text) | - | false | psql | postgres describe table schema |
+| 6 | `postgres-query` | Postgres 执行 SQL | all | `psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c "{{sql}}"` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres), database(text, default:postgres), sql(text) | - | false | psql | postgres query sql database |
+| 7 | `postgres-dump` | Postgres 导出数据库 | all | `pg_dump -h {{host}} -p {{port}} -U {{user}} -d {{database}} -f "{{output}}"` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres), database(text, default:postgres), output(path) | - | false | pg_dump | postgres dump export backup database |
+| 8 | `postgres-restore` | Postgres 导入 SQL 文件 | all | `psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -f "{{file}}"` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres), database(text, default:postgres), file(path) | - | false | psql | postgres restore import sql database |
+| 9 | `postgres-create-database` | Postgres 创建数据库 | all | `psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c "CREATE DATABASE {{database}};"` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres), database(text) | - | false | psql | postgres create database |
+| 10 | `postgres-drop-database` | Postgres 删除数据库 | all | `psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c "DROP DATABASE {{database}};"` | host(text, default:127.0.0.1), port(number, default:5432, min:1, max:65535), user(text, default:postgres), database(text) | ⚠️ | false | psql | postgres drop database 删除 delete 高危 |

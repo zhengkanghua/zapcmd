@@ -1,0 +1,589 @@
+{
+  "_meta": {
+    "name": "Postgres",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_postgres.md"
+  },
+  "commands": [
+    {
+      "id": "psql-shell",
+      "name": "Postgres Shell",
+      "tags": [
+        "postgres",
+        "psql",
+        "shell",
+        "cli",
+        "入口",
+        "控制台"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-is-ready",
+      "name": "Postgres 就绪检查",
+      "tags": [
+        "postgres",
+        "ready",
+        "health",
+        "检查"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "pg_isready -h {{host}} -p {{port}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pg_isready",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pg_isready"
+        }
+      ]
+    },
+    {
+      "id": "postgres-list-databases",
+      "name": "Postgres 列出数据库",
+      "tags": [
+        "postgres",
+        "list",
+        "databases",
+        "数据库",
+        "列表"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c \"\\l\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-list-tables",
+      "name": "Postgres 列出数据表",
+      "tags": [
+        "postgres",
+        "list",
+        "tables",
+        "数据表",
+        "列表"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"\\dt\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-describe-table",
+      "name": "Postgres 查看表结构",
+      "tags": [
+        "postgres",
+        "describe",
+        "table",
+        "schema"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"\\d {{table}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "table",
+          "label": "table",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-query",
+      "name": "Postgres 执行 SQL",
+      "tags": [
+        "postgres",
+        "query",
+        "sql",
+        "database"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"{{sql}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "sql",
+          "label": "sql",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-dump",
+      "name": "Postgres 导出数据库",
+      "tags": [
+        "postgres",
+        "dump",
+        "export",
+        "backup",
+        "database"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "pg_dump -h {{host}} -p {{port}} -U {{user}} -d {{database}} -f \"{{output}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "output",
+          "label": "output",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pg_dump",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pg_dump"
+        }
+      ]
+    },
+    {
+      "id": "postgres-restore",
+      "name": "Postgres 导入 SQL 文件",
+      "tags": [
+        "postgres",
+        "restore",
+        "import",
+        "sql",
+        "database"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -f \"{{file}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-create-database",
+      "name": "Postgres 创建数据库",
+      "tags": [
+        "postgres",
+        "create",
+        "database"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c \"CREATE DATABASE {{database}};\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-drop-database",
+      "name": "Postgres 删除数据库",
+      "tags": [
+        "postgres",
+        "drop",
+        "database",
+        "删除",
+        "delete",
+        "高危"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c \"DROP DATABASE {{database}};\"",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    }
+  ]
+}

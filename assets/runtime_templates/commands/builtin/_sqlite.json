@@ -1,0 +1,244 @@
+{
+  "_meta": {
+    "name": "SQLite",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_sqlite.md"
+  },
+  "commands": [
+    {
+      "id": "sqlite-shell",
+      "name": "SQLite Shell",
+      "tags": [
+        "sqlite",
+        "shell",
+        "cli",
+        "入口",
+        "控制台"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-tables",
+      "name": "SQLite 列出数据表",
+      "tags": [
+        "sqlite",
+        "tables",
+        "列表"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \".tables\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-schema",
+      "name": "SQLite 查看 Schema",
+      "tags": [
+        "sqlite",
+        "schema",
+        "结构"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \".schema\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-query",
+      "name": "SQLite 执行 SQL",
+      "tags": [
+        "sqlite",
+        "query",
+        "sql"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \"{{sql}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "sql",
+          "label": "sql",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-import",
+      "name": "SQLite 导入 CSV",
+      "tags": [
+        "sqlite",
+        "import",
+        "csv",
+        "table"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \".mode csv\" \".import {{csv}} {{table}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "csv",
+          "label": "csv",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "table",
+          "label": "table",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-integrity-check",
+      "name": "SQLite 完整性检查",
+      "tags": [
+        "sqlite",
+        "integrity",
+        "check",
+        "健康检查"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \"PRAGMA integrity_check;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-vacuum",
+      "name": "SQLite VACUUM",
+      "tags": [
+        "sqlite",
+        "vacuum",
+        "optimize",
+        "优化"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \"VACUUM;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    }
+  ]
+}
