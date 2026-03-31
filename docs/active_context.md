@@ -1019,3 +1019,5 @@
 - 再补一处顺序修复：`controlled-runner` 在非 Windows 平台不再先 eager 解析 `windowsPwsh`，避免 macOS/Linux smoke 测试因缺少 `wslpath` 而在本机 compare contract 上误炸。
 ## 补充（2026-03-31｜命令分类开放化 brainstorming 完成）
 - 已确认设计稿 `docs/superpowers/specs/2026-03-31-command-category-slug-and-builtin-command-expansion-design.md`：`category` 改为 slug；builtin 与用户命令共用开放分类；首批拆出 `redis/mysql/postgres/sqlite/kubernetes`，通用能力保留大类。
+## 补充（2026-03-31｜命令分类开放化 writing-plans 完成）
+- 已落盘实施计划 `docs/superpowers/plans/2026-03-31-command-category-slug-and-builtin-command-expansion.md`：先改 category slug contract，再收口 generator/file-name guard，最后拆分 `_redis/_mysql/_postgres/_sqlite/_kubernetes` 并刷新生成产物。
