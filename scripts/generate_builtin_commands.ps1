@@ -205,6 +205,95 @@ function Get-PlatformVariants {
   }
 }
 
+function Get-SourceHeaderMetadata {
+  param(
+    [AllowEmptyString()][string[]]$Lines,
+    [Parameter(Mandatory = $true)][string]$ExpectedFileId
+  )
+
+  $titleIndex = -1
+  for ($i = 0; $i -lt $Lines.Count; $i++) {
+    if (-not [string]::IsNullOrWhiteSpace($Lines[$i])) {
+      $titleIndex = $i
+      break
+    }
+  }
+
+  if ($titleIndex -lt 0) {
+    throw "Missing required # _slug header in '$ExpectedFileId'"
+  }
+
+  $titleLine = $Lines[$titleIndex]
+  if ($titleLine -cnotmatch '^\#\s+(_[a-z0-9]+(?:-[a-z0-9]+)*)\s*$') {
+    throw "First non-empty line must be '# _slug' in '$ExpectedFileId'"
+  }
+
+  $declaredFileId = $matches[1]
+  if ($declaredFileId -cne $ExpectedFileId) {
+    throw "Header slug '$declaredFileId' must match filename '$ExpectedFileId'"
+  }
+
+  for ($i = $titleIndex + 1; $i -lt $Lines.Count; $i++) {
+    if ($Lines[$i] -match '^\#\s+') {
+      throw "Duplicate # _slug header found in '$ExpectedFileId'"
+    }
+  }
+
+  $displayName = $null
+  $runtimeCategory = $null
+  $metadataIndex = $titleIndex + 1
+  while ($metadataIndex -lt $Lines.Count -and [string]::IsNullOrWhiteSpace($Lines[$metadataIndex])) {
+    $metadataIndex++
+  }
+
+  while ($metadataIndex -lt $Lines.Count) {
+    $line = $Lines[$metadataIndex]
+    if ([string]::IsNullOrWhiteSpace($line) -or $line -notmatch '^\>\s*') {
+      break
+    }
+
+    if ($line -match '^\>\s*([^：:]+)\s*[：:]\s*(.*)$') {
+      $key = $matches[1].Trim()
+      $value = $matches[2].Trim()
+      switch ($key) {
+        "分类" {
+          if ($null -ne $displayName) {
+            throw "Duplicate 分类 metadata in '$ExpectedFileId'"
+          }
+          if ([string]::IsNullOrWhiteSpace($value)) {
+            throw "分类 metadata cannot be empty in '$ExpectedFileId'"
+          }
+          $displayName = $value
+        }
+        "运行时分类" {
+          if ($null -ne $runtimeCategory) {
+            throw "Duplicate 运行时分类 metadata in '$ExpectedFileId'"
+          }
+          if ([string]::IsNullOrWhiteSpace($value)) {
+            throw "运行时分类 metadata cannot be empty in '$ExpectedFileId'"
+          }
+          if ($value -cnotmatch '^[a-z0-9]+(?:-[a-z0-9]+)*$') {
+            throw "运行时分类 metadata must be a valid slug in '$ExpectedFileId': '$value'"
+          }
+          $runtimeCategory = $value
+        }
+        default { }
+      }
+    }
+
+    $metadataIndex++
+  }
+
+  if ([string]::IsNullOrWhiteSpace($displayName)) {
+    throw "Missing required 分类 metadata in '$ExpectedFileId'"
+  }
+
+  return [pscustomobject]@{
+    displayName = $displayName
+    runtimeCategory = if ($null -ne $runtimeCategory) { $runtimeCategory } else { $ExpectedFileId.TrimStart('_') }
+  }
+}
+
 if (-not (Test-Path $SourceDir)) {
   throw "Source directory not found: $SourceDir"
 }
@@ -222,23 +311,15 @@ $summaryByFile = @{}
 
 foreach ($sourceFile in $sourceFiles) {
   $fileId = [System.IO.Path]::GetFileNameWithoutExtension($sourceFile.Name)
-  if ($fileId -notmatch '^_[a-z0-9]+(?:-[a-z0-9]+)*$') {
+  if ($fileId -cnotmatch '^_[a-z0-9]+(?:-[a-z0-9]+)*$') {
     throw ('Source filename must be _<slug>.md and category slug must match ^[a-z0-9]+(?:-[a-z0-9]+)*$: ' + $sourceFile.Name)
   }
 
   $moduleSlug = $fileId.TrimStart('_')
-  $runtimeCategory = $moduleSlug
   $lines = Get-Content $sourceFile.FullName
-  $displayName = $fileId
-  foreach ($line in $lines) {
-    if ($line -match '^\>\s*分类：(.+)$') {
-      $displayName = $matches[1].Trim()
-      continue
-    }
-    if ($line -match '^\>\s*运行时分类：(.+)$') {
-      $runtimeCategory = $matches[1].Trim()
-    }
-  }
+  $headerMetadata = Get-SourceHeaderMetadata -Lines $lines -ExpectedFileId $fileId
+  $displayName = $headerMetadata.displayName
+  $runtimeCategory = $headerMetadata.runtimeCategory
 
   $rowCount = 0
   $commands = @()
@@ -318,6 +399,8 @@ if ($ExpectedLogicalCount -gt 0 -and $logicalCount -ne $ExpectedLogicalCount) {
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
 $manifestFiles = @()
+$generatedJsonByFile = @{}
+$expectedOutputFiles = @{}
 foreach ($fileId in ($outputByFile.Keys | Sort-Object)) {
   $entry = $outputByFile[$fileId]
   $commands = $entry.commands
@@ -333,8 +416,8 @@ foreach ($fileId in ($outputByFile.Keys | Sort-Object)) {
     commands = $commands
   }
 
-  $targetPath = Join-Path $OutputDir "$fileId.json"
-  $doc | ConvertTo-Json -Depth 100 | Set-Content -Encoding UTF8 $targetPath
+  $generatedJsonByFile[$fileId] = $doc | ConvertTo-Json -Depth 100
+  $expectedOutputFiles["$fileId.json"] = $true
 
   $summary = $summaryByFile[$fileId]
   $manifestFiles += [pscustomobject][ordered]@{
@@ -354,7 +437,7 @@ $manifest = [ordered]@{
   physicalCommandCount = $physicalCount
   generatedFiles = $manifestFiles
 }
-$manifest | ConvertTo-Json -Depth 20 | Set-Content -Encoding UTF8 $ManifestPath
+$manifestContent = $manifest | ConvertTo-Json -Depth 20
 
 $md = @()
 $md += "# Builtin Commands Generated Snapshot"
@@ -376,7 +459,26 @@ $md += "|---|---|---|---|---|---|"
 foreach ($f in $manifestFiles) {
   $md += "| $($f.file) | $($f.sourceFile) | $($f.moduleSlug) | $($f.runtimeCategory) | $($f.logicalCount) | $($f.physicalCount) |"
 }
-($md -join [Environment]::NewLine) | Set-Content -Encoding UTF8 $GeneratedMarkdownPath
+$snapshotContent = $md -join [Environment]::NewLine
+
+foreach ($fileId in ($generatedJsonByFile.Keys | Sort-Object)) {
+  $targetPath = Join-Path $OutputDir "$fileId.json"
+  $generatedJsonByFile[$fileId] | Set-Content -Encoding UTF8 $targetPath
+}
+$manifestContent | Set-Content -Encoding UTF8 $ManifestPath
+$snapshotContent | Set-Content -Encoding UTF8 $GeneratedMarkdownPath
+
+# 只有在全部新产物落盘成功后，才允许清理已经失去源文件对应关系的旧 builtin JSON。
+$staleJsonFiles = @(Get-ChildItem -Path $OutputDir -Filter "_*.json" -File | Where-Object {
+  -not $expectedOutputFiles.ContainsKey($_.Name)
+})
+foreach ($staleFile in $staleJsonFiles) {
+  try {
+    Remove-Item -LiteralPath $staleFile.FullName -Force -ErrorAction Stop
+  } catch {
+    throw "Failed to remove stale builtin json file: $($staleFile.FullName)"
+  }
+}
 
 Write-Output "Generated builtin command files:"
 Write-Output "  SourceDir: $SourceDir"
