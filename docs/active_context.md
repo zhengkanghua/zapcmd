@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-31｜builtin 命令源第二轮扩充设计）
+
+- 已确认第二轮只在 `_network.md`、`_dev.md`、`_package.md` 追加 builtin 命令，不重组分类；package 命令保持“当前上下文透明”，暂缓 `curl-json-post`，后续只落命令源/生成产物/必要测试。
+
 ## 补充（2026-03-30｜Windows x64 release artifact 路径修复）
 
 - 已修复 release / dry-run workflow 上传目录错误：`tauri:build:windows:x64` 产物实际位于 `src-tauri/target/x86_64-pc-windows-msvc/release/bundle/`；新增 contract test 防止回归。
