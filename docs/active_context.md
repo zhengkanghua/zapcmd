@@ -1017,3 +1017,5 @@
 - 已修复 `controlled-runner` 在 Windows 上误采 Git Bash 风格 `/c/.../pwsh` 路径的问题；`resolveDiffRuntime` 现优先走原生 Windows `pwsh.exe`，避免环境探针拿不到浏览器文件版本而写出 `actual=(missing)`。
 - 同步修正 win32 下显式传入 `/mnt/c/...` 的兼容分支，避免 WSL bridge 相关测试把可执行路径误清空。
 - 再补一处顺序修复：`controlled-runner` 在非 Windows 平台不再先 eager 解析 `windowsPwsh`，避免 macOS/Linux smoke 测试因缺少 `wslpath` 而在本机 compare contract 上误炸。
+## 补充（2026-03-31｜命令分类开放化 brainstorming 完成）
+- 已确认设计稿 `docs/superpowers/specs/2026-03-31-command-category-slug-and-builtin-command-expansion-design.md`：`category` 改为 slug；builtin 与用户命令共用开放分类；首批拆出 `redis/mysql/postgres/sqlite/kubernetes`，通用能力保留大类。
