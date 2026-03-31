@@ -16,6 +16,14 @@
 2. 启动加载校验：发现结构损坏的文件时给出错误并跳过。
 3. 作为 `docs/command_sources/*.md` 生成产物的最终落地格式依据（唯一 JSON 结构）。
 
+## category contract
+
+- `category` 现在是开放 slug，而不是固定枚举。
+- 规则：`^[a-z0-9]+(?:-[a-z0-9]+)*$`
+- 合法示例：`custom`、`redis`、`mysql-tools`
+- 非法示例：`Redis`、`mysql tools`、`postgres_tools`
+- builtin 与用户命令共用同一规则；builtin 会直接把源文件名 `_*.md` 去掉前缀 `_` 后写入 `category`。
+
 ## 与命令源的关系
 
 - `docs/command_sources/*.md` 是命令内容清单（人维护源）。

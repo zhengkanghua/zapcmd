@@ -222,8 +222,8 @@ $summaryByFile = @{}
 
 foreach ($sourceFile in $sourceFiles) {
   $fileId = [System.IO.Path]::GetFileNameWithoutExtension($sourceFile.Name)
-  if ($fileId -notmatch '^_[a-zA-Z0-9_\-]+$') {
-    throw "Source filename must start with '_' and only use [a-zA-Z0-9_-]: $($sourceFile.Name)"
+  if ($fileId -notmatch '^_[a-z0-9]+(?:-[a-z0-9]+)*$') {
+    throw ('Source filename must be _<slug>.md and category slug must match ^[a-z0-9]+(?:-[a-z0-9]+)*$: ' + $sourceFile.Name)
   }
 
   $category = $fileId.TrimStart('_')

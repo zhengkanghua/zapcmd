@@ -163,7 +163,7 @@ Minimal example:
       "id": "custom-hello-win",
       "name": "Custom Hello",
       "tags": ["custom", "hello"],
-      "category": "custom",
+      "category": "redis",
       "platform": "win",
       "template": "Write-Output \"hello from user commands\"",
       "adminRequired": false
@@ -181,6 +181,7 @@ Notes:
 
 - `shell` is currently validated by schema but ignored at runtime (no effect). ZapCmd shows a validation notice in `Settings -> Command Management`.
 - On Windows, `adminRequired=true` means "launch the matching elevated terminal when executing this command"; it does not elevate the ZapCmd app process itself.
+- `category` must be a slug string such as `custom`, `redis`, or `mysql-tools`.
 
 ## Search Behavior (Current)
 

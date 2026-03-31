@@ -163,7 +163,7 @@ ZapCmd 会递归读取用户 JSON 文件：
       "id": "custom-hello-win",
       "name": "自定义问候",
       "tags": ["custom", "hello"],
-      "category": "custom",
+      "category": "redis",
       "platform": "win",
       "template": "Write-Output \"hello from user commands\"",
       "adminRequired": false
@@ -181,6 +181,7 @@ Schema：
 
 - `shell` 字段当前仅做 schema 校验，运行时会忽略（不会影响执行）。ZapCmd 会在 `设置 -> 命令管理` 显示校验提示。
 - 在 Windows 上，`adminRequired=true` 表示“执行时按需拉起对应管理员终端”，并不会提升 ZapCmd 主进程权限。
+- `category` 必须是 slug 字符串，例如 `custom`、`redis`、`mysql-tools`。
 
 ## 搜索机制（当前实现）
 

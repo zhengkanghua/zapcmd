@@ -34,14 +34,16 @@ CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_
 
 ## 源文件规范（必须）
 
-1. 文件命名建议使用模块化前缀：`_git.md`、`_docker.md`、`_system.md` 等。
+1. 文件命名必须满足 `_` + slug：例如 `_git.md`、`_docker.md`、`_postgres-tools.md`。
 2. 每个源文件的命令以 Markdown 表格维护，表头必须保持一致：
 
    `# | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags`
 
-3. 一个源文件对应一个输出文件（同名）：
+3. 文件名去掉前缀 `_` 后直接成为 builtin `category`，并与用户命令共用同一套 slug 规则：`^[a-z0-9]+(?:-[a-z0-9]+)*$`。
+4. 一个源文件对应一个输出文件（同名）：
    - `_network.md` → `assets/runtime_templates/commands/builtin/_network.json`
    - `_git.md` → `assets/runtime_templates/commands/builtin/_git.json`
+5. 非法示例：`_Redis.md`、`_postgres_tools.md`、`_my tools.md`；这些文件名会被生成器直接拒绝。
 
 ## 常见字段约定（简版）
 

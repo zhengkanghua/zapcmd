@@ -129,5 +129,59 @@ describe("generate_builtin_commands.ps1", () => {
         max: 10000
       }
     });
-  }, 30_000);
+  }, 60_000);
+
+  it("rejects builtin source files whose filename is not a slug", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    writeMarkdownFixture(sourceDir);
+    writeFileSync(
+      path.join(sourceDir, "_postgres_tools.md"),
+      [
+        "> 分类：Postgres Tools",
+        "",
+        "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+        "| 1 | `psql-shell` | Postgres Shell | all | `psql` | - | - | false | psql | postgres shell |"
+      ].join("\n"),
+      "utf8"
+    );
+    const pwshExecutable = resolvePwshExecutable();
+
+    const result = spawnSync(
+      pwshExecutable,
+      [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        path.resolve(process.cwd(), "scripts/generate_builtin_commands.ps1"),
+        "-SourceDir",
+        toPwshPath(sourceDir, pwshExecutable),
+        "-OutputDir",
+        toPwshPath(outputDir, pwshExecutable),
+        "-ManifestPath",
+        toPwshPath(manifestPath, pwshExecutable),
+        "-GeneratedMarkdownPath",
+        toPwshPath(generatedMarkdownPath, pwshExecutable)
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8"
+      }
+    );
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    expect(result.status).not.toBe(0);
+    expect(`${result.stderr}\n${result.stdout}`).toContain("slug");
+  }, 60_000);
 });
