@@ -1,15 +1,15 @@
 {
   "sourceDir": "docs/command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 245,
-  "physicalCommandCount": 288,
+  "logicalCommandCount": 251,
+  "physicalCommandCount": 296,
   "generatedFiles": [
     {
       "file": "_dev.json",
       "sourceFile": "_dev.md",
       "category": "dev",
-      "logicalCount": 18,
-      "physicalCount": 23
+      "logicalCount": 24,
+      "physicalCount": 31
     },
     {
       "file": "_docker.json",

@@ -61,6 +61,23 @@ describe("runtimeLoader", () => {
     expect(linuxTemplates.some((item) => item.id === "whois-linux")).toBe(true);
   });
 
+  it("loads second-round dev builtin commands", () => {
+    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const macTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
+    const linuxTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
+
+    expect(winTemplates.some((item) => item.id === "jq-format-json")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "jwt-decode")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "epoch-ms-now-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "epoch-ms-convert-win")).toBe(true);
+
+    expect(macTemplates.some((item) => item.id === "epoch-ms-now-mac")).toBe(true);
+    expect(macTemplates.some((item) => item.id === "epoch-ms-convert-mac")).toBe(true);
+
+    expect(linuxTemplates.some((item) => item.id === "epoch-ms-now-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "epoch-ms-convert-linux")).toBe(true);
+  });
+
   it("reports invalid user command files", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {

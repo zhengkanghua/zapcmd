@@ -795,6 +795,269 @@
           "check": "binary:python3"
         }
       ]
+    },
+    {
+      "id": "jq-format-json",
+      "name": "使用 jq 格式化 JSON 文件",
+      "tags": [
+        "开发",
+        "dev",
+        "jq",
+        "json",
+        "格式化",
+        "format",
+        "文件",
+        "file"
+      ],
+      "category": "dev",
+      "platform": "all",
+      "template": "jq . {{file}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "jq",
+          "type": "binary",
+          "required": true,
+          "check": "binary:jq"
+        }
+      ]
+    },
+    {
+      "id": "jwt-decode",
+      "name": "解码 JWT",
+      "tags": [
+        "开发",
+        "dev",
+        "jwt",
+        "decode",
+        "解码",
+        "token"
+      ],
+      "category": "dev",
+      "platform": "all",
+      "template": "python3 -c \"import base64, json, sys; parts=sys.argv[1].split('.'); dec=lambda s: json.loads(base64.urlsafe_b64decode(s + '=' * (-len(s) % 4)).decode()); print(json.dumps({'header': dec(parts[0]), 'payload': dec(parts[1])}, ensure_ascii=False, indent=2))\" \"{{token}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "token",
+          "label": "token",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        }
+      ]
+    },
+    {
+      "id": "epoch-ms-now-mac",
+      "name": "当前 Unix 毫秒时间戳",
+      "tags": [
+        "开发",
+        "dev",
+        "epoch",
+        "毫秒",
+        "milliseconds",
+        "timestamp",
+        "now"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "python3 -c \"import time; print(int(time.time() * 1000))\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        }
+      ]
+    },
+    {
+      "id": "epoch-ms-now-linux",
+      "name": "当前 Unix 毫秒时间戳",
+      "tags": [
+        "开发",
+        "dev",
+        "epoch",
+        "毫秒",
+        "milliseconds",
+        "timestamp",
+        "now"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "python3 -c \"import time; print(int(time.time() * 1000))\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        }
+      ]
+    },
+    {
+      "id": "epoch-ms-now-win",
+      "name": "当前 Unix 毫秒时间戳",
+      "tags": [
+        "开发",
+        "dev",
+        "epoch",
+        "毫秒",
+        "milliseconds",
+        "timestamp",
+        "now"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "template": "[DateTimeOffset]::Now.ToUnixTimeMilliseconds()",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
+    },
+    {
+      "id": "epoch-ms-convert-mac",
+      "name": "毫秒时间戳转日期",
+      "tags": [
+        "开发",
+        "dev",
+        "epoch",
+        "毫秒",
+        "milliseconds",
+        "timestamp",
+        "convert",
+        "转换",
+        "日期"
+      ],
+      "category": "dev",
+      "platform": "mac",
+      "template": "python3 -c \"import datetime; print(datetime.datetime.fromtimestamp({{timestamp}} / 1000, datetime.timezone.utc).astimezone().isoformat())\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "timestamp",
+          "label": "timestamp",
+          "type": "number",
+          "required": true,
+          "validation": {
+            "min": 0
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        }
+      ]
+    },
+    {
+      "id": "epoch-ms-convert-linux",
+      "name": "毫秒时间戳转日期",
+      "tags": [
+        "开发",
+        "dev",
+        "epoch",
+        "毫秒",
+        "milliseconds",
+        "timestamp",
+        "convert",
+        "转换",
+        "日期"
+      ],
+      "category": "dev",
+      "platform": "linux",
+      "template": "python3 -c \"import datetime; print(datetime.datetime.fromtimestamp({{timestamp}} / 1000, datetime.timezone.utc).astimezone().isoformat())\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "timestamp",
+          "label": "timestamp",
+          "type": "number",
+          "required": true,
+          "validation": {
+            "min": 0
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "python3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:python3"
+        }
+      ]
+    },
+    {
+      "id": "epoch-ms-convert-win",
+      "name": "毫秒时间戳转日期",
+      "tags": [
+        "开发",
+        "dev",
+        "epoch",
+        "毫秒",
+        "milliseconds",
+        "timestamp",
+        "convert",
+        "转换",
+        "日期"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "template": "[DateTimeOffset]::FromUnixTimeMilliseconds({{timestamp}}).ToString(\"o\")",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "timestamp",
+          "label": "timestamp",
+          "type": "number",
+          "required": true,
+          "validation": {
+            "min": 0
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
     }
   ]
 }

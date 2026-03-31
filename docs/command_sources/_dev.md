@@ -23,3 +23,9 @@
 | 16 | `regex-test-linux` | 正则表达式测试 | linux | `echo "{{text}}" \| grep -oP "{{pattern}}"` | text(text), pattern(text) | - | false | grep, echo | 开发 dev 正则 regex test 测试 |
 | 17 | `url-encode` | URL 编码 | all | `python3 -c "import urllib.parse; print(urllib.parse.quote('{{text}}'))"` | text(text) | - | false | python3 | 开发 dev url 编码 encode |
 | 18 | `url-decode` | URL 解码 | all | `python3 -c "import urllib.parse; print(urllib.parse.unquote('{{text}}'))"` | text(text) | - | false | python3 | 开发 dev url 解码 decode |
+| 19 | `jq-format-json` | 使用 jq 格式化 JSON 文件 | all | `jq . {{file}}` | file(path) | - | false | jq | 开发 dev jq json 格式化 format 文件 file |
+| 20 | `jwt-decode` | 解码 JWT | all | `python3 -c "import base64, json, sys; parts=sys.argv[1].split('.'); dec=lambda s: json.loads(base64.urlsafe_b64decode(s + '=' * (-len(s) % 4)).decode()); print(json.dumps({'header': dec(parts[0]), 'payload': dec(parts[1])}, ensure_ascii=False, indent=2))" "{{token}}"` | token(text) | - | false | python3 | 开发 dev jwt decode 解码 token |
+| 21 | `epoch-ms-now` | 当前 Unix 毫秒时间戳 | mac/linux | `python3 -c "import time; print(int(time.time() * 1000))"` | - | - | false | python3 | 开发 dev epoch 毫秒 milliseconds timestamp now |
+| 22 | `epoch-ms-now-win` | 当前 Unix 毫秒时间戳 | win | `[DateTimeOffset]::Now.ToUnixTimeMilliseconds()` | - | - | false | powershell | 开发 dev epoch 毫秒 milliseconds timestamp now |
+| 23 | `epoch-ms-convert` | 毫秒时间戳转日期 | mac/linux | `python3 -c "import datetime; print(datetime.datetime.fromtimestamp({{timestamp}} / 1000, datetime.timezone.utc).astimezone().isoformat())"` | timestamp(number, min:0) | - | false | python3 | 开发 dev epoch 毫秒 milliseconds timestamp convert 转换 日期 |
+| 24 | `epoch-ms-convert-win` | 毫秒时间戳转日期 | win | `[DateTimeOffset]::FromUnixTimeMilliseconds({{timestamp}}).ToString("o")` | timestamp(number, min:0) | - | false | powershell | 开发 dev epoch 毫秒 milliseconds timestamp convert 转换 日期 |
