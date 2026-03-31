@@ -675,6 +675,126 @@
           "check": "binary:cargo"
         }
       ]
+    },
+    {
+      "id": "pnpm-run",
+      "name": "PNPM 运行脚本",
+      "tags": [
+        "包管理",
+        "package",
+        "pnpm",
+        "run",
+        "运行",
+        "script",
+        "脚本"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pnpm run {{script}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "script",
+          "label": "script",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pnpm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pnpm"
+        }
+      ]
+    },
+    {
+      "id": "pnpm-up",
+      "name": "PNPM 升级依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "pnpm",
+        "up",
+        "update",
+        "upgrade",
+        "升级",
+        "依赖"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pnpm up",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "pnpm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pnpm"
+        }
+      ]
+    },
+    {
+      "id": "bun-install",
+      "name": "Bun 安装依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "bun",
+        "install",
+        "安装",
+        "依赖"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "bun install",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "bun",
+          "type": "binary",
+          "required": true,
+          "check": "binary:bun"
+        }
+      ]
+    },
+    {
+      "id": "bun-run",
+      "name": "Bun 运行脚本",
+      "tags": [
+        "包管理",
+        "package",
+        "bun",
+        "run",
+        "运行",
+        "script",
+        "脚本"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "bun run {{script}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "script",
+          "label": "script",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bun",
+          "type": "binary",
+          "required": true,
+          "check": "binary:bun"
+        }
+      ]
     }
   ]
 }

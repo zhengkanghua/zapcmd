@@ -1031,3 +1031,5 @@
 - 已落盘实施计划 `docs/superpowers/plans/2026-03-31-command-category-slug-and-builtin-command-expansion.md`：先改 category slug contract，再收口 generator/file-name guard，最后拆分 `_redis/_mysql/_postgres/_sqlite/_kubernetes` 并刷新生成产物。
 ## 补充（2026-03-31｜命令分类 slug 与 builtin 扩充已落地）
 - 已完成 `category` slug contract、generator 文件名校验与 builtin 命令源拆分；新增 `redis/mysql/postgres/sqlite/kubernetes` 并刷新生成产物，`commands:schema:check`、定向测试与 `check:all` 全绿。
+## 补充（2026-03-31｜builtin 命令源第二轮扩充实施完成）
+- 已按 chunk 完成 network/dev/package 扩充：新增 curl-json-get、http-status-only、whois、jq-format-json、jwt-decode、epoch-ms-*、pnpm/bun 命令；产物 totals=255/300，focused tests、schema check、check:all 全绿。

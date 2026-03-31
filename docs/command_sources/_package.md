@@ -28,3 +28,7 @@
 | 21 | `cargo-run` | Cargo 运行 | all | `cargo run` | - | - | false | cargo | 包管理 package cargo 运行 run |
 | 22 | `cargo-test` | Cargo 测试 | all | `cargo test` | - | - | false | cargo | 包管理 package cargo test 测试 |
 | 23 | `cargo-add` | Cargo 添加依赖 | all | `cargo add {{package}}` | package(text) | - | false | cargo | 包管理 package cargo 添加 add 依赖 dependency |
+| 24 | `pnpm-run` | PNPM 运行脚本 | all | `pnpm run {{script}}` | script(text) | - | false | pnpm | 包管理 package pnpm run 运行 script 脚本 |
+| 25 | `pnpm-up` | PNPM 升级依赖 | all | `pnpm up` | - | - | false | pnpm | 包管理 package pnpm up update upgrade 升级 依赖 |
+| 26 | `bun-install` | Bun 安装依赖 | all | `bun install` | - | - | false | bun | 包管理 package bun install 安装 依赖 |
+| 27 | `bun-run` | Bun 运行脚本 | all | `bun run {{script}}` | script(text) | - | false | bun | 包管理 package bun run 运行 script 脚本 |
