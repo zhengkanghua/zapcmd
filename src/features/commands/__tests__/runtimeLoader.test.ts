@@ -231,6 +231,34 @@ describe("runtimeLoader", () => {
     );
   });
 
+  it("loads user commands with custom slug category", () => {
+    const loaded = loadUserCommandTemplatesWithReport(
+      [
+        {
+          path: "C:/Users/test/.zapcmd/commands/redis.json",
+          content: JSON.stringify({
+            commands: [
+              {
+                id: "redis-shell",
+                name: "Redis Shell",
+                tags: ["redis"],
+                category: "redis",
+                platform: "win",
+                template: "redis-cli",
+                adminRequired: false
+              }
+            ]
+          }),
+          modifiedMs: 1
+        }
+      ],
+      { runtimePlatform: "win" }
+    );
+
+    expect(loaded.templates[0]?.category).toBe("redis");
+    expect(loaded.issues).toHaveLength(0);
+  });
+
   it("creates read-failed issues with read stage reason", () => {
     const issue = createReadFailedIssue("C:/Users/test/.zapcmd/commands", new Error("permission denied"));
     expect(issue).toEqual(

@@ -62,21 +62,7 @@
     },
     "category": {
       "type": "string",
-      "enum": [
-        "network",
-        "docker",
-        "git",
-        "system",
-        "file",
-        "package",
-        "database",
-        "cloud",
-        "kubernetes",
-        "ssh",
-        "security",
-        "dev",
-        "custom"
-      ]
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "platform": {
       "type": "string",

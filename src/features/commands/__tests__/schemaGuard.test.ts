@@ -84,6 +84,13 @@ describe("isRuntimeCommandFile", () => {
     expect(isRuntimeCommandFile(createValidPayload())).toBe(true);
   });
 
+  it("accepts a command file with custom slug category", () => {
+    const payload = createValidPayload();
+    payload.commands[0].category = "redis" as ValidCommand["category"];
+
+    expect(isRuntimeCommandFile(payload)).toBe(true);
+  });
+
   it("accepts a valid command file without _meta", () => {
     const { _meta: _ignored, ...payload } = createValidPayload();
     expect(isRuntimeCommandFile(payload)).toBe(true);
@@ -242,12 +249,6 @@ describe("isRuntimeCommandFile", () => {
       }
     },
     {
-      name: "category is invalid enum",
-      mutate: (command) => {
-        command.category = "unknown";
-      }
-    },
-    {
       name: "platform is invalid enum",
       mutate: (command) => {
         command.platform = "android";
@@ -316,6 +317,16 @@ describe("isRuntimeCommandFile", () => {
       expect(isRuntimeCommandFile(payload)).toBe(false);
     });
   }
+
+  it("rejects command categories that violate the slug contract", () => {
+    const invalidCategories = ["Redis", "mysql tools", "postgres_tools"];
+
+    for (const category of invalidCategories) {
+      const payload = createValidPayload();
+      payload.commands[0].category = category as ValidCommand["category"];
+      expect(isRuntimeCommandFile(payload)).toBe(false);
+    }
+  });
 
   const invalidArgMutations: Array<{ name: string; mutate: (arg: UnknownRecord) => void }> = [
     {

@@ -93,6 +93,19 @@ describe("schemaValidation", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("accepts custom slug categories that satisfy the shared contract", () => {
+    const categories = ["redis", "mysql-tools"];
+
+    for (const category of categories) {
+      const payload = createValidPayload();
+      payload.commands[0].category = category;
+
+      const result = validateRuntimeCommandFile(payload);
+
+      expect(result.valid).toBe(true);
+    }
+  });
+
   it("rejects templates that reference undefined argument tokens", () => {
     const payload = createValidPayload();
     payload.commands[0].template = "echo {{port}} {{missing}}";

@@ -6,20 +6,7 @@ import type {
 export type RuntimeLocalizedText = Record<string, string>;
 export type RuntimeLocalizedTextOrString = RuntimeLocalizedText | string;
 
-export type RuntimeCategory =
-  | "network"
-  | "docker"
-  | "git"
-  | "system"
-  | "file"
-  | "package"
-  | "database"
-  | "cloud"
-  | "kubernetes"
-  | "ssh"
-  | "security"
-  | "dev"
-  | "custom";
+export type RuntimeCategory = string;
 
 export type RuntimePlatform = "all" | "win" | "mac" | "linux";
 export type RuntimeShell = "bash" | "zsh" | "powershell" | "cmd";
