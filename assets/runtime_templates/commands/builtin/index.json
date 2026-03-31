@@ -1,16 +1,9 @@
 {
   "sourceDir": "docs/command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 187,
-  "physicalCommandCount": 228,
+  "logicalCommandCount": 199,
+  "physicalCommandCount": 240,
   "generatedFiles": [
-    {
-      "file": "_database.json",
-      "sourceFile": "_database.md",
-      "category": "database",
-      "logicalCount": 8,
-      "physicalCount": 8
-    },
     {
       "file": "_dev.json",
       "sourceFile": "_dev.md",
@@ -52,6 +45,13 @@
       "category": "package",
       "logicalCount": 23,
       "physicalCount": 23
+    },
+    {
+      "file": "_redis.json",
+      "sourceFile": "_redis.md",
+      "category": "redis",
+      "logicalCount": 20,
+      "physicalCount": 20
     },
     {
       "file": "_ssh.json",

@@ -24,6 +24,13 @@ describe("runtimeLoader", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("exposes redis builtin category after source split", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.category === "redis")).toBe(true);
+    expect(templates.some((item) => item.category === "database")).toBe(false);
+  });
+
   it("reports invalid user command files", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {
