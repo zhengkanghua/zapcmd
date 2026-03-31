@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-31｜builtin 命令模块拆分设计）
+
+- 已确认 builtin 继续保持 `1 md = 1 json`，但新增文件级“运行时分类”覆盖；首轮计划把 `_package.md` 拆成 `_npm/_pnpm/_yarn/_bun/_pip/_brew/_cargo.md`，运行时仍统一归类为 `package`。
+
 ## 补充（2026-03-31｜builtin 命令源第二轮扩充设计）
 
 - 已确认第二轮只在 `_network.md`、`_dev.md`、`_package.md` 追加 builtin 命令，不重组分类；package 命令保持“当前上下文透明”，暂缓 `curl-json-post`，后续只落命令源/生成产物/必要测试。
