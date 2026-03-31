@@ -1,8 +1,8 @@
 {
   "sourceDir": "docs/command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 241,
-  "physicalCommandCount": 282,
+  "logicalCommandCount": 245,
+  "physicalCommandCount": 288,
   "generatedFiles": [
     {
       "file": "_dev.json",
@@ -50,8 +50,8 @@
       "file": "_network.json",
       "sourceFile": "_network.md",
       "category": "network",
-      "logicalCount": 26,
-      "physicalCount": 33
+      "logicalCount": 30,
+      "physicalCount": 39
     },
     {
       "file": "_package.json",

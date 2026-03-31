@@ -1213,6 +1213,210 @@
           "check": "binary:curl"
         }
       ]
+    },
+    {
+      "id": "curl-json-get",
+      "name": "HTTP GET 请求 (JSON)",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "json",
+        "get",
+        "获取"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -s -H \"Accept: application/json\" {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "http-status-only-mac",
+      "name": "仅查看 HTTP 状态码",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "status",
+        "状态码",
+        "code"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "curl -s -o /dev/null -w \"%{http_code}\" {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "http-status-only-linux",
+      "name": "仅查看 HTTP 状态码",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "status",
+        "状态码",
+        "code"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "curl -s -o /dev/null -w \"%{http_code}\" {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "http-status-only-win",
+      "name": "仅查看 HTTP 状态码",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "status",
+        "状态码",
+        "code"
+      ],
+      "category": "network",
+      "platform": "win",
+      "template": "curl -s -o NUL -w \"%{http_code}\" {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "whois-mac",
+      "name": "WHOIS 查询",
+      "tags": [
+        "网络",
+        "network",
+        "whois",
+        "域名",
+        "domain",
+        "查询",
+        "query"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "whois {{domain}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "domain",
+          "label": "domain",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "whois",
+          "type": "binary",
+          "required": true,
+          "check": "binary:whois"
+        }
+      ]
+    },
+    {
+      "id": "whois-linux",
+      "name": "WHOIS 查询",
+      "tags": [
+        "网络",
+        "network",
+        "whois",
+        "域名",
+        "domain",
+        "查询",
+        "query"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "whois {{domain}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "domain",
+          "label": "domain",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "whois",
+          "type": "binary",
+          "required": true,
+          "check": "binary:whois"
+        }
+      ]
     }
   ]
 }

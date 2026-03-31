@@ -45,6 +45,22 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.category === "kubernetes")).toBe(true);
   });
 
+  it("loads second-round network builtin commands with correct platform split", () => {
+    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const macTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
+    const linuxTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
+
+    expect(winTemplates.some((item) => item.id === "curl-json-get")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "http-status-only-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "whois-mac")).toBe(false);
+
+    expect(macTemplates.some((item) => item.id === "http-status-only-mac")).toBe(true);
+    expect(macTemplates.some((item) => item.id === "whois-mac")).toBe(true);
+
+    expect(linuxTemplates.some((item) => item.id === "http-status-only-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "whois-linux")).toBe(true);
+  });
+
   it("reports invalid user command files", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {

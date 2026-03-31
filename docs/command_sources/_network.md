@@ -31,3 +31,7 @@
 | 24 | `flush-dns-win` | 刷新 DNS 缓存 | win | `ipconfig /flushdns` | - | - | true | ipconfig | 网络 network 刷新 flush dns |
 | 25 | `flush-dns-linux` | 刷新 DNS 缓存 | linux | `sudo systemd-resolve --flush-caches` | - | - | true | systemd-resolve | 网络 network 刷新 flush dns |
 | 26 | `speed-test` | 网络测速 | all | `curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \| python3 -` | - | ⚠️ | false | python3, curl | 网络 network 测速 speed test 测试 |
+| 27 | `curl-json-get` | HTTP GET 请求 (JSON) | all | `curl -s -H "Accept: application/json" {{url}}` | url(text) | - | false | curl | 网络 network curl http json get 获取 |
+| 28 | `http-status-only` | 仅查看 HTTP 状态码 | mac/linux | `curl -s -o /dev/null -w "%{http_code}" {{url}}` | url(text) | - | false | curl | 网络 network curl http status 状态码 code |
+| 29 | `http-status-only-win` | 仅查看 HTTP 状态码 | win | `curl -s -o NUL -w "%{http_code}" {{url}}` | url(text) | - | false | curl | 网络 network curl http status 状态码 code |
+| 30 | `whois` | WHOIS 查询 | mac/linux | `whois {{domain}}` | domain(text) | - | false | whois | 网络 network whois 域名 domain 查询 query |
