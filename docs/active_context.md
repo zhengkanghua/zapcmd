@@ -1021,3 +1021,5 @@
 - 已确认设计稿 `docs/superpowers/specs/2026-03-31-command-category-slug-and-builtin-command-expansion-design.md`：`category` 改为 slug；builtin 与用户命令共用开放分类；首批拆出 `redis/mysql/postgres/sqlite/kubernetes`，通用能力保留大类。
 ## 补充（2026-03-31｜命令分类开放化 writing-plans 完成）
 - 已落盘实施计划 `docs/superpowers/plans/2026-03-31-command-category-slug-and-builtin-command-expansion.md`：先改 category slug contract，再收口 generator/file-name guard，最后拆分 `_redis/_mysql/_postgres/_sqlite/_kubernetes` 并刷新生成产物。
+## 补充（2026-03-31｜命令分类 slug 与 builtin 扩充已落地）
+- 已完成 `category` slug contract、generator 文件名校验与 builtin 命令源拆分；新增 `redis/mysql/postgres/sqlite/kubernetes` 并刷新生成产物，`commands:schema:check`、定向测试与 `check:all` 全绿。
