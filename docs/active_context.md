@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-31｜builtin 命令模块拆分计划）
+
+- 已落盘 implementation plan：先锁 generator `runtimeCategory` contract，再收口头部 grammar 与 stale `_package.json` 清理，最后拆分 package 模块并以 runtimeLoader + `check:all` 验证，目标 totals 保持 `255/300`。
+
 ## 补充（2026-03-31｜builtin 命令模块拆分设计）
 
 - 已确认 builtin 继续保持 `1 md = 1 json`，但新增文件级“运行时分类”覆盖；首轮计划把 `_package.md` 拆成 `_npm/_pnpm/_yarn/_bun/_pip/_brew/_cargo.md`，运行时仍统一归类为 `package`。
