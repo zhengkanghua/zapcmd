@@ -22,7 +22,9 @@
 - 规则：`^[a-z0-9]+(?:-[a-z0-9]+)*$`
 - 合法示例：`custom`、`redis`、`mysql-tools`
 - 非法示例：`Redis`、`mysql tools`、`postgres_tools`
-- builtin 与用户命令共用同一规则；builtin 会直接把源文件名 `_*.md` 去掉前缀 `_` 后写入 `category`。
+- builtin 与用户命令共用同一规则。
+- builtin 默认会把源文件 slug（`_*.md` 去掉前缀 `_`）写入 `category`。
+- 若 Markdown 头部声明 `> 运行时分类：...`，生成器会优先写入该值；例如 `_pnpm.md` 仍可生成 `category=package`。
 
 ## 与命令源的关系
 

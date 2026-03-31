@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-31｜builtin 模块分类覆盖落地）
+
+- 已完成 builtin 头部 grammar、`运行时分类` 覆盖与 stale `_package.json` 清理；`package` 已拆为 `_npm/_pnpm/_yarn/_bun/_pip/_brew/_cargo`，运行时仍归类 `package`，`check:all` 全绿。
+
 ## 补充（2026-03-31｜builtin 命令模块拆分计划）
 
 - 已落盘 implementation plan：先锁 generator `runtimeCategory` contract，再收口头部 grammar 与 stale `_package.json` 清理，最后拆分 package 模块并以 runtimeLoader + `check:all` 验证，目标 totals 保持 `255/300`。

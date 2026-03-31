@@ -35,15 +35,23 @@ CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_
 ## 源文件规范（必须）
 
 1. 文件命名必须满足 `_` + slug：例如 `_git.md`、`_docker.md`、`_postgres-tools.md`。
-2. 每个源文件的命令以 Markdown 表格维护，表头必须保持一致：
+2. 每个源文件都必须先写头部，再写 Markdown 表格：
+   - 第一个非空行必须是一级标题：`# _slug`
+   - 一级标题之后允许空行
+   - 之后只解析首个连续 blockquote 元数据区
+   - `> 分类：...` 必填，用于生成 `_meta.name`
+   - `> 运行时分类：...` 可选；若出现必须是合法 slug
+   - `> 说明：...` 可保留供维护者阅读，但不进入 JSON 结构
+3. 表格表头必须保持一致：
 
    `# | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags`
 
-3. 文件名去掉前缀 `_` 后直接成为 builtin `category`，并与用户命令共用同一套 slug 规则：`^[a-z0-9]+(?:-[a-z0-9]+)*$`。
-4. 一个源文件对应一个输出文件（同名）：
+4. 文件 slug 决定模块名与输出文件名；命令运行时 `category` 默认回退到文件 slug，也可由 `> 运行时分类：...` 覆盖。builtin 与用户命令共用同一套 slug 规则：`^[a-z0-9]+(?:-[a-z0-9]+)*$`。
+5. 一个源文件对应一个输出文件（同名）：
    - `_network.md` → `assets/runtime_templates/commands/builtin/_network.json`
    - `_git.md` → `assets/runtime_templates/commands/builtin/_git.json`
-5. 非法示例：`_Redis.md`、`_postgres_tools.md`、`_my tools.md`；这些文件名会被生成器直接拒绝。
+6. `assets/runtime_templates/commands/builtin/index.json` 的 `generatedFiles[]` 现在显式记录 `moduleSlug` 与 `runtimeCategory`；`docs/builtin_commands.generated.md` 也会同步输出 `Module / Runtime Category` 两列，便于区分“模块文件名”和“运行时分类”。
+7. 非法示例：`_Redis.md`、`_postgres_tools.md`、`_my tools.md`；这些文件名会被生成器直接拒绝。
 
 ## 常见字段约定（简版）
 
