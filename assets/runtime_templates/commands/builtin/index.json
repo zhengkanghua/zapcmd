@@ -1,99 +1,160 @@
 {
-  "sourceDir": "docs/command_sources",
+  "sourceDir": "\\\\wsl.localhost\\Ubuntu-22.04\\home\\work\\projects\\zapcmd\\.worktrees\\builtin-command-module-category-override\\docs\\command_sources",
   "sourcePattern": "_*.md",
   "logicalCommandCount": 255,
   "physicalCommandCount": 300,
   "generatedFiles": [
     {
+      "file": "_brew.json",
+      "sourceFile": "_brew.md",
+      "moduleSlug": "brew",
+      "runtimeCategory": "package",
+      "logicalCount": 5,
+      "physicalCount": 5
+    },
+    {
+      "file": "_bun.json",
+      "sourceFile": "_bun.md",
+      "moduleSlug": "bun",
+      "runtimeCategory": "package",
+      "logicalCount": 2,
+      "physicalCount": 2
+    },
+    {
+      "file": "_cargo.json",
+      "sourceFile": "_cargo.md",
+      "moduleSlug": "cargo",
+      "runtimeCategory": "package",
+      "logicalCount": 4,
+      "physicalCount": 4
+    },
+    {
       "file": "_dev.json",
       "sourceFile": "_dev.md",
-      "category": "dev",
+      "moduleSlug": "dev",
+      "runtimeCategory": "dev",
       "logicalCount": 24,
       "physicalCount": 31
     },
     {
       "file": "_docker.json",
       "sourceFile": "_docker.md",
-      "category": "docker",
+      "moduleSlug": "docker",
+      "runtimeCategory": "docker",
       "logicalCount": 24,
       "physicalCount": 24
     },
     {
       "file": "_file.json",
       "sourceFile": "_file.md",
-      "category": "file",
+      "moduleSlug": "file",
+      "runtimeCategory": "file",
       "logicalCount": 25,
       "physicalCount": 41
     },
     {
       "file": "_git.json",
       "sourceFile": "_git.md",
-      "category": "git",
+      "moduleSlug": "git",
+      "runtimeCategory": "git",
       "logicalCount": 28,
       "physicalCount": 28
     },
     {
       "file": "_kubernetes.json",
       "sourceFile": "_kubernetes.md",
-      "category": "kubernetes",
+      "moduleSlug": "kubernetes",
+      "runtimeCategory": "kubernetes",
       "logicalCount": 15,
       "physicalCount": 15
     },
     {
       "file": "_mysql.json",
       "sourceFile": "_mysql.md",
-      "category": "mysql",
+      "moduleSlug": "mysql",
+      "runtimeCategory": "mysql",
       "logicalCount": 10,
       "physicalCount": 10
     },
     {
       "file": "_network.json",
       "sourceFile": "_network.md",
-      "category": "network",
+      "moduleSlug": "network",
+      "runtimeCategory": "network",
       "logicalCount": 30,
       "physicalCount": 39
     },
     {
-      "file": "_package.json",
-      "sourceFile": "_package.md",
-      "category": "package",
-      "logicalCount": 27,
-      "physicalCount": 27
+      "file": "_npm.json",
+      "sourceFile": "_npm.md",
+      "moduleSlug": "npm",
+      "runtimeCategory": "package",
+      "logicalCount": 8,
+      "physicalCount": 8
+    },
+    {
+      "file": "_pip.json",
+      "sourceFile": "_pip.md",
+      "moduleSlug": "pip",
+      "runtimeCategory": "package",
+      "logicalCount": 4,
+      "physicalCount": 4
+    },
+    {
+      "file": "_pnpm.json",
+      "sourceFile": "_pnpm.md",
+      "moduleSlug": "pnpm",
+      "runtimeCategory": "package",
+      "logicalCount": 3,
+      "physicalCount": 3
     },
     {
       "file": "_postgres.json",
       "sourceFile": "_postgres.md",
-      "category": "postgres",
+      "moduleSlug": "postgres",
+      "runtimeCategory": "postgres",
       "logicalCount": 10,
       "physicalCount": 10
     },
     {
       "file": "_redis.json",
       "sourceFile": "_redis.md",
-      "category": "redis",
+      "moduleSlug": "redis",
+      "runtimeCategory": "redis",
       "logicalCount": 20,
       "physicalCount": 20
     },
     {
       "file": "_sqlite.json",
       "sourceFile": "_sqlite.md",
-      "category": "sqlite",
+      "moduleSlug": "sqlite",
+      "runtimeCategory": "sqlite",
       "logicalCount": 7,
       "physicalCount": 7
     },
     {
       "file": "_ssh.json",
       "sourceFile": "_ssh.md",
-      "category": "ssh",
+      "moduleSlug": "ssh",
+      "runtimeCategory": "ssh",
       "logicalCount": 10,
       "physicalCount": 11
     },
     {
       "file": "_system.json",
       "sourceFile": "_system.md",
-      "category": "system",
+      "moduleSlug": "system",
+      "runtimeCategory": "system",
       "logicalCount": 25,
       "physicalCount": 37
+    },
+    {
+      "file": "_yarn.json",
+      "sourceFile": "_yarn.md",
+      "moduleSlug": "yarn",
+      "runtimeCategory": "package",
+      "logicalCount": 1,
+      "physicalCount": 1
     }
   ]
 }

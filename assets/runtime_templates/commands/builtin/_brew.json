@@ -1,0 +1,148 @@
+{
+  "_meta": {
+    "name": "Homebrew",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_brew.md"
+  },
+  "commands": [
+    {
+      "id": "brew-install",
+      "name": "Homebrew 安装",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "install",
+        "安装"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew install {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "brew-uninstall",
+      "name": "Homebrew 卸载",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "卸载",
+        "uninstall"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew uninstall {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "brew-update",
+      "name": "Homebrew 更新索引",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "更新",
+        "update"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew update",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "brew-upgrade",
+      "name": "Homebrew 升级所有",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "upgrade"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew upgrade",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    },
+    {
+      "id": "brew-list",
+      "name": "Homebrew 已安装列表",
+      "tags": [
+        "包管理",
+        "package",
+        "brew",
+        "列表",
+        "list",
+        "安装",
+        "install"
+      ],
+      "category": "package",
+      "platform": "mac",
+      "template": "brew list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "brew",
+          "type": "binary",
+          "required": true,
+          "check": "binary:brew"
+        }
+      ]
+    }
+  ]
+}

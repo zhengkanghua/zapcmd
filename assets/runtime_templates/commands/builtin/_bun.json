@@ -1,0 +1,70 @@
+{
+  "_meta": {
+    "name": "Bun",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_bun.md"
+  },
+  "commands": [
+    {
+      "id": "bun-install",
+      "name": "Bun 安装依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "bun",
+        "install",
+        "安装",
+        "依赖"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "bun install",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "bun",
+          "type": "binary",
+          "required": true,
+          "check": "binary:bun"
+        }
+      ]
+    },
+    {
+      "id": "bun-run",
+      "name": "Bun 运行脚本",
+      "tags": [
+        "包管理",
+        "package",
+        "bun",
+        "run",
+        "运行",
+        "script",
+        "脚本"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "bun run {{script}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "script",
+          "label": "script",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bun",
+          "type": "binary",
+          "required": true,
+          "check": "binary:bun"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "_meta": {
+    "name": "Yarn",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_yarn.md"
+  },
+  "commands": [
+    {
+      "id": "yarn-install",
+      "name": "Yarn 安装依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "yarn",
+        "install",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "yarn add {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "yarn",
+          "type": "binary",
+          "required": true,
+          "check": "binary:yarn"
+        }
+      ]
+    }
+  ]
+}

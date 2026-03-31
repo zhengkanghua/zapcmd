@@ -1,0 +1,117 @@
+{
+  "_meta": {
+    "name": "Cargo",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_cargo.md"
+  },
+  "commands": [
+    {
+      "id": "cargo-build",
+      "name": "Cargo 构建",
+      "tags": [
+        "包管理",
+        "package",
+        "cargo",
+        "构建",
+        "build"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "cargo build --release",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "cargo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cargo"
+        }
+      ]
+    },
+    {
+      "id": "cargo-run",
+      "name": "Cargo 运行",
+      "tags": [
+        "包管理",
+        "package",
+        "cargo",
+        "运行",
+        "run"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "cargo run",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "cargo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cargo"
+        }
+      ]
+    },
+    {
+      "id": "cargo-test",
+      "name": "Cargo 测试",
+      "tags": [
+        "包管理",
+        "package",
+        "cargo",
+        "test",
+        "测试"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "cargo test",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "cargo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cargo"
+        }
+      ]
+    },
+    {
+      "id": "cargo-add",
+      "name": "Cargo 添加依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "cargo",
+        "添加",
+        "add",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "cargo add {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "cargo",
+          "type": "binary",
+          "required": true,
+          "check": "binary:cargo"
+        }
+      ]
+    }
+  ]
+}

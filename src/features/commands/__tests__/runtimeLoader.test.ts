@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createReadFailedIssue,
   loadBuiltinCommandTemplates,
+  loadBuiltinCommandTemplatesWithReport,
   loadUserCommandTemplatesWithReport
 } from "../runtimeLoader";
 
@@ -88,6 +89,32 @@ describe("runtimeLoader", () => {
 
     expect(templates.some((item) => item.category === "pnpm")).toBe(false);
     expect(templates.some((item) => item.category === "bun")).toBe(false);
+  });
+
+  it("loads split package modules without introducing new runtime categories", () => {
+    const loaded = loadBuiltinCommandTemplatesWithReport({ runtimePlatform: "all" });
+    const categories = new Set(loaded.templates.map((item) => item.category));
+
+    expect(loaded.templates.some((item) => item.id === "npm-install")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pnpm-run")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "bun-run")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pip-freeze")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "brew-list")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "cargo-add")).toBe(true);
+
+    expect(loaded.sourceByCommandId["npm-install"]).toContain("_npm.json");
+    expect(loaded.sourceByCommandId["pnpm-run"]).toContain("_pnpm.json");
+    expect(loaded.sourceByCommandId["bun-run"]).toContain("_bun.json");
+    expect(loaded.sourceByCommandId["pip-freeze"]).toContain("_pip.json");
+    expect(loaded.sourceByCommandId["brew-list"]).toContain("_brew.json");
+    expect(loaded.sourceByCommandId["cargo-add"]).toContain("_cargo.json");
+
+    expect(categories.has("package")).toBe(true);
+    expect(categories.has("pnpm")).toBe(false);
+    expect(categories.has("bun")).toBe(false);
+    expect(
+      loaded.issues.some((item) => item.code === "duplicate-id" && item.sourceId.includes("_package.json"))
+    ).toBe(false);
   });
 
   it("reports invalid user command files", () => {

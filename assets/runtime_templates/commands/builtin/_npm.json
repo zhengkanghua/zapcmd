@@ -1,0 +1,252 @@
+{
+  "_meta": {
+    "name": "NPM",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_npm.md"
+  },
+  "commands": [
+    {
+      "id": "npm-install",
+      "name": "NPM 安装依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "install",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm install {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-install-dev",
+      "name": "NPM 安装开发依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "install",
+        "dev",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm install -D {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-uninstall",
+      "name": "NPM 卸载依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "卸载",
+        "uninstall",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm uninstall {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-run",
+      "name": "NPM 运行脚本",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "运行",
+        "run"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm run {{script}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "script",
+          "label": "script",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-list",
+      "name": "NPM 查看已安装",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "列表",
+        "list",
+        "查看",
+        "show",
+        "安装",
+        "install"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm list --depth=0",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-outdated",
+      "name": "NPM 检查过期依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "过期",
+        "outdated",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm outdated",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-update",
+      "name": "NPM 更新依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "更新",
+        "update",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm update",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-cache-clean",
+      "name": "NPM 清理缓存",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "缓存",
+        "cache",
+        "清理",
+        "clean"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm cache clean --force",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    }
+  ]
+}
