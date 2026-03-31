@@ -184,4 +184,89 @@ describe("generate_builtin_commands.ps1", () => {
     expect(result.status).not.toBe(0);
     expect(`${result.stderr}\n${result.stdout}`).toContain("slug");
   }, 60_000);
+
+  it("applies file-level runtime category override and records module metadata", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    mkdirSync(sourceDir, { recursive: true });
+    writeFileSync(
+      path.join(sourceDir, "_pnpm.md"),
+      [
+        "# _pnpm",
+        "",
+        "> 分类：PNPM",
+        "> 运行时分类：package",
+        "> 说明：此文件为 JSON 生成源（人维护）。",
+        "",
+        "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+        "| 1 | `pnpm-run` | PNPM 运行脚本 | all | `pnpm run {{script}}` | script(text) | - | false | pnpm | pnpm run script |"
+      ].join("\n"),
+      "utf8"
+    );
+    const pwshExecutable = resolvePwshExecutable();
+
+    const result = spawnSync(
+      pwshExecutable,
+      [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        path.resolve(process.cwd(), "scripts/generate_builtin_commands.ps1"),
+        "-SourceDir",
+        toPwshPath(sourceDir, pwshExecutable),
+        "-OutputDir",
+        toPwshPath(outputDir, pwshExecutable),
+        "-ManifestPath",
+        toPwshPath(manifestPath, pwshExecutable),
+        "-GeneratedMarkdownPath",
+        toPwshPath(generatedMarkdownPath, pwshExecutable)
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8"
+      }
+    );
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    expect(result.status).toBe(0);
+
+    const generatedJsonPath = path.join(outputDir, "_pnpm.json");
+    const generated = JSON.parse(readFileSync(generatedJsonPath, "utf8")) as {
+      commands: Array<{ category: string }>;
+    };
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      generatedFiles: Array<{
+        file: string;
+        sourceFile: string;
+        moduleSlug?: string;
+        runtimeCategory?: string;
+        logicalCount: number;
+        physicalCount: number;
+      }>;
+    };
+    const snapshot = readFileSync(generatedMarkdownPath, "utf8");
+
+    expect(generated.commands[0]?.category).toBe("package");
+    expect(manifest.generatedFiles[0]).toEqual({
+      file: "_pnpm.json",
+      sourceFile: "_pnpm.md",
+      moduleSlug: "pnpm",
+      runtimeCategory: "package",
+      logicalCount: 1,
+      physicalCount: 1
+    });
+    expect(snapshot).toContain("| File | Source | Module | Runtime Category | Logical | Physical |");
+    expect(snapshot).toContain("| _pnpm.json | _pnpm.md | pnpm | package | 1 | 1 |");
+  }, 60_000);
 });

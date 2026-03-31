@@ -226,13 +226,17 @@ foreach ($sourceFile in $sourceFiles) {
     throw ('Source filename must be _<slug>.md and category slug must match ^[a-z0-9]+(?:-[a-z0-9]+)*$: ' + $sourceFile.Name)
   }
 
-  $category = $fileId.TrimStart('_')
+  $moduleSlug = $fileId.TrimStart('_')
+  $runtimeCategory = $moduleSlug
   $lines = Get-Content $sourceFile.FullName
   $displayName = $fileId
   foreach ($line in $lines) {
     if ($line -match '^\>\s*分类：(.+)$') {
       $displayName = $matches[1].Trim()
-      break
+      continue
+    }
+    if ($line -match '^\>\s*运行时分类：(.+)$') {
+      $runtimeCategory = $matches[1].Trim()
     }
   }
 
@@ -271,7 +275,7 @@ foreach ($sourceFile in $sourceFiles) {
           id            = $variant.id
           name          = $name
           tags          = $tags
-          category      = $category
+          category      = $runtimeCategory
           platform      = $variant.platform
           template      = $template
           adminRequired = [bool]$adminRequired
@@ -302,7 +306,8 @@ foreach ($sourceFile in $sourceFiles) {
     sourceFile = $sourceFile.Name
     logicalCount = $rowCount
     physicalCount = $commands.Count
-    category = $category
+    moduleSlug = $moduleSlug
+    runtimeCategory = $runtimeCategory
   }
 }
 
@@ -335,7 +340,8 @@ foreach ($fileId in ($outputByFile.Keys | Sort-Object)) {
   $manifestFiles += [pscustomobject][ordered]@{
     file = "$fileId.json"
     sourceFile = $summary.sourceFile
-    category = $summary.category
+    moduleSlug = $summary.moduleSlug
+    runtimeCategory = $summary.runtimeCategory
     logicalCount = $summary.logicalCount
     physicalCount = $summary.physicalCount
   }
@@ -365,10 +371,10 @@ $md += "- Output directory: $OutputDir"
 $md += ""
 $md += "## Files"
 $md += ""
-$md += "| File | Source | Category | Logical | Physical |"
-$md += "|---|---|---|---|---|"
+$md += "| File | Source | Module | Runtime Category | Logical | Physical |"
+$md += "|---|---|---|---|---|---|"
 foreach ($f in $manifestFiles) {
-  $md += "| $($f.file) | $($f.sourceFile) | $($f.category) | $($f.logicalCount) | $($f.physicalCount) |"
+  $md += "| $($f.file) | $($f.sourceFile) | $($f.moduleSlug) | $($f.runtimeCategory) | $($f.logicalCount) | $($f.physicalCount) |"
 }
 ($md -join [Environment]::NewLine) | Set-Content -Encoding UTF8 $GeneratedMarkdownPath
 
