@@ -1,8 +1,8 @@
 {
   "sourceDir": "docs/command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 251,
-  "physicalCommandCount": 296,
+  "logicalCommandCount": 255,
+  "physicalCommandCount": 300,
   "generatedFiles": [
     {
       "file": "_dev.json",
@@ -57,8 +57,8 @@
       "file": "_package.json",
       "sourceFile": "_package.md",
       "category": "package",
-      "logicalCount": 23,
-      "physicalCount": 23
+      "logicalCount": 27,
+      "physicalCount": 27
     },
     {
       "file": "_postgres.json",

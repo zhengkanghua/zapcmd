@@ -78,6 +78,18 @@ describe("runtimeLoader", () => {
     expect(linuxTemplates.some((item) => item.id === "epoch-ms-convert-linux")).toBe(true);
   });
 
+  it("loads second-round package builtin commands without introducing new categories", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.id === "pnpm-run")).toBe(true);
+    expect(templates.some((item) => item.id === "pnpm-up")).toBe(true);
+    expect(templates.some((item) => item.id === "bun-install")).toBe(true);
+    expect(templates.some((item) => item.id === "bun-run")).toBe(true);
+
+    expect(templates.some((item) => item.category === "pnpm")).toBe(false);
+    expect(templates.some((item) => item.category === "bun")).toBe(false);
+  });
+
   it("reports invalid user command files", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {
