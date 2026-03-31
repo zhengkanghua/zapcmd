@@ -1,0 +1,553 @@
+{
+  "_meta": {
+    "name": "Kubernetes",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_kubernetes.md"
+  },
+  "commands": [
+    {
+      "id": "kubectl-current-context",
+      "name": "kubectl 当前上下文",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "context",
+        "current"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl config current-context",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-contexts",
+      "name": "kubectl 列出上下文",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "context",
+        "list"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl config get-contexts",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-namespaces",
+      "name": "kubectl 列出命名空间",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "namespaces",
+        "list"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get namespaces",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-pods",
+      "name": "kubectl 查看 Pods",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "pods",
+        "namespace"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get pods -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-services",
+      "name": "kubectl 查看 Services",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "services",
+        "namespace"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get services -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-describe-pod",
+      "name": "kubectl 查看 Pod 详情",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "describe",
+        "pod",
+        "namespace"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl describe pod {{pod}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pod",
+          "label": "pod",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-logs",
+      "name": "kubectl 查看 Pod 日志",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "logs",
+        "pod",
+        "namespace"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl logs {{pod}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pod",
+          "label": "pod",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-logs-follow",
+      "name": "kubectl 持续跟随日志",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "logs",
+        "follow",
+        "pod",
+        "namespace"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl logs -f {{pod}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pod",
+          "label": "pod",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-exec-sh",
+      "name": "kubectl 进入 Pod Shell",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "exec",
+        "shell",
+        "pod",
+        "namespace"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl exec -it {{pod}} -n {{namespace}} -- sh",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pod",
+          "label": "pod",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-port-forward",
+      "name": "kubectl 端口转发",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "port-forward",
+        "resource",
+        "namespace"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl port-forward {{resource}} {{localPort}}:{{remotePort}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "resource",
+          "label": "resource",
+          "type": "text",
+          "required": true,
+          "default": "deployment/my-app"
+        },
+        {
+          "key": "localPort",
+          "label": "localPort",
+          "type": "number",
+          "required": true,
+          "default": "8080",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "remotePort",
+          "label": "remotePort",
+          "type": "number",
+          "required": true,
+          "default": "80",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-rollout-restart",
+      "name": "kubectl 重启 Rollout",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "rollout",
+        "restart",
+        "resource",
+        "namespace",
+        "高危"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl rollout restart {{resource}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "resource",
+          "label": "resource",
+          "type": "text",
+          "required": true,
+          "default": "deployment/my-app"
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-rollout-status",
+      "name": "kubectl 查看 Rollout 状态",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "rollout",
+        "status",
+        "resource",
+        "namespace"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl rollout status {{resource}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "resource",
+          "label": "resource",
+          "type": "text",
+          "required": true,
+          "default": "deployment/my-app"
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-apply-file",
+      "name": "kubectl 应用配置文件",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "apply",
+        "file",
+        "配置",
+        "高危"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl apply -f \"{{file}}\"",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-delete-file",
+      "name": "kubectl 删除配置文件资源",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "delete",
+        "file",
+        "资源",
+        "高危"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl delete -f \"{{file}}\"",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-delete-pod",
+      "name": "kubectl 删除 Pod",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "delete",
+        "pod",
+        "namespace",
+        "高危"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl delete pod {{pod}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": true,
+      "args": [
+        {
+          "key": "pod",
+          "label": "pod",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    }
+  ]
+}

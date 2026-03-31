@@ -39,6 +39,12 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.category === "sqlite")).toBe(true);
   });
 
+  it("loads kubernetes builtin category", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.category === "kubernetes")).toBe(true);
+  });
+
   it("reports invalid user command files", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {

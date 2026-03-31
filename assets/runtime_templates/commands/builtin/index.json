@@ -1,8 +1,8 @@
 {
   "sourceDir": "docs/command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 226,
-  "physicalCommandCount": 267,
+  "logicalCommandCount": 241,
+  "physicalCommandCount": 282,
   "generatedFiles": [
     {
       "file": "_dev.json",
@@ -31,6 +31,13 @@
       "category": "git",
       "logicalCount": 28,
       "physicalCount": 28
+    },
+    {
+      "file": "_kubernetes.json",
+      "sourceFile": "_kubernetes.md",
+      "category": "kubernetes",
+      "logicalCount": 15,
+      "physicalCount": 15
     },
     {
       "file": "_mysql.json",
