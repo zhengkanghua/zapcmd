@@ -584,6 +584,368 @@
           "check": "binary:psql"
         }
       ]
+    },
+    {
+      "id": "postgres-version",
+      "name": "Postgres 版本",
+      "tags": [
+        "postgres",
+        "version",
+        "observability",
+        "版本",
+        "查看",
+        "show"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT version();\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-current-db",
+      "name": "Postgres 当前数据库",
+      "tags": [
+        "postgres",
+        "current",
+        "database",
+        "observability",
+        "当前库",
+        "查看",
+        "show"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT current_database();\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-current-user",
+      "name": "Postgres 当前用户",
+      "tags": [
+        "postgres",
+        "current",
+        "user",
+        "observability",
+        "当前用户",
+        "查看",
+        "show"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT current_user;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-list-extensions",
+      "name": "Postgres 扩展列表",
+      "tags": [
+        "postgres",
+        "extensions",
+        "list",
+        "observability",
+        "扩展",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT extname, extversion FROM pg_extension ORDER BY extname;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-db-size",
+      "name": "Postgres 当前库大小",
+      "tags": [
+        "postgres",
+        "database",
+        "size",
+        "observability",
+        "当前库",
+        "大小",
+        "查看",
+        "show"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT pg_size_pretty(pg_database_size(current_database()));\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
+    },
+    {
+      "id": "postgres-active-queries",
+      "name": "Postgres 活跃查询",
+      "tags": [
+        "postgres",
+        "active",
+        "queries",
+        "observability",
+        "query",
+        "activity",
+        "查看",
+        "show"
+      ],
+      "category": "postgres",
+      "platform": "all",
+      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT pid, usename, state, wait_event_type, wait_event, query FROM pg_stat_activity WHERE state <> 'idle' ORDER BY query_start DESC;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "postgres"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "psql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:psql"
+        }
+      ]
     }
   ]
 }

@@ -749,6 +749,282 @@
           "check": "binary:kubectl"
         }
       ]
+    },
+    {
+      "id": "kubectl-get-all",
+      "name": "kubectl 查看全部资源",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "get",
+        "all",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get all -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-top-pods",
+      "name": "kubectl 查看 Pods 资源占用",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "top",
+        "pods",
+        "namespace",
+        "资源",
+        "使用",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl top pods -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-top-nodes",
+      "name": "kubectl 查看 Nodes 资源占用",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "top",
+        "nodes",
+        "资源",
+        "使用",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl top nodes",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-describe-service",
+      "name": "kubectl 查看 Service 详情",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "describe",
+        "service",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl describe service {{service}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "service",
+          "label": "service",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-pvc",
+      "name": "kubectl 查看 PVC",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "pvc",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get pvc -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-statefulsets",
+      "name": "kubectl 查看 StatefulSets",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "statefulsets",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get statefulsets -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-jobs",
+      "name": "kubectl 查看 Jobs",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "jobs",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get jobs -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-cronjobs",
+      "name": "kubectl 查看 CronJobs",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "cronjobs",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get cronjobs -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
     }
   ]
 }

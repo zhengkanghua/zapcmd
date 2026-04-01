@@ -583,6 +583,246 @@
           "check": "binary:mysql"
         }
       ]
+    },
+    {
+      "id": "mysql-version",
+      "name": "MySQL 版本",
+      "tags": [
+        "mysql",
+        "version",
+        "observability",
+        "版本",
+        "查看",
+        "show"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SELECT VERSION();\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-processlist",
+      "name": "MySQL 进程列表",
+      "tags": [
+        "mysql",
+        "processlist",
+        "observability",
+        "连接",
+        "进程",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW FULL PROCESSLIST;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-show-status",
+      "name": "MySQL 状态变量",
+      "tags": [
+        "mysql",
+        "status",
+        "observability",
+        "状态",
+        "变量",
+        "查看",
+        "show"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW STATUS;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
+    },
+    {
+      "id": "mysql-show-variables",
+      "name": "MySQL 配置变量",
+      "tags": [
+        "mysql",
+        "variables",
+        "observability",
+        "配置",
+        "变量",
+        "查看",
+        "show"
+      ],
+      "category": "mysql",
+      "platform": "all",
+      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW VARIABLES;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true,
+          "default": "127.0.0.1"
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "3306",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "user",
+          "label": "user",
+          "type": "text",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "key": "database",
+          "label": "database",
+          "type": "text",
+          "required": true,
+          "default": "mysql"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "mysql",
+          "type": "binary",
+          "required": true,
+          "check": "binary:mysql"
+        }
+      ]
     }
   ]
 }

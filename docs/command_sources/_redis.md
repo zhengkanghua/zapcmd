@@ -25,3 +25,8 @@
 | 18 | `redis-smembers` | Redis SMEMBERS | redis | all | `redis-cli smembers "{{key}}"` | key(text) | - | false | redis-cli | redis smembers set key |
 | 19 | `redis-zrange` | Redis ZRANGE | redis | all | `redis-cli zrange "{{key}}" {{start}} {{stop}}` | key(text), start(number, default:0, min:0), stop(number, default:-1) | - | false | redis-cli | redis zrange sorted-set key start stop |
 | 20 | `redis-flushdb` | Redis FLUSHDB（清空当前库） | redis | all | `redis-cli flushdb` | - | ⚠️ | false | redis-cli | redis flushdb 清空 clear database 高危 |
+| 21 | `redis-dbsize` | Redis DBSIZE | redis | all | `redis-cli dbsize` | - | - | false | redis-cli | redis dbsize observability 数据量 查看 show |
+| 22 | `redis-memory` | Redis 内存信息 | redis | all | `redis-cli info memory` | - | - | false | redis-cli | redis memory info observability 内存 查看 show |
+| 23 | `redis-client-list` | Redis 客户端列表 | redis | all | `redis-cli client list` | - | - | false | redis-cli | redis client list observability 客户端 列表 查看 show |
+| 24 | `redis-slowlog-get` | Redis 慢日志 | redis | all | `redis-cli slowlog get {{count}}` | count(number, default:10, min:1, max:128) | - | false | redis-cli | redis slowlog observability 慢日志 查看 show |
+| 25 | `redis-config-get` | Redis 配置查询 | redis | all | `redis-cli config get "{{pattern}}"` | pattern(text, default:*) | - | false | redis-cli | redis config get observability 配置 查询 查看 show |

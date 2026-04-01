@@ -11,3 +11,9 @@
 | 4 | `gh-pr-checkout` | GH 检出 Pull Request | gh | all | `gh pr checkout {{pr}}` | pr(text) | - | false | gh, git | gh github cli pr pull-request checkout 检出 |
 | 5 | `gh-issue-list` | GH Issues 列表 | gh | all | `gh issue list` | - | - | false | gh | gh github cli issue list 列表 查看 show |
 | 6 | `gh-repo-view` | GH 仓库概览 | gh | all | `gh repo view` | - | - | false | gh | gh github cli repo repository view 概览 查看 show |
+| 7 | `gh-run-list` | GH Actions Runs 列表 | gh | all | `gh run list` | - | - | false | gh | gh github cli actions run list 列表 查看 show |
+| 8 | `gh-run-view` | GH 查看 Actions Run | gh | all | `gh run view {{runId}}` | runId(text) | - | false | gh | gh github cli actions run view 查看 show |
+| 9 | `gh-run-watch` | GH 跟随 Actions Run | gh | all | `gh run watch {{runId}}` | runId(text) | - | false | gh | gh github cli actions run watch 跟随 观察 |
+| 10 | `gh-pr-checks` | GH 查看 PR Checks | gh | all | `gh pr checks {{pr}}` | pr(text) | - | false | gh | gh github cli pr pull-request checks 查看 show |
+| 11 | `gh-release-list` | GH Releases 列表 | gh | all | `gh release list` | - | - | false | gh | gh github cli release list 列表 查看 show |
+| 12 | `gh-workflow-list` | GH Workflows 列表 | gh | all | `gh workflow list` | - | - | false | gh | gh github cli workflow list 列表 查看 show |

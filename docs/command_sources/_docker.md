@@ -33,3 +33,10 @@
 | 26 | `docker-volume-ls` | 查看数据卷 | docker | all | `docker volume ls` | - | - | false | docker, ls | docker 容器 数据卷 volume ls 查看 show |
 | 27 | `docker-cp` | 复制文件到容器 | docker | all | `docker cp {{src}} {{container}}:{{dest}}` | src(path), container(text), dest(text) | - | false | docker | docker 容器 复制 copy container 文件 file |
 | 28 | `docker-export` | 导出容器 | docker | all | `docker export {{container}} > {{file}}` | container(text), file(text) | - | false | docker, export | docker 容器 导出 export container |
+| 29 | `docker-info` | Docker 环境信息 | docker | all | `docker info` | - | - | false | docker | docker info environment observability 信息 查看 show |
+| 30 | `docker-image-inspect` | 查看镜像详情 | docker | all | `docker image inspect {{image}}` | image(text) | - | false | docker | docker image inspect 镜像 详情 查看 show |
+| 31 | `docker-volume-inspect` | 查看数据卷详情 | docker | all | `docker volume inspect {{volume}}` | volume(text) | - | false | docker | docker volume inspect 数据卷 详情 查看 show |
+| 32 | `docker-network-inspect` | 查看网络详情 | docker | all | `docker network inspect {{network}}` | network(text) | - | false | docker | docker network inspect 网络 详情 查看 show |
+| 33 | `docker-compose-images` | Compose 镜像列表 | docker | all | `docker compose images` | - | - | false | docker | docker compose images 镜像 列表 查看 show |
+| 34 | `docker-compose-top` | Compose 进程列表 | docker | all | `docker compose top` | - | - | false | docker | docker compose top 进程 列表 查看 show |
+| 35 | `docker-compose-exec-sh` | Compose 进入服务 Shell | docker | all | `docker compose exec {{service}} {{shell}}` | service(text), shell(select: /bin/sh, /bin/bash) | - | false | docker | docker compose exec shell 服务 进入 |

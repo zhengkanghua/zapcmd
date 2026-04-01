@@ -192,6 +192,193 @@
           "check": "binary:gh"
         }
       ]
+    },
+    {
+      "id": "gh-run-list",
+      "name": "GH Actions Runs 列表",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "actions",
+        "run",
+        "list",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh run list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-run-view",
+      "name": "GH 查看 Actions Run",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "actions",
+        "run",
+        "view",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh run view {{runId}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "runId",
+          "label": "runId",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-run-watch",
+      "name": "GH 跟随 Actions Run",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "actions",
+        "run",
+        "watch",
+        "跟随",
+        "观察"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh run watch {{runId}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "runId",
+          "label": "runId",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-pr-checks",
+      "name": "GH 查看 PR Checks",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "pr",
+        "pull-request",
+        "checks",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh pr checks {{pr}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pr",
+          "label": "pr",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-release-list",
+      "name": "GH Releases 列表",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "release",
+        "list",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh release list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-workflow-list",
+      "name": "GH Workflows 列表",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "workflow",
+        "list",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh workflow list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
     }
   ]
 }

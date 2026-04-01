@@ -40,6 +40,33 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.category === "sqlite")).toBe(true);
   });
 
+  it("loads database observability builtin commands", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.id === "postgres-version")).toBe(true);
+    expect(templates.some((item) => item.id === "postgres-current-db")).toBe(true);
+    expect(templates.some((item) => item.id === "postgres-current-user")).toBe(true);
+    expect(templates.some((item) => item.id === "postgres-list-extensions")).toBe(true);
+    expect(templates.some((item) => item.id === "postgres-db-size")).toBe(true);
+    expect(templates.some((item) => item.id === "postgres-active-queries")).toBe(true);
+
+    expect(templates.some((item) => item.id === "mysql-version")).toBe(true);
+    expect(templates.some((item) => item.id === "mysql-processlist")).toBe(true);
+    expect(templates.some((item) => item.id === "mysql-show-status")).toBe(true);
+    expect(templates.some((item) => item.id === "mysql-show-variables")).toBe(true);
+
+    expect(templates.some((item) => item.id === "redis-dbsize")).toBe(true);
+    expect(templates.some((item) => item.id === "redis-memory")).toBe(true);
+    expect(templates.some((item) => item.id === "redis-client-list")).toBe(true);
+    expect(templates.some((item) => item.id === "redis-slowlog-get")).toBe(true);
+    expect(templates.some((item) => item.id === "redis-config-get")).toBe(true);
+
+    expect(templates.some((item) => item.id === "sqlite-table-info")).toBe(true);
+    expect(templates.some((item) => item.id === "sqlite-index-list")).toBe(true);
+    expect(templates.some((item) => item.id === "sqlite-pragma-journal-mode")).toBe(true);
+    expect(templates.some((item) => item.id === "sqlite-foreign-key-check")).toBe(true);
+  });
+
   it("loads kubernetes builtin category", () => {
     const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
@@ -146,20 +173,53 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.id === "kubectl-get-configmaps")).toBe(true);
   });
 
+  it("loads third-round docker and kubernetes readonly diagnostics", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.id === "docker-info")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-image-inspect")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-volume-inspect")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-network-inspect")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-compose-images")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-compose-top")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-compose-exec-sh")).toBe(true);
+
+    expect(templates.some((item) => item.id === "kubectl-get-all")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-top-pods")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-top-nodes")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-describe-service")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-pvc")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-statefulsets")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-jobs")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-cronjobs")).toBe(true);
+  });
+
   it("loads service builtin commands with platform split", () => {
     const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const macTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
     const linuxTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
 
     expect(winTemplates.some((item) => item.category === "service")).toBe(true);
     expect(winTemplates.some((item) => item.id === "service-status-win")).toBe(true);
     expect(winTemplates.some((item) => item.id === "service-list-running-win")).toBe(true);
     expect(winTemplates.some((item) => item.id === "service-logs-linux")).toBe(false);
+    expect(winTemplates.some((item) => item.id === "service-list-mac")).toBe(false);
+
+    expect(macTemplates.some((item) => item.category === "service")).toBe(true);
+    expect(macTemplates.some((item) => item.id === "service-list-mac")).toBe(true);
+    expect(macTemplates.some((item) => item.id === "service-status-mac")).toBe(true);
+    expect(macTemplates.some((item) => item.id === "service-status-linux")).toBe(false);
 
     expect(linuxTemplates.some((item) => item.category === "service")).toBe(true);
     expect(linuxTemplates.some((item) => item.id === "service-status-linux")).toBe(true);
     expect(linuxTemplates.some((item) => item.id === "service-list-running-linux")).toBe(true);
     expect(linuxTemplates.some((item) => item.id === "service-logs-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "service-list-all-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "service-list-failed-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "service-enabled-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "service-cat-linux")).toBe(true);
     expect(linuxTemplates.some((item) => item.id === "service-status-win")).toBe(false);
+    expect(linuxTemplates.some((item) => item.id === "service-status-mac")).toBe(false);
   });
 
   it("loads gh builtin commands as a separate category", () => {
@@ -172,6 +232,23 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.id === "gh-pr-checkout")).toBe(true);
     expect(templates.some((item) => item.id === "gh-issue-list")).toBe(true);
     expect(templates.some((item) => item.id === "gh-repo-view")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-run-list")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-run-view")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-run-watch")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-pr-checks")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-release-list")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-workflow-list")).toBe(true);
+  });
+
+  it("loads cert builtin commands as a separate category", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.category === "cert")).toBe(true);
+    expect(templates.some((item) => item.id === "openssl-x509-text")).toBe(true);
+    expect(templates.some((item) => item.id === "openssl-cert-dates")).toBe(true);
+    expect(templates.some((item) => item.id === "openssl-cert-fingerprint")).toBe(true);
+    expect(templates.some((item) => item.id === "openssl-s-client")).toBe(true);
+    expect(templates.some((item) => item.id === "openssl-pkey-text")).toBe(true);
   });
 
   it("reports invalid user command files", () => {

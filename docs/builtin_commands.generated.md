@@ -6,8 +6,8 @@
 
 ## Summary
 
-- Logical commands: 283
-- Physical commands (after platform split): 328
+- Logical commands: 334
+- Physical commands (after platform split): 379
 - Output directory: \\wsl.localhost\Ubuntu-22.04\home\work\projects\zapcmd\assets\runtime_templates\commands\builtin
 
 ## Files
@@ -17,21 +17,22 @@
 | _brew.json | _brew.md | brew | package | 5 | 5 |
 | _bun.json | _bun.md | bun | package | 4 | 4 |
 | _cargo.json | _cargo.md | cargo | package | 4 | 4 |
+| _cert.json | _cert.md | cert | cert | 5 | 5 |
 | _dev.json | _dev.md | dev | dev | 24 | 31 |
-| _docker.json | _docker.md | docker | docker | 28 | 28 |
+| _docker.json | _docker.md | docker | docker | 35 | 35 |
 | _file.json | _file.md | file | file | 25 | 41 |
-| _gh.json | _gh.md | gh | gh | 6 | 6 |
+| _gh.json | _gh.md | gh | gh | 12 | 12 |
 | _git.json | _git.md | git | git | 28 | 28 |
-| _kubernetes.json | _kubernetes.md | kubernetes | kubernetes | 21 | 21 |
-| _mysql.json | _mysql.md | mysql | mysql | 10 | 10 |
+| _kubernetes.json | _kubernetes.md | kubernetes | kubernetes | 29 | 29 |
+| _mysql.json | _mysql.md | mysql | mysql | 14 | 14 |
 | _network.json | _network.md | network | network | 30 | 39 |
 | _npm.json | _npm.md | npm | package | 8 | 8 |
 | _pip.json | _pip.md | pip | package | 4 | 4 |
 | _pnpm.json | _pnpm.md | pnpm | package | 5 | 5 |
-| _postgres.json | _postgres.md | postgres | postgres | 10 | 10 |
-| _redis.json | _redis.md | redis | redis | 20 | 20 |
-| _service.json | _service.md | service | service | 5 | 5 |
-| _sqlite.json | _sqlite.md | sqlite | sqlite | 7 | 7 |
+| _postgres.json | _postgres.md | postgres | postgres | 16 | 16 |
+| _redis.json | _redis.md | redis | redis | 25 | 25 |
+| _service.json | _service.md | service | service | 11 | 11 |
+| _sqlite.json | _sqlite.md | sqlite | sqlite | 11 | 11 |
 | _ssh.json | _ssh.md | ssh | ssh | 10 | 11 |
 | _system.json | _system.md | system | system | 25 | 37 |
 | _yarn.json | _yarn.md | yarn | package | 4 | 4 |

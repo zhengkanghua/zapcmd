@@ -1,0 +1,199 @@
+{
+  "_meta": {
+    "name": "证书与 OpenSSL",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_cert.md"
+  },
+  "commands": [
+    {
+      "id": "openssl-x509-text",
+      "name": "OpenSSL 查看证书全文",
+      "tags": [
+        "openssl",
+        "cert",
+        "certificate",
+        "x509",
+        "text",
+        "证书",
+        "详情",
+        "查看",
+        "show"
+      ],
+      "category": "cert",
+      "platform": "all",
+      "template": "openssl x509 -in \"{{file}}\" -text -noout",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "openssl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:openssl"
+        }
+      ]
+    },
+    {
+      "id": "openssl-cert-dates",
+      "name": "OpenSSL 查看证书有效期",
+      "tags": [
+        "openssl",
+        "cert",
+        "certificate",
+        "dates",
+        "证书",
+        "有效期",
+        "查看",
+        "show"
+      ],
+      "category": "cert",
+      "platform": "all",
+      "template": "openssl x509 -in \"{{file}}\" -dates -noout",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "openssl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:openssl"
+        }
+      ]
+    },
+    {
+      "id": "openssl-cert-fingerprint",
+      "name": "OpenSSL 查看证书指纹",
+      "tags": [
+        "openssl",
+        "cert",
+        "certificate",
+        "fingerprint",
+        "sha256",
+        "指纹",
+        "查看",
+        "show"
+      ],
+      "category": "cert",
+      "platform": "all",
+      "template": "openssl x509 -in \"{{file}}\" -fingerprint -sha256 -noout",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "openssl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:openssl"
+        }
+      ]
+    },
+    {
+      "id": "openssl-s-client",
+      "name": "OpenSSL 建立 TLS 连接",
+      "tags": [
+        "openssl",
+        "s_client",
+        "tls",
+        "ssl",
+        "证书",
+        "连接",
+        "握手",
+        "handshake"
+      ],
+      "category": "cert",
+      "platform": "all",
+      "template": "openssl s_client -connect {{host}}:{{port}} -servername {{host}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "host",
+          "label": "host",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "port",
+          "label": "port",
+          "type": "number",
+          "required": true,
+          "default": "443",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "openssl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:openssl"
+        }
+      ]
+    },
+    {
+      "id": "openssl-pkey-text",
+      "name": "OpenSSL 查看密钥详情",
+      "tags": [
+        "openssl",
+        "pkey",
+        "key",
+        "private",
+        "公钥",
+        "私钥",
+        "详情",
+        "查看",
+        "show"
+      ],
+      "category": "cert",
+      "platform": "all",
+      "template": "openssl pkey -in \"{{file}}\" -text -noout",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "openssl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:openssl"
+        }
+      ]
+    }
+  ]
+}

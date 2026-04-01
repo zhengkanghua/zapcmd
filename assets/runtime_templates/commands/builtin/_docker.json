@@ -938,6 +938,231 @@
           "check": "binary:export"
         }
       ]
+    },
+    {
+      "id": "docker-info",
+      "name": "Docker 环境信息",
+      "tags": [
+        "docker",
+        "info",
+        "environment",
+        "observability",
+        "信息",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker info",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-image-inspect",
+      "name": "查看镜像详情",
+      "tags": [
+        "docker",
+        "image",
+        "inspect",
+        "镜像",
+        "详情",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker image inspect {{image}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "image",
+          "label": "image",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-volume-inspect",
+      "name": "查看数据卷详情",
+      "tags": [
+        "docker",
+        "volume",
+        "inspect",
+        "数据卷",
+        "详情",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker volume inspect {{volume}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "volume",
+          "label": "volume",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-network-inspect",
+      "name": "查看网络详情",
+      "tags": [
+        "docker",
+        "network",
+        "inspect",
+        "网络",
+        "详情",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker network inspect {{network}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "network",
+          "label": "network",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-compose-images",
+      "name": "Compose 镜像列表",
+      "tags": [
+        "docker",
+        "compose",
+        "images",
+        "镜像",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose images",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-compose-top",
+      "name": "Compose 进程列表",
+      "tags": [
+        "docker",
+        "compose",
+        "top",
+        "进程",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose top",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-compose-exec-sh",
+      "name": "Compose 进入服务 Shell",
+      "tags": [
+        "docker",
+        "compose",
+        "exec",
+        "shell",
+        "服务",
+        "进入"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose exec {{service}} {{shell}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "service",
+          "label": "service",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "shell",
+          "label": "shell",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": [
+              "/bin/sh",
+              "/bin/bash"
+            ]
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
     }
   ]
 }

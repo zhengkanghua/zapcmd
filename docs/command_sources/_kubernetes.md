@@ -26,3 +26,11 @@
 | 19 | `kubectl-apply-file` | kubectl 应用配置文件 | kubernetes | all | `kubectl apply -f "{{file}}"` | file(path) | ⚠️ | false | kubectl | kubernetes kubectl apply file 配置 高危 |
 | 20 | `kubectl-delete-file` | kubectl 删除配置文件资源 | kubernetes | all | `kubectl delete -f "{{file}}"` | file(path) | ⚠️ | false | kubectl | kubernetes kubectl delete file 资源 高危 |
 | 21 | `kubectl-delete-pod` | kubectl 删除 Pod | kubernetes | all | `kubectl delete pod {{pod}} -n {{namespace}}` | pod(text), namespace(text, default:default) | ⚠️ | false | kubectl | kubernetes kubectl delete pod namespace 高危 |
+| 22 | `kubectl-get-all` | kubectl 查看全部资源 | kubernetes | all | `kubectl get all -n {{namespace}}` | namespace(text, default:default) | - | false | kubectl | kubernetes kubectl get all namespace 查看 show |
+| 23 | `kubectl-top-pods` | kubectl 查看 Pods 资源占用 | kubernetes | all | `kubectl top pods -n {{namespace}}` | namespace(text, default:default) | - | false | kubectl | kubernetes kubectl top pods namespace 资源 使用 查看 show |
+| 24 | `kubectl-top-nodes` | kubectl 查看 Nodes 资源占用 | kubernetes | all | `kubectl top nodes` | - | - | false | kubectl | kubernetes kubectl top nodes 资源 使用 查看 show |
+| 25 | `kubectl-describe-service` | kubectl 查看 Service 详情 | kubernetes | all | `kubectl describe service {{service}} -n {{namespace}}` | service(text), namespace(text, default:default) | - | false | kubectl | kubernetes kubectl describe service namespace 查看 show |
+| 26 | `kubectl-get-pvc` | kubectl 查看 PVC | kubernetes | all | `kubectl get pvc -n {{namespace}}` | namespace(text, default:default) | - | false | kubectl | kubernetes kubectl pvc namespace 查看 show |
+| 27 | `kubectl-get-statefulsets` | kubectl 查看 StatefulSets | kubernetes | all | `kubectl get statefulsets -n {{namespace}}` | namespace(text, default:default) | - | false | kubectl | kubernetes kubectl statefulsets namespace 查看 show |
+| 28 | `kubectl-get-jobs` | kubectl 查看 Jobs | kubernetes | all | `kubectl get jobs -n {{namespace}}` | namespace(text, default:default) | - | false | kubectl | kubernetes kubectl jobs namespace 查看 show |
+| 29 | `kubectl-get-cronjobs` | kubectl 查看 CronJobs | kubernetes | all | `kubectl get cronjobs -n {{namespace}}` | namespace(text, default:default) | - | false | kubectl | kubernetes kubectl cronjobs namespace 查看 show |

@@ -239,6 +239,158 @@
           "check": "binary:sqlite3"
         }
       ]
+    },
+    {
+      "id": "sqlite-table-info",
+      "name": "SQLite 表字段信息",
+      "tags": [
+        "sqlite",
+        "pragma",
+        "table_info",
+        "schema",
+        "observability",
+        "表结构",
+        "查看",
+        "show"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \"PRAGMA table_info('{{table}}');\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "table",
+          "label": "table",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-index-list",
+      "name": "SQLite 索引列表",
+      "tags": [
+        "sqlite",
+        "pragma",
+        "index_list",
+        "observability",
+        "索引",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \"PRAGMA index_list('{{table}}');\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        },
+        {
+          "key": "table",
+          "label": "table",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-pragma-journal-mode",
+      "name": "SQLite Journal Mode",
+      "tags": [
+        "sqlite",
+        "pragma",
+        "journal_mode",
+        "observability",
+        "journal",
+        "模式",
+        "查看",
+        "show"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \"PRAGMA journal_mode;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
+    },
+    {
+      "id": "sqlite-foreign-key-check",
+      "name": "SQLite 外键检查",
+      "tags": [
+        "sqlite",
+        "pragma",
+        "foreign_key_check",
+        "observability",
+        "外键",
+        "检查",
+        "查看",
+        "show"
+      ],
+      "category": "sqlite",
+      "platform": "all",
+      "template": "sqlite3 \"{{file}}\" \"PRAGMA foreign_key_check;\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "file",
+          "label": "file",
+          "type": "path",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "sqlite3",
+          "type": "binary",
+          "required": true,
+          "check": "binary:sqlite3"
+        }
+      ]
     }
   ]
 }

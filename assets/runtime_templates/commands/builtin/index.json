@@ -1,8 +1,8 @@
 {
   "sourceDir": "\\\\wsl.localhost\\Ubuntu-22.04\\home\\work\\projects\\zapcmd\\docs\\command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 283,
-  "physicalCommandCount": 328,
+  "logicalCommandCount": 334,
+  "physicalCommandCount": 379,
   "generatedFiles": [
     {
       "file": "_brew.json",
@@ -35,6 +35,16 @@
       "physicalCount": 4
     },
     {
+      "file": "_cert.json",
+      "sourceFile": "_cert.md",
+      "moduleSlug": "cert",
+      "runtimeCategories": [
+        "cert"
+      ],
+      "logicalCount": 5,
+      "physicalCount": 5
+    },
+    {
       "file": "_dev.json",
       "sourceFile": "_dev.md",
       "moduleSlug": "dev",
@@ -51,8 +61,8 @@
       "runtimeCategories": [
         "docker"
       ],
-      "logicalCount": 28,
-      "physicalCount": 28
+      "logicalCount": 35,
+      "physicalCount": 35
     },
     {
       "file": "_file.json",
@@ -71,8 +81,8 @@
       "runtimeCategories": [
         "gh"
       ],
-      "logicalCount": 6,
-      "physicalCount": 6
+      "logicalCount": 12,
+      "physicalCount": 12
     },
     {
       "file": "_git.json",
@@ -91,8 +101,8 @@
       "runtimeCategories": [
         "kubernetes"
       ],
-      "logicalCount": 21,
-      "physicalCount": 21
+      "logicalCount": 29,
+      "physicalCount": 29
     },
     {
       "file": "_mysql.json",
@@ -101,8 +111,8 @@
       "runtimeCategories": [
         "mysql"
       ],
-      "logicalCount": 10,
-      "physicalCount": 10
+      "logicalCount": 14,
+      "physicalCount": 14
     },
     {
       "file": "_network.json",
@@ -151,8 +161,8 @@
       "runtimeCategories": [
         "postgres"
       ],
-      "logicalCount": 10,
-      "physicalCount": 10
+      "logicalCount": 16,
+      "physicalCount": 16
     },
     {
       "file": "_redis.json",
@@ -161,8 +171,8 @@
       "runtimeCategories": [
         "redis"
       ],
-      "logicalCount": 20,
-      "physicalCount": 20
+      "logicalCount": 25,
+      "physicalCount": 25
     },
     {
       "file": "_service.json",
@@ -171,8 +181,8 @@
       "runtimeCategories": [
         "service"
       ],
-      "logicalCount": 5,
-      "physicalCount": 5
+      "logicalCount": 11,
+      "physicalCount": 11
     },
     {
       "file": "_sqlite.json",
@@ -181,8 +191,8 @@
       "runtimeCategories": [
         "sqlite"
       ],
-      "logicalCount": 7,
-      "physicalCount": 7
+      "logicalCount": 11,
+      "physicalCount": 11
     },
     {
       "file": "_ssh.json",

@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-04-01｜builtin 六组本地命令扩充）
+
+- 已补数据库观测、GH CI、Kubernetes 只读、Docker 诊断、Service 扩展与新 `_cert`/OpenSSL 模块；刷新生成产物后 totals 为 `334/379`，runtimeLoader 与 generator focused tests 全绿。
+
 ## 补充（2026-03-31｜builtin 源逐行运行时分类统一）
 
 - 已将 21 个 builtin `docs/command_sources/_*.md` 全部统一为 11 列格式，逐命令显式写 `运行时分类`；新增仓库级测试锁定该规范，刷新生成产物后 focused tests 全绿。

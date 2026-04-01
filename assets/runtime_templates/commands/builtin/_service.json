@@ -174,6 +174,200 @@
           "check": "binary:journalctl"
         }
       ]
+    },
+    {
+      "id": "service-list-all-linux",
+      "name": "列出全部 Linux 服务",
+      "tags": [
+        "service",
+        "服务",
+        "linux",
+        "list",
+        "all",
+        "全部",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "service",
+      "platform": "linux",
+      "template": "systemctl list-units --type=service --all --no-pager",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "systemctl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:systemctl"
+        }
+      ]
+    },
+    {
+      "id": "service-list-failed-linux",
+      "name": "列出失败的 Linux 服务",
+      "tags": [
+        "service",
+        "服务",
+        "linux",
+        "list",
+        "failed",
+        "失败",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "service",
+      "platform": "linux",
+      "template": "systemctl list-units --type=service --state=failed --no-pager",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "systemctl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:systemctl"
+        }
+      ]
+    },
+    {
+      "id": "service-enabled-linux",
+      "name": "查看 Linux 服务开机启用状态",
+      "tags": [
+        "service",
+        "服务",
+        "linux",
+        "enabled",
+        "开机",
+        "启用",
+        "查看",
+        "show"
+      ],
+      "category": "service",
+      "platform": "linux",
+      "template": "systemctl is-enabled {{name}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "systemctl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:systemctl"
+        }
+      ]
+    },
+    {
+      "id": "service-cat-linux",
+      "name": "查看 Linux 服务定义",
+      "tags": [
+        "service",
+        "服务",
+        "linux",
+        "cat",
+        "definition",
+        "定义",
+        "查看",
+        "show"
+      ],
+      "category": "service",
+      "platform": "linux",
+      "template": "systemctl cat {{name}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "systemctl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:systemctl"
+        }
+      ]
+    },
+    {
+      "id": "service-list-mac",
+      "name": "列出 macOS 服务",
+      "tags": [
+        "service",
+        "服务",
+        "mac",
+        "launchctl",
+        "list",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "service",
+      "platform": "mac",
+      "template": "launchctl list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "launchctl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:launchctl"
+        }
+      ]
+    },
+    {
+      "id": "service-status-mac",
+      "name": "查看 macOS 服务状态",
+      "tags": [
+        "service",
+        "服务",
+        "mac",
+        "launchctl",
+        "status",
+        "状态",
+        "查看",
+        "show"
+      ],
+      "category": "service",
+      "platform": "mac",
+      "template": "launchctl list | grep \"{{name}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "launchctl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:launchctl"
+        },
+        {
+          "id": "grep",
+          "type": "binary",
+          "required": true,
+          "check": "binary:grep"
+        }
+      ]
     }
   ]
 }
