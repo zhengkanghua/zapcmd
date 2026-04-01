@@ -36,12 +36,6 @@
           "type": "binary",
           "required": true,
           "check": "binary:python3"
-        },
-        {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
         }
       ]
     },
@@ -69,12 +63,6 @@
         }
       ],
       "prerequisites": [
-        {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
-        },
         {
           "id": "base64",
           "type": "binary",
@@ -108,12 +96,6 @@
       ],
       "prerequisites": [
         {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
-        },
-        {
           "id": "base64",
           "type": "binary",
           "required": true,
@@ -146,12 +128,6 @@
       ],
       "prerequisites": [
         {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
-        },
-        {
           "id": "base64",
           "type": "binary",
           "required": true,
@@ -183,12 +159,6 @@
         }
       ],
       "prerequisites": [
-        {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
-        },
         {
           "id": "base64",
           "type": "binary",
@@ -254,12 +224,6 @@
       ],
       "prerequisites": [
         {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
-        },
-        {
           "id": "md5sum",
           "type": "binary",
           "required": true,
@@ -292,12 +256,6 @@
       ],
       "prerequisites": [
         {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
-        },
-        {
           "id": "shasum",
           "type": "binary",
           "required": true,
@@ -329,12 +287,6 @@
         }
       ],
       "prerequisites": [
-        {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
-        },
         {
           "id": "sha256sum",
           "type": "binary",
@@ -678,12 +630,6 @@
           "type": "binary",
           "required": true,
           "check": "binary:grep"
-        },
-        {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
         }
       ]
     },
@@ -723,12 +669,6 @@
           "type": "binary",
           "required": true,
           "check": "binary:grep"
-        },
-        {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
         }
       ]
     },

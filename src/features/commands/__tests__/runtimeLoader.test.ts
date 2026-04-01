@@ -13,6 +13,65 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.id === "docker-ps")).toBe(true);
   });
 
+  it("does not model shell builtins or powershell cmdlets as binary prerequisites", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "all" });
+    const invalidBinaryPrerequisites = new Set([
+      "echo",
+      "get-childitem",
+      "get-content",
+      "measure-object",
+      "get-process",
+      "get-psdrive",
+      "select-string",
+      "select-object",
+      "sort-object",
+      "stop-process",
+      "get-nettcpconnection",
+      "test-netconnection",
+      "compress-archive",
+      "expand-archive"
+    ]);
+
+    const offenders = templates.flatMap((item) =>
+      (item.prerequisites ?? [])
+        .filter(
+          (prerequisite) =>
+            prerequisite.type === "binary" &&
+            invalidBinaryPrerequisites.has(prerequisite.id)
+        )
+        .map((prerequisite) => `${item.id}:${prerequisite.id}`)
+    );
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("does not keep generic shell prerequisite in builtin templates", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "all" });
+    const offenders = templates.flatMap((item) =>
+      (item.prerequisites ?? [])
+        .filter((prerequisite) => prerequisite.type === "shell" && prerequisite.check === "shell:shell")
+        .map((prerequisite) => `${item.id}:${prerequisite.id}`)
+    );
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("keeps powershell prerequisite for powershell builtin commands without cmdlet-level binary checks", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const command = templates.find((item) => item.id === "kill-port-win");
+
+    expect(command?.prerequisites).toEqual([
+      {
+        id: "powershell",
+        type: "shell",
+        required: true,
+        check: "shell:powershell",
+        installHint: "",
+        fallbackCommandId: undefined
+      }
+    ]);
+  });
+
   it("filters out non-target platform templates", () => {
     const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     expect(winTemplates.some((item) => item.id === "base64-encode-mac")).toBe(false);

@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-04-01｜builtin prerequisite 审计收口）
+
+- 已补 shell probe 最小支持，清掉 builtin 中 27 个误建模 binary 与 4 个 generic shell prerequisite；分布收口到 `binary 374 / shell 21 / 无 prerequisite 4`，`check:all` 全绿。
+
 ## 补充（2026-04-01｜builtin 六组本地命令扩充）
 
 - 已补数据库观测、GH CI、Kubernetes 只读、Docker 诊断、Service 扩展与新 `_cert`/OpenSSL 模块；刷新生成产物后 totals 为 `334/379`，runtimeLoader 与 generator focused tests 全绿。

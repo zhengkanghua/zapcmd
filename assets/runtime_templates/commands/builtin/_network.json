@@ -274,18 +274,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "stop-process",
-          "type": "binary",
-          "required": true,
-          "check": "binary:stop-process"
-        },
-        {
-          "id": "get-nettcpconnection",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-nettcpconnection"
         }
       ]
     },
@@ -882,12 +870,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "test-netconnection",
-          "type": "binary",
-          "required": true,
-          "check": "binary:test-netconnection"
         }
       ]
     },

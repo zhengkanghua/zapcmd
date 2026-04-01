@@ -134,6 +134,20 @@ where
                 )
             }
         }
+        "shell" => {
+            if check.eq_ignore_ascii_case("shell") {
+                build_probe_result(input, true, "ok", "")
+            } else if binary_exists(check) {
+                build_probe_result(input, true, "ok", "")
+            } else {
+                build_probe_result(
+                    input,
+                    false,
+                    "missing-shell",
+                    format!("required shell not found: {}", check),
+                )
+            }
+        }
         other => build_probe_result(
             input,
             false,
@@ -192,13 +206,13 @@ mod tests {
     }
 
     #[test]
-    fn shell_prerequisite_returns_unsupported() {
+    fn unsupported_prerequisite_type_returns_unsupported() {
         let result = probe_prerequisite_with(
             &PrerequisiteProbeInput {
-                id: "login-shell".to_string(),
-                r#type: "shell".to_string(),
+                id: "office-network".to_string(),
+                r#type: "network".to_string(),
                 required: true,
-                check: "pwsh".to_string(),
+                check: "corp-vpn".to_string(),
             },
             |_| true,
             |_| Some("pwsh".to_string()),
@@ -206,6 +220,40 @@ mod tests {
 
         assert!(!result.ok);
         assert_eq!(result.code, "unsupported-prerequisite");
+    }
+
+    #[test]
+    fn shell_prerequisite_accepts_prefixed_shell_value() {
+        let result = probe_prerequisite_with(
+            &PrerequisiteProbeInput {
+                id: "powershell".to_string(),
+                r#type: "shell".to_string(),
+                required: true,
+                check: "shell:powershell".to_string(),
+            },
+            |command| command == "powershell",
+            |_| None,
+        );
+
+        assert!(result.ok);
+        assert_eq!(result.code, "ok");
+    }
+
+    #[test]
+    fn generic_shell_prerequisite_is_satisfied() {
+        let result = probe_prerequisite_with(
+            &PrerequisiteProbeInput {
+                id: "shell".to_string(),
+                r#type: "shell".to_string(),
+                required: true,
+                check: "shell:shell".to_string(),
+            },
+            |_| false,
+            |_| None,
+        );
+
+        assert!(result.ok);
+        assert_eq!(result.code, "ok");
     }
 
     #[test]

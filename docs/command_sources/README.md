@@ -67,6 +67,10 @@ CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_
 2. `高危`：用 `⚠️` 标记高危命令（会触发更严格的安全提示/确认流程）。
 3. `adminRequired`：需要管理员权限时标记为 `true`（Windows 会按需拉起管理员终端；若执行流中任一步为 `true`，则整队整体升权，ZapCmd 主进程本身不提权）。
 4. `prerequisites`：逗号分隔，例如 `git,docker,powershell`。
+   - 这里只写“外部依赖存在性”，不要写 shell builtin 或 PowerShell cmdlet。
+   - 正确示例：`git`、`docker`、`curl`、`python3`、`powershell`
+   - 错误示例：`echo`、`get-content`、`sort-object`、`select-string`
+   - generic shell 不需要写成 prerequisite；只有命令明确依赖某个特定 shell（如 `powershell`）时才写。
 5. `tags`：空格分隔，用于搜索与分类。
 6. `参数`：使用 `key(type, ...)` 形式描述（例如 `path(path)`、`count(number, default:10, min:1, max:200)`、`mode(select:a/b/c)`）。
 7. 本轮 builtin Markdown DSL 只新增 `min/max`，不支持在这里继续扩 `pattern/errorMessage` 等更复杂语法。

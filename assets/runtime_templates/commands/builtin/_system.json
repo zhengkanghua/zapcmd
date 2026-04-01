@@ -430,12 +430,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-psdrive",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-psdrive"
         }
       ]
     },
@@ -541,18 +535,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-childitem",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-childitem"
-        },
-        {
-          "id": "measure-object",
-          "type": "binary",
-          "required": true,
-          "check": "binary:measure-object"
         }
       ]
     },
@@ -640,24 +622,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-process",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-process"
-        },
-        {
-          "id": "sort-object",
-          "type": "binary",
-          "required": true,
-          "check": "binary:sort-object"
-        },
-        {
-          "id": "select-object",
-          "type": "binary",
-          "required": true,
-          "check": "binary:select-object"
         }
       ]
     },
@@ -726,10 +690,10 @@
       "dangerous": false,
       "prerequisites": [
         {
-          "id": "powershell",
-          "type": "shell",
+          "id": "systeminfo",
+          "type": "binary",
           "required": true,
-          "check": "shell:powershell"
+          "check": "binary:systeminfo"
         }
       ]
     },
@@ -764,14 +728,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "shell",
-          "type": "shell",
-          "required": true,
-          "check": "shell:shell"
-        }
       ]
     },
     {
@@ -804,14 +760,6 @@
           "label": "value",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "shell",
-          "type": "shell",
-          "required": true,
-          "check": "shell:shell"
         }
       ]
     },
@@ -883,14 +831,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "shell",
-          "type": "shell",
-          "required": true,
-          "check": "shell:shell"
-        }
       ]
     },
     {
@@ -919,14 +859,6 @@
           "label": "key",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "shell",
-          "type": "shell",
-          "required": true,
-          "check": "shell:shell"
         }
       ]
     },
@@ -964,12 +896,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "echo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:echo"
         }
       ]
     },
@@ -1091,24 +1017,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-process",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-process"
-        },
-        {
-          "id": "sort-object",
-          "type": "binary",
-          "required": true,
-          "check": "binary:sort-object"
-        },
-        {
-          "id": "select-object",
-          "type": "binary",
-          "required": true,
-          "check": "binary:select-object"
         }
       ]
     },

@@ -118,12 +118,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-childitem",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-childitem"
         }
       ]
     },
@@ -240,10 +234,10 @@
       ],
       "prerequisites": [
         {
-          "id": "select-string",
-          "type": "binary",
+          "id": "powershell",
+          "type": "shell",
           "required": true,
-          "check": "binary:select-string"
+          "check": "shell:powershell"
         }
       ]
     },
@@ -349,12 +343,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-childitem",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-childitem"
         }
       ]
     },
@@ -1099,12 +1087,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "compress-archive",
-          "type": "binary",
-          "required": true,
-          "check": "binary:compress-archive"
         }
       ]
     },
@@ -1144,12 +1126,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "expand-archive",
-          "type": "binary",
-          "required": true,
-          "check": "binary:expand-archive"
         }
       ]
     },
@@ -1325,12 +1301,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-content",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-content"
         }
       ]
     },
@@ -1460,12 +1430,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-content",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-content"
         }
       ]
     },
@@ -1565,18 +1529,6 @@
           "type": "shell",
           "required": true,
           "check": "shell:powershell"
-        },
-        {
-          "id": "get-content",
-          "type": "binary",
-          "required": true,
-          "check": "binary:get-content"
-        },
-        {
-          "id": "measure-object",
-          "type": "binary",
-          "required": true,
-          "check": "binary:measure-object"
         }
       ]
     }
