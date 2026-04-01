@@ -15,10 +15,40 @@ describe("useLauncherSearch", () => {
   });
 
   it("keeps deterministic ranking when relevance score ties", () => {
-    const search = useLauncherSearch();
+    const commandSource = ref<CommandTemplate[]>([
+      {
+        id: "docker-ps",
+        title: "docker ps",
+        description: "container command",
+        preview: "docker ps",
+        folder: "docker",
+        category: "docker",
+        needsArgs: false
+      },
+      {
+        id: "docker-rm",
+        title: "docker rm",
+        description: "container command",
+        preview: "docker rm",
+        folder: "docker",
+        category: "docker",
+        needsArgs: false
+      },
+      {
+        id: "git-status",
+        title: "git status",
+        description: "git command",
+        preview: "git status",
+        folder: "git",
+        category: "git",
+        needsArgs: false
+      }
+    ]);
+
+    const search = useLauncherSearch({ commandSource });
     search.onQueryInput("docker");
 
-    expect(search.filteredResults.value[0]?.id).toBe("docker-ps");
+    expect(search.filteredResults.value.map((item) => item.id)).toEqual(["docker-ps", "docker-rm"]);
   });
 
   it("supports space-separated multi-token AND matching", () => {
@@ -100,4 +130,3 @@ describe("useLauncherSearch", () => {
     expect(search.filteredResults.value).toEqual([]);
   });
 });
-

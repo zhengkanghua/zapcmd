@@ -40,6 +40,101 @@
           "check": "binary:yarn"
         }
       ]
+    },
+    {
+      "id": "yarn-run",
+      "name": "Yarn 运行脚本",
+      "tags": [
+        "包管理",
+        "package",
+        "yarn",
+        "run",
+        "运行",
+        "script",
+        "脚本"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "yarn run {{script}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "script",
+          "label": "script",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "yarn",
+          "type": "binary",
+          "required": true,
+          "check": "binary:yarn"
+        }
+      ]
+    },
+    {
+      "id": "yarn-remove",
+      "name": "Yarn 移除依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "yarn",
+        "remove",
+        "删除",
+        "移除",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "yarn remove {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "yarn",
+          "type": "binary",
+          "required": true,
+          "check": "binary:yarn"
+        }
+      ]
+    },
+    {
+      "id": "yarn-upgrade",
+      "name": "Yarn 升级依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "yarn",
+        "upgrade",
+        "update",
+        "升级",
+        "依赖"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "yarn upgrade",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "yarn",
+          "type": "binary",
+          "required": true,
+          "check": "binary:yarn"
+        }
+      ]
     }
   ]
 }

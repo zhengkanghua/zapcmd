@@ -141,6 +141,139 @@
       ]
     },
     {
+      "id": "kubectl-get-deployments",
+      "name": "kubectl 查看 Deployments",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "deployments",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get deployments -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-nodes",
+      "name": "kubectl 查看 Nodes",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "nodes",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get nodes",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-ingress",
+      "name": "kubectl 查看 Ingress",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "ingress",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get ingress -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-describe-deployment",
+      "name": "kubectl 查看 Deployment 详情",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "describe",
+        "deployment",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl describe deployment {{deployment}} -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "deployment",
+          "label": "deployment",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
       "id": "kubectl-describe-pod",
       "name": "kubectl 查看 Pod 详情",
       "tags": [
@@ -162,6 +295,40 @@
           "type": "text",
           "required": true
         },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-configmaps",
+      "name": "kubectl 查看 ConfigMaps",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "configmaps",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get configmaps -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
         {
           "key": "namespace",
           "label": "namespace",
@@ -241,6 +408,40 @@
           "type": "text",
           "required": true
         },
+        {
+          "key": "namespace",
+          "label": "namespace",
+          "type": "text",
+          "required": true,
+          "default": "default"
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "kubectl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:kubectl"
+        }
+      ]
+    },
+    {
+      "id": "kubectl-get-events",
+      "name": "kubectl 查看 Events",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "events",
+        "namespace",
+        "查看",
+        "show"
+      ],
+      "category": "kubernetes",
+      "platform": "all",
+      "template": "kubectl get events -n {{namespace}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
         {
           "key": "namespace",
           "label": "namespace",

@@ -2,7 +2,7 @@
 
 > 日期：2026-03-31
 > 状态：for-review
-> 范围：保持 `1 md = 1 json` 的前提下，引入文件级运行时分类覆盖；首轮将 `package` 大类拆成多个模块文件，但运行时仍归类为 `package`
+> 范围：保持 `1 md = 1 json` 的前提下，引入“文件级默认 + 行级覆盖”的运行时分类 DSL；首轮将 `package` 大类拆成多个模块文件，但运行时仍归类为 `package`
 > 修订关系：本 spec 修订 [2026-03-31-command-category-slug-and-builtin-command-expansion-design.md](/home/work/projects/zapcmd/docs/superpowers/specs/2026-03-31-command-category-slug-and-builtin-command-expansion-design.md) 中“builtin 分类直接来自文件名”的口径，并取代 [2026-03-31-builtin-command-second-round-expansion-design.md](/home/work/projects/zapcmd/docs/superpowers/specs/2026-03-31-builtin-command-second-round-expansion-design.md) 与 [2026-03-31-builtin-command-second-round-expansion.md](/home/work/projects/zapcmd/docs/superpowers/plans/2026-03-31-builtin-command-second-round-expansion.md) 里关于“不要新增 `_pnpm.md/_bun.md/_npm.md`、不拆 `_package.md`”的 package 范围约束；slug contract 本身保持不变
 
 ---
@@ -26,7 +26,7 @@
 2. 如果为了维护粒度拆成 `_pnpm.md`、`_bun.md`，当前生成器会把运行时分类一起改成 `pnpm`、`bun`，直接改变 UI/搜索语义。
 3. 这意味着“文件组织”与“产品分类”被绑死，后续任何模块化整理都会被误解为运行时分类重构。
 
-本轮目标不是重做运行时加载链，也不是开放每条命令自己指定分类，而是只把“模块文件名”和“运行时 category”解耦到一个足够简单、可维护、可渐进迁移的程度。
+本轮目标不是重做运行时加载链，而是在保持 DSL 足够简单的前提下，把“模块文件名”和“运行时 category”解耦到可维护、可渐进迁移的程度。
 
 ---
 
@@ -35,19 +35,19 @@
 ### 2.1 本轮要做
 
 1. 保持 `1 md = 1 json` 不变。
-2. 新增文件级元数据 `运行时分类`，用于覆盖当前“文件名直出 category”的行为。
-3. 当 `运行时分类` 缺省时，继续回退到旧行为，保持兼容。
-4. 首轮将 `package` 从单文件拆成多个源文件与多个 JSON 产物。
-5. 拆分后 `npm / pnpm / yarn / bun / pip / brew / cargo` 这些模块的命令，运行时仍统一落到 `category=package`。
-6. 同步更新生成器文档、manifest/snapshot 表达与必要测试。
+2. 新增文件级元数据 `运行时分类`，作为文件内命令的默认运行时分类。
+3. 表格可选新增列 `运行时分类`，允许命令级覆盖默认值。
+4. 当行级与文件级 `运行时分类` 都缺省时，继续回退到文件 slug，保持兼容。
+5. 首轮将 `package` 从单文件拆成多个源文件与多个 JSON 产物。
+6. 拆分后 `npm / pnpm / yarn / bun / pip / brew / cargo` 这些模块的命令，运行时仍统一落到 `category=package`。
+7. 同步更新生成器文档、manifest/snapshot 表达与必要测试。
 
 ### 2.2 本轮明确不做
 
-1. 不做“每一行命令单独写 category”。
-2. 不新增额外 manifest 作为分类映射真源。
-3. 不修改运行时命令加载机制。
-4. 不修改 UI 层的分类展示/筛选规则。
-5. 不强制把所有现有 builtin 大类都立即拆分。
+1. 不新增额外 manifest 作为分类映射真源。
+2. 不修改运行时命令加载机制。
+3. 不修改 UI 层的分类展示/筛选规则。
+4. 不强制把所有现有 builtin 大类都立即拆分。
 
 ---
 
@@ -57,8 +57,8 @@
 |---|---|
 | 文件与产物关系 | 继续保持 `1 md = 1 json` |
 | 文件名职责 | 只负责模块命名与输出文件名，不再强绑定运行时 `category` |
-| 运行时分类来源 | 优先读取文件级 `运行时分类`；缺省时回退到文件 slug |
-| 覆盖粒度 | 一个源文件只允许一个运行时分类 |
+| 运行时分类来源 | 优先读取行级 `运行时分类`；否则回退到文件级 `运行时分类`；再回退到文件 slug |
+| 覆盖粒度 | 默认支持文件级单分类，也允许同一文件内通过行级列表达多分类 |
 | 兼容策略 | 老文件不需要立即补元数据，继续按旧行为生成 |
 | 首轮迁移范围 | 只拆 `package` |
 | 运行时加载 | 继续按 `_*.json` 全量加载，不按文件名决定分组 |
@@ -129,7 +129,7 @@
 > 说明：此文件为 JSON 生成源（人维护）。
 ```
 
-`运行时分类` 只在 Markdown 表格之前的头部 blockquote 元数据区域生效，不从表格正文或其他普通段落里提取。
+`运行时分类` 在头部 blockquote 中表示“文件默认值”；若表格启用 `运行时分类` 列，则每一行可继续覆盖该默认值。
 
 本轮继续要求以下头部字段保持现有约束：
 
@@ -151,9 +151,9 @@
 ### 4.3 语义定义
 
 - `分类`：源文件的人类可读显示名，继续用于生成 JSON 的 `_meta.name`
-- `运行时分类`：该文件内所有命令写入 JSON 时使用的 `category`
+- `运行时分类`：命令写入 JSON 时使用的 `category` 默认值；若表格行显式填写 `运行时分类` 列，则以该行值为准
 
-也就是说：
+也就是说，默认情况下：
 
 - `_pnpm.md` -> `_pnpm.json`
 - `_meta.name = "PNPM"`
@@ -201,17 +201,15 @@
 
 这样可以保证老文件不需要同步大改。
 
-### 4.6 单文件单分类
+### 4.6 混合覆盖模式
 
-本轮明确规定：一个源文件只允许对应一个运行时分类。
+本轮采用“文件级默认 + 行级覆盖”的混合模式：
 
-原因：
+1. 对绝大多数文件，继续保持单文件单分类，维护成本最低。
+2. 对 `package` 这类模块拆分后的命令源，可在表格中逐行显式写 `运行时分类=package`，避免再被文件级头部绑定。
+3. 当同一文件出现多个运行时分类时，manifest/snapshot 必须按集合表达，而不是强行压成单值。
 
-1. 这与“模块文件”边界一致。
-2. 可以避免表格内逐行重复填写分类。
-3. 也避免一个文件同时混入多种产品语义，重新滑回 `_package.md` 现在的维护困境。
-
-如果未来某个文件出现“需要两种运行时分类”的诉求，正确动作是继续拆文件，而不是升级为逐行分类 DSL。
+仍然建议优先保持文件语义清晰，避免把无关命令重新塞回“大杂烩”文件。
 
 ---
 
@@ -225,7 +223,8 @@
 
 1. `fileSlug`：由文件名 `_xxx.md` 得到
 2. `displayName`：来自 `> 分类：...`
-3. `runtimeCategory`：来自 `> 运行时分类：...`；若缺失则回退为 `fileSlug`
+3. `defaultRuntimeCategory`：来自 `> 运行时分类：...`；若缺失则回退为 `fileSlug`
+4. `rowRuntimeCategory`：若表格包含 `运行时分类` 列，则优先读取该行；写 `-` 或留空时回退到 `defaultRuntimeCategory`
 
 ### 5.2 命令 JSON 产出规则
 
@@ -234,7 +233,7 @@
 - `_pnpm.md -> _pnpm.json`
 - `_bun.md -> _bun.json`
 
-但每条命令的 `category` 使用 `runtimeCategory`，而不是 `fileSlug`。
+但每条命令的 `category` 使用该行最终解析后的 runtime category，而不是直接使用 `fileSlug`。
 
 ### 5.3 `_meta` 行为
 
@@ -262,7 +261,7 @@
       "file": "_pnpm.json",
       "sourceFile": "_pnpm.md",
       "moduleSlug": "pnpm",
-      "runtimeCategory": "package",
+      "runtimeCategories": ["package"],
       "logicalCount": 3,
       "physicalCount": 3
     }
@@ -282,7 +281,7 @@
    - `file`
    - `sourceFile`
    - `moduleSlug`
-   - `runtimeCategory`
+   - `runtimeCategories`
    - `logicalCount`
    - `physicalCount`
 3. 旧的 `generatedFiles[].category` 本轮直接删除，不保留兼容别名
@@ -292,11 +291,11 @@
 - `file` 保留完整输出文件名，例如 `_pnpm.json`
 - `sourceFile` 保留完整源文件名，例如 `_pnpm.md`
 - `moduleSlug` 不带前缀 `_`，例如 `pnpm`
-- `runtimeCategory` 是最终写入命令 JSON 的 `category`，例如 `package`
+- `runtimeCategories` 是该模块内所有命令最终写入 JSON 的 `category` 去重集合，例如 `["gh", "package", "tooling"]`
 
 generated snapshot 表头改为：
 
-| File | Source | Module | Runtime Category | Logical | Physical |
+| File | Source | Module | Runtime Categories | Logical | Physical |
 
 示例行：
 
@@ -479,7 +478,7 @@ generated snapshot 表头改为：
 1. 写了 `运行时分类` 时，输出 JSON 的每条命令使用覆盖后的 `category`
 2. 没写 `运行时分类` 时，仍然回退到文件 slug
 3. 存在陈旧 `_package.json` 时，生成器成功运行后会自动清理
-4. `index.json` 与 generated snapshot 的字段/表头已经切换到 `moduleSlug + runtimeCategory`
+4. `index.json` 与 generated snapshot 的字段/表头已经切换到 `moduleSlug + runtimeCategories`
 5. 缺失/重复/非法的 `# _slug`、`> 分类`、`> 运行时分类` 都会让生成器失败
 
 ### 9.2 运行时测试
@@ -530,11 +529,11 @@ npm run check:all
 
 ## 10. 结论
 
-本轮采用“文件级运行时分类覆盖”作为唯一新能力：
+本轮采用“文件级默认 + 行级覆盖”的运行时分类 DSL：
 
 1. 保留 `1 md = 1 json`
 2. 让文件名只承担模块职责
-3. 让运行时 `category` 可以显式归并
-4. 用 `package` 拆分作为首轮迁移样板
+3. 让运行时 `category` 可以按文件默认值或按命令显式归并
+4. 用 `package` 拆分和 `service/gh/docker-compose/kubernetes` 扩充作为首轮迁移样板
 
 这能同时解决“维护粒度过粗”和“产品分类被文件结构绑死”两个问题，又不会把 DSL 和运行时链路复杂化到难以维护的程度。

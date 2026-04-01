@@ -1,5 +1,13 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-03-31｜builtin 源逐行运行时分类统一）
+
+- 已将 21 个 builtin `docs/command_sources/_*.md` 全部统一为 11 列格式，逐命令显式写 `运行时分类`；新增仓库级测试锁定该规范，刷新生成产物后 focused tests 全绿。
+
+## 补充（2026-03-31｜builtin 行级运行时分类收口）
+
+- 已支持 builtin 行级 `运行时分类` 覆盖，`package` 改为逐命令写 `package`；新增 `service`、`gh`、`docker-compose`、`kubernetes` 常用命令，focused tests 全绿，totals 为 `283/328`。
+
 ## 补充（2026-03-31｜builtin 模块分类覆盖落地）
 
 - 已完成 builtin 头部 grammar、`运行时分类` 覆盖与 stale `_package.json` 清理；`package` 已拆为 `_npm/_pnpm/_yarn/_bun/_pip/_brew/_cargo`，运行时仍归类 `package`，`check:all` 全绿。
@@ -1045,3 +1053,5 @@
 - 已完成 `category` slug contract、generator 文件名校验与 builtin 命令源拆分；新增 `redis/mysql/postgres/sqlite/kubernetes` 并刷新生成产物，`commands:schema:check`、定向测试与 `check:all` 全绿。
 ## 补充（2026-03-31｜builtin 命令源第二轮扩充实施完成）
 - 已按 chunk 完成 network/dev/package 扩充：新增 curl-json-get、http-status-only、whois、jq-format-json、jwt-decode、epoch-ms-*、pnpm/bun 命令；产物 totals=255/300，focused tests、schema check、check:all 全绿。
+## 补充（2026-03-31｜builtin 常用命令覆盖补齐）
+- 已补 package/docker/kubernetes 缺口：新增 yarn/pnpm/bun 常用命令、`docker compose ps`/`docker system df`、`kubectl get deployments/events`；生成产物 totals=266/311，runtimeLoader 定向测试全绿。

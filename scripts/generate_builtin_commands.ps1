@@ -174,6 +174,107 @@ function Convert-Tags {
   return @($tags)
 }
 
+function Unquote-InlineCodeCell {
+  param([string]$Cell)
+
+  $value = $Cell.Trim()
+  if ($value.Length -ge 2 -and $value.StartsWith('`') -and $value.EndsWith('`')) {
+    return $value.Substring(1, $value.Length - 2)
+  }
+  return $value
+}
+
+function Split-MarkdownTableRow {
+  param([string]$Line)
+
+  if ([string]::IsNullOrWhiteSpace($Line)) {
+    return @()
+  }
+
+  $trimmed = $Line.Trim()
+  if (-not $trimmed.StartsWith('|')) {
+    return @()
+  }
+
+  $cells = @()
+  $buffer = ""
+  $insideInlineCode = $false
+  for ($i = 0; $i -lt $trimmed.Length; $i++) {
+    $ch = $trimmed[$i]
+    $previous = if ($i -gt 0) { $trimmed[$i - 1] } else { [char]0 }
+
+    if ($ch -eq '`' -and $previous -ne '\') {
+      $insideInlineCode = -not $insideInlineCode
+      $buffer += $ch
+      continue
+    }
+
+    if ($ch -eq '|' -and -not $insideInlineCode -and $previous -ne '\') {
+      $cells += $buffer.Trim()
+      $buffer = ""
+      continue
+    }
+
+    $buffer += $ch
+  }
+
+  if ($buffer.Length -gt 0) {
+    $cells += $buffer.Trim()
+  }
+
+  if ($cells.Count -gt 0 -and $cells[0] -eq "") {
+    $cells = if ($cells.Count -gt 1) { @($cells[1..($cells.Count - 1)]) } else { @() }
+  }
+  if ($cells.Count -gt 0 -and $cells[$cells.Count - 1] -eq "") {
+    $cells = if ($cells.Count -gt 1) { @($cells[0..($cells.Count - 2)]) } else { @() }
+  }
+
+  return @($cells)
+}
+
+function Test-MarkdownTableSeparatorRow {
+  param([string[]]$Cells)
+
+  if ($null -eq $Cells -or $Cells.Count -eq 0) {
+    return $false
+  }
+
+  foreach ($cell in $Cells) {
+    if ($cell.Trim() -notmatch '^:?-{3,}:?$') {
+      return $false
+    }
+  }
+
+  return $true
+}
+
+function Get-CommandSourceTableLayout {
+  param(
+    [string[]]$Cells,
+    [Parameter(Mandatory = $true)][string]$ExpectedFileId
+  )
+
+  $legacyHeader = @("#", "ID", "名称", "平台", "模板", "参数", "高危", "adminRequired", "prerequisites", "tags")
+  $rowRuntimeHeader = @("#", "ID", "名称", "运行时分类", "平台", "模板", "参数", "高危", "adminRequired", "prerequisites", "tags")
+  $joinedCells = $Cells -join "`n"
+
+  if ($joinedCells -ceq ($legacyHeader -join "`n")) {
+    return [pscustomobject]@{
+      hasRowRuntimeCategory = $false
+      expectedColumnCount = $legacyHeader.Count
+    }
+  }
+
+  if ($joinedCells -ceq ($rowRuntimeHeader -join "`n")) {
+    return [pscustomobject]@{
+      hasRowRuntimeCategory = $true
+      expectedColumnCount = $rowRuntimeHeader.Count
+    }
+  }
+
+  throw "Unsupported command table header in '$ExpectedFileId'"
+}
+
 function Get-PlatformVariants {
   param(
     [Parameter(Mandatory = $true)][string]$Id,
@@ -319,59 +420,99 @@ foreach ($sourceFile in $sourceFiles) {
   $lines = Get-Content $sourceFile.FullName
   $headerMetadata = Get-SourceHeaderMetadata -Lines $lines -ExpectedFileId $fileId
   $displayName = $headerMetadata.displayName
-  $runtimeCategory = $headerMetadata.runtimeCategory
+  $defaultRuntimeCategory = $headerMetadata.runtimeCategory
 
   $rowCount = 0
   $commands = @()
+  $runtimeCategoriesSeen = @{}
+  $tableLayout = $null
   foreach ($line in $lines) {
-    if ($line -match '^\|\s*(\d+)\s*\|\s*`([^`]+)`\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*`([^`]*)`\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*((?i:true|false))\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|$') {
-      $order = [int]$matches[1]
-      $id = $matches[2].Trim()
-      $name = $matches[3].Trim()
-      $platform = $matches[4].Trim()
-      $template = ($matches[5] -replace '\\\|', '|').Trim()
-      $argsSpec = $matches[6].Trim()
-      $riskCell = $matches[7].Trim()
-      $adminRequired = [System.Convert]::ToBoolean($matches[8].Trim())
-      $prereqCell = $matches[9].Trim()
-      $tagsCell = $matches[10].Trim()
+    $cells = @(Split-MarkdownTableRow -Line $line)
+    if ($cells.Count -eq 0) {
+      continue
+    }
+    if (Test-MarkdownTableSeparatorRow -Cells $cells) {
+      continue
+    }
+    if ($null -eq $tableLayout) {
+      $tableLayout = Get-CommandSourceTableLayout -Cells $cells -ExpectedFileId $fileId
+      continue
+    }
+    if ($cells[0] -eq "#") {
+      throw "Duplicate command table header found in '$fileId'"
+    }
+    if ($cells.Count -ne $tableLayout.expectedColumnCount) {
+      throw "Command row in '$fileId' must contain $($tableLayout.expectedColumnCount) cells"
+    }
 
-      $rowCount++
-      $logicalCount++
+    $order = [int]$cells[0].Trim()
+    $id = Unquote-InlineCodeCell -Cell $cells[1]
+    $name = $cells[2].Trim()
+    $rowRuntimeCategoryCell = $null
+    if ($tableLayout.hasRowRuntimeCategory) {
+      $rowRuntimeCategoryCell = $cells[3].Trim()
+      $platform = $cells[4].Trim()
+      $templateCell = $cells[5]
+      $argsSpec = $cells[6].Trim()
+      $riskCell = $cells[7].Trim()
+      $adminRequired = [System.Convert]::ToBoolean($cells[8].Trim())
+      $prereqCell = $cells[9].Trim()
+      $tagsCell = $cells[10].Trim()
+    } else {
+      $platform = $cells[3].Trim()
+      $templateCell = $cells[4]
+      $argsSpec = $cells[5].Trim()
+      $riskCell = $cells[6].Trim()
+      $adminRequired = [System.Convert]::ToBoolean($cells[7].Trim())
+      $prereqCell = $cells[8].Trim()
+      $tagsCell = $cells[9].Trim()
+    }
 
-      $tags = @(Convert-Tags -Cell $tagsCell)
-      if ($tags.Count -eq 0) {
-        throw "Empty tags in $($sourceFile.Name), id '$id'"
+    $template = (Unquote-InlineCodeCell -Cell $templateCell) -replace '\\\|', '|'
+    $runtimeCategory = $defaultRuntimeCategory
+    if (-not [string]::IsNullOrWhiteSpace($rowRuntimeCategoryCell) -and $rowRuntimeCategoryCell -ne '-') {
+      if ($rowRuntimeCategoryCell -cnotmatch '^[a-z0-9]+(?:-[a-z0-9]+)*$') {
+        throw "运行时分类 column must be a valid slug in '$fileId': '$rowRuntimeCategoryCell'"
       }
-      $argList = @(Convert-ArgsSpec -Spec $argsSpec)
-      $prereqs = @(Convert-Prerequisites -Cell $prereqCell)
-      $dangerous = $false
-      if ($riskCell -eq "⚠️" -or $riskCell.ToLowerInvariant() -eq "true") {
-        $dangerous = $true
-      }
+      $runtimeCategory = $rowRuntimeCategoryCell
+    }
 
-      $variants = @(Get-PlatformVariants -Id $id -Platform $platform)
-      foreach ($variant in $variants) {
-        $cmd = [ordered]@{
-          id            = $variant.id
-          name          = $name
-          tags          = $tags
-          category      = $runtimeCategory
-          platform      = $variant.platform
-          template      = $template
-          adminRequired = [bool]$adminRequired
-          dangerous     = [bool]$dangerous
-        }
-        if ($argList.Count -gt 0) { $cmd.args = $argList }
-        if ($prereqs.Count -gt 0) { $cmd.prerequisites = $prereqs }
+    $rowCount++
+    $logicalCount++
 
-        if ($globalIdSeen.ContainsKey($cmd.id)) {
-          throw "Duplicate generated id '$($cmd.id)'"
-        }
-        $globalIdSeen[$cmd.id] = $true
-        $commands += [pscustomobject]$cmd
-        $physicalCount++
+    $runtimeCategoriesSeen[$runtimeCategory] = $true
+    $tags = @(Convert-Tags -Cell $tagsCell)
+    if ($tags.Count -eq 0) {
+      throw "Empty tags in $($sourceFile.Name), id '$id'"
+    }
+    $argList = @(Convert-ArgsSpec -Spec $argsSpec)
+    $prereqs = @(Convert-Prerequisites -Cell $prereqCell)
+    $dangerous = $false
+    if ($riskCell -eq "⚠️" -or $riskCell.ToLowerInvariant() -eq "true") {
+      $dangerous = $true
+    }
+
+    $variants = @(Get-PlatformVariants -Id $id -Platform $platform)
+    foreach ($variant in $variants) {
+      $cmd = [ordered]@{
+        id            = $variant.id
+        name          = $name
+        tags          = $tags
+        category      = $runtimeCategory
+        platform      = $variant.platform
+        template      = $template
+        adminRequired = [bool]$adminRequired
+        dangerous     = [bool]$dangerous
       }
+      if ($argList.Count -gt 0) { $cmd.args = $argList }
+      if ($prereqs.Count -gt 0) { $cmd.prerequisites = $prereqs }
+
+      if ($globalIdSeen.ContainsKey($cmd.id)) {
+        throw "Duplicate generated id '$($cmd.id)'"
+      }
+      $globalIdSeen[$cmd.id] = $true
+      $commands += [pscustomobject]$cmd
+      $physicalCount++
     }
   }
 
@@ -388,7 +529,7 @@ foreach ($sourceFile in $sourceFiles) {
     logicalCount = $rowCount
     physicalCount = $commands.Count
     moduleSlug = $moduleSlug
-    runtimeCategory = $runtimeCategory
+    runtimeCategories = @($runtimeCategoriesSeen.Keys | Sort-Object)
   }
 }
 
@@ -424,7 +565,7 @@ foreach ($fileId in ($outputByFile.Keys | Sort-Object)) {
     file = "$fileId.json"
     sourceFile = $summary.sourceFile
     moduleSlug = $summary.moduleSlug
-    runtimeCategory = $summary.runtimeCategory
+    runtimeCategories = $summary.runtimeCategories
     logicalCount = $summary.logicalCount
     physicalCount = $summary.physicalCount
   }
@@ -454,10 +595,10 @@ $md += "- Output directory: $OutputDir"
 $md += ""
 $md += "## Files"
 $md += ""
-$md += "| File | Source | Module | Runtime Category | Logical | Physical |"
+$md += "| File | Source | Module | Runtime Categories | Logical | Physical |"
 $md += "|---|---|---|---|---|---|"
 foreach ($f in $manifestFiles) {
-  $md += "| $($f.file) | $($f.sourceFile) | $($f.moduleSlug) | $($f.runtimeCategory) | $($f.logicalCount) | $($f.physicalCount) |"
+  $md += "| $($f.file) | $($f.sourceFile) | $($f.moduleSlug) | $([string]::Join(', ', $f.runtimeCategories)) | $($f.logicalCount) | $($f.physicalCount) |"
 }
 $snapshotContent = $md -join [Environment]::NewLine
 

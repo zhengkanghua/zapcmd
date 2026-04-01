@@ -65,6 +65,75 @@
           "check": "binary:bun"
         }
       ]
+    },
+    {
+      "id": "bun-add",
+      "name": "Bun 添加依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "bun",
+        "add",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "bun add {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bun",
+          "type": "binary",
+          "required": true,
+          "check": "binary:bun"
+        }
+      ]
+    },
+    {
+      "id": "bun-remove",
+      "name": "Bun 移除依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "bun",
+        "remove",
+        "删除",
+        "移除",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "bun remove {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bun",
+          "type": "binary",
+          "required": true,
+          "check": "binary:bun"
+        }
+      ]
     }
   ]
 }

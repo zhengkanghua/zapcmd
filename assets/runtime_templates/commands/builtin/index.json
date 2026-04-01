@@ -1,14 +1,16 @@
 {
-  "sourceDir": "\\\\wsl.localhost\\Ubuntu-22.04\\home\\work\\projects\\zapcmd\\.worktrees\\builtin-command-module-category-override\\docs\\command_sources",
+  "sourceDir": "\\\\wsl.localhost\\Ubuntu-22.04\\home\\work\\projects\\zapcmd\\docs\\command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 255,
-  "physicalCommandCount": 300,
+  "logicalCommandCount": 283,
+  "physicalCommandCount": 328,
   "generatedFiles": [
     {
       "file": "_brew.json",
       "sourceFile": "_brew.md",
       "moduleSlug": "brew",
-      "runtimeCategory": "package",
+      "runtimeCategories": [
+        "package"
+      ],
       "logicalCount": 5,
       "physicalCount": 5
     },
@@ -16,15 +18,19 @@
       "file": "_bun.json",
       "sourceFile": "_bun.md",
       "moduleSlug": "bun",
-      "runtimeCategory": "package",
-      "logicalCount": 2,
-      "physicalCount": 2
+      "runtimeCategories": [
+        "package"
+      ],
+      "logicalCount": 4,
+      "physicalCount": 4
     },
     {
       "file": "_cargo.json",
       "sourceFile": "_cargo.md",
       "moduleSlug": "cargo",
-      "runtimeCategory": "package",
+      "runtimeCategories": [
+        "package"
+      ],
       "logicalCount": 4,
       "physicalCount": 4
     },
@@ -32,7 +38,9 @@
       "file": "_dev.json",
       "sourceFile": "_dev.md",
       "moduleSlug": "dev",
-      "runtimeCategory": "dev",
+      "runtimeCategories": [
+        "dev"
+      ],
       "logicalCount": 24,
       "physicalCount": 31
     },
@@ -40,23 +48,39 @@
       "file": "_docker.json",
       "sourceFile": "_docker.md",
       "moduleSlug": "docker",
-      "runtimeCategory": "docker",
-      "logicalCount": 24,
-      "physicalCount": 24
+      "runtimeCategories": [
+        "docker"
+      ],
+      "logicalCount": 28,
+      "physicalCount": 28
     },
     {
       "file": "_file.json",
       "sourceFile": "_file.md",
       "moduleSlug": "file",
-      "runtimeCategory": "file",
+      "runtimeCategories": [
+        "file"
+      ],
       "logicalCount": 25,
       "physicalCount": 41
+    },
+    {
+      "file": "_gh.json",
+      "sourceFile": "_gh.md",
+      "moduleSlug": "gh",
+      "runtimeCategories": [
+        "gh"
+      ],
+      "logicalCount": 6,
+      "physicalCount": 6
     },
     {
       "file": "_git.json",
       "sourceFile": "_git.md",
       "moduleSlug": "git",
-      "runtimeCategory": "git",
+      "runtimeCategories": [
+        "git"
+      ],
       "logicalCount": 28,
       "physicalCount": 28
     },
@@ -64,15 +88,19 @@
       "file": "_kubernetes.json",
       "sourceFile": "_kubernetes.md",
       "moduleSlug": "kubernetes",
-      "runtimeCategory": "kubernetes",
-      "logicalCount": 15,
-      "physicalCount": 15
+      "runtimeCategories": [
+        "kubernetes"
+      ],
+      "logicalCount": 21,
+      "physicalCount": 21
     },
     {
       "file": "_mysql.json",
       "sourceFile": "_mysql.md",
       "moduleSlug": "mysql",
-      "runtimeCategory": "mysql",
+      "runtimeCategories": [
+        "mysql"
+      ],
       "logicalCount": 10,
       "physicalCount": 10
     },
@@ -80,7 +108,9 @@
       "file": "_network.json",
       "sourceFile": "_network.md",
       "moduleSlug": "network",
-      "runtimeCategory": "network",
+      "runtimeCategories": [
+        "network"
+      ],
       "logicalCount": 30,
       "physicalCount": 39
     },
@@ -88,7 +118,9 @@
       "file": "_npm.json",
       "sourceFile": "_npm.md",
       "moduleSlug": "npm",
-      "runtimeCategory": "package",
+      "runtimeCategories": [
+        "package"
+      ],
       "logicalCount": 8,
       "physicalCount": 8
     },
@@ -96,7 +128,9 @@
       "file": "_pip.json",
       "sourceFile": "_pip.md",
       "moduleSlug": "pip",
-      "runtimeCategory": "package",
+      "runtimeCategories": [
+        "package"
+      ],
       "logicalCount": 4,
       "physicalCount": 4
     },
@@ -104,15 +138,19 @@
       "file": "_pnpm.json",
       "sourceFile": "_pnpm.md",
       "moduleSlug": "pnpm",
-      "runtimeCategory": "package",
-      "logicalCount": 3,
-      "physicalCount": 3
+      "runtimeCategories": [
+        "package"
+      ],
+      "logicalCount": 5,
+      "physicalCount": 5
     },
     {
       "file": "_postgres.json",
       "sourceFile": "_postgres.md",
       "moduleSlug": "postgres",
-      "runtimeCategory": "postgres",
+      "runtimeCategories": [
+        "postgres"
+      ],
       "logicalCount": 10,
       "physicalCount": 10
     },
@@ -120,15 +158,29 @@
       "file": "_redis.json",
       "sourceFile": "_redis.md",
       "moduleSlug": "redis",
-      "runtimeCategory": "redis",
+      "runtimeCategories": [
+        "redis"
+      ],
       "logicalCount": 20,
       "physicalCount": 20
+    },
+    {
+      "file": "_service.json",
+      "sourceFile": "_service.md",
+      "moduleSlug": "service",
+      "runtimeCategories": [
+        "service"
+      ],
+      "logicalCount": 5,
+      "physicalCount": 5
     },
     {
       "file": "_sqlite.json",
       "sourceFile": "_sqlite.md",
       "moduleSlug": "sqlite",
-      "runtimeCategory": "sqlite",
+      "runtimeCategories": [
+        "sqlite"
+      ],
       "logicalCount": 7,
       "physicalCount": 7
     },
@@ -136,7 +188,9 @@
       "file": "_ssh.json",
       "sourceFile": "_ssh.md",
       "moduleSlug": "ssh",
-      "runtimeCategory": "ssh",
+      "runtimeCategories": [
+        "ssh"
+      ],
       "logicalCount": 10,
       "physicalCount": 11
     },
@@ -144,7 +198,9 @@
       "file": "_system.json",
       "sourceFile": "_system.md",
       "moduleSlug": "system",
-      "runtimeCategory": "system",
+      "runtimeCategories": [
+        "system"
+      ],
       "logicalCount": 25,
       "physicalCount": 37
     },
@@ -152,9 +208,11 @@
       "file": "_yarn.json",
       "sourceFile": "_yarn.md",
       "moduleSlug": "yarn",
-      "runtimeCategory": "package",
-      "logicalCount": 1,
-      "physicalCount": 1
+      "runtimeCategories": [
+        "package"
+      ],
+      "logicalCount": 4,
+      "physicalCount": 4
     }
   ]
 }

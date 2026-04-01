@@ -8,9 +8,13 @@
 - `_network.md` -> `assets/runtime_templates/commands/builtin/_network.json`
 - `_git.md` -> `assets/runtime_templates/commands/builtin/_git.json`
 
-统一表头：
+统一表头（生成器兼容两种格式；仓库内 builtin 源默认使用第 2 种）：
 
 `# | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags`
+
+或：
+
+`# | ID | 名称 | 运行时分类 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags`
 
 生成命令：
 
@@ -42,15 +46,19 @@ CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_
    - `> 分类：...` 必填，用于生成 `_meta.name`
    - `> 运行时分类：...` 可选；若出现必须是合法 slug
    - `> 说明：...` 可保留供维护者阅读，但不进入 JSON 结构
-3. 表格表头必须保持一致：
+3. 表格表头必须使用以下两种格式之一：
 
    `# | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags`
 
-4. 文件 slug 决定模块名与输出文件名；命令运行时 `category` 默认回退到文件 slug，也可由 `> 运行时分类：...` 覆盖。builtin 与用户命令共用同一套 slug 规则：`^[a-z0-9]+(?:-[a-z0-9]+)*$`。
+   `# | ID | 名称 | 运行时分类 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags`
+
+   当前仓库内置命令源应统一使用第二种 11 列格式，让每条命令显式声明最终运行时分类；旧 10 列格式仅作为生成器兼容能力保留，不再作为仓库内新写法。
+
+4. 命令运行时 `category` 的回退顺序为：表格行 `运行时分类` 列 -> 文件头 `> 运行时分类：...` -> 文件 slug。行级列写 `-` 或留空时，按默认回退继续计算。builtin 与用户命令共用同一套 slug 规则：`^[a-z0-9]+(?:-[a-z0-9]+)*$`。
 5. 一个源文件对应一个输出文件（同名）：
    - `_network.md` → `assets/runtime_templates/commands/builtin/_network.json`
    - `_git.md` → `assets/runtime_templates/commands/builtin/_git.json`
-6. `assets/runtime_templates/commands/builtin/index.json` 的 `generatedFiles[]` 现在显式记录 `moduleSlug` 与 `runtimeCategory`；`docs/builtin_commands.generated.md` 也会同步输出 `Module / Runtime Category` 两列，便于区分“模块文件名”和“运行时分类”。
+6. `assets/runtime_templates/commands/builtin/index.json` 的 `generatedFiles[]` 现在显式记录 `moduleSlug` 与 `runtimeCategories`；`docs/builtin_commands.generated.md` 也会同步输出 `Module / Runtime Categories`，便于区分“模块文件名”和“实际运行时分类集合”。
 7. 非法示例：`_Redis.md`、`_postgres_tools.md`、`_my tools.md`；这些文件名会被生成器直接拒绝。
 
 ## 常见字段约定（简版）

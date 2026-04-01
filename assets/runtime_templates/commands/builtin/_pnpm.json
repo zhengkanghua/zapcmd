@@ -101,6 +101,69 @@
           "check": "binary:pnpm"
         }
       ]
+    },
+    {
+      "id": "pnpm-remove",
+      "name": "PNPM 移除依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "pnpm",
+        "remove",
+        "删除",
+        "移除",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pnpm remove {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pnpm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pnpm"
+        }
+      ]
+    },
+    {
+      "id": "pnpm-list",
+      "name": "PNPM 查看已安装",
+      "tags": [
+        "包管理",
+        "package",
+        "pnpm",
+        "list",
+        "列表",
+        "查看",
+        "show",
+        "安装",
+        "install"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pnpm list --depth 0",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "pnpm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pnpm"
+        }
+      ]
     }
   ]
 }

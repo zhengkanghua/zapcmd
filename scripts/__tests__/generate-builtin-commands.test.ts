@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdtempSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync
@@ -84,6 +85,26 @@ function writeBrokenMarkdownFixture(sourceDir: string): void {
   );
 }
 
+function writeRowRuntimeCategoryFixture(sourceDir: string): void {
+  mkdirSync(sourceDir, { recursive: true });
+  writeFileSync(
+    path.join(sourceDir, "_tooling.md"),
+    [
+      "# _tooling",
+      "",
+      "> 分类：Tooling",
+      "> 说明：此文件为 JSON 生成源（人维护）。",
+      "",
+      "| # | ID | 名称 | 运行时分类 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+      "|---|---|---|---|---|---|---|---|---|---|---|",
+      "| 1 | `pnpm-run` | PNPM 运行脚本 | package | all | `pnpm run {{script}}` | script(text) | - | false | pnpm | pnpm run script |",
+      "| 2 | `gh-pr-list` | GH PR 列表 | gh | all | `gh pr list` | - | - | false | gh | gh pr list |",
+      "| 3 | `tooling-version` | Tooling 版本 | - | all | `tooling --version` | - | - | false | tooling | tooling version |"
+    ].join("\n"),
+    "utf8"
+  );
+}
+
 function resolvePwshExecutable(): string {
   const windowsPwshPath = "/mnt/c/Program Files/PowerShell/7/pwsh.exe";
   if (existsSync(windowsPwshPath)) {
@@ -105,6 +126,49 @@ function toPwshPath(filePath: string, executable: string): string {
     throw new Error(result.stderr || `failed to convert path: ${filePath}`);
   }
   return result.stdout.trim();
+}
+
+function splitMarkdownTableRow(line: string): string[] {
+  const trimmed = line.trim();
+  if (!trimmed.startsWith("|")) {
+    return [];
+  }
+
+  const cells: string[] = [];
+  let buffer = "";
+  let insideInlineCode = false;
+
+  for (let index = 0; index < trimmed.length; index += 1) {
+    const char = trimmed[index];
+    const previous = index > 0 ? trimmed[index - 1] : "";
+
+    if (char === "`" && previous !== "\\") {
+      insideInlineCode = !insideInlineCode;
+      buffer += char;
+      continue;
+    }
+
+    if (char === "|" && !insideInlineCode && previous !== "\\") {
+      cells.push(buffer.trim());
+      buffer = "";
+      continue;
+    }
+
+    buffer += char;
+  }
+
+  if (buffer.length > 0) {
+    cells.push(buffer.trim());
+  }
+
+  if (cells[0] === "") {
+    cells.shift();
+  }
+  if (cells.at(-1) === "") {
+    cells.pop();
+  }
+
+  return cells;
 }
 
 describe("generate_builtin_commands.ps1", () => {
@@ -303,7 +367,7 @@ describe("generate_builtin_commands.ps1", () => {
         file: string;
         sourceFile: string;
         moduleSlug?: string;
-        runtimeCategory?: string;
+        runtimeCategories?: string[];
         logicalCount: number;
         physicalCount: number;
       }>;
@@ -315,11 +379,11 @@ describe("generate_builtin_commands.ps1", () => {
       file: "_pnpm.json",
       sourceFile: "_pnpm.md",
       moduleSlug: "pnpm",
-      runtimeCategory: "package",
+      runtimeCategories: ["package"],
       logicalCount: 1,
       physicalCount: 1
     });
-    expect(snapshot).toContain("| File | Source | Module | Runtime Category | Logical | Physical |");
+    expect(snapshot).toContain("| File | Source | Module | Runtime Categories | Logical | Physical |");
     expect(snapshot).toContain("| _pnpm.json | _pnpm.md | pnpm | package | 1 | 1 |");
   }, 60_000);
 
@@ -383,12 +447,113 @@ describe("generate_builtin_commands.ps1", () => {
       commands: Array<{ category: string }>;
     };
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
-      generatedFiles: Array<{ runtimeCategory?: string }>;
+      generatedFiles: Array<{ runtimeCategories?: string[] }>;
     };
 
     expect(generated.commands[0]?.category).toBe("git");
-    expect(manifest.generatedFiles[0]?.runtimeCategory).toBe("git");
+    expect(manifest.generatedFiles[0]?.runtimeCategories).toEqual(["git"]);
   }, 60_000);
+
+  it("applies row-level runtime category overrides and records multiple runtime categories", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    writeRowRuntimeCategoryFixture(sourceDir);
+    const pwshExecutable = resolvePwshExecutable();
+
+    const result = spawnSync(
+      pwshExecutable,
+      [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        path.resolve(process.cwd(), "scripts/generate_builtin_commands.ps1"),
+        "-SourceDir",
+        toPwshPath(sourceDir, pwshExecutable),
+        "-OutputDir",
+        toPwshPath(outputDir, pwshExecutable),
+        "-ManifestPath",
+        toPwshPath(manifestPath, pwshExecutable),
+        "-GeneratedMarkdownPath",
+        toPwshPath(generatedMarkdownPath, pwshExecutable)
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8"
+      }
+    );
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    expect(result.status).toBe(0);
+
+    const generatedJsonPath = path.join(outputDir, "_tooling.json");
+    const generated = JSON.parse(readFileSync(generatedJsonPath, "utf8")) as {
+      commands: Array<{ id: string; category: string }>;
+    };
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      generatedFiles: Array<{
+        file: string;
+        runtimeCategories?: string[];
+      }>;
+    };
+    const snapshot = readFileSync(generatedMarkdownPath, "utf8");
+
+    expect(generated.commands).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "pnpm-run", category: "package" }),
+        expect.objectContaining({ id: "gh-pr-list", category: "gh" }),
+        expect.objectContaining({ id: "tooling-version", category: "tooling" })
+      ])
+    );
+    expect(manifest.generatedFiles[0]).toEqual(
+      expect.objectContaining({
+        file: "_tooling.json",
+        runtimeCategories: ["gh", "package", "tooling"]
+      })
+    );
+    expect(snapshot).toContain("| _tooling.json | _tooling.md | tooling | gh, package, tooling | 3 | 3 |");
+  }, 60_000);
+
+  it("requires every builtin command source row to declare an explicit runtime category", () => {
+    const sourceDir = path.resolve(process.cwd(), "docs/command_sources");
+    const sourceFiles = readdirSync(sourceDir)
+      .filter((fileName) => fileName.startsWith("_") && fileName.endsWith(".md"))
+      .sort();
+
+    expect(sourceFiles.length).toBeGreaterThan(0);
+
+    const expectedHeader =
+      "| # | ID | 名称 | 运行时分类 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |";
+
+    for (const fileName of sourceFiles) {
+      const content = readFileSync(path.join(sourceDir, fileName), "utf8");
+      const lines = content.split(/\r?\n/);
+      expect(lines).toContain(expectedHeader);
+
+      for (const line of lines) {
+        const cells = splitMarkdownTableRow(line);
+        if (cells.length === 0) {
+          continue;
+        }
+        if (!/^\d+$/.test(cells[0] ?? "")) {
+          continue;
+        }
+
+        expect(cells.length, `${fileName}: ${line}`).toBe(11);
+        expect(cells[3]?.trim(), `${fileName}: ${line}`).not.toBe("");
+        expect(cells[3]?.trim(), `${fileName}: ${line}`).not.toBe("-");
+      }
+    }
+  });
 
   it("rejects missing or invalid header metadata", () => {
     const runFixture = (fileName: string, lines: string[]) => {

@@ -1,0 +1,197 @@
+{
+  "_meta": {
+    "name": "GitHub CLI",
+    "author": "zapcmd-team",
+    "version": "1.0.0",
+    "description": "Generated from docs/command_sources",
+    "source": "docs/command_sources/_gh.md"
+  },
+  "commands": [
+    {
+      "id": "gh-auth-status",
+      "name": "GH 登录状态",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "auth",
+        "status",
+        "登录",
+        "状态",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh auth status",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-pr-list",
+      "name": "GH Pull Requests 列表",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "pr",
+        "pull-request",
+        "list",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh pr list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-pr-view",
+      "name": "GH 查看 Pull Request",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "pr",
+        "pull-request",
+        "view",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh pr view {{pr}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pr",
+          "label": "pr",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-pr-checkout",
+      "name": "GH 检出 Pull Request",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "pr",
+        "pull-request",
+        "checkout",
+        "检出"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh pr checkout {{pr}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pr",
+          "label": "pr",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        },
+        {
+          "id": "git",
+          "type": "binary",
+          "required": true,
+          "check": "binary:git"
+        }
+      ]
+    },
+    {
+      "id": "gh-issue-list",
+      "name": "GH Issues 列表",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "issue",
+        "list",
+        "列表",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh issue list",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-repo-view",
+      "name": "GH 仓库概览",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "repo",
+        "repository",
+        "view",
+        "概览",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh repo view",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    }
+  ]
+}

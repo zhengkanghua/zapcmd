@@ -654,6 +654,115 @@
       ]
     },
     {
+      "id": "docker-compose-ps",
+      "name": "Compose 服务状态",
+      "tags": [
+        "docker",
+        "容器",
+        "compose",
+        "ps",
+        "状态",
+        "status",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose ps",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-compose-config",
+      "name": "Compose 配置预览",
+      "tags": [
+        "docker",
+        "容器",
+        "compose",
+        "config",
+        "配置",
+        "预览",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose config",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-compose-pull",
+      "name": "Compose 拉取镜像",
+      "tags": [
+        "docker",
+        "容器",
+        "compose",
+        "pull",
+        "拉取",
+        "镜像",
+        "image"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker compose pull",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
+      "id": "docker-system-df",
+      "name": "Docker 磁盘占用概览",
+      "tags": [
+        "docker",
+        "容器",
+        "system",
+        "df",
+        "磁盘",
+        "disk",
+        "占用",
+        "usage",
+        "查看",
+        "show"
+      ],
+      "category": "docker",
+      "platform": "all",
+      "template": "docker system df",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "docker",
+          "type": "binary",
+          "required": true,
+          "check": "binary:docker"
+        }
+      ]
+    },
+    {
       "id": "docker-prune",
       "name": "清理未使用资源",
       "tags": [
