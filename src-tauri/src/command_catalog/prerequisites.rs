@@ -80,6 +80,24 @@ fn build_probe_result(
     }
 }
 
+fn normalize_check_target<'a>(input: &'a PrerequisiteProbeInput) -> &'a str {
+    let check = input.check.trim();
+    let Some((prefix, target)) = check.split_once(':') else {
+        return check;
+    };
+
+    let normalized_target = target.trim();
+    if normalized_target.is_empty() {
+        return check;
+    }
+
+    if prefix.eq_ignore_ascii_case(input.r#type.as_str()) {
+        return normalized_target;
+    }
+
+    check
+}
+
 pub(crate) fn probe_prerequisite_with<B, E>(
     input: &PrerequisiteProbeInput,
     binary_exists: B,
@@ -89,7 +107,7 @@ where
     B: Fn(&str) -> bool,
     E: Fn(&str) -> Option<String>,
 {
-    let check = input.check.trim();
+    let check = normalize_check_target(input);
 
     match input.r#type.as_str() {
         "binary" => {
@@ -188,5 +206,39 @@ mod tests {
 
         assert!(!result.ok);
         assert_eq!(result.code, "unsupported-prerequisite");
+    }
+
+    #[test]
+    fn binary_prerequisite_accepts_prefixed_check_value() {
+        let result = probe_prerequisite_with(
+            &PrerequisiteProbeInput {
+                id: "ipconfig".to_string(),
+                r#type: "binary".to_string(),
+                required: true,
+                check: "binary:ipconfig".to_string(),
+            },
+            |command| command == "ipconfig",
+            |_| None,
+        );
+
+        assert!(result.ok);
+        assert_eq!(result.code, "ok");
+    }
+
+    #[test]
+    fn env_prerequisite_accepts_prefixed_check_value() {
+        let result = probe_prerequisite_with(
+            &PrerequisiteProbeInput {
+                id: "github-token".to_string(),
+                r#type: "env".to_string(),
+                required: true,
+                check: "env:GITHUB_TOKEN".to_string(),
+            },
+            |_| true,
+            |key| (key == "GITHUB_TOKEN").then(|| "token".to_string()),
+        );
+
+        assert!(result.ok);
+        assert_eq!(result.code, "ok");
     }
 }

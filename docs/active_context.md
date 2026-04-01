@@ -1059,3 +1059,5 @@
 - 已按 chunk 完成 network/dev/package 扩充：新增 curl-json-get、http-status-only、whois、jq-format-json、jwt-decode、epoch-ms-*、pnpm/bun 命令；产物 totals=255/300，focused tests、schema check、check:all 全绿。
 ## 补充（2026-03-31｜builtin 常用命令覆盖补齐）
 - 已补 package/docker/kubernetes 缺口：新增 yarn/pnpm/bun 常用命令、`docker compose ps`/`docker system df`、`kubectl get deployments/events`；生成产物 totals=266/311，runtimeLoader 定向测试全绿。
+## 补充（2026-04-01｜prerequisite check 前缀兼容修复）
+- 已修 Rust preflight 对 `binary:ipconfig` / `env:FOO` 的误判；根因是 built-in 生成产物带类型前缀而 probe 按裸值探测，现已兼容两种写法，`cargo test ... prerequisites` 全绿。
