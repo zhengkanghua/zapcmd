@@ -97,14 +97,28 @@ describe("runtimeLoader", () => {
 
     expect(loaded.templates.some((item) => item.id === "npm-install")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "pnpm-run")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pnpm-remove")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pnpm-list")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "bun-run")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "bun-add")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "bun-remove")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "yarn-run")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "yarn-remove")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "yarn-upgrade")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "pip-freeze")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "brew-list")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "cargo-add")).toBe(true);
 
     expect(loaded.sourceByCommandId["npm-install"]).toContain("_npm.json");
     expect(loaded.sourceByCommandId["pnpm-run"]).toContain("_pnpm.json");
+    expect(loaded.sourceByCommandId["pnpm-remove"]).toContain("_pnpm.json");
+    expect(loaded.sourceByCommandId["pnpm-list"]).toContain("_pnpm.json");
     expect(loaded.sourceByCommandId["bun-run"]).toContain("_bun.json");
+    expect(loaded.sourceByCommandId["bun-add"]).toContain("_bun.json");
+    expect(loaded.sourceByCommandId["bun-remove"]).toContain("_bun.json");
+    expect(loaded.sourceByCommandId["yarn-run"]).toContain("_yarn.json");
+    expect(loaded.sourceByCommandId["yarn-remove"]).toContain("_yarn.json");
+    expect(loaded.sourceByCommandId["yarn-upgrade"]).toContain("_yarn.json");
     expect(loaded.sourceByCommandId["pip-freeze"]).toContain("_pip.json");
     expect(loaded.sourceByCommandId["brew-list"]).toContain("_brew.json");
     expect(loaded.sourceByCommandId["cargo-add"]).toContain("_cargo.json");
@@ -115,6 +129,49 @@ describe("runtimeLoader", () => {
     expect(
       loaded.issues.some((item) => item.code === "duplicate-id" && item.sourceId.includes("_package.json"))
     ).toBe(false);
+  });
+
+  it("loads docker and kubernetes coverage additions", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.id === "docker-compose-ps")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-system-df")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-compose-config")).toBe(true);
+    expect(templates.some((item) => item.id === "docker-compose-pull")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-deployments")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-events")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-nodes")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-ingress")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-describe-deployment")).toBe(true);
+    expect(templates.some((item) => item.id === "kubectl-get-configmaps")).toBe(true);
+  });
+
+  it("loads service builtin commands with platform split", () => {
+    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const linuxTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
+
+    expect(winTemplates.some((item) => item.category === "service")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "service-status-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "service-list-running-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "service-logs-linux")).toBe(false);
+
+    expect(linuxTemplates.some((item) => item.category === "service")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "service-status-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "service-list-running-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "service-logs-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "service-status-win")).toBe(false);
+  });
+
+  it("loads gh builtin commands as a separate category", () => {
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    expect(templates.some((item) => item.category === "gh")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-auth-status")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-pr-list")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-pr-view")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-pr-checkout")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-issue-list")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-repo-view")).toBe(true);
   });
 
   it("reports invalid user command files", () => {
