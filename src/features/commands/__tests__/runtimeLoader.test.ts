@@ -72,6 +72,30 @@ describe("runtimeLoader", () => {
     ]);
   });
 
+  it("only keeps prerequisite checks for explicit external dependencies", () => {
+    const allTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "all" });
+    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+
+    const dockerPs = allTemplates.find((item) => item.id === "docker-ps");
+    const sshConfigList = allTemplates.find((item) => item.id === "ssh-config-list");
+    const timestampNow = allTemplates.find((item) => item.id === "timestamp-now");
+    const localIpWin = winTemplates.find((item) => item.id === "local-ip-win");
+
+    expect(dockerPs?.prerequisites).toEqual([
+      {
+        id: "docker",
+        type: "binary",
+        required: true,
+        check: "binary:docker",
+        installHint: "",
+        fallbackCommandId: undefined
+      }
+    ]);
+    expect(sshConfigList?.prerequisites ?? []).toEqual([]);
+    expect(timestampNow?.prerequisites ?? []).toEqual([]);
+    expect(localIpWin?.prerequisites ?? []).toEqual([]);
+  });
+
   it("filters out non-target platform templates", () => {
     const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     expect(winTemplates.some((item) => item.id === "base64-encode-mac")).toBe(false);

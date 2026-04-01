@@ -1,5 +1,9 @@
 # 短期记忆（2026-03-05）
 
+## 补充（2026-04-01｜typed prerequisite source 迁移）
+
+- 已将 builtin prerequisite 改为 source 显式 typed token，老写法直接报错；同时移除 `ipconfig/ls/cat/grep/ps` 等非必要检测，保留 `git/docker/python3` 等外部依赖，刷新产物并 `check:all` 全绿。
+
 ## 补充（2026-04-01｜builtin prerequisite 审计收口）
 
 - 已补 shell probe 最小支持，清掉 builtin 中 27 个误建模 binary 与 4 个 generic shell prerequisite；分布收口到 `binary 374 / shell 21 / 无 prerequisite 4`，`check:all` 全绿。

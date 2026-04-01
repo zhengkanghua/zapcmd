@@ -31,20 +31,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "ps",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ps"
-        },
-        {
-          "id": "grep",
-          "type": "binary",
-          "required": true,
-          "check": "binary:grep"
-        }
       ]
     },
     {
@@ -71,20 +57,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "ps",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ps"
-        },
-        {
-          "id": "grep",
-          "type": "binary",
-          "required": true,
-          "check": "binary:grep"
-        }
       ]
     },
     {
@@ -110,20 +82,6 @@
           "label": "name",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "findstr",
-          "type": "binary",
-          "required": true,
-          "check": "binary:findstr"
-        },
-        {
-          "id": "tasklist",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tasklist"
         }
       ]
     },
@@ -156,14 +114,6 @@
             "max": 2147483647
           }
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "kill",
-          "type": "binary",
-          "required": true,
-          "check": "binary:kill"
-        }
       ]
     },
     {
@@ -194,14 +144,6 @@
             "min": 1,
             "max": 2147483647
           }
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "kill",
-          "type": "binary",
-          "required": true,
-          "check": "binary:kill"
         }
       ]
     },
@@ -234,14 +176,6 @@
             "max": 2147483647
           }
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "taskkill",
-          "type": "binary",
-          "required": true,
-          "check": "binary:taskkill"
-        }
       ]
     },
     {
@@ -269,14 +203,6 @@
           "label": "name",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "pkill",
-          "type": "binary",
-          "required": true,
-          "check": "binary:pkill"
         }
       ]
     },
@@ -306,14 +232,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "pkill",
-          "type": "binary",
-          "required": true,
-          "check": "binary:pkill"
-        }
       ]
     },
     {
@@ -342,14 +260,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "taskkill",
-          "type": "binary",
-          "required": true,
-          "check": "binary:taskkill"
-        }
       ]
     },
     {
@@ -369,15 +279,7 @@
       "platform": "mac",
       "template": "df -h",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "df",
-          "type": "binary",
-          "required": true,
-          "check": "binary:df"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "disk-usage-linux",
@@ -396,15 +298,7 @@
       "platform": "linux",
       "template": "df -h",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "df",
-          "type": "binary",
-          "required": true,
-          "check": "binary:df"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "disk-usage-win",
@@ -458,14 +352,6 @@
           "type": "path",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "du",
-          "type": "binary",
-          "required": true,
-          "check": "binary:du"
-        }
       ]
     },
     {
@@ -492,14 +378,6 @@
           "label": "path",
           "type": "path",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "du",
-          "type": "binary",
-          "required": true,
-          "check": "binary:du"
         }
       ]
     },
@@ -555,21 +433,7 @@
       "platform": "mac",
       "template": "top -l 1 | head -n 10",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "top",
-          "type": "binary",
-          "required": true,
-          "check": "binary:top"
-        },
-        {
-          "id": "head",
-          "type": "binary",
-          "required": true,
-          "check": "binary:head"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "memory-usage-linux",
@@ -588,15 +452,7 @@
       "platform": "linux",
       "template": "free -h",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "free",
-          "type": "binary",
-          "required": true,
-          "check": "binary:free"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "memory-usage-win",
@@ -639,15 +495,7 @@
       "platform": "mac",
       "template": "uname -a",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "uname",
-          "type": "binary",
-          "required": true,
-          "check": "binary:uname"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "system-info-linux",
@@ -663,15 +511,7 @@
       "platform": "linux",
       "template": "uname -a",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "uname",
-          "type": "binary",
-          "required": true,
-          "check": "binary:uname"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "system-info-win",
@@ -687,15 +527,7 @@
       "platform": "win",
       "template": "systeminfo",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "systeminfo",
-          "type": "binary",
-          "required": true,
-          "check": "binary:systeminfo"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "env-var-set-mac",
@@ -912,15 +744,7 @@
       "platform": "mac",
       "template": "uptime",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "uptime",
-          "type": "binary",
-          "required": true,
-          "check": "binary:uptime"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "uptime-linux",
@@ -935,15 +759,7 @@
       "platform": "linux",
       "template": "uptime",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "uptime",
-          "type": "binary",
-          "required": true,
-          "check": "binary:uptime"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "cpu-top-mac",
@@ -960,15 +776,7 @@
       "platform": "mac",
       "template": "top -o cpu -n 10 -l 1",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "top",
-          "type": "binary",
-          "required": true,
-          "check": "binary:top"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "cpu-top-linux",
@@ -985,15 +793,7 @@
       "platform": "linux",
       "template": "top -o cpu -n 10 -l 1",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "top",
-          "type": "binary",
-          "required": true,
-          "check": "binary:top"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "cpu-top-win",
@@ -1090,15 +890,7 @@
       "platform": "mac",
       "template": "sudo nano /etc/hosts",
       "adminRequired": true,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "nano",
-          "type": "binary",
-          "required": true,
-          "check": "binary:nano"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "hosts-edit-linux",
@@ -1116,15 +908,7 @@
       "platform": "linux",
       "template": "sudo nano /etc/hosts",
       "adminRequired": true,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "nano",
-          "type": "binary",
-          "required": true,
-          "check": "binary:nano"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "hosts-edit-win",
@@ -1142,15 +926,7 @@
       "platform": "win",
       "template": "notepad C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts",
       "adminRequired": true,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "notepad",
-          "type": "binary",
-          "required": true,
-          "check": "binary:notepad"
-        }
-      ]
+      "dangerous": false
     }
   ]
 }

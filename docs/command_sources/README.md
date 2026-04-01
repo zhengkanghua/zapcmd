@@ -66,11 +66,15 @@ CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_
 1. `平台`：支持 `all / win / mac / linux / mac/linux`（其中 `mac/linux` 会拆成两条）。
 2. `高危`：用 `⚠️` 标记高危命令（会触发更严格的安全提示/确认流程）。
 3. `adminRequired`：需要管理员权限时标记为 `true`（Windows 会按需拉起管理员终端；若执行流中任一步为 `true`，则整队整体升权，ZapCmd 主进程本身不提权）。
-4. `prerequisites`：逗号分隔，例如 `git,docker,powershell`。
-   - 这里只写“外部依赖存在性”，不要写 shell builtin 或 PowerShell cmdlet。
-   - 正确示例：`git`、`docker`、`curl`、`python3`、`powershell`
-   - 错误示例：`echo`、`get-content`、`sort-object`、`select-string`
-   - generic shell 不需要写成 prerequisite；只有命令明确依赖某个特定 shell（如 `powershell`）时才写。
+4. `prerequisites`：只接受显式 typed token，逗号分隔并按声明顺序输出到 JSON，例如 `binary:git, shell:powershell`。
+   - 合法类型只有：`binary`、`shell`、`env`、`network`、`permission`
+   - 合法示例：`binary:git`、`binary:docker`、`binary:python3`、`shell:powershell`、`env:GITHUB_TOKEN`
+   - 非法示例：`git`、`docker,powershell`、`binary:`、`foo:bar`
+   - `-` 表示不做任何前置检测。不是每条命令都需要 prerequisite。
+   - prerequisite 只表达“执行前要额外确认的外部条件”，不要把命令正文里的系统常驻工具、shell builtin、PowerShell cmdlet 再写成 prerequisite。
+   - 应该写 prerequisite 的典型场景：`git`、`docker`、`kubectl`、`python3`、`jq`、`psql`、`redis-cli`、特定 shell（如 `powershell`）。
+   - 不该写 prerequisite 的典型场景：`ipconfig`、`systeminfo`、`ls`、`cat`、`grep`、`find`、`ps`、`head`、`tail`、`date`、`tasklist`。
+   - generic shell 不需要写成 prerequisite；只有命令明确依赖某个特定 shell（如 `powershell`）时才写 `shell:powershell`。
 5. `tags`：空格分隔，用于搜索与分类。
 6. `参数`：使用 `key(type, ...)` 形式描述（例如 `path(path)`、`count(number, default:10, min:1, max:200)`、`mode(select:a/b/c)`）。
 7. 本轮 builtin Markdown DSL 只新增 `min/max`，不支持在这里继续扩 `pattern/errorMessage` 等更复杂语法。

@@ -431,21 +431,7 @@
       "platform": "all",
       "template": "cat ~/.ssh/config",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "ssh",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ssh"
-        },
-        {
-          "id": "cat",
-          "type": "binary",
-          "required": true,
-          "check": "binary:cat"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "ssh-agent-add",

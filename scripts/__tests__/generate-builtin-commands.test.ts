@@ -28,7 +28,7 @@ function writeMarkdownFixture(sourceDir: string): void {
       "",
       "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
       "|---|---|---|---|---|---|---|---|---|---|",
-      "| 1 | `http-server` | HTTP 服务 | all | `python3 -m http.server {{port}} --bind {{host}}` | port(number, default:3000, min:1000, max:10000), host(text, default:127.0.0.1) | - | false | python3 | http server |"
+      "| 1 | `http-server` | HTTP 服务 | all | `python3 -m http.server {{port}} --bind {{host}}` | port(number, default:3000, min:1000, max:10000), host(text, default:127.0.0.1) | - | false | binary:python3 | http server |"
     ].join("\n"),
     "utf8"
   );
@@ -47,7 +47,7 @@ function writeSplitPackageMarkdownFixtures(sourceDir: string): void {
       "",
       "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
       "|---|---|---|---|---|---|---|---|---|---|",
-      "| 1 | `npm-install` | NPM 安装依赖 | all | `npm install {{package}}` | package(text) | - | false | npm | npm install |"
+      "| 1 | `npm-install` | NPM 安装依赖 | all | `npm install {{package}}` | package(text) | - | false | binary:npm | npm install |"
     ].join("\n"),
     "utf8"
   );
@@ -62,7 +62,7 @@ function writeSplitPackageMarkdownFixtures(sourceDir: string): void {
       "",
       "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
       "|---|---|---|---|---|---|---|---|---|---|",
-      "| 1 | `pnpm-run` | PNPM 运行脚本 | all | `pnpm run {{script}}` | script(text) | - | false | pnpm | pnpm run |"
+      "| 1 | `pnpm-run` | PNPM 运行脚本 | all | `pnpm run {{script}}` | script(text) | - | false | binary:pnpm | pnpm run |"
     ].join("\n"),
     "utf8"
   );
@@ -79,7 +79,7 @@ function writeBrokenMarkdownFixture(sourceDir: string): void {
       "",
       "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
       "|---|---|---|---|---|---|---|---|---|---|",
-      "| 1 | `npm-install` | NPM 安装依赖 | all | `npm install {{package}}` | package(text) | - | false | npm | npm install |"
+      "| 1 | `npm-install` | NPM 安装依赖 | all | `npm install {{package}}` | package(text) | - | false | binary:npm | npm install |"
     ].join("\n"),
     "utf8"
   );
@@ -97,9 +97,9 @@ function writeRowRuntimeCategoryFixture(sourceDir: string): void {
       "",
       "| # | ID | 名称 | 运行时分类 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
       "|---|---|---|---|---|---|---|---|---|---|---|",
-      "| 1 | `pnpm-run` | PNPM 运行脚本 | package | all | `pnpm run {{script}}` | script(text) | - | false | pnpm | pnpm run script |",
-      "| 2 | `gh-pr-list` | GH PR 列表 | gh | all | `gh pr list` | - | - | false | gh | gh pr list |",
-      "| 3 | `tooling-version` | Tooling 版本 | - | all | `tooling --version` | - | - | false | tooling | tooling version |"
+      "| 1 | `pnpm-run` | PNPM 运行脚本 | package | all | `pnpm run {{script}}` | script(text) | - | false | binary:pnpm | pnpm run script |",
+      "| 2 | `gh-pr-list` | GH PR 列表 | gh | all | `gh pr list` | - | - | false | binary:gh | gh pr list |",
+      "| 3 | `tooling-version` | Tooling 版本 | - | all | `tooling --version` | - | - | false | binary:tooling | tooling version |"
     ].join("\n"),
     "utf8"
   );
@@ -248,6 +248,149 @@ describe("generate_builtin_commands.ps1", () => {
     });
   }, 60_000);
 
+  it("keeps explicitly typed prerequisites in declared order", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    mkdirSync(sourceDir, { recursive: true });
+    writeFileSync(
+      path.join(sourceDir, "_gh.md"),
+      [
+        "# _gh",
+        "",
+        "> 分类：GitHub CLI",
+        "",
+        "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+        "| 1 | `gh-release-create` | 创建 Release | all | `gh release create {{tag}}` | tag(text) | - | false | binary:gh, env:GITHUB_TOKEN, shell:powershell | gh release create |"
+      ].join("\n"),
+      "utf8"
+    );
+    const pwshExecutable = resolvePwshExecutable();
+
+    const result = spawnSync(
+      pwshExecutable,
+      [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        path.resolve(process.cwd(), "scripts/generate_builtin_commands.ps1"),
+        "-SourceDir",
+        toPwshPath(sourceDir, pwshExecutable),
+        "-OutputDir",
+        toPwshPath(outputDir, pwshExecutable),
+        "-ManifestPath",
+        toPwshPath(manifestPath, pwshExecutable),
+        "-GeneratedMarkdownPath",
+        toPwshPath(generatedMarkdownPath, pwshExecutable)
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8"
+      }
+    );
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    expect(result.status).toBe(0);
+    const generatedJsonPath = path.join(outputDir, "_gh.json");
+    const generated = JSON.parse(readFileSync(generatedJsonPath, "utf8")) as {
+      commands: Array<{
+        prerequisites?: Array<{
+          id: string;
+          type: string;
+          required: boolean;
+          check: string;
+        }>;
+      }>;
+    };
+
+    expect(generated.commands[0]?.prerequisites).toEqual([
+      {
+        id: "gh",
+        type: "binary",
+        required: true,
+        check: "binary:gh"
+      },
+      {
+        id: "GITHUB_TOKEN",
+        type: "env",
+        required: true,
+        check: "env:GITHUB_TOKEN"
+      },
+      {
+        id: "powershell",
+        type: "shell",
+        required: true,
+        check: "shell:powershell"
+      }
+    ]);
+  }, 60_000);
+
+  it("rejects legacy prerequisite tokens without explicit type", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    mkdirSync(sourceDir, { recursive: true });
+    writeFileSync(
+      path.join(sourceDir, "_git.md"),
+      [
+        "# _git",
+        "",
+        "> 分类：Git",
+        "",
+        "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+        "| 1 | `git-status` | Git 状态 | all | `git status` | - | - | false | git | git status |"
+      ].join("\n"),
+      "utf8"
+    );
+    const pwshExecutable = resolvePwshExecutable();
+
+    const result = spawnSync(
+      pwshExecutable,
+      [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        path.resolve(process.cwd(), "scripts/generate_builtin_commands.ps1"),
+        "-SourceDir",
+        toPwshPath(sourceDir, pwshExecutable),
+        "-OutputDir",
+        toPwshPath(outputDir, pwshExecutable),
+        "-ManifestPath",
+        toPwshPath(manifestPath, pwshExecutable),
+        "-GeneratedMarkdownPath",
+        toPwshPath(generatedMarkdownPath, pwshExecutable)
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8"
+      }
+    );
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    expect(result.status).not.toBe(0);
+    expect(`${result.stderr}\n${result.stdout}`).toContain("typed prerequisite token");
+  }, 60_000);
+
   it("rejects builtin source files whose filename is not a slug", () => {
     const tempRoot = createTempWorkspace();
     tempDirs.push(tempRoot);
@@ -264,7 +407,7 @@ describe("generate_builtin_commands.ps1", () => {
         "",
         "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
         "|---|---|---|---|---|---|---|---|---|---|",
-        "| 1 | `psql-shell` | Postgres Shell | all | `psql` | - | - | false | psql | postgres shell |"
+        "| 1 | `psql-shell` | Postgres Shell | all | `psql` | - | - | false | binary:psql | postgres shell |"
       ].join("\n"),
       "utf8"
     );
@@ -322,7 +465,7 @@ describe("generate_builtin_commands.ps1", () => {
         "",
         "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
         "|---|---|---|---|---|---|---|---|---|---|",
-        "| 1 | `pnpm-run` | PNPM 运行脚本 | all | `pnpm run {{script}}` | script(text) | - | false | pnpm | pnpm run script |"
+        "| 1 | `pnpm-run` | PNPM 运行脚本 | all | `pnpm run {{script}}` | script(text) | - | false | binary:pnpm | pnpm run script |"
       ].join("\n"),
       "utf8"
     );
@@ -406,7 +549,7 @@ describe("generate_builtin_commands.ps1", () => {
         "",
         "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
         "|---|---|---|---|---|---|---|---|---|---|",
-        "| 1 | `git-status` | Git 状态 | all | `git status` | - | - | false | git | git status |"
+        "| 1 | `git-status` | Git 状态 | all | `git status` | - | - | false | binary:git | git status |"
       ].join("\n"),
       "utf8"
     );
@@ -602,7 +745,7 @@ describe("generate_builtin_commands.ps1", () => {
     const header = [
       "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
       "|---|---|---|---|---|---|---|---|---|---|",
-      "| 1 | `git-status` | Git 状态 | all | `git status` | - | - | false | git | git status |"
+      "| 1 | `git-status` | Git 状态 | all | `git status` | - | - | false | binary:git | git status |"
     ];
 
     const cases = [

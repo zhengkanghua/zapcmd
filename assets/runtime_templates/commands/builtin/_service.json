@@ -318,15 +318,7 @@
       "platform": "mac",
       "template": "launchctl list",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "launchctl",
-          "type": "binary",
-          "required": true,
-          "check": "binary:launchctl"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "service-status-mac",
@@ -352,20 +344,6 @@
           "label": "name",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "launchctl",
-          "type": "binary",
-          "required": true,
-          "check": "binary:launchctl"
-        },
-        {
-          "id": "grep",
-          "type": "binary",
-          "required": true,
-          "check": "binary:grep"
         }
       ]
     }

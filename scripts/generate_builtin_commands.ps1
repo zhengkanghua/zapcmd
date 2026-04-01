@@ -137,18 +137,31 @@ function Convert-Prerequisites {
     return @()
   }
 
-  $shellIds = @("powershell", "cmd", "bash", "zsh", "shell")
-  $items = $Cell.Split(',') | ForEach-Object { $_.Trim().ToLowerInvariant() } | Where-Object { $_ -ne "" }
+  $allowedTypes = @("binary", "shell", "env", "network", "permission")
+  $items = $Cell.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
   $result = @()
 
-  foreach ($id in $items) {
-    $type = if ($shellIds -contains $id) { "shell" } else { "binary" }
-    $check = if ($type -eq "shell") { "shell:$id" } else { "binary:$id" }
+  foreach ($token in $items) {
+    if ($token -notmatch '^\s*([a-zA-Z]+)\s*:(.+)\s*$') {
+      throw "Invalid prerequisite token '$token'. Expected typed prerequisite token '<type>:<target>'."
+    }
+
+    $type = $matches[1].Trim().ToLowerInvariant()
+    $id = $matches[2].Trim()
+
+    if (-not ($allowedTypes -contains $type)) {
+      throw "Unsupported prerequisite type '$type' in token '$token'."
+    }
+
+    if ([string]::IsNullOrWhiteSpace($id)) {
+      throw "Invalid prerequisite token '$token'. Target cannot be empty."
+    }
+
     $result += [pscustomobject][ordered]@{
       id       = $id
       type     = $type
       required = $true
-      check    = $check
+      check    = "${type}:$id"
     }
   }
   return @($result)

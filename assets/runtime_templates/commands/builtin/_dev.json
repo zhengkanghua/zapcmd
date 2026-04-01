@@ -61,14 +61,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "base64",
-          "type": "binary",
-          "required": true,
-          "check": "binary:base64"
-        }
       ]
     },
     {
@@ -92,14 +84,6 @@
           "label": "text",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "base64",
-          "type": "binary",
-          "required": true,
-          "check": "binary:base64"
         }
       ]
     },
@@ -125,14 +109,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "base64",
-          "type": "binary",
-          "required": true,
-          "check": "binary:base64"
-        }
       ]
     },
     {
@@ -156,14 +132,6 @@
           "label": "text",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "base64",
-          "type": "binary",
-          "required": true,
-          "check": "binary:base64"
         }
       ]
     },
@@ -189,14 +157,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "md5",
-          "type": "binary",
-          "required": true,
-          "check": "binary:md5"
-        }
       ]
     },
     {
@@ -220,14 +180,6 @@
           "label": "text",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "md5sum",
-          "type": "binary",
-          "required": true,
-          "check": "binary:md5sum"
         }
       ]
     },
@@ -253,14 +205,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "shasum",
-          "type": "binary",
-          "required": true,
-          "check": "binary:shasum"
-        }
       ]
     },
     {
@@ -285,14 +229,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "sha256sum",
-          "type": "binary",
-          "required": true,
-          "check": "binary:sha256sum"
-        }
       ]
     },
     {
@@ -309,15 +245,7 @@
       "platform": "mac",
       "template": "date +%s",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "date",
-          "type": "binary",
-          "required": true,
-          "check": "binary:date"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "timestamp-now-linux",
@@ -333,15 +261,7 @@
       "platform": "linux",
       "template": "date +%s",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "date",
-          "type": "binary",
-          "required": true,
-          "check": "binary:date"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "timestamp-now-win",
@@ -390,14 +310,6 @@
           "type": "number",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "date",
-          "type": "binary",
-          "required": true,
-          "check": "binary:date"
-        }
       ]
     },
     {
@@ -423,14 +335,6 @@
           "type": "number",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "date",
-          "type": "binary",
-          "required": true,
-          "check": "binary:date"
-        }
       ]
     },
     {
@@ -446,15 +350,7 @@
       "platform": "mac",
       "template": "uuidgen",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "uuidgen",
-          "type": "binary",
-          "required": true,
-          "check": "binary:uuidgen"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "uuid-gen-linux",
@@ -469,15 +365,7 @@
       "platform": "linux",
       "template": "uuidgen",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "uuidgen",
-          "type": "binary",
-          "required": true,
-          "check": "binary:uuidgen"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "random-string-mac",
@@ -623,14 +511,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "grep",
-          "type": "binary",
-          "required": true,
-          "check": "binary:grep"
-        }
       ]
     },
     {
@@ -661,14 +541,6 @@
           "label": "pattern",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "grep",
-          "type": "binary",
-          "required": true,
-          "check": "binary:grep"
         }
       ]
     },

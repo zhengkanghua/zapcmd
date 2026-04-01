@@ -123,20 +123,6 @@
             "max": 65535
           }
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "netstat",
-          "type": "binary",
-          "required": true,
-          "check": "binary:netstat"
-        },
-        {
-          "id": "findstr",
-          "type": "binary",
-          "required": true,
-          "check": "binary:findstr"
-        }
       ]
     },
     {
@@ -178,12 +164,6 @@
           "type": "binary",
           "required": true,
           "check": "binary:lsof"
-        },
-        {
-          "id": "kill",
-          "type": "binary",
-          "required": true,
-          "check": "binary:kill"
         }
       ]
     },
@@ -226,12 +206,6 @@
           "type": "binary",
           "required": true,
           "check": "binary:lsof"
-        },
-        {
-          "id": "kill",
-          "type": "binary",
-          "required": true,
-          "check": "binary:kill"
         }
       ]
     },
@@ -296,14 +270,6 @@
           "label": "host",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "ping",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ping"
         }
       ]
     },
@@ -434,14 +400,6 @@
           "label": "domain",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "nslookup",
-          "type": "binary",
-          "required": true,
-          "check": "binary:nslookup"
         }
       ]
     },
@@ -583,15 +541,7 @@
       "platform": "mac",
       "template": "ipconfig getifaddr en0",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "ipconfig",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ipconfig"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "local-ip-linux",
@@ -609,15 +559,7 @@
       "platform": "linux",
       "template": "hostname -I",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "hostname",
-          "type": "binary",
-          "required": true,
-          "check": "binary:hostname"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "local-ip-win",
@@ -635,15 +577,7 @@
       "platform": "win",
       "template": "ipconfig",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "ipconfig",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ipconfig"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "traceroute-mac",
@@ -665,14 +599,6 @@
           "label": "host",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "traceroute",
-          "type": "binary",
-          "required": true,
-          "check": "binary:traceroute"
         }
       ]
     },
@@ -697,14 +623,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "traceroute",
-          "type": "binary",
-          "required": true,
-          "check": "binary:traceroute"
-        }
       ]
     },
     {
@@ -727,14 +645,6 @@
           "label": "host",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "tracert",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tracert"
         }
       ]
     },
@@ -1013,15 +923,7 @@
       "platform": "mac",
       "template": "netstat -tlnp",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "netstat",
-          "type": "binary",
-          "required": true,
-          "check": "binary:netstat"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "list-listening-ports-linux",
@@ -1042,15 +944,7 @@
       "platform": "linux",
       "template": "netstat -tlnp",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "netstat",
-          "type": "binary",
-          "required": true,
-          "check": "binary:netstat"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "list-listening-ports-win",
@@ -1071,21 +965,7 @@
       "platform": "win",
       "template": "netstat -an | findstr LISTENING",
       "adminRequired": false,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "netstat",
-          "type": "binary",
-          "required": true,
-          "check": "binary:netstat"
-        },
-        {
-          "id": "findstr",
-          "type": "binary",
-          "required": true,
-          "check": "binary:findstr"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "flush-dns-mac",
@@ -1101,21 +981,7 @@
       "platform": "mac",
       "template": "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder",
       "adminRequired": true,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "dscacheutil",
-          "type": "binary",
-          "required": true,
-          "check": "binary:dscacheutil"
-        },
-        {
-          "id": "killall",
-          "type": "binary",
-          "required": true,
-          "check": "binary:killall"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "flush-dns-win",
@@ -1131,15 +997,7 @@
       "platform": "win",
       "template": "ipconfig /flushdns",
       "adminRequired": true,
-      "dangerous": false,
-      "prerequisites": [
-        {
-          "id": "ipconfig",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ipconfig"
-        }
-      ]
+      "dangerous": false
     },
     {
       "id": "flush-dns-linux",

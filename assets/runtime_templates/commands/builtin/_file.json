@@ -35,14 +35,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "find",
-          "type": "binary",
-          "required": true,
-          "check": "binary:find"
-        }
       ]
     },
     {
@@ -72,14 +64,6 @@
           "label": "pattern",
           "type": "text",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "find",
-          "type": "binary",
-          "required": true,
-          "check": "binary:find"
         }
       ]
     },
@@ -151,14 +135,6 @@
           "required": true,
           "default": "."
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "grep",
-          "type": "binary",
-          "required": true,
-          "check": "binary:grep"
-        }
       ]
     },
     {
@@ -190,14 +166,6 @@
           "type": "path",
           "required": true,
           "default": "."
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "grep",
-          "type": "binary",
-          "required": true,
-          "check": "binary:grep"
         }
       ]
     },
@@ -266,14 +234,6 @@
           "required": true,
           "default": "."
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "ls",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ls"
-        }
       ]
     },
     {
@@ -300,14 +260,6 @@
           "type": "path",
           "required": true,
           "default": "."
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "ls",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ls"
         }
       ]
     },
@@ -460,14 +412,6 @@
           "required": true,
           "default": "."
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "tree",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tree"
-        }
       ]
     },
     {
@@ -492,14 +436,6 @@
           "label": "file",
           "type": "path",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "ls",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ls"
         }
       ]
     },
@@ -526,14 +462,6 @@
           "type": "path",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "ls",
-          "type": "binary",
-          "required": true,
-          "check": "binary:ls"
-        }
       ]
     },
     {
@@ -557,20 +485,6 @@
           "required": true,
           "default": "."
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "find",
-          "type": "binary",
-          "required": true,
-          "check": "binary:find"
-        },
-        {
-          "id": "wc",
-          "type": "binary",
-          "required": true,
-          "check": "binary:wc"
-        }
       ]
     },
     {
@@ -593,20 +507,6 @@
           "type": "path",
           "required": true,
           "default": "."
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "find",
-          "type": "binary",
-          "required": true,
-          "check": "binary:find"
-        },
-        {
-          "id": "wc",
-          "type": "binary",
-          "required": true,
-          "check": "binary:wc"
         }
       ]
     },
@@ -637,14 +537,6 @@
           "type": "path",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "chmod",
-          "type": "binary",
-          "required": true,
-          "check": "binary:chmod"
-        }
       ]
     },
     {
@@ -673,14 +565,6 @@
           "label": "file",
           "type": "path",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "chmod",
-          "type": "binary",
-          "required": true,
-          "check": "binary:chmod"
         }
       ]
     },
@@ -711,14 +595,6 @@
           "type": "path",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "chown",
-          "type": "binary",
-          "required": true,
-          "check": "binary:chown"
-        }
       ]
     },
     {
@@ -747,14 +623,6 @@
           "label": "file",
           "type": "path",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "chown",
-          "type": "binary",
-          "required": true,
-          "check": "binary:chown"
         }
       ]
     },
@@ -786,14 +654,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "tar",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tar"
-        }
       ]
     },
     {
@@ -824,14 +684,6 @@
           "type": "text",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "tar",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tar"
-        }
       ]
     },
     {
@@ -856,14 +708,6 @@
           "type": "path",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "tar",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tar"
-        }
       ]
     },
     {
@@ -887,14 +731,6 @@
           "label": "file",
           "type": "path",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "tar",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tar"
         }
       ]
     },
@@ -1215,14 +1051,6 @@
           "type": "path",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "tail",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tail"
-        }
       ]
     },
     {
@@ -1248,14 +1076,6 @@
           "label": "file",
           "type": "path",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "tail",
-          "type": "binary",
-          "required": true,
-          "check": "binary:tail"
         }
       ]
     },
@@ -1337,14 +1157,6 @@
             "max": 10000
           }
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "head",
-          "type": "binary",
-          "required": true,
-          "check": "binary:head"
-        }
       ]
     },
     {
@@ -1379,14 +1191,6 @@
             "min": 1,
             "max": 10000
           }
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "head",
-          "type": "binary",
-          "required": true,
-          "check": "binary:head"
         }
       ]
     },
@@ -1456,14 +1260,6 @@
           "type": "path",
           "required": true
         }
-      ],
-      "prerequisites": [
-        {
-          "id": "wc",
-          "type": "binary",
-          "required": true,
-          "check": "binary:wc"
-        }
       ]
     },
     {
@@ -1488,14 +1284,6 @@
           "label": "file",
           "type": "path",
           "required": true
-        }
-      ],
-      "prerequisites": [
-        {
-          "id": "wc",
-          "type": "binary",
-          "required": true,
-          "check": "binary:wc"
         }
       ]
     },
