@@ -8,13 +8,13 @@
   },
   "commands": [
     {
-      "id": "pnpm-install",
-      "name": "PNPM 安装依赖",
+      "id": "pnpm-add",
+      "name": "PNPM 添加依赖",
       "tags": [
         "包管理",
         "package",
         "pnpm",
-        "install",
+        "add",
         "安装",
         "依赖",
         "dependency"
@@ -156,6 +156,103 @@
       "template": "pnpm list --depth 0",
       "adminRequired": false,
       "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "pnpm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pnpm"
+        }
+      ]
+    },
+    {
+      "id": "pnpm-install-project",
+      "name": "PNPM 安装项目依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "pnpm",
+        "install",
+        "项目",
+        "project",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pnpm install",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "pnpm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pnpm"
+        }
+      ]
+    },
+    {
+      "id": "pnpm-add-dev",
+      "name": "PNPM 安装开发依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "pnpm",
+        "add",
+        "dev",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pnpm add -D {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "pnpm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:pnpm"
+        }
+      ]
+    },
+    {
+      "id": "pnpm-dlx",
+      "name": "PNPM 运行临时包命令",
+      "tags": [
+        "包管理",
+        "package",
+        "pnpm",
+        "dlx",
+        "exec",
+        "临时",
+        "执行",
+        "run"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "pnpm dlx {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
       "prerequisites": [
         {
           "id": "pnpm",

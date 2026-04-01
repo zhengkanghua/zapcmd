@@ -35,3 +35,8 @@
 | 28 | `http-status-only` | 仅查看 HTTP 状态码 | network | mac/linux | `curl -s -o /dev/null -w "%{http_code}" {{url}}` | url(text) | - | false | binary:curl | 网络 network curl http status 状态码 code |
 | 29 | `http-status-only-win` | 仅查看 HTTP 状态码 | network | win | `curl -s -o NUL -w "%{http_code}" {{url}}` | url(text) | - | false | binary:curl | 网络 network curl http status 状态码 code |
 | 30 | `whois` | WHOIS 查询 | network | mac/linux | `whois {{domain}}` | domain(text) | - | false | binary:whois | 网络 network whois 域名 domain 查询 query |
+| 31 | `curl-json-post` | HTTP POST 请求 (JSON) | network | all | `curl -s -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{{body}}' {{url}}` | url(text), body(text) | - | false | binary:curl | 网络 network curl http json post |
+| 32 | `curl-json-put` | HTTP PUT 请求 (JSON) | network | all | `curl -s -X PUT -H "Content-Type: application/json" -H "Accept: application/json" -d '{{body}}' {{url}}` | url(text), body(text) | - | false | binary:curl | 网络 network curl http json put |
+| 33 | `curl-json-delete` | HTTP DELETE 请求 (JSON) | network | all | `curl -s -X DELETE -H "Accept: application/json" {{url}}` | url(text) | - | false | binary:curl | 网络 network curl http json delete |
+| 34 | `curl-form-post` | HTTP POST 请求 (Form) | network | all | `curl -s -X POST -F "{{field}}={{value}}" {{url}}` | url(text), field(text), value(text) | - | false | binary:curl | 网络 network curl http form post |
+| 35 | `dig-short` | DNS 简洁查询 (dig +short) | network | mac/linux | `dig +short {{domain}} {{type}}` | domain(text), type(select:A/AAAA/CNAME/MX/TXT/NS) | - | false | binary:dig | 网络 network dig short dns 查询 query |

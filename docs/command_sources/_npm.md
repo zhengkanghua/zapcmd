@@ -13,3 +13,6 @@
 | 6 | `npm-outdated` | NPM 检查过期依赖 | package | all | `npm outdated` | - | - | false | binary:npm | 包管理 package npm 过期 outdated 依赖 dependency |
 | 7 | `npm-update` | NPM 更新依赖 | package | all | `npm update` | - | - | false | binary:npm | 包管理 package npm 更新 update 依赖 dependency |
 | 8 | `npm-cache-clean` | NPM 清理缓存 | package | all | `npm cache clean --force` | - | - | false | binary:npm | 包管理 package npm 缓存 cache 清理 clean |
+| 9 | `npm-install-project` | NPM 安装项目依赖 | package | all | `npm install` | - | - | false | binary:npm | 包管理 package npm install 项目 project 依赖 dependency |
+| 10 | `npm-ci` | NPM 基于 lockfile 安装依赖 | package | all | `npm ci` | - | - | false | binary:npm | 包管理 package npm ci lockfile 安装 依赖 dependency |
+| 11 | `npx-run` | NPX 运行临时包命令 | package | all | `npx {{package}}` | package(text) | - | false | binary:npx | 包管理 package npx exec 临时 执行 run |

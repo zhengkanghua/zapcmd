@@ -8,13 +8,13 @@
   },
   "commands": [
     {
-      "id": "yarn-install",
-      "name": "Yarn 安装依赖",
+      "id": "yarn-add",
+      "name": "Yarn 添加依赖",
       "tags": [
         "包管理",
         "package",
         "yarn",
-        "install",
+        "add",
         "安装",
         "依赖",
         "dependency"
@@ -127,6 +127,103 @@
       "template": "yarn upgrade",
       "adminRequired": false,
       "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "yarn",
+          "type": "binary",
+          "required": true,
+          "check": "binary:yarn"
+        }
+      ]
+    },
+    {
+      "id": "yarn-install-project",
+      "name": "Yarn 安装项目依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "yarn",
+        "install",
+        "项目",
+        "project",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "yarn install",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "yarn",
+          "type": "binary",
+          "required": true,
+          "check": "binary:yarn"
+        }
+      ]
+    },
+    {
+      "id": "yarn-add-dev",
+      "name": "Yarn 安装开发依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "yarn",
+        "add",
+        "dev",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "yarn add -D {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "yarn",
+          "type": "binary",
+          "required": true,
+          "check": "binary:yarn"
+        }
+      ]
+    },
+    {
+      "id": "yarn-dlx",
+      "name": "Yarn 运行临时包命令",
+      "tags": [
+        "包管理",
+        "package",
+        "yarn",
+        "dlx",
+        "exec",
+        "临时",
+        "执行",
+        "run"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "yarn dlx {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
       "prerequisites": [
         {
           "id": "yarn",

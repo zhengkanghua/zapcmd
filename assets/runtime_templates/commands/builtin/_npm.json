@@ -247,6 +247,94 @@
           "check": "binary:npm"
         }
       ]
+    },
+    {
+      "id": "npm-install-project",
+      "name": "NPM 安装项目依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "install",
+        "项目",
+        "project",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm install",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npm-ci",
+      "name": "NPM 基于 lockfile 安装依赖",
+      "tags": [
+        "包管理",
+        "package",
+        "npm",
+        "ci",
+        "lockfile",
+        "安装",
+        "依赖",
+        "dependency"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npm ci",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "npm",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npm"
+        }
+      ]
+    },
+    {
+      "id": "npx-run",
+      "name": "NPX 运行临时包命令",
+      "tags": [
+        "包管理",
+        "package",
+        "npx",
+        "exec",
+        "临时",
+        "执行",
+        "run"
+      ],
+      "category": "package",
+      "platform": "all",
+      "template": "npx {{package}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "package",
+          "label": "package",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "npx",
+          "type": "binary",
+          "required": true,
+          "check": "binary:npx"
+        }
+      ]
     }
   ]
 }

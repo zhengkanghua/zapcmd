@@ -379,6 +379,153 @@
           "check": "binary:gh"
         }
       ]
+    },
+    {
+      "id": "gh-pr-diff",
+      "name": "GH 查看 PR 差异",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "pr",
+        "diff",
+        "pull-request",
+        "差异",
+        "查看",
+        "show"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh pr diff {{pr}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "pr",
+          "label": "pr",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-workflow-run",
+      "name": "GH 触发 Workflow",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "workflow",
+        "run",
+        "触发",
+        "执行"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh workflow run \"{{workflow}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "workflow",
+          "label": "workflow",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-run-rerun",
+      "name": "GH 重新运行 Actions Run",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "actions",
+        "run",
+        "rerun",
+        "重跑"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh run rerun {{runId}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "runId",
+          "label": "runId",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
+    },
+    {
+      "id": "gh-run-download",
+      "name": "GH 下载 Run 产物",
+      "tags": [
+        "gh",
+        "github",
+        "cli",
+        "actions",
+        "run",
+        "download",
+        "artifact",
+        "产物",
+        "下载"
+      ],
+      "category": "gh",
+      "platform": "all",
+      "template": "gh run download {{runId}} -D \"{{dir}}\"",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "runId",
+          "label": "runId",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "dir",
+          "label": "dir",
+          "type": "path",
+          "required": true,
+          "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "gh",
+          "type": "binary",
+          "required": true,
+          "check": "binary:gh"
+        }
+      ]
     }
   ]
 }

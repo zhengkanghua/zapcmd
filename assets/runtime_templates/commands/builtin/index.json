@@ -1,8 +1,8 @@
 {
   "sourceDir": "\\\\wsl.localhost\\Ubuntu-22.04\\home\\work\\projects\\zapcmd\\docs\\command_sources",
   "sourcePattern": "_*.md",
-  "logicalCommandCount": 334,
-  "physicalCommandCount": 379,
+  "logicalCommandCount": 357,
+  "physicalCommandCount": 403,
   "generatedFiles": [
     {
       "file": "_brew.json",
@@ -51,8 +51,8 @@
       "runtimeCategories": [
         "dev"
       ],
-      "logicalCount": 24,
-      "physicalCount": 31
+      "logicalCount": 29,
+      "physicalCount": 36
     },
     {
       "file": "_docker.json",
@@ -81,8 +81,8 @@
       "runtimeCategories": [
         "gh"
       ],
-      "logicalCount": 12,
-      "physicalCount": 12
+      "logicalCount": 16,
+      "physicalCount": 16
     },
     {
       "file": "_git.json",
@@ -121,8 +121,8 @@
       "runtimeCategories": [
         "network"
       ],
-      "logicalCount": 30,
-      "physicalCount": 39
+      "logicalCount": 35,
+      "physicalCount": 45
     },
     {
       "file": "_npm.json",
@@ -131,8 +131,8 @@
       "runtimeCategories": [
         "package"
       ],
-      "logicalCount": 8,
-      "physicalCount": 8
+      "logicalCount": 11,
+      "physicalCount": 11
     },
     {
       "file": "_pip.json",
@@ -151,8 +151,8 @@
       "runtimeCategories": [
         "package"
       ],
-      "logicalCount": 5,
-      "physicalCount": 5
+      "logicalCount": 8,
+      "physicalCount": 8
     },
     {
       "file": "_postgres.json",
@@ -221,8 +221,8 @@
       "runtimeCategories": [
         "package"
       ],
-      "logicalCount": 4,
-      "physicalCount": 4
+      "logicalCount": 7,
+      "physicalCount": 7
     }
   ]
 }

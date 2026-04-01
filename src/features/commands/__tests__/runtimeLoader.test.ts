@@ -162,14 +162,22 @@ describe("runtimeLoader", () => {
     const linuxTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
 
     expect(winTemplates.some((item) => item.id === "curl-json-get")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "curl-json-post")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "curl-json-put")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "curl-json-delete")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "curl-form-post")).toBe(true);
     expect(winTemplates.some((item) => item.id === "http-status-only-win")).toBe(true);
     expect(winTemplates.some((item) => item.id === "whois-mac")).toBe(false);
+    expect(winTemplates.some((item) => item.id === "dig-short-mac")).toBe(false);
+    expect(winTemplates.some((item) => item.id === "dig-short-linux")).toBe(false);
 
     expect(macTemplates.some((item) => item.id === "http-status-only-mac")).toBe(true);
     expect(macTemplates.some((item) => item.id === "whois-mac")).toBe(true);
+    expect(macTemplates.some((item) => item.id === "dig-short-mac")).toBe(true);
 
     expect(linuxTemplates.some((item) => item.id === "http-status-only-linux")).toBe(true);
     expect(linuxTemplates.some((item) => item.id === "whois-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "dig-short-linux")).toBe(true);
   });
 
   it("loads second-round dev builtin commands", () => {
@@ -181,21 +189,42 @@ describe("runtimeLoader", () => {
     expect(winTemplates.some((item) => item.id === "jwt-decode")).toBe(true);
     expect(winTemplates.some((item) => item.id === "epoch-ms-now-win")).toBe(true);
     expect(winTemplates.some((item) => item.id === "epoch-ms-convert-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "uuid-gen-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "base64-encode-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "base64-decode-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "sha256-hash-win")).toBe(true);
+    expect(winTemplates.some((item) => item.id === "regex-test-win")).toBe(true);
 
     expect(macTemplates.some((item) => item.id === "epoch-ms-now-mac")).toBe(true);
     expect(macTemplates.some((item) => item.id === "epoch-ms-convert-mac")).toBe(true);
+    expect(macTemplates.some((item) => item.id === "uuid-gen-win")).toBe(false);
 
     expect(linuxTemplates.some((item) => item.id === "epoch-ms-now-linux")).toBe(true);
     expect(linuxTemplates.some((item) => item.id === "epoch-ms-convert-linux")).toBe(true);
+    expect(linuxTemplates.some((item) => item.id === "uuid-gen-win")).toBe(false);
   });
 
-  it("loads second-round package builtin commands without introducing new categories", () => {
+  it("loads cwd-transparent package builtin commands without introducing new categories", () => {
     const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
+    expect(templates.some((item) => item.id === "npm-install-project")).toBe(true);
+    expect(templates.some((item) => item.id === "npm-ci")).toBe(true);
+    expect(templates.some((item) => item.id === "npx-run")).toBe(true);
+    expect(templates.some((item) => item.id === "pnpm-add")).toBe(true);
     expect(templates.some((item) => item.id === "pnpm-run")).toBe(true);
     expect(templates.some((item) => item.id === "pnpm-up")).toBe(true);
+    expect(templates.some((item) => item.id === "pnpm-install-project")).toBe(true);
+    expect(templates.some((item) => item.id === "pnpm-add-dev")).toBe(true);
+    expect(templates.some((item) => item.id === "pnpm-dlx")).toBe(true);
     expect(templates.some((item) => item.id === "bun-install")).toBe(true);
     expect(templates.some((item) => item.id === "bun-run")).toBe(true);
+    expect(templates.some((item) => item.id === "yarn-add")).toBe(true);
+    expect(templates.some((item) => item.id === "yarn-install-project")).toBe(true);
+    expect(templates.some((item) => item.id === "yarn-add-dev")).toBe(true);
+    expect(templates.some((item) => item.id === "yarn-dlx")).toBe(true);
+
+    expect(templates.some((item) => item.id === "pnpm-install")).toBe(false);
+    expect(templates.some((item) => item.id === "yarn-install")).toBe(false);
 
     expect(templates.some((item) => item.category === "pnpm")).toBe(false);
     expect(templates.some((item) => item.category === "bun")).toBe(false);
@@ -206,29 +235,53 @@ describe("runtimeLoader", () => {
     const categories = new Set(loaded.templates.map((item) => item.category));
 
     expect(loaded.templates.some((item) => item.id === "npm-install")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "npm-install-project")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "npm-ci")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "npx-run")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pnpm-add")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "pnpm-run")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "pnpm-remove")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "pnpm-list")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pnpm-install-project")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pnpm-add-dev")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pnpm-dlx")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "pnpm-install")).toBe(false);
     expect(loaded.templates.some((item) => item.id === "bun-run")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "bun-add")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "bun-remove")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "yarn-add")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "yarn-run")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "yarn-remove")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "yarn-upgrade")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "yarn-install-project")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "yarn-add-dev")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "yarn-dlx")).toBe(true);
+    expect(loaded.templates.some((item) => item.id === "yarn-install")).toBe(false);
     expect(loaded.templates.some((item) => item.id === "pip-freeze")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "brew-list")).toBe(true);
     expect(loaded.templates.some((item) => item.id === "cargo-add")).toBe(true);
 
     expect(loaded.sourceByCommandId["npm-install"]).toContain("_npm.json");
+    expect(loaded.sourceByCommandId["npm-install-project"]).toContain("_npm.json");
+    expect(loaded.sourceByCommandId["npm-ci"]).toContain("_npm.json");
+    expect(loaded.sourceByCommandId["npx-run"]).toContain("_npm.json");
+    expect(loaded.sourceByCommandId["pnpm-add"]).toContain("_pnpm.json");
     expect(loaded.sourceByCommandId["pnpm-run"]).toContain("_pnpm.json");
     expect(loaded.sourceByCommandId["pnpm-remove"]).toContain("_pnpm.json");
     expect(loaded.sourceByCommandId["pnpm-list"]).toContain("_pnpm.json");
+    expect(loaded.sourceByCommandId["pnpm-install-project"]).toContain("_pnpm.json");
+    expect(loaded.sourceByCommandId["pnpm-add-dev"]).toContain("_pnpm.json");
+    expect(loaded.sourceByCommandId["pnpm-dlx"]).toContain("_pnpm.json");
     expect(loaded.sourceByCommandId["bun-run"]).toContain("_bun.json");
     expect(loaded.sourceByCommandId["bun-add"]).toContain("_bun.json");
     expect(loaded.sourceByCommandId["bun-remove"]).toContain("_bun.json");
+    expect(loaded.sourceByCommandId["yarn-add"]).toContain("_yarn.json");
     expect(loaded.sourceByCommandId["yarn-run"]).toContain("_yarn.json");
     expect(loaded.sourceByCommandId["yarn-remove"]).toContain("_yarn.json");
     expect(loaded.sourceByCommandId["yarn-upgrade"]).toContain("_yarn.json");
+    expect(loaded.sourceByCommandId["yarn-install-project"]).toContain("_yarn.json");
+    expect(loaded.sourceByCommandId["yarn-add-dev"]).toContain("_yarn.json");
+    expect(loaded.sourceByCommandId["yarn-dlx"]).toContain("_yarn.json");
     expect(loaded.sourceByCommandId["pip-freeze"]).toContain("_pip.json");
     expect(loaded.sourceByCommandId["brew-list"]).toContain("_brew.json");
     expect(loaded.sourceByCommandId["cargo-add"]).toContain("_cargo.json");
@@ -321,6 +374,10 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.id === "gh-pr-checks")).toBe(true);
     expect(templates.some((item) => item.id === "gh-release-list")).toBe(true);
     expect(templates.some((item) => item.id === "gh-workflow-list")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-pr-diff")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-workflow-run")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-run-rerun")).toBe(true);
+    expect(templates.some((item) => item.id === "gh-run-download")).toBe(true);
   });
 
   it("loads cert builtin commands as a separate category", () => {

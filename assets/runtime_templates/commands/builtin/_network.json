@@ -1257,6 +1257,262 @@
           "check": "binary:whois"
         }
       ]
+    },
+    {
+      "id": "curl-json-post",
+      "name": "HTTP POST 请求 (JSON)",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "json",
+        "post"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -s -X POST -H \"Content-Type: application/json\" -H \"Accept: application/json\" -d '{{body}}' {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "body",
+          "label": "body",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "curl-json-put",
+      "name": "HTTP PUT 请求 (JSON)",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "json",
+        "put"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -s -X PUT -H \"Content-Type: application/json\" -H \"Accept: application/json\" -d '{{body}}' {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "body",
+          "label": "body",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "curl-json-delete",
+      "name": "HTTP DELETE 请求 (JSON)",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "json",
+        "delete"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -s -X DELETE -H \"Accept: application/json\" {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "curl-form-post",
+      "name": "HTTP POST 请求 (Form)",
+      "tags": [
+        "网络",
+        "network",
+        "curl",
+        "http",
+        "form",
+        "post"
+      ],
+      "category": "network",
+      "platform": "all",
+      "template": "curl -s -X POST -F \"{{field}}={{value}}\" {{url}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "field",
+          "label": "field",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "value",
+          "label": "value",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "curl",
+          "type": "binary",
+          "required": true,
+          "check": "binary:curl"
+        }
+      ]
+    },
+    {
+      "id": "dig-short-mac",
+      "name": "DNS 简洁查询 (dig +short)",
+      "tags": [
+        "网络",
+        "network",
+        "dig",
+        "short",
+        "dns",
+        "查询",
+        "query"
+      ],
+      "category": "network",
+      "platform": "mac",
+      "template": "dig +short {{domain}} {{type}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "domain",
+          "label": "domain",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "type",
+          "label": "type",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": [
+              "A",
+              "AAAA",
+              "CNAME",
+              "MX",
+              "TXT",
+              "NS"
+            ]
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "dig",
+          "type": "binary",
+          "required": true,
+          "check": "binary:dig"
+        }
+      ]
+    },
+    {
+      "id": "dig-short-linux",
+      "name": "DNS 简洁查询 (dig +short)",
+      "tags": [
+        "网络",
+        "network",
+        "dig",
+        "short",
+        "dns",
+        "查询",
+        "query"
+      ],
+      "category": "network",
+      "platform": "linux",
+      "template": "dig +short {{domain}} {{type}}",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "domain",
+          "label": "domain",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "type",
+          "label": "type",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": [
+              "A",
+              "AAAA",
+              "CNAME",
+              "MX",
+              "TXT",
+              "NS"
+            ]
+          }
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "dig",
+          "type": "binary",
+          "required": true,
+          "check": "binary:dig"
+        }
+      ]
     }
   ]
 }

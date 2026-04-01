@@ -63,7 +63,7 @@ CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_
 
 ## 常见字段约定（简版）
 
-1. `平台`：支持 `all / win / mac / linux / mac/linux`（其中 `mac/linux` 会拆成两条）。
+1. `平台`：支持旧标量写法 `all / win / mac / linux / mac/linux`，也支持 JSON 数组写法 `["win"] / ["mac","linux"] / ["win","mac","linux"]`。`all` 仍保留为全平台命令的首选写法，`["win","mac","linux"]` 会归一化为 `all`，`mac/linux` 仍会拆成两条物理命令。数组内部只能写基础平台值 `win / mac / linux`；非法示例：`["all"]`、`["mac/linux"]`、`[]`、`[win,mac]`、`["win","win"]`。
 2. `高危`：用 `⚠️` 标记高危命令（会触发更严格的安全提示/确认流程）。
 3. `adminRequired`：需要管理员权限时标记为 `true`（Windows 会按需拉起管理员终端；若执行流中任一步为 `true`，则整队整体升权，ZapCmd 主进程本身不提权）。
 4. `prerequisites`：只接受显式 typed token，逗号分隔并按声明顺序输出到 JSON，例如 `binary:git, shell:powershell`。

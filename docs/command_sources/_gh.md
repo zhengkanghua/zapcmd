@@ -17,3 +17,7 @@
 | 10 | `gh-pr-checks` | GH 查看 PR Checks | gh | all | `gh pr checks {{pr}}` | pr(text) | - | false | binary:gh | gh github cli pr pull-request checks 查看 show |
 | 11 | `gh-release-list` | GH Releases 列表 | gh | all | `gh release list` | - | - | false | binary:gh | gh github cli release list 列表 查看 show |
 | 12 | `gh-workflow-list` | GH Workflows 列表 | gh | all | `gh workflow list` | - | - | false | binary:gh | gh github cli workflow list 列表 查看 show |
+| 13 | `gh-pr-diff` | GH 查看 PR 差异 | gh | all | `gh pr diff {{pr}}` | pr(text) | - | false | binary:gh | gh github cli pr diff pull-request 差异 查看 show |
+| 14 | `gh-workflow-run` | GH 触发 Workflow | gh | all | `gh workflow run "{{workflow}}"` | workflow(text) | - | false | binary:gh | gh github cli workflow run 触发 执行 |
+| 15 | `gh-run-rerun` | GH 重新运行 Actions Run | gh | all | `gh run rerun {{runId}}` | runId(text) | - | false | binary:gh | gh github cli actions run rerun 重跑 |
+| 16 | `gh-run-download` | GH 下载 Run 产物 | gh | all | `gh run download {{runId}} -D "{{dir}}"` | runId(text), dir(path, default:.) | - | false | binary:gh | gh github cli actions run download artifact 产物 下载 |

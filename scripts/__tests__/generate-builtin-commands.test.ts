@@ -171,6 +171,44 @@ function splitMarkdownTableRow(line: string): string[] {
   return cells;
 }
 
+function runBuiltinGenerator(
+  sourceDir: string,
+  outputDir: string,
+  manifestPath: string,
+  generatedMarkdownPath: string
+) {
+  const pwshExecutable = resolvePwshExecutable();
+  const result = spawnSync(
+    pwshExecutable,
+    [
+      "-NoLogo",
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      path.resolve(process.cwd(), "scripts/generate_builtin_commands.ps1"),
+      "-SourceDir",
+      toPwshPath(sourceDir, pwshExecutable),
+      "-OutputDir",
+      toPwshPath(outputDir, pwshExecutable),
+      "-ManifestPath",
+      toPwshPath(manifestPath, pwshExecutable),
+      "-GeneratedMarkdownPath",
+      toPwshPath(generatedMarkdownPath, pwshExecutable)
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8"
+    }
+  );
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  return result;
+}
+
 describe("generate_builtin_commands.ps1", () => {
   const tempDirs: string[] = [];
 
@@ -664,6 +702,175 @@ describe("generate_builtin_commands.ps1", () => {
       })
     );
     expect(snapshot).toContain("| _tooling.json | _tooling.md | tooling | gh, package, tooling | 3 | 3 |");
+  }, 60_000);
+
+  it("accepts platform arrays with a single target without adding a suffix", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    mkdirSync(sourceDir, { recursive: true });
+    writeFileSync(
+      path.join(sourceDir, "_network.md"),
+      [
+        "# _network",
+        "",
+        "> 分类：网络",
+        "",
+        "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+        '| 1 | `query-port-win` | 查询端口占用 | ["win"] | `netstat -ano | findstr :{{port}}` | port(number, min:1, max:65535) | - | false | - | network port |'
+      ].join("\n"),
+      "utf8"
+    );
+
+    const result = runBuiltinGenerator(sourceDir, outputDir, manifestPath, generatedMarkdownPath);
+    expect(result.status).toBe(0);
+
+    const generatedJsonPath = path.join(outputDir, "_network.json");
+    const generated = JSON.parse(readFileSync(generatedJsonPath, "utf8")) as {
+      commands: Array<{ id: string; platform: string }>;
+    };
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      logicalCommandCount: number;
+      physicalCommandCount: number;
+    };
+
+    expect(generated.commands).toEqual([
+      expect.objectContaining({
+        id: "query-port-win",
+        platform: "win"
+      })
+    ]);
+    expect(manifest.logicalCommandCount).toBe(1);
+    expect(manifest.physicalCommandCount).toBe(1);
+  }, 60_000);
+
+  it("splits platform arrays into physical commands for non-all subsets", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    mkdirSync(sourceDir, { recursive: true });
+    writeFileSync(
+      path.join(sourceDir, "_network.md"),
+      [
+        "# _network",
+        "",
+        "> 分类：网络",
+        "",
+        "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+        '| 1 | `dig-short` | DNS 简洁查询 | ["mac","linux"] | `dig +short {{domain}}` | domain(text) | - | false | binary:dig | network dig dns |'
+      ].join("\n"),
+      "utf8"
+    );
+
+    const result = runBuiltinGenerator(sourceDir, outputDir, manifestPath, generatedMarkdownPath);
+    expect(result.status).toBe(0);
+
+    const generatedJsonPath = path.join(outputDir, "_network.json");
+    const generated = JSON.parse(readFileSync(generatedJsonPath, "utf8")) as {
+      commands: Array<{ id: string; platform: string }>;
+    };
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      logicalCommandCount: number;
+      physicalCommandCount: number;
+    };
+
+    expect(generated.commands).toEqual([
+      expect.objectContaining({ id: "dig-short-mac", platform: "mac" }),
+      expect.objectContaining({ id: "dig-short-linux", platform: "linux" })
+    ]);
+    expect(manifest.logicalCommandCount).toBe(1);
+    expect(manifest.physicalCommandCount).toBe(2);
+  }, 60_000);
+
+  it("normalizes full platform arrays to all without extra physical split", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    mkdirSync(sourceDir, { recursive: true });
+    writeFileSync(
+      path.join(sourceDir, "_git.md"),
+      [
+        "# _git",
+        "",
+        "> 分类：Git",
+        "",
+        "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+        '| 1 | `git-status` | Git 状态 | ["win","mac","linux"] | `git status` | - | - | false | binary:git | git status |'
+      ].join("\n"),
+      "utf8"
+    );
+
+    const result = runBuiltinGenerator(sourceDir, outputDir, manifestPath, generatedMarkdownPath);
+    expect(result.status).toBe(0);
+
+    const generatedJsonPath = path.join(outputDir, "_git.json");
+    const generated = JSON.parse(readFileSync(generatedJsonPath, "utf8")) as {
+      commands: Array<{ id: string; platform: string }>;
+    };
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      logicalCommandCount: number;
+      physicalCommandCount: number;
+    };
+
+    expect(generated.commands).toEqual([
+      expect.objectContaining({
+        id: "git-status",
+        platform: "all"
+      })
+    ]);
+    expect(manifest.logicalCommandCount).toBe(1);
+    expect(manifest.physicalCommandCount).toBe(1);
+  }, 60_000);
+
+  it("rejects invalid platform arrays", () => {
+    const runFixture = (platformCell: string) => {
+      const tempRoot = createTempWorkspace();
+      tempDirs.push(tempRoot);
+
+      const sourceDir = path.join(tempRoot, "command_sources");
+      const outputDir = path.join(tempRoot, "builtin");
+      const manifestPath = path.join(tempRoot, "builtin", "index.json");
+      const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+      mkdirSync(sourceDir, { recursive: true });
+      writeFileSync(
+        path.join(sourceDir, "_network.md"),
+        [
+          "# _network",
+          "",
+          "> 分类：网络",
+          "",
+          "| # | ID | 名称 | 平台 | 模板 | 参数 | 高危 | adminRequired | prerequisites | tags |",
+          "|---|---|---|---|---|---|---|---|---|---|",
+          `| 1 | \`query-port\` | 查询端口占用 | ${platformCell} | \`echo ok\` | - | - | false | - | network port |`
+        ].join("\n"),
+        "utf8"
+      );
+
+      return runBuiltinGenerator(sourceDir, outputDir, manifestPath, generatedMarkdownPath);
+    };
+
+    const invalidCases = ['["all"]', '["mac/linux"]', '[]', "[win,mac]", '["win","win"]', '["android"]'];
+
+    for (const platformCell of invalidCases) {
+      const result = runFixture(platformCell);
+      expect(result.status, platformCell).not.toBe(0);
+      expect(`${result.stderr}\n${result.stdout}`, platformCell).toContain("platform");
+    }
   }, 60_000);
 
   it("requires every builtin command source row to declare an explicit runtime category", () => {

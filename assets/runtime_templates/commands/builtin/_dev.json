@@ -870,6 +870,164 @@
           "check": "shell:powershell"
         }
       ]
+    },
+    {
+      "id": "uuid-gen-win",
+      "name": "生成 UUID",
+      "tags": [
+        "开发",
+        "dev",
+        "uuid",
+        "gen"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "template": "[guid]::NewGuid().ToString()",
+      "adminRequired": false,
+      "dangerous": false,
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
+    },
+    {
+      "id": "base64-encode-win",
+      "name": "Base64 编码",
+      "tags": [
+        "开发",
+        "dev",
+        "base64",
+        "编码",
+        "encode"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "template": "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(\"{{text}}\"))",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
+    },
+    {
+      "id": "base64-decode-win",
+      "name": "Base64 解码",
+      "tags": [
+        "开发",
+        "dev",
+        "base64",
+        "解码",
+        "decode"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "template": "[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(\"{{text}}\"))",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
+    },
+    {
+      "id": "sha256-hash-win",
+      "name": "计算 SHA256 哈希",
+      "tags": [
+        "开发",
+        "dev",
+        "sha256",
+        "hash",
+        "哈希"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "template": "([System.BitConverter]::ToString((New-Object System.Security.Cryptography.SHA256Managed).ComputeHash([Text.Encoding]::UTF8.GetBytes(\"{{text}}\")))).Replace(\"-\", \"\").ToLower()",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
+    },
+    {
+      "id": "regex-test-win",
+      "name": "正则表达式测试",
+      "tags": [
+        "开发",
+        "dev",
+        "正则",
+        "regex",
+        "test",
+        "测试"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "template": "[regex]::Matches(\"{{text}}\", \"{{pattern}}\") | ForEach-Object { $_.Value }",
+      "adminRequired": false,
+      "dangerous": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "text",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "pattern",
+          "label": "pattern",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
+        }
+      ]
     }
   ]
 }

@@ -294,29 +294,161 @@ function Get-PlatformVariants {
     [Parameter(Mandatory = $true)][string]$Platform
   )
 
-  $p = $Platform.Trim().ToLowerInvariant()
-  switch ($p) {
-    "all" { return @([pscustomobject]@{ id = $Id; platform = "all" }) }
-    "win" { return @([pscustomobject]@{ id = $Id; platform = "win" }) }
-    "mac" { return @([pscustomobject]@{ id = $Id; platform = "mac" }) }
-    "linux" { return @([pscustomobject]@{ id = $Id; platform = "linux" }) }
-    "mac/linux" {
-      $result = @()
-      foreach ($target in @("mac", "linux")) {
-        $newId = $Id
-        if ($Id -notmatch '-(win|mac|linux)$') {
-          $newId = "$Id-$target"
-        } elseif ($Id -notmatch "-$target$") {
-          $newId = "$Id-$target"
-        }
-        $result += [pscustomobject]@{ id = $newId; platform = $target }
-      }
-      return @($result)
-    }
-    default {
-      throw "Unsupported platform '$Platform' for id '$Id'"
+  function New-PlatformVariant {
+    param(
+      [Parameter(Mandatory = $true)][string]$VariantId,
+      [Parameter(Mandatory = $true)][string]$VariantPlatform
+    )
+
+    return [pscustomobject]@{
+      id = $VariantId
+      platform = $VariantPlatform
     }
   }
+
+  function Get-OrderedPlatformTargets {
+    param(
+      [Parameter(Mandatory = $true)][object[]]$Targets,
+      [Parameter(Mandatory = $true)][string]$CommandId,
+      [bool]$RejectDuplicates = $false
+    )
+
+    $allowedTargets = @("win", "mac", "linux")
+    $normalizedTargets = @()
+    $seenTargets = @{}
+
+    foreach ($target in $Targets) {
+      if ($target -isnot [string]) {
+        throw "platform array for id '$CommandId' must only contain string entries."
+      }
+
+      $normalizedTarget = $target.Trim().ToLowerInvariant()
+      if ([string]::IsNullOrWhiteSpace($normalizedTarget)) {
+        throw "platform array for id '$CommandId' cannot contain blank entries."
+      }
+      if ($normalizedTarget -eq "all") {
+        throw "platform array for id '$CommandId' cannot contain 'all'. Use scalar 'all' instead."
+      }
+      if ($normalizedTarget -match '/') {
+        throw "platform array for id '$CommandId' must only contain win/mac/linux entries."
+      }
+      if (-not ($allowedTargets -contains $normalizedTarget)) {
+        throw "platform array for id '$CommandId' contains unsupported target '$normalizedTarget'."
+      }
+
+      if ($seenTargets.ContainsKey($normalizedTarget)) {
+        if ($RejectDuplicates) {
+          throw "platform array for id '$CommandId' contains duplicate target '$normalizedTarget'."
+        }
+        continue
+      }
+
+      $seenTargets[$normalizedTarget] = $true
+    }
+
+    foreach ($target in $allowedTargets) {
+      if ($seenTargets.ContainsKey($target)) {
+        $normalizedTargets += $target
+      }
+    }
+
+    return @($normalizedTargets)
+  }
+
+  function Resolve-PlatformSpec {
+    param(
+      [Parameter(Mandatory = $true)][string]$PlatformSpec,
+      [Parameter(Mandatory = $true)][string]$CommandId
+    )
+
+    $trimmedSpec = $PlatformSpec.Trim()
+    if ([string]::IsNullOrWhiteSpace($trimmedSpec)) {
+      throw "platform cannot be empty for id '$CommandId'."
+    }
+
+    $legacySpec = $trimmedSpec.ToLowerInvariant()
+    switch ($legacySpec) {
+      "all" {
+        return [pscustomobject]@{
+          isAll = $true
+          targets = @("win", "mac", "linux")
+        }
+      }
+      "win" {
+        return [pscustomobject]@{
+          isAll = $false
+          targets = @("win")
+        }
+      }
+      "mac" {
+        return [pscustomobject]@{
+          isAll = $false
+          targets = @("mac")
+        }
+      }
+      "linux" {
+        return [pscustomobject]@{
+          isAll = $false
+          targets = @("linux")
+        }
+      }
+      "mac/linux" {
+        return [pscustomobject]@{
+          isAll = $false
+          targets = @("mac", "linux")
+        }
+      }
+    }
+
+    if (-not ($trimmedSpec.StartsWith("[") -and $trimmedSpec.EndsWith("]"))) {
+      throw "Unsupported platform '$PlatformSpec' for id '$CommandId'"
+    }
+
+    try {
+      $parsedTargets = ConvertFrom-Json -InputObject $trimmedSpec -NoEnumerate
+    } catch {
+      throw "platform array for id '$CommandId' must be valid JSON."
+    }
+
+    # PowerShell 在变量赋值时会把单元素 JSON 数组折叠成标量，这里统一重新包成列表再做校验。
+    [object[]]$parsedTargetList = @()
+    if ($null -ne $parsedTargets) {
+      $parsedTargetList = @($parsedTargets)
+    }
+    if ($parsedTargetList.Count -eq 0) {
+      throw "platform array for id '$CommandId' cannot be empty."
+    }
+
+    [string[]]$normalizedTargets = @(Get-OrderedPlatformTargets -Targets $parsedTargetList -CommandId $CommandId -RejectDuplicates $true)
+    if ($normalizedTargets.Count -eq 0) {
+      throw "platform array for id '$CommandId' cannot be empty."
+    }
+
+    return [pscustomobject]@{
+      isAll = ($normalizedTargets.Count -eq 3)
+      targets = $normalizedTargets
+    }
+  }
+
+  $resolvedPlatform = Resolve-PlatformSpec -PlatformSpec $Platform -CommandId $Id
+  if ($resolvedPlatform.isAll) {
+    return @(New-PlatformVariant -VariantId $Id -VariantPlatform "all")
+  }
+
+  $resolvedTargets = @($resolvedPlatform.targets)
+  $result = @()
+  foreach ($target in $resolvedTargets) {
+    $newId = $Id
+    if ($resolvedTargets.Count -gt 1) {
+      if ($Id -notmatch '-(win|mac|linux)$') {
+        $newId = "$Id-$target"
+      } elseif ($Id -notmatch "-$target$") {
+        $newId = "$Id-$target"
+      }
+    }
+    $result += New-PlatformVariant -VariantId $newId -VariantPlatform $target
+  }
+  return @($result)
 }
 
 function Get-SourceHeaderMetadata {
