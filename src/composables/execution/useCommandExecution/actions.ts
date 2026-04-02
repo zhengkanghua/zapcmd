@@ -101,6 +101,7 @@ function createExecuteStagedAction(
       state.setExecutionFeedback(
         "success",
         appendPreflightWarnings(
+          options,
           t("execution.queueSuccess", {
             count: steps.length,
             firstCommand
@@ -152,7 +153,7 @@ function createExecuteStagedAction(
     if (blockingPreflightIssues.length > 0) {
       state.setExecutionFeedback(
         "error",
-        buildPreflightBlockedFeedback(blockingPreflightIssues)
+        buildPreflightBlockedFeedback(options, blockingPreflightIssues)
       );
       options.scheduleSearchInputFocus(false);
       return;
@@ -219,7 +220,7 @@ function createSingleExecutionRequester(
     if (blockingPreflightIssues.length > 0) {
       state.setExecutionFeedback(
         "error",
-        buildPreflightBlockedFeedback(blockingPreflightIssues)
+        buildPreflightBlockedFeedback(options, blockingPreflightIssues)
       );
       options.scheduleSearchInputFocus(false);
       return;

@@ -44,6 +44,7 @@ export interface UseCommandExecutionOptions {
   runCommandPreflight?: (
     prerequisites: CommandPrerequisite[]
   ) => Promise<CommandPrerequisiteProbeResult[]>;
+  resolveCommandTitle?: (commandId: string) => string | null;
   feedbackDurationMs?: number;
   onNeedPanel?: (command: CommandTemplate, mode: ParamSubmitMode) => void;
 }

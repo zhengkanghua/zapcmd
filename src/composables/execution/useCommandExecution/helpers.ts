@@ -19,6 +19,11 @@ import { findFirstCommandArgValidationError } from "../../../features/security/c
 import { collectTrustedArgKeysFromExecution } from "../../../features/security/commandSafety";
 import type { StagedCommand } from "../../../features/launcher/types";
 import type { CommandExecutionState, UseCommandExecutionOptions } from "./model";
+import {
+  formatBlockingPreflightFeedback,
+  formatWarningPreflightFeedback,
+  type CommandPreflightIssue
+} from "./preflightFeedback";
 
 type ExecutionFailureKind = "terminal-unavailable" | "invalid-params" | "blocked" | "unknown";
 
@@ -144,41 +149,7 @@ export interface PendingSubmitRejection {
   mode: "failed" | "blocked";
 }
 
-export interface CommandPreflightIssue {
-  title?: string;
-  prerequisite?: CommandPrerequisite;
-  result: CommandPrerequisiteProbeResult;
-}
-
-function formatPreflightGuidance(issue: CommandPreflightIssue): string[] {
-  const guidance: string[] = [];
-  const installHint = issue.prerequisite?.installHint?.trim();
-  const fallbackCommandId = issue.prerequisite?.fallbackCommandId?.trim();
-
-  if (installHint) {
-    guidance.push(t("execution.preflightInstallHint", { hint: installHint }));
-  }
-  if (fallbackCommandId) {
-    guidance.push(t("execution.preflightFallbackCommand", { commandId: fallbackCommandId }));
-  }
-
-  return guidance;
-}
-
-function formatPreflightIssue(issue: CommandPreflightIssue): string {
-  const subject = issue.title
-    ? `${issue.title} / ${issue.result.id}`
-    : issue.result.id;
-  const message =
-    issue.result.message.trim().length > 0
-      ? issue.result.message.trim()
-      : issue.result.code;
-  const guidance = formatPreflightGuidance(issue);
-  if (guidance.length === 0) {
-    return `${subject}: ${message}`;
-  }
-  return `${subject}: ${message}（${guidance.join("；")}）`;
-}
+export type { CommandPreflightIssue } from "./preflightFeedback";
 
 export async function runCommandPreflight(
   options: UseCommandExecutionOptions,
@@ -214,23 +185,24 @@ export function collectWarningPreflightIssues(
 }
 
 export function buildPreflightBlockedFeedback(
+  options: UseCommandExecutionOptions,
   issues: CommandPreflightIssue[]
 ): string {
-  return t("execution.preflightBlockedWithNextStep", {
-    reason: issues.map(formatPreflightIssue).join("；"),
-    nextStep: t("execution.nextStepPrerequisite")
+  return formatBlockingPreflightFeedback(issues, {
+    resolveCommandTitle: options.resolveCommandTitle
   });
 }
 
 export function appendPreflightWarnings(
+  options: UseCommandExecutionOptions,
   message: string,
   issues: CommandPreflightIssue[]
 ): string {
   if (issues.length === 0) {
     return message;
   }
-  return `${message} ${t("execution.preflightWarning", {
-    reason: issues.map(formatPreflightIssue).join("；")
+  return `${message} ${formatWarningPreflightFeedback(issues, {
+    resolveCommandTitle: options.resolveCommandTitle
   })}`;
 }
 
@@ -303,6 +275,7 @@ export async function executeSingleCommand(
     state.setExecutionFeedback(
       "success",
       appendPreflightWarnings(
+        options,
         t("execution.sentToTerminal", {
           command: summarizeCommandForFeedback(resolved.renderedPreview)
         }),

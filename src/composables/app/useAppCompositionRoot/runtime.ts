@@ -68,6 +68,8 @@ function createLauncherRuntime(context: AppCompositionContext) {
     runCommandInTerminal: context.runCommandInTerminal,
     runCommandsInTerminal: context.runCommandsInTerminal,
     runCommandPreflight: commandPreflight.check.bind(commandPreflight),
+    resolveCommandTitle: (commandId) =>
+      context.commandCatalog.commandTemplates.value.find((item) => item.id === commandId)?.title ?? null,
     onNeedPanel: (command, mode) => {
       navStack.pushPage({
         type: "command-action",

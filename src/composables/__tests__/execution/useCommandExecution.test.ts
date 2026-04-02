@@ -26,6 +26,7 @@ interface Harness {
   runCommandInTerminal: ReturnType<typeof vi.fn>;
   runCommandsInTerminal: ReturnType<typeof vi.fn>;
   runCommandPreflight: ReturnType<typeof vi.fn>;
+  resolveCommandTitle: ReturnType<typeof vi.fn>;
   onNeedPanel: ReturnType<typeof vi.fn>;
   execution: ReturnType<typeof useCommandExecution>;
 }
@@ -210,6 +211,9 @@ function createHarness(useBatchRunner = false): Harness {
   const runCommandPreflight = vi.fn(
     async () => [] as CommandPrerequisiteProbeResult[]
   );
+  const resolveCommandTitle = vi.fn((commandId: string) =>
+    commandId === "install-docker" ? "安装 Docker" : null
+  );
   const onNeedPanel = vi.fn();
 
   const execution = useCommandExecution({
@@ -224,6 +228,7 @@ function createHarness(useBatchRunner = false): Harness {
     runCommandInTerminal,
     runCommandsInTerminal: useBatchRunner ? runCommandsInTerminal : undefined,
     runCommandPreflight,
+    resolveCommandTitle,
     onNeedPanel
   });
 
@@ -239,6 +244,7 @@ function createHarness(useBatchRunner = false): Harness {
     runCommandInTerminal,
     runCommandsInTerminal,
     runCommandPreflight,
+    resolveCommandTitle,
     onNeedPanel,
     execution
   };
@@ -409,7 +415,8 @@ describe("useCommandExecution", () => {
           type: "binary",
           required: true,
           check: "docker",
-          installHint: "请先安装 Docker Desktop",
+          displayName: "Docker Desktop",
+          resolutionHint: "安装 Docker Desktop 后重试",
           fallbackCommandId: "install-docker"
         }
       ]
@@ -429,15 +436,33 @@ describe("useCommandExecution", () => {
 
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("docker not found");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("请先安装 Docker Desktop");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("install-docker");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("无法执行该命令。");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("未检测到 Docker Desktop。");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("处理建议：安装 Docker Desktop 后重试。");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("可改用“安装 Docker”命令。");
   });
 
-  it("blocks single execution when prerequisite probing throws", async () => {
+  it("blocks single execution with a system-level message when prerequisite probing throws", async () => {
     const harness = createHarness();
-    const command = createPrerequisiteCommand();
+    const command = createPrerequisiteCommand(
+      {},
+      [
+        {
+          id: "docker",
+          type: "binary",
+          required: true,
+          check: "docker",
+          displayName: "Docker Desktop"
+        },
+        {
+          id: "powershell",
+          type: "shell",
+          required: true,
+          check: "shell:powershell",
+          displayName: "PowerShell 7"
+        }
+      ]
+    );
     harness.runCommandPreflight.mockRejectedValueOnce(new Error("probe transport failed"));
 
     harness.execution.executeResult(command);
@@ -445,8 +470,9 @@ describe("useCommandExecution", () => {
 
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("probe transport failed");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("执行前检查暂时失败");
+    expect(harness.execution.executionFeedbackMessage.value).not.toContain("docker / docker");
+    expect(harness.execution.executionFeedbackMessage.value).not.toContain("powershell / powershell");
   });
 
   it("keeps execution but appends warning when optional prerequisite fails", async () => {
@@ -459,7 +485,8 @@ describe("useCommandExecution", () => {
           type: "binary",
           required: false,
           check: "docker",
-          installHint: "请先安装 Docker Desktop",
+          displayName: "Docker Desktop",
+          resolutionHint: "安装 Docker Desktop 后重试",
           fallbackCommandId: "install-docker"
         }
       ]
@@ -484,10 +511,11 @@ describe("useCommandExecution", () => {
       }
     );
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("预检告警");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("docker");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("请先安装 Docker Desktop");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("install-docker");
+    expect(harness.execution.executionFeedbackMessage.value).toContain(
+      "命令已发送到终端，但有一项可选依赖未满足。"
+    );
+    expect(harness.execution.executionFeedbackMessage.value).toContain("未检测到 Docker Desktop。");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("可改用“安装 Docker”命令。");
   });
 
   it("opens command panel for dangerous no-arg command and executes on submit (skips safetyDialog)", async () => {
@@ -769,7 +797,49 @@ describe("useCommandExecution", () => {
     const harness = createHarness(true);
 
     harness.execution.stageResult(createNoArgCommand());
-    harness.execution.stageResult(createPrerequisiteCommand());
+    harness.execution.stageResult(
+      createPrerequisiteCommand(
+        {
+          id: "docker-ps",
+          title: "docker-ps"
+        },
+        [
+          {
+            id: "docker",
+            type: "binary",
+            required: true,
+            check: "docker",
+            displayName: "Docker Desktop",
+            resolutionHint: "安装 Docker Desktop 后重试",
+            fallbackCommandId: "install-docker"
+          }
+        ]
+      )
+    );
+    harness.execution.stageResult(
+      createPrerequisiteCommand(
+        {
+          id: "gh-auth",
+          title: "gh-auth",
+          preview: "gh auth status",
+          execution: {
+            kind: "exec",
+            program: "gh",
+            args: ["auth", "status"]
+          }
+        },
+        [
+          {
+            id: "github-token",
+            type: "env",
+            required: true,
+            check: "env:GITHUB_TOKEN",
+            displayName: "GitHub Token",
+            resolutionHint: "设置 GITHUB_TOKEN 后重试"
+          }
+        ]
+      )
+    );
     harness.runCommandPreflight.mockResolvedValueOnce([
       {
         id: "docker",
@@ -779,21 +849,58 @@ describe("useCommandExecution", () => {
         message: "docker not found"
       }
     ]);
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "github-token",
+        ok: false,
+        code: "missing-env",
+        required: true,
+        message: "required environment variable not found: GITHUB_TOKEN"
+      }
+    ]);
 
     await harness.execution.executeStaged();
 
     expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
-    expect(harness.stagedCommands.value).toHaveLength(2);
+    expect(harness.stagedCommands.value).toHaveLength(3);
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("docker not found");
+    expect(harness.execution.executionFeedbackMessage.value).toContain(
+      "docker-ps：未检测到 Docker Desktop。"
+    );
+    expect(harness.execution.executionFeedbackMessage.value).toContain(
+      "gh-auth：缺少 GitHub Token（环境变量 GITHUB_TOKEN）。"
+    );
   });
 
-  it("blocks queue execution when prerequisite probing throws", async () => {
+  it("blocks queue execution with a system-level message when prerequisite probing throws", async () => {
     const harness = createHarness(true);
 
     harness.execution.stageResult(createNoArgCommand());
-    harness.execution.stageResult(createPrerequisiteCommand());
+    harness.execution.stageResult(
+      createPrerequisiteCommand(
+        {
+          id: "docker-ps",
+          title: "docker-ps"
+        },
+        [
+          {
+            id: "docker",
+            type: "binary",
+            required: true,
+            check: "docker",
+            displayName: "Docker Desktop"
+          },
+          {
+            id: "powershell",
+            type: "shell",
+            required: true,
+            check: "shell:powershell",
+            displayName: "PowerShell 7"
+          }
+        ]
+      )
+    );
     harness.runCommandPreflight.mockRejectedValueOnce(new Error("probe transport failed"));
 
     await harness.execution.executeStaged();
@@ -802,8 +909,9 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.stagedCommands.value).toHaveLength(2);
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("probe transport failed");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("执行前检查暂时失败");
+    expect(harness.execution.executionFeedbackMessage.value).not.toContain("docker / docker");
+    expect(harness.execution.executionFeedbackMessage.value).not.toContain("powershell / powershell");
   });
 
   it("treats unsupported prerequisite as blocking failure", async () => {
