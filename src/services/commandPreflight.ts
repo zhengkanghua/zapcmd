@@ -13,25 +13,57 @@ interface CommandPreflightService {
   ): Promise<CommandPrerequisiteProbeResult[]>;
 }
 
+function hasNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 function normalizeProbeResult(
-  result: Partial<CommandPrerequisiteProbeResult>
+  result: CommandPrerequisiteProbeResult
 ): CommandPrerequisiteProbeResult {
-  const code =
-    typeof result.code === "string" && result.code.trim().length > 0
-      ? result.code.trim()
-      : "probe-error";
-  const message =
-    typeof result.message === "string" && result.message.trim().length > 0
-      ? result.message.trim()
-      : code;
+  const code = result.code.trim();
+  const message = result.message.trim().length > 0 ? result.message.trim() : code;
 
   return {
-    id: typeof result.id === "string" ? result.id : "",
-    ok: result.ok === true,
+    id: result.id.trim(),
+    ok: result.ok,
     code,
     message,
-    required: result.required === true
+    required: result.required
   };
+}
+
+function isAlignedProbeResult(
+  result: unknown,
+  prerequisite: CommandPrerequisite
+): result is CommandPrerequisiteProbeResult {
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
+    return false;
+  }
+
+  const candidate = result as Partial<CommandPrerequisiteProbeResult>;
+  return (
+    typeof candidate.ok === "boolean" &&
+    hasNonEmptyString(candidate.code) &&
+    typeof candidate.message === "string" &&
+    hasNonEmptyString(candidate.id) &&
+    typeof candidate.required === "boolean" &&
+    candidate.id.trim() === prerequisite.id &&
+    candidate.required === prerequisite.required
+  );
+}
+
+function isValidProbePayload(
+  payload: unknown,
+  prerequisites: CommandPrerequisite[]
+): payload is CommandPrerequisiteProbeResult[] {
+  return (
+    Array.isArray(payload) &&
+    payload.length === prerequisites.length &&
+    payload.every((result, index) => {
+      const prerequisite = prerequisites[index];
+      return prerequisite ? isAlignedProbeResult(result, prerequisite) : false;
+    })
+  );
 }
 
 class TauriCommandPreflightService implements CommandPreflightService {
@@ -48,7 +80,7 @@ class TauriCommandPreflightService implements CommandPreflightService {
         { prerequisites }
       );
 
-      if (!Array.isArray(payload)) {
+      if (!isValidProbePayload(payload, prerequisites)) {
         // probe contract 失真时必须 fail-closed，避免把未知状态当成“无问题”继续执行。
         return createProbeFailureResults(prerequisites, "probe-invalid-response");
       }

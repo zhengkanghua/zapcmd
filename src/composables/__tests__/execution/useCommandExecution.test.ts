@@ -914,6 +914,81 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).not.toContain("powershell / powershell");
   });
 
+  it("deduplicates system-level queue failures per command when mixed with normal prerequisite errors", async () => {
+    const harness = createHarness(true);
+
+    harness.execution.stageResult(
+      createPrerequisiteCommand(
+        {
+          id: "docker-ps",
+          title: "docker-ps"
+        },
+        [
+          {
+            id: "docker",
+            type: "binary",
+            required: true,
+            check: "docker",
+            displayName: "Docker Desktop"
+          },
+          {
+            id: "powershell",
+            type: "shell",
+            required: true,
+            check: "shell:powershell",
+            displayName: "PowerShell 7"
+          }
+        ]
+      )
+    );
+    harness.execution.stageResult(
+      createPrerequisiteCommand(
+        {
+          id: "gh-auth",
+          title: "gh-auth",
+          preview: "gh auth status",
+          execution: {
+            kind: "exec",
+            program: "gh",
+            args: ["auth", "status"]
+          }
+        },
+        [
+          {
+            id: "github-token",
+            type: "env",
+            required: true,
+            check: "env:GITHUB_TOKEN",
+            displayName: "GitHub Token",
+            resolutionHint: "设置 GITHUB_TOKEN 后重试"
+          }
+        ]
+      )
+    );
+    harness.runCommandPreflight.mockRejectedValueOnce(new Error("probe transport failed"));
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "github-token",
+        ok: false,
+        code: "missing-env",
+        required: true,
+        message: "required environment variable not found: GITHUB_TOKEN"
+      }
+    ]);
+
+    await harness.execution.executeStaged();
+
+    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(
+      harness.execution.executionFeedbackMessage.value.match(/docker-ps：执行前检查暂时失败/g)
+    ).toHaveLength(1);
+    expect(harness.execution.executionFeedbackMessage.value).toContain(
+      "gh-auth：缺少 GitHub Token（环境变量 GITHUB_TOKEN）。"
+    );
+  });
+
   it("treats unsupported prerequisite as blocking failure", async () => {
     const harness = createHarness();
     const command = createPrerequisiteCommand(

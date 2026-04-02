@@ -113,7 +113,9 @@ function formatIssue(
   issue: CommandPreflightIssue,
   options: PreflightFeedbackOptions
 ): string {
-  const detail = [formatReason(issue), ...formatActions(issue, options)].join(" ");
+  const detail = isSystemPreflightFailure(issue.result)
+    ? formatSystemFailure([issue])
+    : [formatReason(issue), ...formatActions(issue, options)].join(" ");
   const title = trimText(issue.title);
   return title ? `${title}：${detail}` : detail;
 }
@@ -131,19 +133,43 @@ export function isSystemPreflightFailure(
   return result.code === "probe-error" || result.code === "probe-invalid-response";
 }
 
+function collapseSystemPreflightIssues(
+  issues: CommandPreflightIssue[]
+): CommandPreflightIssue[] {
+  const collapsed: CommandPreflightIssue[] = [];
+  const seen = new Set<string>();
+
+  for (const issue of issues) {
+    if (!isSystemPreflightFailure(issue.result)) {
+      collapsed.push(issue);
+      continue;
+    }
+
+    const key = `${trimText(issue.title)}::${issue.result.code}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    collapsed.push(issue);
+  }
+
+  return collapsed;
+}
+
 export function formatBlockingPreflightFeedback(
   issues: CommandPreflightIssue[],
   options: PreflightFeedbackOptions = {}
 ): string {
-  if (issues.length === 0) {
+  const displayIssues = collapseSystemPreflightIssues(issues);
+  if (displayIssues.length === 0) {
     return t("execution.preflightBlockedSummary");
   }
-  if (issues.every((issue) => isSystemPreflightFailure(issue.result))) {
-    return formatSystemFailure(issues);
+  if (displayIssues.every((issue) => isSystemPreflightFailure(issue.result))) {
+    return formatSystemFailure(displayIssues);
   }
   return [
     t("execution.preflightBlockedSummary"),
-    ...issues.map((issue) => formatIssue(issue, options))
+    ...displayIssues.map((issue) => formatIssue(issue, options))
   ].join(" ");
 }
 
@@ -151,15 +177,16 @@ export function formatWarningPreflightFeedback(
   issues: CommandPreflightIssue[],
   options: PreflightFeedbackOptions = {}
 ): string {
-  if (issues.length === 0) {
+  const displayIssues = collapseSystemPreflightIssues(issues);
+  if (displayIssues.length === 0) {
     return "";
   }
-  if (issues.every((issue) => isSystemPreflightFailure(issue.result))) {
-    return formatSystemFailure(issues);
+  if (displayIssues.every((issue) => isSystemPreflightFailure(issue.result))) {
+    return formatSystemFailure(displayIssues);
   }
   const summary =
-    issues.length === 1
+    displayIssues.length === 1
       ? t("execution.preflightWarningSummary")
-      : t("execution.preflightWarningSummaryMany", { count: issues.length });
-  return [summary, ...issues.map((issue) => formatIssue(issue, options))].join(" ");
+      : t("execution.preflightWarningSummaryMany", { count: displayIssues.length });
+  return [summary, ...displayIssues.map((issue) => formatIssue(issue, options))].join(" ");
 }

@@ -84,4 +84,68 @@ describe("createCommandPreflightService", () => {
       }
     ]);
   });
+
+  it("returns structured failures when tauri probe payload count mismatches prerequisites", async () => {
+    isTauriMock.mockReturnValue(true);
+    invokeMock.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: true,
+        code: "ok",
+        message: "",
+        required: true
+      }
+    ]);
+    const service = createCommandPreflightService();
+
+    await expect(
+      service.check([
+        { id: "docker", type: "binary", required: true, check: "docker" },
+        { id: "pwsh", type: "shell", required: true, check: "shell:pwsh" }
+      ])
+    ).resolves.toEqual([
+      {
+        id: "docker",
+        ok: false,
+        code: "probe-invalid-response",
+        message: t("execution.preflightProbeInvalidResponse"),
+        required: true
+      },
+      {
+        id: "pwsh",
+        ok: false,
+        code: "probe-invalid-response",
+        message: t("execution.preflightProbeInvalidResponse"),
+        required: true
+      }
+    ]);
+  });
+
+  it("returns structured failures when tauri probe payload items do not match prerequisite metadata", async () => {
+    isTauriMock.mockReturnValue(true);
+    invokeMock.mockResolvedValueOnce([
+      {
+        id: "different-id",
+        ok: false,
+        code: "missing-binary",
+        message: "docker not found",
+        required: false
+      }
+    ]);
+    const service = createCommandPreflightService();
+
+    await expect(
+      service.check([
+        { id: "docker", type: "binary", required: true, check: "docker" }
+      ])
+    ).resolves.toEqual([
+      {
+        id: "docker",
+        ok: false,
+        code: "probe-invalid-response",
+        message: t("execution.preflightProbeInvalidResponse"),
+        required: true
+      }
+    ]);
+  });
 });
