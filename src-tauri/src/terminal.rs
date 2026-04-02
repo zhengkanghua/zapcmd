@@ -182,14 +182,17 @@ fn build_failed_marker(index: usize, total: usize, summary: &str) -> String {
     }
 }
 
+#[cfg(not(target_os = "windows"))]
 fn escape_posix_single_quoted_literal(value: &str) -> String {
     value.replace('\'', r#"'"'"'"#)
 }
 
+#[cfg(not(target_os = "windows"))]
 fn quote_posix_single_quoted(value: &str) -> String {
     format!("'{}'", escape_posix_single_quoted_literal(value))
 }
 
+#[cfg(not(target_os = "windows"))]
 fn build_posix_process_command(program: &str, args: &[String]) -> String {
     let mut parts = Vec::with_capacity(args.len() + 1);
     parts.push(quote_posix_single_quoted(program));
@@ -197,6 +200,7 @@ fn build_posix_process_command(program: &str, args: &[String]) -> String {
     parts.join(" ")
 }
 
+#[cfg(not(target_os = "windows"))]
 fn build_posix_script_invocation(
     runner: &str,
     command: &str,
@@ -216,6 +220,7 @@ fn build_posix_script_invocation(
     }
 }
 
+#[cfg(not(target_os = "windows"))]
 fn build_posix_step_command(
     step: &SanitizedExecutionStep,
 ) -> Result<String, TerminalExecutionError> {
