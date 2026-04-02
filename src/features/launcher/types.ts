@@ -5,6 +5,13 @@ import type {
 } from "../commands/commandTemplates";
 import type { CommandPrerequisite } from "../commands/prerequisiteTypes";
 
+export interface StagedCommandPreflightCache {
+  checkedAt: number;
+  issueCount: number;
+  source: "issues" | "system-failure";
+  issues: string[];
+}
+
 export interface StagedCommand {
   id: string;
   title: string;
@@ -15,6 +22,7 @@ export interface StagedCommand {
   args: CommandArg[];
   argValues: Record<string, string>;
   prerequisites?: CommandPrerequisite[];
+  preflightCache?: StagedCommandPreflightCache;
   adminRequired?: boolean;
   dangerous?: boolean;
 }

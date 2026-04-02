@@ -27,7 +27,7 @@ import type {
 } from "../features/commands/types";
 import type { CommandExecutionRequest } from "../services/commandExecutor";
 
-const LAUNCHER_SESSION_SCHEMA_VERSION = 2;
+const LAUNCHER_SESSION_SCHEMA_VERSION = 3;
 
 const hoisted = vi.hoisted(() => ({
   runMock: vi.fn<(request: CommandExecutionRequest) => Promise<void>>(),

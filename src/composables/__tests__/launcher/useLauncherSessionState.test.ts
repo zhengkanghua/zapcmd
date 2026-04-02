@@ -10,7 +10,7 @@ import type {
   ResolvedCommandExecution
 } from "../../../features/commands/types";
 
-const SESSION_VERSION = 2;
+const SESSION_VERSION = 3;
 
 interface MockStorage {
   getItem: ReturnType<typeof vi.fn>;
@@ -89,7 +89,17 @@ describe("useLauncherSessionState", () => {
     const snapshot = JSON.stringify({
       version: SESSION_VERSION,
       stagingExpanded: true,
-      stagedCommands: [createStagedCommand("restored")]
+      stagedCommands: [
+        {
+          ...createStagedCommand("restored"),
+          preflightCache: {
+            checkedAt: 1743648000000,
+            issueCount: 1,
+            source: "issues",
+            issues: ["未检测到 Docker Desktop。"]
+          }
+        }
+      ]
     });
     const storage = createStorage(snapshot);
     const stagedCommands = ref<StagedCommand[]>([]);
@@ -106,8 +116,42 @@ describe("useLauncherSessionState", () => {
 
     expect(stagedCommands.value).toHaveLength(1);
     expect(stagedCommands.value[0]?.id).toBe("restored");
+    expect(stagedCommands.value[0]?.preflightCache?.issues).toEqual(["未检测到 Docker Desktop。"]);
+    expect(stagedCommands.value[0]?.preflightCache?.issueCount).toBe(1);
     expect(stagingExpanded.value).toBe(false);
     expect(openStagingDrawer).not.toHaveBeenCalled();
+  });
+
+  it("drops invalid preflightCache but still restores staged command", () => {
+    const snapshot = JSON.stringify({
+      version: SESSION_VERSION,
+      stagingExpanded: false,
+      stagedCommands: [
+        {
+          ...createStagedCommand("restored"),
+          preflightCache: {
+            checkedAt: "bad",
+            issueCount: 1,
+            source: "issues",
+            issues: ["x"]
+          }
+        }
+      ]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(1);
+    expect(stagedCommands.value[0]?.id).toBe("restored");
+    expect(stagedCommands.value[0]?.preflightCache).toBeUndefined();
   });
 
   it("clears snapshot when version is mismatched", () => {

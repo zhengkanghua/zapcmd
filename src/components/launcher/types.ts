@@ -6,6 +6,7 @@ import type {
   ResolvedCommandExecution
 } from "../../features/commands/commandTemplates";
 import type { CommandPrerequisite } from "../../features/commands/prerequisiteTypes";
+import type { StagedCommandPreflightCache } from "../../features/launcher/types";
 
 export interface KeyboardHint {
   keys: string[];
@@ -34,6 +35,7 @@ export interface QueuedCommand {
   args: CommandArg[];
   argValues: Record<string, string>;
   prerequisites?: CommandPrerequisite[];
+  preflightCache?: StagedCommandPreflightCache;
   adminRequired?: boolean;
   dangerous?: boolean;
 }

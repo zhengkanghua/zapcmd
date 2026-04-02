@@ -4,10 +4,10 @@ import type {
   CommandExecutionTemplate,
   ResolvedCommandExecution
 } from "../../features/commands/types";
-import type { StagedCommand } from "../../features/launcher/types";
+import type { StagedCommand, StagedCommandPreflightCache } from "../../features/launcher/types";
 
 export const LAUNCHER_SESSION_STORAGE_KEY = "zapcmd.session.launcher";
-const LAUNCHER_SESSION_SCHEMA_VERSION = 2;
+const LAUNCHER_SESSION_SCHEMA_VERSION = 3;
 
 interface PersistedLauncherSessionV1 {
   version: number;
@@ -144,6 +144,34 @@ function sanitizeResolvedExecution(value: unknown): ResolvedCommandExecution | n
   return execution;
 }
 
+function sanitizePreflightCache(value: unknown): StagedCommandPreflightCache | null {
+  if (!isRecord(value) || !Array.isArray(value.issues)) {
+    return null;
+  }
+
+  const checkedAt = Number(value.checkedAt);
+  const issueCount = Number(value.issueCount);
+  if (
+    !Number.isFinite(checkedAt) ||
+    checkedAt < 0 ||
+    !Number.isInteger(issueCount) ||
+    issueCount < 0
+  ) {
+    return null;
+  }
+
+  if (value.source !== "issues" && value.source !== "system-failure") {
+    return null;
+  }
+
+  return {
+    checkedAt,
+    issueCount,
+    source: value.source,
+    issues: value.issues.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+  };
+}
+
 function sanitizeStagedCommand(value: unknown): StagedCommand | null {
   if (!isRecord(value)) {
     return null;
@@ -173,6 +201,7 @@ function sanitizeStagedCommand(value: unknown): StagedCommand | null {
   const args = argsSource
     .map((item) => sanitizeArg(item))
     .filter((item): item is CommandArg => item !== null);
+  const preflightCache = sanitizePreflightCache(value.preflightCache);
 
   const normalized: StagedCommand = {
     id,
@@ -184,6 +213,9 @@ function sanitizeStagedCommand(value: unknown): StagedCommand | null {
     args,
     argValues
   };
+  if (preflightCache) {
+    normalized.preflightCache = preflightCache;
+  }
   if (typeof value.adminRequired === "boolean") {
     normalized.adminRequired = value.adminRequired;
   }
