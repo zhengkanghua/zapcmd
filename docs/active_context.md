@@ -1,6 +1,5 @@
-# 短期记忆（2026-04-01）
+# 短期记忆（2026-04-02）
 
-- ZapCmd 是基于 Tauri + Vue 的桌面命令启动器，强调速度、安全基线与可重复工作流。
-- 当前主链路：搜索 -> 参数 -> 暂存 -> 执行；支持内置与用户命令合并加载、队列执行、会话恢复。
-- 设置页已覆盖热键、默认终端、语言、更新与命令管理；运行时 `platform` 仍为单值，builtin 不托管 cwd。
-- 2026-04-02：命令 contract 已删除 `command.shell`，prerequisite 收口为 `binary/shell/env`；preflight 会展示 `installHint/fallbackCommandId`；builtin 生成器已迁到 Node，产物路径改为稳定相对路径。
+- ZapCmd 为 Tauri/Vue 桌面命令器，主链路：搜索->参数->暂存->执行，支持命令合并、队列与恢复。
+- 当前 contract：移除 command.shell，prerequisite 为 binary/shell/env。
+- 下一轮：builtin 真源切 YAML，生成 json+md，执行模型改为 exec/script，runner 与 prerequisite 闭环。
