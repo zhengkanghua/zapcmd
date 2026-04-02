@@ -45,7 +45,10 @@ describe("useCommandCatalog", () => {
           tags: ["docker", "ps"],
           category: "docker",
           platform: "all",
-          template: "docker ps --format '{{.Names}}'",
+          exec: {
+            program: "docker",
+            args: ["ps", "--format", "{{.Names}}"]
+          },
           adminRequired: false
         },
         {
@@ -54,7 +57,10 @@ describe("useCommandCatalog", () => {
           tags: ["custom"],
           category: "custom",
           platform: "all",
-          template: "echo hello",
+          exec: {
+            program: "echo",
+            args: ["hello"]
+          },
           adminRequired: false
         },
         {
@@ -63,7 +69,10 @@ describe("useCommandCatalog", () => {
           tags: ["linux"],
           category: "custom",
           platform: "linux",
-          template: "echo linux",
+          exec: {
+            program: "echo",
+            args: ["linux"]
+          },
           adminRequired: false
         }
       ]
@@ -119,7 +128,10 @@ describe("useCommandCatalog", () => {
               tags: ["docker"],
               category: "docker",
               platform: "all",
-              template: "docker ps -a",
+              exec: {
+                program: "docker",
+                args: ["ps", "-a"]
+              },
               adminRequired: false
             }
           ]

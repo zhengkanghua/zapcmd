@@ -229,7 +229,17 @@ describe("LauncherWindow CommandPanel wiring", () => {
               id: "cmd-1",
               title: "示例命令",
               rawPreview: "echo preview",
-              renderedCommand: "echo preview",
+              renderedPreview: "echo preview",
+              executionTemplate: {
+                kind: "exec",
+                program: "echo",
+                args: ["preview"]
+              },
+              execution: {
+                kind: "exec",
+                program: "echo",
+                args: ["preview"]
+              },
               args: [],
               argValues: {}
             }

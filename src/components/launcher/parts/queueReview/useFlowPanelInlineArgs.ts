@@ -1,6 +1,7 @@
 import { nextTick, ref } from "vue";
 import type { LauncherQueueReviewPanelProps } from "../../types";
 import { validateCommandArgValue } from "../../../../features/security/commandArgValidation";
+import { collectTrustedArgKeysFromExecution } from "../../../../features/security/commandSafety";
 
 interface FlowPanelInlineArgsDeps {
   props: LauncherQueueReviewPanelProps;
@@ -39,11 +40,14 @@ export function useFlowPanelInlineArgs(deps: FlowPanelInlineArgsDeps) {
   }
 
   function validateEditingValue(cmdId: string, argKey: string, value: string): string | null {
+    const command = deps.props.queuedCommands.find((item) => item.id === cmdId);
     const arg = resolveEditingArg(cmdId, argKey);
-    if (!arg) {
+    if (!arg || !command) {
       return null;
     }
-    return validateCommandArgValue(arg, value);
+    return validateCommandArgValue(arg, value, {
+      trustedArgKeys: collectTrustedArgKeysFromExecution(command.executionTemplate, command.args)
+    });
   }
 
   function guardInvalidDraft(): boolean {

@@ -1,43 +1,82 @@
 import { describe, expect, it } from "vitest";
 
-import { commandTemplates } from "../commandTemplates";
+import { mapRuntimeCommandToTemplate } from "../runtimeMapper";
 
 describe("commandTemplates", () => {
-  it("loads runtime templates from assets into memory", () => {
-    expect(commandTemplates.length).toBeGreaterThan(50);
-  });
-
-  it("contains unique template ids", () => {
-    const ids = commandTemplates.map((item) => item.id);
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-
-  it("ensures required display fields are present", () => {
-    for (const template of commandTemplates) {
-      expect(template.title.trim().length).toBeGreaterThan(0);
-      expect(template.description.trim().length).toBeGreaterThan(0);
-      expect(template.preview.trim().length).toBeGreaterThan(0);
-      expect(template.folder.trim().length).toBeGreaterThan(0);
-      expect(template.category.trim().length).toBeGreaterThan(0);
-    }
-  });
-
-  it("keeps argument token contract consistent", () => {
-    for (const template of commandTemplates) {
-      if (!template.needsArgs) {
-        continue;
-      }
-
-      if (template.args && template.args.length > 0) {
-        const argKeys = template.args.map((arg) => arg.key);
-        expect(new Set(argKeys).size).toBe(argKeys.length);
-        for (const arg of template.args) {
-          expect(template.preview.includes(arg.token)).toBe(true);
+  it("keeps preview as derived text while exposing structured exec payload", () => {
+    const template = mapRuntimeCommandToTemplate({
+      id: "sqlite-query",
+      name: "SQLite Query",
+      description: "Execute SQL via stdin",
+      tags: ["sqlite"],
+      category: "sqlite",
+      platform: "all",
+      exec: {
+        program: "sqlite3",
+        args: ['"{{file}}"'],
+        stdinArgKey: "sql"
+      },
+      adminRequired: false,
+      args: [
+        {
+          key: "file",
+          label: "File",
+          type: "path",
+          required: true
+        },
+        {
+          key: "sql",
+          label: "SQL",
+          type: "text",
+          required: true
         }
-      } else {
-        expect(template.argToken).toBeTruthy();
-        expect(template.preview.includes(template.argToken as string)).toBe(true);
-      }
-    }
+      ]
+    });
+
+    expect(template.preview).toBe('sqlite3 "{{file}}"');
+    expect(template.execution).toMatchObject({
+      kind: "exec",
+      program: "sqlite3",
+      stdinArgKey: "sql"
+    });
+    expect(template.args?.map((arg) => arg.key)).toEqual(["file", "sql"]);
+  });
+
+  it("summarizes script commands for display while retaining runner metadata", () => {
+    const template = mapRuntimeCommandToTemplate({
+      id: "kill-port-win",
+      name: "Kill Port Win",
+      tags: ["network"],
+      category: "network",
+      platform: "win",
+      script: {
+        runner: "powershell",
+        command: "Stop-Process -Id {{pid}} -Force"
+      },
+      adminRequired: false,
+      args: [
+        {
+          key: "pid",
+          label: "PID",
+          type: "number",
+          required: true
+        }
+      ],
+      prerequisites: [
+        {
+          id: "powershell",
+          type: "shell",
+          required: true,
+          check: "shell:powershell"
+        }
+      ]
+    });
+
+    expect(template.preview).toContain("powershell");
+    expect(template.preview).toContain("Stop-Process");
+    expect(template.execution).toMatchObject({
+      kind: "script",
+      runner: "powershell"
+    });
   });
 });

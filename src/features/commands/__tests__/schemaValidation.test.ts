@@ -1,29 +1,88 @@
 import { describe, expect, it } from "vitest";
 import { validateRuntimeCommandFile } from "../schemaValidation";
-import type { RuntimeCommandFile } from "../runtimeTypes";
+import type {
+  RuntimeCommandArg,
+  RuntimeCommandFileMeta,
+  RuntimeCommandPrerequisite,
+  RuntimeExecCommand,
+  RuntimeLocalizedTextOrString,
+  RuntimePlatform,
+  RuntimeScriptCommand
+} from "../runtimeTypes";
 
-function createValidPayload(): RuntimeCommandFile {
+interface TestRuntimeCommand {
+  id: string;
+  name: RuntimeLocalizedTextOrString;
+  tags: string[];
+  category: string;
+  platform: RuntimePlatform;
+  adminRequired: boolean;
+  dangerous?: boolean;
+  args?: RuntimeCommandArg[];
+  prerequisites?: RuntimeCommandPrerequisite[];
+  exec?: RuntimeExecCommand;
+  script?: RuntimeScriptCommand;
+  template?: string;
+  shell?: string;
+}
+
+interface TestRuntimeCommandFile {
+  _meta?: RuntimeCommandFileMeta;
+  commands: TestRuntimeCommand[];
+}
+
+function getFirstCommand(payload: TestRuntimeCommandFile): TestRuntimeCommand {
+  const command = payload.commands[0];
+  if (!command) {
+    throw new Error("expected first command to exist");
+  }
+  return command;
+}
+
+function getFirstArg(payload: TestRuntimeCommandFile): RuntimeCommandArg {
+  const firstArg = getFirstCommand(payload).args?.[0];
+  if (!firstArg) {
+    throw new Error("expected first arg to exist");
+  }
+  return firstArg;
+}
+
+function getExec(payload: TestRuntimeCommandFile): RuntimeExecCommand {
+  const exec = getFirstCommand(payload).exec;
+  if (!exec) {
+    throw new Error("expected exec command to exist");
+  }
+  return exec;
+}
+
+function getArgs(payload: TestRuntimeCommandFile): RuntimeCommandArg[] {
+  const args = getFirstCommand(payload).args;
+  if (!args) {
+    throw new Error("expected args to exist");
+  }
+  return args;
+}
+
+function createValidPayload(): TestRuntimeCommandFile {
   return {
     commands: [
       {
-        id: "network-port-check",
-        name: "Network Port Check",
-        tags: ["network"],
-        category: "custom",
-        platform: "win",
-        template: "echo {{port}}",
+        id: "echo-text",
+        name: "Echo",
+        tags: ["echo"],
+        category: "dev",
+        platform: "all",
+        exec: {
+          program: "echo",
+          args: ["{{text}}"]
+        },
         adminRequired: false,
         args: [
           {
-            key: "port",
-            label: "port",
-            type: "number",
+            key: "text",
+            label: "Text",
+            type: "text",
             required: true,
-            default: "3000",
-            validation: {
-              min: 1,
-              max: 65535
-            }
           }
         ]
       }
@@ -31,17 +90,51 @@ function createValidPayload(): RuntimeCommandFile {
   };
 }
 
-function createPayloadWithMinMax(min: number, max: number): RuntimeCommandFile {
+function createPayloadWithMinMax(min: number, max: number): TestRuntimeCommandFile {
   const payload = createValidPayload();
-  const firstArg = payload.commands[0].args?.[0];
-  if (!firstArg) {
-    throw new Error("expected first arg to exist");
-  }
+  const firstArg = getFirstArg(payload);
+  firstArg.type = "number";
+  firstArg.default = "3000";
   firstArg.validation = { min, max };
   return payload;
 }
 
-function expectInvalidReason(payload: RuntimeCommandFile): string {
+function createScriptPayload(): TestRuntimeCommandFile {
+  return {
+    commands: [
+      {
+        id: "kill-port-win",
+        name: "Kill Port Win",
+        tags: ["network"],
+        category: "network",
+        platform: "win",
+        script: {
+          runner: "powershell",
+          command: "Stop-Process -Id {{pid}} -Force"
+        },
+        adminRequired: false,
+        args: [
+          {
+            key: "pid",
+            label: "PID",
+            type: "number",
+            required: true
+          }
+        ],
+        prerequisites: [
+          {
+            id: "powershell",
+            type: "shell",
+            required: true,
+            check: "shell:powershell"
+          }
+        ]
+      }
+    ]
+  };
+}
+
+function expectInvalidReason(payload: unknown): string {
   const result = validateRuntimeCommandFile(payload);
   expect(result.valid).toBe(false);
   if (result.valid) {
@@ -51,16 +144,22 @@ function expectInvalidReason(payload: RuntimeCommandFile): string {
 }
 
 describe("schemaValidation", () => {
-  it("rejects payloads that violate schema structure", () => {
+  it("accepts exec commands under the structured runtime schema", () => {
+    const result = validateRuntimeCommandFile(createValidPayload());
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects payloads that still use the legacy template field", () => {
     const result = validateRuntimeCommandFile({
       commands: [
         {
-          id: "bad id",
-          name: "bad",
-          tags: ["t"],
-          category: "custom",
-          platform: "win",
-          template: "echo",
+          id: "bad-template",
+          name: "Bad",
+          tags: ["bad"],
+          category: "dev",
+          platform: "all",
+          template: "echo hello",
           adminRequired: false
         }
       ]
@@ -70,7 +169,6 @@ describe("schemaValidation", () => {
     if (result.valid) {
       throw new Error("expected invalid schema result");
     }
-    expect(result.reason).toContain("commands[0].id");
   });
 
   it("rejects numeric args when min is greater than max", () => {
@@ -83,10 +181,10 @@ describe("schemaValidation", () => {
     expect(result.reason).toContain("min");
   });
 
-  it("allows non-argument handlebars syntax inside template literals", () => {
+  it("allows non-argument handlebars syntax inside exec args", () => {
     const payload = createValidPayload();
-    payload.commands[0].template = "docker ps --format '{{.Names}}'";
-    payload.commands[0].args = undefined;
+    getExec(payload).args = ["--format", "{{.Names}}"];
+    getFirstCommand(payload).args = undefined;
 
     const result = validateRuntimeCommandFile(payload);
 
@@ -98,7 +196,7 @@ describe("schemaValidation", () => {
 
     for (const category of categories) {
       const payload = createValidPayload();
-      payload.commands[0].category = category;
+      getFirstCommand(payload).category = category;
 
       const result = validateRuntimeCommandFile(payload);
 
@@ -106,19 +204,17 @@ describe("schemaValidation", () => {
     }
   });
 
-  it("rejects templates that reference undefined argument tokens", () => {
+  it("rejects execution payloads that reference undefined argument tokens", () => {
     const payload = createValidPayload();
-    payload.commands[0].template = "echo {{port}} {{missing}}";
+    getExec(payload).args = ["{{text}}", "{{missing}}"];
 
     expect(expectInvalidReason(payload)).toContain('undefined token "missing"');
   });
 
   it("rejects number defaults that cannot be parsed", () => {
     const payload = createValidPayload();
-    const firstArg = payload.commands[0].args?.[0];
-    if (!firstArg) {
-      throw new Error("expected first arg to exist");
-    }
+    const firstArg = getFirstArg(payload);
+    firstArg.type = "number";
     firstArg.default = "oops";
 
     expect(expectInvalidReason(payload)).toContain("valid number string");
@@ -126,10 +222,11 @@ describe("schemaValidation", () => {
 
   it("rejects number defaults below min", () => {
     const payload = createValidPayload();
-    const firstArg = payload.commands[0].args?.[0];
-    if (!firstArg) {
-      throw new Error("expected first arg to exist");
-    }
+    const firstArg = getFirstArg(payload);
+    firstArg.type = "number";
+    firstArg.validation = {
+      min: 1
+    };
     firstArg.default = "0";
 
     expect(expectInvalidReason(payload)).toContain("greater than or equal to min");
@@ -137,10 +234,10 @@ describe("schemaValidation", () => {
 
   it("rejects duplicate arg keys within the same command", () => {
     const payload = createValidPayload();
-    payload.commands[0].args?.push({
-      key: "port",
-      label: "Port copy",
-      type: "number"
+    getArgs(payload).push({
+      key: "text",
+      label: "Text copy",
+      type: "text"
     });
 
     expect(expectInvalidReason(payload)).toContain("must be unique");
@@ -148,7 +245,7 @@ describe("schemaValidation", () => {
 
   it("rejects blank localized locale keys that schema cannot express", () => {
     const payload = createValidPayload();
-    payload.commands[0].name = {
+    getFirstCommand(payload).name = {
       "": "bad"
     };
 
@@ -166,7 +263,7 @@ describe("schemaValidation", () => {
 
   it("rejects blank prerequisite checks after structural validation", () => {
     const payload = createValidPayload();
-    payload.commands[0].prerequisites = [
+    getFirstCommand(payload).prerequisites = [
       {
         id: "docker",
         type: "binary",
@@ -187,17 +284,51 @@ describe("schemaValidation", () => {
           tags: ["test"],
           category: "custom",
           platform: "win",
-          template: "echo hello",
+          exec: {
+            program: "echo",
+            args: ["hello"]
+          },
           shell: "powershell",
           adminRequired: false
         }
       ]
-    } as unknown as RuntimeCommandFile);
+    });
 
     expect(result.valid).toBe(false);
     if (result.valid) {
       throw new Error("expected invalid schema result");
     }
     expect(result.reason).toContain("shell");
+  });
+
+  it("rejects script runners without a matching shell prerequisite", () => {
+    const payload = createScriptPayload();
+    getFirstCommand(payload).prerequisites = [
+      {
+        id: "pwsh",
+        type: "binary",
+        required: true,
+        check: "pwsh -v"
+      }
+    ];
+
+    expect(expectInvalidReason(payload)).toContain("matching shell prerequisite");
+  });
+
+  it("rejects commands that define both exec and script", () => {
+    const payload = createValidPayload();
+    getFirstCommand(payload).script = {
+      runner: "powershell",
+      command: "Write-Host {{text}}"
+    };
+
+    expect(expectInvalidReason(payload)).toContain("exactly one");
+  });
+
+  it("rejects stdinArgKey values that do not reference a declared arg", () => {
+    const payload = createValidPayload();
+    getExec(payload).stdinArgKey = "missing";
+
+    expect(expectInvalidReason(payload)).toContain("stdinArgKey");
   });
 });

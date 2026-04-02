@@ -19,6 +19,17 @@ const INJECTION_CASES: Array<{ label: string; value: string }> = [
   { label: "dollar-brace", value: "safe ${PATH}" }
 ];
 
+function requireExecExecution(
+  template: ReturnType<typeof mapRuntimeCommandToTemplate>
+) {
+  expect(template.execution).toBeDefined();
+  expect(template.execution?.kind).toBe("exec");
+  if (!template.execution || template.execution.kind !== "exec") {
+    throw new Error("expected exec execution");
+  }
+  return template.execution;
+}
+
 describe("commandSafety", () => {
   it("blocks single command when numeric arg contains injection token", () => {
     const result = checkSingleCommandSafety({
@@ -210,7 +221,10 @@ describe("commandSafety", () => {
       tags: ["network"],
       category: "custom",
       platform: "win",
-      template: "echo {{port}}",
+      exec: {
+        program: "echo",
+        args: ["{{port}}"]
+      },
       adminRequired: false,
       args: [
         {
@@ -226,6 +240,9 @@ describe("commandSafety", () => {
       ]
     } satisfies RuntimeCommand);
 
+    const execution = requireExecExecution(template);
+    expect(execution.kind).toBe("exec");
+    expect(template.preview).toBe("echo {{port}}");
     expect(template.args?.[0]).toMatchObject({
       min: 1000,
       max: 9000

@@ -25,7 +25,10 @@
       ],
       "category": "dev",
       "platform": "all",
-      "template": "echo {{text}}",
+      "exec": {
+        "program": "echo",
+        "args": ["{{text}}"]
+      },
       "adminRequired": false,
       "args": [
         {
@@ -37,6 +40,36 @@
           "type": "text",
           "required": true,
           "default": "hello zapcmd"
+        }
+      ]
+    },
+    {
+      "id": "hello-powershell",
+      "name": {
+        "zh": "PowerShell 问候",
+        "en": "PowerShell Hello"
+      },
+      "description": {
+        "zh": "script.runner 最小示例",
+        "en": "Minimal script.runner example"
+      },
+      "tags": [
+        "powershell",
+        "hello"
+      ],
+      "category": "dev",
+      "platform": "win",
+      "script": {
+        "runner": "powershell",
+        "command": "Write-Output 'hello from powershell'"
+      },
+      "adminRequired": false,
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
         }
       ]
     }

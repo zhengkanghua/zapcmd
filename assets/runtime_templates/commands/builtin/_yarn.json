@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Yarn",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_yarn.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -21,9 +18,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "yarn add {{package}}",
+      "exec": {
+        "program": "yarn",
+        "args": [
+          "add",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -55,9 +57,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "yarn run {{script}}",
+      "exec": {
+        "program": "yarn",
+        "args": [
+          "run",
+          "{{script}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "script",
@@ -90,9 +97,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "yarn remove {{package}}",
+      "exec": {
+        "program": "yarn",
+        "args": [
+          "remove",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -124,9 +136,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "yarn upgrade",
+      "exec": {
+        "program": "yarn",
+        "args": [
+          "upgrade"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "yarn",
@@ -151,9 +167,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "yarn install",
+      "exec": {
+        "program": "yarn",
+        "args": [
+          "install"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "yarn",
@@ -178,9 +198,15 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "yarn add -D {{package}}",
+      "exec": {
+        "program": "yarn",
+        "args": [
+          "add",
+          "-D",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -213,9 +239,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "yarn dlx {{package}}",
+      "exec": {
+        "program": "yarn",
+        "args": [
+          "dlx",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",

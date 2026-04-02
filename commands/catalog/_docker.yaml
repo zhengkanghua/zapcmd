@@ -1,0 +1,968 @@
+meta:
+  name: Docker 容器管理
+  moduleSlug: docker
+commands:
+  - id: docker-ps
+    name: 查看运行中容器
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - ps
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 进程
+      - ps
+      - 查看
+      - show
+      - container
+  - id: docker-ps-all
+    name: 查看所有容器
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - ps
+        - -a
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 进程
+      - ps
+      - 全部
+      - all
+      - 查看
+      - show
+      - container
+  - id: docker-images
+    name: 查看本地镜像
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - images
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 镜像
+      - images
+      - 查看
+      - show
+      - image
+  - id: docker-run
+    name: 运行容器
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - run
+        - -d
+        - --name
+        - "{{name}}"
+        - -p
+        - "{{ports}}"
+        - "{{image}}"
+    adminRequired: false
+    args:
+      - key: image
+        label: image
+        type: text
+        required: true
+      - key: name
+        label: name
+        type: text
+        required: true
+      - key: ports
+        label: ports
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 运行
+      - run
+      - container
+  - id: docker-stop
+    name: 停止容器
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - stop
+        - "{{container}}"
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 停止
+      - stop
+      - container
+      - 容器管理
+  - id: docker-start
+    name: 启动已停止容器
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - start
+        - "{{container}}"
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 启动
+      - start
+      - 停止
+      - stop
+      - container
+      - 容器管理
+  - id: docker-restart
+    name: 重启容器
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - restart
+        - "{{container}}"
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 重启
+      - restart
+      - container
+      - 容器管理
+  - id: docker-rm
+    name: 删除容器
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - rm
+        - "{{container}}"
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 删除
+      - rm
+      - remove
+      - container
+  - id: docker-rmi
+    name: 删除镜像
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - rmi
+        - "{{image}}"
+    adminRequired: false
+    args:
+      - key: image
+        label: image
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 删除镜像
+      - rmi
+      - 删除
+      - remove
+      - 镜像
+      - image
+  - id: docker-logs
+    name: 查看容器日志
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - logs
+        - --tail
+        - "{{lines}}"
+        - "{{container}}"
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+      - key: lines
+        label: lines
+        type: number
+        required: true
+        default: "100"
+        validation:
+          min: 1
+          max: 10000
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 日志
+      - logs
+      - 查看
+      - show
+      - log
+      - container
+  - id: docker-logs-follow
+    name: 实时查看容器日志
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - logs
+        - -f
+        - "{{container}}"
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 日志
+      - logs
+      - 实时
+      - follow
+      - 查看
+      - show
+      - log
+      - container
+  - id: docker-exec
+    name: 进入容器 Shell
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - exec
+        - -it
+        - "{{container}}"
+        - "{{shell}}"
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+      - key: shell
+        label: shell
+        type: select
+        required: true
+        validation:
+          options:
+            - /bin/sh
+            - /bin/bash
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 执行
+      - exec
+      - container
+  - id: docker-inspect
+    name: 查看容器详情
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - inspect
+        - "{{container}}"
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 详情
+      - inspect
+      - 查看
+      - show
+      - container
+  - id: docker-stats
+    name: 容器资源使用
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - stats
+        - --no-stream
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 资源
+      - stats
+      - container
+  - id: docker-pull
+    name: 拉取镜像
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - pull
+        - "{{image}}"
+    adminRequired: false
+    args:
+      - key: image
+        label: image
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 拉取
+      - pull
+      - 镜像
+      - image
+  - id: docker-build
+    name: 构建镜像
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - build
+        - -t
+        - "{{tag}}"
+        - "{{path}}"
+    adminRequired: false
+    args:
+      - key: tag
+        label: tag
+        type: text
+        required: true
+      - key: path
+        label: path
+        type: path
+        required: true
+        default: .
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 构建
+      - build
+      - 镜像
+      - image
+  - id: docker-compose-up
+    name: 启动 Compose 服务
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - up
+        - -d
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - compose
+      - 启动
+      - up
+      - start
+  - id: docker-compose-down
+    name: 停止 Compose 服务
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - down
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - compose
+      - 停止
+      - down
+      - stop
+  - id: docker-compose-logs
+    name: Compose 日志
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - logs
+        - -f
+        - "{{service}}"
+    adminRequired: false
+    args:
+      - key: service
+        label: service
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - compose
+      - 日志
+      - logs
+      - log
+  - id: docker-compose-ps
+    name: Compose 服务状态
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - ps
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - compose
+      - ps
+      - 状态
+      - status
+      - 查看
+      - show
+  - id: docker-compose-config
+    name: Compose 配置预览
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - config
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - compose
+      - config
+      - 配置
+      - 预览
+      - 查看
+      - show
+  - id: docker-compose-pull
+    name: Compose 拉取镜像
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - pull
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - compose
+      - pull
+      - 拉取
+      - 镜像
+      - image
+  - id: docker-system-df
+    name: Docker 磁盘占用概览
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - system
+        - df
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - system
+      - df
+      - 磁盘
+      - disk
+      - 占用
+      - usage
+      - 查看
+      - show
+  - id: docker-prune
+    name: 清理未使用资源
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - system
+        - prune
+        - -f
+    adminRequired: false
+    dangerous: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 清理
+      - prune
+  - id: docker-network-ls
+    name: 查看网络列表
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - network
+        - ls
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 网络
+      - network
+      - ls
+      - 查看
+      - show
+  - id: docker-volume-ls
+    name: 查看数据卷
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - volume
+        - ls
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 数据卷
+      - volume
+      - ls
+      - 查看
+      - show
+  - id: docker-cp
+    name: 复制文件到容器
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - cp
+        - "{{src}}"
+        - "{{container}}:{{dest}}"
+    adminRequired: false
+    args:
+      - key: src
+        label: src
+        type: path
+        required: true
+      - key: container
+        label: container
+        type: text
+        required: true
+      - key: dest
+        label: dest
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - 容器
+      - 复制
+      - copy
+      - container
+      - 文件
+      - file
+  - id: docker-export
+    name: 导出容器
+    category: docker
+    platform: all
+    script:
+      runner: bash
+      command: docker export {{container}} > {{file}}
+    adminRequired: false
+    args:
+      - key: container
+        label: container
+        type: text
+        required: true
+      - key: file
+        label: file
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - docker
+      - 容器
+      - 导出
+      - export
+      - container
+  - id: docker-info
+    name: Docker 环境信息
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - info
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - info
+      - environment
+      - observability
+      - 信息
+      - 查看
+      - show
+  - id: docker-image-inspect
+    name: 查看镜像详情
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - image
+        - inspect
+        - "{{image}}"
+    adminRequired: false
+    args:
+      - key: image
+        label: image
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - image
+      - inspect
+      - 镜像
+      - 详情
+      - 查看
+      - show
+  - id: docker-volume-inspect
+    name: 查看数据卷详情
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - volume
+        - inspect
+        - "{{volume}}"
+    adminRequired: false
+    args:
+      - key: volume
+        label: volume
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - volume
+      - inspect
+      - 数据卷
+      - 详情
+      - 查看
+      - show
+  - id: docker-network-inspect
+    name: 查看网络详情
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - network
+        - inspect
+        - "{{network}}"
+    adminRequired: false
+    args:
+      - key: network
+        label: network
+        type: text
+        required: true
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - network
+      - inspect
+      - 网络
+      - 详情
+      - 查看
+      - show
+  - id: docker-compose-images
+    name: Compose 镜像列表
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - images
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - compose
+      - images
+      - 镜像
+      - 列表
+      - 查看
+      - show
+  - id: docker-compose-top
+    name: Compose 进程列表
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - top
+    adminRequired: false
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - compose
+      - top
+      - 进程
+      - 列表
+      - 查看
+      - show
+  - id: docker-compose-exec-sh
+    name: Compose 进入服务 Shell
+    category: docker
+    platform: all
+    exec:
+      program: docker
+      args:
+        - compose
+        - exec
+        - "{{service}}"
+        - "{{shell}}"
+    adminRequired: false
+    args:
+      - key: service
+        label: service
+        type: text
+        required: true
+      - key: shell
+        label: shell
+        type: select
+        required: true
+        validation:
+          options:
+            - /bin/sh
+            - /bin/bash
+    prerequisites:
+      - id: docker
+        type: binary
+        required: true
+        check: binary:docker
+    tags:
+      - docker
+      - compose
+      - exec
+      - shell
+      - 服务
+      - 进入

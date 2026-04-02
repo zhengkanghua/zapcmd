@@ -14,7 +14,7 @@
 
 1. 导入前校验：不符合 schema 的命令文件直接拒绝。
 2. 启动加载校验：发现结构损坏的文件时给出错误并跳过。
-3. 作为 `docs/command_sources/*.md` 生成产物的最终落地格式依据（唯一 JSON 结构）。
+3. 作为 `commands/catalog/_*.yaml` 生成产物的最终落地格式依据（唯一 JSON 结构）。
 
 ## category contract
 
@@ -23,19 +23,23 @@
 - 合法示例：`custom`、`redis`、`mysql-tools`
 - 非法示例：`Redis`、`mysql tools`、`postgres_tools`
 - builtin 与用户命令共用同一规则。
-- builtin 默认会把源文件 slug（`_*.md` 去掉前缀 `_`）写入 `category`。
-- 若 Markdown 头部声明 `> 运行时分类：...`，生成器会优先写入该值；例如 `_pnpm.md` 仍可生成 `category=package`。
+- builtin 默认会把源文件 slug（`_*.yaml` 去掉前缀 `_`）写入 `category`。
+- 若 YAML `meta.runtimeCategory` 存在，生成器会优先写入该值；例如 `_pnpm.yaml` 仍可生成 `category=package`。
 
 ## 与命令源的关系
 
-- `docs/command_sources/*.md` 是命令内容清单（人维护源）。
+- `commands/catalog/_*.yaml` 是 builtin 命令内容清单（人维护源）。
 - `command-file.schema.json` 是最终结构规则。
 - 生成时按规则转换后，产出的每条命令对象必须满足 schema。
-- 自动合并与生成由 `scripts/commands/generate-builtin-commands.mjs` 完成（见 `docs/command_sources/README.md`）。
+- 自动合并与生成由 `scripts/commands/generate-builtin-commands.mjs` 完成（见 `commands/catalog/README.md`）。
 
-## shell 与 prerequisite contract
+## exec / script 与 prerequisite contract
 
-- 命令对象不再允许顶层 `shell` 字段。
+- 命令对象不再允许 `template` 或顶层 `shell` 字段。
+- 命令必须二选一声明：
+  - `exec.program + exec.args[]`
+  - `script.runner + script.command`
+- `exec.stdinArgKey` 只能引用已定义参数；最终 `stdin` 在执行时由运行时展开。
 - 若命令明确依赖某个 shell，应通过 `prerequisites` 声明，例如 `shell:powershell`。
 - prerequisite 类型当前只保留三种：`binary`、`shell`、`env`。
 
@@ -43,20 +47,16 @@
 
 1. `docs/schemas/command-file.schema.json` 是唯一结构真源。
 2. 运行时消费 committed 的 standalone validator：`src/features/commands/generated/commandSchemaValidator.ts`。
-3. 结构校验之外的跨字段规则仍由手写层承担，例如 `min <= max`、number `default` 范围、template token 对齐。
+3. 结构校验之外的跨字段规则仍由手写层承担，例如 `min <= max`、number `default` 范围、`stdinArgKey` 对齐、`script.runner` 与 shell prerequisite 对齐。
 4. 可用命令：
    - `npm run commands:schema:generate`
    - `npm run commands:schema:check`
 
-## builtin Markdown DSL 边界
+## builtin YAML 边界
 
-本轮只为 `docs/command_sources/_*.md` 增加 `number` 参数的 `min/max` 写法，例如：
-
-```md
-port(number, default:8000, min:1, max:65535)
-```
-
-`pattern`、`errorMessage` 等更复杂规则暂不进入 Markdown DSL，继续保留给 schema / 用户 JSON 文件入口。
+- builtin 真源使用 `commands/catalog/_*.yaml`。
+- YAML 负责 authoring 体验；最终 runtime 契约仍以 `docs/schemas/command-file.schema.json` 为准。
+- `pattern`、`errorMessage` 等更复杂规则继续保留给 schema / 用户 JSON 文件入口。
 
 ## 首次启动写入建议
 

@@ -17,7 +17,10 @@
       "tags": ["port", "端口", "query"],
       "category": "network",
       "platform": "win",
-      "template": "netstat -ano | findstr :{{port}}",
+      "script": {
+        "runner": "powershell",
+        "command": "netstat -ano | findstr :{{port}}"
+      },
       "adminRequired": false,
       "args": [
         {
@@ -28,6 +31,14 @@
           },
           "type": "number",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
         }
       ]
     },
@@ -40,7 +51,10 @@
       "tags": ["port", "端口", "query"],
       "category": "network",
       "platform": "mac",
-      "template": "lsof -i :{{port}}",
+      "exec": {
+        "program": "lsof",
+        "args": ["-i", ":{{port}}"]
+      },
       "adminRequired": false,
       "args": [
         {

@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "证书与 OpenSSL",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_cert.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -23,9 +20,17 @@
       ],
       "category": "cert",
       "platform": "all",
-      "template": "openssl x509 -in \"{{file}}\" -text -noout",
+      "exec": {
+        "program": "openssl",
+        "args": [
+          "x509",
+          "-in",
+          "\"{{file}}\"",
+          "-text",
+          "-noout"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -58,9 +63,17 @@
       ],
       "category": "cert",
       "platform": "all",
-      "template": "openssl x509 -in \"{{file}}\" -dates -noout",
+      "exec": {
+        "program": "openssl",
+        "args": [
+          "x509",
+          "-in",
+          "\"{{file}}\"",
+          "-dates",
+          "-noout"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -93,9 +106,18 @@
       ],
       "category": "cert",
       "platform": "all",
-      "template": "openssl x509 -in \"{{file}}\" -fingerprint -sha256 -noout",
+      "exec": {
+        "program": "openssl",
+        "args": [
+          "x509",
+          "-in",
+          "\"{{file}}\"",
+          "-fingerprint",
+          "-sha256",
+          "-noout"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -128,9 +150,17 @@
       ],
       "category": "cert",
       "platform": "all",
-      "template": "openssl s_client -connect {{host}}:{{port}} -servername {{host}}",
+      "exec": {
+        "program": "openssl",
+        "args": [
+          "s_client",
+          "-connect",
+          "{{host}}:{{port}}",
+          "-servername",
+          "{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -175,9 +205,17 @@
       ],
       "category": "cert",
       "platform": "all",
-      "template": "openssl pkey -in \"{{file}}\" -text -noout",
+      "exec": {
+        "program": "openssl",
+        "args": [
+          "pkey",
+          "-in",
+          "\"{{file}}\"",
+          "-text",
+          "-noout"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",

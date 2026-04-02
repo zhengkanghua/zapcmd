@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Kubernetes",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_kubernetes.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -18,9 +15,14 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl config current-context",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "config",
+          "current-context"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "kubectl",
@@ -41,9 +43,14 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl config get-contexts",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "config",
+          "get-contexts"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "kubectl",
@@ -64,9 +71,14 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get namespaces",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "namespaces"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "kubectl",
@@ -87,9 +99,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get pods -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "pods",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -119,9 +138,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get services -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "services",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -153,9 +179,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get deployments -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "deployments",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -186,9 +219,14 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get nodes",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "nodes"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "kubectl",
@@ -211,9 +249,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get ingress -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "ingress",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -246,9 +291,17 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl describe deployment {{deployment}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "describe",
+          "deployment",
+          "{{deployment}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "deployment",
@@ -285,9 +338,17 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl describe pod {{pod}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "describe",
+          "pod",
+          "{{pod}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pod",
@@ -325,9 +386,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get configmaps -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "configmaps",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -358,9 +426,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl logs {{pod}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "logs",
+          "{{pod}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pod",
@@ -398,9 +473,17 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl logs -f {{pod}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "logs",
+          "-f",
+          "{{pod}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pod",
@@ -438,9 +521,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get events -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "events",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -472,9 +562,19 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl exec -it {{pod}} -n {{namespace}} -- sh",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "exec",
+          "-it",
+          "{{pod}}",
+          "-n",
+          "{{namespace}}",
+          "--",
+          "sh"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pod",
@@ -511,9 +611,17 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl port-forward {{resource}} {{localPort}}:{{remotePort}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "port-forward",
+          "{{resource}}",
+          "{{localPort}}:{{remotePort}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "resource",
@@ -575,7 +683,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl rollout restart {{resource}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "rollout",
+          "restart",
+          "{{resource}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -616,9 +733,17 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl rollout status {{resource}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "rollout",
+          "status",
+          "{{resource}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "resource",
@@ -657,7 +782,14 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl apply -f \"{{file}}\"",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "apply",
+          "-f",
+          "\"{{file}}\""
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -690,7 +822,14 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl delete -f \"{{file}}\"",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "delete",
+          "-f",
+          "\"{{file}}\""
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -723,7 +862,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl delete pod {{pod}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "delete",
+          "pod",
+          "{{pod}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -764,9 +912,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get all -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "all",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -801,9 +956,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl top pods -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "top",
+          "pods",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -837,9 +999,14 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl top nodes",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "top",
+          "nodes"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "kubectl",
@@ -863,9 +1030,17 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl describe service {{service}} -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "describe",
+          "service",
+          "{{service}}",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "service",
@@ -903,9 +1078,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get pvc -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "pvc",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -937,9 +1119,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get statefulsets -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "statefulsets",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -971,9 +1160,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get jobs -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "jobs",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",
@@ -1005,9 +1201,16 @@
       ],
       "category": "kubernetes",
       "platform": "all",
-      "template": "kubectl get cronjobs -n {{namespace}}",
+      "exec": {
+        "program": "kubectl",
+        "args": [
+          "get",
+          "cronjobs",
+          "-n",
+          "{{namespace}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "namespace",

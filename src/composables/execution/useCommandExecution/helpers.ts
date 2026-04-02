@@ -6,13 +6,17 @@ import type {
 } from "../../../features/commands/prerequisiteTypes";
 import { createProbeFailureResults } from "../../../features/commands/prerequisiteProbeFailure";
 import { t } from "../../../i18n";
-import { CommandExecutionError } from "../../../services/commandExecutor";
+import {
+  CommandExecutionError,
+  type StructuredTerminalExecutionStep
+} from "../../../services/commandExecutor";
 import {
   buildInitialArgValues,
   getCommandArgs,
-  renderCommand
+  resolveCommandExecution
 } from "../../../features/launcher/commandRuntime";
 import { findFirstCommandArgValidationError } from "../../../features/security/commandArgValidation";
+import { collectTrustedArgKeysFromExecution } from "../../../features/security/commandSafety";
 import type { StagedCommand } from "../../../features/launcher/types";
 import type { CommandExecutionState, UseCommandExecutionOptions } from "./model";
 
@@ -235,7 +239,9 @@ export function getPendingSubmitRejection(
   pendingArgValues: Record<string, string>
 ): PendingSubmitRejection | null {
   const args = getCommandArgs(command);
-  const firstError = findFirstCommandArgValidationError(args, pendingArgValues);
+  const firstError = findFirstCommandArgValidationError(args, pendingArgValues, {
+    trustedArgKeys: collectTrustedArgKeysFromExecution(command.execution, args)
+  });
   if (!firstError) {
     return null;
   }
@@ -256,11 +262,14 @@ function buildStagedCommand(
   argValues?: Record<string, string>
 ): StagedCommand {
   const { args, values } = buildInitialArgValues(command, argValues);
+  const resolved = resolveCommandExecution(command, values);
   return {
     id: `${command.id}-${Date.now()}`,
     title: command.title,
     rawPreview: command.preview,
-    renderedCommand: renderCommand(command, values),
+    renderedPreview: resolved.renderedPreview,
+    executionTemplate: command.execution!,
+    execution: resolved.execution,
     args,
     argValues: values,
     prerequisites: command.prerequisites,
@@ -280,18 +289,22 @@ export async function executeSingleCommand(
     return;
   }
   state.executing.value = true;
-  const rendered = renderCommand(command, argValues);
+  const resolved = resolveCommandExecution(command, argValues);
+  const step: StructuredTerminalExecutionStep = {
+    summary: resolved.renderedPreview,
+    execution: resolved.execution
+  };
 
   try {
     state.setExecutionFeedback("success", t("launcher.executionStarted"));
-    await options.runCommandInTerminal(rendered, {
+    await options.runCommandInTerminal(step, {
       requiresElevation: command.adminRequired === true
     });
     state.setExecutionFeedback(
       "success",
       appendPreflightWarnings(
         t("execution.sentToTerminal", {
-          command: summarizeCommandForFeedback(rendered)
+          command: summarizeCommandForFeedback(resolved.renderedPreview)
         }),
         preflightWarnings
       )
@@ -322,15 +335,16 @@ export function appendToStaging(
   }
 }
 
-export function updateStagedRenderedCommand(
+export function updateStagedResolvedCommand(
   cmd: StagedCommand,
   nextValues: Record<string, string>
-): string {
+): Pick<StagedCommand, "renderedPreview" | "execution"> {
   const command: CommandTemplate = {
     id: cmd.id,
     title: cmd.title,
     description: "",
     preview: cmd.rawPreview,
+    execution: cmd.executionTemplate,
     folder: "",
     category: "",
     needsArgs: cmd.args.length > 0,
@@ -339,5 +353,9 @@ export function updateStagedRenderedCommand(
     adminRequired: cmd.adminRequired ?? false,
     dangerous: cmd.dangerous ?? false
   };
-  return renderCommand(command, nextValues);
+  const resolved = resolveCommandExecution(command, nextValues);
+  return {
+    renderedPreview: resolved.renderedPreview,
+    execution: resolved.execution
+  };
 }

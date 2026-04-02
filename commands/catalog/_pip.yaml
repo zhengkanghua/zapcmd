@@ -1,0 +1,104 @@
+meta:
+  name: Pip
+  moduleSlug: pip
+commands:
+  - id: pip-install
+    name: Pip 安装包
+    category: package
+    platform: all
+    exec:
+      program: pip
+      args:
+        - install
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: pip
+        type: binary
+        required: true
+        check: binary:pip
+    tags:
+      - 包管理
+      - package
+      - pip
+      - install
+      - 安装
+  - id: pip-uninstall
+    name: Pip 卸载包
+    category: package
+    platform: all
+    exec:
+      program: pip
+      args:
+        - uninstall
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: pip
+        type: binary
+        required: true
+        check: binary:pip
+    tags:
+      - 包管理
+      - package
+      - pip
+      - 卸载
+      - uninstall
+  - id: pip-list
+    name: Pip 查看已安装
+    category: package
+    platform: all
+    exec:
+      program: pip
+      args:
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: pip
+        type: binary
+        required: true
+        check: binary:pip
+    tags:
+      - 包管理
+      - package
+      - pip
+      - 列表
+      - list
+      - 查看
+      - show
+      - 安装
+      - install
+  - id: pip-freeze
+    name: Pip 导出依赖
+    category: package
+    platform: all
+    script:
+      runner: bash
+      command: pip freeze > requirements.txt
+    adminRequired: false
+    prerequisites:
+      - id: pip
+        type: binary
+        required: true
+        check: binary:pip
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 包管理
+      - package
+      - pip
+      - freeze
+      - 依赖
+      - dependency

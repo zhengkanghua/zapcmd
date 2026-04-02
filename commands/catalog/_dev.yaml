@@ -1,0 +1,738 @@
+meta:
+  name: 开发工具
+  moduleSlug: dev
+commands:
+  - id: json-format
+    name: 格式化 JSON
+    category: dev
+    platform: all
+    script:
+      runner: bash
+      command: echo '{{json}}' | python3 -m json.tool
+    adminRequired: false
+    args:
+      - key: json
+        label: json
+        type: text
+        required: true
+    prerequisites:
+      - id: python3
+        type: binary
+        required: true
+        check: binary:python3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - json
+      - 格式化
+      - format
+  - id: base64-encode
+    name: Base64 编码
+    category: dev
+    platform: mac/linux
+    script:
+      runner: bash
+      command: echo -n "{{text}}" | base64
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - base64
+      - 编码
+      - encode
+  - id: base64-decode
+    name: Base64 解码
+    category: dev
+    platform: mac/linux
+    script:
+      runner: bash
+      command: echo "{{text}}" | base64 --decode
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - base64
+      - 解码
+      - decode
+  - id: md5-hash
+    name: 计算 MD5 哈希
+    category: dev
+    platform: mac
+    exec:
+      program: md5
+      args:
+        - -s
+        - '"{{text}}"'
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    tags:
+      - 开发
+      - dev
+      - md5
+      - hash
+      - 哈希
+  - id: md5-hash-linux
+    name: 计算 MD5 哈希
+    category: dev
+    platform: linux
+    script:
+      runner: bash
+      command: echo -n "{{text}}" | md5sum
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - md5
+      - hash
+      - 哈希
+  - id: sha256-hash-mac
+    name: 计算 SHA256 哈希
+    category: dev
+    platform: mac
+    script:
+      runner: bash
+      command: echo -n "{{text}}" | shasum -a 256
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - sha256
+      - hash
+      - 哈希
+  - id: sha256-hash-linux
+    name: 计算 SHA256 哈希
+    category: dev
+    platform: linux
+    script:
+      runner: bash
+      command: echo -n "{{text}}" | sha256sum
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - sha256
+      - hash
+      - 哈希
+  - id: timestamp-now
+    name: 当前 Unix 时间戳
+    category: dev
+    platform: mac/linux
+    exec:
+      program: date
+      args:
+        - +%s
+    adminRequired: false
+    tags:
+      - 开发
+      - dev
+      - 时间戳
+      - timestamp
+      - now
+  - id: timestamp-now-win
+    name: 当前 Unix 时间戳
+    category: dev
+    platform: win
+    script:
+      runner: powershell
+      command: "[DateTimeOffset]::Now.ToUnixTimeSeconds()"
+    adminRequired: false
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 开发
+      - dev
+      - 时间戳
+      - timestamp
+      - now
+  - id: timestamp-convert
+    name: 时间戳转日期
+    category: dev
+    platform: mac
+    exec:
+      program: date
+      args:
+        - -r
+        - "{{timestamp}}"
+    adminRequired: false
+    args:
+      - key: timestamp
+        label: timestamp
+        type: number
+        required: true
+    tags:
+      - 开发
+      - dev
+      - 时间戳
+      - timestamp
+      - 转换
+      - convert
+  - id: timestamp-convert-linux
+    name: 时间戳转日期
+    category: dev
+    platform: linux
+    exec:
+      program: date
+      args:
+        - -d
+        - "@{{timestamp}}"
+    adminRequired: false
+    args:
+      - key: timestamp
+        label: timestamp
+        type: number
+        required: true
+    tags:
+      - 开发
+      - dev
+      - 时间戳
+      - timestamp
+      - 转换
+      - convert
+  - id: uuid-gen
+    name: 生成 UUID
+    category: dev
+    platform: mac/linux
+    exec:
+      program: uuidgen
+      args: []
+    adminRequired: false
+    tags:
+      - 开发
+      - dev
+      - uuid
+      - gen
+  - id: random-string
+    name: 生成随机字符串
+    category: dev
+    platform: mac/linux
+    exec:
+      program: openssl
+      args:
+        - rand
+        - -hex
+        - "{{length}}"
+    adminRequired: false
+    args:
+      - key: length
+        label: length
+        type: number
+        required: true
+        default: "16"
+        validation:
+          min: 1
+          max: 1024
+    prerequisites:
+      - id: openssl
+        type: binary
+        required: true
+        check: binary:openssl
+    tags:
+      - 开发
+      - dev
+      - 随机
+      - random
+      - 字符串
+      - string
+  - id: http-server
+    name: 快速启动 HTTP 服务
+    category: dev
+    platform: all
+    exec:
+      program: python3
+      args:
+        - -m
+        - http.server
+        - "{{port}}"
+    adminRequired: false
+    args:
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "8000"
+        validation:
+          min: 1
+          max: 65535
+    prerequisites:
+      - id: python3
+        type: binary
+        required: true
+        check: binary:python3
+    tags:
+      - 开发
+      - dev
+      - http
+      - 服务
+      - server
+      - 启动
+      - start
+  - id: regex-test-mac
+    name: 正则表达式测试
+    category: dev
+    platform: mac
+    script:
+      runner: bash
+      command: echo "{{text}}" | grep -oE "{{pattern}}"
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+      - key: pattern
+        label: pattern
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - 正则
+      - regex
+      - test
+      - 测试
+  - id: regex-test-linux
+    name: 正则表达式测试
+    category: dev
+    platform: linux
+    script:
+      runner: bash
+      command: echo "{{text}}" | grep -oP "{{pattern}}"
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+      - key: pattern
+        label: pattern
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - 正则
+      - regex
+      - test
+      - 测试
+  - id: url-encode
+    name: URL 编码
+    category: dev
+    platform: all
+    script:
+      runner: bash
+      command: python3 -c "import urllib.parse; print(urllib.parse.quote('{{text}}'))"
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: python3
+        type: binary
+        required: true
+        check: binary:python3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - url
+      - 编码
+      - encode
+  - id: url-decode
+    name: URL 解码
+    category: dev
+    platform: all
+    script:
+      runner: bash
+      command: python3 -c "import urllib.parse; print(urllib.parse.unquote('{{text}}'))"
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: python3
+        type: binary
+        required: true
+        check: binary:python3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - url
+      - 解码
+      - decode
+  - id: jq-format-json
+    name: 使用 jq 格式化 JSON 文件
+    category: dev
+    platform: all
+    exec:
+      program: jq
+      args:
+        - .
+        - "{{file}}"
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: jq
+        type: binary
+        required: true
+        check: binary:jq
+    tags:
+      - 开发
+      - dev
+      - jq
+      - json
+      - 格式化
+      - format
+      - 文件
+      - file
+  - id: jwt-decode
+    name: 解码 JWT
+    category: dev
+    platform: all
+    script:
+      runner: bash
+      command: "python3 -c \"import base64, json, sys; parts=sys.argv[1].split('.');
+        dec=lambda s: json.loads(base64.urlsafe_b64decode(s + '=' * (-len(s) %
+        4)).decode()); print(json.dumps({'header': dec(parts[0]), 'payload':
+        dec(parts[1])}, ensure_ascii=False, indent=2))\" \"{{token}}\""
+    adminRequired: false
+    args:
+      - key: token
+        label: token
+        type: text
+        required: true
+    prerequisites:
+      - id: python3
+        type: binary
+        required: true
+        check: binary:python3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - jwt
+      - decode
+      - 解码
+      - token
+  - id: epoch-ms-now
+    name: 当前 Unix 毫秒时间戳
+    category: dev
+    platform: mac/linux
+    script:
+      runner: bash
+      command: python3 -c "import time; print(int(time.time() * 1000))"
+    adminRequired: false
+    prerequisites:
+      - id: python3
+        type: binary
+        required: true
+        check: binary:python3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - epoch
+      - 毫秒
+      - milliseconds
+      - timestamp
+      - now
+  - id: epoch-ms-now-win
+    name: 当前 Unix 毫秒时间戳
+    category: dev
+    platform: win
+    script:
+      runner: powershell
+      command: "[DateTimeOffset]::Now.ToUnixTimeMilliseconds()"
+    adminRequired: false
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 开发
+      - dev
+      - epoch
+      - 毫秒
+      - milliseconds
+      - timestamp
+      - now
+  - id: epoch-ms-convert
+    name: 毫秒时间戳转日期
+    category: dev
+    platform: mac/linux
+    script:
+      runner: bash
+      command: python3 -c "import datetime;
+        print(datetime.datetime.fromtimestamp({{timestamp}} / 1000,
+        datetime.timezone.utc).astimezone().isoformat())"
+    adminRequired: false
+    args:
+      - key: timestamp
+        label: timestamp
+        type: number
+        required: true
+        validation:
+          min: 0
+    prerequisites:
+      - id: python3
+        type: binary
+        required: true
+        check: binary:python3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 开发
+      - dev
+      - epoch
+      - 毫秒
+      - milliseconds
+      - timestamp
+      - convert
+      - 转换
+      - 日期
+  - id: epoch-ms-convert-win
+    name: 毫秒时间戳转日期
+    category: dev
+    platform: win
+    script:
+      runner: powershell
+      command: '[DateTimeOffset]::FromUnixTimeMilliseconds({{timestamp}}).ToString("o")'
+    adminRequired: false
+    args:
+      - key: timestamp
+        label: timestamp
+        type: number
+        required: true
+        validation:
+          min: 0
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 开发
+      - dev
+      - epoch
+      - 毫秒
+      - milliseconds
+      - timestamp
+      - convert
+      - 转换
+      - 日期
+  - id: uuid-gen-win
+    name: 生成 UUID
+    category: dev
+    platform: win
+    script:
+      runner: powershell
+      command: "[guid]::NewGuid().ToString()"
+    adminRequired: false
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 开发
+      - dev
+      - uuid
+      - gen
+  - id: base64-encode-win
+    name: Base64 编码
+    category: dev
+    platform: win
+    script:
+      runner: powershell
+      command: '[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("{{text}}"))'
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 开发
+      - dev
+      - base64
+      - 编码
+      - encode
+  - id: base64-decode-win
+    name: Base64 解码
+    category: dev
+    platform: win
+    script:
+      runner: powershell
+      command: '[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("{{text}}"))'
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 开发
+      - dev
+      - base64
+      - 解码
+      - decode
+  - id: sha256-hash-win
+    name: 计算 SHA256 哈希
+    category: dev
+    platform: win
+    script:
+      runner: powershell
+      command: ([System.BitConverter]::ToString((New-Object
+        System.Security.Cryptography.SHA256Managed).ComputeHash([Text.Encoding]::UTF8.GetBytes("{{text}}")))).Replace("-",
+        "").ToLower()
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 开发
+      - dev
+      - sha256
+      - hash
+      - 哈希
+  - id: regex-test-win
+    name: 正则表达式测试
+    category: dev
+    platform: win
+    script:
+      runner: powershell
+      command: '[regex]::Matches("{{text}}", "{{pattern}}") | ForEach-Object {
+        $_.Value }'
+    adminRequired: false
+    args:
+      - key: text
+        label: text
+        type: text
+        required: true
+      - key: pattern
+        label: pattern
+        type: text
+        required: true
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 开发
+      - dev
+      - 正则
+      - regex
+      - test
+      - 测试

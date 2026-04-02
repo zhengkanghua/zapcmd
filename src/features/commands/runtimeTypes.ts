@@ -11,6 +11,7 @@ export type RuntimeCategory = string;
 export type RuntimePlatform = "all" | "win" | "mac" | "linux";
 export type RuntimeArgType = "text" | "number" | "path" | "select";
 export type RuntimePrerequisiteType = CommandPrerequisiteType;
+export type RuntimeScriptRunner = "powershell" | "pwsh" | "cmd" | "bash" | "sh";
 
 export interface RuntimeCommandArgValidation {
   pattern?: string;
@@ -34,19 +35,39 @@ export interface RuntimeCommandPrerequisite extends Omit<CommandPrerequisite, "i
   installHint?: RuntimeLocalizedTextOrString;
 }
 
-export interface RuntimeCommand {
+export interface RuntimeExecCommand {
+  program: string;
+  args: string[];
+  stdinArgKey?: string;
+}
+
+export interface RuntimeScriptCommand {
+  runner: RuntimeScriptRunner;
+  command: string;
+}
+
+interface RuntimeCommandBase {
   id: string;
   name: RuntimeLocalizedTextOrString;
   description?: RuntimeLocalizedTextOrString;
   tags: string[];
   category: RuntimeCategory;
   platform: RuntimePlatform;
-  template: string;
   adminRequired: boolean;
   dangerous?: boolean;
   args?: RuntimeCommandArg[];
   prerequisites?: RuntimeCommandPrerequisite[];
 }
+
+export type RuntimeCommand =
+  | (RuntimeCommandBase & {
+      exec: RuntimeExecCommand;
+      script?: never;
+    })
+  | (RuntimeCommandBase & {
+      script: RuntimeScriptCommand;
+      exec?: never;
+    });
 
 export interface RuntimeCommandFileMeta {
   name?: RuntimeLocalizedTextOrString;

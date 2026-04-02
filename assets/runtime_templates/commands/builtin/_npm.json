@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "NPM",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_npm.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -21,9 +18,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm install {{package}}",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "install",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -56,9 +58,15 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm install -D {{package}}",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "install",
+          "-D",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -90,9 +98,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm uninstall {{package}}",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "uninstall",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -122,9 +135,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm run {{script}}",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "run",
+          "{{script}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "script",
@@ -158,9 +176,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm list --depth=0",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "list",
+          "--depth=0"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "npm",
@@ -184,9 +207,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm outdated",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "outdated"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "npm",
@@ -210,9 +237,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm update",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "update"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "npm",
@@ -236,9 +267,15 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm cache clean --force",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "cache",
+          "clean",
+          "--force"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "npm",
@@ -263,9 +300,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm install",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "install"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "npm",
@@ -290,9 +331,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npm ci",
+      "exec": {
+        "program": "npm",
+        "args": [
+          "ci"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "npm",
@@ -316,9 +361,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "npx {{package}}",
+      "exec": {
+        "program": "npx",
+        "args": [
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",

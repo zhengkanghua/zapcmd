@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "开发工具",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_dev.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -19,9 +16,11 @@
       ],
       "category": "dev",
       "platform": "all",
-      "template": "echo '{{json}}' | python3 -m json.tool",
+      "script": {
+        "runner": "bash",
+        "command": "echo '{{json}}' | python3 -m json.tool"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "json",
@@ -36,6 +35,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:python3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -51,15 +56,25 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "echo -n \"{{text}}\" | base64",
+      "script": {
+        "runner": "bash",
+        "command": "echo -n \"{{text}}\" | base64"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
           "label": "text",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -75,15 +90,25 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "echo -n \"{{text}}\" | base64",
+      "script": {
+        "runner": "bash",
+        "command": "echo -n \"{{text}}\" | base64"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
           "label": "text",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -99,15 +124,25 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "echo \"{{text}}\" | base64 --decode",
+      "script": {
+        "runner": "bash",
+        "command": "echo \"{{text}}\" | base64 --decode"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
           "label": "text",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -123,15 +158,25 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "echo \"{{text}}\" | base64 --decode",
+      "script": {
+        "runner": "bash",
+        "command": "echo \"{{text}}\" | base64 --decode"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
           "label": "text",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -147,9 +192,14 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "md5 -s \"{{text}}\"",
+      "exec": {
+        "program": "md5",
+        "args": [
+          "-s",
+          "\"{{text}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
@@ -171,15 +221,25 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "echo -n \"{{text}}\" | md5sum",
+      "script": {
+        "runner": "bash",
+        "command": "echo -n \"{{text}}\" | md5sum"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
           "label": "text",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -195,15 +255,25 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "echo -n \"{{text}}\" | shasum -a 256",
+      "script": {
+        "runner": "bash",
+        "command": "echo -n \"{{text}}\" | shasum -a 256"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
           "label": "text",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -219,15 +289,25 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "echo -n \"{{text}}\" | sha256sum",
+      "script": {
+        "runner": "bash",
+        "command": "echo -n \"{{text}}\" | sha256sum"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
           "label": "text",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -243,9 +323,13 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "date +%s",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "date",
+        "args": [
+          "+%s"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "timestamp-now-linux",
@@ -259,9 +343,13 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "date +%s",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "date",
+        "args": [
+          "+%s"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "timestamp-now-win",
@@ -275,9 +363,11 @@
       ],
       "category": "dev",
       "platform": "win",
-      "template": "[DateTimeOffset]::Now.ToUnixTimeSeconds()",
+      "script": {
+        "runner": "powershell",
+        "command": "[DateTimeOffset]::Now.ToUnixTimeSeconds()"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "powershell",
@@ -300,9 +390,14 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "date -r {{timestamp}}",
+      "exec": {
+        "program": "date",
+        "args": [
+          "-r",
+          "{{timestamp}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "timestamp",
@@ -325,9 +420,14 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "date -d @{{timestamp}}",
+      "exec": {
+        "program": "date",
+        "args": [
+          "-d",
+          "@{{timestamp}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "timestamp",
@@ -348,9 +448,11 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "uuidgen",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "uuidgen",
+        "args": []
+      },
+      "adminRequired": false
     },
     {
       "id": "uuid-gen-linux",
@@ -363,9 +465,11 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "uuidgen",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "uuidgen",
+        "args": []
+      },
+      "adminRequired": false
     },
     {
       "id": "random-string-mac",
@@ -380,9 +484,15 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "openssl rand -hex {{length}}",
+      "exec": {
+        "program": "openssl",
+        "args": [
+          "rand",
+          "-hex",
+          "{{length}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "length",
@@ -418,9 +528,15 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "openssl rand -hex {{length}}",
+      "exec": {
+        "program": "openssl",
+        "args": [
+          "rand",
+          "-hex",
+          "{{length}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "length",
@@ -457,9 +573,15 @@
       ],
       "category": "dev",
       "platform": "all",
-      "template": "python3 -m http.server {{port}}",
+      "exec": {
+        "program": "python3",
+        "args": [
+          "-m",
+          "http.server",
+          "{{port}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "port",
@@ -495,9 +617,11 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "echo \"{{text}}\" | grep -oE \"{{pattern}}\"",
+      "script": {
+        "runner": "bash",
+        "command": "echo \"{{text}}\" | grep -oE \"{{pattern}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
@@ -510,6 +634,14 @@
           "label": "pattern",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -526,9 +658,11 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "echo \"{{text}}\" | grep -oP \"{{pattern}}\"",
+      "script": {
+        "runner": "bash",
+        "command": "echo \"{{text}}\" | grep -oP \"{{pattern}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
@@ -541,6 +675,14 @@
           "label": "pattern",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -556,9 +698,11 @@
       ],
       "category": "dev",
       "platform": "all",
-      "template": "python3 -c \"import urllib.parse; print(urllib.parse.quote('{{text}}'))\"",
+      "script": {
+        "runner": "bash",
+        "command": "python3 -c \"import urllib.parse; print(urllib.parse.quote('{{text}}'))\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
@@ -573,6 +717,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:python3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -588,9 +738,11 @@
       ],
       "category": "dev",
       "platform": "all",
-      "template": "python3 -c \"import urllib.parse; print(urllib.parse.unquote('{{text}}'))\"",
+      "script": {
+        "runner": "bash",
+        "command": "python3 -c \"import urllib.parse; print(urllib.parse.unquote('{{text}}'))\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
@@ -605,6 +757,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:python3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -623,9 +781,14 @@
       ],
       "category": "dev",
       "platform": "all",
-      "template": "jq . {{file}}",
+      "exec": {
+        "program": "jq",
+        "args": [
+          ".",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -656,9 +819,11 @@
       ],
       "category": "dev",
       "platform": "all",
-      "template": "python3 -c \"import base64, json, sys; parts=sys.argv[1].split('.'); dec=lambda s: json.loads(base64.urlsafe_b64decode(s + '=' * (-len(s) % 4)).decode()); print(json.dumps({'header': dec(parts[0]), 'payload': dec(parts[1])}, ensure_ascii=False, indent=2))\" \"{{token}}\"",
+      "script": {
+        "runner": "bash",
+        "command": "python3 -c \"import base64, json, sys; parts=sys.argv[1].split('.'); dec=lambda s: json.loads(base64.urlsafe_b64decode(s + '=' * (-len(s) % 4)).decode()); print(json.dumps({'header': dec(parts[0]), 'payload': dec(parts[1])}, ensure_ascii=False, indent=2))\" \"{{token}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "token",
@@ -673,6 +838,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:python3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -690,15 +861,23 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "python3 -c \"import time; print(int(time.time() * 1000))\"",
+      "script": {
+        "runner": "bash",
+        "command": "python3 -c \"import time; print(int(time.time() * 1000))\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "python3",
           "type": "binary",
           "required": true,
           "check": "binary:python3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -716,15 +895,23 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "python3 -c \"import time; print(int(time.time() * 1000))\"",
+      "script": {
+        "runner": "bash",
+        "command": "python3 -c \"import time; print(int(time.time() * 1000))\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "python3",
           "type": "binary",
           "required": true,
           "check": "binary:python3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -742,9 +929,11 @@
       ],
       "category": "dev",
       "platform": "win",
-      "template": "[DateTimeOffset]::Now.ToUnixTimeMilliseconds()",
+      "script": {
+        "runner": "powershell",
+        "command": "[DateTimeOffset]::Now.ToUnixTimeMilliseconds()"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "powershell",
@@ -770,9 +959,11 @@
       ],
       "category": "dev",
       "platform": "mac",
-      "template": "python3 -c \"import datetime; print(datetime.datetime.fromtimestamp({{timestamp}} / 1000, datetime.timezone.utc).astimezone().isoformat())\"",
+      "script": {
+        "runner": "bash",
+        "command": "python3 -c \"import datetime; print(datetime.datetime.fromtimestamp({{timestamp}} / 1000, datetime.timezone.utc).astimezone().isoformat())\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "timestamp",
@@ -790,6 +981,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:python3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -809,9 +1006,11 @@
       ],
       "category": "dev",
       "platform": "linux",
-      "template": "python3 -c \"import datetime; print(datetime.datetime.fromtimestamp({{timestamp}} / 1000, datetime.timezone.utc).astimezone().isoformat())\"",
+      "script": {
+        "runner": "bash",
+        "command": "python3 -c \"import datetime; print(datetime.datetime.fromtimestamp({{timestamp}} / 1000, datetime.timezone.utc).astimezone().isoformat())\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "timestamp",
@@ -829,6 +1028,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:python3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -848,9 +1053,11 @@
       ],
       "category": "dev",
       "platform": "win",
-      "template": "[DateTimeOffset]::FromUnixTimeMilliseconds({{timestamp}}).ToString(\"o\")",
+      "script": {
+        "runner": "powershell",
+        "command": "[DateTimeOffset]::FromUnixTimeMilliseconds({{timestamp}}).ToString(\"o\")"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "timestamp",
@@ -882,9 +1089,11 @@
       ],
       "category": "dev",
       "platform": "win",
-      "template": "[guid]::NewGuid().ToString()",
+      "script": {
+        "runner": "powershell",
+        "command": "[guid]::NewGuid().ToString()"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "powershell",
@@ -906,9 +1115,11 @@
       ],
       "category": "dev",
       "platform": "win",
-      "template": "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(\"{{text}}\"))",
+      "script": {
+        "runner": "powershell",
+        "command": "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(\"{{text}}\"))"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
@@ -938,9 +1149,11 @@
       ],
       "category": "dev",
       "platform": "win",
-      "template": "[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(\"{{text}}\"))",
+      "script": {
+        "runner": "powershell",
+        "command": "[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(\"{{text}}\"))"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
@@ -970,9 +1183,11 @@
       ],
       "category": "dev",
       "platform": "win",
-      "template": "([System.BitConverter]::ToString((New-Object System.Security.Cryptography.SHA256Managed).ComputeHash([Text.Encoding]::UTF8.GetBytes(\"{{text}}\")))).Replace(\"-\", \"\").ToLower()",
+      "script": {
+        "runner": "powershell",
+        "command": "([System.BitConverter]::ToString((New-Object System.Security.Cryptography.SHA256Managed).ComputeHash([Text.Encoding]::UTF8.GetBytes(\"{{text}}\")))).Replace(\"-\", \"\").ToLower()"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",
@@ -1003,9 +1218,11 @@
       ],
       "category": "dev",
       "platform": "win",
-      "template": "[regex]::Matches(\"{{text}}\", \"{{pattern}}\") | ForEach-Object { $_.Value }",
+      "script": {
+        "runner": "powershell",
+        "command": "[regex]::Matches(\"{{text}}\", \"{{pattern}}\") | ForEach-Object { $_.Value }"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "text",

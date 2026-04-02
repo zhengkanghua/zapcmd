@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Service 服务管理",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_service.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -22,9 +19,11 @@
       ],
       "category": "service",
       "platform": "win",
-      "template": "Get-Service -Name \"{{name}}\"",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-Service -Name \"{{name}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
@@ -57,9 +56,11 @@
       ],
       "category": "service",
       "platform": "win",
-      "template": "Get-Service | Where-Object {$_.Status -eq 'Running'} | Sort-Object DisplayName",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-Service | Where-Object {$_.Status -eq 'Running'} | Sort-Object DisplayName"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "powershell",
@@ -83,9 +84,15 @@
       ],
       "category": "service",
       "platform": "linux",
-      "template": "systemctl status {{name}} --no-pager",
+      "exec": {
+        "program": "systemctl",
+        "args": [
+          "status",
+          "{{name}}",
+          "--no-pager"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
@@ -117,9 +124,16 @@
       ],
       "category": "service",
       "platform": "linux",
-      "template": "systemctl list-units --type=service --state=running --no-pager",
+      "exec": {
+        "program": "systemctl",
+        "args": [
+          "list-units",
+          "--type=service",
+          "--state=running",
+          "--no-pager"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "systemctl",
@@ -144,9 +158,17 @@
       ],
       "category": "service",
       "platform": "linux",
-      "template": "journalctl -u {{name}} -n {{lines}} --no-pager",
+      "exec": {
+        "program": "journalctl",
+        "args": [
+          "-u",
+          "{{name}}",
+          "-n",
+          "{{lines}}",
+          "--no-pager"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
@@ -191,9 +213,16 @@
       ],
       "category": "service",
       "platform": "linux",
-      "template": "systemctl list-units --type=service --all --no-pager",
+      "exec": {
+        "program": "systemctl",
+        "args": [
+          "list-units",
+          "--type=service",
+          "--all",
+          "--no-pager"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "systemctl",
@@ -219,9 +248,16 @@
       ],
       "category": "service",
       "platform": "linux",
-      "template": "systemctl list-units --type=service --state=failed --no-pager",
+      "exec": {
+        "program": "systemctl",
+        "args": [
+          "list-units",
+          "--type=service",
+          "--state=failed",
+          "--no-pager"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "systemctl",
@@ -246,9 +282,14 @@
       ],
       "category": "service",
       "platform": "linux",
-      "template": "systemctl is-enabled {{name}}",
+      "exec": {
+        "program": "systemctl",
+        "args": [
+          "is-enabled",
+          "{{name}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
@@ -281,9 +322,14 @@
       ],
       "category": "service",
       "platform": "linux",
-      "template": "systemctl cat {{name}}",
+      "exec": {
+        "program": "systemctl",
+        "args": [
+          "cat",
+          "{{name}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
@@ -316,9 +362,13 @@
       ],
       "category": "service",
       "platform": "mac",
-      "template": "launchctl list",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "launchctl",
+        "args": [
+          "list"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "service-status-mac",
@@ -335,15 +385,25 @@
       ],
       "category": "service",
       "platform": "mac",
-      "template": "launchctl list | grep \"{{name}}\"",
+      "script": {
+        "runner": "bash",
+        "command": "launchctl list | grep \"{{name}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
           "label": "name",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     }

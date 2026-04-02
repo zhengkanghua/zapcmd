@@ -7,6 +7,7 @@ export interface SafetyCommandInput {
   renderedCommand: string;
   args?: CommandArg[];
   argValues?: Record<string, string>;
+  trustedArgKeys?: string[];
   adminRequired?: boolean;
   dangerous?: boolean;
 }
@@ -63,12 +64,35 @@ function collectConfirmationReasons(input: SafetyCommandInput): string[] {
   return Array.from(new Set(reasons));
 }
 
-function validateArguments(args: CommandArg[] | undefined, argValues: Record<string, string> | undefined): string | null {
-  return findFirstCommandArgValidationError(args, argValues)?.message ?? null;
+export function collectTrustedArgKeysFromExecution(
+  execution: CommandTemplate["execution"] | undefined,
+  args: CommandArg[]
+): string[] {
+  if (!execution || execution.kind !== "exec" || !execution.stdinArgKey) {
+    return [];
+  }
+
+  const trustedArg = args.find((arg) => arg.key === execution.stdinArgKey);
+  if (!trustedArg) {
+    return [];
+  }
+
+  const token = trustedArg.token;
+  const appearsInProgram = execution.program.includes(token);
+  const appearsInArgs = execution.args.some((item) => item.includes(token));
+  return appearsInProgram || appearsInArgs ? [] : [trustedArg.key];
+}
+
+function validateArgumentsWithTrust(input: SafetyCommandInput): string | null {
+  return (
+    findFirstCommandArgValidationError(input.args, input.argValues, {
+      trustedArgKeys: input.trustedArgKeys
+    })?.message ?? null
+  );
 }
 
 export function checkSingleCommandSafety(input: SafetyCommandInput): SingleCommandSafetyResult {
-  const blockedMessage = validateArguments(input.args, input.argValues);
+  const blockedMessage = validateArgumentsWithTrust(input);
   if (blockedMessage) {
     return {
       blockedMessage,
@@ -86,7 +110,7 @@ export function checkQueueCommandSafety(items: SafetyCommandInput[]): QueueComma
   const confirmationItems: SafetyConfirmationItem[] = [];
 
   for (const item of items) {
-    const blockedMessage = validateArguments(item.args, item.argValues);
+    const blockedMessage = validateArgumentsWithTrust(item);
     if (blockedMessage) {
       return {
         blockedMessage: t("safety.queueBlockedPrefix", { title: item.title, reason: blockedMessage }),
@@ -121,6 +145,7 @@ export function buildSafetyInputFromTemplate(
     renderedCommand,
     args,
     argValues,
+    trustedArgKeys: collectTrustedArgKeysFromExecution(command.execution, args),
     adminRequired: command.adminRequired ?? false,
     dangerous: command.dangerous ?? false
   };

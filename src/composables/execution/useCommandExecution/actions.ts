@@ -1,6 +1,9 @@
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
-import { getCommandArgs, renderCommand } from "../../../features/launcher/commandRuntime";
+import {
+  getCommandArgs,
+  resolveCommandExecution
+} from "../../../features/launcher/commandRuntime";
 import type { StagedCommand } from "../../../features/launcher/types";
 import {
   buildSafetyInputFromTemplate,
@@ -20,7 +23,7 @@ import {
   getPendingSubmitRejection,
   runCommandPreflight,
   summarizeCommandForFeedback,
-  updateStagedRenderedCommand
+  updateStagedResolvedCommand
 } from "./helpers";
 import type { CommandExecutionState, ParamSubmitMode, UseCommandExecutionOptions } from "./model";
 
@@ -70,33 +73,36 @@ function createExecuteStagedAction(
     preflightWarnings: CommandPreflightIssue[] = []
   ): Promise<void> {
     state.executing.value = true;
-    const commands = snapshot
-      .map((item) => item.renderedCommand.trim())
-      .filter((item) => item.length > 0);
+    const steps = snapshot
+      .map((item) => ({
+        summary: item.renderedPreview.trim(),
+        execution: item.execution
+      }))
+      .filter((item) => item.summary.length > 0);
     const requiresElevation = snapshot.some((item) => item.adminRequired === true);
 
     try {
-      if (commands.length === 0) {
+      if (steps.length === 0) {
         throw new Error(t("execution.queueEmpty"));
       }
 
       state.setExecutionFeedback("success", t("launcher.executionStarted"));
 
       if (options.runCommandsInTerminal) {
-        await options.runCommandsInTerminal(commands, { requiresElevation });
+        await options.runCommandsInTerminal(steps, { requiresElevation });
       } else {
-        for (const rendered of commands) {
-          await options.runCommandInTerminal(rendered, { requiresElevation });
+        for (const step of steps) {
+          await options.runCommandInTerminal(step, { requiresElevation });
         }
       }
 
       clearStaging();
-      const firstCommand = summarizeCommandForFeedback(commands[0]);
+      const firstCommand = summarizeCommandForFeedback(steps[0]?.summary ?? "");
       state.setExecutionFeedback(
         "success",
         appendPreflightWarnings(
           t("execution.queueSuccess", {
-            count: commands.length,
+            count: steps.length,
             firstCommand
           }),
           preflightWarnings
@@ -123,7 +129,7 @@ function createExecuteStagedAction(
     const queueSafety = checkQueueCommandSafety(
       snapshot.map((item) => ({
         title: item.title,
-        renderedCommand: item.renderedCommand,
+        renderedCommand: item.renderedPreview,
         args: item.args,
         argValues: item.argValues,
         adminRequired: item.adminRequired ?? false,
@@ -184,9 +190,9 @@ function createSingleExecutionRequester(
     skipDangerConfirmation = false
   ): Promise<void> {
     const args = getCommandArgs(command);
-    const rendered = renderCommand(command, argValues);
+    const resolved = resolveCommandExecution(command, argValues);
     const safety = checkSingleCommandSafety(
-      buildSafetyInputFromTemplate(command, rendered, argValues, args)
+      buildSafetyInputFromTemplate(command, resolved.renderedPreview, argValues, args)
     );
 
     if (safety.blockedMessage) {
@@ -233,7 +239,7 @@ function createSingleExecutionRequester(
           items: [
             {
               title: command.title,
-              renderedCommand: summarizeCommandForFeedback(rendered),
+              renderedCommand: summarizeCommandForFeedback(resolved.renderedPreview),
               reasons: safety.confirmationReasons
             }
           ]
@@ -390,7 +396,7 @@ export function createCommandExecutionActions(
       return {
         ...cmd,
         argValues: nextValues,
-        renderedCommand: updateStagedRenderedCommand(cmd, nextValues)
+        ...updateStagedResolvedCommand(cmd, nextValues)
       };
     });
   }

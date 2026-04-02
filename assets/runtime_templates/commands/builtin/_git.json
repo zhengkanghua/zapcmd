@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Git 版本控制",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_git.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -20,9 +17,13 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git status",
+      "exec": {
+        "program": "git",
+        "args": [
+          "status"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -47,9 +48,15 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git log --oneline -{{count}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "log",
+          "--oneline",
+          "-{{count}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "count",
@@ -87,9 +94,17 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git log --oneline --graph --all -{{count}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "log",
+          "--oneline",
+          "--graph",
+          "--all",
+          "-{{count}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "count",
@@ -125,9 +140,13 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git diff",
+      "exec": {
+        "program": "git",
+        "args": [
+          "diff"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -152,9 +171,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git diff --staged",
+      "exec": {
+        "program": "git",
+        "args": [
+          "diff",
+          "--staged"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -177,9 +201,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git add -A",
+      "exec": {
+        "program": "git",
+        "args": [
+          "add",
+          "-A"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -200,9 +229,15 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git commit -m \"{{message}}\"",
+      "exec": {
+        "program": "git",
+        "args": [
+          "commit",
+          "-m",
+          "\"{{message}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "message",
@@ -233,9 +268,16 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git commit --amend -m \"{{message}}\"",
+      "exec": {
+        "program": "git",
+        "args": [
+          "commit",
+          "--amend",
+          "-m",
+          "\"{{message}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "message",
@@ -264,9 +306,15 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git push origin {{branch}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "push",
+          "origin",
+          "{{branch}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "branch",
@@ -296,9 +344,15 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git pull origin {{branch}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "pull",
+          "origin",
+          "{{branch}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "branch",
@@ -332,9 +386,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git branch -a",
+      "exec": {
+        "program": "git",
+        "args": [
+          "branch",
+          "-a"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -357,9 +416,15 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git checkout -b {{branch}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "checkout",
+          "-b",
+          "{{branch}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "branch",
@@ -391,9 +456,15 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git branch -d {{branch}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "branch",
+          "-d",
+          "{{branch}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "branch",
@@ -424,9 +495,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git switch {{branch}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "switch",
+          "{{branch}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "branch",
@@ -455,9 +531,13 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git stash",
+      "exec": {
+        "program": "git",
+        "args": [
+          "stash"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -480,9 +560,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git stash pop",
+      "exec": {
+        "program": "git",
+        "args": [
+          "stash",
+          "pop"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -507,9 +592,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git stash list",
+      "exec": {
+        "program": "git",
+        "args": [
+          "stash",
+          "list"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -534,9 +624,15 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git reset --soft {{commit}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "reset",
+          "--soft",
+          "{{commit}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "commit",
@@ -569,7 +665,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git reset --hard {{commit}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "reset",
+          "--hard",
+          "{{commit}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -602,9 +705,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git cherry-pick {{commit}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "cherry-pick",
+          "{{commit}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "commit",
@@ -635,9 +743,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git rebase {{branch}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "rebase",
+          "{{branch}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "branch",
@@ -668,9 +781,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git merge {{branch}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "merge",
+          "{{branch}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "branch",
@@ -699,9 +817,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git tag {{tag}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "tag",
+          "{{tag}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "tag",
@@ -733,9 +856,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git remote -v",
+      "exec": {
+        "program": "git",
+        "args": [
+          "remote",
+          "-v"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "git",
@@ -756,9 +884,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git clone {{url}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "clone",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -790,9 +923,14 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git blame {{file}}",
+      "exec": {
+        "program": "git",
+        "args": [
+          "blame",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -823,7 +961,13 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git clean -fd",
+      "exec": {
+        "program": "git",
+        "args": [
+          "clean",
+          "-fd"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "prerequisites": [
@@ -848,9 +992,11 @@
       ],
       "category": "git",
       "platform": "all",
-      "template": "git config --global user.name \"{{name}}\" && git config --global user.email \"{{email}}\"",
+      "script": {
+        "runner": "bash",
+        "command": "git config --global user.name \"{{name}}\" && git config --global user.email \"{{email}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
@@ -871,6 +1017,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:git"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     }

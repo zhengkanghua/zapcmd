@@ -1,5 +1,10 @@
 import type { ComponentPublicInstance } from "vue";
-import type { CommandArg, CommandTemplate } from "../../features/commands/commandTemplates";
+import type {
+  CommandArg,
+  CommandExecutionTemplate,
+  CommandTemplate,
+  ResolvedCommandExecution
+} from "../../features/commands/commandTemplates";
 import type { CommandPrerequisite } from "../../features/commands/prerequisiteTypes";
 
 export interface KeyboardHint {
@@ -22,7 +27,9 @@ export type ElementRefArg = Element | ComponentPublicInstance | null;
 export interface QueuedCommand {
   id: string;
   title: string;
-  renderedCommand: string;
+  renderedPreview: string;
+  executionTemplate: CommandExecutionTemplate;
+  execution: ResolvedCommandExecution;
   rawPreview: string;
   args: CommandArg[];
   argValues: Record<string, string>;

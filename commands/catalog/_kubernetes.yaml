@@ -1,0 +1,899 @@
+meta:
+  name: Kubernetes
+  moduleSlug: kubernetes
+commands:
+  - id: kubectl-current-context
+    name: kubectl 当前上下文
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - config
+        - current-context
+    adminRequired: false
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - context
+      - current
+  - id: kubectl-get-contexts
+    name: kubectl 列出上下文
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - config
+        - get-contexts
+    adminRequired: false
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - context
+      - list
+  - id: kubectl-get-namespaces
+    name: kubectl 列出命名空间
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - namespaces
+    adminRequired: false
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - namespaces
+      - list
+  - id: kubectl-get-pods
+    name: kubectl 查看 Pods
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - pods
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - pods
+      - namespace
+  - id: kubectl-get-services
+    name: kubectl 查看 Services
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - services
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - services
+      - namespace
+  - id: kubectl-get-deployments
+    name: kubectl 查看 Deployments
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - deployments
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - deployments
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-get-nodes
+    name: kubectl 查看 Nodes
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - nodes
+    adminRequired: false
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - nodes
+      - 查看
+      - show
+  - id: kubectl-get-ingress
+    name: kubectl 查看 Ingress
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - ingress
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - ingress
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-describe-deployment
+    name: kubectl 查看 Deployment 详情
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - describe
+        - deployment
+        - "{{deployment}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: deployment
+        label: deployment
+        type: text
+        required: true
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - describe
+      - deployment
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-describe-pod
+    name: kubectl 查看 Pod 详情
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - describe
+        - pod
+        - "{{pod}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: pod
+        label: pod
+        type: text
+        required: true
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - describe
+      - pod
+      - namespace
+  - id: kubectl-get-configmaps
+    name: kubectl 查看 ConfigMaps
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - configmaps
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - configmaps
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-logs
+    name: kubectl 查看 Pod 日志
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - logs
+        - "{{pod}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: pod
+        label: pod
+        type: text
+        required: true
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - logs
+      - pod
+      - namespace
+  - id: kubectl-logs-follow
+    name: kubectl 持续跟随日志
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - logs
+        - -f
+        - "{{pod}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: pod
+        label: pod
+        type: text
+        required: true
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - logs
+      - follow
+      - pod
+      - namespace
+  - id: kubectl-get-events
+    name: kubectl 查看 Events
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - events
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - events
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-exec-sh
+    name: kubectl 进入 Pod Shell
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - exec
+        - -it
+        - "{{pod}}"
+        - -n
+        - "{{namespace}}"
+        - --
+        - sh
+    adminRequired: false
+    args:
+      - key: pod
+        label: pod
+        type: text
+        required: true
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - exec
+      - shell
+      - pod
+      - namespace
+  - id: kubectl-port-forward
+    name: kubectl 端口转发
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - port-forward
+        - "{{resource}}"
+        - "{{localPort}}:{{remotePort}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: resource
+        label: resource
+        type: text
+        required: true
+        default: deployment/my-app
+      - key: localPort
+        label: localPort
+        type: number
+        required: true
+        default: "8080"
+        validation:
+          min: 1
+          max: 65535
+      - key: remotePort
+        label: remotePort
+        type: number
+        required: true
+        default: "80"
+        validation:
+          min: 1
+          max: 65535
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - port-forward
+      - resource
+      - namespace
+  - id: kubectl-rollout-restart
+    name: kubectl 重启 Rollout
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - rollout
+        - restart
+        - "{{resource}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: resource
+        label: resource
+        type: text
+        required: true
+        default: deployment/my-app
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - rollout
+      - restart
+      - resource
+      - namespace
+      - 高危
+  - id: kubectl-rollout-status
+    name: kubectl 查看 Rollout 状态
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - rollout
+        - status
+        - "{{resource}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: resource
+        label: resource
+        type: text
+        required: true
+        default: deployment/my-app
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - rollout
+      - status
+      - resource
+      - namespace
+  - id: kubectl-apply-file
+    name: kubectl 应用配置文件
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - apply
+        - -f
+        - '"{{file}}"'
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - apply
+      - file
+      - 配置
+      - 高危
+  - id: kubectl-delete-file
+    name: kubectl 删除配置文件资源
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - delete
+        - -f
+        - '"{{file}}"'
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - delete
+      - file
+      - 资源
+      - 高危
+  - id: kubectl-delete-pod
+    name: kubectl 删除 Pod
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - delete
+        - pod
+        - "{{pod}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: pod
+        label: pod
+        type: text
+        required: true
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - delete
+      - pod
+      - namespace
+      - 高危
+  - id: kubectl-get-all
+    name: kubectl 查看全部资源
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - all
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - get
+      - all
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-top-pods
+    name: kubectl 查看 Pods 资源占用
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - top
+        - pods
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - top
+      - pods
+      - namespace
+      - 资源
+      - 使用
+      - 查看
+      - show
+  - id: kubectl-top-nodes
+    name: kubectl 查看 Nodes 资源占用
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - top
+        - nodes
+    adminRequired: false
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - top
+      - nodes
+      - 资源
+      - 使用
+      - 查看
+      - show
+  - id: kubectl-describe-service
+    name: kubectl 查看 Service 详情
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - describe
+        - service
+        - "{{service}}"
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: service
+        label: service
+        type: text
+        required: true
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - describe
+      - service
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-get-pvc
+    name: kubectl 查看 PVC
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - pvc
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - pvc
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-get-statefulsets
+    name: kubectl 查看 StatefulSets
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - statefulsets
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - statefulsets
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-get-jobs
+    name: kubectl 查看 Jobs
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - jobs
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - jobs
+      - namespace
+      - 查看
+      - show
+  - id: kubectl-get-cronjobs
+    name: kubectl 查看 CronJobs
+    category: kubernetes
+    platform: all
+    exec:
+      program: kubectl
+      args:
+        - get
+        - cronjobs
+        - -n
+        - "{{namespace}}"
+    adminRequired: false
+    args:
+      - key: namespace
+        label: namespace
+        type: text
+        required: true
+        default: default
+    prerequisites:
+      - id: kubectl
+        type: binary
+        required: true
+        check: binary:kubectl
+    tags:
+      - kubernetes
+      - kubectl
+      - cronjobs
+      - namespace
+      - 查看
+      - show

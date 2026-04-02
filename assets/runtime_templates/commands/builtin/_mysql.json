@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "MySQL",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_mysql.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -19,9 +16,19 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p",
+      "exec": {
+        "program": "mysql",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-P",
+          "{{port}}",
+          "-u",
+          "{{user}}",
+          "-p"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -69,9 +76,20 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysqladmin -h {{host}} -P {{port}} -u {{user}} ping -p",
+      "exec": {
+        "program": "mysqladmin",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-P",
+          "{{port}}",
+          "-u",
+          "{{user}}",
+          "ping",
+          "-p"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -119,9 +137,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"SHOW DATABASES;\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"SHOW DATABASES;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -155,6 +175,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -170,9 +196,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW TABLES;\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW TABLES;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -213,6 +241,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -228,9 +262,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"DESCRIBE {{table}};\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"DESCRIBE {{table}};\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -277,6 +313,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -291,9 +333,23 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"{{sql}}\"",
+      "exec": {
+        "program": "mysql",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-P",
+          "{{port}}",
+          "-u",
+          "{{user}}",
+          "-p",
+          "-D",
+          "{{database}}",
+          "-e"
+        ],
+        "stdinArgKey": "sql"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -355,9 +411,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysqldump -h {{host}} -P {{port}} -u {{user}} -p {{database}} > \"{{output}}\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysqldump -h {{host}} -P {{port}} -u {{user}} -p {{database}} > \"{{output}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -404,6 +462,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysqldump"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -419,9 +483,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p {{database}} < \"{{file}}\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p {{database}} < \"{{file}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -468,6 +534,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -481,9 +553,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"CREATE DATABASE {{database}};\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"CREATE DATABASE {{database}};\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -523,6 +597,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -539,7 +619,10 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"DROP DATABASE {{database}};\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -e \"DROP DATABASE {{database}};\""
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -581,6 +664,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -597,9 +686,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SELECT VERSION();\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SELECT VERSION();\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -640,6 +731,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -658,9 +755,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW FULL PROCESSLIST;\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW FULL PROCESSLIST;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -701,6 +800,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -718,9 +823,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW STATUS;\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW STATUS;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -761,6 +868,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -778,9 +891,11 @@
       ],
       "category": "mysql",
       "platform": "all",
-      "template": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW VARIABLES;\"",
+      "script": {
+        "runner": "bash",
+        "command": "mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e \"SHOW VARIABLES;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -821,6 +936,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:mysql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     }

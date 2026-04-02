@@ -10,9 +10,14 @@ export interface CommandArgValidationError {
   kind: "invalid" | "blocked";
 }
 
+export interface CommandArgValidationOptions {
+  trustedArgKeys?: string[];
+}
+
 function validateCommandArgValueDetail(
   arg: CommandArg,
-  argValue: string | undefined
+  argValue: string | undefined,
+  options: CommandArgValidationOptions = {}
 ): Omit<CommandArgValidationError, "key"> | null {
   const value = (argValue ?? "").trim();
   if (arg.required !== false && value.length === 0) {
@@ -86,7 +91,8 @@ function validateCommandArgValueDetail(
     }
   }
 
-  if (INJECTION_PATTERN.test(value)) {
+  const trustedArgKeys = options.trustedArgKeys ?? [];
+  if (!trustedArgKeys.includes(arg.key) && INJECTION_PATTERN.test(value)) {
     return {
       kind: "blocked",
       message: t("safety.validation.injection", { label: arg.label })
@@ -98,21 +104,23 @@ function validateCommandArgValueDetail(
 
 export function validateCommandArgValue(
   arg: CommandArg,
-  argValue: string | undefined
+  argValue: string | undefined,
+  options: CommandArgValidationOptions = {}
 ): string | null {
-  return validateCommandArgValueDetail(arg, argValue)?.message ?? null;
+  return validateCommandArgValueDetail(arg, argValue, options)?.message ?? null;
 }
 
 export function collectCommandArgValidationErrors(
   args: CommandArg[] | undefined,
-  argValues: Record<string, string> | undefined
+  argValues: Record<string, string> | undefined,
+  options: CommandArgValidationOptions = {}
 ): Record<string, string> {
   if (!args || args.length === 0) {
     return {};
   }
 
   return args.reduce<Record<string, string>>((errors, arg) => {
-    const error = validateCommandArgValueDetail(arg, argValues?.[arg.key]);
+    const error = validateCommandArgValueDetail(arg, argValues?.[arg.key], options);
     if (error) {
       errors[arg.key] = error.message;
     }
@@ -122,14 +130,15 @@ export function collectCommandArgValidationErrors(
 
 export function findFirstCommandArgValidationError(
   args: CommandArg[] | undefined,
-  argValues: Record<string, string> | undefined
+  argValues: Record<string, string> | undefined,
+  options: CommandArgValidationOptions = {}
 ): CommandArgValidationError | null {
   if (!args || args.length === 0) {
     return null;
   }
 
   for (const arg of args) {
-    const error = validateCommandArgValueDetail(arg, argValues?.[arg.key]);
+    const error = validateCommandArgValueDetail(arg, argValues?.[arg.key], options);
     if (error) {
       return {
         key: arg.key,

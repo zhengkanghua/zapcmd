@@ -95,7 +95,7 @@ function getInlineErrorId(cmdId: string, argKey: string): string {
                 size="small"
                 :disabled="props.executing"
                 :title="t('common.copy')"
-                @click.stop="props.copyCommand(cmd.renderedCommand)"
+                @click.stop="props.copyCommand(cmd.renderedPreview)"
               >
                 <LauncherIcon name="copy" />
               </UiIconButton>
@@ -193,7 +193,7 @@ function getInlineErrorId(cmdId: string, argKey: string): string {
           <code
             class="flow-card__command block p-[4px_0] font-mono text-[11px] text-ui-subtle whitespace-nowrap overflow-hidden text-ellipsis"
           >
-            &gt; {{ cmd.renderedCommand }}
+            &gt; {{ cmd.renderedPreview }}
           </code>
         </div>
       </article>

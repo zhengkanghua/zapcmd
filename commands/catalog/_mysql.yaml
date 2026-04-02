@@ -1,0 +1,689 @@
+meta:
+  name: MySQL
+  moduleSlug: mysql
+commands:
+  - id: mysql-shell
+    name: MySQL Shell
+    category: mysql
+    platform: all
+    exec:
+      program: mysql
+      args:
+        - -h
+        - "{{host}}"
+        - -P
+        - "{{port}}"
+        - -u
+        - "{{user}}"
+        - -p
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+    tags:
+      - mysql
+      - shell
+      - cli
+      - 入口
+      - 控制台
+  - id: mysql-ping
+    name: MySQL PING
+    category: mysql
+    platform: all
+    exec:
+      program: mysqladmin
+      args:
+        - -h
+        - "{{host}}"
+        - -P
+        - "{{port}}"
+        - -u
+        - "{{user}}"
+        - ping
+        - -p
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+    prerequisites:
+      - id: mysqladmin
+        type: binary
+        required: true
+        check: binary:mysqladmin
+    tags:
+      - mysql
+      - ping
+      - 健康检查
+      - health
+  - id: mysql-show-databases
+    name: MySQL 显示数据库
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -e "SHOW DATABASES;"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - show
+      - databases
+      - 列表
+  - id: mysql-show-tables
+    name: MySQL 显示数据表
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e "SHOW
+        TABLES;"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - show
+      - tables
+      - 列表
+      - database
+  - id: mysql-describe-table
+    name: MySQL 查看表结构
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e
+        "DESCRIBE {{table}};"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+      - key: table
+        label: table
+        type: text
+        required: true
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - describe
+      - table
+      - schema
+      - database
+  - id: mysql-query
+    name: MySQL 执行 SQL
+    category: mysql
+    platform: all
+    exec:
+      program: mysql
+      args:
+        - -h
+        - "{{host}}"
+        - -P
+        - "{{port}}"
+        - -u
+        - "{{user}}"
+        - -p
+        - -D
+        - "{{database}}"
+        - -e
+      stdinArgKey: sql
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+      - key: sql
+        label: sql
+        type: text
+        required: true
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+    tags:
+      - mysql
+      - query
+      - sql
+      - database
+  - id: mysql-dump
+    name: MySQL 导出数据库
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysqldump -h {{host}} -P {{port}} -u {{user}} -p {{database}} >
+        "{{output}}"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+      - key: output
+        label: output
+        type: path
+        required: true
+    prerequisites:
+      - id: mysqldump
+        type: binary
+        required: true
+        check: binary:mysqldump
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - dump
+      - export
+      - database
+      - backup
+  - id: mysql-import
+    name: MySQL 导入 SQL 文件
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p {{database}} < "{{file}}"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - import
+      - restore
+      - database
+      - sql
+  - id: mysql-create-database
+    name: MySQL 创建数据库
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -e "CREATE DATABASE
+        {{database}};"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - create
+      - database
+  - id: mysql-drop-database
+    name: MySQL 删除数据库
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -e "DROP DATABASE
+        {{database}};"
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - drop
+      - database
+      - 删除
+      - delete
+      - 高危
+  - id: mysql-version
+    name: MySQL 版本
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e "SELECT
+        VERSION();"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - version
+      - observability
+      - 版本
+      - 查看
+      - show
+  - id: mysql-processlist
+    name: MySQL 进程列表
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e "SHOW
+        FULL PROCESSLIST;"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - processlist
+      - observability
+      - 连接
+      - 进程
+      - 列表
+      - 查看
+      - show
+  - id: mysql-show-status
+    name: MySQL 状态变量
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e "SHOW
+        STATUS;"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - status
+      - observability
+      - 状态
+      - 变量
+      - 查看
+      - show
+  - id: mysql-show-variables
+    name: MySQL 配置变量
+    category: mysql
+    platform: all
+    script:
+      runner: bash
+      command: mysql -h {{host}} -P {{port}} -u {{user}} -p -D {{database}} -e "SHOW
+        VARIABLES;"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+        default: 127.0.0.1
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "3306"
+        validation:
+          min: 1
+          max: 65535
+      - key: user
+        label: user
+        type: text
+        required: true
+        default: root
+      - key: database
+        label: database
+        type: text
+        required: true
+        default: mysql
+    prerequisites:
+      - id: mysql
+        type: binary
+        required: true
+        check: binary:mysql
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - mysql
+      - variables
+      - observability
+      - 配置
+      - 变量
+      - 查看
+      - show

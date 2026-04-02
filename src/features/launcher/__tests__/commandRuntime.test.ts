@@ -4,7 +4,8 @@ import type { CommandTemplate } from "../../commands/commandTemplates";
 import {
   buildInitialArgValues,
   getCommandArgs,
-  renderCommand
+  renderCommand,
+  resolveCommandExecution
 } from "../commandRuntime";
 
 function createTemplate(overrides: Partial<CommandTemplate> = {}): CommandTemplate {
@@ -13,6 +14,11 @@ function createTemplate(overrides: Partial<CommandTemplate> = {}): CommandTempla
     title: "test",
     description: "test",
     preview: "echo hello",
+    execution: {
+      kind: "exec",
+      program: "echo",
+      args: ["hello"]
+    },
     folder: "@_test",
     category: "test",
     needsArgs: false,
@@ -36,6 +42,10 @@ describe("commandRuntime", () => {
     expect(getCommandArgs(command)).toEqual(command.args);
   });
 
+  it("returns empty args when command does not declare parameters", () => {
+    expect(getCommandArgs(createTemplate())).toEqual([]);
+  });
+
   it("builds fallback arg for legacy needsArgs command", () => {
     const command = createTemplate({
       needsArgs: true,
@@ -55,6 +65,11 @@ describe("commandRuntime", () => {
     const command = createTemplate({
       needsArgs: true,
       preview: "docker logs --tail {{tail}} {{container}} {{filter}}",
+      execution: {
+        kind: "exec",
+        program: "docker",
+        args: ["logs", "--tail", "{{tail}}", "{{container}}", "{{filter}}"]
+      },
       args: [
         { key: "container", label: "Container", token: "{{container}}", required: true, placeholder: "my-app" },
         { key: "tail", label: "Tail", token: "{{tail}}", required: false, defaultValue: "200" },
@@ -87,5 +102,118 @@ describe("commandRuntime", () => {
       tail: "100"
     });
   });
-});
 
+  it("resolves preview and structured execution independently", () => {
+    const command = createTemplate({
+      preview: 'sqlite3 "{{file}}"',
+      execution: {
+        kind: "exec",
+        program: "sqlite3",
+        args: ['"{{file}}"'],
+        stdinArgKey: "sql"
+      },
+      needsArgs: true,
+      args: [
+        { key: "file", label: "File", token: "{{file}}", required: true, placeholder: "app.db" },
+        { key: "sql", label: "SQL", token: "{{sql}}", required: true }
+      ]
+    });
+
+    const resolved = resolveCommandExecution(command, {
+      file: "data.db",
+      sql: "select 1;"
+    });
+
+    expect(resolved.renderedPreview).toBe('sqlite3 "data.db"');
+    expect(resolved.execution).toEqual({
+      kind: "exec",
+      program: "sqlite3",
+      args: ["data.db"],
+      stdinArgKey: "sql",
+      stdin: "select 1;"
+    });
+  });
+
+  it("renders script execution with fallback placeholder values", () => {
+    const command = createTemplate({
+      preview: "bash: echo {{message}}",
+      execution: {
+        kind: "script",
+        runner: "bash",
+        command: "echo {{message}}"
+      },
+      needsArgs: true,
+      args: [
+        {
+          key: "message",
+          label: "Message",
+          token: "{{message}}",
+          required: true,
+          placeholder: "hello"
+        }
+      ]
+    });
+
+    const resolved = resolveCommandExecution(command, { message: "   " });
+
+    expect(resolved.renderedPreview).toBe("bash: echo hello");
+    expect(resolved.execution).toEqual({
+      kind: "script",
+      runner: "bash",
+      command: "echo hello"
+    });
+  });
+
+  it("throws when command is missing structured execution", () => {
+    const command = createTemplate({
+      execution: undefined
+    });
+
+    expect(() => resolveCommandExecution(command)).toThrow(
+      'Command "test" is missing structured execution.'
+    );
+  });
+
+  it("preserves unquoted short exec args while normalizing quoted values", () => {
+    const command = createTemplate({
+      preview: "tool {{flag}} {{single}} {{double}}",
+      execution: {
+        kind: "exec",
+        program: "tool",
+        args: ["{{flag}}", "'{{single}}'", '"{{double}}"']
+      },
+      needsArgs: true,
+      args: [
+        { key: "flag", label: "Flag", token: "{{flag}}", required: true, placeholder: "-f" },
+        { key: "single", label: "Single", token: "{{single}}", required: true, placeholder: "alpha" },
+        { key: "double", label: "Double", token: "{{double}}", required: true, placeholder: "beta" }
+      ]
+    });
+
+    const resolved = resolveCommandExecution(command);
+
+    expect(resolved.renderedPreview).toBe('tool -f \'alpha\' "beta"');
+    expect(resolved.execution).toEqual({
+      kind: "exec",
+      program: "tool",
+      args: ["-f", "alpha", "beta"],
+      stdinArgKey: undefined,
+      stdin: undefined
+    });
+  });
+
+  it("builds empty initial values when args have no defaults", () => {
+    const command = createTemplate({
+      needsArgs: true,
+      args: [
+        { key: "message", label: "Message", token: "{{message}}", required: false }
+      ]
+    });
+
+    const snapshot = buildInitialArgValues(command);
+
+    expect(snapshot.values).toEqual({
+      message: ""
+    });
+  });
+});

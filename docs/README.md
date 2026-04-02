@@ -13,14 +13,13 @@
 
 ## 命令资产维护
 
-1. 人维护：`docs/command_sources/_*.md`
-2. 机器生成：`assets/runtime_templates/commands/builtin/_*.json`
+1. 真源：`commands/catalog/_*.yaml`
+2. 运行时产物：`assets/runtime_templates/commands/builtin/_*.json`
 3. 生成清单：`assets/runtime_templates/commands/builtin/index.json`
-4. 生成 Markdown 快照：`docs/builtin_commands.generated.md`（必须提交）
+4. 只读文档：`docs/generated_commands/_*.md` 与 `docs/generated_commands/index.md`
 5. 生成命令：`npm run commands:builtin:generate`
 6. schema 同步检查：`npm run commands:schema:check`
-7. builtin Markdown 参数 DSL 本轮只扩 `min/max`
-8. CI 会阻断以上生成产物的未提交漂移
+7. CI 会阻断 `assets/runtime_templates/commands/builtin/**` 与 `docs/generated_commands/**` 的未提交漂移
 
 ## 其他文档
 
@@ -30,9 +29,10 @@
 4. `docs/plan/README.md`：需求/计划文档（Docs-first 落地入口）
 5. `docs/architecture_plan.md`：架构说明（当前实现 + Roadmap）
 6. `docs/.maintainer/work/README.md`：维护者内部跑书入口（发布/CI 核对/人工回归）
-7. `docs/command_sources/README.md`：内置命令源文件维护入口（含生成说明）
-8. `docs/schemas/README.md`：命令文件 schema 说明
-9. `docs/schemas/command-file.schema.json`：命令 JSON schema
-10. `assets/runtime_templates/README.md`：运行时模板资产说明与维护口径
-11. `.github/workflows/ci-gate.yml` / `.github/pull_request_template.md`：CI/CD 与协作模板说明
-12. `docs/ui-redesign/README.md`：界面大重构工作区（主窗口 / Settings / 配色 / Prompt / 影响分析）
+7. `commands/catalog/README.md`：内置命令 YAML 真源维护入口
+8. `docs/command_sources/README.md`：历史目录退役说明
+9. `docs/schemas/README.md`：命令文件 schema 说明
+10. `docs/schemas/command-file.schema.json`：命令 JSON schema
+11. `assets/runtime_templates/README.md`：运行时模板资产说明与维护口径
+12. `.github/workflows/ci-gate.yml` / `.github/pull_request_template.md`：CI/CD 与协作模板说明
+13. `docs/ui-redesign/README.md`：界面大重构工作区（主窗口 / Settings / 配色 / Prompt / 影响分析）

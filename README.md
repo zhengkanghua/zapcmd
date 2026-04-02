@@ -95,14 +95,19 @@ node scripts/setup-githooks.mjs
 npm run precommit:guard
 ```
 
-Builtin command sources (`docs/command_sources/_*.md`) require generating and committing outputs:
+Builtin command sources now live in `commands/catalog/_*.yaml`.
 
-CI blocks drift in both `assets/runtime_templates/commands/builtin` and `docs/builtin_commands.generated.md`.
+Generate and commit both runtime JSON and generated Markdown docs:
 
 ```bash
 npm run commands:builtin:generate
-git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
+git add commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands
 ```
+
+CI blocks drift in:
+
+- `assets/runtime_templates/commands/builtin`
+- `docs/generated_commands`
 
 Windows desktop E2E smoke (CI runs this too):
 
@@ -160,13 +165,25 @@ Minimal example:
 {
   "commands": [
     {
-      "id": "custom-hello-win",
+      "id": "custom-hello",
       "name": "Custom Hello",
       "tags": ["custom", "hello"],
-      "category": "redis",
-      "platform": "win",
-      "template": "Write-Output \"hello from user commands\"",
-      "adminRequired": false
+      "category": "dev",
+      "platform": "all",
+      "exec": {
+        "program": "echo",
+        "args": ["{{text}}"]
+      },
+      "adminRequired": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "default": "hello from user commands"
+        }
+      ]
     }
   ]
 }
@@ -179,7 +196,9 @@ Schema:
 
 Notes:
 
-- Command objects no longer accept a top-level `shell` field. If a command explicitly depends on PowerShell, declare it in `prerequisites`, for example `shell:powershell`.
+- Command objects no longer accept `template` or a top-level `shell` field.
+- Use either `exec.program + exec.args[]` or `script.runner + script.command`.
+- If a command explicitly depends on PowerShell, declare it in `prerequisites`, for example `shell:powershell`.
 - Supported prerequisite types are `binary`, `shell`, and `env`.
 - On Windows, `adminRequired=true` means "launch the matching elevated terminal when executing this command"; it does not elevate the ZapCmd app process itself.
 - `category` must be a slug string such as `custom`, `redis`, or `mysql-tools`.

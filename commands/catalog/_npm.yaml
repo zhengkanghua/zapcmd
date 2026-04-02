@@ -1,0 +1,282 @@
+meta:
+  name: NPM
+  moduleSlug: npm
+commands:
+  - id: npm-install
+    name: NPM 安装依赖
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - install
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - install
+      - 安装
+      - 依赖
+      - dependency
+  - id: npm-install-dev
+    name: NPM 安装开发依赖
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - install
+        - -D
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - install
+      - dev
+      - 安装
+      - 依赖
+      - dependency
+  - id: npm-uninstall
+    name: NPM 卸载依赖
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - uninstall
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - 卸载
+      - uninstall
+      - 依赖
+      - dependency
+  - id: npm-run
+    name: NPM 运行脚本
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - run
+        - "{{script}}"
+    adminRequired: false
+    args:
+      - key: script
+        label: script
+        type: text
+        required: true
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - 运行
+      - run
+  - id: npm-list
+    name: NPM 查看已安装
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - list
+        - --depth=0
+    adminRequired: false
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - 列表
+      - list
+      - 查看
+      - show
+      - 安装
+      - install
+  - id: npm-outdated
+    name: NPM 检查过期依赖
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - outdated
+    adminRequired: false
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - 过期
+      - outdated
+      - 依赖
+      - dependency
+  - id: npm-update
+    name: NPM 更新依赖
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - update
+    adminRequired: false
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - 更新
+      - update
+      - 依赖
+      - dependency
+  - id: npm-cache-clean
+    name: NPM 清理缓存
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - cache
+        - clean
+        - --force
+    adminRequired: false
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - 缓存
+      - cache
+      - 清理
+      - clean
+  - id: npm-install-project
+    name: NPM 安装项目依赖
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - install
+    adminRequired: false
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - install
+      - 项目
+      - project
+      - 依赖
+      - dependency
+  - id: npm-ci
+    name: NPM 基于 lockfile 安装依赖
+    category: package
+    platform: all
+    exec:
+      program: npm
+      args:
+        - ci
+    adminRequired: false
+    prerequisites:
+      - id: npm
+        type: binary
+        required: true
+        check: binary:npm
+    tags:
+      - 包管理
+      - package
+      - npm
+      - ci
+      - lockfile
+      - 安装
+      - 依赖
+      - dependency
+  - id: npx-run
+    name: NPX 运行临时包命令
+    category: package
+    platform: all
+    exec:
+      program: npx
+      args:
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: npx
+        type: binary
+        required: true
+        check: binary:npx
+    tags:
+      - 包管理
+      - package
+      - npx
+      - exec
+      - 临时
+      - 执行
+      - run

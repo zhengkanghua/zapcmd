@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "GitHub CLI",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_gh.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -23,9 +20,14 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh auth status",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "auth",
+          "status"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "gh",
@@ -51,9 +53,14 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh pr list",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "pr",
+          "list"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "gh",
@@ -78,9 +85,15 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh pr view {{pr}}",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "pr",
+          "view",
+          "{{pr}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pr",
@@ -112,9 +125,15 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh pr checkout {{pr}}",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "pr",
+          "checkout",
+          "{{pr}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pr",
@@ -153,9 +172,14 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh issue list",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "issue",
+          "list"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "gh",
@@ -181,9 +205,14 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh repo view",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "repo",
+          "view"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "gh",
@@ -209,9 +238,14 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh run list",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "run",
+          "list"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "gh",
@@ -236,9 +270,15 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh run view {{runId}}",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "run",
+          "view",
+          "{{runId}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "runId",
@@ -271,9 +311,15 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh run watch {{runId}}",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "run",
+          "watch",
+          "{{runId}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "runId",
@@ -306,9 +352,15 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh pr checks {{pr}}",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "pr",
+          "checks",
+          "{{pr}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pr",
@@ -341,9 +393,14 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh release list",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "release",
+          "list"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "gh",
@@ -368,9 +425,14 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh workflow list",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "workflow",
+          "list"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "gh",
@@ -396,9 +458,15 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh pr diff {{pr}}",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "pr",
+          "diff",
+          "{{pr}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pr",
@@ -430,9 +498,15 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh workflow run \"{{workflow}}\"",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "workflow",
+          "run",
+          "\"{{workflow}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "workflow",
@@ -464,9 +538,15 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh run rerun {{runId}}",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "run",
+          "rerun",
+          "{{runId}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "runId",
@@ -500,9 +580,17 @@
       ],
       "category": "gh",
       "platform": "all",
-      "template": "gh run download {{runId}} -D \"{{dir}}\"",
+      "exec": {
+        "program": "gh",
+        "args": [
+          "run",
+          "download",
+          "{{runId}}",
+          "-D",
+          "\"{{dir}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "runId",

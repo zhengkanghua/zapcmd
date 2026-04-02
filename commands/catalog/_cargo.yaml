@@ -1,0 +1,93 @@
+meta:
+  name: Cargo
+  moduleSlug: cargo
+commands:
+  - id: cargo-build
+    name: Cargo 构建
+    category: package
+    platform: all
+    exec:
+      program: cargo
+      args:
+        - build
+        - --release
+    adminRequired: false
+    prerequisites:
+      - id: cargo
+        type: binary
+        required: true
+        check: binary:cargo
+    tags:
+      - 包管理
+      - package
+      - cargo
+      - 构建
+      - build
+  - id: cargo-run
+    name: Cargo 运行
+    category: package
+    platform: all
+    exec:
+      program: cargo
+      args:
+        - run
+    adminRequired: false
+    prerequisites:
+      - id: cargo
+        type: binary
+        required: true
+        check: binary:cargo
+    tags:
+      - 包管理
+      - package
+      - cargo
+      - 运行
+      - run
+  - id: cargo-test
+    name: Cargo 测试
+    category: package
+    platform: all
+    exec:
+      program: cargo
+      args:
+        - test
+    adminRequired: false
+    prerequisites:
+      - id: cargo
+        type: binary
+        required: true
+        check: binary:cargo
+    tags:
+      - 包管理
+      - package
+      - cargo
+      - test
+      - 测试
+  - id: cargo-add
+    name: Cargo 添加依赖
+    category: package
+    platform: all
+    exec:
+      program: cargo
+      args:
+        - add
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: cargo
+        type: binary
+        required: true
+        check: binary:cargo
+    tags:
+      - 包管理
+      - package
+      - cargo
+      - 添加
+      - add
+      - 依赖
+      - dependency

@@ -1,0 +1,574 @@
+meta:
+  name: 系统管理
+  moduleSlug: system
+commands:
+  - id: ps-find
+    name: 按名称查找进程
+    category: system
+    platform: mac/linux
+    script:
+      runner: bash
+      command: ps aux | grep {{name}}
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 系统
+      - system
+      - 进程
+      - ps
+      - 查找
+      - find
+      - process
+  - id: ps-find-win
+    name: 按名称查找进程
+    category: system
+    platform: win
+    script:
+      runner: cmd
+      command: tasklist | findstr /i {{name}}
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    prerequisites:
+      - id: cmd
+        type: shell
+        required: true
+        check: shell:cmd
+    tags:
+      - 系统
+      - system
+      - 进程
+      - ps
+      - 查找
+      - find
+      - process
+  - id: kill-pid
+    name: 按 PID 杀进程
+    category: system
+    platform: mac/linux
+    exec:
+      program: kill
+      args:
+        - "-9"
+        - "{{pid}}"
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: pid
+        label: pid
+        type: number
+        required: true
+        validation:
+          min: 1
+          max: 2147483647
+    tags:
+      - 系统
+      - system
+      - kill
+      - 终止
+      - 结束
+      - pid
+      - 进程
+      - process
+  - id: kill-pid-win
+    name: 按 PID 杀进程
+    category: system
+    platform: win
+    exec:
+      program: taskkill
+      args:
+        - /F
+        - /PID
+        - "{{pid}}"
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: pid
+        label: pid
+        type: number
+        required: true
+        validation:
+          min: 1
+          max: 2147483647
+    tags:
+      - 系统
+      - system
+      - kill
+      - 终止
+      - 结束
+      - pid
+      - 进程
+      - process
+  - id: kill-name
+    name: 按名称杀进程
+    category: system
+    platform: mac/linux
+    exec:
+      program: pkill
+      args:
+        - -f
+        - "{{name}}"
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    tags:
+      - 系统
+      - system
+      - kill
+      - 终止
+      - 结束
+      - 名称
+      - name
+      - 进程
+      - process
+  - id: kill-name-win
+    name: 按名称杀进程
+    category: system
+    platform: win
+    exec:
+      program: taskkill
+      args:
+        - /F
+        - /IM
+        - "{{name}}"
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    tags:
+      - 系统
+      - system
+      - kill
+      - 终止
+      - 结束
+      - 名称
+      - name
+      - 进程
+      - process
+  - id: disk-usage
+    name: 查看磁盘空间
+    category: system
+    platform: mac/linux
+    exec:
+      program: df
+      args:
+        - -h
+    adminRequired: false
+    tags:
+      - 系统
+      - system
+      - 磁盘
+      - disk
+      - 使用率
+      - usage
+      - 查看
+      - show
+  - id: disk-usage-win
+    name: 查看磁盘空间
+    category: system
+    platform: win
+    script:
+      runner: powershell
+      command: Get-PSDrive -PSProvider FileSystem
+    adminRequired: false
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 系统
+      - system
+      - 磁盘
+      - disk
+      - 使用率
+      - usage
+      - 查看
+      - show
+  - id: dir-size
+    name: 查看目录大小
+    category: system
+    platform: mac/linux
+    exec:
+      program: du
+      args:
+        - -sh
+        - "{{path}}"
+    adminRequired: false
+    args:
+      - key: path
+        label: path
+        type: path
+        required: true
+    tags:
+      - 系统
+      - system
+      - 目录
+      - directory
+      - 大小
+      - size
+      - 查看
+      - show
+  - id: dir-size-win
+    name: 查看目录大小
+    category: system
+    platform: win
+    script:
+      runner: powershell
+      command: (Get-ChildItem -Recurse {{path}} | Measure-Object -Property Length
+        -Sum).Sum / 1MB
+    adminRequired: false
+    args:
+      - key: path
+        label: path
+        type: path
+        required: true
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 系统
+      - system
+      - 目录
+      - directory
+      - 大小
+      - size
+      - 查看
+      - show
+  - id: memory-usage
+    name: 查看内存使用
+    category: system
+    platform: mac
+    script:
+      runner: bash
+      command: top -l 1 | head -n 10
+    adminRequired: false
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 系统
+      - system
+      - 内存
+      - memory
+      - 使用率
+      - usage
+      - 查看
+      - show
+  - id: memory-usage-linux
+    name: 查看内存使用
+    category: system
+    platform: linux
+    exec:
+      program: free
+      args:
+        - -h
+    adminRequired: false
+    tags:
+      - 系统
+      - system
+      - 内存
+      - memory
+      - 使用率
+      - usage
+      - 查看
+      - show
+  - id: memory-usage-win
+    name: 查看内存使用
+    category: system
+    platform: win
+    script:
+      runner: powershell
+      command: Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First
+        10 Name, @{N='Mem(MB)';E={[math]::round($_.WorkingSet/1MB,1)}}
+    adminRequired: false
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 系统
+      - system
+      - 内存
+      - memory
+      - 使用率
+      - usage
+      - 查看
+      - show
+  - id: system-info
+    name: 查看系统信息
+    category: system
+    platform: mac/linux
+    exec:
+      program: uname
+      args:
+        - -a
+    adminRequired: false
+    tags:
+      - 系统
+      - system
+      - info
+      - 查看
+      - show
+  - id: system-info-win
+    name: 查看系统信息
+    category: system
+    platform: win
+    exec:
+      program: systeminfo
+      args: []
+    adminRequired: false
+    tags:
+      - 系统
+      - system
+      - info
+      - 查看
+      - show
+  - id: env-var-set
+    name: 设置环境变量
+    category: system
+    platform: mac/linux
+    exec:
+      program: export
+      args:
+        - "{{key}}={{value}}"
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: value
+        label: value
+        type: text
+        required: true
+    tags:
+      - 系统
+      - system
+      - 环境变量
+      - env
+      - 变量
+      - var
+      - 设置
+      - set
+  - id: env-var-set-win
+    name: 设置环境变量
+    category: system
+    platform: win
+    script:
+      runner: powershell
+      command: $env:{{key}} = "{{value}}"
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: value
+        label: value
+        type: text
+        required: true
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 系统
+      - system
+      - 环境变量
+      - env
+      - 变量
+      - var
+      - 设置
+      - set
+  - id: env-var-get
+    name: 查看环境变量
+    category: system
+    platform: mac/linux
+    exec:
+      program: echo
+      args:
+        - ${{key}}
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+    tags:
+      - 系统
+      - system
+      - 环境变量
+      - env
+      - 变量
+      - var
+      - 获取
+      - get
+      - 查看
+      - show
+  - id: env-var-get-win
+    name: 查看环境变量
+    category: system
+    platform: win
+    script:
+      runner: powershell
+      command: echo $env:{{key}}
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 系统
+      - system
+      - 环境变量
+      - env
+      - 变量
+      - var
+      - 获取
+      - get
+      - 查看
+      - show
+  - id: uptime
+    name: 系统运行时间
+    category: system
+    platform: mac/linux
+    exec:
+      program: uptime
+      args: []
+    adminRequired: false
+    tags:
+      - 系统
+      - system
+      - 运行时间
+      - uptime
+  - id: cpu-top
+    name: CPU 占用排行
+    category: system
+    platform: mac/linux
+    exec:
+      program: top
+      args:
+        - -o
+        - cpu
+        - -n
+        - "10"
+        - -l
+        - "1"
+    adminRequired: false
+    tags:
+      - 系统
+      - system
+      - cpu
+      - top
+      - 占用
+      - 冲突
+  - id: cpu-top-win
+    name: CPU 占用排行
+    category: system
+    platform: win
+    script:
+      runner: powershell
+      command: Get-Process | Sort-Object CPU -Descending | Select-Object -First 10
+    adminRequired: false
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 系统
+      - system
+      - cpu
+      - top
+      - 占用
+      - 冲突
+  - id: cron-list
+    name: 查看定时任务
+    category: system
+    platform: mac/linux
+    exec:
+      program: crontab
+      args:
+        - -l
+    adminRequired: false
+    prerequisites:
+      - id: crontab
+        type: binary
+        required: true
+        check: binary:crontab
+    tags:
+      - 系统
+      - system
+      - 定时任务
+      - cron
+      - 列表
+      - list
+      - 查看
+      - show
+  - id: hosts-edit
+    name: 编辑 hosts 文件
+    category: system
+    platform: mac/linux
+    exec:
+      program: sudo
+      args:
+        - nano
+        - /etc/hosts
+    adminRequired: true
+    tags:
+      - 系统
+      - system
+      - hosts
+      - 编辑
+      - edit
+      - 文件
+      - file
+  - id: hosts-edit-win
+    name: 编辑 hosts 文件
+    category: system
+    platform: win
+    exec:
+      program: notepad
+      args:
+        - C:\\Windows\\System32\\drivers\\etc\\hosts
+    adminRequired: true
+    tags:
+      - 系统
+      - system
+      - hosts
+      - 编辑
+      - edit
+      - 文件
+      - file

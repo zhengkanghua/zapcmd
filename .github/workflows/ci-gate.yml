@@ -40,11 +40,11 @@ jobs:
       - name: 检查内置命令生成产物已同步提交
         run: |
           npm run commands:builtin:generate
-          git diff --exit-code -- assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md || (
+          git diff --exit-code -- commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands || (
             echo "检测到内置命令生成产物未同步提交。请在本地执行："
             echo "  npm run commands:builtin:generate"
             echo "然后提交生成产物："
-            echo "  git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md"
+            echo "  git add commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands"
             exit 1
           )
 

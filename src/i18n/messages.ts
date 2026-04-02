@@ -58,7 +58,8 @@ export const messages = {
         escCancel: "按 Esc 取消返回"
       },
       preview: {
-        label: "实际执行"
+        label: "实际执行",
+        expandScript: "展开脚本内容"
       }
     },
     settings: {
@@ -420,7 +421,8 @@ export const messages = {
         escCancel: "Press Esc to cancel"
       },
       preview: {
-        label: "Actual Command"
+        label: "Actual Command",
+        expandScript: "Expand script body"
       }
     },
     settings: {

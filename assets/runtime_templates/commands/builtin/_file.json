@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "文件操作",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_file.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -18,9 +15,15 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "find {{path}} -name \"{{pattern}}\"",
+      "exec": {
+        "program": "find",
+        "args": [
+          "{{path}}",
+          "-name"
+        ],
+        "stdinArgKey": "pattern"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -48,9 +51,15 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "find {{path}} -name \"{{pattern}}\"",
+      "exec": {
+        "program": "find",
+        "args": [
+          "{{path}}",
+          "-name"
+        ],
+        "stdinArgKey": "pattern"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -78,9 +87,11 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "Get-ChildItem -Recurse -Filter \"{{pattern}}\" {{path}}",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-ChildItem -Recurse -Filter \"{{pattern}}\" {{path}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -118,9 +129,15 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "grep -rn \"{{pattern}}\" {{path}}",
+      "exec": {
+        "program": "grep",
+        "args": [
+          "-rn",
+          "{{path}}"
+        ],
+        "stdinArgKey": "pattern"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pattern",
@@ -150,9 +167,15 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "grep -rn \"{{pattern}}\" {{path}}",
+      "exec": {
+        "program": "grep",
+        "args": [
+          "-rn",
+          "{{path}}"
+        ],
+        "stdinArgKey": "pattern"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pattern",
@@ -182,9 +205,11 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "Select-String -Recurse -Pattern \"{{pattern}}\" -Path \"{{path}}\"",
+      "script": {
+        "runner": "powershell",
+        "command": "Select-String -Recurse -Pattern \"{{pattern}}\" -Path \"{{path}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pattern",
@@ -223,9 +248,14 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "ls -la {{path}}",
+      "exec": {
+        "program": "ls",
+        "args": [
+          "-la",
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -250,9 +280,14 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "ls -la {{path}}",
+      "exec": {
+        "program": "ls",
+        "args": [
+          "-la",
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -277,9 +312,11 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "Get-ChildItem -Force {{path}}",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-ChildItem -Force {{path}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -311,9 +348,15 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "tree -L {{depth}} {{path}}",
+      "exec": {
+        "program": "tree",
+        "args": [
+          "-L",
+          "{{depth}}",
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -356,9 +399,15 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "tree -L {{depth}} {{path}}",
+      "exec": {
+        "program": "tree",
+        "args": [
+          "-L",
+          "{{depth}}",
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -401,9 +450,14 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "tree /F {{path}}",
+      "exec": {
+        "program": "tree",
+        "args": [
+          "/F",
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -427,9 +481,14 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "ls -lh {{file}}",
+      "exec": {
+        "program": "ls",
+        "args": [
+          "-lh",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -452,9 +511,14 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "ls -lh {{file}}",
+      "exec": {
+        "program": "ls",
+        "args": [
+          "-lh",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -474,9 +538,11 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "find {{path}} -type f | wc -l",
+      "script": {
+        "runner": "bash",
+        "command": "find {{path}} -type f | wc -l"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -484,6 +550,14 @@
           "type": "path",
           "required": true,
           "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -497,9 +571,11 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "find {{path}} -type f | wc -l",
+      "script": {
+        "runner": "bash",
+        "command": "find {{path}} -type f | wc -l"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -507,6 +583,14 @@
           "type": "path",
           "required": true,
           "default": "."
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -521,9 +605,14 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "chmod {{mode}} {{file}}",
+      "exec": {
+        "program": "chmod",
+        "args": [
+          "{{mode}}",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "mode",
@@ -550,9 +639,14 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "chmod {{mode}} {{file}}",
+      "exec": {
+        "program": "chmod",
+        "args": [
+          "{{mode}}",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "mode",
@@ -579,9 +673,14 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "chown {{owner}} {{file}}",
+      "exec": {
+        "program": "chown",
+        "args": [
+          "{{owner}}",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "owner",
@@ -608,9 +707,14 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "chown {{owner}} {{file}}",
+      "exec": {
+        "program": "chown",
+        "args": [
+          "{{owner}}",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "owner",
@@ -638,9 +742,15 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "tar -czf {{output}}.tar.gz {{input}}",
+      "exec": {
+        "program": "tar",
+        "args": [
+          "-czf",
+          "{{output}}.tar.gz",
+          "{{input}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "input",
@@ -668,9 +778,15 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "tar -czf {{output}}.tar.gz {{input}}",
+      "exec": {
+        "program": "tar",
+        "args": [
+          "-czf",
+          "{{output}}.tar.gz",
+          "{{input}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "input",
@@ -698,9 +814,14 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "tar -xzf {{file}}",
+      "exec": {
+        "program": "tar",
+        "args": [
+          "-xzf",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -722,9 +843,14 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "tar -xzf {{file}}",
+      "exec": {
+        "program": "tar",
+        "args": [
+          "-xzf",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -746,9 +872,15 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "zip -r {{output}}.zip {{input}}",
+      "exec": {
+        "program": "zip",
+        "args": [
+          "-r",
+          "{{output}}.zip",
+          "{{input}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "input",
@@ -784,9 +916,15 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "zip -r {{output}}.zip {{input}}",
+      "exec": {
+        "program": "zip",
+        "args": [
+          "-r",
+          "{{output}}.zip",
+          "{{input}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "input",
@@ -822,9 +960,15 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "unzip {{file}} -d {{dest}}",
+      "exec": {
+        "program": "unzip",
+        "args": [
+          "{{file}}",
+          "-d",
+          "{{dest}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -861,9 +1005,15 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "unzip {{file}} -d {{dest}}",
+      "exec": {
+        "program": "unzip",
+        "args": [
+          "{{file}}",
+          "-d",
+          "{{dest}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -900,9 +1050,11 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "Compress-Archive -Path \"{{input}}\" -DestinationPath \"{{output}}.zip\" -Force",
+      "script": {
+        "runner": "powershell",
+        "command": "Compress-Archive -Path \"{{input}}\" -DestinationPath \"{{output}}.zip\" -Force"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "input",
@@ -938,9 +1090,11 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "Expand-Archive -Path \"{{file}}\" -DestinationPath \"{{dest}}\" -Force",
+      "script": {
+        "runner": "powershell",
+        "command": "Expand-Archive -Path \"{{file}}\" -DestinationPath \"{{dest}}\" -Force"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -976,9 +1130,13 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "fswatch {{path}}",
+      "exec": {
+        "program": "fswatch",
+        "args": [
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -1007,9 +1165,13 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "fswatch {{path}}",
+      "exec": {
+        "program": "fswatch",
+        "args": [
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -1041,9 +1203,14 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "tail -f {{file}}",
+      "exec": {
+        "program": "tail",
+        "args": [
+          "-f",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -1067,9 +1234,14 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "tail -f {{file}}",
+      "exec": {
+        "program": "tail",
+        "args": [
+          "-f",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -1093,9 +1265,11 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "Get-Content -Path \"{{file}}\" -Tail {{lines}} -Wait",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-Content -Path \"{{file}}\" -Tail {{lines}} -Wait"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -1136,9 +1310,15 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "head -n {{lines}} {{file}}",
+      "exec": {
+        "program": "head",
+        "args": [
+          "-n",
+          "{{lines}}",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -1171,9 +1351,15 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "head -n {{lines}} {{file}}",
+      "exec": {
+        "program": "head",
+        "args": [
+          "-n",
+          "{{lines}}",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -1206,9 +1392,11 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "Get-Content -Path \"{{file}}\" -TotalCount {{lines}}",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-Content -Path \"{{file}}\" -TotalCount {{lines}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -1250,9 +1438,14 @@
       ],
       "category": "file",
       "platform": "mac",
-      "template": "wc -l {{file}}",
+      "exec": {
+        "program": "wc",
+        "args": [
+          "-l",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -1275,9 +1468,14 @@
       ],
       "category": "file",
       "platform": "linux",
-      "template": "wc -l {{file}}",
+      "exec": {
+        "program": "wc",
+        "args": [
+          "-l",
+          "{{file}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -1300,9 +1498,11 @@
       ],
       "category": "file",
       "platform": "win",
-      "template": "(Get-Content -Path \"{{file}}\" | Measure-Object -Line).Lines",
+      "script": {
+        "runner": "powershell",
+        "command": "(Get-Content -Path \"{{file}}\" | Measure-Object -Line).Lines"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",

@@ -128,17 +128,18 @@ Then execute:
 
 `git clean -fdx`
 
-## Builtin command sources (must commit generated outputs)
+## Builtin command catalog (must commit generated outputs)
 
 If you change:
-- `docs/command_sources/_*.md`
+- `commands/catalog/_*.yaml`
 - `scripts/generate_builtin_commands.ps1`
+- `scripts/commands/generate-builtin-commands.mjs`
 
 You must regenerate and commit outputs:
 
 `pwsh -File scripts/generate_builtin_commands.ps1`
 
-`git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md`
+`git add commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands`
 
 CI (Windows) will block PRs if generated outputs are not committed.
 

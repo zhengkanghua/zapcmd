@@ -18,13 +18,22 @@ describe("createCommandExecutor", () => {
     isTauriMock.mockReset();
   });
 
-  it("calls tauri invoke when running in tauri", async () => {
+  it("calls tauri invoke with structured execution steps", async () => {
     isTauriMock.mockReturnValue(true);
     const executor = createCommandExecutor();
 
     await executor.run({
       terminalId: "powershell",
-      command: "echo test",
+      steps: [
+        {
+          summary: "git status",
+          execution: {
+            kind: "exec",
+            program: "git",
+            args: ["status"]
+          }
+        }
+      ],
       requiresElevation: true,
       alwaysElevated: false
     });
@@ -32,7 +41,16 @@ describe("createCommandExecutor", () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith("run_command_in_terminal", {
       terminalId: "powershell",
-      command: "echo test",
+      steps: [
+        {
+          summary: "git status",
+          execution: {
+            kind: "exec",
+            program: "git",
+            args: ["status"]
+          }
+        }
+      ],
       requiresElevation: true,
       alwaysElevated: false
     });
@@ -44,15 +62,33 @@ describe("createCommandExecutor", () => {
 
     await executor.run({
       terminalId: "wt",
-      command: "echo 1",
+      steps: [
+        {
+          summary: "echo 1",
+          execution: {
+            kind: "exec",
+            program: "echo",
+            args: ["1"]
+          }
+        }
+      ],
       requiresElevation: true,
       alwaysElevated: false,
       terminalReusePolicy: "normal-only"
-    } as never);
+    });
 
     expect(invokeMock).toHaveBeenCalledWith("run_command_in_terminal", {
       terminalId: "wt",
-      command: "echo 1",
+      steps: [
+        {
+          summary: "echo 1",
+          execution: {
+            kind: "exec",
+            program: "echo",
+            args: ["1"]
+          }
+        }
+      ],
       requiresElevation: true,
       alwaysElevated: false,
       terminalReusePolicy: "normal-only"
@@ -70,7 +106,16 @@ describe("createCommandExecutor", () => {
     await expect(
       executor.run({
         terminalId: "wt",
-        command: "echo test",
+        steps: [
+          {
+            summary: "git status",
+            execution: {
+              kind: "exec",
+              program: "git",
+              args: ["status"]
+            }
+          }
+        ],
         requiresElevation: true,
         alwaysElevated: false
       })
@@ -86,7 +131,16 @@ describe("createCommandExecutor", () => {
     await expect(
       executor.run({
         terminalId: "powershell",
-        command: "echo test"
+        steps: [
+          {
+            summary: "echo test",
+            execution: {
+              kind: "exec",
+              program: "echo",
+              args: ["test"]
+            }
+          }
+        ]
       })
     ).rejects.toThrow(t("execution.desktopOnly"));
 

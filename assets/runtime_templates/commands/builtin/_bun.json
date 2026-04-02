@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Bun",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_bun.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -20,9 +17,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "bun install",
+      "exec": {
+        "program": "bun",
+        "args": [
+          "install"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "bun",
@@ -46,9 +47,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "bun run {{script}}",
+      "exec": {
+        "program": "bun",
+        "args": [
+          "run",
+          "{{script}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "script",
@@ -80,9 +86,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "bun add {{package}}",
+      "exec": {
+        "program": "bun",
+        "args": [
+          "add",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -115,9 +126,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "bun remove {{package}}",
+      "exec": {
+        "program": "bun",
+        "args": [
+          "remove",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",

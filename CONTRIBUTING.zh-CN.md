@@ -159,16 +159,17 @@
 
 ---
 
-## 3. 内置命令源变更（重要：需要生成并提交产物）
+## 3. 内置命令目录变更（重要：需要生成并提交产物）
 
-### 3.1 哪些文件属于“内置命令源”？
+### 3.1 哪些文件属于“内置命令真源”？
 
-- `docs/command_sources/_*.md`
+- `commands/catalog/_*.yaml`
 - `scripts/generate_builtin_commands.ps1`
+- `scripts/commands/generate-builtin-commands.mjs`
 
 ### 3.2 你需要做什么？
 
-当你修改了内置命令源文件后，必须运行生成并提交产物：
+当你修改了内置命令真源后，必须运行生成并提交产物：
 
 1) 运行生成（PowerShell）：
 
@@ -176,7 +177,7 @@
 
 2) 提交生成产物：
 
-`git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md`
+`git add commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands`
 
 > 本地 pre-commit 只会提示，不会阻断；但 GitHub Actions 的 Windows `quality-gate` 会阻断未提交的生成差异。
 

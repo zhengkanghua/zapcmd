@@ -19,7 +19,12 @@
 
 其“人维护源”（SSOT）在：
 
-- `docs/command_sources/_*.md`
+- `commands/catalog/_*.yaml`
+
+其只读生成文档在：
+
+- `docs/generated_commands/_*.md`
+- `docs/generated_commands/index.md`
 
 生成脚本：
 
@@ -29,9 +34,9 @@
 
 维护流程（最小闭环）：
 
-1. 修改 `docs/command_sources/_*.md`
+1. 修改 `commands/catalog/_*.yaml`
 2. 运行 `./scripts/generate_builtin_commands.ps1`
-3. 提交生成产物（`assets/runtime_templates/commands/builtin/**`）
+3. 提交生成产物（`assets/runtime_templates/commands/builtin/**` 与 `docs/generated_commands/**`）
 4. 本地门禁：`npm run check:all`
 
-更多说明：`docs/command_sources/README.md`
+更多说明：`commands/catalog/README.md`

@@ -1,0 +1,175 @@
+meta:
+  name: 证书与 OpenSSL
+  moduleSlug: cert
+commands:
+  - id: openssl-x509-text
+    name: OpenSSL 查看证书全文
+    category: cert
+    platform: all
+    exec:
+      program: openssl
+      args:
+        - x509
+        - -in
+        - '"{{file}}"'
+        - -text
+        - -noout
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: openssl
+        type: binary
+        required: true
+        check: binary:openssl
+    tags:
+      - openssl
+      - cert
+      - certificate
+      - x509
+      - text
+      - 证书
+      - 详情
+      - 查看
+      - show
+  - id: openssl-cert-dates
+    name: OpenSSL 查看证书有效期
+    category: cert
+    platform: all
+    exec:
+      program: openssl
+      args:
+        - x509
+        - -in
+        - '"{{file}}"'
+        - -dates
+        - -noout
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: openssl
+        type: binary
+        required: true
+        check: binary:openssl
+    tags:
+      - openssl
+      - cert
+      - certificate
+      - dates
+      - 证书
+      - 有效期
+      - 查看
+      - show
+  - id: openssl-cert-fingerprint
+    name: OpenSSL 查看证书指纹
+    category: cert
+    platform: all
+    exec:
+      program: openssl
+      args:
+        - x509
+        - -in
+        - '"{{file}}"'
+        - -fingerprint
+        - -sha256
+        - -noout
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: openssl
+        type: binary
+        required: true
+        check: binary:openssl
+    tags:
+      - openssl
+      - cert
+      - certificate
+      - fingerprint
+      - sha256
+      - 指纹
+      - 查看
+      - show
+  - id: openssl-s-client
+    name: OpenSSL 建立 TLS 连接
+    category: cert
+    platform: all
+    exec:
+      program: openssl
+      args:
+        - s_client
+        - -connect
+        - "{{host}}:{{port}}"
+        - -servername
+        - "{{host}}"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+      - key: port
+        label: port
+        type: number
+        required: true
+        default: "443"
+        validation:
+          min: 1
+          max: 65535
+    prerequisites:
+      - id: openssl
+        type: binary
+        required: true
+        check: binary:openssl
+    tags:
+      - openssl
+      - s_client
+      - tls
+      - ssl
+      - 证书
+      - 连接
+      - 握手
+      - handshake
+  - id: openssl-pkey-text
+    name: OpenSSL 查看密钥详情
+    category: cert
+    platform: all
+    exec:
+      program: openssl
+      args:
+        - pkey
+        - -in
+        - '"{{file}}"'
+        - -text
+        - -noout
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: openssl
+        type: binary
+        required: true
+        check: binary:openssl
+    tags:
+      - openssl
+      - pkey
+      - key
+      - private
+      - 公钥
+      - 私钥
+      - 详情
+      - 查看
+      - show

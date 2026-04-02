@@ -1,0 +1,709 @@
+meta:
+  name: Redis
+  moduleSlug: redis
+commands:
+  - id: redis-shell
+    name: Redis Shell
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args: []
+    adminRequired: false
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - shell
+      - cli
+      - 入口
+      - 控制台
+  - id: redis-ping
+    name: Redis PING
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - ping
+    adminRequired: false
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - ping
+      - 健康检查
+      - health
+  - id: redis-info
+    name: Redis INFO
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - info
+    adminRequired: false
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - info
+      - 信息
+  - id: redis-get
+    name: Redis GET
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - get
+        - '"{{key}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - get
+      - 查询
+      - query
+      - key
+  - id: redis-set
+    name: Redis SET
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - set
+        - '"{{key}}"'
+        - '"{{value}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: value
+        label: value
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - set
+      - 写入
+      - write
+      - key
+      - value
+  - id: redis-del
+    name: Redis DEL
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - del
+        - '"{{key}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - del
+      - 删除
+      - delete
+      - key
+  - id: redis-exists
+    name: Redis EXISTS
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - exists
+        - '"{{key}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - exists
+      - key
+  - id: redis-expire
+    name: Redis EXPIRE
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - expire
+        - '"{{key}}"'
+        - "{{seconds}}"
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: seconds
+        label: seconds
+        type: number
+        required: true
+        default: "60"
+        validation:
+          min: 1
+          max: 86400
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - expire
+      - ttl
+      - seconds
+      - key
+  - id: redis-ttl
+    name: Redis TTL
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - ttl
+        - '"{{key}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - ttl
+      - key
+  - id: redis-scan
+    name: Redis SCAN
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - --scan
+        - --pattern
+        - --count
+        - "{{count}}"
+      stdinArgKey: pattern
+    adminRequired: false
+    args:
+      - key: pattern
+        label: pattern
+        type: text
+        required: true
+        default: "*"
+      - key: count
+        label: count
+        type: number
+        required: true
+        default: "100"
+        validation:
+          min: 1
+          max: 1000
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - scan
+      - 查询
+      - query
+      - pattern
+  - id: redis-keys
+    name: Redis KEYS（慎用）
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - keys
+      stdinArgKey: pattern
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: pattern
+        label: pattern
+        type: text
+        required: true
+        default: "*"
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - keys
+      - 查询
+      - query
+      - pattern
+      - 慎用
+  - id: redis-hget
+    name: Redis HGET
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - hget
+        - '"{{key}}"'
+        - '"{{field}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: field
+        label: field
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - hget
+      - hash
+      - key
+      - field
+  - id: redis-hset
+    name: Redis HSET
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - hset
+        - '"{{key}}"'
+        - '"{{field}}"'
+        - '"{{value}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: field
+        label: field
+        type: text
+        required: true
+      - key: value
+        label: value
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - hset
+      - hash
+      - key
+      - field
+      - value
+  - id: redis-hgetall
+    name: Redis HGETALL
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - hgetall
+        - '"{{key}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - hgetall
+      - hash
+      - key
+  - id: redis-lpush
+    name: Redis LPUSH
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - lpush
+        - '"{{key}}"'
+        - '"{{value}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: value
+        label: value
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - lpush
+      - list
+      - key
+      - value
+  - id: redis-lrange
+    name: Redis LRANGE
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - lrange
+        - '"{{key}}"'
+        - "{{start}}"
+        - "{{stop}}"
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: start
+        label: start
+        type: number
+        required: true
+        default: "0"
+        validation:
+          min: 0
+      - key: stop
+        label: stop
+        type: number
+        required: true
+        default: "-1"
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - lrange
+      - list
+      - key
+      - start
+      - stop
+  - id: redis-sadd
+    name: Redis SADD
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - sadd
+        - '"{{key}}"'
+        - '"{{member}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: member
+        label: member
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - sadd
+      - set
+      - key
+      - member
+  - id: redis-smembers
+    name: Redis SMEMBERS
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - smembers
+        - '"{{key}}"'
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - smembers
+      - set
+      - key
+  - id: redis-zrange
+    name: Redis ZRANGE
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - zrange
+        - '"{{key}}"'
+        - "{{start}}"
+        - "{{stop}}"
+    adminRequired: false
+    args:
+      - key: key
+        label: key
+        type: text
+        required: true
+      - key: start
+        label: start
+        type: number
+        required: true
+        default: "0"
+        validation:
+          min: 0
+      - key: stop
+        label: stop
+        type: number
+        required: true
+        default: "-1"
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - zrange
+      - sorted-set
+      - key
+      - start
+      - stop
+  - id: redis-flushdb
+    name: Redis FLUSHDB（清空当前库）
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - flushdb
+    adminRequired: false
+    dangerous: true
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - flushdb
+      - 清空
+      - clear
+      - database
+      - 高危
+  - id: redis-dbsize
+    name: Redis DBSIZE
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - dbsize
+    adminRequired: false
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - dbsize
+      - observability
+      - 数据量
+      - 查看
+      - show
+  - id: redis-memory
+    name: Redis 内存信息
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - info
+        - memory
+    adminRequired: false
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - memory
+      - info
+      - observability
+      - 内存
+      - 查看
+      - show
+  - id: redis-client-list
+    name: Redis 客户端列表
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - client
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - client
+      - list
+      - observability
+      - 客户端
+      - 列表
+      - 查看
+      - show
+  - id: redis-slowlog-get
+    name: Redis 慢日志
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - slowlog
+        - get
+        - "{{count}}"
+    adminRequired: false
+    args:
+      - key: count
+        label: count
+        type: number
+        required: true
+        default: "10"
+        validation:
+          min: 1
+          max: 128
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - slowlog
+      - observability
+      - 慢日志
+      - 查看
+      - show
+  - id: redis-config-get
+    name: Redis 配置查询
+    category: redis
+    platform: all
+    exec:
+      program: redis-cli
+      args:
+        - config
+        - get
+      stdinArgKey: pattern
+    adminRequired: false
+    args:
+      - key: pattern
+        label: pattern
+        type: text
+        required: true
+        default: "*"
+    prerequisites:
+      - id: redis-cli
+        type: binary
+        required: true
+        check: binary:redis-cli
+    tags:
+      - redis
+      - config
+      - get
+      - observability
+      - 配置
+      - 查询
+      - 查看
+      - show

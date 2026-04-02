@@ -5,6 +5,7 @@ import type {
   CommandPrerequisiteProbeResult
 } from "../../../features/commands/prerequisiteTypes";
 import type { StagedCommand } from "../../../features/launcher/types";
+import type { StructuredTerminalExecutionStep } from "../../../services/commandExecutor";
 import type { FocusZone } from "../../launcher/useCommandQueue";
 
 export type ParamSubmitMode = "stage" | "execute";
@@ -33,11 +34,11 @@ export interface UseCommandExecutionOptions {
   triggerStagedFeedback: (commandId: string) => void;
   scheduleSearchInputFocus: (selectText?: boolean) => void;
   runCommandInTerminal: (
-    renderedCommand: string,
+    step: StructuredTerminalExecutionStep,
     options?: { requiresElevation?: boolean }
   ) => Promise<void>;
   runCommandsInTerminal?: (
-    renderedCommands: string[],
+    steps: StructuredTerminalExecutionStep[],
     options?: { requiresElevation?: boolean }
   ) => Promise<void>;
   runCommandPreflight?: (

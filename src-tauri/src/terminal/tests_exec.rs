@@ -1,5 +1,28 @@
 use super::{sanitize_command, spawn_and_forget, ProcessCommand, TerminalExecutionError};
 
+#[cfg(target_os = "windows")]
+fn exec_step(summary: &str, program: &str, args: &[&str]) -> super::TerminalExecutionStep {
+    super::TerminalExecutionStep {
+        summary: summary.to_string(),
+        execution: super::ExecutionSpec::Exec {
+            program: program.to_string(),
+            args: args.iter().map(|arg| (*arg).to_string()).collect(),
+            stdin_arg_key: None,
+            stdin: None,
+        },
+    }
+}
+
+fn script_step(summary: &str, runner: &str, command: &str) -> super::TerminalExecutionStep {
+    super::TerminalExecutionStep {
+        summary: summary.to_string(),
+        execution: super::ExecutionSpec::Script {
+            runner: runner.to_string(),
+            command: command.to_string(),
+        },
+    }
+}
+
 #[cfg(not(target_os = "windows"))]
 fn command_program(cmd: &ProcessCommand) -> String {
     cmd.get_program().to_string_lossy().into_owned()
@@ -51,6 +74,7 @@ fn spawn_and_forget_propagates_spawn_error() {
 #[cfg(target_os = "windows")]
 mod windows {
     use crate::terminal::{
+        build_windows_host_command,
         join_windows_arguments,
         map_windows_launch_error,
         resolve_windows_terminal_program_from_options,
@@ -261,12 +285,60 @@ mod windows {
         ]);
     }
 
+    #[test]
+    fn wt_exec_step_preserves_program_args_and_queue_markers() {
+        let command = build_windows_host_command(
+            "wt",
+            &[
+                super::exec_step("git status", "git", &["status"]),
+                super::exec_step("git branch", "git", &["branch"]),
+            ],
+        )
+        .expect("windows host command should build");
+
+        assert!(command.contains("[zapcmd][run][1/2] git status"));
+        assert!(command.contains("[zapcmd][run][2/2] git branch"));
+        assert!(command.contains(r#""git" status"#));
+        assert!(command.contains("[zapcmd][failed][2/2] git branch"));
+    }
+
+    #[test]
+    fn wt_script_step_routes_to_requested_powershell_runner() {
+        let command = build_windows_host_command(
+            "wt",
+            &[super::script_step(
+                "sync logs",
+                "powershell",
+                "Write-Host 'sync'",
+            )],
+        )
+        .expect("windows host command should build");
+
+        assert!(command.contains("powershell"));
+        assert!(command.contains("-NoProfile"));
+        assert!(command.contains("-Command"));
+        assert!(command.contains("Write-Host 'sync'"));
+    }
+
+    #[test]
+    fn cmd_script_step_keeps_cmd_control_shell() {
+        let command = build_windows_host_command(
+            "cmd",
+            &[super::script_step("dir", "cmd", "dir /b")],
+        )
+        .expect("windows host command should build");
+
+        assert!(command.contains("[zapcmd][run] dir"));
+        assert!(command.contains("dir /b"));
+        assert!(command.contains(r#"set "zapcmdCode=!ERRORLEVEL!""#));
+    }
+
 }
 
 #[cfg(target_os = "macos")]
 mod macos {
     use super::assert_command;
-    use crate::terminal::build_command_macos;
+    use crate::terminal::{build_command_macos, build_posix_host_command};
 
     #[test]
     fn build_macos_terminal_script_escape_contract() {
@@ -293,12 +365,26 @@ mod macos {
             ],
         );
     }
+
+    #[test]
+    fn macos_script_runner_keeps_requested_shell() {
+        let command = build_posix_host_command(&[
+            super::script_step("brew", "bash", "echo brew"),
+            super::script_step("sh-check", "sh", "echo sh"),
+        ])
+        .expect("posix host command should build");
+
+        assert!(command.contains("[zapcmd][run][1/2] brew"));
+        assert!(command.contains("bash -lc 'echo brew'"));
+        assert!(command.contains("sh -c 'echo sh'"));
+        assert!(command.contains("[zapcmd][failed][2/2] sh-check"));
+    }
 }
 
 #[cfg(all(unix, not(target_os = "macos")))]
 mod linux {
     use super::{assert_command, command_args};
-    use crate::terminal::build_command_linux;
+    use crate::terminal::{build_command_linux, build_posix_host_command};
 
     #[test]
     fn build_linux_gnome_terminal_bash_lc_contract() {
@@ -326,5 +412,19 @@ mod linux {
         let cmd = build_command_linux("something-else", "echo 1");
         assert_command(&cmd, "x-terminal-emulator", &["-e", "bash", "-lc", "echo 1"]);
         assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+    }
+
+    #[test]
+    fn build_linux_posix_host_command_keeps_requested_runners_and_step_markers() {
+        let command = build_posix_host_command(&[
+            super::script_step("bash step", "bash", "echo bash"),
+            super::script_step("sh step", "sh", "echo sh"),
+        ])
+        .expect("posix host command should build");
+
+        assert!(command.contains("[zapcmd][run][1/2] bash step"));
+        assert!(command.contains("bash -lc 'echo bash'"));
+        assert!(command.contains("sh -c 'echo sh'"));
+        assert!(command.contains("[zapcmd][failed][2/2] sh step"));
     }
 }

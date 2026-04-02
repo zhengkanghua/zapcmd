@@ -1,0 +1,744 @@
+meta:
+  name: Git 版本控制
+  moduleSlug: git
+commands:
+  - id: git-status
+    name: 查看仓库状态
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - status
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 状态
+      - status
+      - 查看
+      - show
+  - id: git-log
+    name: 查看提交历史
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - log
+        - --oneline
+        - -{{count}}
+    adminRequired: false
+    args:
+      - key: count
+        label: count
+        type: number
+        required: true
+        default: "20"
+        validation:
+          min: 1
+          max: 200
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 日志
+      - log
+      - 查看
+      - show
+      - 提交
+      - commit
+  - id: git-log-graph
+    name: 图形化提交历史
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - log
+        - --oneline
+        - --graph
+        - --all
+        - -{{count}}
+    adminRequired: false
+    args:
+      - key: count
+        label: count
+        type: number
+        required: true
+        default: "30"
+        validation:
+          min: 1
+          max: 200
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 日志
+      - log
+      - 图谱
+      - graph
+      - 提交
+      - commit
+  - id: git-diff
+    name: 查看未暂存更改
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - diff
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - diff
+      - 差异
+      - 查看
+      - show
+  - id: git-diff-staged
+    name: 查看已暂存更改
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - diff
+        - --staged
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - diff
+      - 差异
+      - 暂存区
+      - staged
+      - 查看
+      - show
+  - id: git-add-all
+    name: 暂存所有更改
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - add
+        - -A
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 添加
+      - add
+      - 全部
+      - all
+  - id: git-commit
+    name: 提交更改
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - commit
+        - -m
+        - '"{{message}}"'
+    adminRequired: false
+    args:
+      - key: message
+        label: message
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 提交
+      - commit
+  - id: git-commit-amend
+    name: 修改上次提交
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - commit
+        - --amend
+        - -m
+        - '"{{message}}"'
+    adminRequired: false
+    args:
+      - key: message
+        label: message
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 提交
+      - commit
+      - 修订
+      - amend
+  - id: git-push
+    name: 推送到远程
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - push
+        - origin
+        - "{{branch}}"
+    adminRequired: false
+    args:
+      - key: branch
+        label: branch
+        type: text
+        required: true
+        default: main
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 推送
+      - push
+  - id: git-pull
+    name: 拉取远程更新
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - pull
+        - origin
+        - "{{branch}}"
+    adminRequired: false
+    args:
+      - key: branch
+        label: branch
+        type: text
+        required: true
+        default: main
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 拉取
+      - pull
+  - id: git-branch-list
+    name: 查看所有分支
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - branch
+        - -a
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 分支
+      - branch
+      - 列表
+      - list
+      - 查看
+      - show
+  - id: git-branch-create
+    name: 创建新分支
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - checkout
+        - -b
+        - "{{branch}}"
+    adminRequired: false
+    args:
+      - key: branch
+        label: branch
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 分支
+      - branch
+      - 创建
+      - create
+  - id: git-branch-delete
+    name: 删除本地分支
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - branch
+        - -d
+        - "{{branch}}"
+    adminRequired: false
+    args:
+      - key: branch
+        label: branch
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 分支
+      - branch
+      - 删除
+      - delete
+      - remove
+  - id: git-switch
+    name: 切换分支
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - switch
+        - "{{branch}}"
+    adminRequired: false
+    args:
+      - key: branch
+        label: branch
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 切换
+      - switch
+      - 分支
+      - branch
+  - id: git-stash
+    name: 暂存当前更改
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - stash
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 暂存
+      - stash
+  - id: git-stash-pop
+    name: 恢复暂存更改
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - stash
+        - pop
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 暂存
+      - stash
+      - 恢复
+      - pop
+  - id: git-stash-list
+    name: 查看暂存列表
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - stash
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 暂存
+      - stash
+      - 列表
+      - list
+      - 查看
+      - show
+  - id: git-reset-soft
+    name: 软回退到提交
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - reset
+        - --soft
+        - "{{commit}}"
+    adminRequired: false
+    args:
+      - key: commit
+        label: commit
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 回退
+      - reset
+      - 软回退
+      - soft
+      - 提交
+      - commit
+  - id: git-reset-hard
+    name: 硬回退到提交
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - reset
+        - --hard
+        - "{{commit}}"
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: commit
+        label: commit
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 回退
+      - reset
+      - 硬回退
+      - hard
+      - 提交
+      - commit
+  - id: git-cherry-pick
+    name: Cherry Pick 提交
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - cherry-pick
+        - "{{commit}}"
+    adminRequired: false
+    args:
+      - key: commit
+        label: commit
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - cherry-pick
+      - pick
+      - 提交
+      - commit
+  - id: git-rebase
+    name: 变基到分支
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - rebase
+        - "{{branch}}"
+    adminRequired: false
+    args:
+      - key: branch
+        label: branch
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 变基
+      - rebase
+      - 分支
+      - branch
+  - id: git-merge
+    name: 合并分支
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - merge
+        - "{{branch}}"
+    adminRequired: false
+    args:
+      - key: branch
+        label: branch
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 合并
+      - merge
+      - 分支
+      - branch
+  - id: git-tag
+    name: 创建标签
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - tag
+        - "{{tag}}"
+    adminRequired: false
+    args:
+      - key: tag
+        label: tag
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 标签
+      - tag
+  - id: git-remote-url
+    name: 查看远程地址
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - remote
+        - -v
+    adminRequired: false
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 远程
+      - remote
+      - url
+      - 查看
+      - show
+  - id: git-clone
+    name: 克隆仓库
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - clone
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 克隆
+      - clone
+  - id: git-blame
+    name: 查看文件修改者
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - blame
+        - "{{file}}"
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - blame
+      - 查看
+      - show
+      - 文件
+      - file
+  - id: git-clean
+    name: 清理未跟踪文件
+    category: git
+    platform: all
+    exec:
+      program: git
+      args:
+        - clean
+        - -fd
+    adminRequired: false
+    dangerous: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - git
+      - 版本控制
+      - 清理
+      - clean
+      - 文件
+      - file
+  - id: git-config-user
+    name: 设置用户名和邮箱
+    category: git
+    platform: all
+    script:
+      runner: bash
+      command: git config --global user.name "{{name}}" && git config --global
+        user.email "{{email}}"
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+      - key: email
+        label: email
+        type: text
+        required: true
+    prerequisites:
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - git
+      - 版本控制
+      - 配置
+      - config
+      - 用户
+      - user

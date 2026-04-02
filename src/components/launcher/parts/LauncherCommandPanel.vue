@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from "vue";
 import { useI18nText } from "../../../i18n";
-import { getCommandArgs, renderCommand } from "../../../features/launcher/commandRuntime";
+import {
+  getCommandArgs,
+  resolveCommandExecution
+} from "../../../features/launcher/commandRuntime";
 import {
   buildSafetyInputFromTemplate,
+  collectTrustedArgKeysFromExecution,
   checkSingleCommandSafety,
 } from "../../../features/security/commandSafety";
 import { collectCommandArgValidationErrors } from "../../../features/security/commandArgValidation";
@@ -25,14 +29,21 @@ const { t } = useI18nText();
 const args = computed<CommandArg[]>(() => getCommandArgs(props.command));
 const hasArgs = computed(() => args.value.length > 0);
 
-const renderedCommand = computed(() =>
-  renderCommand(props.command, props.pendingArgValues)
+const resolvedCommand = computed(() =>
+  resolveCommandExecution(props.command, props.pendingArgValues)
 );
+const renderedPreview = computed(() => resolvedCommand.value.renderedPreview);
+const resolvedScriptCommand = computed(() =>
+  resolvedCommand.value.execution.kind === "script"
+    ? resolvedCommand.value.execution.command
+    : ""
+);
+const hasMultilineScriptPreview = computed(() => resolvedScriptCommand.value.includes("\n"));
 
 const dangerReasons = computed(() => {
   const input = buildSafetyInputFromTemplate(
     props.command,
-    renderedCommand.value,
+    renderedPreview.value,
     props.pendingArgValues,
     args.value
   );
@@ -40,7 +51,9 @@ const dangerReasons = computed(() => {
   return result.confirmationReasons;
 });
 const argValidationErrors = computed(() =>
-  collectCommandArgValidationErrors(args.value, props.pendingArgValues)
+  collectCommandArgValidationErrors(args.value, props.pendingArgValues, {
+    trustedArgKeys: collectTrustedArgKeysFromExecution(props.command.execution, args.value)
+  })
 );
 const hasArgValidationErrors = computed(() => Object.keys(argValidationErrors.value).length > 0);
 
@@ -326,10 +339,24 @@ function onSubmit(): void {
         <span class="command-panel__preview-label text-[12px] text-ui-subtle whitespace-nowrap shrink-0">
           <span aria-hidden="true">&gt;_ </span>{{ t("commandPanel.preview.label") }}:
         </span>
-        <code
-          class="command-panel__preview-code font-mono text-[13px] text-ui-brand/95 break-all"
-          >{{ renderedCommand }}</code
-        >
+        <div class="command-panel__preview-main min-w-0 flex-1">
+          <code
+            class="command-panel__preview-code block font-mono text-[13px] text-ui-brand/95 break-all"
+            >{{ renderedPreview }}</code
+          >
+          <details
+            v-if="hasMultilineScriptPreview"
+            class="command-panel__script-details mt-[8px]"
+          >
+            <summary class="text-[12px] text-ui-subtle cursor-pointer">
+              {{ t("commandPanel.preview.expandScript") }}
+            </summary>
+            <pre
+              class="m-0 mt-[6px] whitespace-pre-wrap break-words font-mono text-[12px] text-ui-subtle"
+              data-testid="command-script-preview"
+            >{{ resolvedScriptCommand }}</pre>
+          </details>
+        </div>
       </div>
 
       <ul

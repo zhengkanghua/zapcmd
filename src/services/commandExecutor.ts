@@ -1,10 +1,16 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { t } from "../i18n";
+import type { ResolvedCommandExecution } from "../features/commands/types";
 import type { TerminalReusePolicy } from "../stores/settingsStore";
+
+export interface StructuredTerminalExecutionStep {
+  summary: string;
+  execution: ResolvedCommandExecution;
+}
 
 export interface CommandExecutionRequest {
   terminalId: string;
-  command: string;
+  steps: StructuredTerminalExecutionStep[];
   requiresElevation?: boolean;
   alwaysElevated?: boolean;
   terminalReusePolicy?: TerminalReusePolicy;
@@ -39,13 +45,13 @@ class TauriCommandExecutor implements CommandExecutor {
     try {
       const payload: {
         terminalId: string;
-        command: string;
+        steps: StructuredTerminalExecutionStep[];
         requiresElevation: boolean;
         alwaysElevated: boolean;
         terminalReusePolicy?: TerminalReusePolicy;
       } = {
         terminalId: request.terminalId,
-        command: request.command,
+        steps: request.steps,
         requiresElevation: request.requiresElevation ?? false,
         alwaysElevated: request.alwaysElevated ?? false
       };

@@ -1,0 +1,305 @@
+meta:
+  name: Service 服务管理
+  moduleSlug: service
+commands:
+  - id: service-status-win
+    name: 查看 Windows 服务状态
+    category: service
+    platform: win
+    script:
+      runner: powershell
+      command: Get-Service -Name "{{name}}"
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - service
+      - 服务
+      - windows
+      - win
+      - status
+      - 状态
+      - 查看
+      - show
+  - id: service-list-running-win
+    name: 列出运行中的 Windows 服务
+    category: service
+    platform: win
+    script:
+      runner: powershell
+      command: Get-Service | Where-Object {$_.Status -eq 'Running'} | Sort-Object
+        DisplayName
+    adminRequired: false
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - service
+      - 服务
+      - windows
+      - win
+      - list
+      - running
+      - 运行
+      - 列表
+  - id: service-status-linux
+    name: 查看 Linux 服务状态
+    category: service
+    platform: linux
+    exec:
+      program: systemctl
+      args:
+        - status
+        - "{{name}}"
+        - --no-pager
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    prerequisites:
+      - id: systemctl
+        type: binary
+        required: true
+        check: binary:systemctl
+    tags:
+      - service
+      - 服务
+      - linux
+      - status
+      - 状态
+      - 查看
+      - show
+  - id: service-list-running-linux
+    name: 列出运行中的 Linux 服务
+    category: service
+    platform: linux
+    exec:
+      program: systemctl
+      args:
+        - list-units
+        - --type=service
+        - --state=running
+        - --no-pager
+    adminRequired: false
+    prerequisites:
+      - id: systemctl
+        type: binary
+        required: true
+        check: binary:systemctl
+    tags:
+      - service
+      - 服务
+      - linux
+      - list
+      - running
+      - 运行
+      - 列表
+  - id: service-logs-linux
+    name: 查看 Linux 服务日志
+    category: service
+    platform: linux
+    exec:
+      program: journalctl
+      args:
+        - -u
+        - "{{name}}"
+        - -n
+        - "{{lines}}"
+        - --no-pager
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+      - key: lines
+        label: lines
+        type: number
+        required: true
+        default: "100"
+        validation:
+          min: 1
+          max: 10000
+    prerequisites:
+      - id: journalctl
+        type: binary
+        required: true
+        check: binary:journalctl
+    tags:
+      - service
+      - 服务
+      - linux
+      - logs
+      - 日志
+      - journalctl
+      - 查看
+      - show
+  - id: service-list-all-linux
+    name: 列出全部 Linux 服务
+    category: service
+    platform: linux
+    exec:
+      program: systemctl
+      args:
+        - list-units
+        - --type=service
+        - --all
+        - --no-pager
+    adminRequired: false
+    prerequisites:
+      - id: systemctl
+        type: binary
+        required: true
+        check: binary:systemctl
+    tags:
+      - service
+      - 服务
+      - linux
+      - list
+      - all
+      - 全部
+      - 列表
+      - 查看
+      - show
+  - id: service-list-failed-linux
+    name: 列出失败的 Linux 服务
+    category: service
+    platform: linux
+    exec:
+      program: systemctl
+      args:
+        - list-units
+        - --type=service
+        - --state=failed
+        - --no-pager
+    adminRequired: false
+    prerequisites:
+      - id: systemctl
+        type: binary
+        required: true
+        check: binary:systemctl
+    tags:
+      - service
+      - 服务
+      - linux
+      - list
+      - failed
+      - 失败
+      - 列表
+      - 查看
+      - show
+  - id: service-enabled-linux
+    name: 查看 Linux 服务开机启用状态
+    category: service
+    platform: linux
+    exec:
+      program: systemctl
+      args:
+        - is-enabled
+        - "{{name}}"
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    prerequisites:
+      - id: systemctl
+        type: binary
+        required: true
+        check: binary:systemctl
+    tags:
+      - service
+      - 服务
+      - linux
+      - enabled
+      - 开机
+      - 启用
+      - 查看
+      - show
+  - id: service-cat-linux
+    name: 查看 Linux 服务定义
+    category: service
+    platform: linux
+    exec:
+      program: systemctl
+      args:
+        - cat
+        - "{{name}}"
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    prerequisites:
+      - id: systemctl
+        type: binary
+        required: true
+        check: binary:systemctl
+    tags:
+      - service
+      - 服务
+      - linux
+      - cat
+      - definition
+      - 定义
+      - 查看
+      - show
+  - id: service-list-mac
+    name: 列出 macOS 服务
+    category: service
+    platform: mac
+    exec:
+      program: launchctl
+      args:
+        - list
+    adminRequired: false
+    tags:
+      - service
+      - 服务
+      - mac
+      - launchctl
+      - list
+      - 列表
+      - 查看
+      - show
+  - id: service-status-mac
+    name: 查看 macOS 服务状态
+    category: service
+    platform: mac
+    script:
+      runner: bash
+      command: launchctl list | grep "{{name}}"
+    adminRequired: false
+    args:
+      - key: name
+        label: name
+        type: text
+        required: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - service
+      - 服务
+      - mac
+      - launchctl
+      - status
+      - 状态
+      - 查看
+      - show

@@ -1,0 +1,110 @@
+meta:
+  name: Bun
+  moduleSlug: bun
+commands:
+  - id: bun-install
+    name: Bun 安装依赖
+    category: package
+    platform: all
+    exec:
+      program: bun
+      args:
+        - install
+    adminRequired: false
+    prerequisites:
+      - id: bun
+        type: binary
+        required: true
+        check: binary:bun
+    tags:
+      - 包管理
+      - package
+      - bun
+      - install
+      - 安装
+      - 依赖
+  - id: bun-run
+    name: Bun 运行脚本
+    category: package
+    platform: all
+    exec:
+      program: bun
+      args:
+        - run
+        - "{{script}}"
+    adminRequired: false
+    args:
+      - key: script
+        label: script
+        type: text
+        required: true
+    prerequisites:
+      - id: bun
+        type: binary
+        required: true
+        check: binary:bun
+    tags:
+      - 包管理
+      - package
+      - bun
+      - run
+      - 运行
+      - script
+      - 脚本
+  - id: bun-add
+    name: Bun 添加依赖
+    category: package
+    platform: all
+    exec:
+      program: bun
+      args:
+        - add
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: bun
+        type: binary
+        required: true
+        check: binary:bun
+    tags:
+      - 包管理
+      - package
+      - bun
+      - add
+      - 安装
+      - 依赖
+      - dependency
+  - id: bun-remove
+    name: Bun 移除依赖
+    category: package
+    platform: all
+    exec:
+      program: bun
+      args:
+        - remove
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: bun
+        type: binary
+        required: true
+        check: binary:bun
+    tags:
+      - 包管理
+      - package
+      - bun
+      - remove
+      - 删除
+      - 移除
+      - 依赖
+      - dependency

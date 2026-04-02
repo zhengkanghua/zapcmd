@@ -1,0 +1,456 @@
+meta:
+  name: GitHub CLI
+  moduleSlug: gh
+commands:
+  - id: gh-auth-status
+    name: GH 登录状态
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - auth
+        - status
+    adminRequired: false
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - auth
+      - status
+      - 登录
+      - 状态
+      - 查看
+      - show
+  - id: gh-pr-list
+    name: GH Pull Requests 列表
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - pr
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - pr
+      - pull-request
+      - list
+      - 列表
+      - 查看
+      - show
+  - id: gh-pr-view
+    name: GH 查看 Pull Request
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - pr
+        - view
+        - "{{pr}}"
+    adminRequired: false
+    args:
+      - key: pr
+        label: pr
+        type: text
+        required: true
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - pr
+      - pull-request
+      - view
+      - 查看
+      - show
+  - id: gh-pr-checkout
+    name: GH 检出 Pull Request
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - pr
+        - checkout
+        - "{{pr}}"
+    adminRequired: false
+    args:
+      - key: pr
+        label: pr
+        type: text
+        required: true
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+      - id: git
+        type: binary
+        required: true
+        check: binary:git
+    tags:
+      - gh
+      - github
+      - cli
+      - pr
+      - pull-request
+      - checkout
+      - 检出
+  - id: gh-issue-list
+    name: GH Issues 列表
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - issue
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - issue
+      - list
+      - 列表
+      - 查看
+      - show
+  - id: gh-repo-view
+    name: GH 仓库概览
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - repo
+        - view
+    adminRequired: false
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - repo
+      - repository
+      - view
+      - 概览
+      - 查看
+      - show
+  - id: gh-run-list
+    name: GH Actions Runs 列表
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - run
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - actions
+      - run
+      - list
+      - 列表
+      - 查看
+      - show
+  - id: gh-run-view
+    name: GH 查看 Actions Run
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - run
+        - view
+        - "{{runId}}"
+    adminRequired: false
+    args:
+      - key: runId
+        label: runId
+        type: text
+        required: true
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - actions
+      - run
+      - view
+      - 查看
+      - show
+  - id: gh-run-watch
+    name: GH 跟随 Actions Run
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - run
+        - watch
+        - "{{runId}}"
+    adminRequired: false
+    args:
+      - key: runId
+        label: runId
+        type: text
+        required: true
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - actions
+      - run
+      - watch
+      - 跟随
+      - 观察
+  - id: gh-pr-checks
+    name: GH 查看 PR Checks
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - pr
+        - checks
+        - "{{pr}}"
+    adminRequired: false
+    args:
+      - key: pr
+        label: pr
+        type: text
+        required: true
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - pr
+      - pull-request
+      - checks
+      - 查看
+      - show
+  - id: gh-release-list
+    name: GH Releases 列表
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - release
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - release
+      - list
+      - 列表
+      - 查看
+      - show
+  - id: gh-workflow-list
+    name: GH Workflows 列表
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - workflow
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - workflow
+      - list
+      - 列表
+      - 查看
+      - show
+  - id: gh-pr-diff
+    name: GH 查看 PR 差异
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - pr
+        - diff
+        - "{{pr}}"
+    adminRequired: false
+    args:
+      - key: pr
+        label: pr
+        type: text
+        required: true
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - pr
+      - diff
+      - pull-request
+      - 差异
+      - 查看
+      - show
+  - id: gh-workflow-run
+    name: GH 触发 Workflow
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - workflow
+        - run
+        - '"{{workflow}}"'
+    adminRequired: false
+    args:
+      - key: workflow
+        label: workflow
+        type: text
+        required: true
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - workflow
+      - run
+      - 触发
+      - 执行
+  - id: gh-run-rerun
+    name: GH 重新运行 Actions Run
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - run
+        - rerun
+        - "{{runId}}"
+    adminRequired: false
+    args:
+      - key: runId
+        label: runId
+        type: text
+        required: true
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - actions
+      - run
+      - rerun
+      - 重跑
+  - id: gh-run-download
+    name: GH 下载 Run 产物
+    category: gh
+    platform: all
+    exec:
+      program: gh
+      args:
+        - run
+        - download
+        - "{{runId}}"
+        - -D
+        - '"{{dir}}"'
+    adminRequired: false
+    args:
+      - key: runId
+        label: runId
+        type: text
+        required: true
+      - key: dir
+        label: dir
+        type: path
+        required: true
+        default: .
+    prerequisites:
+      - id: gh
+        type: binary
+        required: true
+        check: binary:gh
+    tags:
+      - gh
+      - github
+      - cli
+      - actions
+      - run
+      - download
+      - artifact
+      - 产物
+      - 下载

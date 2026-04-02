@@ -71,7 +71,7 @@ function getStagedFiles() {
 }
 
 function isCommandSourceFile(file) {
-  return /^docs\/command_sources\/_.*\.md$/.test(file);
+  return /^commands\/catalog\/_.*\.ya?ml$/.test(file);
 }
 
 function isDocOnlyFile(file) {
@@ -292,7 +292,8 @@ function printBuiltinCommandSyncHint(matchedFiles) {
   console.log("并同步提交以下产物：");
   console.log("  - assets/runtime_templates/commands/builtin/*.json");
   console.log("  - assets/runtime_templates/commands/builtin/index.json");
-  console.log("  - docs/builtin_commands.generated.md");
+  console.log("  - docs/generated_commands/*.md");
+  console.log("  - docs/generated_commands/index.md");
   console.log("");
 }
 
@@ -312,7 +313,7 @@ const builtinCommandSourceMatches = stagedFiles.filter(
     isCommandSourceFile(file) ||
     file === "scripts/generate_builtin_commands.ps1" ||
     file === "scripts/commands/generate-builtin-commands.mjs" ||
-    file === "scripts/commands/builtinCommandGenerator.mjs"
+    file === "scripts/commands/migrate-builtin-command-sources.mjs"
 );
 if (builtinCommandSourceMatches.length > 0) {
   printBuiltinCommandSyncHint(builtinCommandSourceMatches);

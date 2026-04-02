@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "网络工具",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_network.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -25,9 +22,14 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "lsof -i :{{port}}",
+      "exec": {
+        "program": "lsof",
+        "args": [
+          "-i",
+          ":{{port}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "port",
@@ -67,9 +69,14 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "lsof -i :{{port}}",
+      "exec": {
+        "program": "lsof",
+        "args": [
+          "-i",
+          ":{{port}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "port",
@@ -109,9 +116,11 @@
       ],
       "category": "network",
       "platform": "win",
-      "template": "netstat -ano | findstr :{{port}}",
+      "script": {
+        "runner": "cmd",
+        "command": "netstat -ano | findstr :{{port}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "port",
@@ -123,10 +132,18 @@
             "max": 65535
           }
         }
+      ],
+      "prerequisites": [
+        {
+          "id": "cmd",
+          "type": "shell",
+          "required": true,
+          "check": "shell:cmd"
+        }
       ]
     },
     {
-      "id": "kill-port-mac",
+      "id": "kill-port-mac-mac",
       "name": "解除端口占用",
       "tags": [
         "网络",
@@ -143,7 +160,10 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "lsof -t -i:{{port}} | xargs kill -9",
+      "script": {
+        "runner": "bash",
+        "command": "lsof -t -i:{{port}} | xargs kill -9"
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -164,6 +184,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:lsof"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -185,7 +211,10 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "lsof -t -i:{{port}} | xargs kill -9",
+      "script": {
+        "runner": "bash",
+        "command": "lsof -t -i:{{port}} | xargs kill -9"
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -206,6 +235,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:lsof"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -227,7 +262,10 @@
       ],
       "category": "network",
       "platform": "win",
-      "template": "Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force",
+      "script": {
+        "runner": "powershell",
+        "command": "Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force"
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -261,9 +299,13 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "ping {{host}}",
+      "exec": {
+        "program": "ping",
+        "args": [
+          "{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -286,9 +328,14 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -s {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-s",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -318,9 +365,11 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -X POST -H \"Content-Type: application/json\" -d '{{body}}' {{url}}",
+      "script": {
+        "runner": "powershell",
+        "command": "curl -X POST -H \"Content-Type: application/json\" -d '{{body}}' {{url}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -341,6 +390,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:curl"
+        },
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
         }
       ]
     },
@@ -358,9 +413,14 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -I {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-I",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -391,9 +451,13 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "nslookup {{domain}}",
+      "exec": {
+        "program": "nslookup",
+        "args": [
+          "{{domain}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "domain",
@@ -415,9 +479,14 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "dig {{domain}} {{type}}",
+      "exec": {
+        "program": "dig",
+        "args": [
+          "{{domain}}",
+          "{{type}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "domain",
@@ -463,9 +532,14 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "dig {{domain}} {{type}}",
+      "exec": {
+        "program": "dig",
+        "args": [
+          "{{domain}}",
+          "{{type}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "domain",
@@ -513,9 +587,14 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -s ifconfig.me",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-s",
+          "ifconfig.me"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "curl",
@@ -539,9 +618,14 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "ipconfig getifaddr en0",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "ipconfig",
+        "args": [
+          "getifaddr",
+          "en0"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "local-ip-linux",
@@ -557,9 +641,13 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "hostname -I",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "hostname",
+        "args": [
+          "-I"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "local-ip-win",
@@ -575,9 +663,11 @@
       ],
       "category": "network",
       "platform": "win",
-      "template": "ipconfig",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "ipconfig",
+        "args": []
+      },
+      "adminRequired": false
     },
     {
       "id": "traceroute-mac",
@@ -590,9 +680,13 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "traceroute {{host}}",
+      "exec": {
+        "program": "traceroute",
+        "args": [
+          "{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -613,9 +707,13 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "traceroute {{host}}",
+      "exec": {
+        "program": "traceroute",
+        "args": [
+          "{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -636,9 +734,13 @@
       ],
       "category": "network",
       "platform": "win",
-      "template": "tracert {{host}}",
+      "exec": {
+        "program": "tracert",
+        "args": [
+          "{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -663,9 +765,15 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "nc -zv {{host}} {{port}}",
+      "exec": {
+        "program": "nc",
+        "args": [
+          "-zv",
+          "{{host}}",
+          "{{port}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -708,9 +816,15 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "nc -zv {{host}} {{port}}",
+      "exec": {
+        "program": "nc",
+        "args": [
+          "-zv",
+          "{{host}}",
+          "{{port}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -753,9 +867,11 @@
       ],
       "category": "network",
       "platform": "win",
-      "template": "Test-NetConnection -ComputerName \"{{host}}\" -Port {{port}} | Select-Object ComputerName,RemotePort,TcpTestSucceeded",
+      "script": {
+        "runner": "powershell",
+        "command": "Test-NetConnection -ComputerName \"{{host}}\" -Port {{port}} | Select-Object ComputerName,RemotePort,TcpTestSucceeded"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -797,9 +913,15 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "wget -O {{filename}} {{url}}",
+      "exec": {
+        "program": "wget",
+        "args": [
+          "-O",
+          "{{filename}}",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -837,9 +959,15 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "wget -O {{filename}} {{url}}",
+      "exec": {
+        "program": "wget",
+        "args": [
+          "-O",
+          "{{filename}}",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -878,9 +1006,16 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -L -o {{filename}} {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-L",
+          "-o",
+          "{{filename}}",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -921,9 +1056,13 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "netstat -tlnp",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "netstat",
+        "args": [
+          "-tlnp"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "list-listening-ports-linux",
@@ -942,9 +1081,13 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "netstat -tlnp",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "netstat",
+        "args": [
+          "-tlnp"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "list-listening-ports-win",
@@ -963,9 +1106,19 @@
       ],
       "category": "network",
       "platform": "win",
-      "template": "netstat -an | findstr LISTENING",
+      "script": {
+        "runner": "cmd",
+        "command": "netstat -an | findstr LISTENING"
+      },
       "adminRequired": false,
-      "dangerous": false
+      "prerequisites": [
+        {
+          "id": "cmd",
+          "type": "shell",
+          "required": true,
+          "check": "shell:cmd"
+        }
+      ]
     },
     {
       "id": "flush-dns-mac",
@@ -979,9 +1132,19 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder",
+      "script": {
+        "runner": "bash",
+        "command": "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
+      },
       "adminRequired": true,
-      "dangerous": false
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
+        }
+      ]
     },
     {
       "id": "flush-dns-win",
@@ -995,9 +1158,13 @@
       ],
       "category": "network",
       "platform": "win",
-      "template": "ipconfig /flushdns",
-      "adminRequired": true,
-      "dangerous": false
+      "exec": {
+        "program": "ipconfig",
+        "args": [
+          "/flushdns"
+        ]
+      },
+      "adminRequired": true
     },
     {
       "id": "flush-dns-linux",
@@ -1011,9 +1178,14 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "sudo systemd-resolve --flush-caches",
+      "exec": {
+        "program": "sudo",
+        "args": [
+          "systemd-resolve",
+          "--flush-caches"
+        ]
+      },
       "adminRequired": true,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "systemd-resolve",
@@ -1036,7 +1208,10 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -",
+      "script": {
+        "runner": "bash",
+        "command": "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -"
+      },
       "adminRequired": false,
       "dangerous": true,
       "prerequisites": [
@@ -1051,6 +1226,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:curl"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -1068,9 +1249,16 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -s -H \"Accept: application/json\" {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-s",
+          "-H",
+          "\"Accept: application/json\"",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -1102,9 +1290,18 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "curl -s -o /dev/null -w \"%{http_code}\" {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-s",
+          "-o",
+          "/dev/null",
+          "-w",
+          "\"%{http_code}\"",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -1136,9 +1333,18 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "curl -s -o /dev/null -w \"%{http_code}\" {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-s",
+          "-o",
+          "/dev/null",
+          "-w",
+          "\"%{http_code}\"",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -1170,9 +1376,18 @@
       ],
       "category": "network",
       "platform": "win",
-      "template": "curl -s -o NUL -w \"%{http_code}\" {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-s",
+          "-o",
+          "NUL",
+          "-w",
+          "\"%{http_code}\"",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -1204,9 +1419,13 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "whois {{domain}}",
+      "exec": {
+        "program": "whois",
+        "args": [
+          "{{domain}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "domain",
@@ -1238,9 +1457,13 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "whois {{domain}}",
+      "exec": {
+        "program": "whois",
+        "args": [
+          "{{domain}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "domain",
@@ -1271,9 +1494,11 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -s -X POST -H \"Content-Type: application/json\" -H \"Accept: application/json\" -d '{{body}}' {{url}}",
+      "script": {
+        "runner": "powershell",
+        "command": "curl -s -X POST -H \"Content-Type: application/json\" -H \"Accept: application/json\" -d '{{body}}' {{url}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -1294,6 +1519,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:curl"
+        },
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
         }
       ]
     },
@@ -1310,9 +1541,11 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -s -X PUT -H \"Content-Type: application/json\" -H \"Accept: application/json\" -d '{{body}}' {{url}}",
+      "script": {
+        "runner": "powershell",
+        "command": "curl -s -X PUT -H \"Content-Type: application/json\" -H \"Accept: application/json\" -d '{{body}}' {{url}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -1333,6 +1566,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:curl"
+        },
+        {
+          "id": "powershell",
+          "type": "shell",
+          "required": true,
+          "check": "shell:powershell"
         }
       ]
     },
@@ -1349,9 +1588,18 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -s -X DELETE -H \"Accept: application/json\" {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-s",
+          "-X",
+          "DELETE",
+          "-H",
+          "\"Accept: application/json\"",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -1382,9 +1630,18 @@
       ],
       "category": "network",
       "platform": "all",
-      "template": "curl -s -X POST -F \"{{field}}={{value}}\" {{url}}",
+      "exec": {
+        "program": "curl",
+        "args": [
+          "-s",
+          "-X",
+          "POST",
+          "-F",
+          "\"{{field}}={{value}}\"",
+          "{{url}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "url",
@@ -1428,9 +1685,15 @@
       ],
       "category": "network",
       "platform": "mac",
-      "template": "dig +short {{domain}} {{type}}",
+      "exec": {
+        "program": "dig",
+        "args": [
+          "+short",
+          "{{domain}}",
+          "{{type}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "domain",
@@ -1478,9 +1741,15 @@
       ],
       "category": "network",
       "platform": "linux",
-      "template": "dig +short {{domain}} {{type}}",
+      "exec": {
+        "program": "dig",
+        "args": [
+          "+short",
+          "{{domain}}",
+          "{{type}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "domain",

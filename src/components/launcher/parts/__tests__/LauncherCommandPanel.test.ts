@@ -11,6 +11,11 @@ function createCommand(overrides: Partial<CommandTemplate> = {}): CommandTemplat
     title: "测试命令",
     description: "描述",
     preview: "echo {{value}}",
+    execution: {
+      kind: "exec",
+      program: "echo",
+      args: ["{{value}}"]
+    },
     folder: "test",
     category: "system",
     needsArgs: true,
@@ -30,6 +35,11 @@ function createCommand(overrides: Partial<CommandTemplate> = {}): CommandTemplat
 function createValidatedNumberCommand(): CommandTemplate {
   return createCommand({
     preview: "sudo ufw allow {{port}}/tcp",
+    execution: {
+      kind: "exec",
+      program: "sudo",
+      args: ["ufw", "allow", "{{port}}/tcp"]
+    },
     args: [
       {
         key: "port",
@@ -220,6 +230,26 @@ describe("LauncherCommandPanel", () => {
       const preview = wrapper.find("[data-testid='command-preview']");
       expect(preview.exists()).toBe(true);
       expect(preview.text()).toContain("hello");
+    });
+
+    it("从结构化 execution 派生预览，而不是直接信任旧 preview 模板", () => {
+      const wrapper = mountPanel({
+        command: createCommand({
+          preview: "stale preview {{value}}",
+          execution: {
+            kind: "exec",
+            program: "echo",
+            args: ["--json", "{{value}}"]
+          }
+        }),
+        mode: "execute",
+        isDangerous: false,
+        pendingArgValues: { value: "hello" }
+      });
+
+      const preview = wrapper.get("[data-testid='command-preview']");
+      expect(preview.text()).toContain("echo --json hello");
+      expect(preview.text()).not.toContain("stale preview");
     });
   });
 

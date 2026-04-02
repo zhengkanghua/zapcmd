@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Cargo",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_cargo.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -19,9 +16,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "cargo build --release",
+      "exec": {
+        "program": "cargo",
+        "args": [
+          "build",
+          "--release"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "cargo",
@@ -43,9 +45,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "cargo run",
+      "exec": {
+        "program": "cargo",
+        "args": [
+          "run"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "cargo",
@@ -67,9 +73,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "cargo test",
+      "exec": {
+        "program": "cargo",
+        "args": [
+          "test"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "cargo",
@@ -93,9 +103,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "cargo add {{package}}",
+      "exec": {
+        "program": "cargo",
+        "args": [
+          "add",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",

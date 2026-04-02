@@ -36,6 +36,11 @@ function createNoArgCommand(): CommandTemplate {
     title: "列目录",
     description: "测试命令",
     preview: "ls -la",
+    execution: {
+      kind: "exec",
+      program: "ls",
+      args: ["-la"]
+    },
     folder: "@_sys",
     category: "system",
     needsArgs: false
@@ -48,6 +53,11 @@ function createArgCommand(): CommandTemplate {
     title: "开放端口",
     description: "带参数测试命令",
     preview: "sudo ufw allow {{value}}/tcp",
+    execution: {
+      kind: "exec",
+      program: "sudo",
+      args: ["ufw", "allow", "{{value}}/tcp"]
+    },
     folder: "@_sys",
     category: "network",
     needsArgs: true,
@@ -63,6 +73,11 @@ function createValidatedArgCommand(): CommandTemplate {
     title: "开放端口",
     description: "带校验的参数测试命令",
     preview: "sudo ufw allow {{port}}/tcp",
+    execution: {
+      kind: "exec",
+      program: "sudo",
+      args: ["ufw", "allow", "{{port}}/tcp"]
+    },
     folder: "@_sys",
     category: "network",
     needsArgs: true,
@@ -87,7 +102,76 @@ function createAdminCommand(): CommandTemplate {
     id: "flush-dns",
     title: "刷新 DNS",
     preview: "ipconfig /flushdns",
+    execution: {
+      kind: "exec",
+      program: "ipconfig",
+      args: ["/flushdns"]
+    },
     adminRequired: true
+  };
+}
+
+function createGitPruneCommand(): CommandTemplate {
+  return {
+    ...createNoArgCommand(),
+    id: "git-prune",
+    title: "Git Prune",
+    preview: "git gc --prune=now",
+    execution: {
+      kind: "exec",
+      program: "git",
+      args: ["gc", "--prune=now"]
+    }
+  };
+}
+
+function createKillTaskCommand(): CommandTemplate {
+  return {
+    ...createNoArgCommand(),
+    id: "kill-task",
+    preview: "taskkill /F /PID 1234",
+    execution: {
+      kind: "exec",
+      program: "taskkill",
+      args: ["/F", "/PID", "1234"]
+    },
+    dangerous: true
+  };
+}
+
+function createSqliteQueryCommand(): CommandTemplate {
+  return {
+    id: "sqlite-query",
+    title: "SQLite Query",
+    description: "执行 SQL",
+    preview: 'sqlite3 "{{file}}"',
+    execution: {
+      kind: "exec",
+      program: "sqlite3",
+      args: ['"{{file}}"'],
+      stdinArgKey: "sql"
+    },
+    folder: "@_sqlite",
+    category: "sqlite",
+    needsArgs: true,
+    args: [
+      {
+        key: "file",
+        label: "数据库文件",
+        token: "{{file}}",
+        placeholder: "app.db",
+        required: true,
+        argType: "path"
+      },
+      {
+        key: "sql",
+        label: "SQL",
+        token: "{{sql}}",
+        placeholder: "select 1;",
+        required: true,
+        argType: "text"
+      }
+    ]
   };
 }
 
@@ -102,6 +186,11 @@ function createPrerequisiteCommand(
     id: "docker-ps",
     title: "Docker PS",
     preview: "docker ps",
+    execution: {
+      kind: "exec",
+      program: "docker",
+      args: ["ps"]
+    },
     prerequisites,
     ...overrides
   };
@@ -161,6 +250,24 @@ async function flushExecution(): Promise<void> {
   await nextTick();
 }
 
+function createExecStep(
+  summary: string,
+  program: string,
+  args: string[],
+  options: { stdinArgKey?: string; stdin?: string } = {}
+) {
+  return {
+    summary,
+    execution: {
+      kind: "exec" as const,
+      program,
+      args,
+      stdinArgKey: options.stdinArgKey,
+      stdin: options.stdin
+    }
+  };
+}
+
 describe("useCommandExecution", () => {
   beforeEach(() => {
     localStorage.removeItem(DANGER_DISMISS_STORAGE_KEY);
@@ -173,11 +280,35 @@ describe("useCommandExecution", () => {
     harness.execution.stageResult(command);
 
     expect(harness.stagedCommands.value).toHaveLength(1);
-    expect(harness.stagedCommands.value[0]?.renderedCommand).toBe("ls -la");
+    expect(harness.stagedCommands.value[0]?.renderedPreview).toBe("ls -la");
+    expect(harness.stagedCommands.value[0]?.execution).toEqual({
+      kind: "exec",
+      program: "ls",
+      args: ["-la"]
+    });
     expect(harness.openStagingDrawer).not.toHaveBeenCalled();
     expect(harness.clearSearchQueryAndSelection).not.toHaveBeenCalled();
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.triggerStagedFeedback).toHaveBeenCalledWith("list-dir");
+  });
+
+  it("stages stdin-based exec with decoupled preview and execution payload", () => {
+    const harness = createHarness();
+
+    harness.execution.stageResult(createSqliteQueryCommand());
+    harness.execution.updatePendingArgValue("file", "data.db");
+    harness.execution.updatePendingArgValue("sql", "select 1;");
+    harness.execution.submitParamInput();
+
+    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.stagedCommands.value[0]?.renderedPreview).toContain("sqlite3");
+    expect(harness.stagedCommands.value[0]?.execution).toEqual({
+      kind: "exec",
+      program: "sqlite3",
+      args: ["data.db"],
+      stdinArgKey: "sql",
+      stdin: "select 1;"
+    });
   });
 
   it("opens param input when staging command requires args", () => {
@@ -240,9 +371,12 @@ describe("useCommandExecution", () => {
 
     expect(submitted).toBe(true);
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
-      requiresElevation: false
-    });
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith(
+      createExecStep("sudo ufw allow 8088/tcp", "sudo", ["ufw", "allow", "8088/tcp"]),
+      {
+        requiresElevation: false
+      }
+    );
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
@@ -257,9 +391,12 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value?.mode).toBe("single");
     await harness.execution.confirmSafetyExecution();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ipconfig /flushdns", {
-      requiresElevation: true
-    });
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith(
+      createExecStep("ipconfig /flushdns", "ipconfig", ["/flushdns"]),
+      {
+        requiresElevation: true
+      }
+    );
   });
 
   it("blocks single execution when required prerequisite fails", async () => {
@@ -340,9 +477,12 @@ describe("useCommandExecution", () => {
     harness.execution.executeResult(command);
     await flushExecution();
 
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("docker ps", {
-      requiresElevation: false
-    });
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith(
+      createExecStep("docker ps", "docker", ["ps"]),
+      {
+        requiresElevation: false
+      }
+    );
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("预检告警");
     expect(harness.execution.executionFeedbackMessage.value).toContain("docker");
@@ -369,9 +509,12 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la", {
-      requiresElevation: false
-    });
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith(
+      createExecStep("ls -la", "ls", ["-la"]),
+      {
+        requiresElevation: false
+      }
+    );
   });
 
   it("executes dangerous command from pending execute mode without opening safetyDialog", async () => {
@@ -388,9 +531,12 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.execution.pendingCommand.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
-      requiresElevation: false
-    });
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith(
+      createExecStep("sudo ufw allow 8088/tcp", "sudo", ["ufw", "allow", "8088/tcp"]),
+      {
+        requiresElevation: false
+      }
+    );
   });
 
   it("executes dismissed dangerous command directly without opening panel or safetyDialog", async () => {
@@ -406,9 +552,12 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.pendingCommand.value).toBeNull();
     expect(harness.execution.safetyDialog.value).toBeNull();
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("ls -la", {
-      requiresElevation: false
-    });
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith(
+      createExecStep("ls -la", "ls", ["-la"]),
+      {
+        requiresElevation: false
+      }
+    );
   });
 
   it("trims boundary arg input before single execution and keeps success feedback", async () => {
@@ -420,9 +569,12 @@ describe("useCommandExecution", () => {
     harness.execution.submitParamInput();
     await flushExecution();
 
-    expect(harness.runCommandInTerminal).toHaveBeenCalledWith("sudo ufw allow 8088/tcp", {
-      requiresElevation: false
-    });
+    expect(harness.runCommandInTerminal).toHaveBeenCalledWith(
+      createExecStep("sudo ufw allow 8088/tcp", "sudo", ["ufw", "allow", "8088/tcp"]),
+      {
+        requiresElevation: false
+      }
+    );
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
   });
@@ -503,7 +655,7 @@ describe("useCommandExecution", () => {
     harness.execution.updateStagedArg(stagedId!, "value", "9527");
 
     expect(harness.stagedCommands.value[0]?.argValues.value).toBe("9527");
-    expect(harness.stagedCommands.value[0]?.renderedCommand).toBe("sudo ufw allow 9527/tcp");
+    expect(harness.stagedCommands.value[0]?.renderedPreview).toBe("sudo ufw allow 9527/tcp");
   });
 
   it("blocks queue execution when param/safety flow is open (shows toast, does not run terminal)", async () => {
@@ -525,23 +677,27 @@ describe("useCommandExecution", () => {
   it("executes staged queue and clears snapshot", async () => {
     const harness = createHarness();
     const first = createNoArgCommand();
-    const second = {
-      ...createNoArgCommand(),
-      id: "git-prune",
-      preview: "git gc --prune=now"
-    };
+    const second = createGitPruneCommand();
 
     harness.execution.stageResult(first);
     harness.execution.stageResult(second);
     harness.scheduleSearchInputFocus.mockClear();
     await harness.execution.executeStaged();
 
-    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(1, "ls -la", {
-      requiresElevation: false
-    });
-    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(2, "git gc --prune=now", {
-      requiresElevation: false
-    });
+    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(
+      1,
+      createExecStep("ls -la", "ls", ["-la"]),
+      {
+        requiresElevation: false
+      }
+    );
+    expect(harness.runCommandInTerminal).toHaveBeenNthCalledWith(
+      2,
+      createExecStep("git gc --prune=now", "git", ["gc", "--prune=now"]),
+      {
+        requiresElevation: false
+      }
+    );
     expect(harness.stagedCommands.value).toHaveLength(0);
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
@@ -552,20 +708,22 @@ describe("useCommandExecution", () => {
   it("executes staged queue in one terminal call when batch runner is provided", async () => {
     const harness = createHarness(true);
     const first = createNoArgCommand();
-    const second = {
-      ...createNoArgCommand(),
-      id: "git-prune",
-      preview: "git gc --prune=now"
-    };
+    const second = createGitPruneCommand();
 
     harness.execution.stageResult(first);
     harness.execution.stageResult(second);
     await harness.execution.executeStaged();
 
     expect(harness.runCommandsInTerminal).toHaveBeenCalledTimes(1);
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "git gc --prune=now"], {
-      requiresElevation: false
-    });
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(
+      [
+        createExecStep("ls -la", "ls", ["-la"]),
+        createExecStep("git gc --prune=now", "git", ["gc", "--prune=now"])
+      ],
+      {
+        requiresElevation: false
+      }
+    );
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.execution.executionFeedbackMessage.value).toContain("首个：ls -la");
   });
@@ -579,9 +737,15 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value?.mode).toBe("queue");
     await harness.execution.confirmSafetyExecution();
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["ls -la", "ipconfig /flushdns"], {
-      requiresElevation: true
-    });
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(
+      [
+        createExecStep("ls -la", "ls", ["-la"]),
+        createExecStep("ipconfig /flushdns", "ipconfig", ["/flushdns"])
+      ],
+      {
+        requiresElevation: true
+      }
+    );
   });
 
   it("blocks staged submit on injection hit before enqueue, and does not call terminal runners", async () => {
@@ -673,7 +837,17 @@ describe("useCommandExecution", () => {
         id: "a",
         title: "A",
         rawPreview: "echo a",
-        renderedCommand: "echo a",
+        renderedPreview: "echo a",
+        executionTemplate: {
+          kind: "exec",
+          program: "echo",
+          args: ["a"]
+        },
+        execution: {
+          kind: "exec",
+          program: "echo",
+          args: ["a"]
+        },
         args: [],
         argValues: {}
       },
@@ -681,7 +855,17 @@ describe("useCommandExecution", () => {
         id: "b",
         title: "B",
         rawPreview: "echo b",
-        renderedCommand: "echo b",
+        renderedPreview: "echo b",
+        executionTemplate: {
+          kind: "exec",
+          program: "echo",
+          args: ["b"]
+        },
+        execution: {
+          kind: "exec",
+          program: "echo",
+          args: ["b"]
+        },
         args: [],
         argValues: {}
       }
@@ -711,12 +895,7 @@ describe("useCommandExecution", () => {
 
   it("requires safety confirmation for dangerous queue before execution", async () => {
     const harness = createHarness(true);
-    const risky: CommandTemplate = {
-      ...createNoArgCommand(),
-      id: "kill-task",
-      preview: "taskkill /F /PID 1234",
-      dangerous: true
-    };
+    const risky = createKillTaskCommand();
 
     harness.execution.stageResult(risky);
     expect(harness.execution.pendingCommand.value?.id).toBe(risky.id);
@@ -735,8 +914,11 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
 
     await harness.execution.confirmSafetyExecution();
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(["taskkill /F /PID 1234"], {
-      requiresElevation: false
-    });
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(
+      [createExecStep("taskkill /F /PID 1234", "taskkill", ["/F", "/PID", "1234"])],
+      {
+        requiresElevation: false
+      }
+    );
   });
 });

@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Postgres",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_postgres.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -20,9 +17,20 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}}",
+      "exec": {
+        "program": "psql",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-p",
+          "{{port}}",
+          "-U",
+          "{{user}}",
+          "-d",
+          "{{database}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -77,9 +85,16 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "pg_isready -h {{host}} -p {{port}}",
+      "exec": {
+        "program": "pg_isready",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-p",
+          "{{port}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -121,9 +136,22 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c \"\\l\"",
+      "exec": {
+        "program": "psql",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-p",
+          "{{port}}",
+          "-U",
+          "{{user}}",
+          "-d",
+          "postgres",
+          "-c",
+          "\"\\l\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -172,9 +200,22 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"\\dt\"",
+      "exec": {
+        "program": "psql",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-p",
+          "{{port}}",
+          "-U",
+          "{{user}}",
+          "-d",
+          "{{database}}",
+          "-c",
+          "\"\\dt\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -229,9 +270,22 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"\\d {{table}}\"",
+      "exec": {
+        "program": "psql",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-p",
+          "{{port}}",
+          "-U",
+          "{{user}}",
+          "-d",
+          "{{database}}",
+          "-c",
+          "\"\\d {{table}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -292,9 +346,22 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"{{sql}}\"",
+      "exec": {
+        "program": "psql",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-p",
+          "{{port}}",
+          "-U",
+          "{{user}}",
+          "-d",
+          "{{database}}",
+          "-c"
+        ],
+        "stdinArgKey": "sql"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -356,9 +423,22 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "pg_dump -h {{host}} -p {{port}} -U {{user}} -d {{database}} -f \"{{output}}\"",
+      "exec": {
+        "program": "pg_dump",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-p",
+          "{{port}}",
+          "-U",
+          "{{user}}",
+          "-d",
+          "{{database}}",
+          "-f",
+          "\"{{output}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -420,9 +500,22 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -f \"{{file}}\"",
+      "exec": {
+        "program": "psql",
+        "args": [
+          "-h",
+          "{{host}}",
+          "-p",
+          "{{port}}",
+          "-U",
+          "{{user}}",
+          "-d",
+          "{{database}}",
+          "-f",
+          "\"{{file}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -482,9 +575,11 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c \"CREATE DATABASE {{database}};\"",
+      "script": {
+        "runner": "bash",
+        "command": "psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c \"CREATE DATABASE {{database}};\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -524,6 +619,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:psql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -540,7 +641,10 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c \"DROP DATABASE {{database}};\"",
+      "script": {
+        "runner": "bash",
+        "command": "psql -h {{host}} -p {{port}} -U {{user}} -d postgres -c \"DROP DATABASE {{database}};\""
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -582,6 +686,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:psql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -598,9 +708,11 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT version();\"",
+      "script": {
+        "runner": "bash",
+        "command": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT version();\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -641,6 +753,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:psql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -658,9 +776,11 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT current_database();\"",
+      "script": {
+        "runner": "bash",
+        "command": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT current_database();\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -701,6 +821,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:psql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -718,9 +844,11 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT current_user;\"",
+      "script": {
+        "runner": "bash",
+        "command": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT current_user;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -761,6 +889,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:psql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -779,9 +913,11 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT extname, extversion FROM pg_extension ORDER BY extname;\"",
+      "script": {
+        "runner": "bash",
+        "command": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT extname, extversion FROM pg_extension ORDER BY extname;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -822,6 +958,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:psql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -840,9 +982,11 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT pg_size_pretty(pg_database_size(current_database()));\"",
+      "script": {
+        "runner": "bash",
+        "command": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT pg_size_pretty(pg_database_size(current_database()));\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -883,6 +1027,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:psql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -901,9 +1051,11 @@
       ],
       "category": "postgres",
       "platform": "all",
-      "template": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT pid, usename, state, wait_event_type, wait_event, query FROM pg_stat_activity WHERE state <> 'idle' ORDER BY query_start DESC;\"",
+      "script": {
+        "runner": "bash",
+        "command": "psql -h {{host}} -p {{port}} -U {{user}} -d {{database}} -c \"SELECT pid, usename, state, wait_event_type, wait_event, query FROM pg_stat_activity WHERE state <> 'idle' ORDER BY query_start DESC;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "host",
@@ -944,6 +1096,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:psql"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     }

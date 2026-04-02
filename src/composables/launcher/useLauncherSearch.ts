@@ -22,7 +22,7 @@ function tokenizeQuery(query: string): string[] {
 function createSearchableCommand(command: CommandTemplate, index: number): SearchableCommand {
   const title = command.title.toLowerCase();
   const description = command.description.toLowerCase();
-  const preview = command.preview.toLowerCase();
+  const preview = command.preview.toLowerCase().replace(/\s+/g, " ").trim();
   const folder = command.folder.toLowerCase();
   const category = command.category.toLowerCase();
 

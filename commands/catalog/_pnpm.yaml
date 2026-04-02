@@ -1,0 +1,220 @@
+meta:
+  name: PNPM
+  moduleSlug: pnpm
+commands:
+  - id: pnpm-add
+    name: PNPM 添加依赖
+    category: package
+    platform: all
+    exec:
+      program: pnpm
+      args:
+        - add
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: pnpm
+        type: binary
+        required: true
+        check: binary:pnpm
+    tags:
+      - 包管理
+      - package
+      - pnpm
+      - add
+      - 安装
+      - 依赖
+      - dependency
+  - id: pnpm-run
+    name: PNPM 运行脚本
+    category: package
+    platform: all
+    exec:
+      program: pnpm
+      args:
+        - run
+        - "{{script}}"
+    adminRequired: false
+    args:
+      - key: script
+        label: script
+        type: text
+        required: true
+    prerequisites:
+      - id: pnpm
+        type: binary
+        required: true
+        check: binary:pnpm
+    tags:
+      - 包管理
+      - package
+      - pnpm
+      - run
+      - 运行
+      - script
+      - 脚本
+  - id: pnpm-up
+    name: PNPM 升级依赖
+    category: package
+    platform: all
+    exec:
+      program: pnpm
+      args:
+        - up
+    adminRequired: false
+    prerequisites:
+      - id: pnpm
+        type: binary
+        required: true
+        check: binary:pnpm
+    tags:
+      - 包管理
+      - package
+      - pnpm
+      - up
+      - update
+      - upgrade
+      - 升级
+      - 依赖
+  - id: pnpm-remove
+    name: PNPM 移除依赖
+    category: package
+    platform: all
+    exec:
+      program: pnpm
+      args:
+        - remove
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: pnpm
+        type: binary
+        required: true
+        check: binary:pnpm
+    tags:
+      - 包管理
+      - package
+      - pnpm
+      - remove
+      - 删除
+      - 移除
+      - 依赖
+      - dependency
+  - id: pnpm-list
+    name: PNPM 查看已安装
+    category: package
+    platform: all
+    exec:
+      program: pnpm
+      args:
+        - list
+        - --depth
+        - "0"
+    adminRequired: false
+    prerequisites:
+      - id: pnpm
+        type: binary
+        required: true
+        check: binary:pnpm
+    tags:
+      - 包管理
+      - package
+      - pnpm
+      - list
+      - 列表
+      - 查看
+      - show
+      - 安装
+      - install
+  - id: pnpm-install-project
+    name: PNPM 安装项目依赖
+    category: package
+    platform: all
+    exec:
+      program: pnpm
+      args:
+        - install
+    adminRequired: false
+    prerequisites:
+      - id: pnpm
+        type: binary
+        required: true
+        check: binary:pnpm
+    tags:
+      - 包管理
+      - package
+      - pnpm
+      - install
+      - 项目
+      - project
+      - 依赖
+      - dependency
+  - id: pnpm-add-dev
+    name: PNPM 安装开发依赖
+    category: package
+    platform: all
+    exec:
+      program: pnpm
+      args:
+        - add
+        - -D
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: pnpm
+        type: binary
+        required: true
+        check: binary:pnpm
+    tags:
+      - 包管理
+      - package
+      - pnpm
+      - add
+      - dev
+      - 安装
+      - 依赖
+      - dependency
+  - id: pnpm-dlx
+    name: PNPM 运行临时包命令
+    category: package
+    platform: all
+    exec:
+      program: pnpm
+      args:
+        - dlx
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: pnpm
+        type: binary
+        required: true
+        check: binary:pnpm
+    tags:
+      - 包管理
+      - package
+      - pnpm
+      - dlx
+      - exec
+      - 临时
+      - 执行
+      - run

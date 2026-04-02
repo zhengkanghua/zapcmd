@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Docker 容器管理",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_docker.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -21,9 +18,13 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker ps",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "ps"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -49,9 +50,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker ps -a",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "ps",
+          "-a"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -75,9 +81,13 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker images",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "images"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -99,9 +109,19 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker run -d --name {{name}} -p {{ports}} {{image}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "run",
+          "-d",
+          "--name",
+          "{{name}}",
+          "-p",
+          "{{ports}}",
+          "{{image}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "image",
@@ -144,9 +164,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker stop {{container}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "stop",
+          "{{container}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -179,9 +204,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker start {{container}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "start",
+          "{{container}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -212,9 +242,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker restart {{container}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "restart",
+          "{{container}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -245,9 +280,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker rm {{container}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "rm",
+          "{{container}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -280,9 +320,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker rmi {{image}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "rmi",
+          "{{image}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "image",
@@ -315,9 +360,16 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker logs --tail {{lines}} {{container}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "logs",
+          "--tail",
+          "{{lines}}",
+          "{{container}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -363,9 +415,15 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker logs -f {{container}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "logs",
+          "-f",
+          "{{container}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -395,9 +453,16 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker exec -it {{container}} {{shell}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "exec",
+          "-it",
+          "{{container}}",
+          "{{shell}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -441,9 +506,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker inspect {{container}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "inspect",
+          "{{container}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -473,9 +543,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker stats --no-stream",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "stats",
+          "--no-stream"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -498,9 +573,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker pull {{image}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "pull",
+          "{{image}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "image",
@@ -531,9 +611,16 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker build -t {{tag}} {{path}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "build",
+          "-t",
+          "{{tag}}",
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "tag",
@@ -571,9 +658,15 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose up -d",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "up",
+          "-d"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -596,9 +689,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose down",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "down"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -621,9 +719,16 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose logs -f {{service}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "logs",
+          "-f",
+          "{{service}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "service",
@@ -656,9 +761,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose ps",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "ps"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -683,9 +793,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose config",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "config"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -709,9 +824,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose pull",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "pull"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -738,9 +858,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker system df",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "system",
+          "df"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -761,7 +886,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker system prune -f",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "system",
+          "prune",
+          "-f"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "prerequisites": [
@@ -787,9 +919,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker network ls",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "network",
+          "ls"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -813,9 +950,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker volume ls",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "volume",
+          "ls"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -839,9 +981,15 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker cp {{src}} {{container}}:{{dest}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "cp",
+          "{{src}}",
+          "{{container}}:{{dest}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "src",
@@ -883,9 +1031,11 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker export {{container}} > {{file}}",
+      "script": {
+        "runner": "bash",
+        "command": "docker export {{container}} > {{file}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "container",
@@ -906,6 +1056,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:docker"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -923,9 +1079,13 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker info",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "info"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -949,9 +1109,15 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker image inspect {{image}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "image",
+          "inspect",
+          "{{image}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "image",
@@ -983,9 +1149,15 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker volume inspect {{volume}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "volume",
+          "inspect",
+          "{{volume}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "volume",
@@ -1017,9 +1189,15 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker network inspect {{network}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "network",
+          "inspect",
+          "{{network}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "network",
@@ -1051,9 +1229,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose images",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "images"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -1077,9 +1260,14 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose top",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "top"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "docker",
@@ -1102,9 +1290,16 @@
       ],
       "category": "docker",
       "platform": "all",
-      "template": "docker compose exec {{service}} {{shell}}",
+      "exec": {
+        "program": "docker",
+        "args": [
+          "compose",
+          "exec",
+          "{{service}}",
+          "{{shell}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "service",

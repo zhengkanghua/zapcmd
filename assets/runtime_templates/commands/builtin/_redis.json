@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Redis",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_redis.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -19,9 +16,11 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli",
+      "exec": {
+        "program": "redis-cli",
+        "args": []
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "redis-cli",
@@ -42,9 +41,13 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli ping",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "ping"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "redis-cli",
@@ -64,9 +67,13 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli info",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "info"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "redis-cli",
@@ -88,9 +95,14 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli get \"{{key}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "get",
+          "\"{{key}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -121,9 +133,15 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli set \"{{key}}\" \"{{value}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "set",
+          "\"{{key}}\"",
+          "\"{{value}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -159,9 +177,14 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli del \"{{key}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "del",
+          "\"{{key}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -189,9 +212,14 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli exists \"{{key}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "exists",
+          "\"{{key}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -221,9 +249,15 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli expire \"{{key}}\" {{seconds}}",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "expire",
+          "\"{{key}}\"",
+          "{{seconds}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -262,9 +296,14 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli ttl \"{{key}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "ttl",
+          "\"{{key}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -294,9 +333,17 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli --scan --pattern \"{{pattern}}\" --count {{count}}",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "--scan",
+          "--pattern",
+          "--count",
+          "{{count}}"
+        ],
+        "stdinArgKey": "pattern"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pattern",
@@ -339,7 +386,13 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli keys \"{{pattern}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "keys"
+        ],
+        "stdinArgKey": "pattern"
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -372,9 +425,15 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli hget \"{{key}}\" \"{{field}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "hget",
+          "\"{{key}}\"",
+          "\"{{field}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -411,9 +470,16 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli hset \"{{key}}\" \"{{field}}\" \"{{value}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "hset",
+          "\"{{key}}\"",
+          "\"{{field}}\"",
+          "\"{{value}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -454,9 +520,14 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli hgetall \"{{key}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "hgetall",
+          "\"{{key}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -486,9 +557,15 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli lpush \"{{key}}\" \"{{value}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "lpush",
+          "\"{{key}}\"",
+          "\"{{value}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -525,9 +602,16 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli lrange \"{{key}}\" {{start}} {{stop}}",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "lrange",
+          "\"{{key}}\"",
+          "{{start}}",
+          "{{stop}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -574,9 +658,15 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli sadd \"{{key}}\" \"{{member}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "sadd",
+          "\"{{key}}\"",
+          "\"{{member}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -611,9 +701,14 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli smembers \"{{key}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "smembers",
+          "\"{{key}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -644,9 +739,16 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli zrange \"{{key}}\" {{start}} {{stop}}",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "zrange",
+          "\"{{key}}\"",
+          "{{start}}",
+          "{{stop}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -694,7 +796,12 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli flushdb",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "flushdb"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "prerequisites": [
@@ -719,9 +826,13 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli dbsize",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "dbsize"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "redis-cli",
@@ -745,9 +856,14 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli info memory",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "info",
+          "memory"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "redis-cli",
@@ -772,9 +888,14 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli client list",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "client",
+          "list"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "redis-cli",
@@ -797,9 +918,15 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli slowlog get {{count}}",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "slowlog",
+          "get",
+          "{{count}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "count",
@@ -837,9 +964,15 @@
       ],
       "category": "redis",
       "platform": "all",
-      "template": "redis-cli config get \"{{pattern}}\"",
+      "exec": {
+        "program": "redis-cli",
+        "args": [
+          "config",
+          "get"
+        ],
+        "stdinArgKey": "pattern"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "pattern",

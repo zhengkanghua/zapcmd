@@ -432,7 +432,10 @@ describe("runtimeLoader", () => {
                   tags: ["test"],
                   category: "custom",
                   platform: "win",
-                  template: "echo bad",
+                  exec: {
+                    program: "echo",
+                    args: ["bad"]
+                  },
                   adminRequired: false
                 }
               ]
@@ -475,7 +478,10 @@ describe("runtimeLoader", () => {
                   tags: ["test"],
                   category: "custom",
                   platform: "win",
-                  template: "echo {{port}}",
+                  exec: {
+                    program: "echo",
+                    args: ["{{port}}"]
+                  },
                   adminRequired: false,
                   args: [
                     {
@@ -526,7 +532,10 @@ describe("runtimeLoader", () => {
                   tags: ["test"],
                   category: "custom",
                   platform: "win",
-                  template: "echo one",
+                  exec: {
+                    program: "echo",
+                    args: ["one"]
+                  },
                   adminRequired: false
                 },
                 {
@@ -535,7 +544,10 @@ describe("runtimeLoader", () => {
                   tags: ["test"],
                   category: "custom",
                   platform: "win",
-                  template: "echo two",
+                  exec: {
+                    program: "echo",
+                    args: ["two"]
+                  },
                   adminRequired: false
                 }
               ]
@@ -572,7 +584,10 @@ describe("runtimeLoader", () => {
                 tags: ["test"],
                 category: "custom",
                 platform: "win",
-                template: "echo hello",
+                exec: {
+                  program: "echo",
+                  args: ["hello"]
+                },
                 shell: "powershell",
                 adminRequired: false
               }
@@ -610,7 +625,10 @@ describe("runtimeLoader", () => {
                 tags: ["redis"],
                 category: "redis",
                 platform: "win",
-                template: "redis-cli",
+                exec: {
+                  program: "redis-cli",
+                  args: []
+                },
                 adminRequired: false
               }
             ]

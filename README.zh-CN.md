@@ -95,14 +95,19 @@ node scripts/setup-githooks.mjs
 npm run precommit:guard
 ```
 
-当你修改内置命令源（`docs/command_sources/_*.md`）时，需要生成并提交产物：
+内置命令真源已迁到 `commands/catalog/_*.yaml`。
 
-CI 会阻断 `assets/runtime_templates/commands/builtin` 和 `docs/builtin_commands.generated.md` 的未提交漂移。
+修改后需要同时生成并提交运行时 JSON 与只读 Markdown 文档：
 
 ```bash
 npm run commands:builtin:generate
-git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
+git add commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands
 ```
+
+CI 会阻断以下目录的未提交漂移：
+
+- `assets/runtime_templates/commands/builtin`
+- `docs/generated_commands`
 
 Windows 桌面端最小 E2E 冒烟（CI 同口径）：
 
@@ -160,13 +165,25 @@ ZapCmd 会递归读取用户 JSON 文件：
 {
   "commands": [
     {
-      "id": "custom-hello-win",
+      "id": "custom-hello",
       "name": "自定义问候",
       "tags": ["custom", "hello"],
-      "category": "redis",
-      "platform": "win",
-      "template": "Write-Output \"hello from user commands\"",
-      "adminRequired": false
+      "category": "dev",
+      "platform": "all",
+      "exec": {
+        "program": "echo",
+        "args": ["{{text}}"]
+      },
+      "adminRequired": false,
+      "args": [
+        {
+          "key": "text",
+          "label": "文本",
+          "type": "text",
+          "required": true,
+          "default": "hello from user commands"
+        }
+      ]
     }
   ]
 }
@@ -179,7 +196,9 @@ Schema：
 
 说明：
 
-- 命令对象不再支持顶层 `shell` 字段。若命令明确依赖 PowerShell，应改写到 `prerequisites`，例如 `shell:powershell`。
+- 命令对象不再支持 `template` 与顶层 `shell` 字段。
+- 请改用 `exec.program + exec.args[]` 或 `script.runner + script.command`。
+- 若命令明确依赖 PowerShell，应改写到 `prerequisites`，例如 `shell:powershell`。
 - 当前 prerequisite 只支持三种类型：`binary`、`shell`、`env`。
 - 在 Windows 上，`adminRequired=true` 表示“执行时按需拉起对应管理员终端”，并不会提升 ZapCmd 主进程权限。
 - `category` 必须是 slug 字符串，例如 `custom`、`redis`、`mysql-tools`。

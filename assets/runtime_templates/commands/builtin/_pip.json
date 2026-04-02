@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "Pip",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_pip.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -19,9 +16,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pip install {{package}}",
+      "exec": {
+        "program": "pip",
+        "args": [
+          "install",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -51,9 +53,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pip uninstall {{package}}",
+      "exec": {
+        "program": "pip",
+        "args": [
+          "uninstall",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -87,9 +94,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pip list",
+      "exec": {
+        "program": "pip",
+        "args": [
+          "list"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "pip",
@@ -112,15 +123,23 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pip freeze > requirements.txt",
+      "script": {
+        "runner": "bash",
+        "command": "pip freeze > requirements.txt"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "pip",
           "type": "binary",
           "required": true,
           "check": "binary:pip"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     }

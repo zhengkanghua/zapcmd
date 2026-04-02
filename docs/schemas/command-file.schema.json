@@ -205,6 +205,58 @@
         }
       }
     },
+    "commandExec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "program",
+        "args"
+      ],
+      "properties": {
+        "program": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "stdinArgKey": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        }
+      }
+    },
+    "commandScriptRunner": {
+      "type": "string",
+      "enum": [
+        "powershell",
+        "pwsh",
+        "cmd",
+        "bash",
+        "sh"
+      ]
+    },
+    "commandScript": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runner",
+        "command"
+      ],
+      "properties": {
+        "runner": {
+          "$ref": "#/$defs/commandScriptRunner"
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "command": {
       "type": "object",
       "additionalProperties": false,
@@ -214,7 +266,6 @@
         "tags",
         "category",
         "platform",
-        "template",
         "adminRequired"
       ],
       "properties": {
@@ -243,9 +294,11 @@
         "platform": {
           "$ref": "#/$defs/platform"
         },
-        "template": {
-          "type": "string",
-          "minLength": 1
+        "exec": {
+          "$ref": "#/$defs/commandExec"
+        },
+        "script": {
+          "$ref": "#/$defs/commandScript"
         },
         "adminRequired": {
           "type": "boolean"
@@ -265,7 +318,29 @@
             "$ref": "#/$defs/commandPrerequisite"
           }
         }
-      }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "exec"
+          ],
+          "not": {
+            "required": [
+              "script"
+            ]
+          }
+        },
+        {
+          "required": [
+            "script"
+          ],
+          "not": {
+            "required": [
+              "exec"
+            ]
+          }
+        }
+      ]
     }
   },
   "examples": [
@@ -297,7 +372,10 @@
         ],
         "category": "network",
         "platform": "win",
-        "template": "Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force",
+        "script": {
+          "runner": "powershell",
+          "command": "Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force"
+        },
         "adminRequired": false,
         "args": [
             {
@@ -312,6 +390,14 @@
                 "min": 1,
                 "max": 65535
               }
+            }
+          ],
+          "prerequisites": [
+            {
+              "id": "powershell",
+              "type": "shell",
+              "required": true,
+              "check": "shell:powershell"
             }
           ]
         }

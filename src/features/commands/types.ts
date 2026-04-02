@@ -1,4 +1,5 @@
 import type { CommandPrerequisite } from "./prerequisiteTypes";
+import type { RuntimeScriptRunner } from "./runtimeTypes";
 
 export interface CommandArg {
   key: string;
@@ -15,11 +16,39 @@ export interface CommandArg {
   options?: string[];
 }
 
+export type CommandExecutionTemplate =
+  | {
+      kind: "exec";
+      program: string;
+      args: string[];
+      stdinArgKey?: string;
+    }
+  | {
+      kind: "script";
+      runner: RuntimeScriptRunner;
+      command: string;
+    };
+
+export type ResolvedCommandExecution =
+  | {
+      kind: "exec";
+      program: string;
+      args: string[];
+      stdinArgKey?: string;
+      stdin?: string;
+    }
+  | {
+      kind: "script";
+      runner: RuntimeScriptRunner;
+      command: string;
+    };
+
 export interface CommandTemplate {
   id: string;
   title: string;
   description: string;
   preview: string;
+  execution?: CommandExecutionTemplate;
   folder: string;
   category: string;
   needsArgs: boolean;

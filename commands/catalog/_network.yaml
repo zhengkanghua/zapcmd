@@ -1,0 +1,992 @@
+meta:
+  name: 网络工具
+  moduleSlug: network
+commands:
+  - id: query-port-lsof
+    name: 查询端口占用 (lsof)
+    category: network
+    platform: mac/linux
+    exec:
+      program: lsof
+      args:
+        - -i
+        - :{{port}}
+    adminRequired: false
+    args:
+      - key: port
+        label: port
+        type: number
+        required: true
+        validation:
+          min: 1
+          max: 65535
+    prerequisites:
+      - id: lsof
+        type: binary
+        required: true
+        check: binary:lsof
+    tags:
+      - 网络
+      - network
+      - 查询
+      - query
+      - 端口
+      - port
+      - lsof
+      - 占用
+      - 冲突
+      - 端口占用
+      - 查端口
+  - id: query-port-netstat
+    name: 查询端口占用 (netstat)
+    category: network
+    platform: win
+    script:
+      runner: cmd
+      command: netstat -ano | findstr :{{port}}
+    adminRequired: false
+    args:
+      - key: port
+        label: port
+        type: number
+        required: true
+        validation:
+          min: 1
+          max: 65535
+    prerequisites:
+      - id: cmd
+        type: shell
+        required: true
+        check: shell:cmd
+    tags:
+      - 网络
+      - network
+      - 查询
+      - query
+      - 端口
+      - port
+      - netstat
+      - 占用
+      - 冲突
+      - 端口占用
+      - 查端口
+  - id: kill-port-mac
+    name: 解除端口占用
+    category: network
+    platform: mac/linux
+    script:
+      runner: bash
+      command: lsof -t -i:{{port}} | xargs kill -9
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: port
+        label: port
+        type: number
+        required: true
+        validation:
+          min: 1
+          max: 65535
+    prerequisites:
+      - id: lsof
+        type: binary
+        required: true
+        check: binary:lsof
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 网络
+      - network
+      - kill
+      - 终止
+      - 结束
+      - 端口
+      - port
+      - 占用
+      - 冲突
+      - 端口占用
+      - 释放端口
+  - id: kill-port-win
+    name: 解除端口占用
+    category: network
+    platform: win
+    script:
+      runner: powershell
+      command: Stop-Process -Id (Get-NetTCPConnection -LocalPort
+        {{port}}).OwningProcess -Force
+    adminRequired: false
+    dangerous: true
+    args:
+      - key: port
+        label: port
+        type: number
+        required: true
+        validation:
+          min: 1
+          max: 65535
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 网络
+      - network
+      - kill
+      - 终止
+      - 结束
+      - 端口
+      - port
+      - 占用
+      - 冲突
+      - 端口占用
+      - 释放端口
+  - id: ping
+    name: Ping 主机
+    category: network
+    platform: all
+    exec:
+      program: ping
+      args:
+        - "{{host}}"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+    tags:
+      - 网络
+      - network
+      - ping
+  - id: curl-get
+    name: HTTP GET 请求
+    category: network
+    platform: all
+    exec:
+      program: curl
+      args:
+        - -s
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - 获取
+      - get
+  - id: curl-post
+    name: HTTP POST 请求
+    category: network
+    platform: all
+    script:
+      runner: powershell
+      command: "curl -X POST -H \"Content-Type: application/json\" -d '{{body}}'
+        {{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+      - key: body
+        label: body
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - post
+  - id: curl-headers
+    name: 查看 HTTP 响应头
+    category: network
+    platform: all
+    exec:
+      program: curl
+      args:
+        - -I
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - headers
+      - 查看
+      - show
+  - id: dns-lookup
+    name: DNS 查询
+    category: network
+    platform: all
+    exec:
+      program: nslookup
+      args:
+        - "{{domain}}"
+    adminRequired: false
+    args:
+      - key: domain
+        label: domain
+        type: text
+        required: true
+    tags:
+      - 网络
+      - network
+      - dns
+      - lookup
+      - 查询
+      - query
+  - id: dig-query
+    name: DNS 详细查询 (dig)
+    category: network
+    platform: mac/linux
+    exec:
+      program: dig
+      args:
+        - "{{domain}}"
+        - "{{type}}"
+    adminRequired: false
+    args:
+      - key: domain
+        label: domain
+        type: text
+        required: true
+      - key: type
+        label: type
+        type: select
+        required: true
+        validation:
+          options:
+            - A
+            - AAAA
+            - MX
+            - CNAME
+            - NS
+            - TXT
+    prerequisites:
+      - id: dig
+        type: binary
+        required: true
+        check: binary:dig
+    tags:
+      - 网络
+      - network
+      - dig
+      - 查询
+      - query
+  - id: check-ip
+    name: 查看本机公网 IP
+    category: network
+    platform: all
+    exec:
+      program: curl
+      args:
+        - -s
+        - ifconfig.me
+    adminRequired: false
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - 检查
+      - check
+      - ip
+      - 查看
+      - show
+  - id: local-ip-mac
+    name: 查看本机局域网 IP
+    category: network
+    platform: mac
+    exec:
+      program: ipconfig
+      args:
+        - getifaddr
+        - en0
+    adminRequired: false
+    tags:
+      - 网络
+      - network
+      - 本地
+      - local
+      - ip
+      - 查看
+      - show
+  - id: local-ip-linux
+    name: 查看本机局域网 IP
+    category: network
+    platform: linux
+    exec:
+      program: hostname
+      args:
+        - -I
+    adminRequired: false
+    tags:
+      - 网络
+      - network
+      - 本地
+      - local
+      - ip
+      - 查看
+      - show
+  - id: local-ip-win
+    name: 查看本机局域网 IP
+    category: network
+    platform: win
+    exec:
+      program: ipconfig
+      args: []
+    adminRequired: false
+    tags:
+      - 网络
+      - network
+      - 本地
+      - local
+      - ip
+      - 查看
+      - show
+  - id: traceroute
+    name: 路由追踪
+    category: network
+    platform: mac/linux
+    exec:
+      program: traceroute
+      args:
+        - "{{host}}"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+    tags:
+      - 网络
+      - network
+      - traceroute
+      - 路由追踪
+  - id: tracert-win
+    name: 路由追踪
+    category: network
+    platform: win
+    exec:
+      program: tracert
+      args:
+        - "{{host}}"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+    tags:
+      - 网络
+      - network
+      - tracert
+      - 路由追踪
+  - id: check-open-ports
+    name: 检查远程端口是否开放
+    category: network
+    platform: mac/linux
+    exec:
+      program: nc
+      args:
+        - -zv
+        - "{{host}}"
+        - "{{port}}"
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+      - key: port
+        label: port
+        type: number
+        required: true
+        validation:
+          min: 1
+          max: 65535
+    prerequisites:
+      - id: nc
+        type: binary
+        required: true
+        check: binary:nc
+    tags:
+      - 网络
+      - network
+      - 检查
+      - check
+      - open
+      - ports
+      - 端口
+      - port
+  - id: check-open-ports-win
+    name: 检查远程端口是否开放
+    category: network
+    platform: win
+    script:
+      runner: powershell
+      command: Test-NetConnection -ComputerName "{{host}}" -Port {{port}} |
+        Select-Object ComputerName,RemotePort,TcpTestSucceeded
+    adminRequired: false
+    args:
+      - key: host
+        label: host
+        type: text
+        required: true
+      - key: port
+        label: port
+        type: number
+        required: true
+        validation:
+          min: 1
+          max: 65535
+    prerequisites:
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 网络
+      - network
+      - 检查
+      - check
+      - open
+      - ports
+      - 端口
+      - port
+  - id: wget-download
+    name: 下载文件
+    category: network
+    platform: mac/linux
+    exec:
+      program: wget
+      args:
+        - -O
+        - "{{filename}}"
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+      - key: filename
+        label: filename
+        type: text
+        required: true
+    prerequisites:
+      - id: wget
+        type: binary
+        required: true
+        check: binary:wget
+    tags:
+      - 网络
+      - network
+      - wget
+      - 下载
+      - download
+      - 文件
+      - file
+  - id: curl-download
+    name: 下载文件
+    category: network
+    platform: all
+    exec:
+      program: curl
+      args:
+        - -L
+        - -o
+        - "{{filename}}"
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+      - key: filename
+        label: filename
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - 下载
+      - download
+      - 文件
+      - file
+  - id: list-listening-ports
+    name: 查看所有监听端口
+    category: network
+    platform: mac/linux
+    exec:
+      program: netstat
+      args:
+        - -tlnp
+    adminRequired: false
+    tags:
+      - 网络
+      - network
+      - 列表
+      - list
+      - listening
+      - ports
+      - 端口
+      - port
+      - 查看
+      - show
+  - id: list-listening-ports-win
+    name: 查看所有监听端口
+    category: network
+    platform: win
+    script:
+      runner: cmd
+      command: netstat -an | findstr LISTENING
+    adminRequired: false
+    prerequisites:
+      - id: cmd
+        type: shell
+        required: true
+        check: shell:cmd
+    tags:
+      - 网络
+      - network
+      - 列表
+      - list
+      - listening
+      - ports
+      - 端口
+      - port
+      - 查看
+      - show
+  - id: flush-dns-mac
+    name: 刷新 DNS 缓存
+    category: network
+    platform: mac
+    script:
+      runner: bash
+      command: sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+    adminRequired: true
+    prerequisites:
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 网络
+      - network
+      - 刷新
+      - flush
+      - dns
+  - id: flush-dns-win
+    name: 刷新 DNS 缓存
+    category: network
+    platform: win
+    exec:
+      program: ipconfig
+      args:
+        - /flushdns
+    adminRequired: true
+    tags:
+      - 网络
+      - network
+      - 刷新
+      - flush
+      - dns
+  - id: flush-dns-linux
+    name: 刷新 DNS 缓存
+    category: network
+    platform: linux
+    exec:
+      program: sudo
+      args:
+        - systemd-resolve
+        - --flush-caches
+    adminRequired: true
+    prerequisites:
+      - id: systemd-resolve
+        type: binary
+        required: true
+        check: binary:systemd-resolve
+    tags:
+      - 网络
+      - network
+      - 刷新
+      - flush
+      - dns
+  - id: speed-test
+    name: 网络测速
+    category: network
+    platform: all
+    script:
+      runner: bash
+      command: curl -s
+        https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
+        | python3 -
+    adminRequired: false
+    dangerous: true
+    prerequisites:
+      - id: python3
+        type: binary
+        required: true
+        check: binary:python3
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - 网络
+      - network
+      - 测速
+      - speed
+      - test
+      - 测试
+  - id: curl-json-get
+    name: HTTP GET 请求 (JSON)
+    category: network
+    platform: all
+    exec:
+      program: curl
+      args:
+        - -s
+        - -H
+        - '"Accept: application/json"'
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - json
+      - get
+      - 获取
+  - id: http-status-only
+    name: 仅查看 HTTP 状态码
+    category: network
+    platform: mac/linux
+    exec:
+      program: curl
+      args:
+        - -s
+        - -o
+        - /dev/null
+        - -w
+        - '"%{http_code}"'
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - status
+      - 状态码
+      - code
+  - id: http-status-only-win
+    name: 仅查看 HTTP 状态码
+    category: network
+    platform: win
+    exec:
+      program: curl
+      args:
+        - -s
+        - -o
+        - NUL
+        - -w
+        - '"%{http_code}"'
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - status
+      - 状态码
+      - code
+  - id: whois
+    name: WHOIS 查询
+    category: network
+    platform: mac/linux
+    exec:
+      program: whois
+      args:
+        - "{{domain}}"
+    adminRequired: false
+    args:
+      - key: domain
+        label: domain
+        type: text
+        required: true
+    prerequisites:
+      - id: whois
+        type: binary
+        required: true
+        check: binary:whois
+    tags:
+      - 网络
+      - network
+      - whois
+      - 域名
+      - domain
+      - 查询
+      - query
+  - id: curl-json-post
+    name: HTTP POST 请求 (JSON)
+    category: network
+    platform: all
+    script:
+      runner: powershell
+      command: "curl -s -X POST -H \"Content-Type: application/json\" -H \"Accept:
+        application/json\" -d '{{body}}' {{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+      - key: body
+        label: body
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - json
+      - post
+  - id: curl-json-put
+    name: HTTP PUT 请求 (JSON)
+    category: network
+    platform: all
+    script:
+      runner: powershell
+      command: "curl -s -X PUT -H \"Content-Type: application/json\" -H \"Accept:
+        application/json\" -d '{{body}}' {{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+      - key: body
+        label: body
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+      - id: powershell
+        type: shell
+        required: true
+        check: shell:powershell
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - json
+      - put
+  - id: curl-json-delete
+    name: HTTP DELETE 请求 (JSON)
+    category: network
+    platform: all
+    exec:
+      program: curl
+      args:
+        - -s
+        - -X
+        - DELETE
+        - -H
+        - '"Accept: application/json"'
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - json
+      - delete
+  - id: curl-form-post
+    name: HTTP POST 请求 (Form)
+    category: network
+    platform: all
+    exec:
+      program: curl
+      args:
+        - -s
+        - -X
+        - POST
+        - -F
+        - '"{{field}}={{value}}"'
+        - "{{url}}"
+    adminRequired: false
+    args:
+      - key: url
+        label: url
+        type: text
+        required: true
+      - key: field
+        label: field
+        type: text
+        required: true
+      - key: value
+        label: value
+        type: text
+        required: true
+    prerequisites:
+      - id: curl
+        type: binary
+        required: true
+        check: binary:curl
+    tags:
+      - 网络
+      - network
+      - curl
+      - http
+      - form
+      - post
+  - id: dig-short
+    name: DNS 简洁查询 (dig +short)
+    category: network
+    platform: mac/linux
+    exec:
+      program: dig
+      args:
+        - +short
+        - "{{domain}}"
+        - "{{type}}"
+    adminRequired: false
+    args:
+      - key: domain
+        label: domain
+        type: text
+        required: true
+      - key: type
+        label: type
+        type: select
+        required: true
+        validation:
+          options:
+            - A
+            - AAAA
+            - CNAME
+            - MX
+            - TXT
+            - NS
+    prerequisites:
+      - id: dig
+        type: binary
+        required: true
+        check: binary:dig
+    tags:
+      - 网络
+      - network
+      - dig
+      - short
+      - dns
+      - 查询
+      - query

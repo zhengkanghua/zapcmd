@@ -11,17 +11,10 @@ import {
   createDefaultSettingsSnapshot,
 } from "../stores/settingsStore";
 import App from "../App.vue";
+import type { CommandExecutionRequest } from "../services/commandExecutor";
 
 const hoisted = vi.hoisted(() => ({
-  runMock:
-    vi.fn<
-      (request: {
-        terminalId: string;
-        command: string;
-        requiresElevation?: boolean;
-        alwaysElevated?: boolean;
-      }) => Promise<void>
-    >(),
+  runMock: vi.fn<(request: CommandExecutionRequest) => Promise<void>>(),
   invokeMock: vi.fn<(command: string, payload?: unknown) => Promise<unknown>>(),
   isTauriMock: vi.fn<() => boolean>(() => true),
   currentWindowLabel: "main",
@@ -160,6 +153,25 @@ function resolveExpectedTerminalId(requestedId: string): string {
   ).effectiveId;
 }
 
+function expectFirstExecutionStepContains(
+  request: CommandExecutionRequest | undefined,
+  snippet: string,
+): void {
+  expect(request).toBeTruthy();
+  if (!request) {
+    throw new Error("terminal request should exist");
+  }
+
+  expect(request.steps).toHaveLength(1);
+  const step = request.steps[0];
+  expect(step?.summary).toContain(snippet);
+  if (step?.execution.kind === "exec") {
+    expect(step.execution.args.join(" ")).toContain(snippet);
+    return;
+  }
+  expect(step?.execution.command).toContain(snippet);
+}
+
 function resolveProbeInvoke(command: string, payload?: unknown): unknown {
   if (command !== "probe_command_prerequisites") {
     return undefined;
@@ -243,7 +255,7 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     expect(hoisted.runMock).toHaveBeenCalled();
     const request = hoisted.runMock.mock.calls[0]?.[0];
-    expect(request?.command ?? "").toContain("my-container");
+    expectFirstExecutionStepContains(request, "my-container");
 
     expect(request?.terminalId).toBe(resolveExpectedTerminalId("powershell"));
 
@@ -305,7 +317,7 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     const request = hoisted.runMock.mock.calls.at(-1)?.[0];
     expect(request?.terminalId).toBe(resolveExpectedTerminalId("wt"));
-    expect(request?.command ?? "").toContain("my-container");
+    expectFirstExecutionStepContains(request, "my-container");
   });
 
   it("覆盖恢复链路：Settings 恢复的 alwaysElevatedTerminal 会传到执行器", async () => {

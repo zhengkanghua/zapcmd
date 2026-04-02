@@ -1,0 +1,325 @@
+meta:
+  name: SQLite
+  moduleSlug: sqlite
+commands:
+  - id: sqlite-shell
+    name: SQLite Shell
+    category: sqlite
+    platform: all
+    exec:
+      program: sqlite3
+      args:
+        - '"{{file}}"'
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+    tags:
+      - sqlite
+      - shell
+      - cli
+      - 入口
+      - 控制台
+  - id: sqlite-tables
+    name: SQLite 列出数据表
+    category: sqlite
+    platform: all
+    exec:
+      program: sqlite3
+      args:
+        - '"{{file}}"'
+        - '".tables"'
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+    tags:
+      - sqlite
+      - tables
+      - 列表
+  - id: sqlite-schema
+    name: SQLite 查看 Schema
+    category: sqlite
+    platform: all
+    exec:
+      program: sqlite3
+      args:
+        - '"{{file}}"'
+        - '".schema"'
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+    tags:
+      - sqlite
+      - schema
+      - 结构
+  - id: sqlite-query
+    name: SQLite 执行 SQL
+    category: sqlite
+    platform: all
+    exec:
+      program: sqlite3
+      args:
+        - '"{{file}}"'
+      stdinArgKey: sql
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+      - key: sql
+        label: sql
+        type: text
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+    tags:
+      - sqlite
+      - query
+      - sql
+  - id: sqlite-import
+    name: SQLite 导入 CSV
+    category: sqlite
+    platform: all
+    exec:
+      program: sqlite3
+      args:
+        - '"{{file}}"'
+        - '".mode csv"'
+        - '".import {{csv}} {{table}}"'
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+      - key: csv
+        label: csv
+        type: path
+        required: true
+      - key: table
+        label: table
+        type: text
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+    tags:
+      - sqlite
+      - import
+      - csv
+      - table
+  - id: sqlite-integrity-check
+    name: SQLite 完整性检查
+    category: sqlite
+    platform: all
+    script:
+      runner: bash
+      command: sqlite3 "{{file}}" "PRAGMA integrity_check;"
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - sqlite
+      - integrity
+      - check
+      - 健康检查
+  - id: sqlite-vacuum
+    name: SQLite VACUUM
+    category: sqlite
+    platform: all
+    script:
+      runner: bash
+      command: sqlite3 "{{file}}" "VACUUM;"
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - sqlite
+      - vacuum
+      - optimize
+      - 优化
+  - id: sqlite-table-info
+    name: SQLite 表字段信息
+    category: sqlite
+    platform: all
+    script:
+      runner: bash
+      command: sqlite3 "{{file}}" "PRAGMA table_info('{{table}}');"
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+      - key: table
+        label: table
+        type: text
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - sqlite
+      - pragma
+      - table_info
+      - schema
+      - observability
+      - 表结构
+      - 查看
+      - show
+  - id: sqlite-index-list
+    name: SQLite 索引列表
+    category: sqlite
+    platform: all
+    script:
+      runner: bash
+      command: sqlite3 "{{file}}" "PRAGMA index_list('{{table}}');"
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+      - key: table
+        label: table
+        type: text
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - sqlite
+      - pragma
+      - index_list
+      - observability
+      - 索引
+      - 列表
+      - 查看
+      - show
+  - id: sqlite-pragma-journal-mode
+    name: SQLite Journal Mode
+    category: sqlite
+    platform: all
+    script:
+      runner: bash
+      command: sqlite3 "{{file}}" "PRAGMA journal_mode;"
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - sqlite
+      - pragma
+      - journal_mode
+      - observability
+      - journal
+      - 模式
+      - 查看
+      - show
+  - id: sqlite-foreign-key-check
+    name: SQLite 外键检查
+    category: sqlite
+    platform: all
+    script:
+      runner: bash
+      command: sqlite3 "{{file}}" "PRAGMA foreign_key_check;"
+    adminRequired: false
+    args:
+      - key: file
+        label: file
+        type: path
+        required: true
+    prerequisites:
+      - id: sqlite3
+        type: binary
+        required: true
+        check: binary:sqlite3
+      - id: bash
+        type: shell
+        required: true
+        check: shell:bash
+    tags:
+      - sqlite
+      - pragma
+      - foreign_key_check
+      - observability
+      - 外键
+      - 检查
+      - 查看
+      - show

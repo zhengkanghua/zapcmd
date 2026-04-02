@@ -240,6 +240,60 @@ mod tests {
     }
 
     #[test]
+    fn shell_prerequisite_accepts_pwsh_runner_value() {
+        let result = probe_prerequisite_with(
+            &PrerequisiteProbeInput {
+                id: "pwsh".to_string(),
+                r#type: "shell".to_string(),
+                required: true,
+                check: "shell:pwsh".to_string(),
+            },
+            |command| command == "pwsh",
+            |_| None,
+        );
+
+        assert!(result.ok);
+        assert_eq!(result.code, "ok");
+    }
+
+    #[test]
+    fn shell_prerequisite_accepts_cmd_bash_and_sh_runner_values() {
+        for runner in ["cmd", "bash", "sh"] {
+            let result = probe_prerequisite_with(
+                &PrerequisiteProbeInput {
+                    id: runner.to_string(),
+                    r#type: "shell".to_string(),
+                    required: true,
+                    check: format!("shell:{}", runner),
+                },
+                |command| command == runner,
+                |_| None,
+            );
+
+            assert!(result.ok, "runner {} should be accepted", runner);
+            assert_eq!(result.code, "ok");
+        }
+    }
+
+    #[test]
+    fn shell_prerequisite_reports_missing_runner_binary() {
+        let result = probe_prerequisite_with(
+            &PrerequisiteProbeInput {
+                id: "pwsh".to_string(),
+                r#type: "shell".to_string(),
+                required: true,
+                check: "shell:pwsh".to_string(),
+            },
+            |_| false,
+            |_| None,
+        );
+
+        assert!(!result.ok);
+        assert_eq!(result.code, "missing-shell");
+        assert!(result.message.contains("pwsh"));
+    }
+
+    #[test]
     fn generic_shell_prerequisite_is_satisfied() {
         let result = probe_prerequisite_with(
             &PrerequisiteProbeInput {

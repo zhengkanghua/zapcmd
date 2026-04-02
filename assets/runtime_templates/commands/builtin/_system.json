@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "系统管理",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_system.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -21,15 +18,25 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "ps aux | grep {{name}}",
+      "script": {
+        "runner": "bash",
+        "command": "ps aux | grep {{name}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
           "label": "name",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -47,15 +54,25 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "ps aux | grep {{name}}",
+      "script": {
+        "runner": "bash",
+        "command": "ps aux | grep {{name}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
           "label": "name",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -73,15 +90,25 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "tasklist | findstr /i {{name}}",
+      "script": {
+        "runner": "cmd",
+        "command": "tasklist | findstr /i {{name}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "name",
           "label": "name",
           "type": "text",
           "required": true
+        }
+      ],
+      "prerequisites": [
+        {
+          "id": "cmd",
+          "type": "shell",
+          "required": true,
+          "check": "shell:cmd"
         }
       ]
     },
@@ -100,7 +127,13 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "kill -9 {{pid}}",
+      "exec": {
+        "program": "kill",
+        "args": [
+          "-9",
+          "{{pid}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -131,7 +164,13 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "kill -9 {{pid}}",
+      "exec": {
+        "program": "kill",
+        "args": [
+          "-9",
+          "{{pid}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -162,7 +201,14 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "taskkill /F /PID {{pid}}",
+      "exec": {
+        "program": "taskkill",
+        "args": [
+          "/F",
+          "/PID",
+          "{{pid}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -194,7 +240,13 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "pkill -f {{name}}",
+      "exec": {
+        "program": "pkill",
+        "args": [
+          "-f",
+          "{{name}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -222,7 +274,13 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "pkill -f {{name}}",
+      "exec": {
+        "program": "pkill",
+        "args": [
+          "-f",
+          "{{name}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -250,7 +308,14 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "taskkill /F /IM {{name}}",
+      "exec": {
+        "program": "taskkill",
+        "args": [
+          "/F",
+          "/IM",
+          "{{name}}"
+        ]
+      },
       "adminRequired": false,
       "dangerous": true,
       "args": [
@@ -277,9 +342,13 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "df -h",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "df",
+        "args": [
+          "-h"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "disk-usage-linux",
@@ -296,9 +365,13 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "df -h",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "df",
+        "args": [
+          "-h"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "disk-usage-win",
@@ -315,9 +388,11 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "Get-PSDrive -PSProvider FileSystem",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-PSDrive -PSProvider FileSystem"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "powershell",
@@ -342,9 +417,14 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "du -sh {{path}}",
+      "exec": {
+        "program": "du",
+        "args": [
+          "-sh",
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -369,9 +449,14 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "du -sh {{path}}",
+      "exec": {
+        "program": "du",
+        "args": [
+          "-sh",
+          "{{path}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -396,9 +481,11 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "(Get-ChildItem -Recurse {{path}} | Measure-Object -Property Length -Sum).Sum / 1MB",
+      "script": {
+        "runner": "powershell",
+        "command": "(Get-ChildItem -Recurse {{path}} | Measure-Object -Property Length -Sum).Sum / 1MB"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "path",
@@ -431,9 +518,19 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "top -l 1 | head -n 10",
+      "script": {
+        "runner": "bash",
+        "command": "top -l 1 | head -n 10"
+      },
       "adminRequired": false,
-      "dangerous": false
+      "prerequisites": [
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
+        }
+      ]
     },
     {
       "id": "memory-usage-linux",
@@ -450,9 +547,13 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "free -h",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "free",
+        "args": [
+          "-h"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "memory-usage-win",
@@ -469,9 +570,11 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 10 Name, @{N='Mem(MB)';E={[math]::round($_.WorkingSet/1MB,1)}}",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 10 Name, @{N='Mem(MB)';E={[math]::round($_.WorkingSet/1MB,1)}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "powershell",
@@ -493,9 +596,13 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "uname -a",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "uname",
+        "args": [
+          "-a"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "system-info-linux",
@@ -509,9 +616,13 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "uname -a",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "uname",
+        "args": [
+          "-a"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "system-info-win",
@@ -525,9 +636,11 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "systeminfo",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "systeminfo",
+        "args": []
+      },
+      "adminRequired": false
     },
     {
       "id": "env-var-set-mac",
@@ -544,9 +657,13 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "export {{key}}={{value}}",
+      "exec": {
+        "program": "export",
+        "args": [
+          "{{key}}={{value}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -577,9 +694,13 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "export {{key}}={{value}}",
+      "exec": {
+        "program": "export",
+        "args": [
+          "{{key}}={{value}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -610,9 +731,11 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "$env:{{key}} = \"{{value}}\"",
+      "script": {
+        "runner": "powershell",
+        "command": "$env:{{key}} = \"{{value}}\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -653,9 +776,13 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "echo ${{key}}",
+      "exec": {
+        "program": "echo",
+        "args": [
+          "${{key}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -682,9 +809,13 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "echo ${{key}}",
+      "exec": {
+        "program": "echo",
+        "args": [
+          "${{key}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -711,9 +842,11 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "echo $env:{{key}}",
+      "script": {
+        "runner": "powershell",
+        "command": "echo $env:{{key}}"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -742,9 +875,11 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "uptime",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "uptime",
+        "args": []
+      },
+      "adminRequired": false
     },
     {
       "id": "uptime-linux",
@@ -757,9 +892,11 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "uptime",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "uptime",
+        "args": []
+      },
+      "adminRequired": false
     },
     {
       "id": "cpu-top-mac",
@@ -774,9 +911,18 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "top -o cpu -n 10 -l 1",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "top",
+        "args": [
+          "-o",
+          "cpu",
+          "-n",
+          "10",
+          "-l",
+          "1"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "cpu-top-linux",
@@ -791,9 +937,18 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "top -o cpu -n 10 -l 1",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "top",
+        "args": [
+          "-o",
+          "cpu",
+          "-n",
+          "10",
+          "-l",
+          "1"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "cpu-top-win",
@@ -808,9 +963,11 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10",
+      "script": {
+        "runner": "powershell",
+        "command": "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "powershell",
@@ -835,9 +992,13 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "crontab -l",
+      "exec": {
+        "program": "crontab",
+        "args": [
+          "-l"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "crontab",
@@ -862,9 +1023,13 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "crontab -l",
+      "exec": {
+        "program": "crontab",
+        "args": [
+          "-l"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "crontab",
@@ -888,9 +1053,14 @@
       ],
       "category": "system",
       "platform": "mac",
-      "template": "sudo nano /etc/hosts",
-      "adminRequired": true,
-      "dangerous": false
+      "exec": {
+        "program": "sudo",
+        "args": [
+          "nano",
+          "/etc/hosts"
+        ]
+      },
+      "adminRequired": true
     },
     {
       "id": "hosts-edit-linux",
@@ -906,9 +1076,14 @@
       ],
       "category": "system",
       "platform": "linux",
-      "template": "sudo nano /etc/hosts",
-      "adminRequired": true,
-      "dangerous": false
+      "exec": {
+        "program": "sudo",
+        "args": [
+          "nano",
+          "/etc/hosts"
+        ]
+      },
+      "adminRequired": true
     },
     {
       "id": "hosts-edit-win",
@@ -924,9 +1099,13 @@
       ],
       "category": "system",
       "platform": "win",
-      "template": "notepad C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts",
-      "adminRequired": true,
-      "dangerous": false
+      "exec": {
+        "program": "notepad",
+        "args": [
+          "C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts"
+        ]
+      },
+      "adminRequired": true
     }
   ]
 }

@@ -86,6 +86,11 @@ const visualSearchResults: CommandTemplate[] = [
     title: "Docker Logs",
     description: "查看容器最近日志",
     preview: "docker logs app --tail 120",
+    execution: {
+      kind: "exec",
+      program: "docker",
+      args: ["logs", "app", "--tail", "120"]
+    },
     folder: "Builtins",
     category: "devops",
     needsArgs: false
@@ -95,6 +100,11 @@ const visualSearchResults: CommandTemplate[] = [
     title: "Sync Logs",
     description: "同步 prod 集群日志",
     preview: "sync-logs --target prod-cluster --since 7d",
+    execution: {
+      kind: "exec",
+      program: "sync-logs",
+      args: ["--target", "prod-cluster", "--since", "7d"]
+    },
     folder: "Workspace",
     category: "ops",
     needsArgs: false
@@ -105,21 +115,41 @@ const visualStagedCommands: StagedCommand[] = [
   {
     id: "stage-1",
     title: "Docker Logs",
-    renderedCommand: "docker logs app --tail 120",
     rawPreview: "docker logs app --tail 120",
+    renderedPreview: "docker logs app --tail 120",
+    executionTemplate: {
+      kind: "exec",
+      program: "docker",
+      args: ["logs", "app", "--tail", "120"]
+    },
+    execution: {
+      kind: "exec",
+      program: "docker",
+      args: ["logs", "app", "--tail", "120"]
+    },
     args: [],
     argValues: {}
   },
   {
     id: "stage-2",
     title: "Sync Logs",
-    renderedCommand: "sync-logs --target prod-cluster --since 7d",
     rawPreview: "sync-logs --target prod-cluster --since 7d",
+    renderedPreview: "sync-logs --target prod-cluster --since 7d",
+    executionTemplate: {
+      kind: "exec",
+      program: "sync-logs",
+      args: ["--target", "{{target}}", "--since", "7d"]
+    },
+    execution: {
+      kind: "exec",
+      program: "sync-logs",
+      args: ["--target", "prod-cluster", "--since", "7d"]
+    },
     args: [
       {
         key: "target",
         label: "Target",
-        token: "{target}",
+        token: "{{target}}",
         placeholder: "prod-cluster"
       }
     ],

@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "PNPM",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_pnpm.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -21,9 +18,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pnpm add {{package}}",
+      "exec": {
+        "program": "pnpm",
+        "args": [
+          "add",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -55,9 +57,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pnpm run {{script}}",
+      "exec": {
+        "program": "pnpm",
+        "args": [
+          "run",
+          "{{script}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "script",
@@ -90,9 +97,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pnpm up",
+      "exec": {
+        "program": "pnpm",
+        "args": [
+          "up"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "pnpm",
@@ -117,9 +128,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pnpm remove {{package}}",
+      "exec": {
+        "program": "pnpm",
+        "args": [
+          "remove",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -153,9 +169,15 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pnpm list --depth 0",
+      "exec": {
+        "program": "pnpm",
+        "args": [
+          "list",
+          "--depth",
+          "0"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "pnpm",
@@ -180,9 +202,13 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pnpm install",
+      "exec": {
+        "program": "pnpm",
+        "args": [
+          "install"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "prerequisites": [
         {
           "id": "pnpm",
@@ -207,9 +233,15 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pnpm add -D {{package}}",
+      "exec": {
+        "program": "pnpm",
+        "args": [
+          "add",
+          "-D",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",
@@ -242,9 +274,14 @@
       ],
       "category": "package",
       "platform": "all",
-      "template": "pnpm dlx {{package}}",
+      "exec": {
+        "program": "pnpm",
+        "args": [
+          "dlx",
+          "{{package}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "package",

@@ -1,12 +1,13 @@
 {
-  "sourceDir": "docs/command_sources",
-  "sourcePattern": "_*.md",
+  "sourceDir": "commands/catalog",
+  "sourcePattern": "_*.yaml",
   "logicalCommandCount": 357,
   "physicalCommandCount": 403,
   "generatedFiles": [
     {
       "file": "_brew.json",
-      "sourceFile": "_brew.md",
+      "sourceFile": "_brew.yaml",
+      "docFile": "_brew.md",
       "moduleSlug": "brew",
       "runtimeCategories": [
         "package"
@@ -16,7 +17,8 @@
     },
     {
       "file": "_bun.json",
-      "sourceFile": "_bun.md",
+      "sourceFile": "_bun.yaml",
+      "docFile": "_bun.md",
       "moduleSlug": "bun",
       "runtimeCategories": [
         "package"
@@ -26,7 +28,8 @@
     },
     {
       "file": "_cargo.json",
-      "sourceFile": "_cargo.md",
+      "sourceFile": "_cargo.yaml",
+      "docFile": "_cargo.md",
       "moduleSlug": "cargo",
       "runtimeCategories": [
         "package"
@@ -36,7 +39,8 @@
     },
     {
       "file": "_cert.json",
-      "sourceFile": "_cert.md",
+      "sourceFile": "_cert.yaml",
+      "docFile": "_cert.md",
       "moduleSlug": "cert",
       "runtimeCategories": [
         "cert"
@@ -46,7 +50,8 @@
     },
     {
       "file": "_dev.json",
-      "sourceFile": "_dev.md",
+      "sourceFile": "_dev.yaml",
+      "docFile": "_dev.md",
       "moduleSlug": "dev",
       "runtimeCategories": [
         "dev"
@@ -56,7 +61,8 @@
     },
     {
       "file": "_docker.json",
-      "sourceFile": "_docker.md",
+      "sourceFile": "_docker.yaml",
+      "docFile": "_docker.md",
       "moduleSlug": "docker",
       "runtimeCategories": [
         "docker"
@@ -66,7 +72,8 @@
     },
     {
       "file": "_file.json",
-      "sourceFile": "_file.md",
+      "sourceFile": "_file.yaml",
+      "docFile": "_file.md",
       "moduleSlug": "file",
       "runtimeCategories": [
         "file"
@@ -76,7 +83,8 @@
     },
     {
       "file": "_gh.json",
-      "sourceFile": "_gh.md",
+      "sourceFile": "_gh.yaml",
+      "docFile": "_gh.md",
       "moduleSlug": "gh",
       "runtimeCategories": [
         "gh"
@@ -86,7 +94,8 @@
     },
     {
       "file": "_git.json",
-      "sourceFile": "_git.md",
+      "sourceFile": "_git.yaml",
+      "docFile": "_git.md",
       "moduleSlug": "git",
       "runtimeCategories": [
         "git"
@@ -96,7 +105,8 @@
     },
     {
       "file": "_kubernetes.json",
-      "sourceFile": "_kubernetes.md",
+      "sourceFile": "_kubernetes.yaml",
+      "docFile": "_kubernetes.md",
       "moduleSlug": "kubernetes",
       "runtimeCategories": [
         "kubernetes"
@@ -106,7 +116,8 @@
     },
     {
       "file": "_mysql.json",
-      "sourceFile": "_mysql.md",
+      "sourceFile": "_mysql.yaml",
+      "docFile": "_mysql.md",
       "moduleSlug": "mysql",
       "runtimeCategories": [
         "mysql"
@@ -116,7 +127,8 @@
     },
     {
       "file": "_network.json",
-      "sourceFile": "_network.md",
+      "sourceFile": "_network.yaml",
+      "docFile": "_network.md",
       "moduleSlug": "network",
       "runtimeCategories": [
         "network"
@@ -126,7 +138,8 @@
     },
     {
       "file": "_npm.json",
-      "sourceFile": "_npm.md",
+      "sourceFile": "_npm.yaml",
+      "docFile": "_npm.md",
       "moduleSlug": "npm",
       "runtimeCategories": [
         "package"
@@ -136,7 +149,8 @@
     },
     {
       "file": "_pip.json",
-      "sourceFile": "_pip.md",
+      "sourceFile": "_pip.yaml",
+      "docFile": "_pip.md",
       "moduleSlug": "pip",
       "runtimeCategories": [
         "package"
@@ -146,7 +160,8 @@
     },
     {
       "file": "_pnpm.json",
-      "sourceFile": "_pnpm.md",
+      "sourceFile": "_pnpm.yaml",
+      "docFile": "_pnpm.md",
       "moduleSlug": "pnpm",
       "runtimeCategories": [
         "package"
@@ -156,7 +171,8 @@
     },
     {
       "file": "_postgres.json",
-      "sourceFile": "_postgres.md",
+      "sourceFile": "_postgres.yaml",
+      "docFile": "_postgres.md",
       "moduleSlug": "postgres",
       "runtimeCategories": [
         "postgres"
@@ -166,7 +182,8 @@
     },
     {
       "file": "_redis.json",
-      "sourceFile": "_redis.md",
+      "sourceFile": "_redis.yaml",
+      "docFile": "_redis.md",
       "moduleSlug": "redis",
       "runtimeCategories": [
         "redis"
@@ -176,7 +193,8 @@
     },
     {
       "file": "_service.json",
-      "sourceFile": "_service.md",
+      "sourceFile": "_service.yaml",
+      "docFile": "_service.md",
       "moduleSlug": "service",
       "runtimeCategories": [
         "service"
@@ -186,7 +204,8 @@
     },
     {
       "file": "_sqlite.json",
-      "sourceFile": "_sqlite.md",
+      "sourceFile": "_sqlite.yaml",
+      "docFile": "_sqlite.md",
       "moduleSlug": "sqlite",
       "runtimeCategories": [
         "sqlite"
@@ -196,7 +215,8 @@
     },
     {
       "file": "_ssh.json",
-      "sourceFile": "_ssh.md",
+      "sourceFile": "_ssh.yaml",
+      "docFile": "_ssh.md",
       "moduleSlug": "ssh",
       "runtimeCategories": [
         "ssh"
@@ -206,7 +226,8 @@
     },
     {
       "file": "_system.json",
-      "sourceFile": "_system.md",
+      "sourceFile": "_system.yaml",
+      "docFile": "_system.md",
       "moduleSlug": "system",
       "runtimeCategories": [
         "system"
@@ -216,7 +237,8 @@
     },
     {
       "file": "_yarn.json",
-      "sourceFile": "_yarn.md",
+      "sourceFile": "_yarn.yaml",
+      "docFile": "_yarn.md",
       "moduleSlug": "yarn",
       "runtimeCategories": [
         "package"

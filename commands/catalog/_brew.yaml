@@ -1,0 +1,117 @@
+meta:
+  name: Homebrew
+  moduleSlug: brew
+commands:
+  - id: brew-install
+    name: Homebrew 安装
+    category: package
+    platform: mac
+    exec:
+      program: brew
+      args:
+        - install
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: brew
+        type: binary
+        required: true
+        check: binary:brew
+    tags:
+      - 包管理
+      - package
+      - brew
+      - install
+      - 安装
+  - id: brew-uninstall
+    name: Homebrew 卸载
+    category: package
+    platform: mac
+    exec:
+      program: brew
+      args:
+        - uninstall
+        - "{{package}}"
+    adminRequired: false
+    args:
+      - key: package
+        label: package
+        type: text
+        required: true
+    prerequisites:
+      - id: brew
+        type: binary
+        required: true
+        check: binary:brew
+    tags:
+      - 包管理
+      - package
+      - brew
+      - 卸载
+      - uninstall
+  - id: brew-update
+    name: Homebrew 更新索引
+    category: package
+    platform: mac
+    exec:
+      program: brew
+      args:
+        - update
+    adminRequired: false
+    prerequisites:
+      - id: brew
+        type: binary
+        required: true
+        check: binary:brew
+    tags:
+      - 包管理
+      - package
+      - brew
+      - 更新
+      - update
+  - id: brew-upgrade
+    name: Homebrew 升级所有
+    category: package
+    platform: mac
+    exec:
+      program: brew
+      args:
+        - upgrade
+    adminRequired: false
+    prerequisites:
+      - id: brew
+        type: binary
+        required: true
+        check: binary:brew
+    tags:
+      - 包管理
+      - package
+      - brew
+      - upgrade
+  - id: brew-list
+    name: Homebrew 已安装列表
+    category: package
+    platform: mac
+    exec:
+      program: brew
+      args:
+        - list
+    adminRequired: false
+    prerequisites:
+      - id: brew
+        type: binary
+        required: true
+        check: binary:brew
+    tags:
+      - 包管理
+      - package
+      - brew
+      - 列表
+      - list
+      - 安装
+      - install

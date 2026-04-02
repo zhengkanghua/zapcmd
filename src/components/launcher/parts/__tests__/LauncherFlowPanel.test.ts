@@ -93,11 +93,22 @@ class ResizeObserverMock {
 const originalResizeObserver = globalThis.ResizeObserver;
 
 function createStagedCommand(overrides: Partial<StagedCommand> = {}): StagedCommand {
+  const renderedPreview = overrides.renderedPreview ?? "echo preview";
   return {
     id: "cmd-1",
     title: "示例命令",
-    rawPreview: "echo preview",
-    renderedCommand: "echo preview",
+    rawPreview: overrides.rawPreview ?? renderedPreview,
+    renderedPreview,
+    executionTemplate: overrides.executionTemplate ?? {
+      kind: "exec",
+      program: "echo",
+      args: ["preview"]
+    },
+    execution: overrides.execution ?? {
+      kind: "exec",
+      program: "echo",
+      args: ["preview"]
+    },
     args: [],
     argValues: {},
     ...overrides
@@ -506,7 +517,22 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
 
     const wrapper = mount(LauncherFlowPanel, {
       props: createProps({
-        queuedCommands: [createStagedCommand({ renderedCommand: longCommand })]
+        queuedCommands: [
+          createStagedCommand({
+            rawPreview: longCommand,
+            renderedPreview: longCommand,
+            executionTemplate: {
+              kind: "exec",
+              program: "echo",
+              args: [longCommand]
+            },
+            execution: {
+              kind: "exec",
+              program: "echo",
+              args: [longCommand]
+            }
+          })
+        ]
       })
     });
 
@@ -603,6 +629,18 @@ describe("LauncherFlowPanel 组件级语义回归（Phase 14）", () => {
 
 function createArgCommand(overrides: Partial<StagedCommand> = {}): StagedCommand {
   return createStagedCommand({
+    rawPreview: "echo {{port}} {{host}}",
+    renderedPreview: "echo 3000 localhost",
+    executionTemplate: {
+      kind: "exec",
+      program: "echo",
+      args: ["{{port}}", "{{host}}"]
+    },
+    execution: {
+      kind: "exec",
+      program: "echo",
+      args: ["3000", "localhost"]
+    },
     args: [
       { key: "port", label: "端口", token: "{{port}}" },
       { key: "host", label: "主机", token: "{{host}}" }
@@ -614,6 +652,18 @@ function createArgCommand(overrides: Partial<StagedCommand> = {}): StagedCommand
 
 function createValidatedInlineArgCommand(overrides: Partial<StagedCommand> = {}): StagedCommand {
   return createStagedCommand({
+    rawPreview: "echo {{port}}",
+    renderedPreview: "echo 3000",
+    executionTemplate: {
+      kind: "exec",
+      program: "echo",
+      args: ["{{port}}"]
+    },
+    execution: {
+      kind: "exec",
+      program: "echo",
+      args: ["3000"]
+    },
     args: [
       {
         key: "port",

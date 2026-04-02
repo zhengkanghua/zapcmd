@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "SQLite",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_sqlite.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -19,9 +16,13 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\"",
+      "exec": {
+        "program": "sqlite3",
+        "args": [
+          "\"{{file}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -49,9 +50,14 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \".tables\"",
+      "exec": {
+        "program": "sqlite3",
+        "args": [
+          "\"{{file}}\"",
+          "\".tables\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -79,9 +85,14 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \".schema\"",
+      "exec": {
+        "program": "sqlite3",
+        "args": [
+          "\"{{file}}\"",
+          "\".schema\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -109,9 +120,14 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \"{{sql}}\"",
+      "exec": {
+        "program": "sqlite3",
+        "args": [
+          "\"{{file}}\""
+        ],
+        "stdinArgKey": "sql"
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -146,9 +162,15 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \".mode csv\" \".import {{csv}} {{table}}\"",
+      "exec": {
+        "program": "sqlite3",
+        "args": [
+          "\"{{file}}\"",
+          "\".mode csv\"",
+          "\".import {{csv}} {{table}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -189,9 +211,11 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \"PRAGMA integrity_check;\"",
+      "script": {
+        "runner": "bash",
+        "command": "sqlite3 \"{{file}}\" \"PRAGMA integrity_check;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -206,6 +230,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:sqlite3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -220,9 +250,11 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \"VACUUM;\"",
+      "script": {
+        "runner": "bash",
+        "command": "sqlite3 \"{{file}}\" \"VACUUM;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -237,6 +269,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:sqlite3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -255,9 +293,11 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \"PRAGMA table_info('{{table}}');\"",
+      "script": {
+        "runner": "bash",
+        "command": "sqlite3 \"{{file}}\" \"PRAGMA table_info('{{table}}');\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -278,6 +318,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:sqlite3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -296,9 +342,11 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \"PRAGMA index_list('{{table}}');\"",
+      "script": {
+        "runner": "bash",
+        "command": "sqlite3 \"{{file}}\" \"PRAGMA index_list('{{table}}');\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -319,6 +367,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:sqlite3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -337,9 +391,11 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \"PRAGMA journal_mode;\"",
+      "script": {
+        "runner": "bash",
+        "command": "sqlite3 \"{{file}}\" \"PRAGMA journal_mode;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -354,6 +410,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:sqlite3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     },
@@ -372,9 +434,11 @@
       ],
       "category": "sqlite",
       "platform": "all",
-      "template": "sqlite3 \"{{file}}\" \"PRAGMA foreign_key_check;\"",
+      "script": {
+        "runner": "bash",
+        "command": "sqlite3 \"{{file}}\" \"PRAGMA foreign_key_check;\""
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "file",
@@ -389,6 +453,12 @@
           "type": "binary",
           "required": true,
           "check": "binary:sqlite3"
+        },
+        {
+          "id": "bash",
+          "type": "shell",
+          "required": true,
+          "check": "shell:bash"
         }
       ]
     }

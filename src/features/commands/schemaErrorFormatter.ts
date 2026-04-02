@@ -51,15 +51,25 @@ function normalizeMessage(error: ErrorObject): string {
   return error.message ?? "is invalid.";
 }
 
+function isCommandExecutionModeError(error: ErrorObject): boolean {
+  return (
+    (error.keyword === "oneOf" || error.keyword === "not") &&
+    /^\/commands\/\d+$/u.test(error.instancePath)
+  );
+}
+
 export function formatSchemaValidationError(
   errors: ErrorObject[] | null | undefined
 ): string {
-  const firstError = errors?.[0];
+  const firstError =
+    errors?.find(isCommandExecutionModeError) ?? errors?.[0];
   if (!firstError) {
     return "Runtime command file is invalid.";
   }
 
   const path = normalizeErrorPath(firstError);
-  const message = normalizeMessage(firstError);
+  const message = isCommandExecutionModeError(firstError)
+    ? "must define exactly one of exec or script."
+    : normalizeMessage(firstError);
   return path.length === 0 ? message : `${path} ${message}`;
 }

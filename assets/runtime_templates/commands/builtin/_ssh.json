@@ -1,10 +1,7 @@
 {
   "_meta": {
     "name": "SSH 与远程连接",
-    "author": "zapcmd-team",
-    "version": "1.0.0",
-    "description": "Generated from docs/command_sources",
-    "source": "docs/command_sources/_ssh.md"
+    "source": "builtin"
   },
   "commands": [
     {
@@ -18,9 +15,13 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "ssh {{user}}@{{host}}",
+      "exec": {
+        "program": "ssh",
+        "args": [
+          "{{user}}@{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "user",
@@ -57,9 +58,15 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "ssh -p {{port}} {{user}}@{{host}}",
+      "exec": {
+        "program": "ssh",
+        "args": [
+          "-p",
+          "{{port}}",
+          "{{user}}@{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "user",
@@ -106,9 +113,15 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "ssh -i {{key}} {{user}}@{{host}}",
+      "exec": {
+        "program": "ssh",
+        "args": [
+          "-i",
+          "{{key}}",
+          "{{user}}@{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",
@@ -152,9 +165,14 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "scp {{local}} {{user}}@{{host}}:{{remote}}",
+      "exec": {
+        "program": "scp",
+        "args": [
+          "{{local}}",
+          "{{user}}@{{host}}:{{remote}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "local",
@@ -204,9 +222,14 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "scp {{user}}@{{host}}:{{remote}} {{local}}",
+      "exec": {
+        "program": "scp",
+        "args": [
+          "{{user}}@{{host}}:{{remote}}",
+          "{{local}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "user",
@@ -255,9 +278,16 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "ssh-keygen -t ed25519 -C \"{{email}}\"",
+      "exec": {
+        "program": "ssh-keygen",
+        "args": [
+          "-t",
+          "ed25519",
+          "-C",
+          "\"{{email}}\""
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "email",
@@ -286,9 +316,13 @@
       ],
       "category": "ssh",
       "platform": "mac",
-      "template": "ssh-copy-id {{user}}@{{host}}",
+      "exec": {
+        "program": "ssh-copy-id",
+        "args": [
+          "{{user}}@{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "user",
@@ -323,9 +357,13 @@
       ],
       "category": "ssh",
       "platform": "linux",
-      "template": "ssh-copy-id {{user}}@{{host}}",
+      "exec": {
+        "program": "ssh-copy-id",
+        "args": [
+          "{{user}}@{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "user",
@@ -362,9 +400,15 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "ssh -L {{local_port}}:{{target_host}}:{{target_port}} {{user}}@{{host}}",
+      "exec": {
+        "program": "ssh",
+        "args": [
+          "-L",
+          "{{local_port}}:{{target_host}}:{{target_port}}",
+          "{{user}}@{{host}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "local_port",
@@ -429,9 +473,13 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "cat ~/.ssh/config",
-      "adminRequired": false,
-      "dangerous": false
+      "exec": {
+        "program": "cat",
+        "args": [
+          "~/.ssh/config"
+        ]
+      },
+      "adminRequired": false
     },
     {
       "id": "ssh-agent-add",
@@ -447,9 +495,13 @@
       ],
       "category": "ssh",
       "platform": "all",
-      "template": "ssh-add {{key}}",
+      "exec": {
+        "program": "ssh-add",
+        "args": [
+          "{{key}}"
+        ]
+      },
       "adminRequired": false,
-      "dangerous": false,
       "args": [
         {
           "key": "key",

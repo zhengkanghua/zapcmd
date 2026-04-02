@@ -1,9 +1,10 @@
 param(
-  [string]$SourceDir = "docs/command_sources",
-  [string]$SourcePattern = "_*.md",
+  [string]$SourceDir = "commands/catalog",
+  [string]$SourcePattern = "_*.yaml",
   [string]$OutputDir = "assets/runtime_templates/commands/builtin",
   [string]$ManifestPath = "assets/runtime_templates/commands/builtin/index.json",
-  [string]$GeneratedMarkdownPath = "docs/builtin_commands.generated.md",
+  [string]$GeneratedDocsDir = "docs/generated_commands",
+  [string]$GeneratedIndexPath = "docs/generated_commands/index.md",
   [int]$ExpectedLogicalCount = 0
 )
 
@@ -17,7 +18,8 @@ $scriptPath = Join-Path $PSScriptRoot "commands/generate-builtin-commands.mjs"
   --sourcePattern $SourcePattern `
   --outputDir $OutputDir `
   --manifestPath $ManifestPath `
-  --generatedMarkdownPath $GeneratedMarkdownPath `
+  --generatedDocsDir $GeneratedDocsDir `
+  --generatedIndexPath $GeneratedIndexPath `
   --expectedLogicalCount $ExpectedLogicalCount
 
 if ($LASTEXITCODE -ne 0) {

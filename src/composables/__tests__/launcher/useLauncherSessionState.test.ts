@@ -5,6 +5,12 @@ import {
   useLauncherSessionState
 } from "../../launcher/useLauncherSessionState";
 import type { StagedCommand } from "../../../features/launcher/types";
+import type {
+  CommandExecutionTemplate,
+  ResolvedCommandExecution
+} from "../../../features/commands/types";
+
+const SESSION_VERSION = 2;
 
 interface MockStorage {
   getItem: ReturnType<typeof vi.fn>;
@@ -30,16 +36,34 @@ function createStagedCommand(id: string): StagedCommand {
     id,
     title: id,
     rawPreview: `echo ${id}`,
-    renderedCommand: `echo ${id}`,
+    renderedPreview: `echo ${id}`,
+    executionTemplate: createExecTemplate("echo", [id]),
+    execution: createExecExecution("echo", [id]),
     args: [],
     argValues: {}
+  };
+}
+
+function createExecTemplate(program: string, args: string[]): CommandExecutionTemplate {
+  return {
+    kind: "exec",
+    program,
+    args
+  };
+}
+
+function createExecExecution(program: string, args: string[]): ResolvedCommandExecution {
+  return {
+    kind: "exec",
+    program,
+    args
   };
 }
 
 describe("useLauncherSessionState", () => {
   it("uses window.localStorage when storage is omitted", () => {
     const snapshot = JSON.stringify({
-      version: 1,
+      version: SESSION_VERSION,
       stagingExpanded: false,
       stagedCommands: [createStagedCommand("restored")]
     });
@@ -63,7 +87,7 @@ describe("useLauncherSessionState", () => {
 
   it("restores queue snapshot but does not auto-open review drawer", () => {
     const snapshot = JSON.stringify({
-      version: 1,
+      version: SESSION_VERSION,
       stagingExpanded: true,
       stagedCommands: [createStagedCommand("restored")]
     });
@@ -88,7 +112,7 @@ describe("useLauncherSessionState", () => {
 
   it("clears snapshot when version is mismatched", () => {
     const snapshot = JSON.stringify({
-      version: 2,
+      version: 1,
       stagingExpanded: true,
       stagedCommands: [createStagedCommand("restored")]
     });
@@ -109,7 +133,7 @@ describe("useLauncherSessionState", () => {
 
   it("accepts snapshot when version is a numeric string", () => {
     const snapshot = JSON.stringify({
-      version: "1",
+      version: String(SESSION_VERSION),
       stagingExpanded: false,
       stagedCommands: [createStagedCommand("restored")]
     });
@@ -130,7 +154,7 @@ describe("useLauncherSessionState", () => {
 
   it("ignores snapshots where stagedCommands is not an array (but does not crash)", () => {
     const snapshot = JSON.stringify({
-      version: 1,
+      version: SESSION_VERSION,
       stagingExpanded: true,
       stagedCommands: { not: "array" }
     });
@@ -153,7 +177,7 @@ describe("useLauncherSessionState", () => {
 
   it("filters invalid stagedCommands safely during restore", () => {
     const snapshot = JSON.stringify({
-      version: 1,
+      version: SESSION_VERSION,
       stagingExpanded: false,
       stagedCommands: [
         null,
@@ -162,7 +186,9 @@ describe("useLauncherSessionState", () => {
           id: 1,
           title: "bad-id-type",
           rawPreview: "echo bad",
-          renderedCommand: "echo bad",
+          renderedPreview: "echo bad",
+          executionTemplate: createExecTemplate("echo", ["bad"]),
+          execution: createExecExecution("echo", ["bad"]),
           args: [],
           argValues: {}
         },
@@ -170,7 +196,9 @@ describe("useLauncherSessionState", () => {
           id: "bad",
           title: "",
           rawPreview: "echo bad",
-          renderedCommand: "echo bad",
+          renderedPreview: "echo bad",
+          executionTemplate: createExecTemplate("echo", ["bad"]),
+          execution: createExecExecution("echo", ["bad"]),
           args: [],
           argValues: {}
         }
@@ -192,14 +220,16 @@ describe("useLauncherSessionState", () => {
 
   it("keeps stagedCommands where args is not an array (sanitizes to empty args)", () => {
     const snapshot = JSON.stringify({
-      version: 1,
+      version: SESSION_VERSION,
       stagingExpanded: false,
       stagedCommands: [
         {
           id: "args-not-array",
           title: "args-not-array",
           rawPreview: "echo args-not-array",
-          renderedCommand: "echo args-not-array",
+          renderedPreview: "echo args-not-array",
+          executionTemplate: createExecTemplate("echo", ["args-not-array"]),
+          execution: createExecExecution("echo", ["args-not-array"]),
           args: "oops",
           argValues: {}
         }
@@ -222,14 +252,16 @@ describe("useLauncherSessionState", () => {
 
   it("sanitizes args, argValues, and boolean flags during restore", () => {
     const snapshot = JSON.stringify({
-      version: 1,
+      version: SESSION_VERSION,
       stagingExpanded: false,
       stagedCommands: [
         {
           id: "with-args",
           title: "with-args",
           rawPreview: "echo {{pid}}",
-          renderedCommand: "echo 123",
+          renderedPreview: "echo 123",
+          executionTemplate: createExecTemplate("echo", ["{{pid}}"]),
+          execution: createExecExecution("echo", ["123"]),
           adminRequired: true,
           dangerous: false,
           args: [
@@ -276,7 +308,9 @@ describe("useLauncherSessionState", () => {
           id: "bad-argValues",
           title: "bad-argValues",
           rawPreview: "echo bad",
-          renderedCommand: "echo bad",
+          renderedPreview: "echo bad",
+          executionTemplate: createExecTemplate("echo", ["bad"]),
+          execution: createExecExecution("echo", ["bad"]),
           args: [],
           argValues: "not-an-object"
         }
@@ -350,7 +384,7 @@ describe("useLauncherSessionState", () => {
 
   it("skips restore when disabled (does not read from storage)", () => {
     const snapshot = JSON.stringify({
-      version: 1,
+      version: SESSION_VERSION,
       stagingExpanded: true,
       stagedCommands: [createStagedCommand("restored")]
     });
@@ -390,9 +424,10 @@ describe("useLauncherSessionState", () => {
     const payload = JSON.parse(storage.setItem.mock.calls.at(-1)?.[1] as string) as {
       version: number;
       stagingExpanded: boolean;
-      stagedCommands: Array<{ id: string }>;
+      stagedCommands: Array<{ id: string; executionTemplate: { kind: string } }>;
     };
-    expect(payload.version).toBe(1);
+    expect(payload.version).toBe(SESSION_VERSION);
+    expect(payload.stagedCommands[0]?.executionTemplate.kind).toBe("exec");
     expect(payload.stagingExpanded).toBe(true);
     expect(payload.stagedCommands.map((item) => item.id)).toEqual(["a", "b"]);
   });

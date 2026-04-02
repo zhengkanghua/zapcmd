@@ -2,6 +2,8 @@ import type {
   RuntimeCommand,
   RuntimeCommandArg,
   RuntimeCommandFile,
+  RuntimeCommandPrerequisite,
+  RuntimeExecCommand,
   RuntimeLocalizedTextOrString
 } from "./runtimeTypes";
 
@@ -45,19 +47,78 @@ function findMissingTemplateToken(
   commandPath: string
 ): string | null {
   const availableKeys = new Set((command.args ?? []).map((arg) => arg.key));
-  const tokens = command.template.matchAll(/\{\{([^{}]+)\}\}/gu);
+  const tokenSources = isExecRuntimeCommand(command)
+    ? command.exec.args.map((value, index) => ({
+        path: `${commandPath}.exec.args[${index}]`,
+        value
+      }))
+    : [
+        {
+          path: `${commandPath}.script.command`,
+          value: command.script.command
+        }
+      ];
 
-  for (const match of tokens) {
-    const tokenKey = match[1]?.trim() ?? "";
-    // 只校验 ZapCmd 自己的参数占位符，保留外部模板语法字面量原样通过。
-    if (
-      tokenKey.length === 0 ||
-      !ARG_TOKEN_KEY_PATTERN.test(tokenKey) ||
-      availableKeys.has(tokenKey)
-    ) {
-      continue;
+  for (const source of tokenSources) {
+    const tokens = source.value.matchAll(/\{\{([^{}]+)\}\}/gu);
+    for (const match of tokens) {
+      const tokenKey = match[1]?.trim() ?? "";
+      // 只校验 ZapCmd 自己的参数占位符，保留外部模板语法字面量原样通过。
+      if (
+        tokenKey.length === 0 ||
+        !ARG_TOKEN_KEY_PATTERN.test(tokenKey) ||
+        availableKeys.has(tokenKey)
+      ) {
+        continue;
+      }
+      return `${source.path} references undefined token "${tokenKey}".`;
     }
-    return `${commandPath}.template references undefined token "${tokenKey}".`;
+  }
+
+  return null;
+}
+
+function isExecRuntimeCommand(
+  command: RuntimeCommand
+): command is RuntimeCommand & { exec: RuntimeExecCommand } {
+  return command.exec !== undefined;
+}
+
+function findMatchingShellPrerequisite(
+  prerequisites: RuntimeCommandPrerequisite[] | undefined,
+  runner: string
+): RuntimeCommandPrerequisite | null {
+  const normalizedRunner = runner.trim().toLowerCase();
+  return (
+    prerequisites?.find((prerequisite) => {
+      if (prerequisite.type !== "shell") {
+        return false;
+      }
+
+      const normalizedId = prerequisite.id.trim().toLowerCase();
+      const normalizedCheck = prerequisite.check.trim().toLowerCase();
+      return (
+        normalizedId === normalizedRunner ||
+        normalizedCheck === `shell:${normalizedRunner}`
+      );
+    }) ?? null
+  );
+}
+
+function findExecBusinessRuleViolation(
+  command: RuntimeCommand,
+  commandPath: string,
+  exec: RuntimeExecCommand
+): string | null {
+  if (
+    exec.stdinArgKey &&
+    !(command.args ?? []).some((arg) => arg.key === exec.stdinArgKey)
+  ) {
+    return `${commandPath}.exec.stdinArgKey must reference an existing arg key.`;
+  }
+
+  if ((command.prerequisites ?? []).some((prerequisite) => prerequisite.type === "shell")) {
+    return `${commandPath}.exec must not declare shell-only prerequisites.`;
   }
 
   return null;
@@ -137,8 +198,16 @@ function findCommandBusinessRuleViolation(
   if (command.tags.some((tag) => tag.trim().length === 0)) {
     return `${commandPath}.tags must not contain blank items.`;
   }
-  if (isBlankString(command.template)) {
-    return `${commandPath}.template must not be blank.`;
+
+  if (isExecRuntimeCommand(command)) {
+    const execViolation = findExecBusinessRuleViolation(command, commandPath, command.exec);
+    if (execViolation) {
+      return execViolation;
+    }
+  } else if (
+    !findMatchingShellPrerequisite(command.prerequisites, command.script.runner)
+  ) {
+    return `${commandPath}.script.runner must declare a matching shell prerequisite.`;
   }
 
   const missingTemplateToken = findMissingTemplateToken(command, commandPath);

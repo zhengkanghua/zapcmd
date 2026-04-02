@@ -1,9 +1,13 @@
 import { watch, type Ref } from "vue";
-import type { CommandArg } from "../../features/commands/types";
+import type {
+  CommandArg,
+  CommandExecutionTemplate,
+  ResolvedCommandExecution
+} from "../../features/commands/types";
 import type { StagedCommand } from "../../features/launcher/types";
 
 export const LAUNCHER_SESSION_STORAGE_KEY = "zapcmd.session.launcher";
-const LAUNCHER_SESSION_SCHEMA_VERSION = 1;
+const LAUNCHER_SESSION_SCHEMA_VERSION = 2;
 
 interface PersistedLauncherSessionV1 {
   version: number;
@@ -68,6 +72,78 @@ function sanitizeArg(arg: unknown): CommandArg | null {
   return normalized;
 }
 
+function sanitizeScriptRunner(value: unknown): "powershell" | "pwsh" | "cmd" | "bash" | "sh" | null {
+  if (
+    value === "powershell" ||
+    value === "pwsh" ||
+    value === "cmd" ||
+    value === "bash" ||
+    value === "sh"
+  ) {
+    return value;
+  }
+  return null;
+}
+
+function sanitizeExecutionTemplate(value: unknown): CommandExecutionTemplate | null {
+  if (!isRecord(value) || typeof value.kind !== "string") {
+    return null;
+  }
+
+  if (value.kind === "exec") {
+    const program = typeof value.program === "string" ? value.program.trim() : "";
+    const args = Array.isArray(value.args)
+      ? value.args.filter(
+          (item): item is string => typeof item === "string" && item.trim().length > 0
+        )
+      : [];
+    if (!program) {
+      return null;
+    }
+    return {
+      kind: "exec",
+      program,
+      args,
+      stdinArgKey:
+        typeof value.stdinArgKey === "string" && value.stdinArgKey.trim().length > 0
+          ? value.stdinArgKey.trim()
+          : undefined
+    };
+  }
+
+  if (value.kind === "script") {
+    const runner = sanitizeScriptRunner(value.runner);
+    const command = typeof value.command === "string" ? value.command.trim() : "";
+    if (!runner || !command) {
+      return null;
+    }
+    return {
+      kind: "script",
+      runner,
+      command
+    };
+  }
+
+  return null;
+}
+
+function sanitizeResolvedExecution(value: unknown): ResolvedCommandExecution | null {
+  const execution = sanitizeExecutionTemplate(value);
+  if (!execution) {
+    return null;
+  }
+  if (execution.kind === "exec") {
+    return {
+      ...execution,
+      stdin:
+        isRecord(value) && typeof value.stdin === "string" && value.stdin.trim().length > 0
+          ? value.stdin
+          : undefined
+    };
+  }
+  return execution;
+}
+
 function sanitizeStagedCommand(value: unknown): StagedCommand | null {
   if (!isRecord(value)) {
     return null;
@@ -76,8 +152,10 @@ function sanitizeStagedCommand(value: unknown): StagedCommand | null {
   const id = typeof value.id === "string" ? value.id.trim() : "";
   const title = typeof value.title === "string" ? value.title.trim() : "";
   const rawPreview = typeof value.rawPreview === "string" ? value.rawPreview : "";
-  const renderedCommand = typeof value.renderedCommand === "string" ? value.renderedCommand : "";
-  if (!id || !title || !rawPreview || !renderedCommand) {
+  const renderedPreview = typeof value.renderedPreview === "string" ? value.renderedPreview : "";
+  const executionTemplate = sanitizeExecutionTemplate(value.executionTemplate);
+  const execution = sanitizeResolvedExecution(value.execution);
+  if (!id || !title || !rawPreview || !renderedPreview || !executionTemplate || !execution) {
     return null;
   }
 
@@ -100,7 +178,9 @@ function sanitizeStagedCommand(value: unknown): StagedCommand | null {
     id,
     title,
     rawPreview,
-    renderedCommand,
+    renderedPreview,
+    executionTemplate,
+    execution,
     args,
     argValues
   };

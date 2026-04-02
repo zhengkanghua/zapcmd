@@ -20,12 +20,17 @@ import { measureFlowPanelMinHeight } from "../composables/launcher/useWindowSizi
 import { UI_TOP_ALIGN_OFFSET_PX_FALLBACK } from "../composables/launcher/useWindowSizing/model";
 import App from "../App.vue";
 import AppSettings from "../AppSettings.vue";
+import type {
+  CommandArg,
+  CommandExecutionTemplate,
+  ResolvedCommandExecution
+} from "../features/commands/types";
+import type { CommandExecutionRequest } from "../services/commandExecutor";
+
+const LAUNCHER_SESSION_SCHEMA_VERSION = 2;
 
 const hoisted = vi.hoisted(() => ({
-  runMock:
-    vi.fn<
-      (request: { terminalId: string; command: string }) => Promise<void>
-    >(),
+  runMock: vi.fn<(request: CommandExecutionRequest) => Promise<void>>(),
   invokeMock: vi.fn<(command: string, payload?: unknown) => Promise<unknown>>(),
   isTauriMock: vi.fn<() => boolean>(() => false),
   currentWindowLabel: "main",
@@ -144,31 +149,25 @@ interface ProbeInvokePayload {
 }
 
 function expectTerminalCommandContract(
-  request: { terminalId: string; command: string } | undefined,
+  request: CommandExecutionRequest | undefined,
 ) {
   expect(request).toBeTruthy();
   if (!request) {
     throw new Error("terminal request should exist");
   }
 
-  switch (request.terminalId) {
-    case "wt":
-    case "cmd":
-      expect(request.command).toContain("setlocal EnableDelayedExpansion");
-      expect(request.command).toContain("set \"zapcmdCode=!ERRORLEVEL!\"");
-      expect(request.command).toContain("[zapcmd][failed]");
-      expect(request.command).not.toContain("[zapcmd][exit");
-      break;
-    case "powershell":
-    case "pwsh":
-      expect(request.command).toContain("[zapcmd][run]");
-      expect(request.command).toContain("[zapcmd][failed]");
-      break;
-    default:
-      expect(request.command).toContain("[zapcmd] executing:");
-      expect(request.command).toContain("[zapcmd] finished");
-      break;
+  expect(request.steps.length).toBeGreaterThan(0);
+  const firstStep = request.steps[0];
+  expect(firstStep?.summary.trim().length).toBeGreaterThan(0);
+  expect(firstStep?.execution.kind === "exec" || firstStep?.execution.kind === "script").toBe(true);
+
+  if (firstStep?.execution.kind === "exec") {
+    expect(firstStep.execution.program.trim().length).toBeGreaterThan(0);
+    expect(Array.isArray(firstStep.execution.args)).toBe(true);
+    return;
   }
+
+  expect(firstStep?.execution.command.trim().length).toBeGreaterThan(0);
 }
 
 function buildSnapshot(
@@ -296,31 +295,62 @@ function seedLauncherSessionSnapshot(
   stagedCommands: Array<{
     id: string;
     title: string;
-    renderedCommand: string;
-    args: Array<{
-      key: string;
-      label: string;
-      required?: boolean;
-      defaultValue?: string;
-    }>;
+    rawPreview: string;
+    renderedPreview: string;
+    executionTemplate: CommandExecutionTemplate;
+    execution: ResolvedCommandExecution;
+    args: CommandArg[];
     argValues: Record<string, string>;
   }>,
 ): void {
   localStorage.setItem(
     LAUNCHER_SESSION_STORAGE_KEY,
     JSON.stringify({
-      version: 1,
+      version: LAUNCHER_SESSION_SCHEMA_VERSION,
       stagingExpanded: false,
       stagedCommands: stagedCommands.map((command) => ({
         id: command.id,
         title: command.title,
-        rawPreview: command.renderedCommand,
-        renderedCommand: command.renderedCommand,
+        rawPreview: command.rawPreview,
+        renderedPreview: command.renderedPreview,
+        executionTemplate: command.executionTemplate,
+        execution: command.execution,
         args: command.args,
         argValues: command.argValues,
       })),
     }),
   );
+}
+
+function createExecSessionCommand(config: {
+  id: string;
+  title: string;
+  rawPreview: string;
+  renderedPreview: string;
+  program: string;
+  templateArgs: string[];
+  resolvedArgs: string[];
+  args: CommandArg[];
+  argValues: Record<string, string>;
+}) {
+  return {
+    id: config.id,
+    title: config.title,
+    rawPreview: config.rawPreview,
+    renderedPreview: config.renderedPreview,
+    executionTemplate: {
+      kind: "exec" as const,
+      program: config.program,
+      args: config.templateArgs
+    },
+    execution: {
+      kind: "exec" as const,
+      program: config.program,
+      args: config.resolvedArgs
+    },
+    args: config.args,
+    argValues: config.argValues
+  };
 }
 
 function getSetupState(wrapper: VueWrapper): AppSetupState {
@@ -1085,34 +1115,42 @@ describe("App failure and event regression", () => {
 
     try {
       seedLauncherSessionSnapshot([
-        {
+        createExecSessionCommand({
           id: "cmd-param-short",
           title: "查看容器日志",
-          renderedCommand: "docker logs container-a --tail 20",
+          rawPreview: "docker logs {{container}} --tail {{tail}}",
+          renderedPreview: "docker logs container-a --tail 20",
+          program: "docker",
+          templateArgs: ["logs", "{{container}}", "--tail", "{{tail}}"],
+          resolvedArgs: ["logs", "container-a", "--tail", "20"],
           args: [
-            { key: "container", label: "容器", required: true, defaultValue: "container-a" },
-            { key: "tail", label: "尾行数", required: true, defaultValue: "20" },
+            { key: "container", label: "容器", token: "{{container}}", required: true, defaultValue: "container-a" },
+            { key: "tail", label: "尾行数", token: "{{tail}}", required: true, defaultValue: "20" },
           ],
           argValues: {
             container: "container-a",
             tail: "20",
           },
-        },
-        {
+        }),
+        createExecSessionCommand({
           id: "cmd-param-tall",
           title: "批量同步日志并导出审计摘要",
-          renderedCommand: "sync-logs --target prod-cluster --since 7d --format json",
+          rawPreview: "sync-logs --target {{target}} --since {{since}} --format {{format}}",
+          renderedPreview: "sync-logs --target prod-cluster --since 7d --format json",
+          program: "sync-logs",
+          templateArgs: ["--target", "{{target}}", "--since", "{{since}}", "--format", "{{format}}"],
+          resolvedArgs: ["--target", "prod-cluster", "--since", "7d", "--format", "json"],
           args: [
-            { key: "target", label: "目标集群", required: true, defaultValue: "prod-cluster" },
-            { key: "since", label: "时间范围", required: true, defaultValue: "7d" },
-            { key: "format", label: "导出格式", required: true, defaultValue: "json" },
+            { key: "target", label: "目标集群", token: "{{target}}", required: true, defaultValue: "prod-cluster" },
+            { key: "since", label: "时间范围", token: "{{since}}", required: true, defaultValue: "7d" },
+            { key: "format", label: "导出格式", token: "{{format}}", required: true, defaultValue: "json" },
           ],
           argValues: {
             target: "prod-cluster",
             since: "7d",
             format: "json",
           },
-        },
+        }),
       ]);
 
       const wrapper = await mountApp();
@@ -1199,28 +1237,36 @@ describe("App failure and event regression", () => {
     });
 
     seedLauncherSessionSnapshot([
-      {
+      createExecSessionCommand({
         id: "cmd-flow-short",
         title: "查看容器日志",
-        renderedCommand: "docker logs container-a --tail 20",
+        rawPreview: "docker logs {{container}} --tail 20",
+        renderedPreview: "docker logs container-a --tail 20",
+        program: "docker",
+        templateArgs: ["logs", "{{container}}", "--tail", "20"],
+        resolvedArgs: ["logs", "container-a", "--tail", "20"],
         args: [
-          { key: "container", label: "容器", required: true, defaultValue: "container-a" },
+          { key: "container", label: "容器", token: "{{container}}", required: true, defaultValue: "container-a" },
         ],
         argValues: {
           container: "container-a",
         },
-      },
-      {
+      }),
+      createExecSessionCommand({
         id: "cmd-flow-mid",
         title: "同步容器状态",
-        renderedCommand: "docker inspect container-a --format '{{json .State}}'",
+        rawPreview: "docker inspect {{container}} --format '{{json .State}}'",
+        renderedPreview: "docker inspect container-a --format '{{json .State}}'",
+        program: "docker",
+        templateArgs: ["inspect", "{{container}}", "--format", "'{{json .State}}'"],
+        resolvedArgs: ["inspect", "container-a", "--format", "{{json .State}}"],
         args: [
-          { key: "container", label: "容器", required: true, defaultValue: "container-a" },
+          { key: "container", label: "容器", token: "{{container}}", required: true, defaultValue: "container-a" },
         ],
         argValues: {
           container: "container-a",
         },
-      },
+      }),
     ]);
 
     const wrapper = await mountApp();
@@ -1538,14 +1584,24 @@ describe("App failure and event regression", () => {
     localStorage.setItem(
       LAUNCHER_SESSION_STORAGE_KEY,
       JSON.stringify({
-        version: 1,
+        version: LAUNCHER_SESSION_SCHEMA_VERSION,
         stagingExpanded: true,
         stagedCommands: [
           {
             id: "restored-1",
             title: "restored command",
             rawPreview: "echo restored",
-            renderedCommand: "echo restored",
+            renderedPreview: "echo restored",
+            executionTemplate: {
+              kind: "exec",
+              program: "echo",
+              args: ["restored"],
+            },
+            execution: {
+              kind: "exec",
+              program: "echo",
+              args: ["restored"],
+            },
             args: [],
             argValues: {},
           },

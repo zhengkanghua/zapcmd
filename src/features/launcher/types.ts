@@ -1,10 +1,16 @@
-import type { CommandArg } from "../commands/commandTemplates";
+import type {
+  CommandArg,
+  CommandExecutionTemplate,
+  ResolvedCommandExecution
+} from "../commands/commandTemplates";
 import type { CommandPrerequisite } from "../commands/prerequisiteTypes";
 
 export interface StagedCommand {
   id: string;
   title: string;
-  renderedCommand: string;
+  renderedPreview: string;
+  executionTemplate: CommandExecutionTemplate;
+  execution: ResolvedCommandExecution;
   rawPreview: string;
   args: CommandArg[];
   argValues: Record<string, string>;

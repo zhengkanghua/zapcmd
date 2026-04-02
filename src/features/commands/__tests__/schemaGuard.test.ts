@@ -26,7 +26,10 @@ function createValidPayload() {
         tags: ["port", "kill"],
         category: "network",
         platform: "win",
-        template: "Stop-Process -Id {{pid}} -Force",
+        script: {
+          runner: "powershell",
+          command: "Stop-Process -Id {{pid}} -Force"
+        },
         adminRequired: false,
         dangerous: false,
         args: [
@@ -57,10 +60,10 @@ function createValidPayload() {
         ],
         prerequisites: [
           {
-            id: "pwsh",
-            type: "binary",
+            id: "powershell",
+            type: "shell",
             required: true,
-            check: "pwsh -v",
+            check: "shell:powershell",
             installHint: {
               "zh-CN": "请安装 PowerShell 7",
               "en-US": "Please install PowerShell 7"
@@ -103,7 +106,10 @@ describe("isRuntimeCommandFile", () => {
       tags: ["hello"],
       category: "dev",
       platform: "all",
-      template: "echo hello",
+      exec: {
+        program: "echo",
+        args: ["hello"]
+      },
       adminRequired: true
     } as unknown as ValidCommand;
 
@@ -254,9 +260,9 @@ describe("isRuntimeCommandFile", () => {
       }
     },
     {
-      name: "template is empty string",
+      name: "template field is not allowed anymore",
       mutate: (command) => {
-        command.template = "";
+        command.template = "echo hello";
       }
     },
     {
