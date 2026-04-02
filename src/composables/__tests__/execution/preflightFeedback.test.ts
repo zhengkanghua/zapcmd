@@ -147,6 +147,91 @@ describe("preflightFeedback", () => {
     expect(message).toContain("未检测到 Docker Desktop。");
   });
 
+  it("falls back to prerequisite id and installHint when new metadata is missing", () => {
+    const message = formatBlockingPreflightFeedback([
+      createIssue({
+        prerequisite: createPrerequisite({
+          id: "jq",
+          check: "",
+          displayName: undefined,
+          resolutionHint: undefined,
+          installHint: "先安装 jq",
+          fallbackCommandId: undefined
+        }),
+        result: createProbeResult({
+          id: "jq",
+          message: ""
+        })
+      })
+    ]);
+
+    expect(message).toContain("未检测到 jq。");
+    expect(message).toContain("处理建议：先安装 jq。");
+  });
+
+  it("uses the raw message as a fallback for unknown codes", () => {
+    const message = formatBlockingPreflightFeedback([
+      createIssue({
+        prerequisite: undefined,
+        result: createProbeResult({
+          id: "custom-check",
+          code: "custom-error",
+          message: "custom diagnostic"
+        })
+      })
+    ]);
+
+    expect(message).toContain("custom diagnostic。");
+  });
+
+  it("formats system invalid-response and empty collections", () => {
+    expect(formatBlockingPreflightFeedback([])).toBe("无法执行该命令。");
+    expect(formatWarningPreflightFeedback([])).toBe("");
+    expect(
+      formatBlockingPreflightFeedback([
+        createIssue({
+          result: createProbeResult({
+            code: "probe-invalid-response",
+            message: "invalid"
+          })
+        })
+      ])
+    ).toContain("执行前检查返回了无效结果");
+  });
+
+  it("formats multiple optional warnings with plural summary", () => {
+    const message = formatWarningPreflightFeedback([
+      createIssue({
+        result: createProbeResult({
+          required: false
+        }),
+        prerequisite: createPrerequisite({
+          required: false
+        })
+      }),
+      createIssue({
+        prerequisite: createPrerequisite({
+          id: "github-token",
+          type: "env",
+          required: false,
+          check: "env:GITHUB_TOKEN",
+          displayName: "GitHub Token",
+          resolutionHint: "设置 GITHUB_TOKEN 后重试",
+          fallbackCommandId: undefined
+        }),
+        result: createProbeResult({
+          id: "github-token",
+          code: "missing-env",
+          required: false,
+          message: "required environment variable not found: GITHUB_TOKEN"
+        })
+      })
+    ]);
+
+    expect(message).toContain("2 项可选依赖未满足。");
+    expect(message).toContain("缺少 GitHub Token（环境变量 GITHUB_TOKEN）。");
+  });
+
   it("detects system-level preflight failures", () => {
     expect(
       isSystemPreflightFailure(
