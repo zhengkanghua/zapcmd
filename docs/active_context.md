@@ -5,3 +5,4 @@
 - fallback 命令先显示标题，再回退 id。
 - builtin prerequisite metadata 补齐留待下一迭代。
 - verification 收口：probe payload 失配改为 fail-closed；mixed queue system failure 按命令去重；check:all 已通过。
+- 新设计确认：入队即做 preflight 并缓存；入队只给 total 小提示；Flow 面板按缓存显示单条提醒并支持刷新；队列执行不再因 prerequisite 阻断。
