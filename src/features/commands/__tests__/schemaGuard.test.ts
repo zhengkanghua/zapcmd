@@ -27,7 +27,6 @@ function createValidPayload() {
         category: "network",
         platform: "win",
         template: "Stop-Process -Id {{pid}} -Force",
-        shell: "powershell",
         adminRequired: false,
         dangerous: false,
         args: [
@@ -273,9 +272,9 @@ describe("isRuntimeCommandFile", () => {
       }
     },
     {
-      name: "shell is invalid enum",
+      name: "shell field is not allowed anymore",
       mutate: (command) => {
-        command.shell = "fish";
+        command.shell = "powershell";
       }
     },
     {

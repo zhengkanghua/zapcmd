@@ -559,7 +559,7 @@ describe("runtimeLoader", () => {
     }
   });
 
-  it("reports shell field as ignored", () => {
+  it("rejects command-level shell field because it is no longer part of the runtime contract", () => {
     const loaded = loadUserCommandTemplatesWithReport(
       [
         {
@@ -584,15 +584,14 @@ describe("runtimeLoader", () => {
       { runtimePlatform: "win" }
     );
 
-    expect(loaded.templates).toHaveLength(1);
+    expect(loaded.templates).toHaveLength(0);
     expect(loaded.issues).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          code: "shell-ignored",
-          stage: "merge",
+          code: "invalid-schema",
+          stage: "schema",
           sourceId: "C:/Users/test/.zapcmd/commands/custom-shell.json",
-          commandId: "custom-shell",
-          reason: expect.stringContaining("ignored")
+          reason: expect.stringContaining("shell")
         })
       ])
     );

@@ -1,5 +1,5 @@
 {
-  "sourceDir": "\\\\wsl.localhost\\Ubuntu-22.04\\home\\work\\projects\\zapcmd\\docs\\command_sources",
+  "sourceDir": "docs/command_sources",
   "sourcePattern": "_*.md",
   "logicalCommandCount": 357,
   "physicalCommandCount": 403,

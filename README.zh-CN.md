@@ -100,7 +100,7 @@ npm run precommit:guard
 CI 会阻断 `assets/runtime_templates/commands/builtin` 和 `docs/builtin_commands.generated.md` 的未提交漂移。
 
 ```bash
-pwsh -File scripts/generate_builtin_commands.ps1
+npm run commands:builtin:generate
 git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
 ```
 
@@ -179,7 +179,8 @@ Schema：
 
 说明：
 
-- `shell` 字段当前仅做 schema 校验，运行时会忽略（不会影响执行）。ZapCmd 会在 `设置 -> 命令管理` 显示校验提示。
+- 命令对象不再支持顶层 `shell` 字段。若命令明确依赖 PowerShell，应改写到 `prerequisites`，例如 `shell:powershell`。
+- 当前 prerequisite 只支持三种类型：`binary`、`shell`、`env`。
 - 在 Windows 上，`adminRequired=true` 表示“执行时按需拉起对应管理员终端”，并不会提升 ZapCmd 主进程权限。
 - `category` 必须是 slug 字符串，例如 `custom`、`redis`、`mysql-tools`。
 

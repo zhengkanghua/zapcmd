@@ -120,11 +120,10 @@ describe("useCommandManagement", () => {
       { code: "invalid-json", stage: "parse", sourceId: USER_PATH, reason: "Unexpected token" },
       { code: "invalid-schema", stage: "schema", sourceId: BUILTIN_PATH, reason: "commands[0].id invalid" },
       { code: "duplicate-id", stage: "merge", sourceId: BUILTIN_PATH, commandId: "cmd-a", reason: "duplicate id" },
-      { code: "duplicate-id", stage: "merge", sourceId: BUILTIN_PATH, reason: "duplicate id" },
-      { code: "shell-ignored", stage: "merge", sourceId: BUILTIN_PATH, reason: "shell ignored" }
+      { code: "duplicate-id", stage: "merge", sourceId: BUILTIN_PATH, reason: "duplicate id" }
     ];
 
-    expect(model.commandLoadIssues.value).toHaveLength(6);
+    expect(model.commandLoadIssues.value).toHaveLength(5);
     expect(model.commandLoadIssues.value.at(0)).toMatchObject({
       code: "read-failed",
       stage: "read",

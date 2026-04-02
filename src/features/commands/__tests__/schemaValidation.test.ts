@@ -177,4 +177,27 @@ describe("schemaValidation", () => {
 
     expect(expectInvalidReason(payload)).toContain("prerequisites[0].check");
   });
+
+  it("rejects command-level shell field because it is no longer part of the schema", () => {
+    const result = validateRuntimeCommandFile({
+      commands: [
+        {
+          id: "custom-shell",
+          name: "Custom Shell",
+          tags: ["test"],
+          category: "custom",
+          platform: "win",
+          template: "echo hello",
+          shell: "powershell",
+          adminRequired: false
+        }
+      ]
+    } as unknown as RuntimeCommandFile);
+
+    expect(result.valid).toBe(false);
+    if (result.valid) {
+      throw new Error("expected invalid schema result");
+    }
+    expect(result.reason).toContain("shell");
+  });
 });

@@ -142,7 +142,23 @@ export interface PendingSubmitRejection {
 
 export interface CommandPreflightIssue {
   title?: string;
+  prerequisite?: CommandPrerequisite;
   result: CommandPrerequisiteProbeResult;
+}
+
+function formatPreflightGuidance(issue: CommandPreflightIssue): string[] {
+  const guidance: string[] = [];
+  const installHint = issue.prerequisite?.installHint?.trim();
+  const fallbackCommandId = issue.prerequisite?.fallbackCommandId?.trim();
+
+  if (installHint) {
+    guidance.push(t("execution.preflightInstallHint", { hint: installHint }));
+  }
+  if (fallbackCommandId) {
+    guidance.push(t("execution.preflightFallbackCommand", { commandId: fallbackCommandId }));
+  }
+
+  return guidance;
 }
 
 function formatPreflightIssue(issue: CommandPreflightIssue): string {
@@ -153,7 +169,11 @@ function formatPreflightIssue(issue: CommandPreflightIssue): string {
     issue.result.message.trim().length > 0
       ? issue.result.message.trim()
       : issue.result.code;
-  return `${subject}: ${message}`;
+  const guidance = formatPreflightGuidance(issue);
+  if (guidance.length === 0) {
+    return `${subject}: ${message}`;
+  }
+  return `${subject}: ${message}（${guidance.join("；")}）`;
 }
 
 export async function runCommandPreflight(

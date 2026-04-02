@@ -209,7 +209,40 @@ function runBuiltinGenerator(
   return result;
 }
 
-describe("generate_builtin_commands.ps1", () => {
+function runNodeBuiltinGenerator(
+  sourceDir: string,
+  outputDir: string,
+  manifestPath: string,
+  generatedMarkdownPath: string,
+  cwd = process.cwd()
+) {
+  const result = spawnSync(
+    "node",
+    [
+      path.resolve(process.cwd(), "scripts/commands/generate-builtin-commands.mjs"),
+      "--sourceDir",
+      sourceDir,
+      "--outputDir",
+      outputDir,
+      "--manifestPath",
+      manifestPath,
+      "--generatedMarkdownPath",
+      generatedMarkdownPath
+    ],
+    {
+      cwd,
+      encoding: "utf8"
+    }
+  );
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  return result;
+}
+
+describe("builtin command generator", () => {
   const tempDirs: string[] = [];
 
   afterEach(() => {
@@ -284,6 +317,36 @@ describe("generate_builtin_commands.ps1", () => {
         max: 10000
       }
     });
+  }, 60_000);
+
+  it("runs the node generator entry and keeps manifest/snapshot paths repo-relative", () => {
+    const tempRoot = createTempWorkspace();
+    tempDirs.push(tempRoot);
+
+    const sourceDir = path.join(tempRoot, "command_sources");
+    const outputDir = path.join(tempRoot, "builtin");
+    const manifestPath = path.join(tempRoot, "builtin", "index.json");
+    const generatedMarkdownPath = path.join(tempRoot, "builtin_commands.generated.md");
+    writeMarkdownFixture(sourceDir);
+
+    const result = runNodeBuiltinGenerator(
+      sourceDir,
+      outputDir,
+      manifestPath,
+      generatedMarkdownPath,
+      tempRoot
+    );
+
+    expect(result.status).toBe(0);
+
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      sourceDir: string;
+    };
+    const snapshot = readFileSync(generatedMarkdownPath, "utf8");
+
+    expect(manifest.sourceDir).toBe("command_sources");
+    expect(snapshot).toContain("> Source dir: command_sources");
+    expect(snapshot).toContain("- Output directory: builtin");
   }, 60_000);
 
   it("keeps explicitly typed prerequisites in declared order", () => {

@@ -18,7 +18,6 @@
       "category": "network",
       "platform": "win",
       "template": "netstat -ano | findstr :{{port}}",
-      "shell": "powershell",
       "adminRequired": false,
       "args": [
         {
@@ -42,7 +41,6 @@
       "category": "network",
       "platform": "mac",
       "template": "lsof -i :{{port}}",
-      "shell": "zsh",
       "adminRequired": false,
       "args": [
         {

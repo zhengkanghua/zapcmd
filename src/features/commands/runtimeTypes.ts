@@ -9,7 +9,6 @@ export type RuntimeLocalizedTextOrString = RuntimeLocalizedText | string;
 export type RuntimeCategory = string;
 
 export type RuntimePlatform = "all" | "win" | "mac" | "linux";
-export type RuntimeShell = "bash" | "zsh" | "powershell" | "cmd";
 export type RuntimeArgType = "text" | "number" | "path" | "select";
 export type RuntimePrerequisiteType = CommandPrerequisiteType;
 
@@ -43,7 +42,6 @@ export interface RuntimeCommand {
   category: RuntimeCategory;
   platform: RuntimePlatform;
   template: string;
-  shell?: RuntimeShell;
   adminRequired: boolean;
   dangerous?: boolean;
   args?: RuntimeCommandArg[];

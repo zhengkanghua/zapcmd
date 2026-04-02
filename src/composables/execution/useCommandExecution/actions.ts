@@ -50,8 +50,9 @@ async function collectQueuePreflightIssues(
       snapshot.map(async (item) =>
         (
           await runCommandPreflight(options, item.prerequisites)
-        ).map((result) => ({
+        ).map((result, index) => ({
           title: item.title,
+          prerequisite: item.prerequisites?.[index],
           result
         }))
       )
@@ -203,7 +204,10 @@ function createSingleExecutionRequester(
     const preflightIssues = shouldRunPreflight
       ? (
           await runCommandPreflight(options, command.prerequisites)
-        ).map((result) => ({ result }))
+        ).map((result, index) => ({
+          prerequisite: command.prerequisites?.[index],
+          result
+        }))
       : [];
     const blockingPreflightIssues = collectBlockingPreflightIssues(preflightIssues);
     if (blockingPreflightIssues.length > 0) {

@@ -1,8 +1,6 @@
 export const SUPPORTED_PREREQUISITE_TYPES = [
   "binary",
   "shell",
-  "network",
-  "permission",
   "env"
 ] as const;
 

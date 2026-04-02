@@ -264,7 +264,19 @@ describe("useCommandExecution", () => {
 
   it("blocks single execution when required prerequisite fails", async () => {
     const harness = createHarness();
-    const command = createPrerequisiteCommand();
+    const command = createPrerequisiteCommand(
+      {},
+      [
+        {
+          id: "docker",
+          type: "binary",
+          required: true,
+          check: "docker",
+          installHint: "请先安装 Docker Desktop",
+          fallbackCommandId: "install-docker"
+        }
+      ]
+    );
     harness.runCommandPreflight.mockResolvedValueOnce([
       {
         id: "docker",
@@ -281,6 +293,8 @@ describe("useCommandExecution", () => {
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("docker not found");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("请先安装 Docker Desktop");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("install-docker");
     expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
@@ -302,7 +316,16 @@ describe("useCommandExecution", () => {
     const harness = createHarness();
     const command = createPrerequisiteCommand(
       {},
-      [{ id: "docker", type: "binary", required: false, check: "docker" }]
+      [
+        {
+          id: "docker",
+          type: "binary",
+          required: false,
+          check: "docker",
+          installHint: "请先安装 Docker Desktop",
+          fallbackCommandId: "install-docker"
+        }
+      ]
     );
     harness.runCommandPreflight.mockResolvedValueOnce([
       {
@@ -323,6 +346,8 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("预检告警");
     expect(harness.execution.executionFeedbackMessage.value).toContain("docker");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("请先安装 Docker Desktop");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("install-docker");
   });
 
   it("opens command panel for dangerous no-arg command and executes on submit (skips safetyDialog)", async () => {

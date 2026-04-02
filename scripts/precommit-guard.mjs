@@ -286,8 +286,8 @@ function printBuiltinCommandSyncHint(matchedFiles) {
     console.log(`  - ${file}`);
   });
   console.log("");
-  console.log("请在本地运行（Windows）：");
-  console.log("  pwsh -File scripts/generate_builtin_commands.ps1");
+  console.log("请在本地运行：");
+  console.log("  npm run commands:builtin:generate");
   console.log("");
   console.log("并同步提交以下产物：");
   console.log("  - assets/runtime_templates/commands/builtin/*.json");
@@ -308,7 +308,11 @@ if (isDocOnlyChange) {
 }
 
 const builtinCommandSourceMatches = stagedFiles.filter(
-  (file) => isCommandSourceFile(file) || file === "scripts/generate_builtin_commands.ps1"
+  (file) =>
+    isCommandSourceFile(file) ||
+    file === "scripts/generate_builtin_commands.ps1" ||
+    file === "scripts/commands/generate-builtin-commands.mjs" ||
+    file === "scripts/commands/builtinCommandGenerator.mjs"
 );
 if (builtinCommandSourceMatches.length > 0) {
   printBuiltinCommandSyncHint(builtinCommandSourceMatches);

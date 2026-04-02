@@ -73,15 +73,6 @@
         "linux"
       ]
     },
-    "shell": {
-      "type": "string",
-      "enum": [
-        "bash",
-        "zsh",
-        "powershell",
-        "cmd"
-      ]
-    },
     "commandArgValidation": {
       "type": "object",
       "additionalProperties": false,
@@ -195,8 +186,6 @@
           "enum": [
             "binary",
             "shell",
-            "network",
-            "permission",
             "env"
           ]
         },
@@ -258,9 +247,6 @@
           "type": "string",
           "minLength": 1
         },
-        "shell": {
-          "$ref": "#/$defs/shell"
-        },
         "adminRequired": {
           "type": "boolean"
         },
@@ -303,18 +289,17 @@
             "zh": "结束占用端口的进程",
             "en": "Terminate process that occupies a port"
           },
-          "tags": [
-            "kill",
-            "端口",
-            "port",
-            "占用"
-          ],
-          "category": "network",
-          "platform": "win",
-          "template": "Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force",
-          "shell": "powershell",
-          "adminRequired": false,
-          "args": [
+        "tags": [
+          "kill",
+          "端口",
+          "port",
+          "占用"
+        ],
+        "category": "network",
+        "platform": "win",
+        "template": "Stop-Process -Id (Get-NetTCPConnection -LocalPort {{port}}).OwningProcess -Force",
+        "adminRequired": false,
+        "args": [
             {
               "key": "port",
               "label": {

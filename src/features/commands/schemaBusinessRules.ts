@@ -140,9 +140,6 @@ function findCommandBusinessRuleViolation(
   if (isBlankString(command.template)) {
     return `${commandPath}.template must not be blank.`;
   }
-  if (command.shell !== undefined && isBlankString(command.shell)) {
-    return `${commandPath}.shell must not be blank.`;
-  }
 
   const missingTemplateToken = findMissingTemplateToken(command, commandPath);
   if (missingTemplateToken) {

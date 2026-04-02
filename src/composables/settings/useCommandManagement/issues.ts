@@ -36,12 +36,6 @@ export function formatIssue(issue: CommandLoadIssue): string {
       sourceId: issue.sourceId
     });
   }
-  if (issue.code === "shell-ignored") {
-    summary = t("settings.commands.issueShellIgnored", {
-      commandId: issue.commandId ?? "unknown",
-      sourceId: issue.sourceId
-    });
-  }
 
   return t("settings.commands.issueWithReason", {
     stage,

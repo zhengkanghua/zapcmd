@@ -220,8 +220,7 @@ export const messages = {
         issueReadFailed: "读取命令来源失败：{sourceId}",
         issueInvalidJson: "文件 JSON 解析失败：{sourceId}",
         issueInvalidSchema: "文件结构不符合 schema：{sourceId}",
-        issueDuplicateId: "命令 ID 冲突已跳过：{commandId}（来源 {sourceId}）",
-        issueShellIgnored: "shell 字段当前不会生效（将被忽略）：{commandId}（来源 {sourceId}）"
+        issueDuplicateId: "命令 ID 冲突已跳过：{commandId}（来源 {sourceId}）"
       },
       appearance: {
         title: "外观",
@@ -320,6 +319,8 @@ export const messages = {
       blockedWithNextStep: "执行已拦截：{reason}。下一步：{nextStep}",
       preflightBlockedWithNextStep: "执行前检查失败：{reason}。下一步：{nextStep}",
       preflightWarning: "预检告警：{reason}",
+      preflightInstallHint: "安装建议：{hint}",
+      preflightFallbackCommand: "可改用命令：{commandId}",
       preflightProbeFailed: "执行前检查探测失败，请重试或查看日志。",
       preflightProbeInvalidResponse: "执行前检查返回了无效结果，请重试或查看日志。",
       nextStepTerminalUnavailable: "检查并切换可用终端后重试。",
@@ -587,8 +588,7 @@ export const messages = {
         issueReadFailed: "Failed to read command source: {sourceId}",
         issueInvalidJson: "JSON parse failed: {sourceId}",
         issueInvalidSchema: "Schema validation failed: {sourceId}",
-        issueDuplicateId: "Duplicate command ID skipped: {commandId} (source {sourceId})",
-        issueShellIgnored: "`shell` is currently ignored (no effect): {commandId} (source {sourceId})"
+        issueDuplicateId: "Duplicate command ID skipped: {commandId} (source {sourceId})"
       },
       appearance: {
         title: "Appearance",
@@ -687,6 +687,8 @@ export const messages = {
       blockedWithNextStep: "Execution blocked: {reason}. Next step: {nextStep}",
       preflightBlockedWithNextStep: "Preflight check failed: {reason}. Next step: {nextStep}",
       preflightWarning: "Preflight warning: {reason}",
+      preflightInstallHint: "Install hint: {hint}",
+      preflightFallbackCommand: "Try fallback command: {commandId}",
       preflightProbeFailed: "Failed to probe prerequisites. Retry or check logs.",
       preflightProbeInvalidResponse:
         "Prerequisite probing returned an invalid response. Retry or check logs.",

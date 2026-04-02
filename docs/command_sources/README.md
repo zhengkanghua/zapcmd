@@ -19,7 +19,7 @@
 生成命令：
 
 ```powershell
-./scripts/generate_builtin_commands.ps1
+npm run commands:builtin:generate
 ```
 
 ## 如何维护内置命令（贡献者）
@@ -29,7 +29,7 @@
 CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_commands.generated.md` 也属于必须提交的生成快照。
 
 1. 修改源文件：`docs/command_sources/_*.md`
-2. 运行生成：`./scripts/generate_builtin_commands.ps1`
+2. 运行生成：`npm run commands:builtin:generate`
 3. 检查并提交生成产物：
    - `assets/runtime_templates/commands/builtin/_*.json`
    - `assets/runtime_templates/commands/builtin/index.json`
@@ -67,7 +67,7 @@ CI 会阻断未提交的生成产物漂移；除 JSON 资产外，`docs/builtin_
 2. `高危`：用 `⚠️` 标记高危命令（会触发更严格的安全提示/确认流程）。
 3. `adminRequired`：需要管理员权限时标记为 `true`（Windows 会按需拉起管理员终端；若执行流中任一步为 `true`，则整队整体升权，ZapCmd 主进程本身不提权）。
 4. `prerequisites`：只接受显式 typed token，逗号分隔并按声明顺序输出到 JSON，例如 `binary:git, shell:powershell`。
-   - 合法类型只有：`binary`、`shell`、`env`、`network`、`permission`
+   - 合法类型只有：`binary`、`shell`、`env`
    - 合法示例：`binary:git`、`binary:docker`、`binary:python3`、`shell:powershell`、`env:GITHUB_TOKEN`
    - 非法示例：`git`、`docker,powershell`、`binary:`、`foo:bar`
    - `-` 表示不做任何前置检测。不是每条命令都需要 prerequisite。

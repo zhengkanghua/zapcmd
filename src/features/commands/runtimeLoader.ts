@@ -47,8 +47,7 @@ export type CommandLoadIssueCode =
   | "read-failed"
   | "invalid-json"
   | "invalid-schema"
-  | "duplicate-id"
-  | "shell-ignored";
+  | "duplicate-id";
 
 export type CommandLoadIssueStage = "read" | "parse" | "schema" | "merge";
 
@@ -140,15 +139,6 @@ function loadTemplatesFromPayloadEntries(
       }
 
       ids.add(command.id);
-      if (command.shell) {
-        issues.push({
-          code: "shell-ignored",
-          sourceId: entry.sourceId,
-          stage: "merge",
-          reason: `shell field is ignored at runtime (${command.shell}).`,
-          commandId: command.id
-        });
-      }
       templates.push(mapRuntimeCommandToTemplate(command));
       sourceByCommandId[command.id] = entry.sourceId;
     }

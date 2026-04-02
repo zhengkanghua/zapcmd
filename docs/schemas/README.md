@@ -31,7 +31,13 @@
 - `docs/command_sources/*.md` 是命令内容清单（人维护源）。
 - `command-file.schema.json` 是最终结构规则。
 - 生成时按规则转换后，产出的每条命令对象必须满足 schema。
-- 自动合并与生成由 `scripts/generate_builtin_commands.ps1` 完成（见 `docs/command_sources/README.md`）。
+- 自动合并与生成由 `scripts/commands/generate-builtin-commands.mjs` 完成（见 `docs/command_sources/README.md`）。
+
+## shell 与 prerequisite contract
+
+- 命令对象不再允许顶层 `shell` 字段。
+- 若命令明确依赖某个 shell，应通过 `prerequisites` 声明，例如 `shell:powershell`。
+- prerequisite 类型当前只保留三种：`binary`、`shell`、`env`。
 
 ## 运行时口径（schema 方案 3）
 

@@ -100,7 +100,7 @@ Builtin command sources (`docs/command_sources/_*.md`) require generating and co
 CI blocks drift in both `assets/runtime_templates/commands/builtin` and `docs/builtin_commands.generated.md`.
 
 ```bash
-pwsh -File scripts/generate_builtin_commands.ps1
+npm run commands:builtin:generate
 git add assets/runtime_templates/commands/builtin docs/builtin_commands.generated.md
 ```
 
@@ -179,7 +179,8 @@ Schema:
 
 Notes:
 
-- `shell` is currently validated by schema but ignored at runtime (no effect). ZapCmd shows a validation notice in `Settings -> Command Management`.
+- Command objects no longer accept a top-level `shell` field. If a command explicitly depends on PowerShell, declare it in `prerequisites`, for example `shell:powershell`.
+- Supported prerequisite types are `binary`, `shell`, and `env`.
 - On Windows, `adminRequired=true` means "launch the matching elevated terminal when executing this command"; it does not elevate the ZapCmd app process itself.
 - `category` must be a slug string such as `custom`, `redis`, or `mysql-tools`.
 
