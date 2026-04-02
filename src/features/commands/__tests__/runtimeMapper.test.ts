@@ -35,7 +35,7 @@ describe("runtimeMapper", () => {
   });
 
   it("maps runtime command to launcher command template", () => {
-    const runtimeCommand: RuntimeCommand = {
+    const runtimeCommand = {
       id: "http-server",
       name: "快速 HTTP 服务",
       description: "启动本地 HTTP 服务",
@@ -61,10 +61,14 @@ describe("runtimeMapper", () => {
           id: "python3",
           type: "binary",
           required: true,
-          check: "python3 --version"
+          check: "python3 --version",
+          displayName: "Docker Desktop",
+          resolutionHint: "新字段优先",
+          installHint: "兼容旧字段",
+          fallbackCommandId: "install-docker"
         }
       ]
-    };
+    } as RuntimeCommand;
 
     const template = mapRuntimeCommandToTemplate(runtimeCommand);
     expect(template.id).toBe("http-server");
@@ -81,8 +85,21 @@ describe("runtimeMapper", () => {
     });
     expect(template.preview).toBe("python3 -m http.server {{port}}");
     expect(template.prerequisites).toEqual([
-      expect.objectContaining({ id: "python3", type: "binary", required: true })
+      expect.objectContaining({
+        id: "python3",
+        type: "binary",
+        required: true,
+        displayName: "Docker Desktop",
+        resolutionHint: "新字段优先",
+        installHint: "兼容旧字段",
+        fallbackCommandId: "install-docker"
+      })
     ]);
+    expect(template.prerequisites?.[0]).toEqual(
+      expect.objectContaining({
+        resolutionHint: "新字段优先"
+      })
+    );
   });
 
   it("maps exec stdinArgKey and script runner into structured execution", () => {

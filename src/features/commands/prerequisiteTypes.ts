@@ -11,6 +11,8 @@ export interface CommandPrerequisite {
   type: CommandPrerequisiteType;
   required: boolean;
   check: string;
+  displayName?: string;
+  resolutionHint?: string;
   installHint?: string;
   fallbackCommandId?: string;
 }

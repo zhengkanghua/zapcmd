@@ -49,6 +49,13 @@ export function resolveRuntimeText(value: RuntimeLocalizedTextOrString | undefin
   return getPreferredLocalizedText(value).trim();
 }
 
+function resolveOptionalRuntimeText(
+  value: RuntimeLocalizedTextOrString | undefined
+): string | undefined {
+  const resolved = resolveRuntimeText(value);
+  return resolved.length > 0 ? resolved : undefined;
+}
+
 function mapRuntimeArg(arg: RuntimeCommandArg): CommandArg {
   const validationPattern =
     typeof arg.validation?.pattern === "string" && arg.validation.pattern.trim().length > 0
@@ -80,6 +87,8 @@ function mapRuntimePrerequisite(
     type: prerequisite.type,
     required: prerequisite.required,
     check: prerequisite.check,
+    displayName: resolveOptionalRuntimeText(prerequisite.displayName),
+    resolutionHint: resolveOptionalRuntimeText(prerequisite.resolutionHint),
     installHint: resolveRuntimeText(prerequisite.installHint),
     fallbackCommandId: prerequisite.fallbackCommandId
   };

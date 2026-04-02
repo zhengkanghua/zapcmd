@@ -31,7 +31,13 @@ export interface RuntimeCommandArg {
   validation?: RuntimeCommandArgValidation;
 }
 
-export interface RuntimeCommandPrerequisite extends Omit<CommandPrerequisite, "installHint"> {
+export interface RuntimeCommandPrerequisite
+  extends Omit<
+    CommandPrerequisite,
+    "displayName" | "resolutionHint" | "installHint"
+  > {
+  displayName?: RuntimeLocalizedTextOrString;
+  resolutionHint?: RuntimeLocalizedTextOrString;
   installHint?: RuntimeLocalizedTextOrString;
 }
 

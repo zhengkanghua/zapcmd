@@ -26,4 +26,22 @@ describe("runtimeMapper locale preference", () => {
       })
     ).toBe("中文");
   });
+
+  it("resolves displayName-like localized text with locale priority", () => {
+    expect(
+      resolveRuntimeText({
+        "zh-CN": "Docker Desktop",
+        "en-US": "Docker Desktop"
+      })
+    ).toBe("Docker Desktop");
+  });
+
+  it("falls back to zh locale for resolutionHint-like localized text", () => {
+    setAppLocale("en-US");
+    expect(
+      resolveRuntimeText({
+        zh: "安装 Docker Desktop 后重试"
+      })
+    ).toBe("安装 Docker Desktop 后重试");
+  });
 });
