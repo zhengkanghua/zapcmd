@@ -52,6 +52,10 @@ function writeYamlFixture(sourceDir: string): void {
       "        type: binary",
       "        required: true",
       "        check: binary:python3",
+      "        displayName:",
+      "          zh-CN: Python 3",
+      "        resolutionHint:",
+      "          zh-CN: 安装 Python 3 后重试",
       "    tags:",
       "      - http",
       "      - server",
@@ -185,6 +189,8 @@ describe("builtin command generator", () => {
 
     expect(generatedJson).toContain('"exec"');
     expect(generatedJson).toContain('"script"');
+    expect(generatedJson).toContain('"displayName"');
+    expect(generatedJson).toContain('"resolutionHint"');
     expect(manifest.generatedFiles[0]).toMatchObject({
       sourceFile: "_network.yaml",
       docFile: "_network.md"

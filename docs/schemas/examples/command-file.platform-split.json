@@ -38,7 +38,20 @@
           "id": "powershell",
           "type": "shell",
           "required": true,
-          "check": "shell:powershell"
+          "check": "shell:powershell",
+          "displayName": {
+            "zh": "PowerShell 7",
+            "en": "PowerShell 7"
+          },
+          "resolutionHint": {
+            "zh": "安装 PowerShell 7 后重试",
+            "en": "Install PowerShell 7 and retry"
+          },
+          "installHint": {
+            "zh": "兼容旧字段示例",
+            "en": "Legacy compatibility example"
+          },
+          "fallbackCommandId": "install-pwsh"
         }
       ]
     },

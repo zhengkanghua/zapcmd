@@ -64,9 +64,17 @@ function createValidPayload() {
             type: "shell",
             required: true,
             check: "shell:powershell",
+            displayName: {
+              "zh-CN": "PowerShell 7",
+              "en-US": "PowerShell 7"
+            },
+            resolutionHint: {
+              "zh-CN": "安装 PowerShell 7 后重试",
+              "en-US": "Install PowerShell 7 and retry"
+            },
             installHint: {
-              "zh-CN": "请安装 PowerShell 7",
-              "en-US": "Please install PowerShell 7"
+              "zh-CN": "兼容旧字段",
+              "en-US": "legacy"
             },
             fallbackCommandId: "install-pwsh"
           }

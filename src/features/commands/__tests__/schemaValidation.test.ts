@@ -10,6 +10,11 @@ import type {
   RuntimeScriptCommand
 } from "../runtimeTypes";
 
+type TestRuntimeCommandPrerequisite = RuntimeCommandPrerequisite & {
+  displayName?: RuntimeLocalizedTextOrString;
+  resolutionHint?: RuntimeLocalizedTextOrString;
+};
+
 interface TestRuntimeCommand {
   id: string;
   name: RuntimeLocalizedTextOrString;
@@ -19,7 +24,7 @@ interface TestRuntimeCommand {
   adminRequired: boolean;
   dangerous?: boolean;
   args?: RuntimeCommandArg[];
-  prerequisites?: RuntimeCommandPrerequisite[];
+  prerequisites?: TestRuntimeCommandPrerequisite[];
   exec?: RuntimeExecCommand;
   script?: RuntimeScriptCommand;
   template?: string;
@@ -148,6 +153,22 @@ describe("schemaValidation", () => {
     const result = validateRuntimeCommandFile(createValidPayload());
 
     expect(result.valid).toBe(true);
+  });
+
+  it("accepts prerequisites with displayName and resolutionHint", () => {
+    const payload = createScriptPayload();
+    payload.commands[0].prerequisites = [
+      {
+        id: "powershell",
+        type: "shell",
+        required: true,
+        check: "shell:powershell",
+        displayName: { "zh-CN": "PowerShell 7" },
+        resolutionHint: { "zh-CN": "安装 PowerShell 7 后重试" }
+      }
+    ];
+
+    expect(validateRuntimeCommandFile(payload).valid).toBe(true);
   });
 
   it("rejects payloads that still use the legacy template field", () => {

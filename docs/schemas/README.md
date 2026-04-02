@@ -42,6 +42,11 @@
 - `exec.stdinArgKey` 只能引用已定义参数；最终 `stdin` 在执行时由运行时展开。
 - 若命令明确依赖某个 shell，应通过 `prerequisites` 声明，例如 `shell:powershell`。
 - prerequisite 类型当前只保留三种：`binary`、`shell`、`env`。
+- prerequisite 可新增用户提示字段：
+  - `displayName`：给用户看的依赖名称
+  - `resolutionHint`：新的主补救提示字段
+  - `installHint`：兼容旧字段；仅在 `resolutionHint` 缺失时回退使用
+  - `fallbackCommandId`：可选替代命令 id，运行时优先解析展示标题
 
 ## 运行时口径（schema 方案 3）
 
@@ -56,6 +61,7 @@
 
 - builtin 真源使用 `commands/catalog/_*.yaml`。
 - YAML 负责 authoring 体验；最终 runtime 契约仍以 `docs/schemas/command-file.schema.json` 为准。
+- YAML / JSON 都可以直接声明 prerequisite 的 `displayName` 与 `resolutionHint`。
 - `pattern`、`errorMessage` 等更复杂规则继续保留给 schema / 用户 JSON 文件入口。
 
 ## 首次启动写入建议

@@ -196,6 +196,12 @@
           "type": "string",
           "minLength": 1
         },
+        "displayName": {
+          "$ref": "#/$defs/localizedTextOrString"
+        },
+        "resolutionHint": {
+          "$ref": "#/$defs/localizedTextOrString"
+        },
         "installHint": {
           "$ref": "#/$defs/localizedTextOrString"
         },
