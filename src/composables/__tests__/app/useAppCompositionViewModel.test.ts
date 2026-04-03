@@ -3,6 +3,7 @@ import { isRef, ref, unref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppCompositionViewModel } from "../../app/useAppCompositionRoot/viewModel";
+import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 
 function createDeepStub(): unknown {
   const fn = vi.fn();
@@ -117,6 +118,33 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     downloadUpdate,
     openHomepage,
     settingsScene
+  };
+}
+
+function createCommandActionPage(command: CommandTemplate) {
+  return {
+    type: "command-action" as const,
+    props: {
+      command,
+      panel: "actions" as const
+    }
+  };
+}
+
+function createNoArgCommand(): CommandTemplate {
+  return {
+    id: "docker-ps",
+    title: "查看运行中容器",
+    description: "测试命令",
+    preview: "docker ps",
+    execution: {
+      kind: "exec",
+      program: "docker",
+      args: ["ps"]
+    },
+    folder: "@_docker",
+    category: "docker",
+    needsArgs: false
   };
 }
 
@@ -371,4 +399,86 @@ describe("createAppCompositionViewModel", () => {
     runtimePlatform.value = "win";
     expect(unref(viewModel.settingsVm.showAlwaysElevatedTerminal)).toBe(true);
   });
+
+  it.each(["execute", "stage", "copy"] as const)(
+    "动作面板选择无参 %s 后会请求收口回搜索页",
+    async (intent) => {
+      const command = createNoArgCommand();
+      const context = createContextStub();
+      const dispatchCommandIntent = vi.fn(async () => {});
+      const requestCommandPanelExit = vi.fn();
+
+      const runtime = {
+        commandExecution: {
+          submitParamInput: vi.fn(() => false),
+          dispatchCommandIntent,
+          pendingCommand: ref<unknown>(null),
+          executionFeedbackMessage: ref(""),
+          executionFeedbackTone: ref("neutral"),
+          pendingArgValues: ref({}),
+          pendingSubmitIntent: ref("stage"),
+          pendingSubmitMode: ref("stage"),
+          safetyDialog: ref(null),
+          stageResult: vi.fn(),
+          executeResult: vi.fn(),
+          removeStagedCommand: vi.fn(),
+          updateStagedArg: vi.fn(),
+          clearStaging: vi.fn(),
+          executeStaged: vi.fn(),
+          updatePendingArgValue: vi.fn(),
+          confirmSafetyExecution: vi.fn(),
+          cancelSafetyExecution: vi.fn(),
+          setExecutionFeedback: vi.fn(),
+          executing: ref(false)
+        },
+        navStack: {
+          canGoBack: ref(true),
+          popPage: vi.fn(),
+          currentPage: ref(createCommandActionPage(command)),
+          pushPage: vi.fn(),
+          replaceTopPage: vi.fn(),
+          resetToSearch: vi.fn(),
+          stack: ref([{ type: "search" }, createCommandActionPage(command)])
+        },
+        layoutMetrics: {
+          searchShellStyle: ref({}),
+          drawerOpen: ref(false),
+          drawerViewportHeight: ref(0)
+        },
+        stagingQueue: {
+          queueOpen: ref(false),
+          queuePanelState: ref("closed"),
+          focusZone: ref("search"),
+          queueActiveIndex: ref(0),
+          toggleQueue: vi.fn(),
+          onQueueDragStart: vi.fn(),
+          onQueueDragOver: vi.fn(),
+          onQueueDragEnd: vi.fn(),
+          onFocusQueueIndex: vi.fn()
+        },
+        pendingArgs: ref([]),
+        pendingSubmitHint: ref(""),
+        openActionPanel: vi.fn(),
+        requestCommandPanelExit,
+        notifyCommandPageSettled: vi.fn(),
+        notifyFlowPanelHeightChange: vi.fn(),
+        notifyFlowPanelSettled: vi.fn(),
+        notifySearchPageSettled: vi.fn(),
+        closeSettingsWindow: vi.fn(),
+        forceCloseSettingsWindow: vi.fn(),
+        hideMainWindow: vi.fn()
+      };
+
+      const viewModel = createAppCompositionViewModel(
+        context as never,
+        runtime as never
+      );
+
+      viewModel.launcherVm.actions.selectActionPanelIntent(intent);
+      await Promise.resolve();
+
+      expect(dispatchCommandIntent).toHaveBeenCalledWith(command, intent);
+      expect(requestCommandPanelExit).toHaveBeenCalledTimes(1);
+    }
+  );
 });

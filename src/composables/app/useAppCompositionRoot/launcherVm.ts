@@ -97,12 +97,19 @@ function createActionVm(
     void runtime.commandExecution.dispatchCommandIntent(command, intent);
   }
 
-  function selectActionPanelIntent(intent: "execute" | "stage" | "copy"): void {
-    const command = runtime.navStack.currentPage.value.props?.command;
+  /** 动作面板里如果选择的是无参动作，需要在业务动作发出后主动收口回搜索页。 */
+  async function selectActionPanelIntent(intent: "execute" | "stage" | "copy"): Promise<void> {
+    const currentPage = runtime.navStack.currentPage.value;
+    const command = currentPage.props?.command;
     if (!command) {
       return;
     }
-    void runtime.commandExecution.dispatchCommandIntent(command, intent);
+    await runtime.commandExecution.dispatchCommandIntent(command, intent);
+
+    const nextPage = runtime.navStack.currentPage.value;
+    if (nextPage.type === "command-action" && nextPage.props?.panel === "actions") {
+      runtime.requestCommandPanelExit();
+    }
   }
 
   return {

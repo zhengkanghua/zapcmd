@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import type { CommandSubmitIntent } from "../../../features/launcher/types";
 
@@ -14,11 +14,19 @@ const emit = defineEmits<{
 
 const intents: CommandSubmitIntent[] = ["execute", "stage", "copy"];
 const activeIndex = ref(0);
+const panelRef = ref<HTMLElement | null>(null);
 const actionLabels = computed<Record<CommandSubmitIntent, string>>(() => ({
   execute: "执行",
   stage: "加入执行流",
   copy: "复制"
 }));
+
+/** Shift+Enter 进入动作面板后要立刻接管焦点，本地 Arrow/Enter 才能直接生效。 */
+onMounted(() => {
+  void nextTick(() => {
+    panelRef.value?.focus({ preventScroll: true });
+  });
+});
 
 function clampIndex(nextIndex: number): number {
   if (nextIndex < 0) {
@@ -36,6 +44,8 @@ function selectIntent(intent: CommandSubmitIntent): void {
 
 function onKeydown(event: KeyboardEvent): void {
   if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
     emit("cancel");
     return;
   }
@@ -58,6 +68,7 @@ function onKeydown(event: KeyboardEvent): void {
 
 <template>
   <section
+    ref="panelRef"
     class="launcher-action-panel flex h-full flex-col gap-[16px] p-[16px]"
     tabindex="0"
     @keydown="onKeydown"

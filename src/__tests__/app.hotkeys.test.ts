@@ -299,6 +299,59 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.find(".launcher-action-panel").exists()).toBe(true);
   });
 
+  it("Shift+Enter 打开动作面板后会接管焦点，并支持 Arrow/Enter 本地导航", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("Enter", { shiftKey: true });
+    await waitForUi();
+
+    const actionPanel = wrapper.get(".launcher-action-panel").element as HTMLElement;
+    expect(document.activeElement).toBe(actionPanel);
+
+    dispatchElementKeydown(actionPanel, "ArrowDown");
+    await waitForUi();
+    dispatchElementKeydown(actionPanel, "Enter");
+    await waitForUi();
+
+    expect(wrapper.find(".launcher-action-panel").exists()).toBe(false);
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
+    expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("加入队列");
+  });
+
+  it("动作面板选择无参 stage 后会收口回搜索页", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看运行中容器");
+
+    dispatchWindowKeydown("Enter", { shiftKey: true });
+    await waitForUi();
+
+    const actionPanel = wrapper.get(".launcher-action-panel").element as HTMLElement;
+    dispatchElementKeydown(actionPanel, "ArrowDown");
+    await waitForUi();
+    dispatchElementKeydown(actionPanel, "Enter");
+    await waitForUi();
+
+    expect(wrapper.find(".launcher-action-panel").exists()).toBe(false);
+    expect(wrapper.find(".command-panel").exists()).toBe(false);
+    expectQueueCount(wrapper, 1);
+  });
+
+  it("动作面板内 Escape 只关闭面板，不额外清空搜索词", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("Enter", { shiftKey: true });
+    await waitForUi();
+
+    const actionPanel = wrapper.get(".launcher-action-panel").element as HTMLElement;
+    dispatchElementKeydown(actionPanel, "Escape");
+    await waitForUi();
+
+    expect(wrapper.find(".launcher-action-panel").exists()).toBe(false);
+    expect((wrapper.get("#zapcmd-search-input").element as HTMLInputElement).value).toBe("查看容器日志");
+  });
+
   it("opens copy param panel with Ctrl+Shift+C when command requires args", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");

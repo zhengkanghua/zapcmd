@@ -255,6 +255,18 @@ describe("AppSettings hotkeys regression", () => {
     expect(focusField!.get(".s-hotkey-recorder-field__conflict-text").text().toLowerCase()).toContain("ctrl+k");
   });
 
+  it("在搜索区快捷键分组暴露 openActionPanel 和 copySelected", async () => {
+    const wrapper = await mountAppSettings();
+
+    const searchGroup = wrapper
+      .findAll(".settings-hotkeys-group")
+      .find((item) => item.find(".settings-hotkeys-group__title").text().includes("搜索区快捷键"));
+
+    expect(searchGroup).toBeTruthy();
+    expect(searchGroup!.text()).toContain("打开动作面板");
+    expect(searchGroup!.text()).toContain("复制当前命令");
+  });
+
   it("supports segment navigation to appearance", async () => {
     const wrapper = await mountAppSettings();
 

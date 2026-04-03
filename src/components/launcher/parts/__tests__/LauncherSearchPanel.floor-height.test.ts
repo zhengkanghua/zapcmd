@@ -123,18 +123,21 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     expect(wrapper.findAll(".result-item")).toHaveLength(10);
   });
 
-  it("keyboard hint 区保持单行固定高度，不因 wrap 抬高 drawer viewport", () => {
+  it("keyboard hint 一级提示允许换行，不再用 nowrap 锁死", () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createProps({
-        keyboardHints: [
-          { keys: ["Ctrl", "J"], action: "动作一" },
-          { keys: ["Ctrl", "K"], action: "动作二" },
-          { keys: ["Ctrl", "L"], action: "动作三" }
+        searchHintLines: [
+          [
+            { keys: ["Ctrl", "J"], action: "动作一" },
+            { keys: ["Ctrl", "K"], action: "动作二" },
+            { keys: ["Ctrl", "L"], action: "动作三" }
+          ]
         ]
       })
     });
 
-    expect(wrapper.get(".keyboard-hint").classes()).toContain("flex-nowrap");
+    expect(wrapper.get(".keyboard-hint").classes()).toContain("flex-wrap");
+    expect(wrapper.get(".keyboard-hint").classes()).not.toContain("flex-nowrap");
   });
 
   it("drawerOpen=false 时不再渲染 result-drawer-floor 占位", () => {

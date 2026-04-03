@@ -29,6 +29,8 @@ export function createSettingsViewModel(deps: {
           "navigateDown",
           "executeSelected",
           "stageSelected",
+          "openActionPanel",
+          "copySelected",
           "escape"
         ].includes(field.id)
       )
