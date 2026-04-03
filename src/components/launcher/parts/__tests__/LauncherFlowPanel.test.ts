@@ -313,6 +313,40 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     wrapper.unmount();
   });
 
+  it("刷新入口只显示图标，文案仅保留在可访问性标签中", () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        queuedCommands: [
+          createStagedCommand({
+            id: "cmd-preflight",
+            preflightCache: {
+              checkedAt: 1743648000000,
+              issueCount: 1,
+              source: "issues",
+              issues: ["未检测到 Docker Desktop。"]
+            }
+          })
+        ]
+      })
+    });
+
+    const refreshAllButton = wrapper.get(".flow-panel__refresh-all");
+    expect(refreshAllButton.text()).toBe("");
+    expect(refreshAllButton.attributes("aria-label")).toBe("刷新检测");
+    expect(refreshAllButton.attributes("title")).toBe("刷新检测");
+    expect(refreshAllButton.find(".launcher-icon").exists()).toBe(true);
+
+    const refreshOneButton = wrapper.get(".flow-card__preflight-refresh");
+    expect(refreshOneButton.text()).toBe("");
+    expect(refreshOneButton.attributes("aria-label")).toBe("刷新此条");
+    expect(refreshOneButton.attributes("title")).toBe("刷新此条");
+    expect(refreshOneButton.find(".launcher-icon").exists()).toBe(true);
+
+    expect(wrapper.text()).not.toContain("刷新检测");
+    expect(wrapper.text()).not.toContain("刷新此条");
+    wrapper.unmount();
+  });
+
   it("delegates height observation, grip reorder and inline args state out of the main file", () => {
     const source = readFileSync("src/components/launcher/parts/LauncherQueueReviewPanel.vue", "utf8");
 

@@ -2,7 +2,6 @@
 import { useI18nText } from "../../../../i18n";
 import { summarizeStagedPreflightIssues } from "../../../../composables/execution/useCommandExecution/stagedPreflightCache";
 import type { ElementRefArg, FocusZone, QueuedCommand } from "../../types";
-import UiButton from "../../../shared/ui/UiButton.vue";
 import UiIconButton from "../../../shared/ui/UiIconButton.vue";
 import LauncherIcon from "../LauncherIcon.vue";
 
@@ -213,19 +212,17 @@ function isRefreshingCommand(cmdId: string): boolean {
             <p class="m-0 min-w-0 text-[12px] leading-snug text-ui-danger truncate">
               {{ resolvePreflightSummary(cmd) }}
             </p>
-            <UiButton
+            <UiIconButton
               class="flow-card__preflight-refresh shrink-0"
-              variant="muted"
+              :ariaLabel="t('launcher.queuePreflightRefreshOne')"
               size="small"
+              variant="muted"
               :disabled="props.executing || isRefreshingCommand(cmd.id)"
+              :title="t('launcher.queuePreflightRefreshOne')"
               @click.stop="props.refreshQueuedCommandPreflight(cmd.id)"
             >
-              {{
-                isRefreshingCommand(cmd.id)
-                  ? t("launcher.queuePreflightRefreshing")
-                  : t("launcher.queuePreflightRefreshOne")
-              }}
-            </UiButton>
+              <LauncherIcon name="refresh" />
+            </UiIconButton>
           </div>
           <code
             class="flow-card__command block p-[4px_0] font-mono text-[11px] text-ui-subtle whitespace-nowrap overflow-hidden text-ellipsis"

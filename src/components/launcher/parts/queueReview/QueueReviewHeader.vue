@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useI18nText } from "../../../../i18n";
 import type { ElementRefArg } from "../../types";
-import UiButton from "../../../shared/ui/UiButton.vue";
 import UiIconButton from "../../../shared/ui/UiIconButton.vue";
 import LauncherIcon from "../LauncherIcon.vue";
 
@@ -34,19 +33,17 @@ const { t } = useI18nText();
       </h2>
     </div>
     <div class="flow-panel__header-actions flex items-center gap-[8px]">
-      <UiButton
+      <UiIconButton
         class="flow-panel__refresh-all"
-        variant="muted"
+        :ariaLabel="t('launcher.queuePreflightRefreshAll')"
         size="small"
+        variant="muted"
         :disabled="props.queuedCommandCount === 0 || props.refreshingAllQueuedPreflight"
+        :title="t('launcher.queuePreflightRefreshAll')"
         @click="props.onRefreshQueuePreflight"
       >
-        {{
-          props.refreshingAllQueuedPreflight
-            ? t("launcher.queuePreflightRefreshing")
-            : t("launcher.queuePreflightRefreshAll")
-        }}
-      </UiButton>
+        <LauncherIcon name="refresh" />
+      </UiIconButton>
       <UiIconButton
         variant="danger"
         :ariaLabel="t('common.clear')"

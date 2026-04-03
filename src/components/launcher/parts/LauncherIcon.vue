@@ -1,5 +1,12 @@
 <script setup lang="ts">
-export type LauncherIconName = "search" | "queue" | "x" | "copy" | "trash" | "grip";
+export type LauncherIconName =
+  | "search"
+  | "queue"
+  | "x"
+  | "copy"
+  | "trash"
+  | "grip"
+  | "refresh";
 
 const props = withDefaults(
   defineProps<{
@@ -68,6 +75,13 @@ const props = withDefaults(
         <circle cx="15" cy="12" r="1.5" fill="currentColor" stroke="none" />
         <circle cx="9" cy="19" r="1.5" fill="currentColor" stroke="none" />
         <circle cx="15" cy="19" r="1.5" fill="currentColor" stroke="none" />
+      </template>
+
+      <template v-else-if="props.name === 'refresh'">
+        <path d="M20 11a8 8 0 0 0-14.9-3" />
+        <path d="M4 4v5h5" />
+        <path d="M4 13a8 8 0 0 0 14.9 3" />
+        <path d="M20 20v-5h-5" />
       </template>
     </g>
   </svg>
