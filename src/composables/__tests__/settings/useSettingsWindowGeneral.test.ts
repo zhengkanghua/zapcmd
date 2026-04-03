@@ -21,6 +21,7 @@ function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTest
     toSnapshot: vi.fn(() => baseSnapshot),
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
+    setPointerAction: vi.fn(),
     setLaunchAtLogin: vi.fn(),
     setAlwaysElevatedTerminal: vi.fn(),
     setTerminalReusePolicy: vi.fn()
@@ -40,6 +41,7 @@ function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTest
     autoCheckUpdate: ref(true),
     launchAtLogin: ref(false),
     alwaysElevatedTerminal: ref(false),
+    pointerActions: ref(baseSnapshot.general.pointerActions),
     settingsStore,
     getHotkeyValue: vi.fn((field: HotkeyFieldId) => baseSnapshot.hotkeys[field]),
     setHotkeyValue: vi.fn(),

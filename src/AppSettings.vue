@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { isTypingElement } from "./composables/launcher/useMainWindowShell";
-import type { HotkeyFieldId } from "./stores/settingsStore";
+import type {
+  HotkeyFieldId,
+  PointerActionFieldId,
+  SearchResultPointerAction
+} from "./stores/settingsStore";
 import { createAppCompositionRootPorts } from "./composables/app/useAppCompositionRoot/ports";
 import { createSettingsScene } from "./composables/app/useAppCompositionRoot/settingsScene";
 import { shouldDeferGlobalEscape } from "./features/hotkeys/escapeOwnership";
@@ -47,6 +51,8 @@ const {
   hotkeyGlobalFields,
   hotkeySearchFields,
   hotkeyQueueFields,
+  pointerActionFields,
+  pointerActionOptions,
   settingsErrorHotkeyFieldIds,
   settingsError,
   availableTerminals,
@@ -65,7 +71,9 @@ const {
   loadSettings: loadSettingsSetting,
   loadAvailableTerminals: loadAvailableTerminalsSetting,
   persistSetting: persistSettingSetting,
-  applyHotkeyChange: applyHotkeyChangeSetting
+  applyHotkeyChange: applyHotkeyChangeSetting,
+  getPointerActionValue,
+  applyPointerActionChange: applyPointerActionChangeSetting
 } = settingsWindow;
 
 const {
@@ -103,6 +111,13 @@ function persistImmediate(): void {
 
 function onUpdateHotkey(fieldId: HotkeyFieldId, value: string): void {
   void applyHotkeyChangeSetting(fieldId, value);
+}
+
+function onUpdatePointerAction(
+  fieldId: PointerActionFieldId,
+  value: SearchResultPointerAction
+): void {
+  void applyPointerActionChangeSetting(fieldId, value);
 }
 
 function toggleCommandEnabled(commandId: string, enabled: boolean): void {
@@ -249,7 +264,10 @@ onBeforeUnmount(() => {
     :hotkey-global-fields="hotkeyGlobalFields"
     :hotkey-search-fields="hotkeySearchFields"
     :hotkey-queue-fields="hotkeyQueueFields"
+    :pointer-action-fields="pointerActionFields"
+    :pointer-action-options="pointerActionOptions"
     :get-hotkey-value="hotkeyBindings.getHotkeyValue"
+    :get-pointer-action-value="getPointerActionValue"
     :hotkey-error-fields="settingsErrorHotkeyFieldIds"
     :hotkey-error-message="settingsError"
     :available-terminals="availableTerminals"
@@ -288,6 +306,7 @@ onBeforeUnmount(() => {
     :motion-presets="motionPresetManager.motionPresets"
     @navigate="navigateSettings"
     @update-hotkey="onUpdateHotkey"
+    @update-pointer-action="onUpdatePointerAction"
     @select-terminal="selectTerminalOption"
     @select-language="selectLanguageOption"
     @set-auto-check-update="setAutoCheckUpdateSetting"

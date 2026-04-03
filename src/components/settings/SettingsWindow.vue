@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { CommandManagementViewState, SettingsRoute } from "../../features/settings/types";
-import type { HotkeyFieldId, TerminalReusePolicy } from "../../stores/settingsStore";
+import type {
+  HotkeyFieldId,
+  PointerActionFieldId,
+  SearchResultPointerAction,
+  TerminalReusePolicy
+} from "../../stores/settingsStore";
 import { useI18nText, type AppLocale } from "../../i18n";
 import SettingsAppearanceSection from "./parts/SettingsAppearanceSection.vue";
 import SettingsAboutSection from "./parts/SettingsAboutSection.vue";
@@ -31,6 +36,7 @@ const settingsRoute = computed({
 const emit = defineEmits<{
   (e: "navigate", route: SettingsRoute): void;
   (e: "update-hotkey", field: HotkeyFieldId, value: string): void;
+  (e: "update-pointer-action", field: PointerActionFieldId, value: SearchResultPointerAction): void;
   (e: "select-terminal", id: string): void;
   (e: "select-language", locale: AppLocale): void;
   (e: "set-auto-check-update", value: boolean): void;
@@ -87,10 +93,14 @@ const emit = defineEmits<{
             :hotkey-global-fields="props.hotkeyGlobalFields"
             :hotkey-search-fields="props.hotkeySearchFields"
             :hotkey-queue-fields="props.hotkeyQueueFields"
+            :pointer-action-fields="props.pointerActionFields"
+            :pointer-action-options="props.pointerActionOptions"
             :get-hotkey-value="props.getHotkeyValue"
+            :get-pointer-action-value="props.getPointerActionValue"
             :hotkey-error-fields="props.hotkeyErrorFields"
             :hotkey-error-message="props.hotkeyErrorMessage"
             @update-hotkey="(field, value) => emit('update-hotkey', field, value)"
+            @update-pointer-action="(field, value) => emit('update-pointer-action', field, value)"
           />
           <SettingsGeneralSection
             v-else-if="settingsRoute === 'general'"

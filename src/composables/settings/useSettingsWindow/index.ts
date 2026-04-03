@@ -2,6 +2,7 @@ import { createHotkeyActions } from "./hotkey";
 import { createGeneralActions } from "./general";
 import { createSettingsState, type UseSettingsWindowOptions } from "./model";
 import { createPersistenceActions } from "./persistence";
+import { createPointerActions } from "./pointer";
 import { createRouteActions } from "./route";
 import { createTerminalActions } from "./terminal";
 import { createSettingsViewModel } from "./viewModel";
@@ -35,6 +36,11 @@ export function useSettingsWindow(options: UseSettingsWindowOptions) {
     persistSetting: persistence.persistSetting,
     applyAutoStartChange: persistence.applyAutoStartChange
   });
+  const pointer = createPointerActions({
+    options,
+    state,
+    persistSetting: persistence.persistSetting
+  });
   persistenceHooks.loadAutoStartEnabled = general.loadAutoStartEnabled;
   const route = createRouteActions({ options, state });
   const viewModel = createSettingsViewModel({ options, state });
@@ -46,6 +52,7 @@ export function useSettingsWindow(options: UseSettingsWindowOptions) {
     ...route,
     ...terminal,
     ...general,
+    ...pointer,
     ...persistence
   };
 }

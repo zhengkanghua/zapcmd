@@ -32,4 +32,37 @@ describe("searchHintBuilder", () => {
     expect(lines[1]?.map((item) => item.action)).toContain("右键 入队");
     expect(lines[1]?.map((item) => item.action)).toContain("切焦点");
   });
+
+  it("会裁剪空热键，并支持 execute/copy 指针映射文案", () => {
+    const lines = buildSearchHintLines({
+      hotkeys: {
+        navigateUp: " ",
+        navigateDown: "",
+        executeSelected: "Enter",
+        stageSelected: "",
+        openActionPanel: "",
+        copySelected: "CmdOrCtrl+Shift+C",
+        switchFocus: " ",
+        toggleQueue: ""
+      },
+      pointerActions: {
+        leftClick: "execute",
+        rightClick: "copy"
+      }
+    });
+
+    expect(lines[0]).toEqual([
+      { keys: [], action: "选择" },
+      { keys: ["Enter"], action: "执行" },
+      { keys: [], action: "入队" },
+      { keys: [], action: "动作" },
+      { keys: ["CmdOrCtrl+Shift+C"], action: "复制" }
+    ]);
+    expect(lines[1]).toEqual([
+      { keys: [], action: "左键 执行" },
+      { keys: [], action: "右键 复制" },
+      { keys: [], action: "切焦点" },
+      { keys: [], action: "队列" }
+    ]);
+  });
 });

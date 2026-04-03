@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import type { HotkeyFieldId } from "../../../stores/settingsStore";
+import type {
+  HotkeyFieldId,
+  PointerActionFieldId,
+  SearchResultPointerAction
+} from "../../../stores/settingsStore";
 import type { SettingsHotkeysProps } from "../types";
 import { useI18nText } from "../../../i18n";
+import SDropdown from "../ui/SDropdown.vue";
 import SHotkeyRecorder from "../ui/SHotkeyRecorder.vue";
 
 const props = defineProps<SettingsHotkeysProps>();
@@ -9,6 +14,7 @@ const { t } = useI18nText();
 
 const emit = defineEmits<{
   (e: "update-hotkey", field: HotkeyFieldId, value: string): void;
+  (e: "update-pointer-action", field: PointerActionFieldId, value: SearchResultPointerAction): void;
 }>();
 
 function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
@@ -86,6 +92,37 @@ function getFieldConflict(fieldId: HotkeyFieldId): string | undefined {
             :conflict="getFieldConflict(field.id)"
             hide-label
             @update:model-value="emit('update-hotkey', field.id, $event)"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="settings-hotkeys-group grid gap-2.5 mt-3.5" aria-labelledby="settings-hotkeys-mouse">
+    <h2
+      id="settings-hotkeys-mouse"
+      class="settings-hotkeys-group__title m-0 px-1 text-[11px] font-semibold tracking-[0.04em] leading-[1.4] text-ui-text/42"
+    >
+      {{ t("settings.hotkeys.sectionMouse") }}
+    </h2>
+    <div
+      class="settings-card rounded-2xl border border-settings-card-border bg-settings-card overflow-hidden"
+    >
+      <div
+        v-for="field in props.pointerActionFields"
+        :key="field.id"
+        class="settings-card__row settings-hotkeys-row grid grid-cols-[minmax(0,1fr)_auto] items-start gap-[18px] px-4 py-[13px] border-b border-b-settings-row-border transition-[background] duration-120 hover:bg-settings-row-hover last:border-b-0"
+      >
+        <div class="settings-hotkeys-row__label min-w-0 pt-0.5">
+          <span
+            class="settings-card__label min-w-0 text-[13px] font-medium leading-[1.35] text-ui-text/90"
+          >{{ field.label }}</span>
+        </div>
+        <div class="settings-hotkeys-row__recorder flex-none max-w-[min(100%,280px)] flex justify-end">
+          <SDropdown
+            :model-value="props.getPointerActionValue(field.id)"
+            :options="props.pointerActionOptions"
+            @update:model-value="emit('update-pointer-action', field.id, $event as SearchResultPointerAction)"
           />
         </div>
       </div>

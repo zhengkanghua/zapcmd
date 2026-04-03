@@ -18,7 +18,12 @@ import type {
 } from "../../features/settings/types";
 import type { UpdateStatus } from "../../features/update/types";
 import type { TerminalOption } from "../../features/terminals/fallbackTerminals";
-import type { HotkeyFieldId, TerminalReusePolicy } from "../../stores/settingsStore";
+import type {
+  HotkeyFieldId,
+  PointerActionFieldId,
+  SearchResultPointerAction,
+  TerminalReusePolicy
+} from "../../stores/settingsStore";
 import type { AppLocale } from "../../i18n";
 import type { ThemeMeta } from "../../features/themes/themeRegistry";
 import type { SettingsNavIconName } from "./ui/settingsNavIcon";
@@ -46,7 +51,10 @@ export interface SettingsHotkeysProps {
   hotkeyGlobalFields: HotkeyFieldDefinition[];
   hotkeySearchFields: HotkeyFieldDefinition[];
   hotkeyQueueFields: HotkeyFieldDefinition[];
+  pointerActionFields: Array<{ id: PointerActionFieldId; label: string }>;
+  pointerActionOptions: Array<{ value: SearchResultPointerAction; label: string }>;
   getHotkeyValue: (field: HotkeyFieldId) => string;
+  getPointerActionValue: (field: PointerActionFieldId) => SearchResultPointerAction;
   hotkeyErrorFields: HotkeyFieldId[];
   hotkeyErrorMessage: string;
 }

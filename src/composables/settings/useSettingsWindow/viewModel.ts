@@ -1,5 +1,6 @@
 import { computed } from "vue";
 import { APP_LOCALES, t } from "../../../i18n";
+import { SEARCH_RESULT_POINTER_ACTIONS } from "../../../stores/settings/defaults";
 import type { SettingsWindowState, UseSettingsWindowOptions } from "./model";
 
 export function createSettingsViewModel(deps: {
@@ -39,6 +40,17 @@ export function createSettingsViewModel(deps: {
         )
       )
     ),
+    pointerActionFields: computed(() => [
+      { id: "leftClick" as const, label: t("settings.hotkeys.mouse.leftClick") },
+      { id: "rightClick" as const, label: t("settings.hotkeys.mouse.rightClick") }
+    ]),
+    pointerActionOptions: computed(() =>
+      SEARCH_RESULT_POINTER_ACTIONS.map((value) => ({
+        value,
+        label: t(`settings.hotkeys.pointerActionOptions.${value}`)
+      }))
+    ),
+    getPointerActionValue: (field: "leftClick" | "rightClick") => options.pointerActions.value[field],
     selectedTerminalPath: computed(() => {
       const selected = state.availableTerminals.value.find(
         (item) => item.id === options.defaultTerminal.value

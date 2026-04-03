@@ -15,6 +15,8 @@ export const HOTKEY_DEFINITIONS: HotkeyFieldDefinition[] = [
   { id: "navigateDown", label: "navigateDown", scope: "local" },
   { id: "executeSelected", label: "executeSelected", scope: "local" },
   { id: "stageSelected", label: "stageSelected", scope: "local" },
+  { id: "openActionPanel", label: "openActionPanel", scope: "local" },
+  { id: "copySelected", label: "copySelected", scope: "local" },
   { id: "escape", label: "escape", scope: "local" },
   { id: "executeQueue", label: "executeQueue", scope: "local" },
   { id: "clearQueue", label: "clearQueue", scope: "local" },

@@ -1,6 +1,10 @@
 import { ref } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
-import type { HotkeyFieldId } from "../../../stores/settingsStore";
+import type {
+  HotkeyFieldId,
+  PointerActionFieldId,
+  SearchResultPointerAction
+} from "../../../stores/settingsStore";
 import { createAppShellVm } from "./appShellVm";
 import type { createAppCompositionContext } from "./context";
 import { createLauncherVm } from "./launcherVm";
@@ -54,6 +58,14 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
     applyHotkeyChange(fieldId: HotkeyFieldId, value: string): void {
       resetSavedToast();
       void scene.settingsWindow.applyHotkeyChange(fieldId, value).then(() => {
+        if (!scene.settingsWindow.settingsError.value) {
+          markSavedToast();
+        }
+      });
+    },
+    applyPointerActionChange(fieldId: PointerActionFieldId, action: SearchResultPointerAction): void {
+      resetSavedToast();
+      void scene.settingsWindow.applyPointerActionChange(fieldId, action).then(() => {
         if (!scene.settingsWindow.settingsError.value) {
           markSavedToast();
         }

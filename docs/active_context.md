@@ -10,3 +10,4 @@
 - 2026-04-03：队列 preflight 缓存、session 持久化、整队/单条刷新与 Flow 紧凑提醒已落地；执行队列不再二次 prerequisite 检测或阻断，`npm run check:all` 全绿。
 - 2026-04-03：已确认 Launcher 搜索结果改为左键动作面板、右键入队；新增左右键映射设置、动作面板、复制入口与实时提示，下一阶段写实现计划。
 - 2026-04-03：已补充 Launcher 左右键映射/动作面板/复制入口实现计划，拆成 settings schema、统一 intent/copy、command-action 双变体、两行提示与热键回归；下一阶段按 plan 执行。
+- 2026-04-03：Launcher 左右键映射、动作面板、copy intent、两行提示与新热键已联调；Settings 鼠标映射已持久化，待跑最终门禁并收尾提交。

@@ -1,12 +1,20 @@
 import { computed, proxyRefs } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
-import type { HotkeyFieldId } from "../../../stores/settingsStore";
+import type {
+  HotkeyFieldId,
+  PointerActionFieldId,
+  SearchResultPointerAction
+} from "../../../stores/settingsStore";
 import type { createAppCompositionContext } from "./context";
 
 type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 
 interface SettingsMutationHandlers {
   applyHotkeyChange: (fieldId: HotkeyFieldId, value: string) => void;
+  applyPointerActionChange: (
+    fieldId: PointerActionFieldId,
+    action: SearchResultPointerAction
+  ) => void;
   toggleCommandEnabled: (commandId: string, enabled: boolean) => void;
   setFilteredCommandsEnabled: (enabled: boolean) => void;
   updateCommandView: (patch: Partial<CommandManagementViewState>) => void;
@@ -28,7 +36,10 @@ export function createSettingsVm(
     hotkeyGlobalFields: scene.settingsWindow.hotkeyGlobalFields,
     hotkeySearchFields: scene.settingsWindow.hotkeySearchFields,
     hotkeyQueueFields: scene.settingsWindow.hotkeyQueueFields,
+    pointerActionFields: scene.settingsWindow.pointerActionFields,
+    pointerActionOptions: scene.settingsWindow.pointerActionOptions,
     getHotkeyValue: scene.hotkeyBindings.getHotkeyValue,
+    getPointerActionValue: scene.settingsWindow.getPointerActionValue,
     hotkeyErrorFields: scene.settingsWindow.settingsErrorHotkeyFieldIds,
     hotkeyErrorMessage: scene.settingsWindow.settingsError,
     availableTerminals: scene.settingsWindow.availableTerminals,
@@ -61,6 +72,7 @@ export function createSettingsVm(
     commandGroups: scene.commandManagement.commandGroups,
     navigateSettings: scene.settingsWindow.navigateSettings,
     applyHotkeyChange: settingsMutationHandlers.applyHotkeyChange,
+    applyPointerActionChange: settingsMutationHandlers.applyPointerActionChange,
     selectTerminalOption: scene.settingsWindow.selectTerminalOption,
     selectLanguageOption: scene.settingsWindow.selectLanguageOption,
     setAutoCheckUpdate: scene.settingsWindow.setAutoCheckUpdate,

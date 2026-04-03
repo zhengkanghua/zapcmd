@@ -95,6 +95,7 @@ export const messages = {
         hint: "点击任一快捷键项后，直接按键录制。录制过程中按 Esc 可取消。",
         sectionGlobal: "全局快捷键",
         sectionSearch: "搜索区快捷键",
+        sectionMouse: "鼠标操作",
         sectionQueue: "队列快捷键",
         recording: "请按快捷键...",
         unset: "未设置",
@@ -106,12 +107,24 @@ export const messages = {
           navigateDown: "下移选择",
           executeSelected: "执行当前命令",
           stageSelected: "加入队列",
+          openActionPanel: "打开动作面板",
+          copySelected: "复制当前命令",
           escape: "返回/隐藏窗口",
           executeQueue: "运行队列",
           clearQueue: "清空队列",
           removeQueueItem: "移除当前节点",
           reorderUp: "节点上移",
           reorderDown: "节点下移"
+        },
+        mouse: {
+          leftClick: "搜索结果左键",
+          rightClick: "搜索结果右键"
+        },
+        pointerActionOptions: {
+          "action-panel": "动作面板",
+          execute: "执行",
+          stage: "入队",
+          copy: "复制"
         }
       },
       general: {
@@ -475,6 +488,7 @@ export const messages = {
           "Click any hotkey field and press keys to record. Press Esc while recording to cancel.",
         sectionGlobal: "Global Hotkeys",
         sectionSearch: "Search Area Hotkeys",
+        sectionMouse: "Mouse Actions",
         sectionQueue: "Flow Hotkeys",
         recording: "Press hotkey...",
         unset: "Not set",
@@ -486,12 +500,24 @@ export const messages = {
           navigateDown: "Move selection down",
           executeSelected: "Run selected command",
           stageSelected: "Add to flow",
+          openActionPanel: "Open action panel",
+          copySelected: "Copy selected command",
           escape: "Back/Hide window",
           executeQueue: "Run flow sequence",
           clearQueue: "Clear flow",
           removeQueueItem: "Remove flow node",
           reorderUp: "Move node up",
           reorderDown: "Move node down"
+        },
+        mouse: {
+          leftClick: "Search result left click",
+          rightClick: "Search result right click"
+        },
+        pointerActionOptions: {
+          "action-panel": "Action panel",
+          execute: "Execute",
+          stage: "Stage",
+          copy: "Copy"
         }
       },
       general: {

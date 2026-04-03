@@ -5,7 +5,10 @@ import type { HotkeyFieldDefinition, SettingsRoute } from "../../../features/set
 import type { TerminalOption } from "../../../features/terminals/fallbackTerminals";
 import type {
   HotkeyFieldId,
+  PointerActionFieldId,
+  PointerActionSettings,
   PersistedSettingsSnapshot,
+  SearchResultPointerAction,
   TerminalReusePolicy
 } from "../../../stores/settingsStore";
 
@@ -19,6 +22,7 @@ interface SettingsStoreLike {
   toSnapshot: () => PersistedSettingsSnapshot;
   applySnapshot: (snapshot: PersistedSettingsSnapshot) => void;
   setHotkey: (field: HotkeyFieldId, value: string) => void;
+  setPointerAction: (field: PointerActionFieldId, action: SearchResultPointerAction) => void;
   setLaunchAtLogin: (value: boolean) => void;
   setAlwaysElevatedTerminal: (value: boolean) => void;
   setTerminalReusePolicy: (value: TerminalReusePolicy) => void;
@@ -41,6 +45,7 @@ export interface UseSettingsWindowOptions {
   autoCheckUpdate: Ref<boolean>;
   launchAtLogin: Ref<boolean>;
   alwaysElevatedTerminal: Ref<boolean>;
+  pointerActions: Ref<PointerActionSettings>;
   settingsStore: SettingsStoreLike;
   getHotkeyValue: (field: HotkeyFieldId) => string;
   setHotkeyValue: (field: HotkeyFieldId, value: string) => void;

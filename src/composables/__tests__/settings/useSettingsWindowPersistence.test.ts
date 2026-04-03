@@ -38,6 +38,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     })),
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
+    setPointerAction: vi.fn(),
     setLaunchAtLogin: vi.fn(),
     setAlwaysElevatedTerminal: vi.fn(),
     setTerminalReusePolicy: vi.fn()
@@ -53,6 +54,10 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     autoCheckUpdate: ref(true),
     launchAtLogin: ref(false),
     alwaysElevatedTerminal: ref(false),
+    pointerActions: ref({
+      leftClick: "action-panel",
+      rightClick: "stage"
+    }),
     settingsStore,
     getHotkeyValue: vi.fn(() => "Alt+K"),
     setHotkeyValue: vi.fn(),
@@ -205,6 +210,19 @@ describe("useSettingsWindow persistence", () => {
     expect(harness.settingsStore.persist).toHaveBeenCalledTimes(1);
     expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
     expect(harness.state.settingsError.value).toBe("broadcast failed");
+    expect(harness.state.settingsErrorRoute.value).toBeNull();
+  });
+
+  it("falls back to localized broadcast error when broadcaster throws non-Error", async () => {
+    const harness = createHarness();
+    vi.mocked(harness.options.broadcastSettingsUpdated).mockImplementationOnce(() => {
+      throw "unknown";
+    });
+
+    await harness.actions.persistSetting();
+
+    expect(harness.settingsStore.persist).toHaveBeenCalledTimes(1);
+    expect(harness.state.settingsError.value).toBe("同步设置失败。");
     expect(harness.state.settingsErrorRoute.value).toBeNull();
   });
 

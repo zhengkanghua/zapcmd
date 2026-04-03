@@ -122,6 +122,7 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
     autoCheckUpdate: settingsRefs.autoCheckUpdate,
     launchAtLogin: settingsRefs.launchAtLogin,
     alwaysElevatedTerminal: settingsRefs.alwaysElevatedTerminal,
+    pointerActions: settingsRefs.pointerActions,
     settingsStore,
     getHotkeyValue: hotkeyBindings.getHotkeyValue,
     setHotkeyValue: hotkeyBindings.setHotkeyValue,

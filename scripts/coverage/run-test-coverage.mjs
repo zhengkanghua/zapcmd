@@ -1,32 +1,58 @@
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { mkdirSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-function run(command, args, options = {}) {
-  return spawnSync(command, args, {
-    stdio: "inherit",
-    shell: process.platform === "win32",
-    ...options
+function runAsync(command, args, options = {}) {
+  return new Promise((resolveExitCode, reject) => {
+    const child = spawn(command, args, {
+      stdio: "inherit",
+      shell: process.platform === "win32",
+      ...options
+    });
+
+    child.once("error", reject);
+    child.once("exit", (code) => {
+      resolveExitCode(code ?? 1);
+    });
   });
 }
 
-function main() {
+async function main() {
   const forwardedArgs = process.argv.slice(2);
+  const coverageDir = resolve(process.cwd(), "coverage");
+  const coverageTmpDir = resolve(coverageDir, ".tmp");
 
-  const vitestResult = run(process.execPath, [
-    "-r",
-    "./scripts/vitest/patch-vite-net-use.cjs",
-    "./node_modules/vitest/vitest.mjs",
-    "run",
-    "--coverage",
-    "--configLoader",
-    "runner",
-    "--config",
-    "vitest.config.js",
-    ...forwardedArgs
-  ], {
-    shell: false
-  });
-  const vitestExitCode = vitestResult.status ?? 1;
+  rmSync(coverageDir, { recursive: true, force: true });
+  mkdirSync(coverageTmpDir, { recursive: true });
+  const ensureTmpDirTimer = setInterval(() => {
+    mkdirSync(coverageTmpDir, { recursive: true });
+  }, 50);
+
+  let vitestExitCode = 1;
+  try {
+    vitestExitCode = await runAsync(
+      process.execPath,
+      [
+        "-r",
+        "./scripts/vitest/patch-vite-net-use.cjs",
+        "./node_modules/vitest/vitest.mjs",
+        "run",
+        "--coverage",
+        "--configLoader",
+        "runner",
+        "--config",
+        "vitest.config.js",
+        ...forwardedArgs
+      ],
+      {
+        shell: false
+      }
+    );
+  } finally {
+    clearInterval(ensureTmpDirTimer);
+    mkdirSync(coverageTmpDir, { recursive: true });
+  }
 
   const reportScriptPath = fileURLToPath(
     new URL("./coverage-report.mjs", import.meta.url)
@@ -47,4 +73,4 @@ function main() {
   process.exit(vitestExitCode);
 }
 
-main();
+void main();

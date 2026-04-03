@@ -6,7 +6,8 @@ import { THEME_REGISTRY } from "../../../features/themes/themeRegistry";
 import {
   createDefaultCommandViewState,
   createDefaultSettingsSnapshot,
-  type HotkeyFieldId
+  type HotkeyFieldId,
+  type PointerActionFieldId
 } from "../../../stores/settingsStore";
 import SettingsWindow from "../SettingsWindow.vue";
 import type { SettingsWindowProps } from "../types";
@@ -35,6 +36,7 @@ function createSettingsWindowProps(
     path: "powershell.exe"
   };
   const getHotkeyValue = (field: HotkeyFieldId) => defaults.hotkeys[field];
+  const getPointerActionValue = (field: PointerActionFieldId) => defaults.general.pointerActions[field];
 
   return {
     settingsNavItems: [
@@ -48,7 +50,18 @@ function createSettingsWindowProps(
     hotkeyGlobalFields: [{ id: "launcher", label: "打开启动器", scope: "global" }],
     hotkeySearchFields: [{ id: "navigateDown", label: "向下", scope: "local" }],
     hotkeyQueueFields: [{ id: "executeQueue", label: "执行队列", scope: "local" }],
+    pointerActionFields: [
+      { id: "leftClick", label: "搜索结果左键" },
+      { id: "rightClick", label: "搜索结果右键" }
+    ],
+    pointerActionOptions: [
+      { value: "action-panel", label: "动作面板" },
+      { value: "execute", label: "执行" },
+      { value: "stage", label: "入队" },
+      { value: "copy", label: "复制" }
+    ],
     getHotkeyValue,
+    getPointerActionValue,
     hotkeyErrorFields: [],
     hotkeyErrorMessage: "",
     availableTerminals: [terminalOption],

@@ -79,6 +79,27 @@ function findHotkeyRecorder(wrapper: VueWrapper, label: string): HotkeyRecorderB
   return field!.get("button.s-hotkey-recorder");
 }
 
+async function selectDropdownOption(
+  wrapper: VueWrapper,
+  label: string,
+  optionLabel: string
+): Promise<void> {
+  const row = wrapper
+    .findAll(".settings-hotkeys-row")
+    .find((item) => item.find(".settings-card__label").text().includes(label));
+  expect(row).toBeTruthy();
+
+  await row!.get(".s-dropdown__trigger").trigger("click");
+  await waitForUi();
+
+  const option = Array.from(document.body.querySelectorAll<HTMLButtonElement>(".s-dropdown__option")).find(
+    (item) => item.textContent?.includes(optionLabel)
+  );
+  expect(option).toBeTruthy();
+  option!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  await waitForUi();
+}
+
 async function recordHotkey(
   recorder: HotkeyRecorderButton,
   init: KeyboardEventInit
@@ -243,6 +264,17 @@ describe("AppSettings hotkeys regression", () => {
 
     expect(wrapper.get("[role='tabpanel']").attributes("id")).toBe("settings-panel-appearance");
     expect(wrapper.find(".s-slider__input").exists()).toBe(true);
+  });
+
+  it("persists pointer action mapping from the hotkeys page", async () => {
+    const wrapper = await mountAppSettings();
+
+    await selectDropdownOption(wrapper, "搜索结果左键", "复制");
+
+    const persisted = readPersistedSettings() as {
+      general?: { pointerActions?: { leftClick?: string } };
+    };
+    expect(persisted.general?.pointerActions?.leftClick).toBe("copy");
   });
 
   it("keeps command search transient while persisting disabled command ids", async () => {

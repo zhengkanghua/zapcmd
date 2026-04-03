@@ -20,6 +20,7 @@ export default defineConfig({
     },
     coverage: {
       provider: "v8",
+      clean: false,
       reporter: ["text", "html", "lcov"],
       include: [
         "src/App.vue",

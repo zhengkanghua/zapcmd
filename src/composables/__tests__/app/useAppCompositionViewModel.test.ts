@@ -199,6 +199,8 @@ describe("createAppCompositionViewModel", () => {
     expect(viewModel.launcherVm.actions.toggleQueue).toBeTypeOf("function");
     expect(isRef(viewModel.settingsVm.defaultTerminal)).toBe(false);
     expect(viewModel.settingsVm.defaultTerminal).toBe("powershell");
+    expect("pointerActionFields" in viewModel.settingsVm).toBe(true);
+    expect("applyPointerActionChange" in viewModel.settingsVm).toBe(true);
     expect(appSource).toMatch(
       /const\s*\{\s*launcherVm,\s*settingsVm,\s*appShellVm\s*\}\s*=\s*useAppCompositionRoot\(\);/s
     );
