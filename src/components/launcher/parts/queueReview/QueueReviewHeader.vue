@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useI18nText } from "../../../../i18n";
 import type { ElementRefArg } from "../../types";
+import UiButton from "../../../shared/ui/UiButton.vue";
 import UiIconButton from "../../../shared/ui/UiIconButton.vue";
 import LauncherIcon from "../LauncherIcon.vue";
 
 const props = defineProps<{
   queuedCommandCount: number;
+  refreshingAllQueuedPreflight: boolean;
   setCloseButtonRef: (value: ElementRefArg) => void;
+  onRefreshQueuePreflight: () => void;
   onClearQueue: () => void;
   onClose: () => void;
 }>();
@@ -30,7 +33,20 @@ const { t } = useI18nText();
         {{ t("launcher.queueTitle", { count: props.queuedCommandCount }) }}
       </h2>
     </div>
-    <div class="flow-panel__header-actions flex items-center gap-[4px]">
+    <div class="flow-panel__header-actions flex items-center gap-[8px]">
+      <UiButton
+        class="flow-panel__refresh-all"
+        variant="muted"
+        size="small"
+        :disabled="props.queuedCommandCount === 0 || props.refreshingAllQueuedPreflight"
+        @click="props.onRefreshQueuePreflight"
+      >
+        {{
+          props.refreshingAllQueuedPreflight
+            ? t("launcher.queuePreflightRefreshing")
+            : t("launcher.queuePreflightRefreshAll")
+        }}
+      </UiButton>
       <UiIconButton
         variant="danger"
         :ariaLabel="t('common.clear')"

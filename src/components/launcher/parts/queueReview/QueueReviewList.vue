@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18nText } from "../../../../i18n";
+import { summarizeStagedPreflightIssues } from "../../../../composables/execution/useCommandExecution/stagedPreflightCache";
 import type { ElementRefArg, FocusZone, QueuedCommand } from "../../types";
+import UiButton from "../../../shared/ui/UiButton.vue";
 import UiIconButton from "../../../shared/ui/UiIconButton.vue";
 import LauncherIcon from "../LauncherIcon.vue";
 
@@ -13,6 +15,7 @@ interface EditingParamState {
 
 const props = defineProps<{
   queuedCommands: QueuedCommand[];
+  refreshingQueuedCommandIds: string[];
   focusZone: FocusZone;
   queueActiveIndex: number;
   executing: boolean;
@@ -30,6 +33,7 @@ const props = defineProps<{
   focusQueueIndex: (index: number) => void;
   copyCommand: (command: string) => Promise<void>;
   removeQueuedCommand: (id: string) => void;
+  refreshQueuedCommandPreflight: (id: string) => void;
   startParamEdit: (cmdId: string, argKey: string, currentValue: string) => void;
   onParamEditInput: (cmdId: string, argKey: string, value: string) => void;
   commitParamEdit: (cmdId: string, argKey: string) => void;
@@ -40,6 +44,18 @@ const { t } = useI18nText();
 
 function getInlineErrorId(cmdId: string, argKey: string): string {
   return `queue-inline-arg-${cmdId}-${argKey}-error`;
+}
+
+function shouldShowPreflight(cmd: QueuedCommand): boolean {
+  return (cmd.preflightCache?.issueCount ?? 0) > 0;
+}
+
+function resolvePreflightSummary(cmd: QueuedCommand): string {
+  return summarizeStagedPreflightIssues(cmd.preflightCache);
+}
+
+function isRefreshingCommand(cmdId: string): boolean {
+  return props.refreshingQueuedCommandIds.includes(cmdId);
 }
 </script>
 
@@ -189,6 +205,27 @@ function getInlineErrorId(cmdId: string, argKey: string): string {
                 </p>
               </div>
             </div>
+          </div>
+          <div
+            v-if="shouldShowPreflight(cmd)"
+            class="flow-card__preflight flex items-center justify-between gap-[8px] rounded-[6px] border border-ui-danger/16 bg-ui-danger/6 px-[10px] py-[8px]"
+          >
+            <p class="m-0 min-w-0 text-[12px] leading-snug text-ui-danger truncate">
+              {{ resolvePreflightSummary(cmd) }}
+            </p>
+            <UiButton
+              class="flow-card__preflight-refresh shrink-0"
+              variant="muted"
+              size="small"
+              :disabled="props.executing || isRefreshingCommand(cmd.id)"
+              @click.stop="props.refreshQueuedCommandPreflight(cmd.id)"
+            >
+              {{
+                isRefreshingCommand(cmd.id)
+                  ? t("launcher.queuePreflightRefreshing")
+                  : t("launcher.queuePreflightRefreshOne")
+              }}
+            </UiButton>
           </div>
           <code
             class="flow-card__command block p-[4px_0] font-mono text-[11px] text-ui-subtle whitespace-nowrap overflow-hidden text-ellipsis"

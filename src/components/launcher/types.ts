@@ -63,6 +63,8 @@ export interface LauncherQueueReviewPanelProps {
   queuePanelState: QueuePanelState;
   queueOpen: boolean;
   queuedCommands: QueuedCommand[];
+  refreshingAllQueuedPreflight: boolean;
+  refreshingQueuedCommandIds: string[];
   queueHints: KeyboardHint[];
   focusZone: FocusZone;
   queueActiveIndex: number;

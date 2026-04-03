@@ -459,6 +459,8 @@ watch(
               queue-panel-state="open"
               :queue-open="true"
               :queued-commands="visualStagedCommands"
+              :refreshing-all-queued-preflight="false"
+              :refreshing-queued-command-ids="[]"
               :queue-hints="[{ keys: ['Ctrl+Enter'], action: '执行全部' }]"
               focus-zone="queue"
               :queue-active-index="0"

@@ -30,6 +30,8 @@ const emit = defineEmits<{
   (e: "update-queued-arg", id: string, key: string, value: string): void;
   (e: "clear-queue"): void;
   (e: "execute-queue"): void;
+  (e: "refresh-queue-preflight"): void;
+  (e: "refresh-queued-command-preflight", id: string): void;
   (e: "submit-param-input"): void;
   (e: "request-command-panel-exit"): void;
   (e: "command-page-settled"): void;
@@ -128,6 +130,16 @@ function onClearQueue(): void {
 function onExecuteQueue(): void {
   props.launcherVm.actions.executeQueue();
   emit("execute-queue");
+}
+
+function onRefreshQueuePreflight(): void {
+  props.launcherVm.actions.refreshAllQueuedPreflight();
+  emit("refresh-queue-preflight");
+}
+
+function onRefreshQueuedCommandPreflight(id: string): void {
+  props.launcherVm.actions.refreshQueuedCommandPreflight(id);
+  emit("refresh-queued-command-preflight", id);
 }
 
 function onSearchCapsuleBack(): void {
@@ -292,6 +304,8 @@ function onNavAfterEnter(): void {
           :queue-panel-state="props.launcherVm.queue.panelState"
           :queue-open="props.launcherVm.queue.queueOpen"
           :queued-commands="props.launcherVm.queue.items"
+          :refreshing-all-queued-preflight="props.launcherVm.queue.refreshingAllPreflight"
+          :refreshing-queued-command-ids="props.launcherVm.queue.refreshingCommandIds"
           :queue-hints="props.launcherVm.queue.hints"
           :focus-zone="props.launcherVm.queue.focusZone"
           :queue-active-index="props.launcherVm.queue.activeIndex"
@@ -311,6 +325,8 @@ function onNavAfterEnter(): void {
           @update-queued-arg="onUpdateQueuedArg"
           @clear-queue="onClearQueue"
           @execute-queue="onExecuteQueue"
+          @refresh-queue-preflight="onRefreshQueuePreflight"
+          @refresh-queued-command-preflight="onRefreshQueuedCommandPreflight"
           @flow-panel-prepared="onFlowPanelPrepared"
           @flow-panel-height-change="onFlowPanelHeightChange"
           @flow-panel-settled="onFlowPanelSettled"

@@ -8,6 +8,8 @@ export function useCommandExecution(options: UseCommandExecutionOptions) {
 
   return {
     executing: state.executing,
+    refreshingAllQueuedPreflight: state.refreshingAllQueuedPreflight,
+    refreshingQueuedCommandIds: state.refreshingQueuedCommandIds,
     pendingCommand: state.pendingCommand,
     pendingSubmitMode: state.pendingSubmitMode,
     pendingArgValues: state.pendingArgValues,

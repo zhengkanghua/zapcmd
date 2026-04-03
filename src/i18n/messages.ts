@@ -13,6 +13,7 @@ export const messages = {
       clear: "清空",
       remove: "移除",
       execute: "执行",
+      refresh: "刷新",
       search: "搜索",
       copied: "已复制到剪贴板",
       copyFailed: "复制失败"
@@ -34,7 +35,12 @@ export const messages = {
       flowAdded: "已加入队列",
       flowRemoved: "已从队列移除",
       flowCleared: "已清空 {n} 条队列命令",
-      executionStarted: "开始执行"
+      executionStarted: "开始执行",
+      queuePreflightIssueSummary: "{count} 条命令存在环境提示",
+      queuePreflightRefreshDone: "已刷新检测",
+      queuePreflightRefreshAll: "刷新检测",
+      queuePreflightRefreshOne: "刷新此条",
+      queuePreflightRefreshing: "检测中..."
     },
     commandPanel: {
       badge: {
@@ -384,6 +390,7 @@ export const messages = {
       clear: "Clear",
       remove: "Remove",
       execute: "Execute",
+      refresh: "Refresh",
       search: "Search",
       copied: "Copied to clipboard",
       copyFailed: "Copy failed"
@@ -405,7 +412,12 @@ export const messages = {
       flowAdded: "Added to flow",
       flowRemoved: "Removed",
       flowCleared: "Cleared {n} node(s)",
-      executionStarted: "Execution started"
+      executionStarted: "Execution started",
+      queuePreflightIssueSummary: "{count} queued command(s) have environment warnings",
+      queuePreflightRefreshDone: "Checks refreshed",
+      queuePreflightRefreshAll: "Refresh checks",
+      queuePreflightRefreshOne: "Refresh this item",
+      queuePreflightRefreshing: "Checking..."
     },
     commandPanel: {
       badge: {

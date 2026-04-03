@@ -329,6 +329,40 @@ describe("useCommandExecution", () => {
     expect(harness.onNeedPanel).toHaveBeenCalledWith(command, "stage");
   });
 
+  it("stages prerequisite command with cached preflight issues and total feedback", async () => {
+    const harness = createHarness();
+    const command = createPrerequisiteCommand(
+      {},
+      [
+        {
+          id: "docker",
+          type: "binary",
+          required: true,
+          check: "docker",
+          displayName: "Docker Desktop",
+          resolutionHint: "安装 Docker Desktop 后重试"
+        }
+      ]
+    );
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: false,
+        code: "missing-binary",
+        required: true,
+        message: "docker not found"
+      }
+    ]);
+
+    harness.execution.stageResult(command);
+    await flushExecution();
+
+    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.stagedCommands.value[0]?.preflightCache?.issueCount).toBe(1);
+    expect(harness.stagedCommands.value[0]?.preflightCache?.issues).toEqual(["未检测到 Docker Desktop。"]);
+    expect(harness.execution.executionFeedbackMessage.value).toContain("1 条命令存在环境提示");
+  });
+
   it("rejects pending submit when required argument is blank", () => {
     const harness = createHarness();
     const command: CommandTemplate = {
@@ -386,6 +420,50 @@ describe("useCommandExecution", () => {
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
+  });
+
+  it("staged submit writes preflight cache for param commands", async () => {
+    const harness = createHarness();
+    const command: CommandTemplate = {
+      ...createArgCommand(),
+      id: "docker-port",
+      title: "Docker Port",
+      preview: "docker port {{value}}",
+      execution: {
+        kind: "exec",
+        program: "docker",
+        args: ["port", "{{value}}"]
+      },
+      prerequisites: [
+        {
+          id: "docker",
+          type: "binary",
+          required: true,
+          check: "docker",
+          displayName: "Docker Desktop",
+          resolutionHint: "安装 Docker Desktop 后重试"
+        }
+      ]
+    };
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: false,
+        code: "missing-binary",
+        required: true,
+        message: "docker not found"
+      }
+    ]);
+
+    harness.execution.stageResult(command);
+    harness.execution.updatePendingArgValue("value", "8088");
+    const submitted = harness.execution.submitParamInput();
+    await flushExecution();
+
+    expect(submitted).toBe(true);
+    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.stagedCommands.value[0]?.preflightCache?.issues).toEqual(["未检测到 Docker Desktop。"]);
+    expect(harness.execution.executionFeedbackMessage.value).toContain("1 条命令存在环境提示");
   });
 
   it("passes requiresElevation=true for adminRequired single command", async () => {
@@ -793,52 +871,59 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
-  it("blocks queue execution when any required prerequisite fails", async () => {
+  it("executes queued commands even when cached prerequisite issues exist", async () => {
     const harness = createHarness(true);
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: false,
+        code: "missing-binary",
+        required: true,
+        message: "docker not found"
+      }
+    ]);
+    harness.execution.stageResult(createPrerequisiteCommand());
+    await flushExecution();
+    harness.runCommandPreflight.mockClear();
 
-    harness.execution.stageResult(createNoArgCommand());
-    harness.execution.stageResult(
-      createPrerequisiteCommand(
-        {
-          id: "docker-ps",
-          title: "docker-ps"
-        },
-        [
-          {
-            id: "docker",
-            type: "binary",
-            required: true,
-            check: "docker",
-            displayName: "Docker Desktop",
-            resolutionHint: "安装 Docker Desktop 后重试",
-            fallbackCommandId: "install-docker"
-          }
-        ]
-      )
+    await harness.execution.executeStaged();
+
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledTimes(1);
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(
+      [createExecStep("docker ps", "docker", ["ps"])],
+      {
+        requiresElevation: false
+      }
     );
-    harness.execution.stageResult(
-      createPrerequisiteCommand(
+    expect(harness.runCommandPreflight).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("success");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("1 个节点");
+    expect(harness.execution.executionFeedbackMessage.value).not.toContain("环境提示");
+  });
+
+  it("refreshes a single queued command cache without touching other items", async () => {
+    const harness = createHarness();
+    const second = createPrerequisiteCommand(
+      {
+        id: "gh-auth",
+        title: "gh-auth",
+        preview: "gh auth status",
+        execution: {
+          kind: "exec",
+          program: "gh",
+          args: ["auth", "status"]
+        }
+      },
+      [
         {
-          id: "gh-auth",
-          title: "gh-auth",
-          preview: "gh auth status",
-          execution: {
-            kind: "exec",
-            program: "gh",
-            args: ["auth", "status"]
-          }
-        },
-        [
-          {
-            id: "github-token",
-            type: "env",
-            required: true,
-            check: "env:GITHUB_TOKEN",
-            displayName: "GitHub Token",
-            resolutionHint: "设置 GITHUB_TOKEN 后重试"
-          }
-        ]
-      )
+          id: "github-token",
+          type: "env",
+          required: true,
+          check: "env:GITHUB_TOKEN",
+          displayName: "GitHub Token",
+          resolutionHint: "设置 GITHUB_TOKEN 后重试"
+        }
+      ]
     );
     harness.runCommandPreflight.mockResolvedValueOnce([
       {
@@ -849,6 +934,8 @@ describe("useCommandExecution", () => {
         message: "docker not found"
       }
     ]);
+    harness.execution.stageResult(createPrerequisiteCommand());
+    await flushExecution();
     harness.runCommandPreflight.mockResolvedValueOnce([
       {
         id: "github-token",
@@ -858,114 +945,66 @@ describe("useCommandExecution", () => {
         message: "required environment variable not found: GITHUB_TOKEN"
       }
     ]);
+    harness.execution.stageResult(second);
+    await flushExecution();
 
-    await harness.execution.executeStaged();
+    const targetId = harness.stagedCommands.value[0]?.id;
+    let resolveRefresh: (value: CommandPrerequisiteProbeResult[]) => void = () => {};
+    harness.runCommandPreflight.mockImplementationOnce(
+      () =>
+        new Promise<CommandPrerequisiteProbeResult[]>((resolve) => {
+          resolveRefresh = resolve;
+        })
+    );
 
-    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
-    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
-    expect(harness.stagedCommands.value).toHaveLength(3);
-    expect(harness.execution.executionFeedbackTone.value).toBe("error");
-    expect(harness.execution.executionFeedbackMessage.value).toContain(
-      "docker-ps：未检测到 Docker Desktop。"
-    );
-    expect(harness.execution.executionFeedbackMessage.value).toContain(
-      "gh-auth：缺少 GitHub Token（环境变量 GITHUB_TOKEN）。"
-    );
+    const refreshPromise = harness.execution.refreshQueuedCommandPreflight(targetId!);
+
+    expect(harness.execution.refreshingAllQueuedPreflight.value).toBe(false);
+    expect(harness.execution.refreshingQueuedCommandIds.value).toContain(targetId);
+
+    resolveRefresh([]);
+    await refreshPromise;
+
+    expect(harness.stagedCommands.value[0]?.preflightCache?.issueCount).toBe(0);
+    expect(harness.stagedCommands.value[1]?.preflightCache?.issueCount).toBe(1);
+    expect(harness.execution.refreshingQueuedCommandIds.value).not.toContain(targetId);
   });
 
-  it("blocks queue execution with a system-level message when prerequisite probing throws", async () => {
-    const harness = createHarness(true);
-
-    harness.execution.stageResult(createNoArgCommand());
-    harness.execution.stageResult(
-      createPrerequisiteCommand(
+  it("refreshes all queued command caches and reports total issue count", async () => {
+    const harness = createHarness();
+    const second = createPrerequisiteCommand(
+      {
+        id: "gh-auth",
+        title: "gh-auth",
+        preview: "gh auth status",
+        execution: {
+          kind: "exec",
+          program: "gh",
+          args: ["auth", "status"]
+        }
+      },
+      [
         {
-          id: "docker-ps",
-          title: "docker-ps"
-        },
-        [
-          {
-            id: "docker",
-            type: "binary",
-            required: true,
-            check: "docker",
-            displayName: "Docker Desktop"
-          },
-          {
-            id: "powershell",
-            type: "shell",
-            required: true,
-            check: "shell:powershell",
-            displayName: "PowerShell 7"
-          }
-        ]
-      )
+          id: "github-token",
+          type: "env",
+          required: true,
+          check: "env:GITHUB_TOKEN",
+          displayName: "GitHub Token",
+          resolutionHint: "设置 GITHUB_TOKEN 后重试"
+        }
+      ]
     );
-    harness.runCommandPreflight.mockRejectedValueOnce(new Error("probe transport failed"));
-
-    await harness.execution.executeStaged();
-
-    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
-    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
-    expect(harness.stagedCommands.value).toHaveLength(2);
-    expect(harness.execution.executionFeedbackTone.value).toBe("error");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("执行前检查暂时失败");
-    expect(harness.execution.executionFeedbackMessage.value).not.toContain("docker / docker");
-    expect(harness.execution.executionFeedbackMessage.value).not.toContain("powershell / powershell");
-  });
-
-  it("deduplicates system-level queue failures per command when mixed with normal prerequisite errors", async () => {
-    const harness = createHarness(true);
-
-    harness.execution.stageResult(
-      createPrerequisiteCommand(
-        {
-          id: "docker-ps",
-          title: "docker-ps"
-        },
-        [
-          {
-            id: "docker",
-            type: "binary",
-            required: true,
-            check: "docker",
-            displayName: "Docker Desktop"
-          },
-          {
-            id: "powershell",
-            type: "shell",
-            required: true,
-            check: "shell:powershell",
-            displayName: "PowerShell 7"
-          }
-        ]
-      )
-    );
-    harness.execution.stageResult(
-      createPrerequisiteCommand(
-        {
-          id: "gh-auth",
-          title: "gh-auth",
-          preview: "gh auth status",
-          execution: {
-            kind: "exec",
-            program: "gh",
-            args: ["auth", "status"]
-          }
-        },
-        [
-          {
-            id: "github-token",
-            type: "env",
-            required: true,
-            check: "env:GITHUB_TOKEN",
-            displayName: "GitHub Token",
-            resolutionHint: "设置 GITHUB_TOKEN 后重试"
-          }
-        ]
-      )
-    );
-    harness.runCommandPreflight.mockRejectedValueOnce(new Error("probe transport failed"));
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: false,
+        code: "missing-binary",
+        required: true,
+        message: "docker not found"
+      }
+    ]);
+    harness.execution.stageResult(createPrerequisiteCommand());
+    await flushExecution();
     harness.runCommandPreflight.mockResolvedValueOnce([
       {
         id: "github-token",
@@ -975,18 +1014,49 @@ describe("useCommandExecution", () => {
         message: "required environment variable not found: GITHUB_TOKEN"
       }
     ]);
+    harness.execution.stageResult(second);
+    await flushExecution();
 
-    await harness.execution.executeStaged();
-
-    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
-    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
-    expect(harness.execution.executionFeedbackTone.value).toBe("error");
-    expect(
-      harness.execution.executionFeedbackMessage.value.match(/docker-ps：执行前检查暂时失败/g)
-    ).toHaveLength(1);
-    expect(harness.execution.executionFeedbackMessage.value).toContain(
-      "gh-auth：缺少 GitHub Token（环境变量 GITHUB_TOKEN）。"
+    const refreshResolvers: Array<(value: CommandPrerequisiteProbeResult[]) => void> = [];
+    harness.runCommandPreflight.mockImplementationOnce(
+      () =>
+        new Promise<CommandPrerequisiteProbeResult[]>((resolve) => {
+          refreshResolvers[0] = resolve;
+        })
     );
+    harness.runCommandPreflight.mockImplementationOnce(
+      () =>
+        new Promise<CommandPrerequisiteProbeResult[]>((resolve) => {
+          refreshResolvers[1] = resolve;
+        })
+    );
+
+    const refreshPromise = harness.execution.refreshAllQueuedPreflight();
+
+    expect(harness.execution.refreshingAllQueuedPreflight.value).toBe(true);
+
+    const firstRefreshResolve = refreshResolvers[0];
+    if (firstRefreshResolve) {
+      firstRefreshResolve([]);
+    }
+    const secondRefreshResolve = refreshResolvers[1];
+    if (secondRefreshResolve) {
+      secondRefreshResolve([
+        {
+          id: "github-token",
+          ok: false,
+          code: "missing-env",
+          required: true,
+          message: "required environment variable not found: GITHUB_TOKEN"
+        }
+      ]);
+    }
+    await refreshPromise;
+
+    expect(harness.execution.refreshingAllQueuedPreflight.value).toBe(false);
+    expect(harness.stagedCommands.value[0]?.preflightCache?.issueCount).toBe(0);
+    expect(harness.stagedCommands.value[1]?.preflightCache?.issueCount).toBe(1);
+    expect(harness.execution.executionFeedbackMessage.value).toContain("1 条命令存在环境提示");
   });
 
   it("treats unsupported prerequisite as blocking failure", async () => {

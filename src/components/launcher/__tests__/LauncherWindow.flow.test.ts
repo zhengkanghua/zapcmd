@@ -64,7 +64,9 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
       panelState: "closed" as const,
       hints: [],
       focusZone: "search" as const,
-      activeIndex: 0
+      activeIndex: 0,
+      refreshingAllPreflight: false,
+      refreshingCommandIds: []
     },
     nav: {
       currentPage: searchPage,
@@ -96,6 +98,8 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
       updateQueuedArg: vi.fn(),
       clearQueue: vi.fn(),
       executeQueue: vi.fn(),
+      refreshQueuedCommandPreflight: vi.fn(),
+      refreshAllQueuedPreflight: vi.fn(),
       setQueueGripReorderActive: vi.fn(),
       submitParamInput: vi.fn(),
       requestCommandPanelExit: vi.fn(),

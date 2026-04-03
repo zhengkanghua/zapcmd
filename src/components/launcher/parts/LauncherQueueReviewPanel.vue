@@ -27,6 +27,8 @@ const emit = defineEmits<{
   (e: "update-queued-arg", id: string, key: string, value: string): void;
   (e: "clear-queue"): void;
   (e: "execute-queue"): void;
+  (e: "refresh-queue-preflight"): void;
+  (e: "refresh-queued-command-preflight", id: string): void;
   (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
   (e: "flow-panel-prepared"): void;
   (e: "flow-panel-height-change"): void;
@@ -38,32 +40,20 @@ const reviewBodyRef = ref<HTMLElement | null>(null);
 const reviewListRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<FocusableButton | null>(null);
 
-function closeReview(): void {
+function runWithDraftGuard(action: () => void): void {
   if (guardInvalidDraft()) {
     return;
   }
-  emit("toggle-queue");
+  action();
 }
 
-function clearQueue(): void {
-  if (guardInvalidDraft()) {
-    return;
-  }
-  emit("clear-queue");
-}
-
-function focusQueueIndex(index: number): void {
-  if (guardInvalidDraft()) {
-    return;
-  }
-  emit("focus-queue-index", index);
-}
-
-function removeQueuedCommand(id: string): void {
-  if (guardInvalidDraft()) {
-    return;
-  }
-  emit("remove-queued-command", id);
+function closeReview(): void { runWithDraftGuard(() => emit("toggle-queue")); }
+function clearQueue(): void { runWithDraftGuard(() => emit("clear-queue")); }
+function refreshQueuePreflight(): void { runWithDraftGuard(() => emit("refresh-queue-preflight")); }
+function focusQueueIndex(index: number): void { runWithDraftGuard(() => emit("focus-queue-index", index)); }
+function removeQueuedCommand(id: string): void { runWithDraftGuard(() => emit("remove-queued-command", id)); }
+function refreshQueuedCommandPreflight(id: string): void {
+  runWithDraftGuard(() => emit("refresh-queued-command-preflight", id));
 }
 
 function setParamEditInputRef(value: ElementRefArg): void {
@@ -317,7 +307,9 @@ useFlowPanelHeightObservation({
     >
       <QueueReviewHeader
         :queued-command-count="props.queuedCommands.length"
+        :refreshing-all-queued-preflight="props.refreshingAllQueuedPreflight"
         :set-close-button-ref="setCloseButtonRef"
+        :on-refresh-queue-preflight="refreshQueuePreflight"
         :on-clear-queue="clearQueue"
         :on-close="closeReview"
       />
@@ -349,6 +341,7 @@ useFlowPanelHeightObservation({
         <QueueReviewList
           v-else
           :queued-commands="props.queuedCommands"
+          :refreshing-queued-command-ids="props.refreshingQueuedCommandIds"
           :focus-zone="props.focusZone"
           :queue-active-index="props.queueActiveIndex"
           :executing="props.executing"
@@ -366,6 +359,7 @@ useFlowPanelHeightObservation({
           :focus-queue-index="focusQueueIndex"
           :copy-command="copyCommand"
           :remove-queued-command="removeQueuedCommand"
+          :refresh-queued-command-preflight="refreshQueuedCommandPreflight"
           :start-param-edit="startParamEditWithGuard"
           :on-param-edit-input="onParamEditInput"
           :commit-param-edit="commitParamEdit"

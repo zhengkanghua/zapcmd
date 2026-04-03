@@ -4,7 +4,10 @@ import {
   getCommandArgs,
   resolveCommandExecution
 } from "../../../features/launcher/commandRuntime";
-import type { StagedCommand } from "../../../features/launcher/types";
+import type {
+  StagedCommand,
+  StagedCommandPreflightCache
+} from "../../../features/launcher/types";
 import {
   buildSafetyInputFromTemplate,
   checkQueueCommandSafety,
@@ -13,12 +16,10 @@ import {
 import { isDangerDismissed } from "../../../features/security/dangerDismiss";
 import {
   appendToStaging,
-  appendPreflightWarnings,
   buildExecutionFailureFeedback,
   buildPreflightBlockedFeedback,
   collectBlockingPreflightIssues,
   collectWarningPreflightIssues,
-  type CommandPreflightIssue,
   executeSingleCommand,
   getPendingSubmitRejection,
   runCommandPreflight,
@@ -26,6 +27,12 @@ import {
   updateStagedResolvedCommand
 } from "./helpers";
 import type { CommandExecutionState, ParamSubmitMode, UseCommandExecutionOptions } from "./model";
+import {
+  buildRefreshQueueFeedbackMessage,
+  buildStageQueueFeedbackMessage,
+  buildStagedPreflightCache,
+  countQueuedCommandsWithPreflightIssues
+} from "./stagedPreflightCache";
 
 function needsPanel(command: CommandTemplate): boolean {
   const hasArgs = getCommandArgs(command).length > 0;
@@ -40,38 +47,12 @@ function hasPrerequisites(
   return Array.isArray(prerequisites) && prerequisites.length > 0;
 }
 
-async function collectQueuePreflightIssues(
-  options: UseCommandExecutionOptions,
-  snapshot: StagedCommand[]
-): Promise<CommandPreflightIssue[]> {
-  if (!options.runCommandPreflight || !snapshot.some((item) => hasPrerequisites(item.prerequisites))) {
-    return [];
-  }
-
-  return (
-    await Promise.all(
-      snapshot.map(async (item) =>
-        (
-          await runCommandPreflight(options, item.prerequisites)
-        ).map((result, index) => ({
-          title: item.title,
-          prerequisite: item.prerequisites?.[index],
-          result
-        }))
-      )
-    )
-  ).flat();
-}
-
 function createExecuteStagedAction(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState,
   clearStaging: () => void
 ) {
-  async function runStagedSnapshot(
-    snapshot: StagedCommand[],
-    preflightWarnings: CommandPreflightIssue[] = []
-  ): Promise<void> {
+  async function runStagedSnapshot(snapshot: StagedCommand[]): Promise<void> {
     state.executing.value = true;
     const steps = snapshot
       .map((item) => ({
@@ -100,14 +81,10 @@ function createExecuteStagedAction(
       const firstCommand = summarizeCommandForFeedback(steps[0]?.summary ?? "");
       state.setExecutionFeedback(
         "success",
-        appendPreflightWarnings(
-          options,
-          t("execution.queueSuccess", {
-            count: steps.length,
-            firstCommand
-          }),
-          preflightWarnings
-        )
+        t("execution.queueSuccess", {
+          count: steps.length,
+          firstCommand
+        })
       );
     } catch (error) {
       console.error("queue execution failed:", error);
@@ -148,18 +125,6 @@ function createExecuteStagedAction(
       options.scheduleSearchInputFocus(false);
       return;
     }
-    const preflightIssues = await collectQueuePreflightIssues(options, snapshot);
-    const blockingPreflightIssues = collectBlockingPreflightIssues(preflightIssues);
-    if (blockingPreflightIssues.length > 0) {
-      state.setExecutionFeedback(
-        "error",
-        buildPreflightBlockedFeedback(options, blockingPreflightIssues)
-      );
-      options.scheduleSearchInputFocus(false);
-      return;
-    }
-    const warningPreflightIssues = collectWarningPreflightIssues(preflightIssues);
-
     if (queueSafety.confirmationItems.length > 0) {
       state.requestSafetyConfirmation(
         {
@@ -171,13 +136,13 @@ function createExecuteStagedAction(
           items: queueSafety.confirmationItems
         },
         async () => {
-          await runStagedSnapshot(snapshot, warningPreflightIssues);
+          await runStagedSnapshot(snapshot);
         }
       );
       return;
     }
 
-    await runStagedSnapshot(snapshot, warningPreflightIssues);
+    await runStagedSnapshot(snapshot);
   };
 }
 
@@ -277,6 +242,29 @@ function createPendingCommandActions(
     skipDangerConfirmation?: boolean
   ) => Promise<void>
 ) {
+  async function stageCommandWithPreflight(
+    command: CommandTemplate,
+    argValues?: Record<string, string>
+  ): Promise<void> {
+    const issues = hasPrerequisites(command.prerequisites)
+      ? (
+          await runCommandPreflight(options, command.prerequisites)
+        )
+          .filter((result) => result.ok !== true)
+          .map((result, index) => ({
+            prerequisite: command.prerequisites?.[index],
+            result
+          }))
+      : [];
+    const preflightCache = buildStagedPreflightCache(command.title, issues);
+
+    appendToStaging(options, state, command, argValues, preflightCache);
+    state.setExecutionFeedback(
+      "success",
+      buildStageQueueFeedbackMessage(preflightCache ? 1 : 0)
+    );
+  }
+
   function resetPendingCommand(): void {
     state.pendingCommand.value = null;
     state.pendingSubmitMode.value = "stage";
@@ -299,7 +287,7 @@ function createPendingCommandActions(
       options.onNeedPanel?.(command, "stage");
       return;
     }
-    appendToStaging(options, state, command);
+    void stageCommandWithPreflight(command);
   }
 
   function executeResult(command: CommandTemplate): void {
@@ -342,7 +330,7 @@ function createPendingCommandActions(
     }
 
     resetPendingCommand();
-    appendToStaging(options, state, command, values);
+    void stageCommandWithPreflight(command, values);
     return true;
   }
 
@@ -367,10 +355,126 @@ function createPendingCommandActions(
   };
 }
 
+function createQueuedPreflightRefreshActions(
+  options: UseCommandExecutionOptions,
+  state: CommandExecutionState
+) {
+  async function collectCommandPreflightCache(
+    title: string,
+    prerequisites: StagedCommand["prerequisites"]
+  ): Promise<StagedCommandPreflightCache | undefined> {
+    const issues = hasPrerequisites(prerequisites)
+      ? (
+          await runCommandPreflight(options, prerequisites)
+        )
+          .filter((result) => result.ok !== true)
+          .map((result, index) => ({
+            title,
+            prerequisite: prerequisites?.[index],
+            result
+          }))
+      : [];
+
+    return buildStagedPreflightCache(title, issues);
+  }
+
+  function createEmptyPreflightCache(): StagedCommandPreflightCache {
+    return {
+      checkedAt: Date.now(),
+      issueCount: 0,
+      source: "issues",
+      issues: []
+    };
+  }
+
+  function updateQueuedPreflightCache(
+    commandId: string,
+    cache: StagedCommandPreflightCache | undefined
+  ): void {
+    options.stagedCommands.value = options.stagedCommands.value.map((cmd: StagedCommand) =>
+      cmd.id === commandId
+        ? {
+            ...cmd,
+            preflightCache: cache
+          }
+        : cmd
+    );
+  }
+
+  async function refreshQueuedCommandPreflight(id: string): Promise<void> {
+    const target = options.stagedCommands.value.find((cmd) => cmd.id === id);
+    if (!target) {
+      return;
+    }
+
+    state.refreshingQueuedCommandIds.value = Array.from(
+      new Set([...state.refreshingQueuedCommandIds.value, id])
+    );
+    try {
+      const cache =
+        (await collectCommandPreflightCache(target.title, target.prerequisites)) ??
+        createEmptyPreflightCache();
+      updateQueuedPreflightCache(id, cache);
+      state.setExecutionFeedback(
+        "success",
+        buildRefreshQueueFeedbackMessage(
+          countQueuedCommandsWithPreflightIssues(options.stagedCommands.value)
+        )
+      );
+    } finally {
+      state.refreshingQueuedCommandIds.value = state.refreshingQueuedCommandIds.value.filter(
+        (item) => item !== id
+      );
+    }
+  }
+
+  async function refreshAllQueuedPreflight(): Promise<void> {
+    if (state.refreshingAllQueuedPreflight.value || options.stagedCommands.value.length === 0) {
+      return;
+    }
+
+    const snapshot = [...options.stagedCommands.value];
+    state.refreshingAllQueuedPreflight.value = true;
+    state.refreshingQueuedCommandIds.value = snapshot.map((item) => item.id);
+    try {
+      const nextCaches = await Promise.all(
+        snapshot.map(async (item) => ({
+          id: item.id,
+          cache:
+            (await collectCommandPreflightCache(item.title, item.prerequisites)) ??
+            createEmptyPreflightCache()
+        }))
+      );
+
+      const cacheMap = new Map(nextCaches.map((item) => [item.id, item.cache]));
+      options.stagedCommands.value = options.stagedCommands.value.map((cmd: StagedCommand) => ({
+        ...cmd,
+        preflightCache: cacheMap.get(cmd.id) ?? cmd.preflightCache
+      }));
+      state.setExecutionFeedback(
+        "success",
+        buildRefreshQueueFeedbackMessage(
+          countQueuedCommandsWithPreflightIssues(options.stagedCommands.value)
+        )
+      );
+    } finally {
+      state.refreshingAllQueuedPreflight.value = false;
+      state.refreshingQueuedCommandIds.value = [];
+    }
+  }
+
+  return {
+    refreshQueuedCommandPreflight,
+    refreshAllQueuedPreflight
+  };
+}
+
 export function createCommandExecutionActions(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState
 ) {
+  const queuedPreflightRefreshActions = createQueuedPreflightRefreshActions(options, state);
+
   const requestSingleExecution = createSingleExecutionRequester(options, state);
   const {
     stageResult,
@@ -420,6 +524,10 @@ export function createCommandExecutionActions(
     updateStagedArg,
     updatePendingArgValue,
     clearStaging,
-    executeStaged
+    executeStaged,
+    refreshQueuedCommandPreflight:
+      queuedPreflightRefreshActions.refreshQueuedCommandPreflight,
+    refreshAllQueuedPreflight:
+      queuedPreflightRefreshActions.refreshAllQueuedPreflight
   };
 }

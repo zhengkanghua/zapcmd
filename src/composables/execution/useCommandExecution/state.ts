@@ -7,6 +7,8 @@ export function createCommandExecutionState(feedbackDurationMs?: number): Comman
   const safetyDialog = ref<CommandExecutionState["safetyDialog"]["value"]>(null);
   const executionFeedbackMessage = ref("");
   const executionFeedbackTone = ref<ExecutionFeedbackTone>("neutral");
+  const refreshingAllQueuedPreflight = ref(false);
+  const refreshingQueuedCommandIds = ref<string[]>([]);
   const dismissDelay = feedbackDurationMs ?? DEFAULT_FEEDBACK_DURATION_MS;
   let executionFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
   let pendingSafetyConfirm: (() => Promise<void>) | null = null;
@@ -66,6 +68,8 @@ export function createCommandExecutionState(feedbackDurationMs?: number): Comman
 
   return {
     executing: ref(false),
+    refreshingAllQueuedPreflight,
+    refreshingQueuedCommandIds,
     pendingCommand: ref(null),
     pendingSubmitMode: ref("stage"),
     pendingArgValues: ref({}),

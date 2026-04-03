@@ -51,6 +51,8 @@ export interface UseCommandExecutionOptions {
 
 export interface CommandExecutionState {
   executing: Ref<boolean>;
+  refreshingAllQueuedPreflight: Ref<boolean>;
+  refreshingQueuedCommandIds: Ref<string[]>;
   pendingCommand: Ref<CommandTemplate | null>;
   pendingSubmitMode: Ref<ParamSubmitMode>;
   pendingArgValues: Ref<Record<string, string>>;

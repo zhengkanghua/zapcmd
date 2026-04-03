@@ -17,7 +17,10 @@ import {
 } from "../../../features/launcher/commandRuntime";
 import { findFirstCommandArgValidationError } from "../../../features/security/commandArgValidation";
 import { collectTrustedArgKeysFromExecution } from "../../../features/security/commandSafety";
-import type { StagedCommand } from "../../../features/launcher/types";
+import type {
+  StagedCommand,
+  StagedCommandPreflightCache
+} from "../../../features/launcher/types";
 import type { CommandExecutionState, UseCommandExecutionOptions } from "./model";
 import {
   formatBlockingPreflightFeedback,
@@ -231,7 +234,8 @@ export function getPendingSubmitRejection(
 
 function buildStagedCommand(
   command: CommandTemplate,
-  argValues?: Record<string, string>
+  argValues?: Record<string, string>,
+  preflightCache?: StagedCommandPreflightCache
 ): StagedCommand {
   const { args, values } = buildInitialArgValues(command, argValues);
   const resolved = resolveCommandExecution(command, values);
@@ -245,6 +249,7 @@ function buildStagedCommand(
     args,
     argValues: values,
     prerequisites: command.prerequisites,
+    preflightCache,
     adminRequired: command.adminRequired ?? false,
     dangerous: command.dangerous ?? false
   };
@@ -295,9 +300,10 @@ export function appendToStaging(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState,
   command: CommandTemplate,
-  argValues?: Record<string, string>
+  argValues?: Record<string, string>,
+  preflightCache?: StagedCommandPreflightCache
 ): void {
-  options.stagedCommands.value.push(buildStagedCommand(command, argValues));
+  options.stagedCommands.value.push(buildStagedCommand(command, argValues, preflightCache));
   state.setExecutionFeedback("success", t("launcher.flowAdded"));
   options.scheduleSearchInputFocus(true);
   options.triggerStagedFeedback(command.id);

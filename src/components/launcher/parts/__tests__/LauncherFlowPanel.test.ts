@@ -128,6 +128,8 @@ function createProps(
     queuePanelState: "open",
     queueOpen: true,
     queuedCommands: [createStagedCommand()],
+    refreshingAllQueuedPreflight: false,
+    refreshingQueuedCommandIds: [],
     queueHints,
     focusZone: "queue",
     queueActiveIndex: 0,
@@ -196,6 +198,118 @@ describe("LauncherFlowPanel 三段式结构与 settled contract", () => {
     expect(wrapper.text()).toContain("队列");
     await wrapper.get(".flow-panel__close").trigger("click");
     expect(wrapper.emitted("toggle-queue")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it("没有 preflight 问题时不渲染提醒行，也不显示检测通过", () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        queuedCommands: [
+          createStagedCommand({
+            preflightCache: {
+              checkedAt: 1743648000000,
+              issueCount: 0,
+              source: "issues",
+              issues: []
+            }
+          })
+        ]
+      })
+    });
+
+    expect(wrapper.text()).not.toContain("检测通过");
+    expect(wrapper.text()).not.toContain("未检测到 Docker Desktop。");
+    expect(wrapper.find(".flow-card__preflight").exists()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it("有 preflight 缓存问题时渲染紧凑提醒行与折叠摘要", () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        queuedCommands: [
+          createStagedCommand({
+            preflightCache: {
+              checkedAt: 1743648000000,
+              issueCount: 2,
+              source: "issues",
+              issues: ["未检测到 Docker Desktop。", "缺少 GitHub Token（环境变量 GITHUB_TOKEN）。"]
+            }
+          })
+        ]
+      })
+    });
+
+    expect(wrapper.get(".flow-card__preflight").text()).toContain("未检测到 Docker Desktop 等 2 项环境提示。");
+    expect(wrapper.text()).not.toContain("缺少 GitHub Token（环境变量 GITHUB_TOKEN）。");
+    wrapper.unmount();
+  });
+
+  it("头部刷新检测按钮发出 refresh-queue-preflight 事件", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps()
+    });
+
+    await wrapper.get(".flow-panel__refresh-all").trigger("click");
+    expect(wrapper.emitted("refresh-queue-preflight")).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it("单条刷新按钮发出 refresh-queued-command-preflight 事件并携带命令 id", async () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        queuedCommands: [
+          createStagedCommand({
+            id: "cmd-preflight",
+            preflightCache: {
+              checkedAt: 1743648000000,
+              issueCount: 1,
+              source: "issues",
+              issues: ["未检测到 Docker Desktop。"]
+            }
+          })
+        ]
+      })
+    });
+
+    await wrapper.get(".flow-card__preflight-refresh").trigger("click");
+    expect(wrapper.emitted("refresh-queued-command-preflight")).toEqual([[ "cmd-preflight" ]]);
+    wrapper.unmount();
+  });
+
+  it("批量与单条刷新中时按钮禁用态正确", () => {
+    const wrapper = mount(LauncherFlowPanel, {
+      props: createProps({
+        refreshingAllQueuedPreflight: true,
+        refreshingQueuedCommandIds: ["cmd-1"],
+        queuedCommands: [
+          createStagedCommand({
+            id: "cmd-1",
+            preflightCache: {
+              checkedAt: 1743648000000,
+              issueCount: 1,
+              source: "issues",
+              issues: ["未检测到 Docker Desktop。"]
+            }
+          }),
+          createStagedCommand({
+            id: "cmd-2",
+            title: "命令 2",
+            preflightCache: {
+              checkedAt: 1743648000000,
+              issueCount: 1,
+              source: "issues",
+              issues: ["缺少 GitHub Token（环境变量 GITHUB_TOKEN）。"]
+            }
+          })
+        ]
+      })
+    });
+
+    expect(wrapper.get(".flow-panel__refresh-all").attributes("disabled")).toBeDefined();
+    const refreshButtons = wrapper.findAll(".flow-card__preflight-refresh");
+    expect(refreshButtons).toHaveLength(2);
+    expect(refreshButtons[0]?.attributes("disabled")).toBeDefined();
+    expect(refreshButtons[1]?.attributes("disabled")).toBeUndefined();
     wrapper.unmount();
   });
 

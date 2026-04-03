@@ -48,7 +48,9 @@ function createQueueVm(
     panelState: runtime.stagingQueue.queuePanelState,
     hints: context.hotkeyBindings.stagingHints,
     focusZone: runtime.stagingQueue.focusZone,
-    activeIndex: runtime.stagingQueue.queueActiveIndex
+    activeIndex: runtime.stagingQueue.queueActiveIndex,
+    refreshingAllPreflight: runtime.commandExecution.refreshingAllQueuedPreflight,
+    refreshingCommandIds: runtime.commandExecution.refreshingQueuedCommandIds
   });
 }
 
@@ -96,6 +98,8 @@ function createActionVm(
     updateQueuedArg: runtime.commandExecution.updateStagedArg,
     clearQueue: runtime.commandExecution.clearStaging,
     executeQueue: runtime.commandExecution.executeStaged,
+    refreshQueuedCommandPreflight: runtime.commandExecution.refreshQueuedCommandPreflight,
+    refreshAllQueuedPreflight: runtime.commandExecution.refreshAllQueuedPreflight,
     setQueueGripReorderActive(value: boolean): void {
       context.stagingGripReorderActive.value = value;
     },
