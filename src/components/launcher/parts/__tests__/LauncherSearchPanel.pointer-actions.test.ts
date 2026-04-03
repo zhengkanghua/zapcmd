@@ -1,5 +1,4 @@
 import { mount } from "@vue/test-utils";
-import { nextTick } from "vue";
 import { describe, expect, it } from "vitest";
 import type { CommandTemplate } from "../../../../features/commands/types";
 import type { LauncherSearchPanelProps } from "../../types";
@@ -78,7 +77,7 @@ describe("LauncherSearchPanel pointer actions", () => {
     expect(wrapper.emitted("enqueue-result")?.[0]).toEqual([command]);
   });
 
-  it("一级提示换行后才隐藏二级提示", async () => {
+  it("搜索提示收口为单行，并用 title 提供完整内容", () => {
     const wrapper = mount(LauncherSearchPanel, {
       attachTo: document.body,
       props: createProps({
@@ -104,27 +103,10 @@ describe("LauncherSearchPanel pointer actions", () => {
       }
     });
 
-    expect(wrapper.findAll(".keyboard-hint")).toHaveLength(2);
-
-    const primaryLine = wrapper.findAll(".keyboard-hint")[0]!.element as HTMLElement;
-    Object.defineProperty(primaryLine, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({
-        width: 240,
-        height: 40,
-        top: 0,
-        left: 0,
-        right: 240,
-        bottom: 40,
-        x: 0,
-        y: 0,
-        toJSON: () => ({})
-      })
-    });
-
-    window.dispatchEvent(new Event("resize"));
-    await nextTick();
-
-    expect(wrapper.findAll(".keyboard-hint")).toHaveLength(1);
+    const hints = wrapper.findAll(".keyboard-hint");
+    expect(hints).toHaveLength(1);
+    expect(hints[0]!.attributes("title")).toContain("左键 动作");
+    expect(hints[0]!.attributes("title")).toContain("右键 入队");
+    expect(hints[0]!.text()).toContain("左键 动作");
   });
 });

@@ -123,7 +123,7 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
     expect(wrapper.findAll(".result-item")).toHaveLength(10);
   });
 
-  it("keyboard hint 一级提示允许换行，不再用 nowrap 锁死", () => {
+  it("keyboard hint 收口为单行省略提示", () => {
     const wrapper = mount(LauncherSearchPanel, {
       props: createProps({
         searchHintLines: [
@@ -136,8 +136,8 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
       })
     });
 
-    expect(wrapper.get(".keyboard-hint").classes()).toContain("flex-wrap");
-    expect(wrapper.get(".keyboard-hint").classes()).not.toContain("flex-nowrap");
+    expect(wrapper.get(".keyboard-hint").classes()).toContain("truncate");
+    expect(wrapper.get(".keyboard-hint").classes()).toContain("whitespace-nowrap");
   });
 
   it("drawerOpen=false 时不再渲染 result-drawer-floor 占位", () => {

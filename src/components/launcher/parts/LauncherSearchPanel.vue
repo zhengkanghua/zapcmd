@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import { useI18nText } from "../../../i18n";
@@ -12,7 +12,6 @@ import LauncherQueueSummaryPill from "./LauncherQueueSummaryPill.vue";
 const SEARCH_RESULTS_INITIAL_RENDER_LIMIT = 60;
 const SEARCH_RESULTS_RENDER_CHUNK_SIZE = 60;
 const SEARCH_RESULTS_SCROLL_PREFETCH_PX = 88;
-const PRIMARY_HINT_SINGLE_ROW_HEIGHT = 24;
 
 const props = defineProps<LauncherSearchPanelProps>();
 const { t } = useI18nText();
@@ -28,9 +27,7 @@ const emit = defineEmits<{
 }>();
 
 const drawerRef = ref<HTMLElement | null>(null);
-const primaryHintLineRef = ref<HTMLElement | null>(null);
 const renderedResultCount = ref(SEARCH_RESULTS_INITIAL_RENDER_LIMIT);
-const showSecondaryHintLine = ref(true);
 const visibleResults = computed(() =>
   props.filteredResults.slice(0, renderedResultCount.value)
 );
@@ -56,10 +53,6 @@ function growRenderedResults(targetCount = renderedResultCount.value + SEARCH_RE
 function setDrawerElementRef(el: ElementRefArg): void {
   props.setDrawerRef(el);
   drawerRef.value = normalizeToHTMLElement(el);
-}
-
-function setPrimaryHintLineRef(el: ElementRefArg): void {
-  primaryHintLineRef.value = normalizeToHTMLElement(el);
 }
 
 function onSearchFormPointerDown(event: PointerEvent): void {
@@ -114,37 +107,19 @@ function dispatchPointerAction(
   emit("enqueue-result", command);
 }
 
-/** 搜索提示遵循 spec：一级提示先允许换行，确认占满两行后再隐藏二级提示。 */
-function evaluateSearchHintLayout(): void {
-  const secondaryLine = props.searchHintLines?.[1];
-  if (!secondaryLine || secondaryLine.length === 0) {
-    showSecondaryHintLine.value = false;
-    return;
-  }
-
-  const primaryLine = primaryHintLineRef.value;
-  if (!primaryLine) {
-    showSecondaryHintLine.value = true;
-    return;
-  }
-
-  const { height } = primaryLine.getBoundingClientRect();
-  if (height <= 0) {
-    showSecondaryHintLine.value = true;
-    return;
-  }
-  showSecondaryHintLine.value = height <= PRIMARY_HINT_SINGLE_ROW_HEIGHT;
+function formatHintText(keys: string[], action: string): string {
+  const normalizedKeys = keys.filter(Boolean).join("/");
+  return normalizedKeys.length > 0 ? `${normalizedKeys} ${action}` : action;
 }
 
-function queueSearchHintLayoutEvaluation(): void {
-  void nextTick(() => {
-    evaluateSearchHintLayout();
-  });
-}
-
-function shouldRenderHintLine(lineIndex: number): boolean {
-  return lineIndex === 0 || showSecondaryHintLine.value;
-}
+const flattenedSearchHintText = computed(() => {
+  const sourceLines = props.searchHintLines?.length ? props.searchHintLines : [props.keyboardHints];
+  return sourceLines
+    .flat()
+    .map((hint) => formatHintText(hint.keys, hint.action))
+    .filter(Boolean)
+    .join(" · ");
+});
 
 watch(
   () => props.filteredResults,
@@ -165,24 +140,6 @@ watch(
     growRenderedResults(Math.max(SEARCH_RESULTS_INITIAL_RENDER_LIMIT, chunkCount * SEARCH_RESULTS_RENDER_CHUNK_SIZE));
   }
 );
-
-watch(
-  () => props.searchHintLines,
-  () => {
-    showSecondaryHintLine.value = true;
-    queueSearchHintLayoutEvaluation();
-  },
-  { deep: true, immediate: true }
-);
-
-onMounted(() => {
-  queueSearchHintLayoutEvaluation();
-  window.addEventListener("resize", queueSearchHintLayoutEvaluation);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", queueSearchHintLayoutEvaluation);
-});
 </script>
 
 <template>
@@ -244,45 +201,15 @@ onBeforeUnmount(() => {
         @scroll="onDrawerScroll"
       >
         <div
-          v-if="props.searchHintLines?.length"
-          class="search-hint-lines flex flex-col gap-[2px] p-[2px_6px_6px]"
+          v-if="flattenedSearchHintText.length > 0"
+          class="search-hint-lines p-[2px_6px_6px]"
         >
-          <template v-for="(line, lineIndex) in props.searchHintLines" :key="lineIndex">
-            <p
-              v-if="shouldRenderHintLine(lineIndex)"
-              :ref="lineIndex === 0 ? setPrimaryHintLineRef : undefined"
-              class="keyboard-hint m-0 flex flex-wrap items-start gap-[6px] overflow-hidden text-[10px] font-medium tracking-[0.03em] text-ui-subtle whitespace-normal"
-              :class="{
-                'min-h-[22px]': lineIndex === 0,
-                'keyboard-hint--secondary min-h-[18px]': lineIndex === 1
-              }"
-            >
-              <span
-                v-for="(hint, index) in line"
-                :key="index"
-                class="keyboard-hint__item inline-flex shrink-0 items-center gap-[4px]"
-              >
-                <span
-                  v-if="hint.keys.length > 0"
-                  class="keyboard-hint__keys inline-flex items-center gap-[2px]"
-                >
-                  <kbd
-                    v-for="key in hint.keys"
-                    :key="key"
-                    class="ui-keycap"
-                  >
-                    {{ key }}
-                  </kbd>
-                </span>
-                <span class="keyboard-hint__action text-ui-dim">{{ hint.action }}</span>
-                <span
-                  v-if="index < line.length - 1"
-                  class="keyboard-hint__sep ml-[2px] text-ui-text/15"
-                  >·</span
-                >
-              </span>
-            </p>
-          </template>
+          <p
+            class="keyboard-hint m-0 truncate whitespace-nowrap text-[10px] font-medium tracking-[0.03em] text-ui-subtle"
+            :title="flattenedSearchHintText"
+          >
+            {{ flattenedSearchHintText }}
+          </p>
         </div>
         <ul v-if="props.filteredResults.length > 0" class="result-list m-0 p-0 list-none">
           <li v-for="(item, index) in visibleResults" :key="item.id">

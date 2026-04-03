@@ -22,6 +22,18 @@ function createCommand(): CommandTemplate {
 }
 
 describe("LauncherActionPanel", () => {
+  it("提供鼠标可点击的返回按钮", async () => {
+    const wrapper = mount(LauncherActionPanel, {
+      props: {
+        command: createCommand()
+      }
+    });
+
+    await wrapper.get(".launcher-action-panel__back").trigger("click");
+
+    expect(wrapper.emitted("cancel")).toHaveLength(1);
+  });
+
   it("ArrowDown + Enter 会选择下一项动作", async () => {
     const wrapper = mount(LauncherActionPanel, {
       props: {
@@ -54,5 +66,21 @@ describe("LauncherActionPanel", () => {
 
     expect(wrapper.emitted("cancel")).toHaveLength(1);
     expect(bodyKeydownSpy).not.toHaveBeenCalled();
+  });
+
+  it("动作卡提供明确的 hover 阴影提示，面板根节点不暴露默认焦点白框类", () => {
+    const wrapper = mount(LauncherActionPanel, {
+      props: {
+        command: createCommand()
+      }
+    });
+
+    const panel = wrapper.get(".launcher-action-panel");
+    const action = wrapper.get(".launcher-action-panel__action");
+
+    expect(panel.classes()).toContain("focus-visible:outline-none");
+    expect(panel.classes()).toContain("outline-none");
+    expect(action.classes()).toContain("hover:shadow-launcher-search-indicator");
+    expect(action.classes()).toContain("hover:border-ui-search-hl/28");
   });
 });

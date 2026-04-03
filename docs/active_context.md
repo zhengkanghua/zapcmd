@@ -12,3 +12,4 @@
 - 2026-04-03：已补充 Launcher 左右键映射/动作面板/复制入口实现计划，拆成 settings schema、统一 intent/copy、command-action 双变体、两行提示与热键回归；下一阶段按 plan 执行。
 - 2026-04-03：Launcher 左右键映射、动作面板、copy intent、两行提示与新热键已联调；Settings 鼠标映射已持久化，待跑最终门禁并收尾提交。
 - 2026-04-03：补修 4 个回归并补防回归：无参动作面板动作会收口回搜索页；Settings Hotkeys 已暴露 openActionPanel/copySelected；Shift+Enter 打开动作面板后自动接管焦点且 Escape 只本地收口；搜索提示改为一级提示可换行、占满后再隐藏二级提示。关联定向回归 71 测试已通过。
+- 2026-04-03：按最新交互反馈微调：动作面板补鼠标返回按钮、hover 阴影跟随和根节点无白框；搜索提示改回单行省略并用原生 title 展示完整内容，废弃两行提示显示。相关 55 条定向测试已通过。

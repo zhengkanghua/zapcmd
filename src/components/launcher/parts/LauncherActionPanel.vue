@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, ref } from "vue";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import type { CommandSubmitIntent } from "../../../features/launcher/types";
+import { useI18nText } from "../../../i18n";
 
 const props = defineProps<{
   command: CommandTemplate;
@@ -12,6 +13,7 @@ const emit = defineEmits<{
   (e: "cancel"): void;
 }>();
 
+const { t } = useI18nText();
 const intents: CommandSubmitIntent[] = ["execute", "stage", "copy"];
 const activeIndex = ref(0);
 const panelRef = ref<HTMLElement | null>(null);
@@ -42,6 +44,10 @@ function selectIntent(intent: CommandSubmitIntent): void {
   emit("select-intent", intent);
 }
 
+function setActiveIntent(index: number): void {
+  activeIndex.value = clampIndex(index);
+}
+
 function onKeydown(event: KeyboardEvent): void {
   if (event.key === "Escape") {
     event.preventDefault();
@@ -69,13 +75,30 @@ function onKeydown(event: KeyboardEvent): void {
 <template>
   <section
     ref="panelRef"
-    class="launcher-action-panel flex h-full flex-col gap-[16px] p-[16px]"
+    class="launcher-action-panel flex h-full flex-col gap-[16px] p-[16px] outline-none focus:outline-none focus-visible:outline-none"
     tabindex="0"
     @keydown="onKeydown"
   >
-    <header class="launcher-action-panel__header flex flex-col gap-[6px]">
-      <h2 class="text-[15px] font-semibold text-ui-text">{{ props.command.title }}</h2>
-      <p class="text-[13px] text-ui-subtle">{{ props.command.preview }}</p>
+    <header class="launcher-action-panel__header flex flex-col gap-[10px]">
+      <div class="flex items-center gap-[10px]">
+        <button
+          type="button"
+          class="launcher-action-panel__back inline-flex h-[28px] min-w-[28px] items-center justify-center rounded-[8px] border border-ui-border bg-ui-bg text-[15px] text-ui-subtle transition-launcher-interactive duration-150 hover:border-ui-search-hl/28 hover:bg-ui-brand/10 hover:text-ui-text hover:shadow-launcher-search-indicator hover:shadow-ui-search-hl/18 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ui-search-hl/24"
+          :aria-label="t('common.back')"
+          @click="emit('cancel')"
+        >
+          ←
+        </button>
+        <div class="min-w-0 flex-1">
+          <h2 class="text-[15px] font-semibold text-ui-text">{{ props.command.title }}</h2>
+          <p class="truncate text-[13px] text-ui-subtle" :title="props.command.preview">
+            {{ props.command.preview }}
+          </p>
+        </div>
+      </div>
+      <p class="text-[11px] leading-[1.45] text-ui-subtle/88">
+        选择动作后继续；鼠标和键盘都遵循同一条执行路径。
+      </p>
     </header>
 
     <div class="launcher-action-panel__actions grid gap-[10px]">
@@ -83,8 +106,13 @@ function onKeydown(event: KeyboardEvent): void {
         v-for="(intent, index) in intents"
         :key="intent"
         type="button"
-        class="launcher-action-panel__action rounded-[12px] border border-ui-border bg-ui-bg p-[14px] text-left text-ui-text"
-        :class="{ 'ring-1 ring-ui-search-hl/40': index === activeIndex }"
+        class="launcher-action-panel__action rounded-[12px] border border-ui-border bg-ui-bg p-[14px] text-left text-ui-text transition-launcher-interactive duration-150 hover:border-ui-search-hl/28 hover:bg-ui-brand/10 hover:shadow-launcher-search-indicator hover:shadow-ui-search-hl/18 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ui-search-hl/24"
+        :class="{
+          'border-ui-search-hl/24 bg-ui-brand/10 ring-1 ring-ui-search-hl/40 shadow-launcher-search-indicator shadow-ui-search-hl/18':
+            index === activeIndex
+        }"
+        @mouseenter="setActiveIntent(index)"
+        @focus="setActiveIntent(index)"
         @click="selectIntent(intent)"
       >
         {{ actionLabels[intent] }}

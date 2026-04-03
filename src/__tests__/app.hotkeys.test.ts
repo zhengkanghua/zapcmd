@@ -379,13 +379,11 @@ describe("App UI hotkeys regression", () => {
     await focusSearchAndType(wrapper, "docker");
 
     const hintLines = wrapper.findAll(".keyboard-hint");
-    expect(hintLines.length).toBeGreaterThanOrEqual(2);
+    expect(hintLines).toHaveLength(1);
     expect(hintLines[0]!.text()).toContain("动作");
     expect(hintLines[0]!.text()).toContain("复制");
-    expect(hintLines[1]!.text()).toContain("左键");
-    expect(hintLines[1]!.text()).toContain("动作");
-    expect(hintLines[1]!.text()).toContain("右键");
-    expect(hintLines[1]!.text()).toContain("入队");
+    expect(hintLines[0]!.attributes("title")).toContain("左键 动作");
+    expect(hintLines[0]!.attributes("title")).toContain("右键 入队");
   });
 
   it("keeps param overlay open when required arg is empty", async () => {
