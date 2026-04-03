@@ -411,6 +411,107 @@ describe("useLauncherSessionState", () => {
     });
   });
 
+  it("sanitizes restored prerequisites and keeps optional metadata", () => {
+    const snapshot = JSON.stringify({
+      version: SESSION_VERSION,
+      stagingExpanded: false,
+      stagedCommands: [
+        {
+          ...createStagedCommand("with-prerequisites"),
+          prerequisites: [
+            null,
+            {
+              id: "docker",
+              type: "binary",
+              required: true,
+              check: " docker ",
+              displayName: " Docker Desktop ",
+              resolutionHint: " 安装 Docker Desktop 后重试 ",
+              installHint: " winget install Docker.DockerDesktop ",
+              fallbackCommandId: " install-docker "
+            },
+            {
+              id: "broken-type",
+              type: "registry",
+              required: true,
+              check: "registry:docker"
+            },
+            {
+              id: "blank-check",
+              type: "binary",
+              required: true,
+              check: "   "
+            }
+          ]
+        }
+      ]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(1);
+    expect(stagedCommands.value[0]?.prerequisites).toEqual([
+      {
+        id: "docker",
+        type: "binary",
+        required: true,
+        check: "docker",
+        displayName: "Docker Desktop",
+        resolutionHint: "安装 Docker Desktop 后重试",
+        installHint: "winget install Docker.DockerDesktop",
+        fallbackCommandId: "install-docker"
+      }
+    ]);
+  });
+
+  it("drops invalid prerequisites while still restoring the staged command", () => {
+    const snapshot = JSON.stringify({
+      version: SESSION_VERSION,
+      stagingExpanded: false,
+      stagedCommands: [
+        {
+          ...createStagedCommand("invalid-prerequisites"),
+          prerequisites: [
+            {
+              id: 123,
+              type: "binary",
+              required: true,
+              check: "docker"
+            },
+            {
+              id: "missing-required",
+              type: "binary",
+              required: "yes",
+              check: "docker"
+            }
+          ]
+        }
+      ]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(1);
+    expect(stagedCommands.value[0]?.id).toBe("invalid-prerequisites");
+    expect(stagedCommands.value[0]?.prerequisites).toBeUndefined();
+  });
+
   it("removes invalid snapshot payload and continues safely", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const storage = createStorage("{invalid json");
