@@ -278,15 +278,36 @@ describe("App UI hotkeys regression", () => {
     expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("直接执行");
   });
 
-  it("executes selected command with left click", async () => {
+  it("opens action panel with left click", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
     await wrapper.get(".result-item").trigger("click");
     await waitForUi();
 
+    expect(wrapper.find(".launcher-action-panel").exists()).toBe(true);
+    expect(wrapper.find(".command-panel").exists()).toBe(false);
+  });
+
+  it("opens action panel with Shift+Enter", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("Enter", { shiftKey: true });
+    await waitForUi();
+
+    expect(wrapper.find(".launcher-action-panel").exists()).toBe(true);
+  });
+
+  it("opens copy param panel with Ctrl+Shift+C when command requires args", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("c", { ctrlKey: true, shiftKey: true });
+    await waitForUi();
+
     expect(wrapper.find(".command-panel").exists()).toBe(true);
-    expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("直接执行");
+    expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("复制命令");
   });
 
   it("stages selected command with right click (contextmenu)", async () => {
@@ -298,6 +319,20 @@ describe("App UI hotkeys regression", () => {
 
     expect(wrapper.find(".command-panel").exists()).toBe(true);
     expect(wrapper.get("[data-testid='confirm-btn']").text()).toContain("加入队列");
+  });
+
+  it("搜索区提示同步新默认：左键动作、右键入队、Shift+Enter 动作、Ctrl+Shift+C 复制", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "docker");
+
+    const hintLines = wrapper.findAll(".keyboard-hint");
+    expect(hintLines.length).toBeGreaterThanOrEqual(2);
+    expect(hintLines[0]!.text()).toContain("动作");
+    expect(hintLines[0]!.text()).toContain("复制");
+    expect(hintLines[1]!.text()).toContain("左键");
+    expect(hintLines[1]!.text()).toContain("动作");
+    expect(hintLines[1]!.text()).toContain("右键");
+    expect(hintLines[1]!.text()).toContain("入队");
   });
 
   it("keeps param overlay open when required arg is empty", async () => {

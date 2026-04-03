@@ -298,7 +298,9 @@ export const messages = {
       actions: {
         navigate: "选择",
         execute: "执行",
-        stage: "加队列",
+        stage: "入队",
+        actionPanel: "动作",
+        copy: "复制",
         toggleQueue: "队列",
         switchFocus: "切焦点"
       }

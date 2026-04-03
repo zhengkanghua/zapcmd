@@ -440,6 +440,20 @@ watch(
             :drawer-open="true"
             :drawer-viewport-height="220"
             :keyboard-hints="[{ keys: ['Enter'], action: '执行' }, { keys: ['Tab'], action: '入队' }]"
+            :search-hint-lines="[
+              [
+                { keys: ['↑', '↓'], action: '选择' },
+                { keys: ['Enter'], action: '执行' },
+                { keys: ['Shift+Enter'], action: '动作' },
+                { keys: ['Ctrl+Shift+C'], action: '复制' }
+              ],
+              [
+                { keys: [], action: '左键 动作' },
+                { keys: [], action: '右键 入队' }
+              ]
+            ]"
+            left-click-action="action-panel"
+            right-click-action="stage"
             :filtered-results="visualSearchResults"
             :active-index="0"
             queued-feedback-command-id="cmd-sync-logs"

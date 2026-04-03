@@ -15,6 +15,8 @@ function createHarness() {
   const ensureActiveResultVisible = vi.fn();
   const executeResult = vi.fn();
   const enqueueResult = vi.fn();
+  const openActionPanel = vi.fn();
+  const copySelected = vi.fn();
   const isTypingElement = vi.fn<(target: EventTarget | null) => boolean>(() => false);
   const moveQueuedCommand = vi.fn();
   const ensureActiveQueueVisible = vi.fn();
@@ -37,7 +39,7 @@ function createHarness() {
       focusZone: makeRef<"search" | "queue">("search"),
       searchInputRef: makeRef<HTMLInputElement | null>(searchInput),
       drawerRef: makeRef<HTMLElement | null>(null),
-      commandPanelOpen: makeRef(false),
+      commandPageOpen: makeRef(false),
       queueOpen: makeRef(false),
       openQueuePanel,
       switchFocusZone,
@@ -50,6 +52,8 @@ function createHarness() {
       ensureActiveResultVisible,
       executeResult,
       enqueueResult,
+      openActionPanel,
+      copySelected,
       queuedCommands: makeRef([{ id: "q1" }]),
       isTypingElement,
       moveQueuedCommand,
@@ -68,6 +72,8 @@ function createHarness() {
       normalizedNavigateUpHotkey: makeRef("ArrowUp"),
       normalizedExecuteSelectedHotkey: makeRef("Enter"),
       normalizedEnqueueSelectedHotkey: makeRef("ArrowRight"),
+      normalizedOpenActionPanelHotkey: makeRef("Shift+Enter"),
+      normalizedCopySelectedHotkey: makeRef("Ctrl+Shift+C"),
       normalizedReorderUpHotkey: makeRef("Alt+ArrowUp"),
       normalizedReorderDownHotkey: makeRef("Alt+ArrowDown"),
       normalizedRemoveQueueItemHotkey: makeRef("Delete"),
@@ -88,6 +94,8 @@ function createHarness() {
       ensureActiveResultVisible,
       executeResult,
       enqueueResult,
+      openActionPanel,
+      copySelected,
       moveQueuedCommand,
       ensureActiveQueueVisible,
       removeQueuedCommand,
@@ -225,7 +233,7 @@ describe("windowKeydownHandlers", () => {
 
   it("does not globally confirm safety by Enter; Escape routes to handleMainEscape", () => {
     const { handler, options, spies } = createHarness();
-    options.main.commandPanelOpen.value = true;
+    options.main.commandPageOpen.value = true;
 
     const enterEvent = new KeyboardEvent("keydown", { key: "Enter", cancelable: true });
     handler(enterEvent);
@@ -240,7 +248,7 @@ describe("windowKeydownHandlers", () => {
 
   it("does not confirm safety dialog on Ctrl+Enter", () => {
     const { handler, options, spies } = createHarness();
-    options.main.commandPanelOpen.value = true;
+    options.main.commandPageOpen.value = true;
     const event = new KeyboardEvent("keydown", {
       key: "Enter",
       ctrlKey: true,
@@ -257,7 +265,7 @@ describe("windowKeydownHandlers", () => {
 
   it("keeps toggle queue hotkey available when param flow is open", () => {
     const { handler, options, spies } = createHarness();
-    options.main.commandPanelOpen.value = true;
+    options.main.commandPageOpen.value = true;
     options.main.normalizedToggleQueueHotkey.value = "Ctrl+Q";
 
     handler(new KeyboardEvent("keydown", { key: "q", ctrlKey: true, cancelable: true }));
@@ -267,11 +275,21 @@ describe("windowKeydownHandlers", () => {
 
   it("keeps toggle queue hotkey available when safety flow is open", () => {
     const { handler, options, spies } = createHarness();
-    options.main.commandPanelOpen.value = true;
+    options.main.commandPageOpen.value = true;
     options.main.normalizedToggleQueueHotkey.value = "Ctrl+Q";
 
     handler(new KeyboardEvent("keydown", { key: "q", ctrlKey: true, cancelable: true }));
 
     expect(spies.toggleQueue).toHaveBeenCalledTimes(1);
+  });
+
+  it("支持 Shift+Enter 打开动作面板，以及 Ctrl+Shift+C 复制当前选中项", () => {
+    const { handler, spies } = createHarness();
+
+    handler(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
+    handler(new KeyboardEvent("keydown", { key: "c", ctrlKey: true, shiftKey: true }));
+
+    expect(spies.openActionPanel).toHaveBeenCalledTimes(1);
+    expect(spies.copySelected).toHaveBeenCalledTimes(1);
   });
 });

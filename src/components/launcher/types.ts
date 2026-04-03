@@ -6,10 +6,12 @@ import type {
   ResolvedCommandExecution
 } from "../../features/commands/commandTemplates";
 import type { CommandPrerequisite } from "../../features/commands/prerequisiteTypes";
+import type { SearchHintLine } from "../../features/launcher/searchHintBuilder";
 import type {
   CommandSubmitIntent,
   StagedCommandPreflightCache
 } from "../../features/launcher/types";
+import type { SearchResultPointerAction } from "../../stores/settingsStore";
 
 export interface KeyboardHint {
   keys: string[];
@@ -51,6 +53,9 @@ export interface LauncherSearchPanelProps {
   drawerOpen: boolean;
   drawerViewportHeight: number;
   keyboardHints: KeyboardHint[];
+  searchHintLines: SearchHintLine[];
+  leftClickAction: SearchResultPointerAction;
+  rightClickAction: SearchResultPointerAction;
   filteredResults: CommandTemplate[];
   activeIndex: number;
   queuedFeedbackCommandId: string | null;

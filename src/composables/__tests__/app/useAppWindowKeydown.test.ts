@@ -25,12 +25,15 @@ function createHarness() {
     moveQueuedCommand: vi.fn(),
     queueActiveIndex: ref(0)
   };
+  const commandPageOpen = ref(false);
 
   const commandExecution = {
     executeQueue: vi.fn(async () => {}),
     clearQueue: vi.fn(),
     executeResult: vi.fn(),
     enqueueResult: vi.fn(),
+    openActionPanel: vi.fn(),
+    copySelected: vi.fn(),
     removeQueuedCommand: vi.fn(),
     pendingCommand: ref<unknown>(null),
     safetyDialog: ref<unknown>(null),
@@ -47,6 +50,8 @@ function createHarness() {
     normalizedNavigateUpHotkey: ref("ArrowUp"),
     normalizedExecuteSelectedHotkey: ref("Enter"),
     normalizedEnqueueSelectedHotkey: ref("ArrowRight"),
+    normalizedOpenActionPanelHotkey: ref("Shift+Enter"),
+    normalizedCopySelectedHotkey: ref("Ctrl+Shift+C"),
     normalizedReorderUpHotkey: ref("Alt+ArrowUp"),
     normalizedReorderDownHotkey: ref("Alt+ArrowDown"),
     normalizedRemoveQueueItemHotkey: ref("Delete"),
@@ -59,6 +64,7 @@ function createHarness() {
     closeSettingsWindow,
     queue,
     commandExecution,
+    commandPageOpen,
     searchInputRef,
     drawerRef,
     drawerOpen: ref(true),
@@ -78,6 +84,7 @@ function createHarness() {
     settingsWindow,
     queue,
     commandExecution,
+    commandPageOpen,
     closeSettingsWindow,
     handleMainEscape,
     isTypingElement
@@ -116,10 +123,10 @@ describe("useAppWindowKeydown", () => {
     expect(harness.queue.switchFocusZone).toHaveBeenCalledTimes(1);
   });
 
-  it("pendingCommand 打开时不触发搜索区 Enter 执行；Escape 仍走 main escape", () => {
+  it("commandPage 打开时不触发搜索区 Enter 执行；Escape 仍走 main escape", () => {
     const harness = createHarness();
     harness.isSettingsWindow.value = false;
-    harness.commandExecution.pendingCommand.value = { id: "pending" };
+    harness.commandPageOpen.value = true;
 
     harness.handler(new KeyboardEvent("keydown", { key: "Enter", cancelable: true }));
     expect(harness.commandExecution.executeResult).not.toHaveBeenCalled();
@@ -187,6 +194,16 @@ describe("useAppWindowKeydown", () => {
     expect(escapeEvent.defaultPrevented).toBe(true);
     expect(harness.handleMainEscape).toHaveBeenCalledTimes(1);
     expect(harness.commandExecution.cancelSafetyExecution).not.toHaveBeenCalled();
+  });
+
+  it("commandPage 打开时屏蔽搜索区 Shift+Enter，避免热键串入动作面板", () => {
+    const harness = createHarness();
+    harness.isSettingsWindow.value = false;
+    harness.commandPageOpen.value = true;
+
+    harness.handler(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true }));
+
+    expect(harness.commandExecution.openActionPanel).not.toHaveBeenCalled();
   });
 });
 

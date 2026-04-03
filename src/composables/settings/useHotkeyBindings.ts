@@ -1,10 +1,16 @@
 import { computed, type Ref } from "vue";
 import { t } from "../../i18n";
-import type { HotkeyFieldId, HotkeySettings } from "../../stores/settingsStore";
+import { buildSearchHintLines } from "../../features/launcher/searchHintBuilder";
+import type {
+  HotkeyFieldId,
+  HotkeySettings,
+  PointerActionSettings
+} from "../../stores/settingsStore";
 import { formatHotkeyForHint } from "../../shared/hotkeys";
 
 interface UseHotkeyBindingsOptions {
   hotkeys: Ref<HotkeySettings>;
+  pointerActions: Ref<PointerActionSettings>;
   setHotkey: (field: HotkeyFieldId, value: string) => void;
 }
 
@@ -15,6 +21,106 @@ function createHotkeyField(options: UseHotkeyBindingsOptions, field: HotkeyField
   });
 }
 
+function createNormalizedHotkeyRefs(fields: {
+  toggleQueueHotkey: ReturnType<typeof computed<string>>;
+  switchFocusHotkey: ReturnType<typeof computed<string>>;
+  navigateDownHotkey: ReturnType<typeof computed<string>>;
+  navigateUpHotkey: ReturnType<typeof computed<string>>;
+  stageSelectedHotkey: ReturnType<typeof computed<string>>;
+  executeSelectedHotkey: ReturnType<typeof computed<string>>;
+  openActionPanelHotkey: ReturnType<typeof computed<string>>;
+  copySelectedHotkey: ReturnType<typeof computed<string>>;
+  executeQueueHotkey: ReturnType<typeof computed<string>>;
+  clearQueueHotkey: ReturnType<typeof computed<string>>;
+  removeQueueItemHotkey: ReturnType<typeof computed<string>>;
+  reorderUpHotkey: ReturnType<typeof computed<string>>;
+  reorderDownHotkey: ReturnType<typeof computed<string>>;
+  escapeHotkey: ReturnType<typeof computed<string>>;
+}) {
+  return {
+    normalizedToggleQueueHotkey: computed(() => fields.toggleQueueHotkey.value.trim()),
+    normalizedSwitchFocusHotkey: computed(() => fields.switchFocusHotkey.value.trim()),
+    normalizedNavigateDownHotkey: computed(() => fields.navigateDownHotkey.value.trim()),
+    normalizedNavigateUpHotkey: computed(() => fields.navigateUpHotkey.value.trim()),
+    normalizedStageSelectedHotkey: computed(() => fields.stageSelectedHotkey.value.trim()),
+    normalizedExecuteSelectedHotkey: computed(() => fields.executeSelectedHotkey.value.trim()),
+    normalizedOpenActionPanelHotkey: computed(() => fields.openActionPanelHotkey.value.trim()),
+    normalizedCopySelectedHotkey: computed(() => fields.copySelectedHotkey.value.trim()),
+    normalizedExecuteQueueHotkey: computed(() => fields.executeQueueHotkey.value.trim()),
+    normalizedClearQueueHotkey: computed(() => fields.clearQueueHotkey.value.trim()),
+    normalizedRemoveQueueItemHotkey: computed(() => fields.removeQueueItemHotkey.value.trim()),
+    normalizedReorderUpHotkey: computed(() => fields.reorderUpHotkey.value.trim()),
+    normalizedReorderDownHotkey: computed(() => fields.reorderDownHotkey.value.trim()),
+    normalizedEscapeHotkey: computed(() => fields.escapeHotkey.value.trim())
+  };
+}
+
+function createHotkeyHintBindings(options: UseHotkeyBindingsOptions, fields: {
+  navigateUpHotkey: ReturnType<typeof computed<string>>;
+  navigateDownHotkey: ReturnType<typeof computed<string>>;
+  executeSelectedHotkey: ReturnType<typeof computed<string>>;
+  stageSelectedHotkey: ReturnType<typeof computed<string>>;
+  openActionPanelHotkey: ReturnType<typeof computed<string>>;
+  copySelectedHotkey: ReturnType<typeof computed<string>>;
+  toggleQueueHotkey: ReturnType<typeof computed<string>>;
+  switchFocusHotkey: ReturnType<typeof computed<string>>;
+}) {
+  const formattedNavigateUpHint = computed(() => formatHotkeyForHint(fields.navigateUpHotkey.value));
+  const formattedNavigateDownHint = computed(() => formatHotkeyForHint(fields.navigateDownHotkey.value));
+  const formattedExecuteSelectedHint = computed(() => formatHotkeyForHint(fields.executeSelectedHotkey.value));
+  const formattedStageSelectedHint = computed(() => formatHotkeyForHint(fields.stageSelectedHotkey.value));
+  const formattedOpenActionPanelHint = computed(() => formatHotkeyForHint(fields.openActionPanelHotkey.value));
+  const formattedCopySelectedHint = computed(() => formatHotkeyForHint(fields.copySelectedHotkey.value));
+  const formattedToggleQueueHint = computed(() => formatHotkeyForHint(fields.toggleQueueHotkey.value));
+  const formattedSwitchFocusHint = computed(() => formatHotkeyForHint(fields.switchFocusHotkey.value));
+  const stagingHintText = computed(() =>
+    t("hotkeyHints.stagingFocus", {
+      switchFocus: formattedSwitchFocusHint.value
+    })
+  );
+  const stagingHints = computed(() =>
+    [
+      {
+        keys: [formattedSwitchFocusHint.value].filter(Boolean),
+        action: t("hotkeyHints.actions.switchFocus")
+      }
+    ].filter((hint) => hint.keys.length > 0)
+  );
+  const keyboardHintText = computed(() =>
+    t("hotkeyHints.keyboard", {
+      navigateUp: formattedNavigateUpHint.value,
+      navigateDown: formattedNavigateDownHint.value,
+      executeSelected: formattedExecuteSelectedHint.value,
+      stageSelected: formattedStageSelectedHint.value,
+      toggleQueue: formattedToggleQueueHint.value,
+      switchFocus: formattedSwitchFocusHint.value
+    })
+  );
+  const searchHintLines = computed(() =>
+    buildSearchHintLines({
+      hotkeys: {
+        navigateUp: formattedNavigateUpHint.value,
+        navigateDown: formattedNavigateDownHint.value,
+        executeSelected: formattedExecuteSelectedHint.value,
+        stageSelected: formattedStageSelectedHint.value,
+        openActionPanel: formattedOpenActionPanelHint.value,
+        copySelected: formattedCopySelectedHint.value,
+        switchFocus: formattedSwitchFocusHint.value,
+        toggleQueue: formattedToggleQueueHint.value
+      },
+      pointerActions: options.pointerActions.value
+    })
+  );
+
+  return {
+    stagingHintText,
+    stagingHints,
+    keyboardHintText,
+    keyboardHints: computed(() => searchHintLines.value[0] ?? []),
+    searchHintLines
+  };
+}
+
 export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
   const launcherHotkey = createHotkeyField(options, "launcher");
   const toggleQueueHotkey = createHotkeyField(options, "toggleQueue");
@@ -23,6 +129,8 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
   const navigateDownHotkey = createHotkeyField(options, "navigateDown");
   const executeSelectedHotkey = createHotkeyField(options, "executeSelected");
   const stageSelectedHotkey = createHotkeyField(options, "stageSelected");
+  const openActionPanelHotkey = createHotkeyField(options, "openActionPanel");
+  const copySelectedHotkey = createHotkeyField(options, "copySelected");
   const escapeHotkey = createHotkeyField(options, "escape");
   const executeQueueHotkey = createHotkeyField(options, "executeQueue");
   const clearQueueHotkey = createHotkeyField(options, "clearQueue");
@@ -38,73 +146,32 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
     options.setHotkey(field, value);
   }
 
-  const normalizedToggleQueueHotkey = computed(() => toggleQueueHotkey.value.trim());
-  const normalizedSwitchFocusHotkey = computed(() => switchFocusHotkey.value.trim());
-  const normalizedNavigateDownHotkey = computed(() => navigateDownHotkey.value.trim());
-  const normalizedNavigateUpHotkey = computed(() => navigateUpHotkey.value.trim());
-  const normalizedStageSelectedHotkey = computed(() => stageSelectedHotkey.value.trim());
-  const normalizedExecuteSelectedHotkey = computed(() => executeSelectedHotkey.value.trim());
-  const normalizedExecuteQueueHotkey = computed(() => executeQueueHotkey.value.trim());
-  const normalizedClearQueueHotkey = computed(() => clearQueueHotkey.value.trim());
-  const normalizedRemoveQueueItemHotkey = computed(() => removeQueueItemHotkey.value.trim());
-  const normalizedReorderUpHotkey = computed(() => reorderUpHotkey.value.trim());
-  const normalizedReorderDownHotkey = computed(() => reorderDownHotkey.value.trim());
-  const normalizedEscapeHotkey = computed(() => escapeHotkey.value.trim());
-
-  const formattedNavigateUpHint = computed(() => formatHotkeyForHint(navigateUpHotkey.value));
-  const formattedNavigateDownHint = computed(() => formatHotkeyForHint(navigateDownHotkey.value));
-  const formattedExecuteSelectedHint = computed(() => formatHotkeyForHint(executeSelectedHotkey.value));
-  const formattedStageSelectedHint = computed(() => formatHotkeyForHint(stageSelectedHotkey.value));
-  const formattedToggleQueueHint = computed(() => formatHotkeyForHint(toggleQueueHotkey.value));
-  const formattedSwitchFocusHint = computed(() => formatHotkeyForHint(switchFocusHotkey.value));
-  const leftClickHint = computed(() => t("hotkeyHints.keys.leftClick"));
-  const rightClickHint = computed(() => t("hotkeyHints.keys.rightClick"));
-  const stagingHintText = computed(() =>
-    t("hotkeyHints.stagingFocus", {
-      switchFocus: formattedSwitchFocusHint.value
-    })
-  );
-  
-  const stagingHints = computed(() => [
-    {
-      keys: [formattedSwitchFocusHint.value].filter(Boolean),
-      action: t("hotkeyHints.actions.switchFocus")
-    }
-  ].filter(h => h.keys.length > 0));
-  const keyboardHintText = computed(
-    () =>
-      t("hotkeyHints.keyboard", {
-        navigateUp: formattedNavigateUpHint.value,
-        navigateDown: formattedNavigateDownHint.value,
-        executeSelected: formattedExecuteSelectedHint.value,
-        stageSelected: formattedStageSelectedHint.value,
-        toggleQueue: formattedToggleQueueHint.value,
-        switchFocus: formattedSwitchFocusHint.value
-      })
-  );
-
-  const keyboardHints = computed(() => [
-    {
-      keys: [formattedNavigateUpHint.value, formattedNavigateDownHint.value].filter(Boolean),
-      action: t("hotkeyHints.actions.navigate")
-    },
-    {
-      keys: [formattedExecuteSelectedHint.value, leftClickHint.value].filter(Boolean),
-      action: t("hotkeyHints.actions.execute")
-    },
-    {
-      keys: [formattedStageSelectedHint.value, rightClickHint.value].filter(Boolean),
-      action: t("hotkeyHints.actions.stage")
-    },
-    {
-      keys: [formattedToggleQueueHint.value].filter(Boolean),
-      action: t("hotkeyHints.actions.toggleQueue")
-    },
-    {
-      keys: [formattedSwitchFocusHint.value].filter(Boolean),
-      action: t("hotkeyHints.actions.switchFocus")
-    }
-  ].filter(h => h.keys.length > 0));
+  const normalizedHotkeys = createNormalizedHotkeyRefs({
+    toggleQueueHotkey,
+    switchFocusHotkey,
+    navigateDownHotkey,
+    navigateUpHotkey,
+    stageSelectedHotkey,
+    executeSelectedHotkey,
+    openActionPanelHotkey,
+    copySelectedHotkey,
+    executeQueueHotkey,
+    clearQueueHotkey,
+    removeQueueItemHotkey,
+    reorderUpHotkey,
+    reorderDownHotkey,
+    escapeHotkey
+  });
+  const hintBindings = createHotkeyHintBindings(options, {
+    navigateUpHotkey,
+    navigateDownHotkey,
+    executeSelectedHotkey,
+    stageSelectedHotkey,
+    openActionPanelHotkey,
+    copySelectedHotkey,
+    toggleQueueHotkey,
+    switchFocusHotkey
+  });
 
   return {
     launcherHotkey,
@@ -114,6 +181,8 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
     navigateDownHotkey,
     executeSelectedHotkey,
     stageSelectedHotkey,
+    openActionPanelHotkey,
+    copySelectedHotkey,
     escapeHotkey,
     executeQueueHotkey,
     clearQueueHotkey,
@@ -122,21 +191,7 @@ export function useHotkeyBindings(options: UseHotkeyBindingsOptions) {
     reorderDownHotkey,
     getHotkeyValue,
     setHotkeyValue,
-    normalizedToggleQueueHotkey,
-    normalizedSwitchFocusHotkey,
-    normalizedNavigateDownHotkey,
-    normalizedNavigateUpHotkey,
-    normalizedStageSelectedHotkey,
-    normalizedExecuteSelectedHotkey,
-    normalizedExecuteQueueHotkey,
-    normalizedClearQueueHotkey,
-    normalizedRemoveQueueItemHotkey,
-    normalizedReorderUpHotkey,
-    normalizedReorderDownHotkey,
-    normalizedEscapeHotkey,
-    stagingHintText,
-    stagingHints,
-    keyboardHintText,
-    keyboardHints
+    ...normalizedHotkeys,
+    ...hintBindings
   };
 }

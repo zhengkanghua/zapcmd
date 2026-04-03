@@ -40,6 +40,9 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
     search: {
       query: "",
       keyboardHints: [],
+      searchHintLines: [],
+      leftClickAction: "action-panel" as const,
+      rightClickAction: "stage" as const,
       filteredResults: [],
       activeIndex: 0,
       searchShellStyle: {} as Record<string, string>,
@@ -91,6 +94,7 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
       onQueryInput: vi.fn(),
       enqueueResult: vi.fn(),
       executeResult: vi.fn(),
+      dispatchCommandIntent: vi.fn(),
       toggleQueue: vi.fn(),
       onQueueDragStart: vi.fn(),
       onQueueDragOver: vi.fn(),

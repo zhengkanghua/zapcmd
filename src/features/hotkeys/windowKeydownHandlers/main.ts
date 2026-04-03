@@ -46,7 +46,7 @@ export function handleMainGlobalHotkeys<TItem>(
     return true;
   }
   if (hotkeyMatches(event, main.normalizedExecuteQueueHotkey.value)) {
-    const flowOpen = main.commandPanelOpen.value;
+    const flowOpen = main.commandPageOpen.value;
     if (
       !flowOpen &&
       !main.queueOpen.value &&
@@ -104,6 +104,16 @@ export function handleSearchZoneHotkeys<TItem>(
   if (hotkeyMatches(event, main.normalizedExecuteSelectedHotkey.value)) {
     event.preventDefault();
     main.executeResult(main.filteredResults.value[main.activeIndex.value]);
+    return true;
+  }
+  if (hotkeyMatches(event, main.normalizedOpenActionPanelHotkey.value)) {
+    event.preventDefault();
+    main.openActionPanel(main.filteredResults.value[main.activeIndex.value]);
+    return true;
+  }
+  if (hotkeyMatches(event, main.normalizedCopySelectedHotkey.value)) {
+    event.preventDefault();
+    main.copySelected(main.filteredResults.value[main.activeIndex.value]);
     return true;
   }
   if (!hotkeyMatches(event, main.normalizedEnqueueSelectedHotkey.value)) {

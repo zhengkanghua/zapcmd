@@ -281,6 +281,53 @@ function createWindowSizingOptions(
   };
 }
 
+function createWindowKeydownOptions(
+  context: AppCompositionContext,
+  launcherRuntime: LauncherRuntime,
+  handleMainEscape: () => void,
+  closeSettingsWindow: () => void,
+  isTypingElement: (target: EventTarget | null) => boolean
+) {
+  return {
+    isSettingsWindow: context.isSettingsWindow,
+    settingsWindow: context.settingsWindow,
+    closeSettingsWindow,
+    queue: launcherRuntime.stagingQueue,
+    commandExecution: {
+      executeQueue: launcherRuntime.commandExecution.executeStaged,
+      clearQueue: launcherRuntime.commandExecution.clearStaging,
+      executeResult: launcherRuntime.commandExecution.executeResult,
+      enqueueResult: launcherRuntime.commandExecution.stageResult,
+      openActionPanel: launcherRuntime.openActionPanel,
+      copySelected: (command: CommandTemplate) => {
+        void launcherRuntime.commandExecution.dispatchCommandIntent(command, "copy");
+      },
+      removeQueuedCommand: launcherRuntime.commandExecution.removeStagedCommand,
+      pendingCommand: launcherRuntime.commandExecution.pendingCommand,
+      safetyDialog: launcherRuntime.commandExecution.safetyDialog,
+      confirmSafetyExecution: launcherRuntime.commandExecution.confirmSafetyExecution,
+      cancelSafetyExecution: launcherRuntime.commandExecution.cancelSafetyExecution
+    },
+    commandPageOpen: computed(
+      () => launcherRuntime.navStack.currentPage.value.type === "command-action"
+    ),
+    searchInputRef: context.domBridge.searchInputRef,
+    drawerRef: context.domBridge.drawerRef,
+    drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
+    filteredResults: context.search.filteredResults,
+    activeIndex: context.search.activeIndex,
+    ensureActiveResultVisible: launcherRuntime.visibility.ensureActiveResultVisible,
+    queuedCommands: context.stagedCommands,
+    ensureActiveQueueVisible: launcherRuntime.visibility.ensureActiveStagingVisible,
+    handleMainEscape,
+    hotkeyBindings: {
+      ...context.hotkeyBindings,
+      normalizedEnqueueSelectedHotkey: context.hotkeyBindings.normalizedStageSelectedHotkey
+    },
+    isTypingElement
+  };
+}
+
 function bindAppRuntime(
   context: AppCompositionContext,
   launcherRuntime: LauncherRuntime
@@ -345,37 +392,15 @@ function bindAppRuntime(
   function requestCloseSettingsWindow(): void {
     closeSettingsWindowImmediately();
   }
-  const onWindowKeydown = useAppWindowKeydown({
-    isSettingsWindow: context.isSettingsWindow,
-    settingsWindow: context.settingsWindow,
-    closeSettingsWindow: requestCloseSettingsWindow,
-    queue: launcherRuntime.stagingQueue,
-    commandExecution: {
-      executeQueue: launcherRuntime.commandExecution.executeStaged,
-      clearQueue: launcherRuntime.commandExecution.clearStaging,
-      executeResult: launcherRuntime.commandExecution.executeResult,
-      enqueueResult: launcherRuntime.commandExecution.stageResult,
-      removeQueuedCommand: launcherRuntime.commandExecution.removeStagedCommand,
-      pendingCommand: launcherRuntime.commandExecution.pendingCommand,
-      safetyDialog: launcherRuntime.commandExecution.safetyDialog,
-      confirmSafetyExecution: launcherRuntime.commandExecution.confirmSafetyExecution,
-      cancelSafetyExecution: launcherRuntime.commandExecution.cancelSafetyExecution
-    },
-    searchInputRef: context.domBridge.searchInputRef,
-    drawerRef: context.domBridge.drawerRef,
-    drawerOpen: launcherRuntime.layoutMetrics.drawerOpen,
-    filteredResults: context.search.filteredResults,
-    activeIndex: context.search.activeIndex,
-    ensureActiveResultVisible: launcherRuntime.visibility.ensureActiveResultVisible,
-    queuedCommands: context.stagedCommands,
-    ensureActiveQueueVisible: launcherRuntime.visibility.ensureActiveStagingVisible,
-    handleMainEscape,
-    hotkeyBindings: {
-      ...context.hotkeyBindings,
-      normalizedEnqueueSelectedHotkey: context.hotkeyBindings.normalizedStageSelectedHotkey
-    },
-    isTypingElement
-  });
+  const onWindowKeydown = useAppWindowKeydown(
+    createWindowKeydownOptions(
+      context,
+      launcherRuntime,
+      handleMainEscape,
+      requestCloseSettingsWindow,
+      isTypingElement
+    )
+  );
 
   bindLifecycleBridge(context, launcherRuntime, windowSizing, onWindowKeydown);
 

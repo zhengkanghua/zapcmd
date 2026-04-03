@@ -3,6 +3,7 @@ import { computed, ref, watch } from "vue";
 
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import { useI18nText } from "../../../i18n";
+import type { SearchResultPointerAction } from "../../../stores/settingsStore";
 import type { ElementRefArg, LauncherSearchPanelProps } from "../types";
 import LauncherHighlightText from "./LauncherHighlightText.vue";
 import LauncherIcon from "./LauncherIcon.vue";
@@ -19,6 +20,8 @@ const emit = defineEmits<{
   (e: "query-input", value: string): void;
   (e: "enqueue-result", command: CommandTemplate): void;
   (e: "execute-result", command: CommandTemplate): void;
+  (e: "open-action-panel", command: CommandTemplate): void;
+  (e: "copy-result", command: CommandTemplate): void;
   (e: "toggle-queue"): void;
   (e: "search-capsule-back"): void;
 }>();
@@ -83,6 +86,25 @@ function onDrawerScroll(): void {
   if (remaining <= SEARCH_RESULTS_SCROLL_PREFETCH_PX) {
     growRenderedResults();
   }
+}
+
+function dispatchPointerAction(
+  action: SearchResultPointerAction,
+  command: CommandTemplate
+): void {
+  if (action === "action-panel") {
+    emit("open-action-panel", command);
+    return;
+  }
+  if (action === "execute") {
+    emit("execute-result", command);
+    return;
+  }
+  if (action === "copy") {
+    emit("copy-result", command);
+    return;
+  }
+  emit("enqueue-result", command);
 }
 
 watch(
@@ -164,16 +186,28 @@ watch(
         data-testid="result-drawer"
         @scroll="onDrawerScroll"
       >
-        <p
-          v-if="props.keyboardHints?.length"
-          class="keyboard-hint m-0 h-[22px] min-h-[22px] flex flex-nowrap items-center gap-[6px] overflow-hidden p-[2px_6px_6px] text-[10px] font-medium tracking-[0.03em] text-ui-subtle whitespace-nowrap"
+        <div
+          v-if="props.searchHintLines?.length"
+          class="search-hint-lines flex flex-col gap-[2px] p-[2px_6px_6px]"
         >
+          <p
+            v-for="(line, lineIndex) in props.searchHintLines"
+            :key="lineIndex"
+            class="keyboard-hint m-0 min-h-[18px] flex flex-nowrap items-center gap-[6px] overflow-hidden text-[10px] font-medium tracking-[0.03em] text-ui-subtle whitespace-nowrap"
+            :class="{
+              'h-[22px] min-h-[22px]': lineIndex === 0,
+              'keyboard-hint--secondary hidden min-[720px]:flex': lineIndex === 1
+            }"
+          >
           <span
-            v-for="(hint, index) in props.keyboardHints"
+            v-for="(hint, index) in line"
             :key="index"
             class="keyboard-hint__item inline-flex shrink-0 items-center gap-[4px]"
           >
-            <span class="keyboard-hint__keys inline-flex items-center gap-[2px]">
+            <span
+              v-if="hint.keys.length > 0"
+              class="keyboard-hint__keys inline-flex items-center gap-[2px]"
+            >
                 <kbd
                   v-for="key in hint.keys"
                   :key="key"
@@ -184,12 +218,13 @@ watch(
             </span>
             <span class="keyboard-hint__action text-ui-dim">{{ hint.action }}</span>
             <span
-              v-if="index < props.keyboardHints.length - 1"
+              v-if="index < line.length - 1"
               class="keyboard-hint__sep ml-[2px] text-ui-text/15"
               >·</span
             >
           </span>
-        </p>
+          </p>
+        </div>
         <ul v-if="props.filteredResults.length > 0" class="result-list m-0 p-0 list-none">
           <li v-for="(item, index) in visibleResults" :key="item.id">
             <button
@@ -201,8 +236,8 @@ watch(
                   item.id === props.queuedFeedbackCommandId
               }"
               :ref="(el) => props.setResultButtonRef(el, index)"
-              @click="emit('execute-result', item)"
-              @contextmenu.prevent="emit('enqueue-result', item)"
+              @click="dispatchPointerAction(props.leftClickAction, item)"
+              @contextmenu.prevent="dispatchPointerAction(props.rightClickAction, item)"
             >
               <span
                 aria-hidden="true"

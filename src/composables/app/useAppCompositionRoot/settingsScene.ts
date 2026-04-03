@@ -107,6 +107,7 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
   const updateManager = useUpdateManager();
   const hotkeyBindings = useHotkeyBindings({
     hotkeys: settingsRefs.hotkeys,
+    pointerActions: settingsRefs.pointerActions,
     setHotkey: (field, value) => {
       settingsStore.setHotkey(field, value);
     }

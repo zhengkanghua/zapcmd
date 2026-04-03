@@ -1,4 +1,4 @@
-import { proxyRefs } from "vue";
+import { computed, proxyRefs } from "vue";
 import type { createAppCompositionContext } from "./context";
 import type { createAppCompositionRuntime } from "./runtime";
 
@@ -12,6 +12,9 @@ function createSearchVm(
   return proxyRefs({
     query: context.search.query,
     keyboardHints: context.hotkeyBindings.keyboardHints,
+    searchHintLines: context.hotkeyBindings.searchHintLines,
+    leftClickAction: computed(() => context.settingsScene.pointerActions.value.leftClick),
+    rightClickAction: computed(() => context.settingsScene.pointerActions.value.rightClick),
     filteredResults: context.search.filteredResults,
     activeIndex: context.search.activeIndex,
     searchShellStyle: runtime.layoutMetrics.searchShellStyle,
@@ -87,6 +90,13 @@ function createActionVm(
     return runtime.commandExecution.submitParamInput();
   }
 
+  function dispatchCommandIntent(
+    command: Parameters<AppCompositionRuntime["commandExecution"]["dispatchCommandIntent"]>[0],
+    intent: Parameters<AppCompositionRuntime["commandExecution"]["dispatchCommandIntent"]>[1]
+  ): void {
+    void runtime.commandExecution.dispatchCommandIntent(command, intent);
+  }
+
   function selectActionPanelIntent(intent: "execute" | "stage" | "copy"): void {
     const command = runtime.navStack.currentPage.value.props?.command;
     if (!command) {
@@ -99,6 +109,7 @@ function createActionVm(
     onQueryInput: context.search.onQueryInput,
     enqueueResult: runtime.commandExecution.stageResult,
     executeResult: runtime.commandExecution.executeResult,
+    dispatchCommandIntent,
     openActionPanel: runtime.openActionPanel,
     selectActionPanelIntent,
     toggleQueue: runtime.stagingQueue.toggleQueue,

@@ -21,6 +21,8 @@ const emit = defineEmits<{
   (e: "query-input", value: string): void;
   (e: "enqueue-result", command: CommandTemplate): void;
   (e: "execute-result", command: CommandTemplate): void;
+  (e: "open-action-panel", command: CommandTemplate): void;
+  (e: "copy-result", command: CommandTemplate): void;
   (e: "toggle-queue"): void;
   (e: "queue-drag-start", index: number, event: DragEvent): void;
   (e: "queue-drag-over", index: number, event: DragEvent): void;
@@ -82,6 +84,16 @@ function onEnqueueResult(command: CommandTemplate): void {
 function onExecuteResult(command: CommandTemplate): void {
   props.launcherVm.actions.executeResult(command);
   emit("execute-result", command);
+}
+
+function onOpenActionPanel(command: CommandTemplate): void {
+  props.launcherVm.actions.openActionPanel(command);
+  emit("open-action-panel", command);
+}
+
+function onCopyResult(command: CommandTemplate): void {
+  props.launcherVm.actions.dispatchCommandIntent(command, "copy");
+  emit("copy-result", command);
 }
 
 function toggleQueue(): void {
@@ -269,6 +281,9 @@ function onNavAfterEnter(): void {
             :drawer-open="props.launcherVm.search.drawerOpen"
             :drawer-viewport-height="props.launcherVm.search.drawerViewportHeight"
             :keyboard-hints="props.launcherVm.search.keyboardHints"
+            :search-hint-lines="props.launcherVm.search.searchHintLines"
+            :left-click-action="props.launcherVm.search.leftClickAction"
+            :right-click-action="props.launcherVm.search.rightClickAction"
             :filtered-results="props.launcherVm.search.filteredResults"
             :active-index="props.launcherVm.search.activeIndex"
             :queued-feedback-command-id="props.launcherVm.search.queuedFeedbackCommandId"
@@ -281,6 +296,8 @@ function onNavAfterEnter(): void {
             @query-input="onQueryInput"
             @enqueue-result="onEnqueueResult"
             @execute-result="onExecuteResult"
+            @open-action-panel="onOpenActionPanel"
+            @copy-result="onCopyResult"
             @toggle-queue="toggleQueue"
             @search-capsule-back="onSearchCapsuleBack"
           />

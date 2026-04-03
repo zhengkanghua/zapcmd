@@ -10,7 +10,7 @@ export interface MainHandlers<TItem> {
   focusZone: RefLike<"search" | "queue">;
   searchInputRef: RefLike<HTMLInputElement | null>;
   drawerRef: RefLike<HTMLElement | null>;
-  commandPanelOpen: RefLike<boolean>;
+  commandPageOpen: RefLike<boolean>;
   queueOpen: RefLike<boolean>;
   openQueuePanel: () => void;
   switchFocusZone: () => void;
@@ -23,6 +23,8 @@ export interface MainHandlers<TItem> {
   ensureActiveResultVisible: () => void;
   executeResult: (item: TItem) => void;
   enqueueResult: (item: TItem) => void;
+  openActionPanel: (item: TItem) => void;
+  copySelected: (item: TItem) => void;
   queuedCommands: RefLike<Array<{ id: string }>>;
   isTypingElement: (target: EventTarget | null) => boolean;
   moveQueuedCommand: (fromIndex: number, toIndex: number) => void;
@@ -41,6 +43,8 @@ export interface MainHandlers<TItem> {
   normalizedNavigateUpHotkey: RefLike<string>;
   normalizedExecuteSelectedHotkey: RefLike<string>;
   normalizedEnqueueSelectedHotkey: RefLike<string>;
+  normalizedOpenActionPanelHotkey: RefLike<string>;
+  normalizedCopySelectedHotkey: RefLike<string>;
   normalizedReorderUpHotkey: RefLike<string>;
   normalizedReorderDownHotkey: RefLike<string>;
   normalizedRemoveQueueItemHotkey: RefLike<string>;

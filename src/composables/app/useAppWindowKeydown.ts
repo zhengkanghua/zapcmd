@@ -18,6 +18,8 @@ interface CommandExecutionLike<TItem> {
   clearQueue: () => void;
   executeResult: (item: TItem) => void;
   enqueueResult: (item: TItem) => void;
+  openActionPanel: (item: TItem) => void;
+  copySelected: (item: TItem) => void;
   removeQueuedCommand: (id: string) => void;
   pendingCommand: Ref<unknown>;
   safetyDialog: Ref<unknown>;
@@ -34,6 +36,8 @@ interface HotkeyBindingsLike {
   normalizedNavigateUpHotkey: Ref<string>;
   normalizedExecuteSelectedHotkey: Ref<string>;
   normalizedEnqueueSelectedHotkey: Ref<string>;
+  normalizedOpenActionPanelHotkey: Ref<string>;
+  normalizedCopySelectedHotkey: Ref<string>;
   normalizedReorderUpHotkey: Ref<string>;
   normalizedReorderDownHotkey: Ref<string>;
   normalizedRemoveQueueItemHotkey: Ref<string>;
@@ -46,6 +50,7 @@ interface UseAppWindowKeydownOptions<TItem> {
   closeSettingsWindow: () => void;
   queue: CommandQueueLike;
   commandExecution: CommandExecutionLike<TItem>;
+  commandPageOpen: Ref<boolean>;
   searchInputRef: Ref<HTMLInputElement | null>;
   drawerRef: Ref<HTMLElement | null>;
   drawerOpen: Ref<boolean>;
@@ -60,9 +65,9 @@ interface UseAppWindowKeydownOptions<TItem> {
 }
 
 export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<TItem>) {
-  const commandPanelOpen = computed(
+  const commandPageOpen = computed(
     () =>
-      options.commandExecution.pendingCommand.value !== null ||
+      options.commandPageOpen.value ||
       options.commandExecution.safetyDialog.value !== null
   );
 
@@ -75,6 +80,7 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
       focusZone: options.queue.focusZone,
       searchInputRef: options.searchInputRef,
       drawerRef: options.drawerRef,
+      commandPageOpen,
       queueOpen: options.queue.queueOpen,
       openQueuePanel: options.queue.openQueuePanel,
       switchFocusZone: options.queue.switchFocusZone,
@@ -87,13 +93,14 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
       ensureActiveResultVisible: options.ensureActiveResultVisible,
       executeResult: options.commandExecution.executeResult,
       enqueueResult: options.commandExecution.enqueueResult,
+      openActionPanel: options.commandExecution.openActionPanel,
+      copySelected: options.commandExecution.copySelected,
       queuedCommands: options.queuedCommands,
       isTypingElement: options.isTypingElement,
       moveQueuedCommand: options.queue.moveQueuedCommand,
       queueActiveIndex: options.queue.queueActiveIndex,
       ensureActiveQueueVisible: options.ensureActiveQueueVisible,
       removeQueuedCommand: options.commandExecution.removeQueuedCommand,
-      commandPanelOpen,
       confirmSafetyExecution: options.commandExecution.confirmSafetyExecution,
       cancelSafetyExecution: options.commandExecution.cancelSafetyExecution,
       handleMainEscape: options.handleMainEscape,
@@ -108,6 +115,8 @@ export function useAppWindowKeydown<TItem>(options: UseAppWindowKeydownOptions<T
       normalizedNavigateUpHotkey: options.hotkeyBindings.normalizedNavigateUpHotkey,
       normalizedExecuteSelectedHotkey: options.hotkeyBindings.normalizedExecuteSelectedHotkey,
       normalizedEnqueueSelectedHotkey: options.hotkeyBindings.normalizedEnqueueSelectedHotkey,
+      normalizedOpenActionPanelHotkey: options.hotkeyBindings.normalizedOpenActionPanelHotkey,
+      normalizedCopySelectedHotkey: options.hotkeyBindings.normalizedCopySelectedHotkey,
       normalizedReorderUpHotkey: options.hotkeyBindings.normalizedReorderUpHotkey,
       normalizedReorderDownHotkey: options.hotkeyBindings.normalizedReorderDownHotkey,
       normalizedRemoveQueueItemHotkey: options.hotkeyBindings.normalizedRemoveQueueItemHotkey,
