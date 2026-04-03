@@ -84,4 +84,25 @@ describe("LauncherActionPanel", () => {
     expect(action.classes()).toContain("hover:bg-ui-text/6");
     expect(action.classes()).toContain("focus-visible:ring-ui-brand/24");
   });
+
+  it("鼠标移出后不保留 hover 高亮，键盘导航仍可重新接管", async () => {
+    const wrapper = mount(LauncherActionPanel, {
+      props: {
+        command: createCommand()
+      }
+    });
+
+    const actions = wrapper.findAll(".launcher-action-panel__action");
+    expect(actions[0]!.classes()).toContain("bg-ui-brand/12");
+
+    await actions[1]!.trigger("mouseenter");
+    expect(actions[1]!.classes()).toContain("bg-ui-brand/12");
+
+    await actions[1]!.trigger("mouseleave");
+    expect(actions[1]!.classes()).not.toContain("bg-ui-brand/12");
+    expect(actions[0]!.classes()).not.toContain("bg-ui-brand/12");
+
+    await wrapper.get(".launcher-action-panel").trigger("keydown", { key: "ArrowDown" });
+    expect(actions[1]!.classes()).toContain("bg-ui-brand/12");
+  });
 });

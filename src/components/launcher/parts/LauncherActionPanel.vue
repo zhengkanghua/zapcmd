@@ -15,13 +15,18 @@ const emit = defineEmits<{
 
 const { t } = useI18nText();
 const intents: CommandSubmitIntent[] = ["execute", "stage", "copy"];
-const activeIndex = ref(0);
+const keyboardIndex = ref(0);
+const hoveredIndex = ref<number | null>(null);
+const showKeyboardSelection = ref(true);
 const panelRef = ref<HTMLElement | null>(null);
 const actionLabels = computed<Record<CommandSubmitIntent, string>>(() => ({
   execute: "执行",
   stage: "加入执行流",
   copy: "复制"
 }));
+const activeVisualIndex = computed<number | null>(() =>
+  hoveredIndex.value ?? (showKeyboardSelection.value ? keyboardIndex.value : null)
+);
 
 /** Shift+Enter 进入动作面板后要立刻接管焦点，本地 Arrow/Enter 才能直接生效。 */
 onMounted(() => {
@@ -45,7 +50,22 @@ function selectIntent(intent: CommandSubmitIntent): void {
 }
 
 function setActiveIntent(index: number): void {
-  activeIndex.value = clampIndex(index);
+  keyboardIndex.value = clampIndex(index);
+}
+
+function onActionMouseEnter(index: number): void {
+  hoveredIndex.value = clampIndex(index);
+  showKeyboardSelection.value = false;
+}
+
+function onActionMouseLeave(): void {
+  hoveredIndex.value = null;
+}
+
+function onActionFocus(index: number): void {
+  hoveredIndex.value = null;
+  showKeyboardSelection.value = true;
+  setActiveIntent(index);
 }
 
 function onKeydown(event: KeyboardEvent): void {
@@ -57,17 +77,21 @@ function onKeydown(event: KeyboardEvent): void {
   }
   if (event.key === "ArrowDown" || event.key === "Tab") {
     event.preventDefault();
-    activeIndex.value = clampIndex(activeIndex.value + 1);
+    hoveredIndex.value = null;
+    showKeyboardSelection.value = true;
+    keyboardIndex.value = clampIndex(keyboardIndex.value + 1);
     return;
   }
   if (event.key === "ArrowUp") {
     event.preventDefault();
-    activeIndex.value = clampIndex(activeIndex.value - 1);
+    hoveredIndex.value = null;
+    showKeyboardSelection.value = true;
+    keyboardIndex.value = clampIndex(keyboardIndex.value - 1);
     return;
   }
   if (event.key === "Enter") {
     event.preventDefault();
-    selectIntent(intents[activeIndex.value] ?? "execute");
+    selectIntent(intents[keyboardIndex.value] ?? "execute");
   }
 }
 </script>
@@ -109,10 +133,11 @@ function onKeydown(event: KeyboardEvent): void {
         class="launcher-action-panel__action rounded-[12px] border border-ui-text/8 bg-ui-black/12 p-[14px] text-left text-ui-text transition-launcher-interactive duration-150 hover:border-ui-text/12 hover:bg-ui-text/6 hover:shadow-launcher-chip-inset focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24"
         :class="{
           'border-ui-brand/24 bg-ui-brand/12 ring-1 ring-ui-brand/24 shadow-launcher-chip-inset':
-            index === activeIndex
+            index === activeVisualIndex
         }"
-        @mouseenter="setActiveIntent(index)"
-        @focus="setActiveIntent(index)"
+        @mouseenter="onActionMouseEnter(index)"
+        @mouseleave="onActionMouseLeave"
+        @focus="onActionFocus(index)"
         @click="selectIntent(intent)"
       >
         {{ actionLabels[intent] }}
