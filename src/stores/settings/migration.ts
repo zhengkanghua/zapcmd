@@ -12,6 +12,7 @@ import {
   HOTKEY_FIELD_IDS,
   SETTINGS_SCHEMA_VERSION,
   type HotkeySettings,
+  type PointerActionSettings,
   type PersistedSettingsSnapshot
 } from "./defaults";
 import {
@@ -22,6 +23,7 @@ import {
   normalizeDisabledCommandIds,
   normalizeHotkeys,
   normalizeLanguage,
+  normalizePointerActions,
   normalizeTerminalId,
   normalizeTerminalReusePolicy,
   normalizeThemeId,
@@ -90,6 +92,13 @@ function extractAlwaysElevatedTerminal(payload: SettingsPayload): boolean {
   );
 }
 
+function extractPointerActions(payload: SettingsPayload): PointerActionSettings {
+  if (!isRecord(payload.general)) {
+    return normalizePointerActions(null);
+  }
+  return normalizePointerActions(payload.general.pointerActions);
+}
+
 function extractDisabledCommandIds(payload: SettingsPayload): string[] {
   if (!isRecord(payload.commands)) {
     return [];
@@ -129,7 +138,8 @@ function createSnapshot(payload: SettingsPayload): PersistedSettingsSnapshot {
       language: extractLanguage(payload),
       autoCheckUpdate: extractAutoCheckUpdate(payload),
       launchAtLogin: extractLaunchAtLogin(payload),
-      alwaysElevatedTerminal: extractAlwaysElevatedTerminal(payload)
+      alwaysElevatedTerminal: extractAlwaysElevatedTerminal(payload),
+      pointerActions: extractPointerActions(payload)
     },
     commands: {
       disabledCommandIds: extractDisabledCommandIds(payload)
@@ -145,6 +155,11 @@ export function migrateSettingsPayload(payload: unknown): PersistedSettingsSnaps
 
   const version = payload.version;
   if (version === SETTINGS_SCHEMA_VERSION) {
+    return createSnapshot(payload);
+  }
+
+  // v1 是本轮 schema 升级前的最后一个稳定快照，需要无条件迁移到 v2。
+  if (version === 1) {
     return createSnapshot(payload);
   }
 

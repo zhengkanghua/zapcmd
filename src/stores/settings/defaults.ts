@@ -2,7 +2,7 @@ import type { AppLocale } from "../../i18n";
 import { DEFAULT_MOTION_PRESET_ID } from "../../features/motion/motionRegistry";
 
 export const SETTINGS_STORAGE_KEY = "zapcmd.settings";
-export const SETTINGS_SCHEMA_VERSION = 1;
+export const SETTINGS_SCHEMA_VERSION = 2;
 
 export const HOTKEY_FIELD_IDS = [
   "launcher",
@@ -12,6 +12,8 @@ export const HOTKEY_FIELD_IDS = [
   "navigateDown",
   "executeSelected",
   "stageSelected",
+  "openActionPanel",
+  "copySelected",
   "escape",
   "executeQueue",
   "clearQueue",
@@ -30,6 +32,11 @@ export type CommandSortBy = "default" | "title" | "category" | "source" | "statu
 export type CommandDisplayMode = "list";
 export const TERMINAL_REUSE_POLICIES = ["never", "normal-only", "normal-and-elevated"] as const;
 export type TerminalReusePolicy = (typeof TERMINAL_REUSE_POLICIES)[number];
+export const POINTER_ACTION_FIELD_IDS = ["leftClick", "rightClick"] as const;
+export type PointerActionFieldId = (typeof POINTER_ACTION_FIELD_IDS)[number];
+export const SEARCH_RESULT_POINTER_ACTIONS = ["action-panel", "execute", "stage", "copy"] as const;
+export type SearchResultPointerAction = (typeof SEARCH_RESULT_POINTER_ACTIONS)[number];
+export type PointerActionSettings = Record<PointerActionFieldId, SearchResultPointerAction>;
 
 export interface CommandManagementViewState {
   query: string;
@@ -53,6 +60,7 @@ export interface PersistedSettingsSnapshot {
     autoCheckUpdate: boolean;
     launchAtLogin: boolean;
     alwaysElevatedTerminal: boolean;
+    pointerActions: PointerActionSettings;
   };
   commands: {
     disabledCommandIds: string[];
@@ -93,12 +101,19 @@ const DEFAULT_HOTKEYS: HotkeySettings = {
   navigateDown: "ArrowDown",
   executeSelected: "Enter",
   stageSelected: "CmdOrCtrl+Enter",
+  openActionPanel: "Shift+Enter",
+  copySelected: "CmdOrCtrl+Shift+C",
   escape: "Escape",
   executeQueue: "Ctrl+Enter",
   clearQueue: "Ctrl+Backspace",
   removeQueueItem: "Delete",
   reorderUp: "Alt+ArrowUp",
   reorderDown: "Alt+ArrowDown"
+};
+
+const DEFAULT_POINTER_ACTIONS: PointerActionSettings = {
+  leftClick: "action-panel",
+  rightClick: "stage"
 };
 
 const DEFAULT_COMMAND_VIEW_STATE: CommandManagementViewState = {
@@ -121,6 +136,11 @@ export function createDefaultCommandViewState(): CommandManagementViewState {
   return { ...DEFAULT_COMMAND_VIEW_STATE };
 }
 
+/** 返回搜索结果左右键映射默认值，作为 settings schema 的唯一事实源。 */
+export function createDefaultPointerActions(): PointerActionSettings {
+  return { ...DEFAULT_POINTER_ACTIONS };
+}
+
 export function createDefaultSettingsSnapshot(): PersistedSettingsSnapshot {
   return {
     version: SETTINGS_SCHEMA_VERSION,
@@ -131,7 +151,8 @@ export function createDefaultSettingsSnapshot(): PersistedSettingsSnapshot {
       language: DEFAULT_LANGUAGE,
       autoCheckUpdate: DEFAULT_AUTO_CHECK_UPDATE,
       launchAtLogin: DEFAULT_LAUNCH_AT_LOGIN,
-      alwaysElevatedTerminal: DEFAULT_ALWAYS_ELEVATED_TERMINAL
+      alwaysElevatedTerminal: DEFAULT_ALWAYS_ELEVATED_TERMINAL,
+      pointerActions: createDefaultPointerActions()
     },
     commands: {
       disabledCommandIds: []

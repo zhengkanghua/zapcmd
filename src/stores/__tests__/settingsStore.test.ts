@@ -75,6 +75,34 @@ describe("settingsStore migration and persistence", () => {
     expect((migrated?.commands as Record<string, unknown>).view).toBeUndefined();
   });
 
+  it("defaults pointerActions to left action-panel and right stage", () => {
+    const snapshot = createDefaultSettingsSnapshot();
+
+    expect(snapshot.version).toBe(2);
+    expect((snapshot.general as Record<string, unknown>).pointerActions).toEqual({
+      leftClick: "action-panel",
+      rightClick: "stage"
+    });
+    expect((snapshot.hotkeys as Record<string, unknown>).openActionPanel).toBe("Shift+Enter");
+    expect((snapshot.hotkeys as Record<string, unknown>).copySelected).toBe("CmdOrCtrl+Shift+C");
+  });
+
+  it("migrates legacy payload by filling pointerActions and new hotkeys with new defaults", () => {
+    const migrated = migrateSettingsPayload({
+      version: 1,
+      hotkeys: { launcher: "alt+z" },
+      general: { defaultTerminal: "pwsh" }
+    });
+
+    expect(migrated?.version).toBe(2);
+    expect((migrated?.general as Record<string, unknown>).pointerActions).toEqual({
+      leftClick: "action-panel",
+      rightClick: "stage"
+    });
+    expect((migrated?.hotkeys as Record<string, unknown>).openActionPanel).toBe("Shift+Enter");
+    expect((migrated?.hotkeys as Record<string, unknown>).copySelected).toBe("CmdOrCtrl+Shift+C");
+  });
+
   it("defaults alwaysElevatedTerminal to false", () => {
     expect(createDefaultSettingsSnapshot().general.alwaysElevatedTerminal).toBe(false);
   });

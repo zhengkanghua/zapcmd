@@ -184,6 +184,8 @@ function buildSnapshot(
       navigateDown: "ArrowDown",
       executeSelected: "Enter",
       stageSelected: "ArrowRight",
+      openActionPanel: "Shift+Enter",
+      copySelected: "Ctrl+Shift+C",
       escape: "Escape",
       executeQueue: "Ctrl+Enter",
       clearQueue: "Ctrl+Backspace",
@@ -198,6 +200,10 @@ function buildSnapshot(
       autoCheckUpdate: true,
       launchAtLogin: false,
       alwaysElevatedTerminal: false,
+      pointerActions: {
+        leftClick: "action-panel",
+        rightClick: "stage",
+      },
     },
     appearance: {
       windowOpacity: 0.96,

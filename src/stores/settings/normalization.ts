@@ -14,6 +14,7 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_MOTION_PRESET,
+  POINTER_ACTION_FIELD_IDS,
   DEFAULT_TERMINAL,
   DEFAULT_TERMINAL_REUSE_POLICY,
   DEFAULT_THEME,
@@ -21,13 +22,17 @@ import {
   HOTKEY_FIELD_IDS,
   MAX_WINDOW_OPACITY,
   MIN_WINDOW_OPACITY,
+  SEARCH_RESULT_POINTER_ACTIONS,
   SETTINGS_SCHEMA_VERSION,
   TERMINAL_REUSE_POLICIES,
   createDefaultCommandViewState,
   createDefaultHotkeys,
+  createDefaultPointerActions,
   type CommandManagementViewState,
   type HotkeySettings,
+  type PointerActionSettings,
   type PersistedSettingsSnapshot,
+  type SearchResultPointerAction,
   type TerminalReusePolicy
 } from "./defaults";
 
@@ -156,6 +161,26 @@ export function normalizeHotkeys(input: Partial<HotkeySettings>): HotkeySettings
   return defaults;
 }
 
+/** 将单个鼠标映射值收敛到允许集合，避免提示与真实行为分叉。 */
+export function normalizePointerAction(
+  value: unknown,
+  fallback: SearchResultPointerAction
+): SearchResultPointerAction {
+  return normalizeEnumValue(value, SEARCH_RESULT_POINTER_ACTIONS, fallback);
+}
+
+/** 统一补齐左右键默认值，旧快照缺字段时直接落新默认。 */
+export function normalizePointerActions(input: unknown): PointerActionSettings {
+  const defaults = createDefaultPointerActions();
+  if (!isRecord(input)) {
+    return defaults;
+  }
+  for (const field of POINTER_ACTION_FIELD_IDS) {
+    defaults[field] = normalizePointerAction(input[field], defaults[field]);
+  }
+  return defaults;
+}
+
 export function normalizeWindowOpacity(value: unknown): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return DEFAULT_WINDOW_OPACITY;
@@ -203,7 +228,8 @@ export function normalizePersistedSettingsSnapshot(
       alwaysElevatedTerminal: normalizeBoolean(
         snapshot.general.alwaysElevatedTerminal,
         DEFAULT_ALWAYS_ELEVATED_TERMINAL
-      )
+      ),
+      pointerActions: normalizePointerActions(snapshot.general.pointerActions)
     },
     commands: {
       disabledCommandIds: normalizeDisabledCommandIds(snapshot.commands.disabledCommandIds)

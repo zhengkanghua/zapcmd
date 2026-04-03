@@ -8,7 +8,10 @@ import {
   createDefaultSettingsSnapshot,
   type HotkeyFieldId,
   type HotkeySettings,
+  type PointerActionFieldId,
+  type PointerActionSettings,
   type PersistedSettingsSnapshot,
+  type SearchResultPointerAction,
   type TerminalReusePolicy
 } from "./settings/defaults";
 import {
@@ -18,6 +21,7 @@ import {
   normalizeHotkeys,
   normalizeLanguage,
   normalizeMotionPresetId,
+  normalizePointerActions,
   normalizePersistedSettingsSnapshot,
   normalizeTerminalId,
   normalizeTerminalReusePolicy,
@@ -49,7 +53,10 @@ export type {
   CommandSortBy,
   HotkeyFieldId,
   HotkeySettings,
+  PointerActionFieldId,
+  PointerActionSettings,
   PersistedSettingsSnapshot,
+  SearchResultPointerAction,
   TerminalReusePolicy
 } from "./settings/defaults";
 export { migrateSettingsPayload } from "./settings/migration";
@@ -65,6 +72,7 @@ interface SettingsState {
   autoCheckUpdate: boolean;
   launchAtLogin: boolean;
   alwaysElevatedTerminal: boolean;
+  pointerActions: PointerActionSettings;
   disabledCommandIds: string[];
   windowOpacity: number;
   theme: string;
@@ -80,6 +88,7 @@ type SettingsGeneralState = Pick<
   | "autoCheckUpdate"
   | "launchAtLogin"
   | "alwaysElevatedTerminal"
+  | "pointerActions"
 >;
 
 function snapshotGeneralFromState(state: SettingsGeneralState): PersistedSettingsSnapshot["general"] {
@@ -89,7 +98,8 @@ function snapshotGeneralFromState(state: SettingsGeneralState): PersistedSetting
     language: state.language,
     autoCheckUpdate: state.autoCheckUpdate,
     launchAtLogin: state.launchAtLogin,
-    alwaysElevatedTerminal: state.alwaysElevatedTerminal
+    alwaysElevatedTerminal: state.alwaysElevatedTerminal,
+    pointerActions: state.pointerActions
   };
 }
 
@@ -101,6 +111,7 @@ function applyGeneralState(target: SettingsGeneralState, general: PersistedSetti
   target.autoCheckUpdate = general.autoCheckUpdate;
   target.launchAtLogin = general.launchAtLogin;
   target.alwaysElevatedTerminal = general.alwaysElevatedTerminal;
+  target.pointerActions = general.pointerActions;
 }
 
 function snapshotFromState(state: SettingsState): PersistedSettingsSnapshot {
@@ -136,6 +147,7 @@ export const useSettingsStore = defineStore("settings", {
       autoCheckUpdate: defaults.general.autoCheckUpdate,
       launchAtLogin: defaults.general.launchAtLogin,
       alwaysElevatedTerminal: defaults.general.alwaysElevatedTerminal,
+      pointerActions: defaults.general.pointerActions,
       disabledCommandIds: defaults.commands.disabledCommandIds,
       windowOpacity: defaults.appearance.windowOpacity,
       theme: defaults.appearance.theme,
@@ -182,6 +194,12 @@ export const useSettingsStore = defineStore("settings", {
     setAlwaysElevatedTerminal(value: boolean): void {
       this.alwaysElevatedTerminal = normalizeBoolean(value, DEFAULT_ALWAYS_ELEVATED_TERMINAL);
     },
+    setPointerAction(field: PointerActionFieldId, action: SearchResultPointerAction): void {
+      this.pointerActions = normalizePointerActions({
+        ...this.pointerActions,
+        [field]: action
+      });
+    },
     setCommandEnabled(commandId: string, enabled: boolean): void {
       const id = commandId.trim();
       if (!id) {
@@ -221,6 +239,7 @@ export const useSettingsStore = defineStore("settings", {
         autoCheckUpdate: this.autoCheckUpdate,
         launchAtLogin: this.launchAtLogin,
         alwaysElevatedTerminal: this.alwaysElevatedTerminal,
+        pointerActions: this.pointerActions,
         disabledCommandIds: this.disabledCommandIds,
         windowOpacity: this.windowOpacity,
         theme: this.theme,
