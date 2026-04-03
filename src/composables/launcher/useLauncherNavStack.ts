@@ -8,7 +8,8 @@ export interface NavPage {
   type: NavPageType;
   props?: {
     command?: CommandTemplate;
-    mode?: CommandSubmitIntent;
+    panel?: "actions" | "params";
+    intent?: CommandSubmitIntent;
     isDangerous?: boolean;
   };
 }
@@ -18,6 +19,7 @@ export interface LauncherNavStack {
   currentPage: ComputedRef<NavPage>;
   canGoBack: ComputedRef<boolean>;
   pushPage: (page: NavPage) => void;
+  replaceTopPage: (page: NavPage) => void;
   popPage: () => void;
   resetToSearch: () => void;
 }
@@ -37,6 +39,14 @@ export function useLauncherNavStack(): LauncherNavStack {
     stack.value = [...stack.value, page];
   }
 
+  function replaceTopPage(page: NavPage): void {
+    if (stack.value.length === 0) {
+      stack.value = [page];
+      return;
+    }
+    stack.value = [...stack.value.slice(0, -1), page];
+  }
+
   function popPage(): void {
     if (stack.value.length <= 1) return;
     stack.value = stack.value.slice(0, -1);
@@ -46,5 +56,5 @@ export function useLauncherNavStack(): LauncherNavStack {
     stack.value = [SEARCH_PAGE];
   }
 
-  return { stack, currentPage, canGoBack, pushPage, popPage, resetToSearch };
+  return { stack, currentPage, canGoBack, pushPage, replaceTopPage, popPage, resetToSearch };
 }

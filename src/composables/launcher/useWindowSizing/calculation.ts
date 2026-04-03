@@ -17,6 +17,10 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
+function isCommandPageOpen(options: UseWindowSizingOptions): boolean {
+  return options.commandPageOpen?.value ?? (options.pendingCommand.value !== null);
+}
+
 function resolveShellDragStripHeight(options: UseWindowSizingOptions): number {
   const shell = options.searchShellRef.value;
   const dragStrip = shell ? shell.querySelector<HTMLElement>(".shell-drag-strip") : null;
@@ -61,7 +65,7 @@ function measureWindowContentHeightFromLayout(
 
   // Command / Flow 高度统一走 session；这里仅用于 Search 自然高度采样。
   // nav-slide out-in 期间新面板未挂载时，绝不能回退到旧 shell 高度污染会话。
-  if (options.pendingCommand.value !== null) {
+  if (isCommandPageOpen(options)) {
     return null;
   }
 
@@ -92,7 +96,7 @@ function measureWindowContentHeightFromLayout(
 function estimateWindowContentHeight(options: UseWindowSizingOptions, frameMaxHeight: number): number {
   let naturalPanelHeight = SEARCH_CAPSULE_HEIGHT_PX;
   if (
-    options.pendingCommand.value === null &&
+    !isCommandPageOpen(options) &&
     options.drawerOpen.value &&
     options.drawerViewportHeight.value > 0
   ) {
@@ -137,7 +141,7 @@ export function resolveCommandPanelFrameHeight(
   options: UseWindowSizingOptions,
   panelMaxHeight: number
 ): number | null {
-  if (options.pendingCommand.value === null) {
+  if (!isCommandPageOpen(options)) {
     return null;
   }
 
@@ -149,13 +153,13 @@ export function resolveCommandPanelFrameHeight(
 
   if (options.commandPanelLockedHeight.value === null) {
     // Search -> Command 首帧先保留继承高度，等 settled 后再按完整盒子最小值补高。
-    return Math.min(panelMaxHeight, inheritedPanelHeight);
+    return Math.min(panelMaxHeight, inheritedPanelHeight ?? options.constants.commandPageMinHeight);
   }
 
   return resolvePanelHeight({
     panelMaxHeight,
-    inheritedPanelHeight,
-    panelMinHeight: options.constants.paramOverlayMinHeight
+    inheritedPanelHeight: inheritedPanelHeight ?? options.constants.windowBaseHeight,
+    panelMinHeight: options.constants.commandPageMinHeight
   });
 }
 
@@ -196,9 +200,9 @@ export function resolveWindowSize(
   const commandFrameHeight = resolveCommandPanelFrameHeight(options, frameMaxHeight);
   const flowFrameHeight = resolveFlowPanelFrameHeight(options, frameMaxHeight);
   const leftFrameHeight =
-    options.pendingCommand.value === null
+    !isCommandPageOpen(options)
       ? searchFrameHeight
-      : commandFrameHeight ?? options.constants.paramOverlayMinHeight;
+      : commandFrameHeight ?? options.constants.commandPageMinHeight;
   const rightFrameHeight = flowFrameHeight ?? 0;
   let resolvedFrameHeight = Math.max(leftFrameHeight, rightFrameHeight);
 

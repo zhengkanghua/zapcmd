@@ -30,6 +30,7 @@ function createCommandVm(
     pendingArgs: runtime.pendingArgs,
     pendingArgValues: runtime.commandExecution.pendingArgValues,
     submitHint: runtime.pendingSubmitHint,
+    submitIntent: runtime.commandExecution.pendingSubmitIntent,
     submitMode: runtime.commandExecution.pendingSubmitMode,
     safetyDialog: runtime.commandExecution.safetyDialog,
     executing: runtime.commandExecution.executing,
@@ -59,6 +60,7 @@ function createNavVm(runtime: AppCompositionRuntime) {
     currentPage: runtime.navStack.currentPage,
     canGoBack: runtime.navStack.canGoBack,
     pushPage: runtime.navStack.pushPage,
+    replaceTopPage: runtime.navStack.replaceTopPage,
     popPage: runtime.navStack.popPage,
     resetToSearch: runtime.navStack.resetToSearch,
     stack: runtime.navStack.stack
@@ -85,10 +87,20 @@ function createActionVm(
     return runtime.commandExecution.submitParamInput();
   }
 
+  function selectActionPanelIntent(intent: "execute" | "stage" | "copy"): void {
+    const command = runtime.navStack.currentPage.value.props?.command;
+    if (!command) {
+      return;
+    }
+    void runtime.commandExecution.dispatchCommandIntent(command, intent);
+  }
+
   return {
     onQueryInput: context.search.onQueryInput,
     enqueueResult: runtime.commandExecution.stageResult,
     executeResult: runtime.commandExecution.executeResult,
+    openActionPanel: runtime.openActionPanel,
+    selectActionPanelIntent,
     toggleQueue: runtime.stagingQueue.toggleQueue,
     onQueueDragStart: runtime.stagingQueue.onQueueDragStart,
     onQueueDragOver: runtime.stagingQueue.onQueueDragOver,

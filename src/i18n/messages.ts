@@ -57,6 +57,7 @@ export const messages = {
       btn: {
         execute: "直接执行",
         confirmExecute: "确定执行",
+        copy: "复制命令",
         addToFlow: "+ 加入队列",
         cancel: "取消"
       },

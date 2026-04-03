@@ -51,6 +51,7 @@ function mockRect(
 function createBaseOptions(
   overrides: Partial<UseWindowSizingOptions> = {}
 ): UseWindowSizingOptions {
+  const pendingCommand = ref<unknown>(null);
   const baseOptions: UseWindowSizingOptions = {
     constants: WINDOW_SIZING_CONSTANTS,
     isSettingsWindow: ref(false),
@@ -62,7 +63,8 @@ function createBaseOptions(
     searchShellRef: ref(null),
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),
-    pendingCommand: ref<unknown>(null),
+    commandPageOpen: computed(() => pendingCommand.value !== null),
+    pendingCommand,
     commandPanelInheritedHeight: ref<number | null>(null),
     commandPanelLockedHeight: ref<number | null>(null),
     flowPanelInheritedHeight: ref<number | null>(null),
@@ -82,6 +84,9 @@ function createBaseOptions(
     ...baseOptions,
     ...overrides
   };
+  if (!("commandPageOpen" in overrides)) {
+    resolved.commandPageOpen = computed(() => resolved.pendingCommand.value !== null);
+  }
   if (!("searchPanelEffectiveHeight" in overrides)) {
     resolved.searchPanelEffectiveHeight = computed(() => {
       if (!resolved.drawerOpen.value || resolved.drawerViewportHeight.value <= 0) {
@@ -173,6 +178,17 @@ describe("resolveWindowSize（drag strip 与 cap 口径）", () => {
     expect(size.height).toBe(
       524 + UI_TOP_ALIGN_OFFSET_PX_FALLBACK + SEARCH_SHELL_OUTER_CHROME_PX
     );
+  });
+
+  it("commandPageOpen 时即使 pendingCommand 为空，也走 commandPageMinHeight", () => {
+    const size = resolveWindowSize(
+      createBaseOptions({
+        commandPageOpen: ref(true),
+        pendingCommand: ref(null)
+      })
+    );
+
+    expect(size.height).toBeGreaterThan(WINDOW_SIZING_CONSTANTS.windowBaseHeight);
   });
 
   it("measured 与 estimated 口径一致：不把 drag strip 计入 content height", () => {
@@ -355,7 +371,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight +
+      WINDOW_SIZING_CONSTANTS.commandPageMinHeight +
         UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
         SEARCH_SHELL_OUTER_CHROME_PX
     );
@@ -369,7 +385,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight +
+      WINDOW_SIZING_CONSTANTS.commandPageMinHeight +
         UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
         SEARCH_SHELL_OUTER_CHROME_PX
     );
@@ -526,7 +542,7 @@ describe("resolveWindowSize（CommandPanel 内容驱动高度）", () => {
     );
 
     expect(size.height).toBe(
-      WINDOW_SIZING_CONSTANTS.paramOverlayMinHeight +
+      WINDOW_SIZING_CONSTANTS.commandPageMinHeight +
         UI_TOP_ALIGN_OFFSET_PX_FALLBACK +
         SEARCH_SHELL_OUTER_CHROME_PX
     );

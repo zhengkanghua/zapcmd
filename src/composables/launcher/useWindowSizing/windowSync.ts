@@ -28,6 +28,10 @@ interface ResizeStyleSyncOptions {
   preferWindowHeight?: boolean;
 }
 
+function isCommandPageOpen(options: UseWindowSizingOptions): boolean {
+  return options.commandPageOpen?.value ?? (options.pendingCommand.value !== null);
+}
+
 export function resolveShellDragStripHeightFromDom(options: UseWindowSizingOptions): number {
   const shell = options.searchShellRef.value;
   const dragStrip = shell ? shell.querySelector<HTMLElement>(".shell-drag-strip") : null;
@@ -60,7 +64,7 @@ function syncLauncherFrameHeightStyle(
   }
 
   const shouldKeepFrameHeightStyle =
-    options.pendingCommand.value !== null || options.stagingExpanded.value || preferWindowHeight;
+    isCommandPageOpen(options) || options.stagingExpanded.value || preferWindowHeight;
   if (!shouldKeepFrameHeightStyle) {
     shell.style.removeProperty("--launcher-frame-height");
     return;
@@ -148,7 +152,7 @@ function finalizeCommandPanelExit(
   commandPanelExit: ReturnType<typeof createCommandPanelExitCoordinator>
 ): void {
   commandPanelExit.clear();
-  if (options.pendingCommand.value !== null) {
+  if (isCommandPageOpen(options)) {
     return;
   }
 

@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -31,6 +31,7 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
     flowPanelLockedHeight = ref<number | null>(null),
     ...restOverrides
   } = overrides;
+  const pendingCommand = ref<unknown>({ id: "pending" });
   const requestAnimateMainWindowSize = vi.fn<UseWindowSizingOptions["requestAnimateMainWindowSize"]>(
     async (_width, _height) => {}
   );
@@ -49,7 +50,8 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
     searchShellRef: ref(null),
     stagingPanelRef: ref(null),
     stagingExpanded: ref(false),
-    pendingCommand: ref<unknown>({ id: "pending" }),
+    commandPageOpen: ref(pendingCommand.value !== null),
+    pendingCommand,
     commandPanelInheritedHeight: ref<number | null>(null),
     commandPanelLockedHeight: ref<number | null>(null),
     flowPanelInheritedHeight: ref<number | null>(null),
@@ -74,6 +76,9 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
     flowPanelInheritedHeight,
     flowPanelLockedHeight
   };
+  if (!("commandPageOpen" in overrides)) {
+    options.commandPageOpen = computed(() => options.pendingCommand.value !== null);
+  }
 
   return {
     controller: createWindowSizingController(options),
@@ -96,6 +101,7 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
   const drawerViewportHeight = ref(0);
   const searchPanelEffectiveHeight = ref(lastFrameHeight);
   const pendingCommand = ref<unknown>(null);
+  const commandPageOpen = computed(() => pendingCommand.value !== null);
   const stagingExpanded = ref(false);
 
   const harness = createWindowSizingHarness({
@@ -107,6 +113,7 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
     drawerViewportHeight,
     searchPanelEffectiveHeight,
     pendingCommand,
+    commandPageOpen,
     stagingExpanded,
     stagingPanelRef: ref(null)
   });
@@ -119,6 +126,7 @@ function createFlowHarness({ lastFrameHeight = 420 } = {}) {
       drawerViewportHeight,
       searchPanelEffectiveHeight,
       pendingCommand,
+      commandPageOpen,
       stagingExpanded
     }
   };
@@ -129,6 +137,7 @@ function createCommandHarness({ lastFrameHeight = 520 } = {}) {
   const drawerViewportHeight = ref(0);
   const searchPanelEffectiveHeight = ref(lastFrameHeight);
   const pendingCommand = ref<unknown>(null);
+  const commandPageOpen = computed(() => pendingCommand.value !== null);
 
   const harness = createWindowSizingHarness({
     commandPanelInheritedHeight: ref<number | null>(null),
@@ -138,7 +147,8 @@ function createCommandHarness({ lastFrameHeight = 520 } = {}) {
     drawerOpen,
     drawerViewportHeight,
     searchPanelEffectiveHeight,
-    pendingCommand
+    pendingCommand,
+    commandPageOpen
   });
   return {
     ...harness,
@@ -148,7 +158,8 @@ function createCommandHarness({ lastFrameHeight = 520 } = {}) {
       drawerOpen,
       drawerViewportHeight,
       searchPanelEffectiveHeight,
-      pendingCommand
+      pendingCommand,
+      commandPageOpen
     }
   };
 }
@@ -1337,5 +1348,27 @@ describe("createWindowSizingController（Command settled 锁高）", () => {
     await harness.controller.syncWindowSize();
 
     expect(harness.state.commandPanelLockedHeight.value).toBe(harness.lastFrameHeight);
+  });
+
+  it("action panel settled 时即使 pendingCommand 为空，也会锁定 command page 高度", async () => {
+    const commandPageOpen = ref(true);
+    const commandShell = buildCommandPanelShellForLock({
+      headerHeight: 52,
+      contentScrollHeight: 240,
+      footerHeight: 60,
+      dividerHeights: [1, 1]
+    });
+    const harness = createWindowSizingHarness({
+      searchShellRef: ref(commandShell),
+      commandPageOpen,
+      pendingCommand: ref(null),
+      commandPanelInheritedHeight: ref(360),
+      commandPanelLockedHeight: ref(null)
+    });
+
+    harness.controller.notifyCommandPageSettled();
+    await harness.controller.syncWindowSize();
+
+    expect(harness.state.commandPanelLockedHeight.value).toBe(360);
   });
 });

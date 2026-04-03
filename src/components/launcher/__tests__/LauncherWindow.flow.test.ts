@@ -52,6 +52,7 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
       pendingArgs: [],
       pendingArgValues: {},
       submitHint: "",
+      submitIntent: "stage" as const,
       submitMode: "stage" as const,
       safetyDialog: null,
       executing: false,
@@ -72,6 +73,7 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
       currentPage: searchPage,
       canGoBack: false,
       pushPage: vi.fn(),
+      replaceTopPage: vi.fn(),
       popPage: vi.fn(),
       resetToSearch: vi.fn(),
       stack: [searchPage]
@@ -101,6 +103,8 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
       refreshQueuedCommandPreflight: vi.fn(),
       refreshAllQueuedPreflight: vi.fn(),
       setQueueGripReorderActive: vi.fn(),
+      selectActionPanelIntent: vi.fn(),
+      openActionPanel: vi.fn(),
       submitParamInput: vi.fn(),
       requestCommandPanelExit: vi.fn(),
       notifyCommandPageSettled: vi.fn(),
@@ -139,6 +143,7 @@ function mountLauncherWindow(
       stubs: {
         LauncherSearchPanel: true,
         LauncherQueueReviewPanel: true,
+        LauncherActionPanel: true,
         LauncherCommandPanel: true,
         LauncherSafetyOverlay: true,
         ...stubs
@@ -313,7 +318,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     const command = createCommandTemplate("cmd-1");
     const commandPage: NavPage = {
       type: "command-action",
-      props: { command, mode: "execute", isDangerous: false }
+      props: { command, panel: "params", intent: "execute", isDangerous: false }
     };
 
     const { wrapper, launcherVm } = mountLauncherWindow(
@@ -348,7 +353,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     const command = createCommandTemplate("cmd-exit");
     const commandPage: NavPage = {
       type: "command-action",
-      props: { command, mode: "execute", isDangerous: false }
+      props: { command, panel: "params", intent: "execute", isDangerous: false }
     };
 
     const { wrapper, launcherVm } = mountLauncherWindow(
@@ -376,7 +381,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     const command = createCommandTemplate("cmd-1");
     const commandPage: NavPage = {
       type: "command-action",
-      props: { command, mode: "execute", isDangerous: false }
+      props: { command, panel: "params", intent: "execute", isDangerous: false }
     };
 
     const { wrapper } = mountLauncherWindow(
@@ -427,7 +432,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     const command = createCommandTemplate("cmd-settled");
     const commandPage: NavPage = {
       type: "command-action",
-      props: { command, mode: "execute", isDangerous: false }
+      props: { command, panel: "params", intent: "execute", isDangerous: false }
     };
 
     const { wrapper } = mountLauncherWindow({
@@ -457,7 +462,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     const command = createCommandTemplate("cmd-entered");
     const commandPage: NavPage = {
       type: "command-action",
-      props: { command, mode: "execute", isDangerous: false }
+      props: { command, panel: "params", intent: "execute", isDangerous: false }
     };
 
     const { wrapper } = mountLauncherWindow({
@@ -481,5 +486,24 @@ describe("LauncherWindow CommandPanel wiring", () => {
     await nextTick();
 
     expect(wrapper.emitted("command-page-settled")).toHaveLength(1);
+  });
+
+  it("command-action actions 变体渲染 ActionPanel，而不是 CommandPanel", () => {
+    const command = createCommandTemplate("cmd-actions");
+    const commandPage: NavPage = {
+      type: "command-action",
+      props: { command, panel: "actions", isDangerous: false }
+    };
+
+    const { wrapper } = mountLauncherWindow({
+      nav: {
+        currentPage: commandPage,
+        canGoBack: true,
+        stack: [{ type: "search" }, commandPage]
+      }
+    });
+
+    expect(wrapper.find("launcher-action-panel-stub").exists()).toBe(true);
+    expect(wrapper.find("launcher-command-panel-stub").exists()).toBe(false);
   });
 });

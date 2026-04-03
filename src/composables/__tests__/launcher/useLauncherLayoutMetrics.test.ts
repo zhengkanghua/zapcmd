@@ -50,7 +50,7 @@ describe("useLauncherLayoutMetrics", () => {
       filteredResults,
       stagedCommands,
       stagingExpanded,
-      flowOpen: ref(false)
+      commandPageOpen: ref(false)
     });
 
     expect(metrics.drawerOpen.value).toBe(true);
@@ -73,7 +73,7 @@ describe("useLauncherLayoutMetrics", () => {
         filteredResults: ref([]),
         stagedCommands: ref([]),
         stagingExpanded: ref(stagingExpandedValue),
-        flowOpen: ref(false)
+        commandPageOpen: ref(false)
       });
 
       expect(metrics.searchMainWidth.value).toBe(680);
@@ -98,7 +98,7 @@ describe("useLauncherLayoutMetrics", () => {
       filteredResults: ref([]),
       stagedCommands: ref([]),
       stagingExpanded: ref(true),
-      flowOpen: ref(true)
+      commandPageOpen: ref(true)
     });
 
     expect(metrics.searchMainWidth.value).toBe(680);
@@ -113,7 +113,7 @@ describe("useLauncherLayoutMetrics", () => {
       filteredResults: ref([]),
       stagedCommands: ref(Array.from({ length: 5 }, (_, idx) => ({ id: idx }))),
       stagingExpanded: ref(false),
-      flowOpen: ref(false)
+      commandPageOpen: ref(false)
     });
 
     expect("stagingVisibleRows" in metrics).toBe(false);
@@ -128,7 +128,7 @@ describe("useLauncherLayoutMetrics", () => {
       filteredResults: ref([]),
       stagedCommands: ref([{ id: "staged-1" }]),
       stagingExpanded: ref(true),
-      flowOpen: ref(true)
+      commandPageOpen: ref(true)
     });
 
     expect("drawerFloorViewportHeight" in metrics).toBe(false);
@@ -142,7 +142,7 @@ describe("useLauncherLayoutMetrics", () => {
       filteredResults: ref([{ id: "r1" }, { id: "r2" }]),
       stagedCommands: ref([{ id: "s1" }]),
       stagingExpanded: ref(true),
-      flowOpen: ref(true)
+      commandPageOpen: ref(true)
     });
 
     expect(metrics.drawerOpen.value).toBe(false);
@@ -157,7 +157,7 @@ describe("useLauncherLayoutMetrics", () => {
       filteredResults: ref([{ id: "r1" }, { id: "r2" }, { id: "r3" }]),
       stagedCommands: ref([]),
       stagingExpanded: ref(false),
-      flowOpen: ref(false)
+      commandPageOpen: ref(false)
     });
 
     expect(metrics.drawerOpen.value).toBe(true);
@@ -181,7 +181,7 @@ describe("useLauncherLayoutMetrics", () => {
         filteredResults: ref(Array.from({ length: 99 }, (_, idx) => ({ id: idx }))),
         stagedCommands: ref(Array.from({ length: 12 }, (_, idx) => ({ id: idx }))),
         stagingExpanded: ref(variant.stagingExpanded),
-        flowOpen: ref(variant.flowOpen)
+        commandPageOpen: ref(variant.flowOpen)
       });
 
       expect(metrics.sharedPanelMaxHeight.value).toBe(
@@ -197,7 +197,7 @@ describe("useLauncherLayoutMetrics", () => {
       filteredResults: ref(Array.from({ length: 99 }, (_, idx) => ({ id: idx }))),
       stagedCommands: ref(Array.from({ length: 12 }, (_, idx) => ({ id: idx }))),
       stagingExpanded: ref(true),
-      flowOpen: ref(true)
+      commandPageOpen: ref(true)
     });
 
     expect(metrics.sharedPanelMaxHeight.value).toBe(
@@ -212,7 +212,7 @@ describe("useLauncherLayoutMetrics", () => {
       filteredResults: ref(Array.from({ length: 10 }, (_, idx) => ({ id: idx }))),
       stagedCommands: ref([]),
       stagingExpanded: ref(false),
-      flowOpen: ref(false)
+      commandPageOpen: ref(false)
     });
 
     expect(metrics.drawerViewportHeight.value).toBe(

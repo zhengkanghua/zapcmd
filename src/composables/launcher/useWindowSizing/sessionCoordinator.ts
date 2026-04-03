@@ -36,6 +36,10 @@ export function createPanelHeightSessionView(options: UseWindowSizingOptions): P
   };
 }
 
+function isCommandPageOpen(options: UseWindowSizingOptions): boolean {
+  return options.commandPageOpen?.value ?? (options.pendingCommand.value !== null);
+}
+
 export function resolveSearchPanelEffectiveHeight(options: UseWindowSizingOptions): number {
   const effectiveHeight = options.searchPanelEffectiveHeight.value;
   if (Number.isFinite(effectiveHeight) && effectiveHeight > 0) {
@@ -49,7 +53,7 @@ export function resolveSearchPanelEffectiveHeight(options: UseWindowSizingOption
  * Search 来源必须只认 searchPanelEffectiveHeight，避免 breathing 污染 Command / Flow 入口基线。
  */
 export function resolveCurrentPanelEffectiveHeight(options: UseWindowSizingOptions): number {
-  if (options.pendingCommand.value !== null) {
+  if (isCommandPageOpen(options)) {
     return (
       options.commandPanelLockedHeight.value ??
       options.commandPanelInheritedHeight.value ??
@@ -102,7 +106,7 @@ export function syncPanelHeightSessions(
   commandPanelExitPhase: CommandPanelExitPhase
 ): void {
   const session = createPanelHeightSessionView(options);
-  const pendingCommandActive = options.pendingCommand.value !== null;
+  const pendingCommandActive = isCommandPageOpen(options);
   const flowPanelActive = options.stagingExpanded.value;
 
   if (pendingCommandActive && !state.pendingCommandActive) {
@@ -152,7 +156,7 @@ function maybeLockCommandPanelHeight(
   frameMaxHeight: number
 ): void {
   if (
-    options.pendingCommand.value === null ||
+    !isCommandPageOpen(options) ||
     !state.pendingCommandActive ||
     !state.pendingCommandSettled ||
     options.commandPanelLockedHeight.value !== null
@@ -164,7 +168,7 @@ function maybeLockCommandPanelHeight(
     ? measureCommandPanelFullNaturalHeight(options.searchShellRef.value)
     : null;
   const panelMinHeight = resolveCommandPanelMinHeight({
-    fallbackMinHeight: options.constants.paramOverlayMinHeight,
+    fallbackMinHeight: options.constants.commandPageMinHeight,
     fullNaturalHeight
   });
 

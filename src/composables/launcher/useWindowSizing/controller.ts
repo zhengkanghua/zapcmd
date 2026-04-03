@@ -35,9 +35,13 @@ interface FlowPanelPreparedGate {
   resolve: (() => void) | null;
 }
 
+function isCommandPageOpen(options: UseWindowSizingOptions): boolean {
+  return options.commandPageOpen?.value ?? (options.pendingCommand.value !== null);
+}
+
 function createWindowSizingState(options: UseWindowSizingOptions): WindowSizingState {
   const pendingCommandActive =
-    options.pendingCommand.value !== null &&
+    isCommandPageOpen(options) &&
     (options.commandPanelInheritedHeight.value !== null ||
       options.commandPanelLockedHeight.value !== null);
   const flowPanelActive =
@@ -172,7 +176,7 @@ function createRequestCommandPanelExit(
       ? Math.max(0, state.lastWindowSize.height - resolveWindowChromeHeight(dragStripHeight))
       : options.commandPanelLockedHeight.value ??
         options.commandPanelInheritedHeight.value ??
-        options.constants.paramOverlayMinHeight;
+        options.constants.commandPageMinHeight;
     commandPanelExit.beginExit(lockedFrameHeight);
   };
 }

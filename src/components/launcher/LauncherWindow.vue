@@ -7,6 +7,7 @@ import { LAUNCHER_NAV_STACK_KEY, type LauncherNavStack } from "../../composables
 import type { LauncherVm } from "../../composables/app/useAppCompositionRoot/launcherVm";
 import { dismissDanger } from "../../features/security/dangerDismiss";
 import LauncherQueueReviewPanel from "./parts/LauncherQueueReviewPanel.vue";
+import LauncherActionPanel from "./parts/LauncherActionPanel.vue";
 import LauncherCommandPanel from "./parts/LauncherCommandPanel.vue";
 import LauncherSearchPanel from "./parts/LauncherSearchPanel.vue";
 import LauncherSafetyOverlay from "./parts/LauncherSafetyOverlay.vue";
@@ -55,6 +56,7 @@ const navStackProvided: LauncherNavStack = {
   currentPage: computed(() => props.launcherVm.nav.currentPage),
   canGoBack: computed(() => props.launcherVm.nav.canGoBack),
   pushPage: props.launcherVm.nav.pushPage,
+  replaceTopPage: props.launcherVm.nav.replaceTopPage,
   popPage: props.launcherVm.nav.popPage,
   resetToSearch: props.launcherVm.nav.resetToSearch
 };
@@ -171,6 +173,15 @@ function onCommandPanelCancel(): void {
   emit("request-command-panel-exit");
 }
 
+function onActionPanelCancel(): void {
+  props.launcherVm.actions.requestCommandPanelExit();
+  emit("request-command-panel-exit");
+}
+
+function onActionPanelSelect(intent: "execute" | "stage" | "copy"): void {
+  props.launcherVm.actions.selectActionPanelIntent(intent);
+}
+
 function onArgInput(key: string, value: string): void {
   props.launcherVm.actions.updatePendingArgValue(key, value);
   emit("arg-input", key, value);
@@ -274,11 +285,22 @@ function onNavAfterEnter(): void {
             @search-capsule-back="onSearchCapsuleBack"
           />
 
+          <LauncherActionPanel
+            v-else-if="
+              props.launcherVm.nav.currentPage.type === 'command-action' &&
+              props.launcherVm.nav.currentPage.props?.panel === 'actions'
+            "
+            key="command-action-actions"
+            :command="props.launcherVm.nav.currentPage.props?.command!"
+            @select-intent="onActionPanelSelect"
+            @cancel="onActionPanelCancel"
+          />
+
           <LauncherCommandPanel
             v-else-if="props.launcherVm.nav.currentPage.type === 'command-action'"
-            key="command-action"
+            key="command-action-params"
             :command="props.launcherVm.nav.currentPage.props?.command!"
-            :mode="props.launcherVm.nav.currentPage.props?.mode ?? 'execute'"
+            :mode="props.launcherVm.nav.currentPage.props?.intent ?? 'execute'"
             :is-dangerous="props.launcherVm.nav.currentPage.props?.isDangerous ?? false"
             :pending-arg-values="props.launcherVm.command.pendingArgValues"
             :queued-command-count="props.launcherVm.queue.items.length"

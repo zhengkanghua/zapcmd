@@ -69,7 +69,7 @@ function createNavStackMock() {
 function mountPanel(
   props: Partial<{
     command: CommandTemplate;
-    mode: "execute" | "stage";
+    mode: "execute" | "stage" | "copy";
     isDangerous: boolean;
     pendingArgValues: Record<string, string>;
     queuedCommandCount: number;
@@ -145,6 +145,16 @@ describe("LauncherCommandPanel", () => {
       expect(btn.text()).toContain("加入队列");
     });
 
+    it("copy 模式显示复制按钮", () => {
+      const wrapper = mountPanel({
+        command: createCommand({ dangerous: false }),
+        mode: "copy",
+        isDangerous: false
+      });
+      const btn = wrapper.find("[data-testid='confirm-btn']");
+      expect(btn.text()).toContain("复制命令");
+    });
+
     it("不显示高危横幅", () => {
       const wrapper = mountPanel({
         command: createCommand({ dangerous: false }),
@@ -216,6 +226,22 @@ describe("LauncherCommandPanel", () => {
       const btn = wrapper.find("[data-testid='confirm-btn']");
       expect(btn.text()).toContain("加入队列");
       expect(btn.classes()).toContain("command-panel__btn--danger");
+    });
+
+    it("copy 模式不显示高危横幅，确认按钮也不走高危样式", () => {
+      const wrapper = mountPanel({
+        command: createCommand({ dangerous: true }),
+        mode: "copy",
+        isDangerous: false
+      });
+
+      const btn = wrapper.find("[data-testid='confirm-btn']");
+
+      expect(btn.text()).toContain("复制命令");
+      expect(btn.classes()).not.toContain("command-panel__btn--danger");
+      expect(wrapper.find("[data-testid='danger-banner']").exists()).toBe(false);
+      expect(wrapper.text()).not.toContain("高危拦截与配置");
+      expect(wrapper.text()).toContain("参数输入");
     });
   });
 

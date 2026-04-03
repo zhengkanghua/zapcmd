@@ -39,7 +39,7 @@ const STAGING_LIST_GAP = 8;
 const STAGING_CHROME_HEIGHT = 118;
 const STAGING_TOP_OFFSET = 18;
 const WINDOW_SIZE_EPSILON = 2;
-const PARAM_OVERLAY_MIN_HEIGHT = 340;
+const COMMAND_PAGE_MIN_HEIGHT = 340;
 
 export const STAGING_TRANSITION_MS = 200;
 export const WINDOW_SIZING_CONSTANTS = {
@@ -54,7 +54,7 @@ export const WINDOW_SIZING_CONSTANTS = {
   stagingCardEstHeight: STAGING_CARD_EST_HEIGHT,
   stagingListGap: STAGING_LIST_GAP,
   stagingTopOffset: STAGING_TOP_OFFSET,
-  paramOverlayMinHeight: PARAM_OVERLAY_MIN_HEIGHT,
+  commandPageMinHeight: COMMAND_PAGE_MIN_HEIGHT,
   windowSizeEpsilon: WINDOW_SIZE_EPSILON
 } as const;
 
@@ -70,7 +70,7 @@ interface UseLauncherLayoutMetricsOptions {
   filteredResults: Ref<unknown[]>;
   stagedCommands: Ref<unknown[]>;
   stagingExpanded: Ref<boolean>;
-  flowOpen: Ref<boolean>;
+  commandPageOpen: Ref<boolean>;
 }
 
 function resolveScreenHeight(): number {
@@ -101,10 +101,12 @@ function clamp(value: number, min: number, max: number): number {
 
 function createOverlayPanelWidths(options: {
   searchMainWidth: Ref<number>;
-  flowOpen: Ref<boolean>;
+  commandPageOpen: Ref<boolean>;
   stagingExpanded: Ref<boolean>;
 }) {
-  const dualDrawerMode = computed(() => options.flowOpen.value && options.stagingExpanded.value);
+  const dualDrawerMode = computed(
+    () => options.commandPageOpen.value && options.stagingExpanded.value
+  );
   const widePanelWidth = computed(() =>
     clamp(
       Math.floor(options.searchMainWidth.value * FLOW_PANEL_WIDTH_RATIO),
@@ -141,7 +143,7 @@ export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOption
   const searchMainWidth = computed(() => resolveSearchMainWidth(resolveScreenWidth()));
   const { flowPanelWidth, flowWidth } = createOverlayPanelWidths({
     searchMainWidth,
-    flowOpen: options.flowOpen,
+    commandPageOpen: options.commandPageOpen,
     stagingExpanded: options.stagingExpanded
   });
 

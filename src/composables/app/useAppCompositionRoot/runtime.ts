@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import type { CommandArg } from "../../../features/commands/commandTemplates";
+import type { CommandArg, CommandTemplate } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
 import { getCommandArgs } from "../../../features/launcher/commandRuntime";
 import { cleanExpiredDismissals } from "../../../features/security/dangerDismiss";
@@ -57,6 +57,13 @@ function createLauncherRuntime(context: AppCompositionContext) {
   cleanExpiredDismissals();
   const commandPreflight = createCommandPreflightService();
 
+  function openActionPanel(command: CommandTemplate): void {
+    navStack.pushPage({
+      type: "command-action",
+      props: { command, panel: "actions" }
+    });
+  }
+
   const commandExecution = useCommandExecution({
     stagedCommands: context.stagedCommands,
     focusZone: stagingQueue.focusZone,
@@ -72,15 +79,28 @@ function createLauncherRuntime(context: AppCompositionContext) {
     copyTextToClipboard,
     resolveCommandTitle: (commandId) =>
       context.commandCatalog.commandTemplates.value.find((item) => item.id === commandId)?.title ?? null,
-    onNeedPanel: (command, mode) => {
-      navStack.pushPage({
-        type: "command-action",
-        props: { command, mode, isDangerous: command.dangerous === true }
-      });
+    onNeedPanel: (command, intent) => {
+      const nextPage = {
+        type: "command-action" as const,
+        props: {
+          command,
+          panel: "params" as const,
+          intent,
+          isDangerous: intent === "execute" && command.dangerous === true
+        }
+      };
+      if (
+        navStack.currentPage.value.type === "command-action" &&
+        navStack.currentPage.value.props?.panel === "actions"
+      ) {
+        navStack.replaceTopPage(nextPage);
+        return;
+      }
+      navStack.pushPage(nextPage);
     }
   });
-  const flowOpen = computed(
-    () => commandExecution.pendingCommand.value !== null || commandExecution.safetyDialog.value !== null
+  const commandPageOpen = computed(
+    () => navStack.currentPage.value.type === "command-action"
   );
 
   const layoutMetrics = useLauncherLayoutMetrics({
@@ -88,7 +108,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
     filteredResults: context.search.filteredResults,
     stagedCommands: context.stagedCommands,
     stagingExpanded: stagingQueue.queueOpen,
-    flowOpen
+    commandPageOpen
   });
   const visibility = useLauncherVisibility({
     drawerOpen: layoutMetrics.drawerOpen,
@@ -102,7 +122,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
   context.shouldBlockSearchInputFocusRef.value = () =>
     stagingQueue.queueOpen.value ||
     commandExecution.executing.value ||
-    commandExecution.pendingCommand.value !== null ||
+    commandPageOpen.value ||
     commandExecution.safetyDialog.value !== null;
 
   const pendingArgs = computed<CommandArg[]>(() =>
@@ -111,7 +131,9 @@ function createLauncherRuntime(context: AppCompositionContext) {
   const pendingSubmitHint = computed(() =>
     commandExecution.pendingSubmitMode.value === "execute"
       ? t("runtime.submitExecuteHint")
-      : t("runtime.submitStageHint")
+      : commandExecution.pendingSubmitMode.value === "copy"
+        ? t("common.copy")
+        : t("runtime.submitStageHint")
   );
 
   return {
@@ -121,6 +143,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
     layoutMetrics,
     visibility,
     commandExecution,
+    openActionPanel,
     pendingArgs,
     pendingSubmitHint
   };
@@ -239,6 +262,7 @@ function createWindowSizingOptions(
     searchShellRef: context.domBridge.searchShellRef,
     stagingPanelRef: context.domBridge.stagingPanelRef,
     stagingExpanded: launcherRuntime.stagingQueue.queueOpen,
+    commandPageOpen: computed(() => launcherRuntime.navStack.currentPage.value.type === "command-action"),
     pendingCommand: launcherRuntime.commandExecution.pendingCommand,
     commandPanelInheritedHeight: panelHeightSession.commandPanelInheritedHeight,
     commandPanelLockedHeight: panelHeightSession.commandPanelLockedHeight,

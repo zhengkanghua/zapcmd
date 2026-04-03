@@ -24,7 +24,7 @@ export interface WindowSizingConstants {
   stagingCardEstHeight: number;
   stagingListGap: number;
   stagingTopOffset: number;
-  paramOverlayMinHeight: number;
+  commandPageMinHeight: number;
   windowSizeEpsilon: number;
 }
 
@@ -39,6 +39,7 @@ export interface UseWindowSizingOptions {
   searchShellRef: Ref<HTMLElement | null>;
   stagingPanelRef: Ref<HTMLElement | null>;
   stagingExpanded: Ref<boolean>;
+  commandPageOpen?: Ref<boolean>;
   pendingCommand: Ref<unknown>;
   commandPanelInheritedHeight: Ref<number | null>;
   commandPanelLockedHeight: Ref<number | null>;

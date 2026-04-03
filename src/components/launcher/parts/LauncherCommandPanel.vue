@@ -73,6 +73,9 @@ const confirmLabel = computed(() => {
       ? t("commandPanel.btn.confirmExecute")
       : t("commandPanel.btn.execute");
   }
+  if (props.mode === "copy") {
+    return t("commandPanel.btn.copy");
+  }
   return t("commandPanel.btn.addToFlow");
 });
 
