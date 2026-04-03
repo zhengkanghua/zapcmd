@@ -5,6 +5,8 @@ import type {
 } from "../commands/commandTemplates";
 import type { CommandPrerequisite } from "../commands/prerequisiteTypes";
 
+export type CommandSubmitIntent = "execute" | "stage" | "copy";
+
 export interface StagedCommandPreflightCache {
   checkedAt: number;
   issueCount: number;

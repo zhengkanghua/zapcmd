@@ -146,6 +146,25 @@ export function summarizeCommandForFeedback(command: string): string {
   return collapsed.length > maxLength ? `${collapsed.slice(0, maxLength)}...` : collapsed;
 }
 
+/** 统一处理复制命令的渲染、反馈与失败收口，避免 Search/Flow/参数面板各自实现。 */
+export async function copyRenderedCommand(
+  options: UseCommandExecutionOptions,
+  state: CommandExecutionState,
+  command: CommandTemplate,
+  argValues?: Record<string, string>
+): Promise<void> {
+  const resolved = resolveCommandExecution(command, argValues);
+  try {
+    await options.copyTextToClipboard(resolved.renderedPreview);
+    state.setExecutionFeedback("success", t("common.copied"));
+  } catch (error) {
+    console.error("copy command failed:", error);
+    state.setExecutionFeedback("error", t("common.copyFailed"));
+  } finally {
+    options.scheduleSearchInputFocus(false);
+  }
+}
+
 export interface PendingSubmitRejection {
   reason: string;
   nextStep: string;

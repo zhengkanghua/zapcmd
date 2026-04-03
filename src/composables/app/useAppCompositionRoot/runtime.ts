@@ -12,6 +12,7 @@ import {
   useLauncherLayoutMetrics
 } from "../../launcher/useLauncherLayoutMetrics";
 import { createCommandPreflightService } from "../../../services/commandPreflight";
+import { copyTextToClipboard } from "../../../services/clipboard";
 import { createPanelHeightSession } from "../../launcher/useWindowSizing/panelHeightSession";
 import { useLauncherVisibility } from "../../launcher/useLauncherVisibility";
 import { useLauncherWatcherBindings } from "../../launcher/useLauncherWatcherBindings";
@@ -68,6 +69,7 @@ function createLauncherRuntime(context: AppCompositionContext) {
     runCommandInTerminal: context.runCommandInTerminal,
     runCommandsInTerminal: context.runCommandsInTerminal,
     runCommandPreflight: commandPreflight.check.bind(commandPreflight),
+    copyTextToClipboard,
     resolveCommandTitle: (commandId) =>
       context.commandCatalog.commandTemplates.value.find((item) => item.id === commandId)?.title ?? null,
     onNeedPanel: (command, mode) => {

@@ -6,14 +6,17 @@ import type {
   ResolvedCommandExecution
 } from "../../features/commands/commandTemplates";
 import type { CommandPrerequisite } from "../../features/commands/prerequisiteTypes";
-import type { StagedCommandPreflightCache } from "../../features/launcher/types";
+import type {
+  CommandSubmitIntent,
+  StagedCommandPreflightCache
+} from "../../features/launcher/types";
 
 export interface KeyboardHint {
   keys: string[];
   action: string;
 }
 
-export type ParamSubmitMode = "stage" | "execute";
+export type ParamSubmitMode = CommandSubmitIntent;
 export type FocusZone = "search" | "paging" | "results" | "queue";
 export type QueuePanelState =
   | "closed"
@@ -89,7 +92,7 @@ export interface LauncherSafetyDialog {
 
 export interface LauncherCommandPanelProps {
   command: CommandTemplate;
-  mode: ParamSubmitMode;
+  mode: CommandSubmitIntent;
   isDangerous: boolean;
   pendingArgValues: Record<string, string>;
   queuedCommandCount: number;

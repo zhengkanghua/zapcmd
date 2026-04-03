@@ -26,6 +26,7 @@ interface Harness {
   runCommandInTerminal: ReturnType<typeof vi.fn>;
   runCommandsInTerminal: ReturnType<typeof vi.fn>;
   runCommandPreflight: ReturnType<typeof vi.fn>;
+  copyTextToClipboard: ReturnType<typeof vi.fn>;
   resolveCommandTitle: ReturnType<typeof vi.fn>;
   onNeedPanel: ReturnType<typeof vi.fn>;
   execution: ReturnType<typeof useCommandExecution>;
@@ -211,6 +212,7 @@ function createHarness(useBatchRunner = false): Harness {
   const runCommandPreflight = vi.fn(
     async () => [] as CommandPrerequisiteProbeResult[]
   );
+  const copyTextToClipboard = vi.fn(async () => {});
   const resolveCommandTitle = vi.fn((commandId: string) =>
     commandId === "install-docker" ? "安装 Docker" : null
   );
@@ -228,6 +230,7 @@ function createHarness(useBatchRunner = false): Harness {
     runCommandInTerminal,
     runCommandsInTerminal: useBatchRunner ? runCommandsInTerminal : undefined,
     runCommandPreflight,
+    copyTextToClipboard,
     resolveCommandTitle,
     onNeedPanel
   });
@@ -244,6 +247,7 @@ function createHarness(useBatchRunner = false): Harness {
     runCommandInTerminal,
     runCommandsInTerminal,
     runCommandPreflight,
+    copyTextToClipboard,
     resolveCommandTitle,
     onNeedPanel,
     execution
@@ -420,6 +424,37 @@ describe("useCommandExecution", () => {
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("终端");
+  });
+
+  it("copies no-arg command directly without opening panel or terminal", async () => {
+    const command = createNoArgCommand();
+    const harness = createHarness();
+
+    await harness.execution.dispatchCommandIntent(command, "copy");
+
+    expect(harness.copyTextToClipboard).toHaveBeenCalledWith("ls -la");
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.onNeedPanel).not.toHaveBeenCalled();
+  });
+
+  it("opens param panel with copy intent when command requires args", () => {
+    const command = createArgCommand();
+    const harness = createHarness();
+
+    harness.execution.dispatchCommandIntent(command, "copy");
+
+    expect(harness.execution.pendingSubmitIntent.value).toBe("copy");
+    expect(harness.onNeedPanel).toHaveBeenCalledWith(command, "copy");
+  });
+
+  it("does not request safety confirmation when dangerous command is copied", async () => {
+    const command = createKillTaskCommand();
+    const harness = createHarness();
+
+    await harness.execution.dispatchCommandIntent(command, "copy");
+
+    expect(harness.execution.safetyDialog.value).toBeNull();
+    expect(harness.copyTextToClipboard).toHaveBeenCalledTimes(1);
   });
 
   it("staged submit writes preflight cache for param commands", async () => {
@@ -1151,15 +1186,9 @@ describe("useCommandExecution", () => {
     const risky = createKillTaskCommand();
 
     harness.execution.stageResult(risky);
-    expect(harness.execution.pendingCommand.value?.id).toBe(risky.id);
-    expect(harness.execution.pendingSubmitMode.value).toBe("stage");
-    expect(harness.onNeedPanel).toHaveBeenCalledWith(risky, "stage");
-
-    const submitted = harness.execution.submitParamInput();
-    await nextTick();
-    expect(submitted).toBe(true);
     expect(harness.execution.pendingCommand.value).toBeNull();
     expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.onNeedPanel).not.toHaveBeenCalled();
 
     await harness.execution.executeStaged();
 

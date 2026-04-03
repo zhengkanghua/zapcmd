@@ -71,7 +71,7 @@ export function createCommandExecutionState(feedbackDurationMs?: number): Comman
     refreshingAllQueuedPreflight,
     refreshingQueuedCommandIds,
     pendingCommand: ref(null),
-    pendingSubmitMode: ref("stage"),
+    pendingSubmitIntent: ref("stage"),
     pendingArgValues: ref({}),
     safetyDialog,
     executionFeedbackMessage,

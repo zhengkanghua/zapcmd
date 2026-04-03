@@ -1,5 +1,6 @@
 import { ref, computed, type Ref, type ComputedRef, type InjectionKey } from "vue";
 import type { CommandTemplate } from "../../features/commands/commandTemplates";
+import type { CommandSubmitIntent } from "../../features/launcher/types";
 
 export type NavPageType = "search" | "command-action";
 
@@ -7,7 +8,7 @@ export interface NavPage {
   type: NavPageType;
   props?: {
     command?: CommandTemplate;
-    mode?: "execute" | "stage";
+    mode?: CommandSubmitIntent;
     isDangerous?: boolean;
   };
 }

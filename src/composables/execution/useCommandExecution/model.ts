@@ -4,11 +4,14 @@ import type {
   CommandPrerequisite,
   CommandPrerequisiteProbeResult
 } from "../../../features/commands/prerequisiteTypes";
-import type { StagedCommand } from "../../../features/launcher/types";
+import type {
+  CommandSubmitIntent,
+  StagedCommand
+} from "../../../features/launcher/types";
 import type { StructuredTerminalExecutionStep } from "../../../services/commandExecutor";
 import type { FocusZone } from "../../launcher/useCommandQueue";
 
-export type ParamSubmitMode = "stage" | "execute";
+export type ParamSubmitMode = CommandSubmitIntent;
 export type ExecutionFeedbackTone = "neutral" | "success" | "error";
 
 export interface ExecutionSafetyItem {
@@ -44,9 +47,10 @@ export interface UseCommandExecutionOptions {
   runCommandPreflight?: (
     prerequisites: CommandPrerequisite[]
   ) => Promise<CommandPrerequisiteProbeResult[]>;
+  copyTextToClipboard: (text: string) => Promise<void>;
   resolveCommandTitle?: (commandId: string) => string | null;
   feedbackDurationMs?: number;
-  onNeedPanel?: (command: CommandTemplate, mode: ParamSubmitMode) => void;
+  onNeedPanel?: (command: CommandTemplate, mode: CommandSubmitIntent) => void;
 }
 
 export interface CommandExecutionState {
@@ -54,7 +58,7 @@ export interface CommandExecutionState {
   refreshingAllQueuedPreflight: Ref<boolean>;
   refreshingQueuedCommandIds: Ref<string[]>;
   pendingCommand: Ref<CommandTemplate | null>;
-  pendingSubmitMode: Ref<ParamSubmitMode>;
+  pendingSubmitIntent: Ref<CommandSubmitIntent>;
   pendingArgValues: Ref<Record<string, string>>;
   safetyDialog: Ref<ExecutionSafetyDialog | null>;
   executionFeedbackMessage: Ref<string>;

@@ -19,6 +19,7 @@ import {
   buildExecutionFailureFeedback,
   buildPreflightBlockedFeedback,
   collectBlockingPreflightIssues,
+  copyRenderedCommand,
   collectWarningPreflightIssues,
   executeSingleCommand,
   getPendingSubmitRejection,
@@ -34,11 +35,13 @@ import {
   countQueuedCommandsWithPreflightIssues
 } from "./stagedPreflightCache";
 
-function needsPanel(command: CommandTemplate): boolean {
+function needsPanel(command: CommandTemplate, intent: ParamSubmitMode): boolean {
   const hasArgs = getCommandArgs(command).length > 0;
-  const isDangerous = command.dangerous === true;
+  if (intent === "copy" || intent === "stage") {
+    return hasArgs;
+  }
   const dismissed = isDangerDismissed(command.id);
-  return hasArgs || (isDangerous && !dismissed);
+  return hasArgs || (command.dangerous === true && !dismissed);
 }
 
 function hasPrerequisites(
@@ -233,6 +236,100 @@ function createSingleExecutionRequester(
   };
 }
 
+function submitPendingIntent(params: {
+  options: UseCommandExecutionOptions;
+  state: CommandExecutionState;
+  command: CommandTemplate;
+  values: Record<string, string>;
+  submitMode: ParamSubmitMode;
+  resetPendingCommand: () => void;
+  requestSingleExecution: (
+    target: CommandTemplate,
+    argValues?: Record<string, string>,
+    skipDangerConfirmation?: boolean
+  ) => Promise<void>;
+  stageCommandWithPreflight: (
+    target: CommandTemplate,
+    argValues?: Record<string, string>
+  ) => Promise<void>;
+}): boolean {
+  if (params.submitMode === "execute") {
+    params.resetPendingCommand();
+    void params.requestSingleExecution(params.command, params.values, true);
+    return true;
+  }
+
+  if (params.submitMode === "copy") {
+    params.resetPendingCommand();
+    void copyRenderedCommand(params.options, params.state, params.command, params.values);
+    return true;
+  }
+
+  params.resetPendingCommand();
+  void params.stageCommandWithPreflight(params.command, params.values);
+  return true;
+}
+
+function createCommandIntentActions(params: {
+  options: UseCommandExecutionOptions;
+  state: CommandExecutionState;
+  requestSingleExecution: (
+    command: CommandTemplate,
+    argValues?: Record<string, string>,
+    skipDangerConfirmation?: boolean
+  ) => Promise<void>;
+  stageCommandWithPreflight: (
+    command: CommandTemplate,
+    argValues?: Record<string, string>
+  ) => Promise<void>;
+  openParamInput: (command: CommandTemplate, submitMode: ParamSubmitMode) => void;
+}) {
+  function stageResult(command: CommandTemplate): void {
+    if (needsPanel(command, "stage")) {
+      params.openParamInput(command, "stage");
+      params.options.onNeedPanel?.(command, "stage");
+      return;
+    }
+    void params.stageCommandWithPreflight(command);
+  }
+
+  function executeResult(command: CommandTemplate): void {
+    if (needsPanel(command, "execute")) {
+      params.openParamInput(command, "execute");
+      params.options.onNeedPanel?.(command, "execute");
+      return;
+    }
+    void params.requestSingleExecution(command);
+  }
+
+  async function copyResult(command: CommandTemplate): Promise<void> {
+    if (needsPanel(command, "copy")) {
+      params.openParamInput(command, "copy");
+      params.options.onNeedPanel?.(command, "copy");
+      return;
+    }
+    await copyRenderedCommand(params.options, params.state, command);
+  }
+
+  async function dispatchCommandIntent(command: CommandTemplate, intent: ParamSubmitMode): Promise<void> {
+    if (intent === "execute") {
+      executeResult(command);
+      return;
+    }
+    if (intent === "stage") {
+      stageResult(command);
+      return;
+    }
+    await copyResult(command);
+  }
+
+  return {
+    stageResult,
+    executeResult,
+    dispatchCommandIntent
+  };
+}
+
 function createPendingCommandActions(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState,
@@ -267,37 +364,26 @@ function createPendingCommandActions(
 
   function resetPendingCommand(): void {
     state.pendingCommand.value = null;
-    state.pendingSubmitMode.value = "stage";
+    state.pendingSubmitIntent.value = "stage";
     state.pendingArgValues.value = {};
   }
 
   function openParamInput(command: CommandTemplate, submitMode: ParamSubmitMode): void {
     const args = getCommandArgs(command);
     state.pendingCommand.value = command;
-    state.pendingSubmitMode.value = submitMode;
+    state.pendingSubmitIntent.value = submitMode;
     state.pendingArgValues.value = args.reduce<Record<string, string>>((acc, arg) => {
       acc[arg.key] = arg.defaultValue ?? "";
       return acc;
     }, {});
   }
-
-  function stageResult(command: CommandTemplate): void {
-    if (needsPanel(command)) {
-      openParamInput(command, "stage");
-      options.onNeedPanel?.(command, "stage");
-      return;
-    }
-    void stageCommandWithPreflight(command);
-  }
-
-  function executeResult(command: CommandTemplate): void {
-    if (needsPanel(command)) {
-      openParamInput(command, "execute");
-      options.onNeedPanel?.(command, "execute");
-      return;
-    }
-    void requestSingleExecution(command);
-  }
+  const { stageResult, executeResult, dispatchCommandIntent } = createCommandIntentActions({
+    options,
+    state,
+    requestSingleExecution,
+    stageCommandWithPreflight,
+    openParamInput
+  });
 
   function submitParamInput(): boolean {
     const command = state.pendingCommand.value;
@@ -321,17 +407,17 @@ function createPendingCommandActions(
       return false;
     }
     const values = { ...state.pendingArgValues.value };
-    const submitMode = state.pendingSubmitMode.value;
-
-    if (submitMode === "execute") {
-      resetPendingCommand();
-      void requestSingleExecution(command, values, true);
-      return true;
-    }
-
-    resetPendingCommand();
-    void stageCommandWithPreflight(command, values);
-    return true;
+    const submitMode = state.pendingSubmitIntent.value;
+    return submitPendingIntent({
+      options,
+      state,
+      command,
+      values,
+      submitMode,
+      resetPendingCommand,
+      requestSingleExecution,
+      stageCommandWithPreflight
+    });
   }
 
   function cancelParamInput(): void {
@@ -349,6 +435,7 @@ function createPendingCommandActions(
   return {
     stageResult,
     executeResult,
+    dispatchCommandIntent,
     submitParamInput,
     cancelParamInput,
     updatePendingArgValue
@@ -479,6 +566,7 @@ export function createCommandExecutionActions(
   const {
     stageResult,
     executeResult,
+    dispatchCommandIntent,
     submitParamInput,
     cancelParamInput,
     updatePendingArgValue
@@ -518,6 +606,7 @@ export function createCommandExecutionActions(
   return {
     stageResult,
     executeResult,
+    dispatchCommandIntent,
     submitParamInput,
     cancelParamInput,
     removeStagedCommand,

@@ -2,6 +2,7 @@ import { nextTick, ref } from "vue";
 import type { LauncherQueueReviewPanelProps } from "../../types";
 import { validateCommandArgValue } from "../../../../features/security/commandArgValidation";
 import { collectTrustedArgKeysFromExecution } from "../../../../features/security/commandSafety";
+import { copyTextToClipboard } from "../../../../services/clipboard";
 
 interface FlowPanelInlineArgsDeps {
   props: LauncherQueueReviewPanelProps;
@@ -117,10 +118,7 @@ export function useFlowPanelInlineArgs(deps: FlowPanelInlineArgsDeps) {
       return;
     }
     try {
-      if (!navigator.clipboard?.writeText) {
-        throw new Error("clipboard API unavailable");
-      }
-      await navigator.clipboard.writeText(command);
+      await copyTextToClipboard(command);
       deps.emitExecutionFeedback("success", deps.t("common.copied"));
     } catch (error) {
       console.error("copy command failed:", error);
