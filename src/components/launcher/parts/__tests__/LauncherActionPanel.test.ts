@@ -80,7 +80,8 @@ describe("LauncherActionPanel", () => {
 
     expect(panel.classes()).toContain("focus-visible:outline-none");
     expect(panel.classes()).toContain("outline-none");
-    expect(action.classes()).toContain("hover:shadow-launcher-search-indicator");
-    expect(action.classes()).toContain("hover:border-ui-search-hl/28");
+    expect(action.classes()).toContain("hover:shadow-launcher-chip-inset");
+    expect(action.classes()).toContain("hover:bg-ui-text/6");
+    expect(action.classes()).toContain("focus-visible:ring-ui-brand/24");
   });
 });

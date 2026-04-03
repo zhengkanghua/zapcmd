@@ -83,7 +83,7 @@ function onKeydown(event: KeyboardEvent): void {
       <div class="flex items-center gap-[10px]">
         <button
           type="button"
-          class="launcher-action-panel__back inline-flex h-[28px] min-w-[28px] items-center justify-center rounded-[8px] border border-ui-border bg-ui-bg text-[15px] text-ui-subtle transition-launcher-interactive duration-150 hover:border-ui-search-hl/28 hover:bg-ui-brand/10 hover:text-ui-text hover:shadow-launcher-search-indicator hover:shadow-ui-search-hl/18 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ui-search-hl/24"
+          class="launcher-action-panel__back inline-flex h-[28px] min-w-[28px] items-center justify-center rounded-[8px] border border-ui-text/8 bg-ui-text/6 text-[15px] text-ui-subtle shadow-launcher-chip-inset transition-launcher-interactive duration-150 hover:border-ui-text/12 hover:bg-ui-text/10 hover:text-ui-text focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24"
           :aria-label="t('common.back')"
           @click="emit('cancel')"
         >
@@ -106,9 +106,9 @@ function onKeydown(event: KeyboardEvent): void {
         v-for="(intent, index) in intents"
         :key="intent"
         type="button"
-        class="launcher-action-panel__action rounded-[12px] border border-ui-border bg-ui-bg p-[14px] text-left text-ui-text transition-launcher-interactive duration-150 hover:border-ui-search-hl/28 hover:bg-ui-brand/10 hover:shadow-launcher-search-indicator hover:shadow-ui-search-hl/18 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ui-search-hl/24"
+        class="launcher-action-panel__action rounded-[12px] border border-ui-text/8 bg-ui-black/12 p-[14px] text-left text-ui-text transition-launcher-interactive duration-150 hover:border-ui-text/12 hover:bg-ui-text/6 hover:shadow-launcher-chip-inset focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24"
         :class="{
-          'border-ui-search-hl/24 bg-ui-brand/10 ring-1 ring-ui-search-hl/40 shadow-launcher-search-indicator shadow-ui-search-hl/18':
+          'border-ui-brand/24 bg-ui-brand/12 ring-1 ring-ui-brand/24 shadow-launcher-chip-inset':
             index === activeIndex
         }"
         @mouseenter="setActiveIntent(index)"
