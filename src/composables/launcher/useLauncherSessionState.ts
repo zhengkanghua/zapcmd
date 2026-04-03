@@ -4,6 +4,10 @@ import type {
   CommandExecutionTemplate,
   ResolvedCommandExecution
 } from "../../features/commands/types";
+import {
+  isSupportedPrerequisiteType,
+  type CommandPrerequisite
+} from "../../features/commands/prerequisiteTypes";
 import type { StagedCommand, StagedCommandPreflightCache } from "../../features/launcher/types";
 
 export const LAUNCHER_SESSION_STORAGE_KEY = "zapcmd.session.launcher";
@@ -172,6 +176,41 @@ function sanitizePreflightCache(value: unknown): StagedCommandPreflightCache | n
   };
 }
 
+function sanitizePrerequisite(value: unknown): CommandPrerequisite | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const id = typeof value.id === "string" ? value.id.trim() : "";
+  const check = typeof value.check === "string" ? value.check.trim() : "";
+  const type = typeof value.type === "string" ? value.type.trim() : "";
+  if (!id || !check || typeof value.required !== "boolean" || !isSupportedPrerequisiteType(type)) {
+    return null;
+  }
+
+  const normalized: CommandPrerequisite = {
+    id,
+    type,
+    required: value.required,
+    check
+  };
+
+  if (typeof value.displayName === "string" && value.displayName.trim().length > 0) {
+    normalized.displayName = value.displayName.trim();
+  }
+  if (typeof value.resolutionHint === "string" && value.resolutionHint.trim().length > 0) {
+    normalized.resolutionHint = value.resolutionHint.trim();
+  }
+  if (typeof value.installHint === "string" && value.installHint.trim().length > 0) {
+    normalized.installHint = value.installHint.trim();
+  }
+  if (typeof value.fallbackCommandId === "string" && value.fallbackCommandId.trim().length > 0) {
+    normalized.fallbackCommandId = value.fallbackCommandId.trim();
+  }
+
+  return normalized;
+}
+
 function sanitizeStagedCommand(value: unknown): StagedCommand | null {
   if (!isRecord(value)) {
     return null;
@@ -201,6 +240,10 @@ function sanitizeStagedCommand(value: unknown): StagedCommand | null {
   const args = argsSource
     .map((item) => sanitizeArg(item))
     .filter((item): item is CommandArg => item !== null);
+  const prerequisitesSource = Array.isArray(value.prerequisites) ? value.prerequisites : [];
+  const prerequisites = prerequisitesSource
+    .map((item) => sanitizePrerequisite(item))
+    .filter((item): item is CommandPrerequisite => item !== null);
   const preflightCache = sanitizePreflightCache(value.preflightCache);
 
   const normalized: StagedCommand = {
@@ -213,6 +256,9 @@ function sanitizeStagedCommand(value: unknown): StagedCommand | null {
     args,
     argValues
   };
+  if (prerequisites.length > 0) {
+    normalized.prerequisites = prerequisites;
+  }
   if (preflightCache) {
     normalized.preflightCache = preflightCache;
   }

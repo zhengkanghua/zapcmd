@@ -92,6 +92,16 @@ describe("useLauncherSessionState", () => {
       stagedCommands: [
         {
           ...createStagedCommand("restored"),
+          prerequisites: [
+            {
+              id: "docker",
+              type: "binary",
+              required: true,
+              check: "docker",
+              displayName: "Docker Desktop",
+              resolutionHint: "安装 Docker Desktop 后重试"
+            }
+          ],
           preflightCache: {
             checkedAt: 1743648000000,
             issueCount: 1,
@@ -116,6 +126,16 @@ describe("useLauncherSessionState", () => {
 
     expect(stagedCommands.value).toHaveLength(1);
     expect(stagedCommands.value[0]?.id).toBe("restored");
+    expect(stagedCommands.value[0]?.prerequisites).toEqual([
+      {
+        id: "docker",
+        type: "binary",
+        required: true,
+        check: "docker",
+        displayName: "Docker Desktop",
+        resolutionHint: "安装 Docker Desktop 后重试"
+      }
+    ]);
     expect(stagedCommands.value[0]?.preflightCache?.issues).toEqual(["未检测到 Docker Desktop。"]);
     expect(stagedCommands.value[0]?.preflightCache?.issueCount).toBe(1);
     expect(stagingExpanded.value).toBe(false);
