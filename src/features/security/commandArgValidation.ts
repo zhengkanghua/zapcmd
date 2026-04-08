@@ -2,7 +2,6 @@ import type { CommandArg } from "../commands/types";
 import { t } from "../../i18n";
 
 const INJECTION_PATTERN = /(?:\r|\n|[|&`<>]|;\s*|\$\(|\$\{)/;
-const loggedInvalidValidationPatterns = new Set<string>();
 
 export interface CommandArgValidationError {
   key: string;
@@ -76,14 +75,11 @@ function validateCommandArgValueDetail(
         };
       }
     } catch (error) {
-      if (!loggedInvalidValidationPatterns.has(arg.validationPattern)) {
-        loggedInvalidValidationPatterns.add(arg.validationPattern);
-        console.warn("command arg validationPattern is invalid", {
-          label: arg.label,
-          pattern: arg.validationPattern,
-          error
-        });
-      }
+      console.warn("command arg validationPattern is invalid", {
+        label: arg.label,
+        pattern: arg.validationPattern,
+        error
+      });
       return {
         kind: "invalid",
         message: t("safety.validation.invalidPattern", { label: arg.label })

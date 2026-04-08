@@ -28,6 +28,7 @@ pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
         launcher_hotkey: Mutex::new(DEFAULT_LAUNCHER_HOTKEY.to_string()),
         move_save_inflight: AtomicBool::new(false),
         move_save_token: AtomicU64::new(0),
+        terminal_discovery_cache: Mutex::new(None),
         #[cfg(target_os = "windows")]
         windows_reusable_session_state: Mutex::new(
             crate::terminal::windows_routing::WindowsReusableSessionState::default(),

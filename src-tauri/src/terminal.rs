@@ -1,18 +1,26 @@
-#[cfg(target_os = "macos")]
 use std::path::Path;
+use std::path::PathBuf;
 use std::process::Command as ProcessCommand;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
-#[cfg(target_os = "windows")]
-use std::path::PathBuf;
-#[cfg(target_os = "windows")]
 use tauri::Manager;
 
-#[cfg(target_os = "windows")]
+#[cfg(desktop)]
 use crate::app_state::AppState;
+use self::discovery_cache::{
+    cached_terminal_option_requires_refresh,
+    now_ms,
+    pick_cached_terminal_snapshot,
+    read_persisted_terminal_snapshot,
+    remove_persisted_terminal_snapshot,
+    write_persisted_terminal_snapshot,
+    TerminalDiscoverySnapshot,
+    TERMINAL_DISCOVERY_CACHE_FILE_NAME,
+};
 #[cfg(target_os = "windows")]
 use self::windows_launch::run_command_windows;
 
+pub(crate) mod discovery_cache;
 #[cfg(target_os = "windows")]
 pub(crate) mod windows_routing;
 #[cfg(target_os = "windows")]
@@ -29,7 +37,7 @@ pub(crate) use self::windows_launch::{
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-#[derive(serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub(crate) struct TerminalOption {
     id: String,
     label: String,
@@ -664,11 +672,11 @@ fn resolve_windows_terminals(
 }
 
 #[cfg(target_os = "windows")]
-pub(crate) fn resolve_windows_terminal_program_from_options(
+fn find_terminal_option<'a>(
     terminal_id: &str,
-    options: &[TerminalOption],
-) -> Result<windows_routing::ResolvedTerminalProgram, TerminalExecutionError> {
-    let option = options
+    options: &'a [TerminalOption],
+) -> Result<&'a TerminalOption, TerminalExecutionError> {
+    options
         .iter()
         .find(|option| option.id == terminal_id)
         .ok_or_else(|| {
@@ -676,7 +684,15 @@ pub(crate) fn resolve_windows_terminal_program_from_options(
                 "invalid-request",
                 format!("Unknown terminal id: {}", terminal_id),
             )
-        })?;
+        })
+}
+
+#[cfg(target_os = "windows")]
+pub(crate) fn resolve_windows_terminal_program_from_options(
+    terminal_id: &str,
+    options: &[TerminalOption],
+) -> Result<windows_routing::ResolvedTerminalProgram, TerminalExecutionError> {
+    let option = find_terminal_option(terminal_id, options)?;
 
     Ok(windows_routing::ResolvedTerminalProgram {
         id: option.id.clone(),
@@ -687,9 +703,27 @@ pub(crate) fn resolve_windows_terminal_program_from_options(
 
 #[cfg(target_os = "windows")]
 fn resolve_windows_terminal_program(
+    app: &tauri::AppHandle,
+    state: &AppState,
     terminal_id: &str,
 ) -> Result<windows_routing::ResolvedTerminalProgram, TerminalExecutionError> {
-    let options = resolve_windows_terminals(command_exists, command_path);
+    let options = discover_available_terminals(app, state);
+    let cached_option = find_terminal_option(terminal_id, options.as_slice())?;
+
+    if cached_terminal_option_requires_refresh(
+        cached_option,
+        |path| Path::new(path).exists(),
+        command_exists,
+    ) {
+        clear_terminal_discovery_cache(app, state);
+        let refreshed_options = detect_available_terminals();
+        persist_terminal_discovery_snapshot(app, state, refreshed_options.as_slice());
+        return resolve_windows_terminal_program_from_options(
+            terminal_id,
+            refreshed_options.as_slice(),
+        );
+    }
+
     resolve_windows_terminal_program_from_options(terminal_id, options.as_slice())
 }
 
@@ -750,29 +784,160 @@ fn resolve_linux_terminals(
     options
 }
 
-#[tauri::command]
-pub(crate) fn get_available_terminals() -> Result<Vec<TerminalOption>, String> {
-    #[cfg(target_os = "windows")]
-    {
-        return Ok(resolve_windows_terminals(command_exists, command_path));
-    }
+#[cfg(target_os = "windows")]
+fn detect_available_terminals() -> Vec<TerminalOption> {
+    resolve_windows_terminals(command_exists, command_path)
+}
 
-    #[cfg(target_os = "macos")]
-    {
-        return Ok(resolve_macos_terminals(|path| Path::new(path).exists()));
-    }
+#[cfg(target_os = "macos")]
+fn detect_available_terminals() -> Vec<TerminalOption> {
+    resolve_macos_terminals(|path| Path::new(path).exists())
+}
 
-    #[cfg(all(unix, not(target_os = "macos")))]
-    {
-        return Ok(resolve_linux_terminals(command_exists, command_path));
-    }
+#[cfg(all(unix, not(target_os = "macos")))]
+fn detect_available_terminals() -> Vec<TerminalOption> {
+    resolve_linux_terminals(command_exists, command_path)
+}
 
-    #[allow(unreachable_code)]
-    Ok(vec![TerminalOption {
+#[cfg(not(any(target_os = "windows", target_os = "macos", unix)))]
+fn detect_available_terminals() -> Vec<TerminalOption> {
+    vec![TerminalOption {
         id: "default".to_string(),
         label: "System Terminal".to_string(),
         path: "system-terminal".to_string(),
-    }])
+    }]
+}
+
+fn resolve_terminal_cache_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    let app_data = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| format!("Failed to resolve app data dir: {}", error))?;
+    Ok(app_data.join(TERMINAL_DISCOVERY_CACHE_FILE_NAME))
+}
+
+fn read_memory_terminal_snapshot(
+    state: &AppState,
+) -> Result<Option<TerminalDiscoverySnapshot>, String> {
+    state
+        .terminal_discovery_cache
+        .lock()
+        .map(|snapshot| snapshot.clone())
+        .map_err(|_| "terminal discovery cache lock failed".to_string())
+}
+
+fn write_memory_terminal_snapshot(
+    state: &AppState,
+    snapshot: Option<TerminalDiscoverySnapshot>,
+) -> Result<(), String> {
+    let mut guard = state
+        .terminal_discovery_cache
+        .lock()
+        .map_err(|_| "terminal discovery cache lock failed".to_string())?;
+    *guard = snapshot;
+    Ok(())
+}
+
+fn clear_terminal_discovery_cache(app: &tauri::AppHandle, state: &AppState) {
+    if let Err(error) = write_memory_terminal_snapshot(state, None) {
+        eprintln!("[zapcmd] failed to clear terminal memory cache: {}", error);
+    }
+
+    match resolve_terminal_cache_path(app) {
+        Ok(path) => remove_persisted_terminal_snapshot(path.as_path()),
+        Err(error) => {
+            eprintln!("[zapcmd] failed to resolve terminal cache path while clearing: {}", error);
+        }
+    }
+}
+
+fn persist_terminal_discovery_snapshot(
+    app: &tauri::AppHandle,
+    state: &AppState,
+    options: &[TerminalOption],
+) {
+    let snapshot = TerminalDiscoverySnapshot {
+        checked_at_ms: now_ms(),
+        options: options.to_vec(),
+    };
+
+    if let Err(error) = write_memory_terminal_snapshot(state, Some(snapshot.clone())) {
+        eprintln!("[zapcmd] failed to write terminal memory cache: {}", error);
+    }
+
+    match resolve_terminal_cache_path(app) {
+        Ok(path) => {
+            if let Err(error) = write_persisted_terminal_snapshot(path.as_path(), &snapshot) {
+                eprintln!("[zapcmd] failed to write terminal cache file: {}", error);
+            }
+        }
+        Err(error) => {
+            eprintln!("[zapcmd] failed to resolve terminal cache path: {}", error);
+        }
+    }
+}
+
+fn load_cached_terminal_snapshot(
+    app: &tauri::AppHandle,
+    state: &AppState,
+) -> Option<TerminalDiscoverySnapshot> {
+    let now = now_ms();
+    let memory = read_memory_terminal_snapshot(state).ok().flatten();
+    let cache_path = resolve_terminal_cache_path(app).ok();
+    let persisted = cache_path
+        .as_ref()
+        .and_then(|path| read_persisted_terminal_snapshot(path.as_path()));
+
+    let selected = pick_cached_terminal_snapshot(memory.as_ref(), persisted.as_ref(), now);
+    if let Some(snapshot) = selected.clone() {
+        let _ = write_memory_terminal_snapshot(state, Some(snapshot.clone()));
+        return Some(snapshot);
+    }
+
+    if memory.is_some() {
+        let _ = write_memory_terminal_snapshot(state, None);
+    }
+
+    if cache_path.is_some() && persisted.is_some() {
+        remove_persisted_terminal_snapshot(cache_path.as_ref()?.as_path());
+    }
+
+    None
+}
+
+fn cached_terminal_snapshot_requires_refresh(options: &[TerminalOption]) -> bool {
+    options.iter().any(|option| {
+        cached_terminal_option_requires_refresh(
+            option,
+            |path| Path::new(path).exists(),
+            command_exists,
+        )
+    })
+}
+
+fn discover_available_terminals(
+    app: &tauri::AppHandle,
+    state: &AppState,
+) -> Vec<TerminalOption> {
+    if let Some(snapshot) = load_cached_terminal_snapshot(app, state) {
+        if !cached_terminal_snapshot_requires_refresh(snapshot.options.as_slice()) {
+            return snapshot.options;
+        }
+
+        clear_terminal_discovery_cache(app, state);
+    }
+
+    let options = detect_available_terminals();
+    persist_terminal_discovery_snapshot(app, state, options.as_slice());
+    options
+}
+
+#[tauri::command]
+pub(crate) fn get_available_terminals(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<Vec<TerminalOption>, String> {
+    Ok(discover_available_terminals(&app, &state))
 }
 
 #[cfg(target_os = "macos")]
@@ -858,7 +1023,7 @@ pub(crate) fn run_command_in_terminal(
                 )
             })?
             .clone();
-        let terminal_program = resolve_windows_terminal_program(terminal_id.as_str())?;
+        let terminal_program = resolve_windows_terminal_program(&app, &state, terminal_id.as_str())?;
         let terminal_reuse_policy =
             parse_terminal_reuse_policy(terminal_reuse_policy.as_deref());
         let result = run_command_windows(
@@ -947,3 +1112,6 @@ mod tests_exec;
 
 #[cfg(test)]
 mod tests_discovery;
+
+#[cfg(test)]
+mod tests_cache;

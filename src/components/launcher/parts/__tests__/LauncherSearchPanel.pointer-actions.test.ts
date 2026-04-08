@@ -109,4 +109,28 @@ describe("LauncherSearchPanel pointer actions", () => {
     expect(hints[0]!.attributes("title")).toContain("右键 入队");
     expect(hints[0]!.text()).toContain("左键 动作");
   });
+
+  it("问题命令会在搜索结果里显示问题标识", () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        filteredResults: [
+          {
+            ...createCommand("broken-command"),
+            blockingIssue: {
+              code: "invalid-arg-pattern",
+              message: "命令配置有问题，暂时不可用。",
+              detail: "参数 value 的校验正则无效。"
+            }
+          }
+        ]
+      }),
+      global: {
+        stubs: {
+          LauncherHighlightText: { template: "<span />" }
+        }
+      }
+    });
+
+    expect(wrapper.text()).toContain("问题命令");
+  });
 });

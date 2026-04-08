@@ -517,6 +517,68 @@ describe("runtimeLoader", () => {
     }
   });
 
+  it("keeps command visible but marks it as invalid when arg regex pattern is broken", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const loaded = loadUserCommandTemplatesWithReport(
+        [
+          {
+            path: "C:/Users/test/.zapcmd/commands/invalid-pattern.json",
+            content: JSON.stringify({
+              commands: [
+                {
+                  id: "broken-regex-command",
+                  name: "Broken Regex Command",
+                  tags: ["test"],
+                  category: "custom",
+                  platform: "win",
+                  exec: {
+                    program: "echo",
+                    args: ["{{value}}"]
+                  },
+                  adminRequired: false,
+                  args: [
+                    {
+                      key: "value",
+                      label: "Value",
+                      type: "text",
+                      required: true,
+                      validation: {
+                        pattern: "["
+                      }
+                    }
+                  ]
+                }
+              ]
+            }),
+            modifiedMs: 1
+          }
+        ],
+        { runtimePlatform: "win" }
+      );
+
+      expect(loaded.templates).toHaveLength(1);
+      expect(loaded.templates[0]).toMatchObject({
+        id: "broken-regex-command",
+        blockingIssue: {
+          code: "invalid-arg-pattern"
+        }
+      });
+      expect(loaded.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: "invalid-command-config",
+            stage: "command",
+            sourceId: "C:/Users/test/.zapcmd/commands/invalid-pattern.json",
+            commandId: "broken-regex-command"
+          })
+        ])
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it("reports duplicate ids with merge stage reason", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {

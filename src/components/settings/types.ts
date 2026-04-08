@@ -103,4 +103,8 @@ export interface SettingsAboutProps {
   appVersion: string;
   runtimePlatform: string;
   updateStatus: UpdateStatus;
+  homepageActionStatus?: {
+    tone: "success" | "error";
+    message: string;
+  } | null;
 }

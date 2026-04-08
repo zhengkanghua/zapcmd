@@ -105,4 +105,27 @@ describe("LauncherActionPanel", () => {
     await wrapper.get(".launcher-action-panel").trigger("keydown", { key: "ArrowDown" });
     expect(actions[1]!.classes()).toContain("bg-ui-brand/12");
   });
+
+  it("问题命令会显示提示并禁用所有动作", async () => {
+    const wrapper = mount(LauncherActionPanel, {
+      props: {
+        command: {
+          ...createCommand(),
+          blockingIssue: {
+            code: "invalid-arg-pattern",
+            message: "命令配置有问题，暂时不可用。",
+            detail: "参数 value 的校验正则无效。"
+          }
+        }
+      }
+    });
+
+    expect(wrapper.text()).toContain("问题命令");
+    const actions = wrapper.findAll(".launcher-action-panel__action");
+    expect(actions).toHaveLength(3);
+    expect(actions.every((item) => item.attributes("disabled") !== undefined)).toBe(true);
+
+    await wrapper.get(".launcher-action-panel").trigger("keydown", { key: "Enter" });
+    expect(wrapper.emitted("select-intent")).toBeUndefined();
+  });
 });

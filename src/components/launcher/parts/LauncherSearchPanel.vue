@@ -238,6 +238,13 @@ watch(
                 >
                   <LauncherHighlightText :text="item.description" :query="props.query" />
                 </span>
+                <span
+                  v-if="item.blockingIssue"
+                  class="result-item__issue inline-flex max-w-max items-center rounded-full border border-ui-danger/26 bg-ui-danger/10 px-[6px] py-[1px] text-[10px] font-medium leading-[1.2] text-ui-danger"
+                  :title="item.blockingIssue.detail"
+                >
+                  {{ t("launcher.problemCommandBadge") }}
+                </span>
                 <code
                   class="result-item__command font-mono text-[11px] text-ui-subtle overflow-hidden text-ellipsis whitespace-nowrap"
                   :title="item.preview"

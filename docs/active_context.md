@@ -13,3 +13,5 @@
 - 2026-04-03：Launcher 左右键映射、动作面板、copy intent、两行提示与新热键已联调；Settings 鼠标映射已持久化，待跑最终门禁并收尾提交。
 - 2026-04-03：补修 4 个回归并补防回归：无参动作面板动作会收口回搜索页；Settings Hotkeys 已暴露 openActionPanel/copySelected；Shift+Enter 打开动作面板后自动接管焦点且 Escape 只本地收口；搜索提示改为一级提示可换行、占满后再隐藏二级提示。关联定向回归 71 测试已通过。
 - 2026-04-03：按最新交互反馈微调：动作面板补鼠标返回按钮、hover 阴影跟随和根节点无白框；搜索提示改回单行省略并用原生 title 展示完整内容，废弃两行提示显示。相关 55 条定向测试已通过。
+- 2026-04-07：已落地 session 延迟写入、终端发现内存+24h缓存及失效重探、Settings About 主页结构化反馈；后续拆分路线见 `plan/2026-04-07-runtime-split-roadmap.md`。
+- 2026-04-07：非法 regex 命令改为“可见但不可执行”：加载期标记 blockingIssue，Launcher 显示问题命令，执行/入队/复制统一拦截，Settings Commands 记录问题来源。

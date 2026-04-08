@@ -1,5 +1,5 @@
-import { nextTick, ref } from "vue";
-import { describe, expect, it, vi } from "vitest";
+import { effectScope, nextTick, ref } from "vue";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   LAUNCHER_SESSION_STORAGE_KEY,
   useLauncherSessionState
@@ -61,6 +61,10 @@ function createExecExecution(program: string, args: string[]): ResolvedCommandEx
 }
 
 describe("useLauncherSessionState", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("uses window.localStorage when storage is omitted", () => {
     const snapshot = JSON.stringify({
       version: SESSION_VERSION,
@@ -692,5 +696,94 @@ describe("useLauncherSessionState", () => {
     };
     expect(payload.stagingExpanded).toBe(true);
     expect(payload.stagedCommands.map((item) => item.id)).toEqual(["b", "a"]);
+  });
+
+  it("debounces arg value persistence for high-frequency edits", async () => {
+    vi.useFakeTimers();
+    const storage = createStorage(null);
+    const stagedCommands = ref<StagedCommand[]>([createStagedCommand("debounced")]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    stagedCommands.value[0]!.argValues = {
+      pid: "123"
+    };
+    await nextTick();
+
+    expect(storage.setItem).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(179);
+    await nextTick();
+    expect(storage.setItem).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    await nextTick();
+    expect(storage.setItem).toHaveBeenCalledTimes(1);
+
+    const payload = JSON.parse(storage.setItem.mock.calls[0]?.[1] as string) as {
+      stagedCommands: Array<{ argValues: Record<string, string> }>;
+    };
+    expect(payload.stagedCommands[0]?.argValues).toEqual({ pid: "123" });
+  });
+
+  it("persists queue structure and drawer state immediately", async () => {
+    vi.useFakeTimers();
+    const storage = createStorage(null);
+    const stagedCommands = ref<StagedCommand[]>([]);
+    const stagingExpanded = ref(false);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded,
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    stagedCommands.value = [createStagedCommand("a"), createStagedCommand("b")];
+    await nextTick();
+    expect(storage.setItem).toHaveBeenCalledTimes(1);
+
+    stagedCommands.value = [createStagedCommand("b"), createStagedCommand("a")];
+    await nextTick();
+    expect(storage.setItem).toHaveBeenCalledTimes(2);
+
+    stagingExpanded.value = true;
+    await nextTick();
+    expect(storage.setItem).toHaveBeenCalledTimes(3);
+  });
+
+  it("cancels pending delayed persistence when the scope is disposed", async () => {
+    vi.useFakeTimers();
+    const storage = createStorage(null);
+    const stagedCommands = ref<StagedCommand[]>([createStagedCommand("debounced")]);
+    const scope = effectScope();
+
+    scope.run(() => {
+      useLauncherSessionState({
+        enabled: ref(true),
+        stagedCommands,
+        stagingExpanded: ref(false),
+        openStagingDrawer: vi.fn(),
+        storage
+      });
+    });
+
+    stagedCommands.value[0]!.argValues = {
+      pid: "456"
+    };
+    await nextTick();
+    scope.stop();
+
+    vi.runAllTimers();
+    await nextTick();
+
+    expect(storage.setItem).not.toHaveBeenCalled();
   });
 });

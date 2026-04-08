@@ -39,14 +39,24 @@ export { COMMAND_ROWS_INITIAL_RENDER_LIMIT, COMMAND_ROWS_RENDER_CHUNK_SIZE };
 
 export function useCommandManagement(options: UseCommandManagementOptions) {
   const commandView = ref<CommandManagementViewState>(createDefaultCommandViewState());
-  const issueSourceIds = computed(() => options.loadIssues.value.map((item) => item.sourceId));
+  const issueSourceIds = computed(() =>
+    options.loadIssues.value
+      .filter((item) => !item.commandId)
+      .map((item) => item.sourceId)
+  );
+  const issueCommandIds = computed(() =>
+    options.loadIssues.value
+      .map((item) => item.commandId)
+      .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+  );
   const commandRowsAll = createAllRows({
     allCommandTemplates: options.allCommandTemplates,
     disabledCommandIds: options.disabledCommandIds,
     commandSourceById: options.commandSourceById,
     userCommandSourceById: options.userCommandSourceById,
     overriddenCommandIds: options.overriddenCommandIds,
-    issueSourceIds
+    issueSourceIds,
+    issueCommandIds
   });
   const commandSummary = createSummary(commandRowsAll);
   const commandLoadIssues = createIssueViews(options.loadIssues);

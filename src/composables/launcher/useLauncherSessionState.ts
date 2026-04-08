@@ -1,4 +1,4 @@
-import { watch, type Ref } from "vue";
+import { getCurrentScope, onScopeDispose, watch, type Ref } from "vue";
 import type {
   CommandArg,
   CommandExecutionTemplate,
@@ -12,6 +12,7 @@ import type { StagedCommand, StagedCommandPreflightCache } from "../../features/
 
 export const LAUNCHER_SESSION_STORAGE_KEY = "zapcmd.session.launcher";
 const LAUNCHER_SESSION_SCHEMA_VERSION = 3;
+const LAUNCHER_SESSION_WRITE_DEBOUNCE_MS = 180;
 
 interface PersistedLauncherSessionV1 {
   version: number;
@@ -335,7 +336,12 @@ function writeLauncherSession(
     stagingExpanded,
     stagedCommands
   };
-  storage.setItem(LAUNCHER_SESSION_STORAGE_KEY, JSON.stringify(snapshot));
+
+  try {
+    storage.setItem(LAUNCHER_SESSION_STORAGE_KEY, JSON.stringify(snapshot));
+  } catch (error) {
+    console.warn("launcher session snapshot write failed", error);
+  }
 }
 
 function resolveStorage(
@@ -350,9 +356,48 @@ function resolveStorage(
   return null;
 }
 
+function createCommandIdSignature(stagedCommands: readonly StagedCommand[]): string {
+  return stagedCommands.map((command) => command.id).join("\u0001");
+}
+
 export function useLauncherSessionState(options: UseLauncherSessionStateOptions): void {
   const storage = resolveStorage(options.storage) ?? null;
   let restoring = true;
+  let deferredWriteTimer: ReturnType<typeof setTimeout> | null = null;
+  let skipNextDeferredWrite = false;
+
+  function clearDeferredWriteTimer(): void {
+    if (!deferredWriteTimer) {
+      return;
+    }
+    clearTimeout(deferredWriteTimer);
+    deferredWriteTimer = null;
+  }
+
+  function persistImmediately(
+    stagedCommands: StagedCommand[] = options.stagedCommands.value,
+    stagingExpanded: boolean = options.stagingExpanded.value
+  ): void {
+    clearDeferredWriteTimer();
+    writeLauncherSession(storage, stagedCommands, stagingExpanded);
+  }
+
+  function scheduleDeferredPersist(
+    stagedCommands: StagedCommand[],
+    stagingExpanded: boolean
+  ): void {
+    clearDeferredWriteTimer();
+    deferredWriteTimer = setTimeout(() => {
+      deferredWriteTimer = null;
+      writeLauncherSession(storage, stagedCommands, stagingExpanded);
+    }, LAUNCHER_SESSION_WRITE_DEBOUNCE_MS);
+  }
+
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      clearDeferredWriteTimer();
+    });
+  }
 
   if (options.enabled.value) {
     const restored = readLauncherSession(storage);
@@ -365,16 +410,48 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
 
   watch(
     [
-      options.stagedCommands,
+      () => createCommandIdSignature(options.stagedCommands.value),
       options.stagingExpanded,
       options.enabled,
       () => options.suspendPersistence?.value ?? false
     ],
-    ([stagedCommands, stagingExpanded, enabled, suspendPersistence]) => {
+    (
+      [commandIdSignature, stagingExpanded, enabled, suspendPersistence],
+      [previousCommandIdSignature, _previousStagingExpanded, previousEnabled, previousSuspendPersistence]
+    ) => {
       if (!enabled || restoring || suspendPersistence) {
+        clearDeferredWriteTimer();
         return;
       }
-      writeLauncherSession(storage, stagedCommands, stagingExpanded);
+
+      skipNextDeferredWrite =
+        commandIdSignature !== previousCommandIdSignature ||
+        enabled !== previousEnabled ||
+        suspendPersistence !== previousSuspendPersistence;
+      persistImmediately(options.stagedCommands.value, stagingExpanded);
+    },
+    { flush: "sync" }
+  );
+
+  watch(
+    [
+      options.stagedCommands,
+      options.enabled,
+      () => options.suspendPersistence?.value ?? false
+    ],
+    ([stagedCommands, enabled, suspendPersistence]) => {
+      if (!enabled || restoring || suspendPersistence) {
+        clearDeferredWriteTimer();
+        skipNextDeferredWrite = false;
+        return;
+      }
+
+      if (skipNextDeferredWrite) {
+        skipNextDeferredWrite = false;
+        return;
+      }
+
+      scheduleDeferredPersist(stagedCommands, options.stagingExpanded.value);
     },
     { deep: true }
   );

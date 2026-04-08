@@ -5,6 +5,7 @@ import type {
   CommandTemplate,
   ResolvedCommandExecution
 } from "../../features/commands/commandTemplates";
+import type { CommandBlockingIssue } from "../../features/commands/commandIssues";
 import type { CommandPrerequisite } from "../../features/commands/prerequisiteTypes";
 import type { SearchHintLine } from "../../features/launcher/searchHintBuilder";
 import type {
@@ -43,6 +44,7 @@ export interface QueuedCommand {
   preflightCache?: StagedCommandPreflightCache;
   adminRequired?: boolean;
   dangerous?: boolean;
+  blockingIssue?: CommandBlockingIssue;
 }
 
 export interface LauncherSearchPanelProps {

@@ -148,6 +148,7 @@ const emit = defineEmits<{
             :app-version="props.appVersion"
             :runtime-platform="props.runtimePlatform"
             :update-status="props.updateStatus"
+            :homepage-action-status="props.homepageActionStatus"
             @check-update="emit('check-update')"
             @download-update="emit('download-update')"
             @open-homepage="emit('open-homepage')"

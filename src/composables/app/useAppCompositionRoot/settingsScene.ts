@@ -1,7 +1,11 @@
 import { storeToRefs } from "pinia";
-import { ref, watch, type Ref } from "vue";
+import { onScopeDispose, ref, watch, type Ref } from "vue";
 import { fallbackTerminalOptions } from "../../../features/terminals/fallbackTerminals";
-import { currentLocale, setAppLocale } from "../../../i18n";
+import { currentLocale, setAppLocale, t } from "../../../i18n";
+import {
+  openExternalTarget,
+  type ExternalTargetOpenResult
+} from "../../../services/externalNavigator";
 import { useSettingsStore } from "../../../stores/settingsStore";
 import { useCommandCatalog } from "../../launcher/useCommandCatalog";
 import { useHotkeyBindings } from "../../settings/useHotkeyBindings";
@@ -14,8 +18,22 @@ import { HOTKEY_DEFINITIONS, SETTINGS_HASH_PREFIX } from "./constants";
 import type { AppCompositionRootPorts } from "./ports";
 
 const FALLBACK_APP_VERSION = "";
+const HOMEPAGE_ACTION_STATUS_DISMISS_DELAY_MS = 2800;
 
 type SettingsStoreRefs = ReturnType<typeof createSettingsStoreRefs>;
+
+export interface SettingsActionStatus {
+  tone: "success" | "error";
+  message: string;
+}
+
+export interface SettingsExternalActionResult {
+  ok: boolean;
+  code: ExternalTargetOpenResult["code"];
+  message: string;
+  detail?: string;
+  url?: string;
+}
 
 /**
  * 共享的 Settings Scene 只负责装配设置相关依赖与副作用，
@@ -31,13 +49,15 @@ export type SettingsScene = SettingsStoreRefs & {
   themeManager: ReturnType<typeof useTheme>;
   motionPresetManager: ReturnType<typeof useMotionPreset>;
   appVersion: Ref<string>;
-  openHomepage: () => Promise<void>;
+  homepageActionStatus: Ref<SettingsActionStatus | null>;
+  openHomepage: () => Promise<SettingsExternalActionResult>;
 };
 
 export interface CreateSettingsSceneOptions {
   ports: AppCompositionRootPorts;
   isSettingsWindow: Ref<boolean>;
   settingsSyncChannel: Ref<BroadcastChannel | null>;
+  resolveHomepageUrl?: () => string | null;
 }
 
 function resolveAppVersion(): string {
@@ -54,14 +74,29 @@ function createSettingsStoreRefs(settingsStore: ReturnType<typeof useSettingsSto
   return storeToRefs(settingsStore);
 }
 
-async function openHomepageInBrowser(ports: AppCompositionRootPorts): Promise<void> {
-  const url = resolveHomepageUrl();
-  if (!url) {
-    ports.logError("homepage url is not configured");
-    return;
+function mapHomepageOpenResult(
+  result: ExternalTargetOpenResult
+): SettingsExternalActionResult {
+  if (result.ok) {
+    return {
+      ...result,
+      message: t("settings.about.openHomepageSuccess")
+    };
   }
 
-  await ports.openExternalUrl(url);
+  if (result.code === "missing-url") {
+    return {
+      ...result,
+      message: t("settings.about.openHomepageMissing"),
+      detail: result.message
+    };
+  }
+
+  return {
+    ...result,
+    message: t("settings.about.openHomepageFailed", { reason: result.message }),
+    detail: result.message
+  };
 }
 
 function bindSettingsSideEffects(deps: {
@@ -102,6 +137,29 @@ function bindSettingsSideEffects(deps: {
 export function createSettingsScene(options: CreateSettingsSceneOptions): SettingsScene {
   const settingsStore = useSettingsStore();
   settingsStore.hydrateFromStorage();
+  const homepageActionStatus = ref<SettingsActionStatus | null>(null);
+  let homepageActionStatusTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function clearHomepageActionStatusTimer(): void {
+    if (!homepageActionStatusTimer) {
+      return;
+    }
+    clearTimeout(homepageActionStatusTimer);
+    homepageActionStatusTimer = null;
+  }
+
+  function showHomepageActionStatus(status: SettingsActionStatus): void {
+    clearHomepageActionStatusTimer();
+    homepageActionStatus.value = status;
+    homepageActionStatusTimer = setTimeout(() => {
+      homepageActionStatus.value = null;
+      homepageActionStatusTimer = null;
+    }, HOMEPAGE_ACTION_STATUS_DISMISS_DELAY_MS);
+  }
+
+  onScopeDispose(() => {
+    clearHomepageActionStatusTimer();
+  });
 
   const settingsRefs = createSettingsStoreRefs(settingsStore);
   const updateManager = useUpdateManager();
@@ -168,6 +226,21 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
     windowOpacity: settingsRefs.windowOpacity
   });
 
+  async function openHomepage(): Promise<SettingsExternalActionResult> {
+    const result = await openExternalTarget({
+      url: options.resolveHomepageUrl?.() ?? resolveHomepageUrl(),
+      targetName: "homepage",
+      openExternalUrl: options.ports.openExternalUrl,
+      logError: options.ports.logError
+    });
+    const translatedResult = mapHomepageOpenResult(result);
+    showHomepageActionStatus({
+      tone: translatedResult.ok ? "success" : "error",
+      message: translatedResult.message
+    });
+    return translatedResult;
+  }
+
   return {
     settingsStore,
     ...settingsRefs,
@@ -179,6 +252,7 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
     themeManager,
     motionPresetManager,
     appVersion: ref(resolveAppVersion()),
-    openHomepage: () => openHomepageInBrowser(options.ports)
+    homepageActionStatus,
+    openHomepage
   };
 }

@@ -16,6 +16,7 @@ import {
 import { isDangerDismissed } from "../../../features/security/dangerDismiss";
 import {
   appendToStaging,
+  buildCommandUnavailableFeedback,
   buildExecutionFailureFeedback,
   buildPreflightBlockedFeedback,
   collectBlockingPreflightIssues,
@@ -48,6 +49,22 @@ function hasPrerequisites(
   prerequisites: CommandTemplate["prerequisites"] | StagedCommand["prerequisites"]
 ): boolean {
   return Array.isArray(prerequisites) && prerequisites.length > 0;
+}
+
+function rejectBlockingIssue(
+  options: UseCommandExecutionOptions,
+  state: CommandExecutionState,
+  command: Pick<CommandTemplate, "blockingIssue"> | Pick<StagedCommand, "blockingIssue"> | null,
+  mode: "single" | "queue"
+): boolean {
+  const issue = command?.blockingIssue;
+  if (!issue) {
+    return false;
+  }
+
+  state.setExecutionFeedback("error", buildCommandUnavailableFeedback(issue, mode));
+  options.scheduleSearchInputFocus(false);
+  return true;
 }
 
 function createExecuteStagedAction(
@@ -107,6 +124,9 @@ function createExecuteStagedAction(
       return;
     }
     const snapshot = [...options.stagedCommands.value];
+    if (snapshot.some((item) => rejectBlockingIssue(options, state, item, "queue"))) {
+      return;
+    }
     const queueSafety = checkQueueCommandSafety(
       snapshot.map((item) => ({
         title: item.title,
@@ -158,6 +178,9 @@ function createSingleExecutionRequester(
     argValues?: Record<string, string>,
     skipDangerConfirmation = false
   ): Promise<void> {
+    if (rejectBlockingIssue(options, state, command, "single")) {
+      return;
+    }
     const args = getCommandArgs(command);
     const resolved = resolveCommandExecution(command, argValues);
     const safety = checkSingleCommandSafety(
@@ -285,6 +308,9 @@ function createCommandIntentActions(params: {
   openParamInput: (command: CommandTemplate, submitMode: ParamSubmitMode) => void;
 }) {
   function stageResult(command: CommandTemplate): void {
+    if (rejectBlockingIssue(params.options, params.state, command, "single")) {
+      return;
+    }
     if (needsPanel(command, "stage")) {
       params.openParamInput(command, "stage");
       params.options.onNeedPanel?.(command, "stage");
@@ -294,6 +320,9 @@ function createCommandIntentActions(params: {
   }
 
   function executeResult(command: CommandTemplate): void {
+    if (rejectBlockingIssue(params.options, params.state, command, "single")) {
+      return;
+    }
     if (needsPanel(command, "execute")) {
       params.openParamInput(command, "execute");
       params.options.onNeedPanel?.(command, "execute");
@@ -303,6 +332,9 @@ function createCommandIntentActions(params: {
   }
 
   async function copyResult(command: CommandTemplate): Promise<void> {
+    if (rejectBlockingIssue(params.options, params.state, command, "single")) {
+      return;
+    }
     if (needsPanel(command, "copy")) {
       params.openParamInput(command, "copy");
       params.options.onNeedPanel?.(command, "copy");
@@ -312,6 +344,9 @@ function createCommandIntentActions(params: {
   }
 
   async function dispatchCommandIntent(command: CommandTemplate, intent: ParamSubmitMode): Promise<void> {
+    if (rejectBlockingIssue(params.options, params.state, command, "single")) {
+      return;
+    }
     if (intent === "execute") {
       executeResult(command);
       return;
@@ -343,6 +378,9 @@ function createPendingCommandActions(
     command: CommandTemplate,
     argValues?: Record<string, string>
   ): Promise<void> {
+    if (rejectBlockingIssue(options, state, command, "single")) {
+      return;
+    }
     const issues = hasPrerequisites(command.prerequisites)
       ? (
           await runCommandPreflight(options, command.prerequisites)
@@ -388,6 +426,9 @@ function createPendingCommandActions(
   function submitParamInput(): boolean {
     const command = state.pendingCommand.value;
     if (!command) {
+      return false;
+    }
+    if (rejectBlockingIssue(options, state, command, "single")) {
       return false;
     }
     const rejection = getPendingSubmitRejection(command, state.pendingArgValues.value);

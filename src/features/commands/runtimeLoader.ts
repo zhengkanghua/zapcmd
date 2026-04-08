@@ -1,4 +1,5 @@
 import type { CommandTemplate } from "./types";
+import { findCommandBlockingIssue } from "./commandIssues";
 import type { RuntimeCommandFile, RuntimePlatform } from "./runtimeTypes";
 import { mapRuntimeCommandToTemplate } from "./runtimeMapper";
 import { validateRuntimeCommandFile } from "./schemaValidation";
@@ -47,9 +48,10 @@ export type CommandLoadIssueCode =
   | "read-failed"
   | "invalid-json"
   | "invalid-schema"
-  | "duplicate-id";
+  | "duplicate-id"
+  | "invalid-command-config";
 
-export type CommandLoadIssueStage = "read" | "parse" | "schema" | "merge";
+export type CommandLoadIssueStage = "read" | "parse" | "schema" | "merge" | "command";
 
 export interface CommandLoadIssue {
   code: CommandLoadIssueCode;
@@ -139,7 +141,25 @@ function loadTemplatesFromPayloadEntries(
       }
 
       ids.add(command.id);
-      templates.push(mapRuntimeCommandToTemplate(command));
+      const template = mapRuntimeCommandToTemplate(command);
+      const blockingIssue = findCommandBlockingIssue(template);
+      templates.push(
+        blockingIssue
+          ? {
+              ...template,
+              blockingIssue
+            }
+          : template
+      );
+      if (blockingIssue) {
+        issues.push({
+          code: "invalid-command-config",
+          stage: "command",
+          sourceId: entry.sourceId,
+          reason: blockingIssue.detail,
+          commandId: command.id
+        });
+      }
       sourceByCommandId[command.id] = entry.sourceId;
     }
   }

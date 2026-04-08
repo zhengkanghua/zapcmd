@@ -283,7 +283,7 @@ describe("commandSafety", () => {
     expect(result.blockedMessage).toContain("bad-value");
   });
 
-  it("blocks invalid validationPattern and only warns once per pattern", () => {
+  it("blocks invalid validationPattern and keeps runtime fallback warning visible", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     const input: SafetyCommandInput = {
@@ -309,7 +309,7 @@ describe("commandSafety", () => {
 
     expect(first.blockedMessage).toContain("value");
     expect(second.blockedMessage).toContain("value");
-    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledTimes(2);
 
     warnSpy.mockRestore();
   });

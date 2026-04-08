@@ -38,6 +38,7 @@ const {
   blurEnabled,
   motionPreset,
   appVersion,
+  homepageActionStatus,
   themeManager,
   motionPresetManager
 } = settingsScene;
@@ -298,6 +299,7 @@ onBeforeUnmount(() => {
     :app-version="appVersion"
     :runtime-platform="runtimePlatform"
     :update-status="updateStatus"
+    :homepage-action-status="homepageActionStatus"
     :window-opacity="windowOpacity"
     :theme="theme"
     :blur-enabled="blurEnabled"

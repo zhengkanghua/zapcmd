@@ -19,6 +19,7 @@ const keyboardIndex = ref(0);
 const hoveredIndex = ref<number | null>(null);
 const showKeyboardSelection = ref(true);
 const panelRef = ref<HTMLElement | null>(null);
+const hasBlockingIssue = computed(() => !!props.command.blockingIssue);
 const actionLabels = computed<Record<CommandSubmitIntent, string>>(() => ({
   execute: "执行",
   stage: "加入执行流",
@@ -46,6 +47,9 @@ function clampIndex(nextIndex: number): number {
 }
 
 function selectIntent(intent: CommandSubmitIntent): void {
+  if (hasBlockingIssue.value) {
+    return;
+  }
   emit("select-intent", intent);
 }
 
@@ -123,6 +127,13 @@ function onKeydown(event: KeyboardEvent): void {
       <p class="text-[11px] leading-[1.45] text-ui-subtle/88">
         选择动作后继续；鼠标和键盘都遵循同一条执行路径。
       </p>
+      <p
+        v-if="props.command.blockingIssue"
+        class="launcher-action-panel__issue rounded-[12px] border border-ui-danger/24 bg-ui-danger/8 px-[12px] py-[10px] text-[12px] leading-[1.5] text-ui-danger"
+        :title="props.command.blockingIssue.detail"
+      >
+        {{ t("launcher.problemCommandBadge") }}：{{ props.command.blockingIssue.message }}
+      </p>
     </header>
 
     <div class="launcher-action-panel__actions grid gap-[10px]">
@@ -133,8 +144,11 @@ function onKeydown(event: KeyboardEvent): void {
         class="launcher-action-panel__action rounded-[12px] border border-ui-text/8 bg-ui-black/12 p-[14px] text-left text-ui-text transition-launcher-interactive duration-150 hover:border-ui-text/12 hover:bg-ui-text/6 hover:shadow-launcher-chip-inset focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24"
         :class="{
           'border-ui-brand/24 bg-ui-brand/12 ring-1 ring-ui-brand/24 shadow-launcher-chip-inset':
-            index === activeVisualIndex
+            index === activeVisualIndex && !hasBlockingIssue,
+          'cursor-not-allowed opacity-45 hover:border-ui-text/8 hover:bg-ui-black/12 hover:shadow-none':
+            hasBlockingIssue
         }"
+        :disabled="hasBlockingIssue"
         @mouseenter="onActionMouseEnter(index)"
         @mouseleave="onActionMouseLeave"
         @focus="onActionFocus(index)"

@@ -98,4 +98,25 @@ describe("SettingsAboutSection states and actions", () => {
     expect(wrapper.find("progress").exists()).toBe(false);
     expect(wrapper.find(".about-status--loading").text()).toContain("安装");
   });
+
+  it("renders homepage action feedback inside the actions card", () => {
+    const wrapper = mount(SettingsAboutSection, {
+      props: {
+        appVersion: "1.2.3",
+        runtimePlatform: "win32",
+        updateStatus: {
+          state: "idle"
+        },
+        homepageActionStatus: {
+          tone: "error",
+          message: "打开项目主页失败：blocked by policy"
+        }
+      }
+    });
+
+    const status = wrapper.get('[data-testid="about-homepage-action-status"]');
+
+    expect(status.classes()).toContain("about-action-status--error");
+    expect(status.text()).toContain("打开项目主页失败：blocked by policy");
+  });
 });

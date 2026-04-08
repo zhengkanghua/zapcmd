@@ -119,11 +119,18 @@ describe("useCommandManagement", () => {
       { code: "read-failed", stage: "read", sourceId: USER_PATH, reason: "permission denied" },
       { code: "invalid-json", stage: "parse", sourceId: USER_PATH, reason: "Unexpected token" },
       { code: "invalid-schema", stage: "schema", sourceId: BUILTIN_PATH, reason: "commands[0].id invalid" },
+      {
+        code: "invalid-command-config",
+        stage: "command",
+        sourceId: BUILTIN_PATH,
+        commandId: "cmd-a",
+        reason: "参数 value 的校验正则无效。"
+      },
       { code: "duplicate-id", stage: "merge", sourceId: BUILTIN_PATH, commandId: "cmd-a", reason: "duplicate id" },
       { code: "duplicate-id", stage: "merge", sourceId: BUILTIN_PATH, reason: "duplicate id" }
     ];
 
-    expect(model.commandLoadIssues.value).toHaveLength(5);
+    expect(model.commandLoadIssues.value).toHaveLength(6);
     expect(model.commandLoadIssues.value.at(0)).toMatchObject({
       code: "read-failed",
       stage: "read",
@@ -187,6 +194,17 @@ describe("useCommandManagement", () => {
     refs.loadIssues.value = [{ code: "invalid-json", stage: "parse", sourceId: BUILTIN_PATH, reason: "bad json" }];
     refs.commandView.value.issueFilter = "with-issues";
     expect(model.commandRows.value.map((row) => row.id).sort()).toEqual(["cmd-a", "cmd-c"]);
+
+    refs.loadIssues.value = [
+      {
+        code: "invalid-command-config",
+        stage: "command",
+        sourceId: BUILTIN_PATH,
+        commandId: "cmd-a",
+        reason: "参数 value 的校验正则无效。"
+      }
+    ];
+    expect(model.commandRows.value.map((row) => row.id)).toEqual(["cmd-a"]);
 
     refs.commandView.value.issueFilter = "all";
     refs.commandView.value.fileFilter = BUILTIN_PATH;

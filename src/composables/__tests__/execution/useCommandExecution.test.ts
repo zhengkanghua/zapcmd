@@ -98,6 +98,19 @@ function createValidatedArgCommand(): CommandTemplate {
   };
 }
 
+function createProblemCommand(): CommandTemplate {
+  return {
+    ...createArgCommand(),
+    id: "broken-command",
+    title: "问题命令",
+    blockingIssue: {
+      code: "invalid-arg-pattern",
+      message: "命令配置有问题，暂时不可用。",
+      detail: "参数 value 的校验正则无效。"
+    }
+  };
+}
+
 function createAdminCommand(): CommandTemplate {
   return {
     ...createNoArgCommand(),
@@ -404,6 +417,30 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).not.toContain("移除高风险或注入片段后重试");
   });
 
+  it("blocks problem command before opening execute flow", async () => {
+    const harness = createHarness();
+
+    harness.execution.executeResult(createProblemCommand());
+    await flushExecution();
+
+    expect(harness.execution.pendingCommand.value).toBeNull();
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("命令配置有问题");
+  });
+
+  it("blocks problem command before joining the queue", async () => {
+    const harness = createHarness();
+
+    harness.execution.stageResult(createProblemCommand());
+    await flushExecution();
+
+    expect(harness.stagedCommands.value).toHaveLength(0);
+    expect(harness.execution.pendingCommand.value).toBeNull();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("命令配置有问题");
+  });
+
   it("executes command from pending execute mode", async () => {
     const harness = createHarness();
     const command = createArgCommand();
@@ -455,6 +492,16 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.safetyDialog.value).toBeNull();
     expect(harness.copyTextToClipboard).toHaveBeenCalledTimes(1);
+  });
+
+  it("blocks copy intent for problem command", async () => {
+    const harness = createHarness();
+
+    await harness.execution.dispatchCommandIntent(createProblemCommand(), "copy");
+
+    expect(harness.copyTextToClipboard).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("命令配置有问题");
   });
 
   it("staged submit writes preflight cache for param commands", async () => {
@@ -934,6 +981,42 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
     expect(harness.execution.executionFeedbackMessage.value).toContain("1 个节点");
     expect(harness.execution.executionFeedbackMessage.value).not.toContain("环境提示");
+  });
+
+  it("blocks queued execution when staged snapshot contains a problem command", async () => {
+    const harness = createHarness(true);
+    harness.stagedCommands.value = [
+      {
+        id: "broken-command",
+        title: "问题命令",
+        rawPreview: "echo {{value}}",
+        renderedPreview: "echo test",
+        executionTemplate: {
+          kind: "exec",
+          program: "echo",
+          args: ["{{value}}"]
+        },
+        execution: {
+          kind: "exec",
+          program: "echo",
+          args: ["test"]
+        },
+        args: [],
+        argValues: {},
+        blockingIssue: {
+          code: "invalid-arg-pattern",
+          message: "命令配置有问题，暂时不可用。",
+          detail: "参数 value 的校验正则无效。"
+        }
+      }
+    ];
+
+    await harness.execution.executeStaged();
+
+    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("命令配置有问题");
   });
 
   it("refreshes a single queued command cache without touching other items", async () => {

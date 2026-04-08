@@ -22,6 +22,7 @@ export const messages = {
       searchPlaceholder: "输入命令关键词...",
       noResult: "没有匹配到命令。",
       noResultHint: "试试更短的关键词，或按 Esc 清空后重新搜索。",
+      problemCommandBadge: "问题命令",
       queueToggleAria: "切换队列，当前 {count} 条命令",
       queueTitle: "队列 {count}",
       queueEmpty: "队列为空。",
@@ -186,7 +187,10 @@ export const messages = {
         updateNextStepPermission: "下一步：当前构建缺少更新权限，请联系开发者补充 updater 权限后重试。",
         updateNextStepDownload: "下一步：请重试下载更新。",
         updateNextStepInstall: "下一步：请稍后重试安装或手动安装新版本。",
-        openHomepage: "打开项目主页"
+        openHomepage: "打开项目主页",
+        openHomepageSuccess: "已打开项目主页。",
+        openHomepageMissing: "当前构建未配置项目主页地址。",
+        openHomepageFailed: "打开项目主页失败：{reason}"
       },
       commands: {
         title: "命令管理",
@@ -215,7 +219,7 @@ export const messages = {
         disableFiltered: "禁用当前结果（{count}）",
         resetFilters: "重置筛选",
         loadIssuesTitle: "导入校验提示",
-        loadIssuesHint: "这些提示只影响对应来源文件；修复后重新加载即可。",
+        loadIssuesHint: "这些提示会影响对应来源文件或具体命令；修复后重新加载即可。",
         commandListTitle: "命令列表",
         tableHeaderCommand: "命令",
         tableHeaderCategory: "分类",
@@ -236,11 +240,13 @@ export const messages = {
         issueStageRead: "读取",
         issueStageParse: "解析",
         issueStageSchema: "校验",
+        issueStageCommand: "命令",
         issueStageMerge: "合并",
         issueWithReason: "[{stage}] {summary}（原因：{reason}）",
         issueReadFailed: "读取命令来源失败：{sourceId}",
         issueInvalidJson: "文件 JSON 解析失败：{sourceId}",
         issueInvalidSchema: "文件结构不符合 schema：{sourceId}",
+        issueInvalidCommandConfig: "命令配置异常：{commandId}（来源 {sourceId}）",
         issueDuplicateId: "命令 ID 冲突已跳过：{commandId}（来源 {sourceId}）"
       },
       appearance: {
@@ -330,6 +336,9 @@ export const messages = {
       failed: "执行失败：{reason}",
       failedWithNextStep: "执行失败：{reason}。下一步：{nextStep}",
       failedFallback: "请检查终端环境或命令参数。",
+      invalidCommandConfig: "命令配置有问题，暂时不可用。",
+      invalidCommandPatternDetail: "{label} 的校验正则“{pattern}”无效：{reason}",
+      invalidCommandPatternUnknown: "无法解析正则编译错误",
       elevationCancelled: "已取消管理员授权，本次未执行",
       elevationLaunchFailed: "管理员终端启动失败",
       terminalLaunchFailed: "终端启动失败",
@@ -338,6 +347,8 @@ export const messages = {
       queueFailed: "运行队列失败：{reason}",
       queueFailedWithNextStep: "运行队列失败：{reason}。下一步：{nextStep}",
       queueFailedFallback: "运行队列失败，请检查终端环境或命令参数。",
+      commandUnavailableWithNextStep: "该命令当前不可用：{reason}。下一步：{nextStep}",
+      queueCommandUnavailableWithNextStep: "执行流包含问题命令：{reason}。下一步：{nextStep}",
       blocked: "执行已拦截：{reason}",
       blockedWithNextStep: "执行已拦截：{reason}。下一步：{nextStep}",
       preflightBlockedSummary: "无法执行该命令。",
@@ -356,6 +367,7 @@ export const messages = {
       preflightProbeInvalidResponse: "执行前检查返回了无效结果，请重试或查看日志。",
       nextStepTerminalUnavailable: "检查并切换可用终端后重试。",
       nextStepInvalidParams: "检查必填参数与输入格式后重试。",
+      nextStepCommandConfig: "前往 Settings -> Commands 查看问题命令并修复命令模板后重试。",
       nextStepPrerequisite: "补齐缺失依赖、环境变量或前置条件后重试。",
       nextStepBlocked: "移除高风险或注入片段后重试。",
       nextStepUnknown: "请重试；若仍失败请查看日志并反馈。",
@@ -415,6 +427,7 @@ export const messages = {
       searchPlaceholder: "Type command keywords...",
       noResult: "No matching command found.",
       noResultHint: "Try a shorter keyword, or press Esc to clear and search again.",
+      problemCommandBadge: "Problem Command",
       queueToggleAria: "Toggle queue, currently {count} command(s)",
       queueTitle: "Queue {count}",
       queueEmpty: "Flow is empty.",
@@ -583,7 +596,10 @@ export const messages = {
           "Next step: this build is missing updater permission. Ask the maintainer to grant updater capability and retry.",
         updateNextStepDownload: "Next step: retry downloading the update.",
         updateNextStepInstall: "Next step: retry install later or install the release manually.",
-        openHomepage: "Open homepage"
+        openHomepage: "Open homepage",
+        openHomepageSuccess: "Homepage opened.",
+        openHomepageMissing: "This build does not have a homepage URL configured.",
+        openHomepageFailed: "Failed to open homepage: {reason}"
       },
       commands: {
         title: "Command Management",
@@ -612,7 +628,8 @@ export const messages = {
         disableFiltered: "Disable current results ({count})",
         resetFilters: "Reset filters",
         loadIssuesTitle: "Import validation",
-        loadIssuesHint: "These warnings only affect the related source files. Fix them and reload commands.",
+        loadIssuesHint:
+          "These warnings affect the related source files or specific commands. Fix them and reload commands.",
         commandListTitle: "Command list",
         tableHeaderCommand: "Command",
         tableHeaderCategory: "Category",
@@ -634,11 +651,13 @@ export const messages = {
         issueStageRead: "read",
         issueStageParse: "parse",
         issueStageSchema: "schema",
+        issueStageCommand: "command",
         issueStageMerge: "merge",
         issueWithReason: "[{stage}] {summary} (reason: {reason})",
         issueReadFailed: "Failed to read command source: {sourceId}",
         issueInvalidJson: "JSON parse failed: {sourceId}",
         issueInvalidSchema: "Schema validation failed: {sourceId}",
+        issueInvalidCommandConfig: "Command config is invalid: {commandId} (source {sourceId})",
         issueDuplicateId: "Duplicate command ID skipped: {commandId} (source {sourceId})"
       },
       appearance: {
@@ -726,6 +745,10 @@ export const messages = {
       failed: "Execution failed: {reason}",
       failedWithNextStep: "Execution failed: {reason}. Next step: {nextStep}",
       failedFallback: "Please check terminal environment or command arguments.",
+      invalidCommandConfig: "This command has a broken config and is temporarily unavailable.",
+      invalidCommandPatternDetail:
+        "{label} uses an invalid regex pattern \"{pattern}\": {reason}",
+      invalidCommandPatternUnknown: "Unable to parse the regex compile error.",
       elevationCancelled: "Elevation was cancelled. Nothing was executed.",
       elevationLaunchFailed: "Failed to launch elevated terminal.",
       terminalLaunchFailed: "Failed to launch terminal.",
@@ -734,6 +757,10 @@ export const messages = {
       queueFailed: "Flow execution failed: {reason}",
       queueFailedWithNextStep: "Flow execution failed: {reason}. Next step: {nextStep}",
       queueFailedFallback: "Flow execution failed. Check terminal environment or command arguments.",
+      commandUnavailableWithNextStep:
+        "This command is currently unavailable: {reason}. Next step: {nextStep}",
+      queueCommandUnavailableWithNextStep:
+        "The flow contains a problem command: {reason}. Next step: {nextStep}",
       blocked: "Execution blocked: {reason}",
       blockedWithNextStep: "Execution blocked: {reason}. Next step: {nextStep}",
       preflightBlockedSummary: "This command cannot run.",
@@ -755,6 +782,8 @@ export const messages = {
         "Prerequisite probing returned an invalid response. Retry or check logs.",
       nextStepTerminalUnavailable: "Check available terminals and retry.",
       nextStepInvalidParams: "Fix required arguments or invalid input, then retry.",
+      nextStepCommandConfig:
+        "Open Settings -> Commands, fix the problem command template, then retry.",
       nextStepPrerequisite: "Install the missing dependency, env var, or prerequisite before retrying.",
       nextStepBlocked: "Remove risky or injection-like fragments, then retry.",
       nextStepUnknown: "Retry once; if it still fails, check logs and report.",

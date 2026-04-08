@@ -160,6 +160,23 @@ const updateErrorNextStep = computed(() => {
         </div>
 
         <div
+          v-if="props.homepageActionStatus"
+          :data-testid="'about-homepage-action-status'"
+          :class="[
+            'about-action-status relative rounded-surface border px-3 py-2.5 pl-4 text-[12px] before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:content-[\'\']',
+            props.homepageActionStatus.tone === 'success'
+              ? 'about-action-status--success border-ui-success/28 bg-ui-success/10 text-ui-success/90 before:bg-ui-success'
+              : 'about-action-status--error border-ui-danger/30 bg-ui-danger/8 text-ui-danger/90 before:bg-ui-danger'
+          ]"
+          role="status"
+          aria-live="polite"
+        >
+          <p class="about-action-status__title m-0 font-semibold">
+            {{ props.homepageActionStatus.message }}
+          </p>
+        </div>
+
+        <div
           v-if="props.updateStatus.state === 'error'"
           class="about-status about-status--error relative mt-3 rounded-surface border border-ui-danger/30 bg-ui-danger/8 px-3 py-2.5 pl-4 text-[12px] text-ui-danger/90 before:absolute before:left-0 before:top-[8px] before:bottom-[8px] before:w-[3px] before:rounded-full before:bg-ui-danger before:content-['']"
           role="status"

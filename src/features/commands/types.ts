@@ -1,5 +1,6 @@
 import type { CommandPrerequisite } from "./prerequisiteTypes";
 import type { RuntimeScriptRunner } from "./runtimeTypes";
+import type { CommandBlockingIssue } from "./commandIssues";
 
 export interface CommandArg {
   key: string;
@@ -59,4 +60,5 @@ export interface CommandTemplate {
   prerequisites?: CommandPrerequisite[];
   adminRequired?: boolean;
   dangerous?: boolean;
+  blockingIssue?: CommandBlockingIssue;
 }

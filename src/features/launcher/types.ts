@@ -3,6 +3,7 @@ import type {
   CommandExecutionTemplate,
   ResolvedCommandExecution
 } from "../commands/commandTemplates";
+import type { CommandBlockingIssue } from "../commands/commandIssues";
 import type { CommandPrerequisite } from "../commands/prerequisiteTypes";
 
 export type CommandSubmitIntent = "execute" | "stage" | "copy";
@@ -27,4 +28,5 @@ export interface StagedCommand {
   preflightCache?: StagedCommandPreflightCache;
   adminRequired?: boolean;
   dangerous?: boolean;
+  blockingIssue?: CommandBlockingIssue;
 }

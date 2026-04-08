@@ -1,5 +1,6 @@
 import { nextTick } from "vue";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
+import type { CommandBlockingIssue } from "../../../features/commands/commandIssues";
 import type {
   CommandPrerequisite,
   CommandPrerequisiteProbeResult
@@ -136,6 +137,23 @@ export function buildExecutionFailureFeedback(error: unknown, mode: "single" | "
   return formatFailureMessage(reason, classifyExecutionFailure(reason), mode);
 }
 
+export function buildCommandUnavailableFeedback(
+  issue: CommandBlockingIssue,
+  mode: "single" | "queue"
+): string {
+  if (mode === "queue") {
+    return t("execution.queueCommandUnavailableWithNextStep", {
+      reason: issue.message,
+      nextStep: t("execution.nextStepCommandConfig")
+    });
+  }
+
+  return t("execution.commandUnavailableWithNextStep", {
+    reason: issue.message,
+    nextStep: t("execution.nextStepCommandConfig")
+  });
+}
+
 export function summarizeCommandForFeedback(command: string): string {
   const collapsed = command.replace(/\s+/g, " ").trim();
   if (!collapsed) {
@@ -270,7 +288,8 @@ function buildStagedCommand(
     prerequisites: command.prerequisites,
     preflightCache,
     adminRequired: command.adminRequired ?? false,
-    dangerous: command.dangerous ?? false
+    dangerous: command.dangerous ?? false,
+    blockingIssue: command.blockingIssue
   };
 }
 

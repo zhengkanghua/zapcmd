@@ -24,6 +24,7 @@ interface CreateAllRowsOptions {
   userCommandSourceById: Readonly<Ref<Record<string, string>>>;
   overriddenCommandIds: Readonly<Ref<string[]>>;
   issueSourceIds: Readonly<Ref<string[]>>;
+  issueCommandIds: Readonly<Ref<string[]>>;
 }
 
 export interface CommandManagementIndexedRow extends CommandManagementRow {
@@ -35,6 +36,7 @@ export function createAllRows(options: CreateAllRowsOptions) {
     const disabledSet = new Set(options.disabledCommandIds.value);
     const overriddenSet = new Set(options.overriddenCommandIds.value);
     const issueSourceSet = new Set(options.issueSourceIds.value);
+    const issueCommandSet = new Set(options.issueCommandIds.value);
 
     return options.allCommandTemplates.value.map((template) => {
       const sourcePath = options.commandSourceById.value[template.id];
@@ -51,7 +53,9 @@ export function createAllRows(options: CreateAllRowsOptions) {
         sourceFileLabel,
         overridesBuiltin: overriddenSet.has(template.id),
         enabled: !disabledSet.has(template.id),
-        hasLoadIssue: Boolean(sourcePath) && issueSourceSet.has(sourcePath),
+        hasLoadIssue:
+          issueCommandSet.has(template.id) ||
+          (Boolean(sourcePath) && issueSourceSet.has(sourcePath)),
         normalizedSearchText: [
           template.title,
           template.id,
