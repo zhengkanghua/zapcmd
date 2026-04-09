@@ -339,6 +339,9 @@ export const messages = {
       invalidCommandConfig: "命令配置有问题，暂时不可用。",
       invalidCommandPatternDetail: "{label} 的校验正则“{pattern}”无效：{reason}",
       invalidCommandPatternUnknown: "无法解析正则编译错误",
+      staleCommandSnapshot: "该命令来自旧队列快照，当前定义已变化，需重新加入队列。",
+      staleCommandSnapshotDetail:
+        "队列中的命令“{commandId}”无法与当前命令目录对齐，已禁止直接执行。请删除后重新加入最新版本。",
       elevationCancelled: "已取消管理员授权，本次未执行",
       elevationLaunchFailed: "管理员终端启动失败",
       terminalLaunchFailed: "终端启动失败",
@@ -749,6 +752,10 @@ export const messages = {
       invalidCommandPatternDetail:
         "{label} uses an invalid regex pattern \"{pattern}\": {reason}",
       invalidCommandPatternUnknown: "Unable to parse the regex compile error.",
+      staleCommandSnapshot:
+        "This command came from an old flow snapshot and must be re-added before it can run.",
+      staleCommandSnapshotDetail:
+        "The queued command \"{commandId}\" no longer matches the current catalog and was blocked. Remove it and add the latest version again.",
       elevationCancelled: "Elevation was cancelled. Nothing was executed.",
       elevationLaunchFailed: "Failed to launch elevated terminal.",
       terminalLaunchFailed: "Failed to launch terminal.",

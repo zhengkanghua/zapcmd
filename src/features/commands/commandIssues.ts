@@ -2,7 +2,7 @@ import { t } from "../../i18n";
 import type { CommandArg, CommandTemplate } from "./types";
 
 export interface CommandBlockingIssue {
-  code: "invalid-arg-pattern";
+  code: "invalid-arg-pattern" | "stale-command-snapshot";
   message: string;
   detail: string;
 }
@@ -48,4 +48,14 @@ export function findCommandBlockingIssue(
   }
 
   return null;
+}
+
+export function createStaleCommandSnapshotIssue(commandId: string): CommandBlockingIssue {
+  return {
+    code: "stale-command-snapshot",
+    message: t("execution.staleCommandSnapshot"),
+    detail: t("execution.staleCommandSnapshotDetail", {
+      commandId
+    })
+  };
 }

@@ -51,6 +51,24 @@ function hasPrerequisites(
   return Array.isArray(prerequisites) && prerequisites.length > 0;
 }
 
+function collectFailedPreflightIssues(
+  prerequisites: CommandTemplate["prerequisites"] | StagedCommand["prerequisites"],
+  results: Awaited<ReturnType<NonNullable<UseCommandExecutionOptions["runCommandPreflight"]>>>,
+  title?: string
+) {
+  return results.flatMap((result, index) =>
+    result.ok === true
+      ? []
+      : [
+          {
+            title,
+            prerequisite: prerequisites?.[index],
+            result
+          }
+        ]
+  );
+}
+
 function rejectBlockingIssue(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState,
@@ -382,14 +400,10 @@ function createPendingCommandActions(
       return;
     }
     const issues = hasPrerequisites(command.prerequisites)
-      ? (
+      ? collectFailedPreflightIssues(
+          command.prerequisites,
           await runCommandPreflight(options, command.prerequisites)
         )
-          .filter((result) => result.ok !== true)
-          .map((result, index) => ({
-            prerequisite: command.prerequisites?.[index],
-            result
-          }))
       : [];
     const preflightCache = buildStagedPreflightCache(command.title, issues);
 
@@ -492,15 +506,11 @@ function createQueuedPreflightRefreshActions(
     prerequisites: StagedCommand["prerequisites"]
   ): Promise<StagedCommandPreflightCache | undefined> {
     const issues = hasPrerequisites(prerequisites)
-      ? (
-          await runCommandPreflight(options, prerequisites)
+      ? collectFailedPreflightIssues(
+          prerequisites,
+          await runCommandPreflight(options, prerequisites),
+          title
         )
-          .filter((result) => result.ok !== true)
-          .map((result, index) => ({
-            title,
-            prerequisite: prerequisites?.[index],
-            result
-          }))
       : [];
 
     return buildStagedPreflightCache(title, issues);

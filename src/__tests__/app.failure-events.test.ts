@@ -1624,6 +1624,16 @@ describe("App failure and event regression", () => {
     await openReviewByPill(wrapper);
     expect(wrapper.findAll(".staging-card").length).toBe(1);
     expect(wrapper.get(".staging-card h3").text()).toBe("restored command");
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+
+    expect(hoisted.runMock).not.toHaveBeenCalled();
+    expectFeedbackContract(wrapper, {
+      tone: "error",
+      reasonSnippet: "旧队列快照",
+      guidanceSnippet: "问题命令"
+    });
   });
 
   it("executes dangerous command via CommandPanel confirmation (no separate safety dialog)", async () => {

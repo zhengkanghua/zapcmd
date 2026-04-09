@@ -644,6 +644,51 @@ describe("useLauncherSessionState", () => {
     expect(storage.setItem.mock.calls.length).toBe(firstCallCount);
   });
 
+  it("restores after enabled flips true and rehydrates restored commands through the hook", async () => {
+    const snapshot = JSON.stringify({
+      version: SESSION_VERSION,
+      stagingExpanded: false,
+      stagedCommands: [
+        {
+          ...createStagedCommand("docker-logs-1710000000000"),
+          title: "旧标题",
+          rawPreview: "docker logs {{target}} --tail 120",
+          renderedPreview: "docker logs old-target --tail 120",
+          argValues: {
+            target: "old-target"
+          }
+        }
+      ]
+    });
+    const storage = createStorage(snapshot);
+    const stagedCommands = ref<StagedCommand[]>([]);
+    const enabled = ref(false);
+
+    useLauncherSessionState({
+      enabled,
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage,
+      restoreStagedCommands: (restored) =>
+        restored.map((command) => ({
+          ...command,
+          title: "Docker Logs",
+          rawPreview: "docker logs {{target}} --tail 30",
+          renderedPreview: "docker logs old-target --tail 30"
+        }))
+    });
+
+    expect(stagedCommands.value).toHaveLength(0);
+
+    enabled.value = true;
+    await nextTick();
+
+    expect(stagedCommands.value).toHaveLength(1);
+    expect(stagedCommands.value[0]?.title).toBe("Docker Logs");
+    expect(stagedCommands.value[0]?.renderedPreview).toBe("docker logs old-target --tail 30");
+  });
+
   it("skips persistence when disabled", async () => {
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([]);

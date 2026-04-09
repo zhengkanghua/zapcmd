@@ -2,6 +2,10 @@ import { computed } from "vue";
 import type { CommandArg, CommandTemplate } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
 import { getCommandArgs } from "../../../features/launcher/commandRuntime";
+import {
+  restoreStagedCommandSnapshot,
+  resolveStagedCommandSourceId
+} from "../../../features/launcher/stagedCommands";
 import { cleanExpiredDismissals } from "../../../features/security/dangerDismiss";
 import { isTypingElement, useMainWindowShell } from "../../launcher/useMainWindowShell";
 import { useAppLifecycleBridge } from "../useAppLifecycleBridge";
@@ -20,6 +24,7 @@ import { useLauncherSessionState } from "../../launcher/useLauncherSessionState"
 import { useCommandExecution } from "../../execution/useCommandExecution";
 import { useLauncherNavStack } from "../../launcher/useLauncherNavStack";
 import { useCommandQueue } from "../../launcher/useCommandQueue";
+import type { StagedCommand } from "../../../features/launcher/types";
 import { useWindowSizing } from "../../launcher/useWindowSizing";
 import type { createAppCompositionContext } from "./context";
 import { SETTINGS_STORAGE_KEYS } from "./constants";
@@ -31,6 +36,23 @@ import {
 
 type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 type LauncherRuntime = ReturnType<typeof createLauncherRuntime>;
+
+function restoreLauncherSessionCommands(
+  context: AppCompositionContext,
+  commands: StagedCommand[]
+): StagedCommand[] {
+  // 只有在 catalog ready 之后才恢复，并按当前模板重建队列项；找不到模板时保留为 stale 条目并阻断执行。
+  const templatesById = new Map(
+    context.commandCatalog.allCommandTemplates.value.map((item) => [item.id, item])
+  );
+
+  return commands.map((item) =>
+    restoreStagedCommandSnapshot(
+      item,
+      templatesById.get(resolveStagedCommandSourceId(item))
+    )
+  );
+}
 
 function createLauncherRuntime(context: AppCompositionContext) {
   const prepareDrawerRevealRef = {
@@ -46,10 +68,13 @@ function createLauncherRuntime(context: AppCompositionContext) {
     }
   });
   useLauncherSessionState({
-    enabled: computed(() => !context.isSettingsWindow.value),
+    enabled: computed(
+      () => !context.isSettingsWindow.value && context.commandCatalog.catalogReady.value
+    ),
     stagedCommands: context.stagedCommands,
     stagingExpanded: stagingQueue.queueOpen,
     suspendPersistence: context.stagingGripReorderActive,
+    restoreStagedCommands: (commands) => restoreLauncherSessionCommands(context, commands),
     openStagingDrawer: stagingQueue.openQueuePanel
   });
 

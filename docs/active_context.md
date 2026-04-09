@@ -15,3 +15,4 @@
 - 2026-04-03：按最新交互反馈微调：动作面板补鼠标返回按钮、hover 阴影跟随和根节点无白框；搜索提示改回单行省略并用原生 title 展示完整内容，废弃两行提示显示。相关 55 条定向测试已通过。
 - 2026-04-07：已落地 session 延迟写入、终端发现内存+24h缓存及失效重探、Settings About 主页结构化反馈；后续拆分路线见 `plan/2026-04-07-runtime-split-roadmap.md`。
 - 2026-04-07：非法 regex 命令改为“可见但不可执行”：加载期标记 blockingIssue，Launcher 显示问题命令，执行/入队/复制统一拦截，Settings Commands 记录问题来源。
+- 2026-04-09：修复队列 preflight 失败项错绑 prerequisite；Launcher 恢复旧 session 时按当前 catalog 重建，失配快照保留可见但标记 stale 并阻断执行；`npm run check:all` 已通过。

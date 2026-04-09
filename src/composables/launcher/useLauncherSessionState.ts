@@ -25,6 +25,7 @@ interface UseLauncherSessionStateOptions {
   stagedCommands: Ref<StagedCommand[]>;
   stagingExpanded: Readonly<Ref<boolean>>;
   suspendPersistence?: Readonly<Ref<boolean>>;
+  restoreStagedCommands?: (commands: StagedCommand[]) => StagedCommand[];
   openStagingDrawer: () => void;
   storage?: Pick<Storage, "getItem" | "setItem" | "removeItem"> | null;
 }
@@ -218,6 +219,10 @@ function sanitizeStagedCommand(value: unknown): StagedCommand | null {
   }
 
   const id = typeof value.id === "string" ? value.id.trim() : "";
+  const sourceCommandId =
+    typeof value.sourceCommandId === "string" && value.sourceCommandId.trim().length > 0
+      ? value.sourceCommandId.trim()
+      : undefined;
   const title = typeof value.title === "string" ? value.title.trim() : "";
   const rawPreview = typeof value.rawPreview === "string" ? value.rawPreview : "";
   const renderedPreview = typeof value.renderedPreview === "string" ? value.renderedPreview : "";
@@ -249,6 +254,7 @@ function sanitizeStagedCommand(value: unknown): StagedCommand | null {
 
   const normalized: StagedCommand = {
     id,
+    sourceCommandId,
     title,
     rawPreview,
     renderedPreview,
@@ -362,7 +368,8 @@ function createCommandIdSignature(stagedCommands: readonly StagedCommand[]): str
 
 export function useLauncherSessionState(options: UseLauncherSessionStateOptions): void {
   const storage = resolveStorage(options.storage) ?? null;
-  let restoring = true;
+  let restoring = false;
+  let restoredFromStorage = false;
   let deferredWriteTimer: ReturnType<typeof setTimeout> | null = null;
   let skipNextDeferredWrite = false;
 
@@ -399,14 +406,28 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
     });
   }
 
-  if (options.enabled.value) {
+  function restoreFromStorageIfNeeded(): void {
+    if (restoredFromStorage || !options.enabled.value) {
+      return;
+    }
+    restoredFromStorage = true;
+
     const restored = readLauncherSession(storage);
     if (restored && restored.stagedCommands.length > 0) {
-      options.stagedCommands.value = restored.stagedCommands;
+      restoring = true;
+      try {
+        // 恢复阶段允许调用方按当前 catalog 重建队列项，收口旧快照带来的执行漂移风险。
+        const nextCommands = options.restoreStagedCommands
+          ? options.restoreStagedCommands(restored.stagedCommands)
+          : restored.stagedCommands;
+        options.stagedCommands.value = nextCommands;
+      } finally {
+        restoring = false;
+      }
     }
   }
 
-  restoring = false;
+  restoreFromStorageIfNeeded();
 
   watch(
     [
@@ -419,6 +440,9 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
       [commandIdSignature, stagingExpanded, enabled, suspendPersistence],
       [previousCommandIdSignature, _previousStagingExpanded, previousEnabled, previousSuspendPersistence]
     ) => {
+      if (enabled && !previousEnabled) {
+        restoreFromStorageIfNeeded();
+      }
       if (!enabled || restoring || suspendPersistence) {
         clearDeferredWriteTimer();
         return;

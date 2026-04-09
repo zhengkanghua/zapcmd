@@ -17,6 +17,7 @@ export interface StagedCommandPreflightCache {
 
 export interface StagedCommand {
   id: string;
+  sourceCommandId?: string;
   title: string;
   renderedPreview: string;
   executionTemplate: CommandExecutionTemplate;

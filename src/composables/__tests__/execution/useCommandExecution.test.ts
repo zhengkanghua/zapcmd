@@ -380,6 +380,58 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("1 条命令存在环境提示");
   });
 
+  it("uses the matching prerequisite metadata when a later queued prerequisite fails", async () => {
+    const harness = createHarness();
+    const command = createPrerequisiteCommand(
+      {},
+      [
+        {
+          id: "docker",
+          type: "binary",
+          required: true,
+          check: "docker",
+          displayName: "Docker Desktop",
+          resolutionHint: "安装 Docker Desktop 后重试"
+        },
+        {
+          id: "github-token",
+          type: "env",
+          required: true,
+          check: "env:GITHUB_TOKEN",
+          displayName: "GitHub Token",
+          resolutionHint: "设置 GITHUB_TOKEN 后重试"
+        }
+      ]
+    );
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: true,
+        code: "ok",
+        message: "",
+        required: true
+      },
+      {
+        id: "github-token",
+        ok: false,
+        code: "missing-env",
+        message: "required environment variable not found: GITHUB_TOKEN",
+        required: true
+      }
+    ]);
+
+    harness.execution.stageResult(command);
+    await flushExecution();
+
+    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.stagedCommands.value[0]?.preflightCache?.issues).toEqual([
+      "缺少 GitHub Token（环境变量 GITHUB_TOKEN）。"
+    ]);
+    expect(harness.stagedCommands.value[0]?.preflightCache?.issues).not.toContain(
+      "未检测到 Docker Desktop。"
+    );
+  });
+
   it("rejects pending submit when required argument is blank", () => {
     const harness = createHarness();
     const command: CommandTemplate = {

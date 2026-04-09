@@ -12,10 +12,10 @@ import {
   type StructuredTerminalExecutionStep
 } from "../../../services/commandExecutor";
 import {
-  buildInitialArgValues,
   getCommandArgs,
   resolveCommandExecution
 } from "../../../features/launcher/commandRuntime";
+import { buildStagedCommandSnapshot } from "../../../features/launcher/stagedCommands";
 import { findFirstCommandArgValidationError } from "../../../features/security/commandArgValidation";
 import { collectTrustedArgKeysFromExecution } from "../../../features/security/commandSafety";
 import type {
@@ -269,30 +269,6 @@ export function getPendingSubmitRejection(
   };
 }
 
-function buildStagedCommand(
-  command: CommandTemplate,
-  argValues?: Record<string, string>,
-  preflightCache?: StagedCommandPreflightCache
-): StagedCommand {
-  const { args, values } = buildInitialArgValues(command, argValues);
-  const resolved = resolveCommandExecution(command, values);
-  return {
-    id: `${command.id}-${Date.now()}`,
-    title: command.title,
-    rawPreview: command.preview,
-    renderedPreview: resolved.renderedPreview,
-    executionTemplate: command.execution!,
-    execution: resolved.execution,
-    args,
-    argValues: values,
-    prerequisites: command.prerequisites,
-    preflightCache,
-    adminRequired: command.adminRequired ?? false,
-    dangerous: command.dangerous ?? false,
-    blockingIssue: command.blockingIssue
-  };
-}
-
 export async function executeSingleCommand(
   options: UseCommandExecutionOptions,
   state: CommandExecutionState,
@@ -341,7 +317,17 @@ export function appendToStaging(
   argValues?: Record<string, string>,
   preflightCache?: StagedCommandPreflightCache
 ): void {
-  options.stagedCommands.value.push(buildStagedCommand(command, argValues, preflightCache));
+  const stagedCommand = buildStagedCommandSnapshot({
+    command,
+    argValues,
+    preflightCache
+  });
+  if (!stagedCommand) {
+    state.setExecutionFeedback("error", buildExecutionFailureFeedback("missing structured execution", "single"));
+    return;
+  }
+
+  options.stagedCommands.value.push(stagedCommand);
   state.setExecutionFeedback("success", t("launcher.flowAdded"));
   options.scheduleSearchInputFocus(true);
   options.triggerStagedFeedback(command.id);

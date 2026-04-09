@@ -111,6 +111,7 @@ interface UseCommandCatalogReturn {
   userCommandSourceById: Ref<Record<string, string>>;
   overriddenCommandIds: Ref<string[]>;
   loadIssues: Ref<CommandLoadIssue[]>;
+  catalogReady: Ref<boolean>;
   refreshUserCommands: () => Promise<void>;
 }
 
@@ -175,6 +176,34 @@ function bindCatalogMountedHook(params: {
   });
 }
 
+function bindCommandCatalogLifecycle(params: {
+  options: UseCommandCatalogOptions;
+  loadBuiltinTemplatesAndSource: () => void;
+  userTemplates: Ref<CommandTemplate[]>;
+  userCommandSourceById: Ref<Record<string, string>>;
+  loadIssues: Ref<CommandLoadIssue[]>;
+  applyMergedTemplates: () => void;
+  refreshUserCommands: () => Promise<void>;
+  resetLastSignature: () => void;
+}): void {
+  bindCatalogWatchers({
+    options: params.options,
+    onDisabledCommandIdsChanged: () => {
+      params.applyMergedTemplates();
+    },
+    onLocaleChanged: () => {
+      params.resetLastSignature();
+      if (!params.options.isTauriRuntime()) {
+        params.loadBuiltinTemplatesAndSource();
+        params.applyMergedTemplates();
+        return;
+      }
+      void params.refreshUserCommands();
+    }
+  });
+  bindCatalogMountedHook(params);
+}
+
 export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommandCatalogReturn {
   const initialBuiltinLoaded = loadBuiltinCommandTemplatesWithReport();
   const builtinTemplates = ref<CommandTemplate[]>(initialBuiltinLoaded.templates);
@@ -186,6 +215,7 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
   const userCommandSourceById = ref<Record<string, string>>({});
   const overriddenCommandIds = ref<string[]>([]);
   const loadIssues = ref<CommandLoadIssue[]>([]);
+  const catalogReady = ref(!options.isTauriRuntime());
   let lastSignature = "";
   let runtimePlatform: RuntimePlatform | null = null, appliedRuntimePlatform: RuntimePlatform | null = null;
 
@@ -233,6 +263,7 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
 
   async function refreshUserCommands(): Promise<void> {
     if (!options.isTauriRuntime()) {
+      catalogReady.value = true;
       applyMergedTemplates();
       return;
     }
@@ -259,33 +290,23 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
     } catch (error) {
       console.warn("[commands] failed to refresh user command files", error);
       loadIssues.value = [createReadFailedIssue(USER_COMMAND_SOURCE_ID, error)];
+    } finally {
+      catalogReady.value = true;
     }
   }
 
   applyMergedTemplates();
-  bindCatalogWatchers({
-    options,
-    onDisabledCommandIdsChanged: () => {
-      applyMergedTemplates();
-    },
-    onLocaleChanged: () => {
-      lastSignature = "";
-      if (!options.isTauriRuntime()) {
-        loadBuiltinTemplatesAndSource();
-        applyMergedTemplates();
-        return;
-      }
-      void refreshUserCommands();
-    }
-  });
-  bindCatalogMountedHook({
+  bindCommandCatalogLifecycle({
     options,
     loadBuiltinTemplatesAndSource,
     userTemplates,
     userCommandSourceById,
     loadIssues,
     applyMergedTemplates,
-    refreshUserCommands
+    refreshUserCommands,
+    resetLastSignature: () => {
+      lastSignature = "";
+    }
   });
 
   return {
@@ -295,6 +316,7 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
     userCommandSourceById,
     overriddenCommandIds,
     loadIssues,
+    catalogReady,
     refreshUserCommands
   };
 }
