@@ -22,3 +22,4 @@
 - 2026-04-09：Chunk 3 已落地；前端继续统一透传 `terminalReusePolicy`，新增队列透传契约测试，TS/Rust 注释明确当前仅 Windows 后端消费，非 Windows 显式忽略。
 - 2026-04-09：Chunk 4 已落地；`settingsSavedTimer` 在 scope dispose 时清理，避免销毁后 toast 回写；前端定向/主路径回归、lint、typecheck、test:coverage、build、check:rust、test:rust 全绿。
 - 2026-04-09：verification 补修 2 点：settings 保存提示新增 disposed guard，阻断卸载后迟到成功回调再次回写 toast；`terminalReusePolicy` 设置文案补充“当前仅 Windows 生效，其他平台忽略”，对应回归已补齐。
+- 2026-04-09：已确认“中强度收口”设计并写入 spec：启动预热+1h 终端缓存/显式重扫、执行链职责拆分、Settings 生命周期并轨、命令管理死链收口、动画改单实例追最新目标；下一阶段写实现计划。
