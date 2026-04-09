@@ -144,7 +144,7 @@ git commit -m "perf(search):收口 Launcher 搜索热路径重复算分"
 - Test: `src/composables/__tests__/launcher/useLauncherSessionState.test.ts`
 - Create: `src/features/launcher/__tests__/stagedCommands.test.ts`
 
-- [ ] **Step 1: 写红灯测试，锁住新的持久化边界**
+- [x] **Step 1: 写红灯测试，锁住新的持久化边界**
 
 在 `src/composables/__tests__/launcher/useLauncherSessionState.test.ts` 增加：
 
@@ -171,7 +171,7 @@ expect(payload.stagedCommands[0]).toEqual({
 });
 ```
 
-- [ ] **Step 2: 跑定向测试，确认边界先失败**
+- [x] **Step 2: 跑定向测试，确认边界先失败**
 
 Run:
 
@@ -184,7 +184,7 @@ Expected:
 1. 现有恢复测试部分失败
 2. 新增最小快照与 stale 恢复测试失败
 
-- [ ] **Step 3: 写最小实现**
+- [x] **Step 3: 写最小实现**
 
 实现拆分要求：
 
@@ -211,7 +211,7 @@ interface PersistedLauncherSessionCommand {
    - 最小 DTO 深变化：debounce 写
 6. `preflightCache` 不进入最小 DTO，因此不再触发持久化。
 
-- [ ] **Step 4: 跑定向测试确认通过**
+- [x] **Step 4: 跑定向测试确认通过**
 
 Run:
 
@@ -221,7 +221,7 @@ npm run test -- src/composables/__tests__/launcher/useLauncherSessionState.test.
 
 Expected: PASS
 
-- [ ] **Step 5: 跑相关回归，确认入队恢复链路未破**
+- [x] **Step 5: 跑相关回归，确认入队恢复链路未破**
 
 Run:
 

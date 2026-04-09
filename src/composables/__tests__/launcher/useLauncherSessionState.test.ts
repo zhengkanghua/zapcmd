@@ -4,7 +4,7 @@ import {
   LAUNCHER_SESSION_STORAGE_KEY,
   useLauncherSessionState
 } from "../../launcher/useLauncherSessionState";
-import type { StagedCommand } from "../../../features/launcher/types";
+import type { StagedCommand, StagedCommandPreflightCache } from "../../../features/launcher/types";
 import type {
   CommandExecutionTemplate,
   ResolvedCommandExecution
@@ -18,6 +18,11 @@ interface MockStorage {
   removeItem: ReturnType<typeof vi.fn>;
 }
 
+type SessionCommandLike = Pick<
+  StagedCommand,
+  "id" | "sourceCommandId" | "title" | "rawPreview" | "renderedPreview" | "argValues"
+>;
+
 function createStorage(initialValue: string | null): MockStorage {
   let value = initialValue;
   return {
@@ -28,19 +33,6 @@ function createStorage(initialValue: string | null): MockStorage {
     removeItem: vi.fn(() => {
       value = null;
     })
-  };
-}
-
-function createStagedCommand(id: string): StagedCommand {
-  return {
-    id,
-    title: id,
-    rawPreview: `echo ${id}`,
-    renderedPreview: `echo ${id}`,
-    executionTemplate: createExecTemplate("echo", [id]),
-    execution: createExecExecution("echo", [id]),
-    args: [],
-    argValues: {}
   };
 }
 
@@ -60,77 +52,55 @@ function createExecExecution(program: string, args: string[]): ResolvedCommandEx
   };
 }
 
-describe("useLauncherSessionState", () => {
-  afterEach(() => {
-    vi.useRealTimers();
-  });
+function createPreflightCache(
+  overrides: Partial<StagedCommandPreflightCache> = {}
+): StagedCommandPreflightCache {
+  return {
+    checkedAt: 1743648000000,
+    issueCount: 1,
+    source: "issues",
+    issues: ["未检测到 Docker Desktop。"],
+    ...overrides
+  };
+}
 
-  it("uses window.localStorage when storage is omitted", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: false,
-      stagedCommands: [createStagedCommand("restored")]
-    });
-    window.localStorage.setItem(LAUNCHER_SESSION_STORAGE_KEY, snapshot);
+function createStagedCommand(id: string, overrides: Partial<StagedCommand> = {}): StagedCommand {
+  return {
+    id,
+    sourceCommandId: id,
+    title: id,
+    rawPreview: `echo ${id}`,
+    renderedPreview: `echo ${id}`,
+    executionTemplate: createExecTemplate("echo", [id]),
+    execution: createExecExecution("echo", [id]),
+    args: [],
+    argValues: {},
+    ...overrides
+  };
+}
 
-    const stagedCommands = ref<StagedCommand[]>([]);
-    const openStagingDrawer = vi.fn();
+function createPersistedCommandSnapshot(
+  id: string,
+  overrides: Partial<SessionCommandLike> = {}
+): SessionCommandLike {
+  return {
+    id,
+    sourceCommandId: id,
+    title: id,
+    rawPreview: `echo ${id}`,
+    renderedPreview: `echo ${id}`,
+    argValues: {},
+    ...overrides
+  };
+}
 
-    useLauncherSessionState({
-      enabled: ref(true),
-      stagedCommands,
-      stagingExpanded: ref(false),
-      openStagingDrawer
-    });
-
-    expect(stagedCommands.value.map((item) => item.id)).toEqual(["restored"]);
-    expect(openStagingDrawer).not.toHaveBeenCalled();
-
-    window.localStorage.removeItem(LAUNCHER_SESSION_STORAGE_KEY);
-  });
-
-  it("restores queue snapshot but does not auto-open review drawer", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: true,
-      stagedCommands: [
-        {
-          ...createStagedCommand("restored"),
-          prerequisites: [
-            {
-              id: "docker",
-              type: "binary",
-              required: true,
-              check: "docker",
-              displayName: "Docker Desktop",
-              resolutionHint: "安装 Docker Desktop 后重试"
-            }
-          ],
-          preflightCache: {
-            checkedAt: 1743648000000,
-            issueCount: 1,
-            source: "issues",
-            issues: ["未检测到 Docker Desktop。"]
-          }
-        }
-      ]
-    });
-    const storage = createStorage(snapshot);
-    const stagedCommands = ref<StagedCommand[]>([]);
-    const stagingExpanded = ref(false);
-    const openStagingDrawer = vi.fn();
-
-    useLauncherSessionState({
-      enabled: ref(true),
-      stagedCommands,
-      stagingExpanded,
-      openStagingDrawer,
-      storage
-    });
-
-    expect(stagedCommands.value).toHaveLength(1);
-    expect(stagedCommands.value[0]?.id).toBe("restored");
-    expect(stagedCommands.value[0]?.prerequisites).toEqual([
+function createLegacySessionCommand(
+  id: string,
+  overrides: Partial<StagedCommand> = {}
+): Record<string, unknown> {
+  return {
+    ...createStagedCommand(id),
+    prerequisites: [
       {
         id: "docker",
         type: "binary",
@@ -139,52 +109,127 @@ describe("useLauncherSessionState", () => {
         displayName: "Docker Desktop",
         resolutionHint: "安装 Docker Desktop 后重试"
       }
-    ]);
-    expect(stagedCommands.value[0]?.preflightCache?.issues).toEqual(["未检测到 Docker Desktop。"]);
-    expect(stagedCommands.value[0]?.preflightCache?.issueCount).toBe(1);
-    expect(stagingExpanded.value).toBe(false);
+    ],
+    preflightCache: createPreflightCache(),
+    ...overrides
+  };
+}
+
+function restoreSnapshots(commands: readonly SessionCommandLike[]): StagedCommand[] {
+  return commands.map((command) =>
+    createStagedCommand(command.id, {
+      sourceCommandId: command.sourceCommandId,
+      title: command.title,
+      rawPreview: command.rawPreview,
+      renderedPreview: command.renderedPreview,
+      argValues: command.argValues
+    })
+  );
+}
+
+function readLatestPayload(storage: MockStorage): {
+  version: number;
+  stagingExpanded: boolean;
+  stagedCommands: SessionCommandLike[];
+} {
+  const raw = storage.setItem.mock.calls.at(-1)?.[1];
+  if (typeof raw !== "string") {
+    throw new Error("expected launcher session payload to be written");
+  }
+  return JSON.parse(raw) as {
+    version: number;
+    stagingExpanded: boolean;
+    stagedCommands: SessionCommandLike[];
+  };
+}
+
+describe("useLauncherSessionState", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    window.localStorage.removeItem(LAUNCHER_SESSION_STORAGE_KEY);
+  });
+
+  it("uses window.localStorage when storage is omitted", () => {
+    window.localStorage.setItem(
+      LAUNCHER_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        version: SESSION_VERSION,
+        stagingExpanded: false,
+        stagedCommands: [createPersistedCommandSnapshot("restored")]
+      })
+    );
+
+    const stagedCommands = ref<StagedCommand[]>([]);
+    const openStagingDrawer = vi.fn();
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer,
+      restoreStagedCommands: restoreSnapshots
+    });
+
+    expect(stagedCommands.value.map((item) => item.id)).toEqual(["restored"]);
     expect(openStagingDrawer).not.toHaveBeenCalled();
   });
 
-  it("drops invalid preflightCache but still restores staged command", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: false,
-      stagedCommands: [
-        {
-          ...createStagedCommand("restored"),
-          preflightCache: {
-            checkedAt: "bad",
-            issueCount: 1,
-            source: "issues",
-            issues: ["x"]
-          }
-        }
-      ]
-    });
-    const storage = createStorage(snapshot);
+  it("projects legacy queue snapshots to minimal DTOs before passing them to the restore hook", () => {
+    const storage = createStorage(
+      JSON.stringify({
+        version: SESSION_VERSION,
+        stagingExpanded: true,
+        stagedCommands: [
+          createLegacySessionCommand("restored", {
+            sourceCommandId: "docker-logs",
+            title: "Docker Logs",
+            rawPreview: "docker logs {{target}}",
+            renderedPreview: "docker logs api",
+            argValues: {
+              target: "api"
+            }
+          })
+        ]
+      })
+    );
     const stagedCommands = ref<StagedCommand[]>([]);
+    const restoreStagedCommands = vi.fn((commands: readonly SessionCommandLike[]) =>
+      restoreSnapshots(commands)
+    );
 
     useLauncherSessionState({
       enabled: ref(true),
       stagedCommands,
       stagingExpanded: ref(false),
       openStagingDrawer: vi.fn(),
-      storage
+      storage,
+      restoreStagedCommands
     });
 
-    expect(stagedCommands.value).toHaveLength(1);
-    expect(stagedCommands.value[0]?.id).toBe("restored");
+    expect(restoreStagedCommands).toHaveBeenCalledWith([
+      createPersistedCommandSnapshot("restored", {
+        sourceCommandId: "docker-logs",
+        title: "Docker Logs",
+        rawPreview: "docker logs {{target}}",
+        renderedPreview: "docker logs api",
+        argValues: {
+          target: "api"
+        }
+      })
+    ]);
+    expect(stagedCommands.value[0]?.title).toBe("Docker Logs");
     expect(stagedCommands.value[0]?.preflightCache).toBeUndefined();
+    expect(stagedCommands.value[0]?.prerequisites).toBeUndefined();
   });
 
   it("clears snapshot when version is mismatched", () => {
-    const snapshot = JSON.stringify({
-      version: 1,
-      stagingExpanded: true,
-      stagedCommands: [createStagedCommand("restored")]
-    });
-    const storage = createStorage(snapshot);
+    const storage = createStorage(
+      JSON.stringify({
+        version: 1,
+        stagingExpanded: true,
+        stagedCommands: [createPersistedCommandSnapshot("restored")]
+      })
+    );
     const stagedCommands = ref<StagedCommand[]>([]);
 
     useLauncherSessionState({
@@ -200,12 +245,13 @@ describe("useLauncherSessionState", () => {
   });
 
   it("accepts snapshot when version is a numeric string", () => {
-    const snapshot = JSON.stringify({
-      version: String(SESSION_VERSION),
-      stagingExpanded: false,
-      stagedCommands: [createStagedCommand("restored")]
-    });
-    const storage = createStorage(snapshot);
+    const storage = createStorage(
+      JSON.stringify({
+        version: String(SESSION_VERSION),
+        stagingExpanded: false,
+        stagedCommands: [createPersistedCommandSnapshot("restored")]
+      })
+    );
     const stagedCommands = ref<StagedCommand[]>([]);
 
     useLauncherSessionState({
@@ -213,7 +259,8 @@ describe("useLauncherSessionState", () => {
       stagedCommands,
       stagingExpanded: ref(false),
       openStagingDrawer: vi.fn(),
-      storage
+      storage,
+      restoreStagedCommands: restoreSnapshots
     });
 
     expect(stagedCommands.value.map((item) => item.id)).toEqual(["restored"]);
@@ -221,12 +268,13 @@ describe("useLauncherSessionState", () => {
   });
 
   it("ignores snapshots where stagedCommands is not an array (but does not crash)", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: true,
-      stagedCommands: { not: "array" }
-    });
-    const storage = createStorage(snapshot);
+    const storage = createStorage(
+      JSON.stringify({
+        version: SESSION_VERSION,
+        stagingExpanded: true,
+        stagedCommands: { not: "array" }
+      })
+    );
     const stagedCommands = ref<StagedCommand[]>([]);
     const openStagingDrawer = vi.fn();
 
@@ -244,35 +292,37 @@ describe("useLauncherSessionState", () => {
   });
 
   it("filters invalid stagedCommands safely during restore", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: false,
-      stagedCommands: [
-        null,
-        createStagedCommand("ok"),
-        {
-          id: 1,
-          title: "bad-id-type",
-          rawPreview: "echo bad",
-          renderedPreview: "echo bad",
-          executionTemplate: createExecTemplate("echo", ["bad"]),
-          execution: createExecExecution("echo", ["bad"]),
-          args: [],
-          argValues: {}
-        },
-        {
-          id: "bad",
-          title: "",
-          rawPreview: "echo bad",
-          renderedPreview: "echo bad",
-          executionTemplate: createExecTemplate("echo", ["bad"]),
-          execution: createExecExecution("echo", ["bad"]),
-          args: [],
-          argValues: {}
-        }
-      ]
-    });
-    const storage = createStorage(snapshot);
+    const storage = createStorage(
+      JSON.stringify({
+        version: SESSION_VERSION,
+        stagingExpanded: false,
+        stagedCommands: [
+          null,
+          createPersistedCommandSnapshot("ok"),
+          {
+            id: 1,
+            title: "bad-id-type",
+            rawPreview: "echo bad",
+            renderedPreview: "echo bad",
+            argValues: {}
+          },
+          {
+            id: "bad-title",
+            title: "",
+            rawPreview: "echo bad-title",
+            renderedPreview: "echo bad-title",
+            argValues: {}
+          },
+          {
+            id: "bad-argValues",
+            title: "bad-argValues",
+            rawPreview: "echo bad-argValues",
+            renderedPreview: "echo bad-argValues",
+            argValues: "oops"
+          }
+        ]
+      })
+    );
     const stagedCommands = ref<StagedCommand[]>([]);
 
     useLauncherSessionState({
@@ -280,240 +330,11 @@ describe("useLauncherSessionState", () => {
       stagedCommands,
       stagingExpanded: ref(false),
       openStagingDrawer: vi.fn(),
-      storage
+      storage,
+      restoreStagedCommands: restoreSnapshots
     });
 
     expect(stagedCommands.value.map((item) => item.id)).toEqual(["ok"]);
-  });
-
-  it("keeps stagedCommands where args is not an array (sanitizes to empty args)", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: false,
-      stagedCommands: [
-        {
-          id: "args-not-array",
-          title: "args-not-array",
-          rawPreview: "echo args-not-array",
-          renderedPreview: "echo args-not-array",
-          executionTemplate: createExecTemplate("echo", ["args-not-array"]),
-          execution: createExecExecution("echo", ["args-not-array"]),
-          args: "oops",
-          argValues: {}
-        }
-      ]
-    });
-    const storage = createStorage(snapshot);
-    const stagedCommands = ref<StagedCommand[]>([]);
-
-    useLauncherSessionState({
-      enabled: ref(true),
-      stagedCommands,
-      stagingExpanded: ref(false),
-      openStagingDrawer: vi.fn(),
-      storage
-    });
-
-    expect(stagedCommands.value).toHaveLength(1);
-    expect(stagedCommands.value[0]?.args).toEqual([]);
-  });
-
-  it("sanitizes args, argValues, and boolean flags during restore", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: false,
-      stagedCommands: [
-        {
-          id: "with-args",
-          title: "with-args",
-          rawPreview: "echo {{pid}}",
-          renderedPreview: "echo 123",
-          executionTemplate: createExecTemplate("echo", ["{{pid}}"]),
-          execution: createExecExecution("echo", ["123"]),
-          adminRequired: true,
-          dangerous: false,
-          args: [
-            null,
-            {
-              key: 123,
-              label: "PID",
-              token: "{{pid}}"
-            },
-            {
-              key: "pid",
-              label: 123,
-              token: "{{pid}}"
-            },
-            {
-              key: "pid",
-              label: "PID",
-              token: 123
-            },
-            {
-              key: "pid",
-              label: "PID",
-              token: "{{pid}}",
-              placeholder: "123",
-              required: true,
-              defaultValue: "1",
-              argType: "number",
-              validationPattern: "^\\d+$",
-              validationError: "bad",
-              options: ["a", " ", 1]
-            },
-            {
-              key: "broken",
-              label: "Broken",
-              token: ""
-            }
-          ],
-          argValues: {
-            pid: "123",
-            extra: 1
-          }
-        },
-        {
-          id: "bad-argValues",
-          title: "bad-argValues",
-          rawPreview: "echo bad",
-          renderedPreview: "echo bad",
-          executionTemplate: createExecTemplate("echo", ["bad"]),
-          execution: createExecExecution("echo", ["bad"]),
-          args: [],
-          argValues: "not-an-object"
-        }
-      ]
-    });
-    const storage = createStorage(snapshot);
-    const stagedCommands = ref<StagedCommand[]>([]);
-
-    useLauncherSessionState({
-      enabled: ref(true),
-      stagedCommands,
-      stagingExpanded: ref(false),
-      openStagingDrawer: vi.fn(),
-      storage
-    });
-
-    expect(stagedCommands.value.map((item) => item.id)).toEqual(["with-args"]);
-    const restored = stagedCommands.value[0] as StagedCommand;
-    expect(restored.adminRequired).toBe(true);
-    expect(restored.dangerous).toBe(false);
-    expect(restored.argValues).toEqual({ pid: "123" });
-    expect(restored.args).toHaveLength(1);
-    expect(restored.args[0]).toMatchObject({
-      key: "pid",
-      label: "PID",
-      token: "{{pid}}",
-      placeholder: "123",
-      required: true,
-      defaultValue: "1",
-      argType: "number",
-      validationPattern: "^\\d+$",
-      validationError: "bad",
-      options: ["a"]
-    });
-  });
-
-  it("sanitizes restored prerequisites and keeps optional metadata", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: false,
-      stagedCommands: [
-        {
-          ...createStagedCommand("with-prerequisites"),
-          prerequisites: [
-            null,
-            {
-              id: "docker",
-              type: "binary",
-              required: true,
-              check: " docker ",
-              displayName: " Docker Desktop ",
-              resolutionHint: " 安装 Docker Desktop 后重试 ",
-              installHint: " winget install Docker.DockerDesktop ",
-              fallbackCommandId: " install-docker "
-            },
-            {
-              id: "broken-type",
-              type: "registry",
-              required: true,
-              check: "registry:docker"
-            },
-            {
-              id: "blank-check",
-              type: "binary",
-              required: true,
-              check: "   "
-            }
-          ]
-        }
-      ]
-    });
-    const storage = createStorage(snapshot);
-    const stagedCommands = ref<StagedCommand[]>([]);
-
-    useLauncherSessionState({
-      enabled: ref(true),
-      stagedCommands,
-      stagingExpanded: ref(false),
-      openStagingDrawer: vi.fn(),
-      storage
-    });
-
-    expect(stagedCommands.value).toHaveLength(1);
-    expect(stagedCommands.value[0]?.prerequisites).toEqual([
-      {
-        id: "docker",
-        type: "binary",
-        required: true,
-        check: "docker",
-        displayName: "Docker Desktop",
-        resolutionHint: "安装 Docker Desktop 后重试",
-        installHint: "winget install Docker.DockerDesktop",
-        fallbackCommandId: "install-docker"
-      }
-    ]);
-  });
-
-  it("drops invalid prerequisites while still restoring the staged command", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: false,
-      stagedCommands: [
-        {
-          ...createStagedCommand("invalid-prerequisites"),
-          prerequisites: [
-            {
-              id: 123,
-              type: "binary",
-              required: true,
-              check: "docker"
-            },
-            {
-              id: "missing-required",
-              type: "binary",
-              required: "yes",
-              check: "docker"
-            }
-          ]
-        }
-      ]
-    });
-    const storage = createStorage(snapshot);
-    const stagedCommands = ref<StagedCommand[]>([]);
-
-    useLauncherSessionState({
-      enabled: ref(true),
-      stagedCommands,
-      stagingExpanded: ref(false),
-      openStagingDrawer: vi.fn(),
-      storage
-    });
-
-    expect(stagedCommands.value).toHaveLength(1);
-    expect(stagedCommands.value[0]?.id).toBe("invalid-prerequisites");
-    expect(stagedCommands.value[0]?.prerequisites).toBeUndefined();
   });
 
   it("removes invalid snapshot payload and continues safely", () => {
@@ -552,12 +373,13 @@ describe("useLauncherSessionState", () => {
   });
 
   it("skips restore when disabled (does not read from storage)", () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: true,
-      stagedCommands: [createStagedCommand("restored")]
-    });
-    const storage = createStorage(snapshot);
+    const storage = createStorage(
+      JSON.stringify({
+        version: SESSION_VERSION,
+        stagingExpanded: true,
+        stagedCommands: [createPersistedCommandSnapshot("restored")]
+      })
+    );
     const stagedCommands = ref<StagedCommand[]>([]);
 
     useLauncherSessionState({
@@ -572,7 +394,7 @@ describe("useLauncherSessionState", () => {
     expect(storage.getItem).not.toHaveBeenCalled();
   });
 
-  it("persists queue updates when enabled", async () => {
+  it("persists queue structure immediately using only the minimal snapshot payload", async () => {
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([]);
     const stagingExpanded = ref(false);
@@ -585,20 +407,45 @@ describe("useLauncherSessionState", () => {
       storage
     });
 
-    stagedCommands.value = [createStagedCommand("a"), createStagedCommand("b")];
+    stagedCommands.value = [
+      createStagedCommand("a", {
+        sourceCommandId: "docker-logs",
+        title: "Docker Logs",
+        rawPreview: "docker logs {{target}}",
+        renderedPreview: "docker logs api",
+        argValues: {
+          target: "api"
+        },
+        prerequisites: [
+          {
+            id: "docker",
+            type: "binary",
+            required: true,
+            check: "docker"
+          }
+        ],
+        preflightCache: createPreflightCache()
+      }),
+      createStagedCommand("b")
+    ];
     stagingExpanded.value = true;
     await nextTick();
 
-    expect(storage.setItem).toHaveBeenCalled();
-    const payload = JSON.parse(storage.setItem.mock.calls.at(-1)?.[1] as string) as {
-      version: number;
-      stagingExpanded: boolean;
-      stagedCommands: Array<{ id: string; executionTemplate: { kind: string } }>;
-    };
+    const payload = readLatestPayload(storage);
     expect(payload.version).toBe(SESSION_VERSION);
-    expect(payload.stagedCommands[0]?.executionTemplate.kind).toBe("exec");
     expect(payload.stagingExpanded).toBe(true);
-    expect(payload.stagedCommands.map((item) => item.id)).toEqual(["a", "b"]);
+    expect(payload.stagedCommands).toEqual([
+      createPersistedCommandSnapshot("a", {
+        sourceCommandId: "docker-logs",
+        title: "Docker Logs",
+        rawPreview: "docker logs {{target}}",
+        renderedPreview: "docker logs api",
+        argValues: {
+          target: "api"
+        }
+      }),
+      createPersistedCommandSnapshot("b")
+    ]);
   });
 
   it("does not persist when storage is explicitly null", async () => {
@@ -645,22 +492,23 @@ describe("useLauncherSessionState", () => {
   });
 
   it("restores after enabled flips true and rehydrates restored commands through the hook", async () => {
-    const snapshot = JSON.stringify({
-      version: SESSION_VERSION,
-      stagingExpanded: false,
-      stagedCommands: [
-        {
-          ...createStagedCommand("docker-logs-1710000000000"),
-          title: "旧标题",
-          rawPreview: "docker logs {{target}} --tail 120",
-          renderedPreview: "docker logs old-target --tail 120",
-          argValues: {
-            target: "old-target"
-          }
-        }
-      ]
-    });
-    const storage = createStorage(snapshot);
+    const storage = createStorage(
+      JSON.stringify({
+        version: SESSION_VERSION,
+        stagingExpanded: false,
+        stagedCommands: [
+          createPersistedCommandSnapshot("docker-logs-1710000000000", {
+            sourceCommandId: "docker-logs",
+            title: "旧标题",
+            rawPreview: "docker logs {{target}} --tail 120",
+            renderedPreview: "docker logs old-target --tail 120",
+            argValues: {
+              target: "old-target"
+            }
+          })
+        ]
+      })
+    );
     const stagedCommands = ref<StagedCommand[]>([]);
     const enabled = ref(false);
 
@@ -670,8 +518,8 @@ describe("useLauncherSessionState", () => {
       stagingExpanded: ref(false),
       openStagingDrawer: vi.fn(),
       storage,
-      restoreStagedCommands: (restored) =>
-        restored.map((command) => ({
+      restoreStagedCommands: (commands) =>
+        restoreSnapshots(commands).map((command) => ({
           ...command,
           title: "Docker Logs",
           rawPreview: "docker logs {{target}} --tail 30",
@@ -735,18 +583,21 @@ describe("useLauncherSessionState", () => {
     await nextTick();
 
     expect(storage.setItem).toHaveBeenCalledTimes(1);
-    const payload = JSON.parse(storage.setItem.mock.calls[0]?.[1] as string) as {
-      stagedCommands: Array<{ id: string }>;
-      stagingExpanded: boolean;
-    };
-    expect(payload.stagingExpanded).toBe(true);
-    expect(payload.stagedCommands.map((item) => item.id)).toEqual(["b", "a"]);
+    expect(readLatestPayload(storage).stagedCommands.map((item) => item.id)).toEqual(["b", "a"]);
   });
 
-  it("debounces arg value persistence for high-frequency edits", async () => {
+  it("debounces arg value persistence for high-frequency edits and still writes only minimal DTO fields", async () => {
     vi.useFakeTimers();
     const storage = createStorage(null);
-    const stagedCommands = ref<StagedCommand[]>([createStagedCommand("debounced")]);
+    const stagedCommands = ref<StagedCommand[]>([
+      createStagedCommand("debounced", {
+        rawPreview: "echo {{pid}}",
+        renderedPreview: "echo 0",
+        argValues: {
+          pid: "0"
+        }
+      })
+    ]);
 
     useLauncherSessionState({
       enabled: ref(true),
@@ -759,6 +610,7 @@ describe("useLauncherSessionState", () => {
     stagedCommands.value[0]!.argValues = {
       pid: "123"
     };
+    stagedCommands.value[0]!.renderedPreview = "echo 123";
     await nextTick();
 
     expect(storage.setItem).not.toHaveBeenCalled();
@@ -770,38 +622,75 @@ describe("useLauncherSessionState", () => {
     vi.advanceTimersByTime(1);
     await nextTick();
     expect(storage.setItem).toHaveBeenCalledTimes(1);
-
-    const payload = JSON.parse(storage.setItem.mock.calls[0]?.[1] as string) as {
-      stagedCommands: Array<{ argValues: Record<string, string> }>;
-    };
-    expect(payload.stagedCommands[0]?.argValues).toEqual({ pid: "123" });
+    expect(readLatestPayload(storage).stagedCommands).toEqual([
+      createPersistedCommandSnapshot("debounced", {
+        renderedPreview: "echo 123",
+        rawPreview: "echo {{pid}}",
+        argValues: {
+          pid: "123"
+        }
+      })
+    ]);
   });
 
-  it("persists queue structure and drawer state immediately", async () => {
+  it("does not persist when only preflightCache changes", async () => {
     vi.useFakeTimers();
     const storage = createStorage(null);
-    const stagedCommands = ref<StagedCommand[]>([]);
-    const stagingExpanded = ref(false);
+    const stagedCommands = ref<StagedCommand[]>([createStagedCommand("queued")]);
 
     useLauncherSessionState({
       enabled: ref(true),
       stagedCommands,
-      stagingExpanded,
+      stagingExpanded: ref(false),
       openStagingDrawer: vi.fn(),
       storage
     });
 
-    stagedCommands.value = [createStagedCommand("a"), createStagedCommand("b")];
+    stagedCommands.value[0]!.preflightCache = createPreflightCache({
+      issues: ["网络异常，稍后重试。"],
+      source: "system-failure"
+    });
     await nextTick();
-    expect(storage.setItem).toHaveBeenCalledTimes(1);
 
-    stagedCommands.value = [createStagedCommand("b"), createStagedCommand("a")];
+    vi.runAllTimers();
     await nextTick();
-    expect(storage.setItem).toHaveBeenCalledTimes(2);
 
-    stagingExpanded.value = true;
+    expect(storage.setItem).not.toHaveBeenCalled();
+  });
+
+  it("persists the latest queue order after delete and reorder, then restores that order", async () => {
+    const storage = createStorage(null);
+    const writerCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands: writerCommands,
+      stagingExpanded: ref(true),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    writerCommands.value = [
+      createStagedCommand("a"),
+      createStagedCommand("b"),
+      createStagedCommand("c")
+    ];
     await nextTick();
-    expect(storage.setItem).toHaveBeenCalledTimes(3);
+
+    writerCommands.value = [createStagedCommand("c"), createStagedCommand("a")];
+    await nextTick();
+
+    const restoredCommands = ref<StagedCommand[]>([]);
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands: restoredCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage,
+      restoreStagedCommands: restoreSnapshots
+    });
+
+    expect(restoredCommands.value.map((item) => item.id)).toEqual(["c", "a"]);
   });
 
   it("cancels pending delayed persistence when the scope is disposed", async () => {
@@ -823,6 +712,7 @@ describe("useLauncherSessionState", () => {
     stagedCommands.value[0]!.argValues = {
       pid: "456"
     };
+    stagedCommands.value[0]!.renderedPreview = "echo 456";
     await nextTick();
     scope.stop();
 

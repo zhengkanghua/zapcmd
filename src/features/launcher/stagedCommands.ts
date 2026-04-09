@@ -4,9 +4,36 @@ import {
 } from "./commandRuntime";
 import type { StagedCommand, StagedCommandPreflightCache } from "./types";
 import { createStaleCommandSnapshotIssue } from "../commands/commandIssues";
-import type { CommandTemplate } from "../commands/types";
+import type {
+  CommandExecutionTemplate,
+  CommandTemplate,
+  ResolvedCommandExecution
+} from "../commands/types";
 
 const STAGED_COMMAND_TIMESTAMP_SUFFIX_RE = /-\d{6,}$/;
+const STALE_SNAPSHOT_PLACEHOLDER_EXECUTION_TEMPLATE: CommandExecutionTemplate = {
+  kind: "script",
+  runner: "bash",
+  command: "echo stale-command-snapshot"
+};
+const STALE_SNAPSHOT_PLACEHOLDER_EXECUTION: ResolvedCommandExecution = {
+  kind: "script",
+  runner: "bash",
+  command: "echo stale-command-snapshot"
+};
+
+export interface PersistedLauncherSessionCommand {
+  id: string;
+  sourceCommandId?: string;
+  title: string;
+  rawPreview: string;
+  renderedPreview: string;
+  argValues: Record<string, string>;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
 
 function sanitizeSourceCommandId(value: string | undefined): string | null {
   if (typeof value !== "string") {
@@ -16,11 +43,76 @@ function sanitizeSourceCommandId(value: string | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function sanitizeRequiredString(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function sanitizePreviewString(value: unknown): string | null {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return null;
+  }
+  return value;
+}
+
+function sanitizeArgValues(value: unknown): Record<string, string> | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  return Object.entries(value).reduce<Record<string, string>>((acc, [key, item]) => {
+    if (typeof item === "string") {
+      acc[key] = item;
+    }
+    return acc;
+  }, {});
+}
+
+function createStalePersistedLauncherSessionCommand(
+  command: PersistedLauncherSessionCommand
+): StagedCommand {
+  const sourceCommandId = resolveStagedCommandSourceId(command);
+
+  return {
+    id: command.id,
+    sourceCommandId,
+    title: command.title,
+    rawPreview: command.rawPreview,
+    renderedPreview: command.renderedPreview,
+    executionTemplate: STALE_SNAPSHOT_PLACEHOLDER_EXECUTION_TEMPLATE,
+    execution: STALE_SNAPSHOT_PLACEHOLDER_EXECUTION,
+    args: [],
+    argValues: { ...command.argValues },
+    blockingIssue: createStaleCommandSnapshotIssue(sourceCommandId)
+  };
+}
+
+function rehydratePersistedLauncherSessionCommand(
+  command: PersistedLauncherSessionCommand,
+  currentTemplate: CommandTemplate
+): StagedCommand | null {
+  const rebuilt = buildStagedCommandSnapshot({
+    command: currentTemplate,
+    argValues: command.argValues,
+    id: command.id
+  });
+  if (!rebuilt) {
+    return null;
+  }
+  return {
+    ...rebuilt,
+    preflightCache: undefined
+  };
+}
+
 /**
  * 队列快照的显示 id 会拼接时间戳；恢复或对齐当前 catalog 时，需要稳定拿回源命令 id。
  */
 export function resolveStagedCommandSourceId(
-  command: Pick<StagedCommand, "id" | "sourceCommandId">
+  command: Pick<PersistedLauncherSessionCommand, "id" | "sourceCommandId">
 ): string {
   const explicitSourceId = sanitizeSourceCommandId(command.sourceCommandId);
   if (explicitSourceId) {
@@ -28,6 +120,52 @@ export function resolveStagedCommandSourceId(
   }
   const normalizedId = command.id.trim();
   return normalizedId.replace(STAGED_COMMAND_TIMESTAMP_SUFFIX_RE, "") || normalizedId;
+}
+
+export function normalizePersistedLauncherSessionCommandSnapshot(
+  value: unknown
+): PersistedLauncherSessionCommand | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const id = sanitizeRequiredString(value.id);
+  const title = sanitizeRequiredString(value.title);
+  const rawPreview = sanitizePreviewString(value.rawPreview);
+  const renderedPreview = sanitizePreviewString(value.renderedPreview);
+  const argValues = sanitizeArgValues(value.argValues);
+  if (!id || !title || !rawPreview || !renderedPreview || !argValues) {
+    return null;
+  }
+
+  const sourceCommandId = sanitizeSourceCommandId(
+    typeof value.sourceCommandId === "string" ? value.sourceCommandId : undefined
+  );
+
+  return {
+    id,
+    sourceCommandId: sourceCommandId ?? undefined,
+    title,
+    rawPreview,
+    renderedPreview,
+    argValues
+  };
+}
+
+export function buildPersistedLauncherSessionCommandSnapshot(
+  command: Pick<
+    StagedCommand,
+    "id" | "sourceCommandId" | "title" | "rawPreview" | "renderedPreview" | "argValues"
+  >
+): PersistedLauncherSessionCommand {
+  return {
+    id: command.id,
+    sourceCommandId: sanitizeSourceCommandId(command.sourceCommandId) ?? undefined,
+    title: command.title,
+    rawPreview: command.rawPreview,
+    renderedPreview: command.renderedPreview,
+    argValues: { ...command.argValues }
+  };
 }
 
 export function buildStagedCommandSnapshot(params: {
@@ -69,42 +207,39 @@ export function rehydrateStagedCommandSnapshot(
   command: StagedCommand,
   currentTemplate: CommandTemplate
 ): StagedCommand | null {
-  const rebuilt = buildStagedCommandSnapshot({
-    command: currentTemplate,
-    argValues: command.argValues,
-    id: command.id
-  });
-  if (!rebuilt) {
-    return null;
-  }
-  return {
-    ...rebuilt,
-    preflightCache: undefined
-  };
+  return rehydratePersistedLauncherSessionCommand(
+    buildPersistedLauncherSessionCommandSnapshot(command),
+    currentTemplate
+  );
 }
 
 /**
  * 旧会话中的快照若已无法和当前 catalog 对齐，保留可见性但强制阻断执行，避免重启后执行旧定义。
  */
 export function markStagedCommandSnapshotAsStale(command: StagedCommand): StagedCommand {
-  const sourceCommandId = resolveStagedCommandSourceId(command);
+  return createStalePersistedLauncherSessionCommand(
+    buildPersistedLauncherSessionCommandSnapshot(command)
+  );
+}
 
-  return {
-    ...command,
-    sourceCommandId,
-    preflightCache: undefined,
-    blockingIssue: createStaleCommandSnapshotIssue(sourceCommandId)
-  };
+export function restorePersistedLauncherSessionCommandSnapshot(
+  command: PersistedLauncherSessionCommand,
+  currentTemplate?: CommandTemplate
+): StagedCommand {
+  if (!currentTemplate) {
+    return createStalePersistedLauncherSessionCommand(command);
+  }
+
+  return rehydratePersistedLauncherSessionCommand(command, currentTemplate)
+    ?? createStalePersistedLauncherSessionCommand(command);
 }
 
 export function restoreStagedCommandSnapshot(
   command: StagedCommand,
   currentTemplate?: CommandTemplate
 ): StagedCommand {
-  if (!currentTemplate) {
-    return markStagedCommandSnapshotAsStale(command);
-  }
-
-  return rehydrateStagedCommandSnapshot(command, currentTemplate)
-    ?? markStagedCommandSnapshotAsStale(command);
+  return restorePersistedLauncherSessionCommandSnapshot(
+    buildPersistedLauncherSessionCommandSnapshot(command),
+    currentTemplate
+  );
 }

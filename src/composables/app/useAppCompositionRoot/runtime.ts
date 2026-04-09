@@ -3,7 +3,8 @@ import type { CommandArg, CommandTemplate } from "../../../features/commands/com
 import { t } from "../../../i18n";
 import { getCommandArgs } from "../../../features/launcher/commandRuntime";
 import {
-  restoreStagedCommandSnapshot,
+  restorePersistedLauncherSessionCommandSnapshot,
+  type PersistedLauncherSessionCommand,
   resolveStagedCommandSourceId
 } from "../../../features/launcher/stagedCommands";
 import { cleanExpiredDismissals } from "../../../features/security/dangerDismiss";
@@ -39,7 +40,7 @@ type LauncherRuntime = ReturnType<typeof createLauncherRuntime>;
 
 function restoreLauncherSessionCommands(
   context: AppCompositionContext,
-  commands: StagedCommand[]
+  commands: PersistedLauncherSessionCommand[]
 ): StagedCommand[] {
   // 只有在 catalog ready 之后才恢复，并按当前模板重建队列项；找不到模板时保留为 stale 条目并阻断执行。
   const templatesById = new Map(
@@ -47,7 +48,7 @@ function restoreLauncherSessionCommands(
   );
 
   return commands.map((item) =>
-    restoreStagedCommandSnapshot(
+    restorePersistedLauncherSessionCommandSnapshot(
       item,
       templatesById.get(resolveStagedCommandSourceId(item))
     )
