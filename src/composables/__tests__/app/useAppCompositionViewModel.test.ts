@@ -5,6 +5,22 @@ import { describe, expect, it, vi } from "vitest";
 import { createAppCompositionViewModel } from "../../app/useAppCompositionRoot/viewModel";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 
+interface Deferred<T> {
+  promise: Promise<T>;
+  resolve: (value: T | PromiseLike<T>) => void;
+  reject: (reason?: unknown) => void;
+}
+
+function createDeferred<T>(): Deferred<T> {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
 function createDeepStub(): unknown {
   const fn = vi.fn();
   return new Proxy(fn, {
@@ -431,6 +447,70 @@ describe("createAppCompositionViewModel", () => {
 
       expect(persistSetting).toHaveBeenCalledTimes(1);
       expect(viewModel!.appShellVm.settingsSaved).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("销毁作用域后不会响应迟到的 saveSettings 成功回调", async () => {
+    vi.useFakeTimers();
+    try {
+      const context = createContextStub();
+      const persistDeferred = createDeferred<void>();
+      const persistSetting = vi.fn(() => persistDeferred.promise);
+      const settingsWindow = context.settingsScene.settingsWindow as {
+        persistSetting?: () => Promise<void>;
+        settingsError?: { value: string };
+      };
+      settingsWindow.persistSetting = persistSetting;
+      settingsWindow.settingsError = ref("");
+      const scope = effectScope();
+      const viewModel = scope.run(() =>
+        createAppCompositionViewModel(context as never, createDeepStub() as never)
+      );
+
+      const savePromise = viewModel!.appShellVm.saveSettings();
+      scope.stop();
+      persistDeferred.resolve();
+      await savePromise;
+
+      expect(persistSetting).toHaveBeenCalledTimes(1);
+      expect(viewModel!.appShellVm.settingsSaved).toBe(false);
+
+      vi.runAllTimers();
+      expect(viewModel!.appShellVm.settingsSaved).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("销毁作用域后不会响应迟到的 applyHotkeyChange 成功回调", async () => {
+    vi.useFakeTimers();
+    try {
+      const context = createContextStub();
+      const applyHotkeyDeferred = createDeferred<void>();
+      const applyHotkeyChange = vi.fn(() => applyHotkeyDeferred.promise);
+      const settingsWindow = context.settingsScene.settingsWindow as {
+        applyHotkeyChange?: (fieldId: string, value: string) => Promise<void>;
+        settingsError?: { value: string };
+      };
+      settingsWindow.applyHotkeyChange = applyHotkeyChange;
+      settingsWindow.settingsError = ref("");
+      const scope = effectScope();
+      const viewModel = scope.run(() =>
+        createAppCompositionViewModel(context as never, createDeepStub() as never)
+      );
+
+      viewModel!.settingsVm.applyHotkeyChange("launcher", "Alt+Space");
+      scope.stop();
+      applyHotkeyDeferred.resolve();
+      await Promise.resolve();
+
+      expect(applyHotkeyChange).toHaveBeenCalledTimes(1);
+      expect(viewModel!.appShellVm.settingsSaved).toBe(false);
+
+      vi.runAllTimers();
+      expect(viewModel!.appShellVm.settingsSaved).toBe(false);
     } finally {
       vi.useRealTimers();
     }

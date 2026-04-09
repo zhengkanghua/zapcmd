@@ -36,6 +36,7 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("界面");
     expect(wrapper.text()).toContain("默认终端");
     expect(wrapper.text()).toContain("终端复用策略");
+    expect(wrapper.text()).toContain("当前仅 Windows 生效");
     expect(wrapper.text()).toContain("管理员终端也会复用");
     expect(wrapper.text()).toContain("始终调用管理员权限终端");
     expect(wrapper.findAll(".setting-item")).toHaveLength(7);
@@ -56,6 +57,7 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("Interface");
     expect(wrapper.text()).toContain("Default terminal");
     expect(wrapper.text()).toContain("Terminal reuse policy");
+    expect(wrapper.text()).toContain("Windows only");
     expect(wrapper.text()).toContain("Elevated terminals can also be reused");
     expect(wrapper.text()).toContain("Always use elevated terminal");
   });

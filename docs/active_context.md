@@ -21,3 +21,4 @@
 - 2026-04-09：Chunk 2 已落地；Launcher session 改为最小 DTO 持久化并兼容旧完整快照投影恢复，参数编辑/删除/拖拽顺序恢复保留，相关定向与回归测试已通过。
 - 2026-04-09：Chunk 3 已落地；前端继续统一透传 `terminalReusePolicy`，新增队列透传契约测试，TS/Rust 注释明确当前仅 Windows 后端消费，非 Windows 显式忽略。
 - 2026-04-09：Chunk 4 已落地；`settingsSavedTimer` 在 scope dispose 时清理，避免销毁后 toast 回写；前端定向/主路径回归、lint、typecheck、test:coverage、build、check:rust、test:rust 全绿。
+- 2026-04-09：verification 补修 2 点：settings 保存提示新增 disposed guard，阻断卸载后迟到成功回调再次回写 toast；`terminalReusePolicy` 设置文案补充“当前仅 Windows 生效，其他平台忽略”，对应回归已补齐。

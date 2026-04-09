@@ -142,7 +142,8 @@ export const messages = {
         language: "界面语言",
         terminalHint: "命令默认会发送到此终端；需要管理员权限时，将由系统拉起对应终端。",
         terminalReusePolicy: "终端复用策略",
-        terminalReusePolicyHint: "控制 ZapCmd 是否复用最近一次打开的终端窗口。",
+        terminalReusePolicyHint:
+          "控制 ZapCmd 是否复用最近一次打开的终端窗口。当前仅 Windows 生效，其他平台会忽略此设置。",
         terminalReusePolicyNever: "从不复用",
         terminalReusePolicyNeverHint: "每次执行都打开新的终端窗口，隔离最好。",
         terminalReusePolicyNormalOnly: "仅复用普通终端",
@@ -551,7 +552,8 @@ export const messages = {
         terminalHint:
           "Commands are sent to this terminal by default. When elevation is required, Windows opens the matching terminal with system elevation.",
         terminalReusePolicy: "Terminal reuse policy",
-        terminalReusePolicyHint: "Controls whether ZapCmd reuses the most recently opened terminal window.",
+        terminalReusePolicyHint:
+          "Controls whether ZapCmd reuses the most recently opened terminal window. Windows only for now; other platforms ignore this setting.",
         terminalReusePolicyNever: "Never reuse",
         terminalReusePolicyNeverHint: "Always open a fresh terminal window for the strongest isolation.",
         terminalReusePolicyNormalOnly: "Reuse normal terminals only",

@@ -19,6 +19,7 @@ const SETTINGS_SAVED_TOAST_DISMISS_DELAY_MS = 2200;
 function createSettingsMutationHandlers(context: AppCompositionContext) {
   const scene = context.settingsScene;
   let settingsSavedTimer: ReturnType<typeof setTimeout> | null = null;
+  let disposed = false;
   const settingsSaved = ref(false);
 
   function clearSettingsSavedTimer(): void {
@@ -35,26 +36,39 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
   }
 
   function markSavedToast(): void {
+    if (disposed) {
+      return;
+    }
     resetSavedToast();
     settingsSaved.value = true;
     settingsSavedTimer = setTimeout(() => {
+      if (disposed) {
+        settingsSavedTimer = null;
+        return;
+      }
       settingsSaved.value = false;
       settingsSavedTimer = null;
     }, SETTINGS_SAVED_TOAST_DISMISS_DELAY_MS);
   }
 
+  function handlePersistSuccess(): void {
+    if (disposed || scene.settingsWindow.settingsError.value) {
+      return;
+    }
+    markSavedToast();
+  }
+
   function persistImmediate(): void {
     resetSavedToast();
     void scene.settingsWindow.persistSetting().then(() => {
-      if (!scene.settingsWindow.settingsError.value) {
-        markSavedToast();
-      }
+      handlePersistSuccess();
     });
   }
 
   // 作用域销毁后不再允许旧定时器回写 toast 状态，避免残留异步闭包继续更新已卸载视图。
   if (getCurrentScope()) {
     onScopeDispose(() => {
+      disposed = true;
       clearSettingsSavedTimer();
     });
   }
@@ -65,17 +79,13 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
     applyHotkeyChange(fieldId: HotkeyFieldId, value: string): void {
       resetSavedToast();
       void scene.settingsWindow.applyHotkeyChange(fieldId, value).then(() => {
-        if (!scene.settingsWindow.settingsError.value) {
-          markSavedToast();
-        }
+        handlePersistSuccess();
       });
     },
     applyPointerActionChange(fieldId: PointerActionFieldId, action: SearchResultPointerAction): void {
       resetSavedToast();
       void scene.settingsWindow.applyPointerActionChange(fieldId, action).then(() => {
-        if (!scene.settingsWindow.settingsError.value) {
-          markSavedToast();
-        }
+        handlePersistSuccess();
       });
     },
     toggleCommandEnabled(commandId: string, enabled: boolean): void {
@@ -107,9 +117,7 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
     async saveSettings(): Promise<void> {
       resetSavedToast();
       await scene.settingsWindow.persistSetting();
-      if (!scene.settingsWindow.settingsError.value) {
-        markSavedToast();
-      }
+      handlePersistSuccess();
     }
   };
 }
