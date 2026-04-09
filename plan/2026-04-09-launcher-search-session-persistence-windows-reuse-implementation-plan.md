@@ -250,7 +250,7 @@ git commit -m "refactor(session):收口队列最小快照持久化"
 - Modify: `src-tauri/src/terminal.rs`
 - Test: `src/composables/__tests__/launcher/useTerminalExecution.test.ts`
 
-- [ ] **Step 1: 补一个不改行为的契约测试**
+- [x] **Step 1: 补一个不改行为的契约测试**
 
 在 `src/composables/__tests__/launcher/useTerminalExecution.test.ts` 增加/补强断言：
 
@@ -267,7 +267,7 @@ expect(commandExecutor.run).toHaveBeenCalledWith(
 );
 ```
 
-- [ ] **Step 2: 跑定向测试确认当前行为锁住**
+- [x] **Step 2: 跑定向测试确认当前行为锁住**
 
 Run:
 
@@ -277,7 +277,7 @@ npm run test -- src/composables/__tests__/launcher/useTerminalExecution.test.ts
 
 Expected: PASS（或新增断言先失败后再进入下一步）
 
-- [ ] **Step 3: 在 TS / Rust 两端补契约注释**
+- [x] **Step 3: 在 TS / Rust 两端补契约注释**
 
 要求：
 
@@ -293,7 +293,7 @@ Expected: PASS（或新增断言先失败后再进入下一步）
 1. UI 显示逻辑
 2. 非 Windows 行为
 
-- [ ] **Step 4: 重新跑定向测试**
+- [x] **Step 4: 重新跑定向测试**
 
 Run:
 

@@ -255,6 +255,29 @@ describe("useTerminalExecution", () => {
     );
   });
 
+  it("passes terminal reuse policy for queue requests without frontend platform branching", async () => {
+    const { run, readAvailableTerminals, execution } = createExecutionHarness(
+      "wt",
+      false,
+      "normal-only",
+      {
+        isTauriRuntime: false
+      }
+    );
+
+    await execution.runCommandsInTerminal([
+      createExecStep("git status", "git", ["status"])
+    ]);
+
+    expect(readAvailableTerminals).not.toHaveBeenCalled();
+    expect(run).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalId: "wt",
+        terminalReusePolicy: "normal-only"
+      })
+    );
+  });
+
   it("discovers terminals from tauri runtime and caches corrected terminal before dispatch", async () => {
     const {
       run,

@@ -19,3 +19,4 @@
 - 2026-04-09：已确认下一轮聚焦 4 点：搜索单次查询单次算分、session 最小快照持久化、Windows-only 终端复用语义注释、settingsSavedTimer dispose 收口；设计与计划已落文档。
 - 2026-04-09：Chunk 1 已落地；Launcher 搜索改为单次查询每候选只算一次 score，`do`/`dock` 语义与稳定 tie-break 保持不变；`useLauncherSearch` 定向 8 测试已通过。
 - 2026-04-09：Chunk 2 已落地；Launcher session 改为最小 DTO 持久化并兼容旧完整快照投影恢复，参数编辑/删除/拖拽顺序恢复保留，相关定向与回归测试已通过。
+- 2026-04-09：Chunk 3 已落地；前端继续统一透传 `terminalReusePolicy`，新增队列透传契约测试，TS/Rust 注释明确当前仅 Windows 后端消费，非 Windows 显式忽略。

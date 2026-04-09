@@ -731,6 +731,7 @@ fn resolve_windows_terminal_program(
 fn parse_terminal_reuse_policy(
     value: Option<&str>,
 ) -> windows_routing::TerminalReusePolicy {
+    // 当前产品边界只在 Windows 路由层消费复用策略；前端即使跨平台透传，这里也只做 Windows 解释。
     match value {
         Some("normal-only") => windows_routing::TerminalReusePolicy::NormalOnly,
         Some("normal-and-elevated") => {
@@ -1059,6 +1060,7 @@ pub(crate) fn run_command_in_terminal(
     }
 
     #[cfg(not(target_os = "windows"))]
+    // 当前阶段非 Windows 显式忽略 terminal_reuse_policy；这是已确认的产品边界，不是遗漏实现。
     let _ = (
         app,
         requires_elevation,

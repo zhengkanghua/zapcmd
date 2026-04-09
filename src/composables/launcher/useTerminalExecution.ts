@@ -89,6 +89,7 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
     }
 
     const terminalId = await resolveTerminalIdBeforeDispatch(options);
+    // 前端统一透传 reuse policy；当前只有 Windows 后端真正消费，其他平台保持无条件忽略。
     await options.commandExecutor.run({
       terminalId,
       steps: [step],
@@ -108,6 +109,7 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
     }
 
     const terminalId = await resolveTerminalIdBeforeDispatch(options);
+    // 批量执行与单条执行共享同一契约，避免前端再按平台分叉 reuse policy 行为。
     await options.commandExecutor.run({
       terminalId,
       steps: normalizedSteps,
