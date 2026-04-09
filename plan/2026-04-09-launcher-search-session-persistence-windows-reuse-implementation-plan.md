@@ -44,7 +44,7 @@
 - Modify: `src/composables/launcher/useLauncherSearch.ts`
 - Test: `src/composables/__tests__/launcher/useLauncherSearch.test.ts`
 
-- [ ] **Step 1: 写红灯测试，锁住现有排序语义**
+- [x] **Step 1: 写红灯测试，锁住现有排序语义**
 
 在 `src/composables/__tests__/launcher/useLauncherSearch.test.ts` 补 3 类用例：
 
@@ -70,7 +70,7 @@ it("keeps ranking semantics for short and narrow queries", () => {
 
 再补一个白盒用例，约束“单次查询里每个候选项只算一次 score”。为此可以先把排名逻辑抽成可注入 scorer 的 helper。
 
-- [ ] **Step 2: 跑定向测试，确认新约束先失败**
+- [x] **Step 2: 跑定向测试，确认新约束先失败**
 
 Run:
 
@@ -83,7 +83,7 @@ Expected:
 1. 现有语义测试通过
 2. 新增“单次查询单次算分”测试失败
 
-- [ ] **Step 3: 写最小实现，保留规则只改计算流程**
+- [x] **Step 3: 写最小实现，保留规则只改计算流程**
 
 在 `src/composables/launcher/useLauncherSearch.ts`：
 
@@ -113,7 +113,7 @@ const ranked = searchableCommands.value
 4. 排序阶段只读 `score/index`，不重复调用 `scoreCommand()`。
 5. 继续保留 `MAX_FILTERED_RESULTS = 500` 和现有返回类型。
 
-- [ ] **Step 4: 跑测试确认通过**
+- [x] **Step 4: 跑测试确认通过**
 
 Run:
 
@@ -123,7 +123,7 @@ npm run test -- src/composables/__tests__/launcher/useLauncherSearch.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: 提交本任务**
+- [x] **Step 5: 提交本任务**
 
 ```bash
 git add src/composables/launcher/useLauncherSearch.ts src/composables/__tests__/launcher/useLauncherSearch.test.ts
@@ -231,7 +231,7 @@ npm run test -- src/__tests__/app.core-path-regression.test.ts src/composables/_
 
 Expected: PASS
 
-- [ ] **Step 6: 提交本任务**
+- [x] **Step 6: 提交本任务**
 
 ```bash
 git add src/composables/launcher/useLauncherSessionState.ts src/features/launcher/stagedCommands.ts src/composables/app/useAppCompositionRoot/runtime.ts src/composables/__tests__/launcher/useLauncherSessionState.test.ts src/features/launcher/__tests__/stagedCommands.test.ts
@@ -303,7 +303,7 @@ npm run test -- src/composables/__tests__/launcher/useTerminalExecution.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: 提交本任务**
+- [x] **Step 5: 提交本任务**
 
 ```bash
 git add src/composables/launcher/useTerminalExecution.ts src-tauri/src/terminal.rs src/composables/__tests__/launcher/useTerminalExecution.test.ts
@@ -321,7 +321,7 @@ git commit -m "docs(runtime):明确终端复用当前仅支持 Windows"
 - Modify: `src/composables/app/useAppCompositionRoot/viewModel.ts`
 - Test: `src/composables/__tests__/app/useAppCompositionViewModel.test.ts`
 
-- [ ] **Step 1: 写红灯测试，锁住 dispose 行为**
+- [x] **Step 1: 写红灯测试，锁住 dispose 行为**
 
 在 `src/composables/__tests__/app/useAppCompositionViewModel.test.ts` 新增 fake timers + effect scope 用例：
 
@@ -344,7 +344,7 @@ it("clears settings saved timer on scope dispose", async () => {
 
 测试目标不是改 toast 语义，而是确认销毁后不会再残留定时器回调。
 
-- [ ] **Step 2: 跑定向测试确认先失败**
+- [x] **Step 2: 跑定向测试确认先失败**
 
 Run:
 
@@ -354,7 +354,7 @@ npm run test -- src/composables/__tests__/app/useAppCompositionViewModel.test.ts
 
 Expected: 新增 dispose 用例失败
 
-- [ ] **Step 3: 写最小实现**
+- [x] **Step 3: 写最小实现**
 
 在 `src/composables/app/useAppCompositionRoot/viewModel.ts`：
 
@@ -370,7 +370,7 @@ onScopeDispose(() => {
 3. 不改变 `SETTINGS_SAVED_TOAST_DISMISS_DELAY_MS`
 4. 不改现有保存成功提示行为
 
-- [ ] **Step 4: 跑定向测试确认通过**
+- [x] **Step 4: 跑定向测试确认通过**
 
 Run:
 
@@ -380,7 +380,7 @@ npm run test -- src/composables/__tests__/app/useAppCompositionViewModel.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: 提交本任务**
+- [x] **Step 5: 提交本任务**
 
 ```bash
 git add src/composables/app/useAppCompositionRoot/viewModel.ts src/composables/__tests__/app/useAppCompositionViewModel.test.ts
@@ -391,7 +391,7 @@ git commit -m "fix(viewmodel):收口 settings 保存提示定时器生命周期"
 
 ## 最终验证
 
-- [ ] **Step 1: 跑前端定向回归**
+- [x] **Step 1: 跑前端定向回归**
 
 ```bash
 npm run test -- src/composables/__tests__/launcher/useLauncherSearch.test.ts src/composables/__tests__/launcher/useLauncherSessionState.test.ts src/features/launcher/__tests__/stagedCommands.test.ts src/composables/__tests__/launcher/useTerminalExecution.test.ts src/composables/__tests__/app/useAppCompositionViewModel.test.ts
@@ -399,7 +399,7 @@ npm run test -- src/composables/__tests__/launcher/useLauncherSearch.test.ts src
 
 Expected: PASS
 
-- [ ] **Step 2: 跑主路径回归**
+- [x] **Step 2: 跑主路径回归**
 
 ```bash
 npm run test -- src/__tests__/app.core-path-regression.test.ts src/composables/__tests__/execution/useCommandExecution.test.ts
@@ -407,7 +407,7 @@ npm run test -- src/__tests__/app.core-path-regression.test.ts src/composables/_
 
 Expected: PASS
 
-- [ ] **Step 3: 跑全量门禁**
+- [x] **Step 3: 跑全量门禁**
 
 ```bash
 npm run lint
@@ -420,11 +420,11 @@ npm run test:rust
 
 Expected: 全绿
 
-- [ ] **Step 4: 更新短期记忆**
+- [x] **Step 4: 更新短期记忆**
 
 修改 `docs/active_context.md`，只补充本轮设计与计划摘要，控制在 200 字以内。
 
-- [ ] **Step 5: 阶段收尾提交**
+- [x] **Step 5: 阶段收尾提交**
 
 ```bash
 git add docs/active_context.md docs/superpowers/specs/2026-04-09-launcher-search-session-persistence-windows-reuse-design.md plan/2026-04-09-launcher-search-session-persistence-windows-reuse-implementation-plan.md
