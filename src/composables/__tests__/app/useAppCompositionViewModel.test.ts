@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { isRef, ref, unref } from "vue";
+import { effectScope, isRef, ref, unref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppCompositionViewModel } from "../../app/useAppCompositionRoot/viewModel";
@@ -8,14 +8,20 @@ import type { CommandTemplate } from "../../../features/commands/commandTemplate
 function createDeepStub(): unknown {
   const fn = vi.fn();
   return new Proxy(fn, {
-    get(_target, prop) {
+    get(target, prop) {
       if (prop === "value") {
         return undefined;
       }
       if (prop === "then") {
         return undefined;
       }
+      if (Reflect.has(target, prop)) {
+        return Reflect.get(target, prop);
+      }
       return createDeepStub();
+    },
+    set(target, prop, value) {
+      return Reflect.set(target, prop, value);
     },
     apply() {
       return undefined;
@@ -398,6 +404,36 @@ describe("createAppCompositionViewModel", () => {
     expect(unref(viewModel.settingsVm.showAlwaysElevatedTerminal)).toBe(false);
     runtimePlatform.value = "win";
     expect(unref(viewModel.settingsVm.showAlwaysElevatedTerminal)).toBe(true);
+  });
+
+  it("销毁作用域后不会再执行 settingsSavedTimer 回写", async () => {
+    vi.useFakeTimers();
+    try {
+      const context = createContextStub();
+      const persistSetting = vi.fn().mockResolvedValue(undefined);
+      const settingsWindow = context.settingsScene.settingsWindow as {
+        persistSetting?: () => Promise<void>;
+        settingsError?: { value: string };
+      };
+      settingsWindow.persistSetting = persistSetting;
+      settingsWindow.settingsError = ref("");
+      const scope = effectScope();
+      const viewModel = scope.run(() =>
+        createAppCompositionViewModel(context as never, createDeepStub() as never)
+      );
+
+      await viewModel!.appShellVm.saveSettings();
+
+      expect(viewModel!.appShellVm.settingsSaved).toBe(true);
+      scope.stop();
+
+      vi.runAllTimers();
+
+      expect(persistSetting).toHaveBeenCalledTimes(1);
+      expect(viewModel!.appShellVm.settingsSaved).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it.each(["execute", "stage", "copy"] as const)(

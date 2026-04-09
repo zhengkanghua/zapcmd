@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { getCurrentScope, onScopeDispose, ref } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
 import type {
   HotkeyFieldId,
@@ -49,6 +49,13 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
       if (!scene.settingsWindow.settingsError.value) {
         markSavedToast();
       }
+    });
+  }
+
+  // 作用域销毁后不再允许旧定时器回写 toast 状态，避免残留异步闭包继续更新已卸载视图。
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      clearSettingsSavedTimer();
     });
   }
 
