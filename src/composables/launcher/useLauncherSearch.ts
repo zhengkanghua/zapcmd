@@ -15,6 +15,12 @@ interface SearchableCommand {
   category: string;
 }
 
+interface RankedMatch {
+  command: CommandTemplate;
+  index: number;
+  score: number;
+}
+
 function tokenizeQuery(query: string): string[] {
   return query.split(/\s+/).filter(Boolean);
 }
@@ -100,11 +106,17 @@ export function useLauncherSearch(options: UseLauncherSearchOptions = {}) {
       return [];
     }
     const tokens = tokenizeQuery(normalized);
-
-    return searchableCommands.value
+    const rankedMatches = searchableCommands.value
       .filter((item) => matchCommand(tokens, item))
+      .map<RankedMatch>((item) => ({
+        command: item.command,
+        index: item.index,
+        score: scoreCommand(normalized, tokens, item)
+      }));
+
+    return rankedMatches
       .sort((left, right) => {
-        const scoreDiff = scoreCommand(normalized, tokens, right) - scoreCommand(normalized, tokens, left);
+        const scoreDiff = right.score - left.score;
         if (scoreDiff !== 0) {
           return scoreDiff;
         }
