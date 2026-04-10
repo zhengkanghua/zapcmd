@@ -9,14 +9,14 @@ import { createAppShellVm } from "./appShellVm";
 import type { createAppCompositionContext } from "./context";
 import { createLauncherVm } from "./launcherVm";
 import type { createAppCompositionRuntime } from "./runtime";
-import { createSettingsVm } from "./settingsVm";
+import { createSettingsVm, type SettingsVmContext } from "./settingsVm";
 
 type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 type AppCompositionRuntime = ReturnType<typeof createAppCompositionRuntime>;
 
 const SETTINGS_SAVED_TOAST_DISMISS_DELAY_MS = 2200;
 
-function createSettingsMutationHandlers(context: AppCompositionContext) {
+export function createSettingsMutationHandlers(context: SettingsVmContext) {
   const scene = context.settingsScene;
   let settingsSavedTimer: ReturnType<typeof setTimeout> | null = null;
   let disposed = false;
@@ -108,6 +108,10 @@ function createSettingsMutationHandlers(context: AppCompositionContext) {
     },
     setTheme(value: string): void {
       scene.settingsStore.setTheme(value);
+      persistImmediate();
+    },
+    setMotionPreset(value: string): void {
+      scene.settingsStore.setMotionPreset(value);
       persistImmediate();
     },
     setBlurEnabled(value: boolean): void {

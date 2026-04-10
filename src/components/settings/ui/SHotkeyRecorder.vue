@@ -87,6 +87,7 @@ function onBlur(): void {
     <button
       ref="recorderRef"
       type="button"
+      :data-local-escape-scope="recording ? 'true' : undefined"
       :aria-label="props.label"
       :class="[
         's-hotkey-recorder min-h-[36px] justify-self-start w-fit min-w-[92px] max-w-[min(100%,280px)] border border-ui-border rounded-lg bg-ui-input px-2.5 text-left text-[13px] tracking-[0.02em] text-ui-text outline-none inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-settings-field duration-150 ease-settings-emphasized focus-visible:border-ui-brand-dim focus-visible:shadow-brand-soft-ring',

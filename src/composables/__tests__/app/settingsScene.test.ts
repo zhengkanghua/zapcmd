@@ -43,9 +43,12 @@ describe("createSettingsScene", () => {
     const resolvedScene = scene as SettingsScene;
 
     expect(resolvedScene.settingsWindow).toBeDefined();
+    expect(resolvedScene.settingsWindow.loadSettings).toBeTypeOf("function");
+    expect(resolvedScene.settingsWindow.loadAvailableTerminals).toBeTypeOf("function");
     expect(resolvedScene.commandCatalog).toBeDefined();
     expect(resolvedScene.commandManagement).toBeDefined();
     expect(resolvedScene.updateManager).toBeDefined();
+    expect(resolvedScene.hotkeyBindings.launcherHotkey).toBeDefined();
     expect(resolvedScene.openHomepage).toBeTypeOf("function");
   });
 

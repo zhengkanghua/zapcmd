@@ -50,6 +50,7 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
   const settingsWindow = createDeepStub();
   const commandManagement = createDeepStub();
   const themeManager = createDeepStub();
+  const motionPresetManager = createDeepStub();
   const defaultTerminal = ref("powershell");
   const terminalReusePolicy = ref("never");
   const language = ref("zh-CN");
@@ -57,17 +58,20 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
   const launchAtLogin = ref(false);
   const alwaysElevatedTerminal = ref(false);
   const appVersion = ref("1.0.1");
+  const homepageActionStatus = ref(null);
   const runtimePlatform = options.runtimePlatform ?? ref("windows");
   const updateStatus = ref(null);
   const windowOpacity = ref(0.96);
   const theme = ref("obsidian");
   const blurEnabled = ref(true);
+  const motionPreset = ref("expressive");
   const checkUpdate = vi.fn();
   const downloadUpdate = vi.fn();
   const openHomepage = vi.fn();
   const settingsStore = {
     setWindowOpacity: vi.fn(),
     setTheme: vi.fn(),
+    setMotionPreset: vi.fn(),
     setBlurEnabled: vi.fn()
   };
   const settingsScene = {
@@ -75,6 +79,7 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     settingsWindow,
     commandManagement,
     themeManager,
+    motionPresetManager,
     defaultTerminal,
     terminalReusePolicy,
     language,
@@ -82,6 +87,7 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     launchAtLogin,
     alwaysElevatedTerminal,
     appVersion,
+    homepageActionStatus,
     updateManager: {
       runtimePlatform,
       updateStatus,
@@ -91,6 +97,7 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     windowOpacity,
     theme,
     blurEnabled,
+    motionPreset,
     openHomepage,
     settingsStore
   };
@@ -121,6 +128,7 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     settingsWindow,
     commandManagement,
     themeManager,
+    motionPresetManager,
     defaultTerminal,
     terminalReusePolicy,
     language,
@@ -128,14 +136,17 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     launchAtLogin,
     alwaysElevatedTerminal,
     appVersion,
+    homepageActionStatus,
     runtimePlatform,
     updateStatus,
     setWindowOpacity: settingsStore.setWindowOpacity,
     setTheme: settingsStore.setTheme,
+    setMotionPreset: settingsStore.setMotionPreset,
     setBlurEnabled: settingsStore.setBlurEnabled,
     windowOpacity,
     theme,
     blurEnabled,
+    motionPreset,
     checkUpdate,
     downloadUpdate,
     openHomepage,

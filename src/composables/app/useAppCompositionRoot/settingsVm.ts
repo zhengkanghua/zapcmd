@@ -7,7 +7,10 @@ import type {
 } from "../../../stores/settingsStore";
 import type { createAppCompositionContext } from "./context";
 
-type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
+export type SettingsVmContext = Pick<
+  ReturnType<typeof createAppCompositionContext>,
+  "settingsScene"
+>;
 
 interface SettingsMutationHandlers {
   applyHotkeyChange: (fieldId: HotkeyFieldId, value: string) => void;
@@ -21,11 +24,12 @@ interface SettingsMutationHandlers {
   resetCommandFilters: () => void;
   setWindowOpacity: (value: number) => void;
   setTheme: (value: string) => void;
+  setMotionPreset: (value: string) => void;
   setBlurEnabled: (value: boolean) => void;
 }
 
 export function createSettingsVm(
-  context: AppCompositionContext,
+  context: SettingsVmContext,
   settingsMutationHandlers: SettingsMutationHandlers
 ) {
   const scene = context.settingsScene;
@@ -57,6 +61,7 @@ export function createSettingsVm(
     appVersion: scene.appVersion,
     runtimePlatform: scene.updateManager.runtimePlatform,
     updateStatus: scene.updateManager.updateStatus,
+    homepageActionStatus: scene.homepageActionStatus,
     commandRows: scene.commandManagement.commandRows,
     commandSummary: scene.commandManagement.commandSummary,
     commandLoadIssues: scene.commandManagement.commandLoadIssues,
@@ -85,9 +90,12 @@ export function createSettingsVm(
     windowOpacity: scene.windowOpacity,
     theme: scene.theme,
     blurEnabled: scene.blurEnabled,
+    motionPreset: scene.motionPreset,
     themes: scene.themeManager.themes,
+    motionPresets: scene.motionPresetManager.motionPresets,
     setWindowOpacity: settingsMutationHandlers.setWindowOpacity,
     setTheme: settingsMutationHandlers.setTheme,
+    setMotionPreset: settingsMutationHandlers.setMotionPreset,
     setBlurEnabled: settingsMutationHandlers.setBlurEnabled,
     checkUpdate: scene.updateManager.checkUpdate,
     downloadUpdate: scene.updateManager.downloadUpdate,

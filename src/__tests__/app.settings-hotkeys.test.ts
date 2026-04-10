@@ -157,6 +157,7 @@ describe("AppSettings hotkeys regression", () => {
     const wrapper = await mountAppSettings();
 
     expect(wrapper.findComponent({ name: "SettingsWindow" }).exists()).toBe(true);
+    expect(hoisted.invokeSpy).toHaveBeenCalledWith("get_available_terminals");
     expect(hoisted.invokeSpy).toHaveBeenCalledWith("show_settings_window_when_ready");
   });
 

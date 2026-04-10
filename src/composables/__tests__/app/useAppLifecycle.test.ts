@@ -47,6 +47,8 @@ interface LifecycleHarnessOptions {
   isTauriRuntime?: boolean;
   currentWindowLabel?: string;
   readLauncherHotkeyResult?: string;
+  onMainReady?: ReturnType<typeof vi.fn>;
+  onSettingsReady?: ReturnType<typeof vi.fn>;
 }
 
 interface FocusListenerCapture {
@@ -83,6 +85,8 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
   const clearQueueTransitionTimer = vi.fn();
   const clearStagedFeedbackTimer = vi.fn();
   const clearExecutionFeedbackTimer = vi.fn();
+  const onMainReady = options.onMainReady ?? vi.fn();
+  const onSettingsReady = options.onSettingsReady ?? vi.fn();
 
   const resolveAppWindow = vi.fn(() => ({
     label: options.currentWindowLabel ?? "main",
@@ -116,7 +120,9 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
         clearResizeTimer,
         clearQueueTransitionTimer,
         clearStagedFeedbackTimer,
-        clearExecutionFeedbackTimer
+        clearExecutionFeedbackTimer,
+        onMainReady,
+        onSettingsReady
       });
 
       return () => h("div", { class: "lifecycle-harness" });
@@ -143,7 +149,9 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
       clearResizeTimer,
       clearQueueTransitionTimer,
       clearStagedFeedbackTimer,
-      clearExecutionFeedbackTimer
+      clearExecutionFeedbackTimer,
+      onMainReady,
+      onSettingsReady
     }
   };
 }
@@ -230,6 +238,25 @@ describe("useAppLifecycle", () => {
 
     wrapper.unmount();
     expect(state.focusCapture.unlisten).toHaveBeenCalledTimes(1);
+  });
+
+  it("invokes onSettingsReady for settings windows without main-window focus bootstrap", async () => {
+    const onSettingsReady = vi.fn();
+    const onMainReady = vi.fn();
+    const { Harness, spies } = createHarness({
+      isSettingsWindow: true,
+      currentWindowLabel: "settings",
+      onSettingsReady,
+      onMainReady
+    });
+
+    mount(Harness);
+    await flushUi();
+
+    expect(onSettingsReady).toHaveBeenCalledTimes(1);
+    expect(onMainReady).not.toHaveBeenCalled();
+    expect(spies.scheduleSearchInputFocus).not.toHaveBeenCalled();
+    expect(spies.syncWindowSize).not.toHaveBeenCalled();
   });
 
   it("warns when launcher hotkey read fails", async () => {

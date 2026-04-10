@@ -43,6 +43,7 @@ describe("useAppLifecycleBridge", () => {
     const onWindowKeydown = vi.fn();
     const readLauncherHotkey = vi.fn(async () => "Alt+K");
     const scheduleSearchInputFocus = vi.fn();
+    const onSettingsReady = vi.fn();
 
     useAppLifecycleBridge({
       runtime,
@@ -54,7 +55,8 @@ describe("useAppLifecycleBridge", () => {
       onWindowKeydown,
       readLauncherHotkey,
       launcherHotkey,
-      scheduleSearchInputFocus
+      scheduleSearchInputFocus,
+      onSettingsReady
     });
 
     const mocked = vi.mocked(useAppLifecycle);
@@ -65,6 +67,7 @@ describe("useAppLifecycleBridge", () => {
     expect(arg?.syncWindowSize).toBe(windowSizing.syncWindowSize);
     expect(arg?.readLauncherHotkey).toBe(readLauncherHotkey);
     expect(arg?.scheduleSearchInputFocus).toBe(scheduleSearchInputFocus);
+    expect(arg?.onSettingsReady).toBe(onSettingsReady);
     expect(arg?.clearExecutionFeedbackTimer).toBe(execution.clearExecutionFeedbackTimer);
     expect("cancelHotkeyRecording" in (arg ?? {})).toBe(false);
 
