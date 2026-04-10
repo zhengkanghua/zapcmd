@@ -184,7 +184,7 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.appearance.windowOpacity).toBe(1);
   });
 
-  it("normalizes query/source/status/sort and display mode to safe defaults", () => {
+  it("normalizes query/source/status/sort to safe defaults and drops legacy displayMode", () => {
     const normalized = normalizeCommandViewState({
       query: "  docker  ",
       sourceFilter: "invalid",
@@ -201,7 +201,7 @@ describe("settingsStore migration and persistence", () => {
     expect(normalized.overrideFilter).toBe("all");
     expect(normalized.issueFilter).toBe("all");
     expect(normalized.sortBy).toBe("default");
-    expect(normalized.displayMode).toBe("list");
+    expect("displayMode" in normalized).toBe(false);
   });
 
   it("falls back to default window opacity when value is non-finite", () => {
@@ -247,8 +247,9 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.general.defaultTerminal).toBe("pwsh");
   });
 
-  it("falls back to list display mode for invalid command view displayMode", () => {
-    expect(normalizeCommandViewState({ displayMode: "table" }).displayMode).toBe("list");
+  it("drops legacy command view displayMode during normalization", () => {
+    const normalized = normalizeCommandViewState({ displayMode: "groupedByFile" } as never);
+    expect("displayMode" in normalized).toBe(false);
   });
 
   it("returns null for unknown schema version", () => {

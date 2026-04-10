@@ -1,8 +1,6 @@
 import { computed, type Ref } from "vue";
-import { getCurrentLocale, t } from "../../../i18n";
 import type { CommandTemplate } from "../../../features/commands/types";
 import type {
-  CommandManagementGroup,
   CommandManagementRow,
   CommandManagementSummary,
   CommandManagementViewState
@@ -111,32 +109,5 @@ export function createSummary(rows: Readonly<Ref<CommandManagementIndexedRow[]>>
       userDefined,
       overridden
     };
-  });
-}
-
-export function createCommandGroups(rows: Readonly<Ref<CommandManagementRow[]>>) {
-  return computed<CommandManagementGroup[]>(() => {
-    const byKey = new Map<string, CommandManagementGroup>();
-    for (const row of rows.value) {
-      const key = row.sourcePath ?? "__unknown_source__";
-      const title = row.sourceFileLabel ?? row.sourcePath ?? t("settings.commands.unknownSourceFile");
-      const existing = byKey.get(key);
-      if (existing) {
-        existing.rows.push(row);
-        existing.count += 1;
-        continue;
-      }
-      byKey.set(key, {
-        key,
-        title,
-        count: 1,
-        sourcePath: row.sourcePath,
-        rows: [row]
-      });
-    }
-
-    return Array.from(byKey.values()).sort((left, right) =>
-      left.title.localeCompare(right.title, getCurrentLocale())
-    );
   });
 }

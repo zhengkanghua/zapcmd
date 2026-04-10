@@ -44,7 +44,6 @@ export {
   createDefaultSettingsSnapshot
 } from "./settings/defaults";
 export type {
-  CommandDisplayMode,
   CommandFilterIssue,
   CommandFilterOverride,
   CommandFilterSource,

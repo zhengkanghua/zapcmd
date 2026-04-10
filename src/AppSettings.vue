@@ -90,9 +90,7 @@ const {
   commandOverrideOptions,
   commandIssueOptions,
   commandSortOptions,
-  commandDisplayModeOptions,
   commandSourceFileOptions,
-  commandGroups,
   toggleCommandEnabled: toggleCommandEnabledAction,
   setFilteredCommandsEnabled: setFilteredCommandsEnabledAction,
   updateCommandView: updateCommandViewAction,
@@ -294,9 +292,7 @@ onBeforeUnmount(() => {
     :command-override-options="commandOverrideOptions"
     :command-issue-options="commandIssueOptions"
     :command-sort-options="commandSortOptions"
-    :command-display-mode-options="commandDisplayModeOptions"
     :command-source-file-options="commandSourceFileOptions"
-    :command-groups="commandGroups"
     :app-version="appVersion"
     :runtime-platform="runtimePlatform"
     :update-status="updateStatus"

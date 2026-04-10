@@ -20,8 +20,7 @@ function createDefaultViewState(): CommandManagementViewState {
     overrideFilter: "all",
     issueFilter: "all",
     fileFilter: "all",
-    sortBy: "default",
-    displayMode: "list"
+    sortBy: "default"
   };
 }
 
@@ -211,16 +210,20 @@ describe("useCommandManagement", () => {
     expect(model.commandRows.value.map((row) => row.id).sort()).toEqual(["cmd-a", "cmd-c"]);
   });
 
-  it("builds source file options and groups (including unknown source)", () => {
+  it("builds source file options", () => {
     const { model } = createFixture();
 
     const options = model.commandSourceFileOptions.value;
     expect(options.map((item) => item.value).sort()).toEqual([BUILTIN_PATH, USER_PATH].sort());
     const builtinOption = options.find((item) => item.value === BUILTIN_PATH);
     expect(builtinOption?.count).toBe(2);
+  });
 
-    const groupKeys = model.commandGroups.value.map((group) => group.key);
-    expect(groupKeys).toContain("__unknown_source__");
+  it("does not expose dead command display/group outputs", () => {
+    const { model } = createFixture();
+
+    expect("commandDisplayModeOptions" in model).toBe(false);
+    expect("commandGroups" in model).toBe(false);
   });
 
   it("supports bulk enable/disable and skips when filtered result is empty", () => {

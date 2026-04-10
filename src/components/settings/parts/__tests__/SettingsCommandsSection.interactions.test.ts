@@ -21,7 +21,6 @@ function createCommandView(
     issueFilter: "all",
     fileFilter: "all",
     sortBy: "default",
-    displayMode: "list",
     ...overrides
   };
 }
@@ -88,12 +87,10 @@ function createProps(
       { value: "default" as const, label: "排序-默认" },
       { value: "title" as const, label: "排序-标题" }
     ],
-    commandDisplayModeOptions: [{ value: "list" as const, label: "列表" }],
     commandSourceFileOptions: [
       { value: "builtin.json", label: "内置文件", count: 1 },
       { value: "user.json", label: "用户文件", count: 1 }
     ],
-    commandGroups: [],
     ...overrides
   };
 }

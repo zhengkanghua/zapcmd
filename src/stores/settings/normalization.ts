@@ -2,7 +2,6 @@ import { normalizeAppLocale, type AppLocale } from "../../i18n";
 import { normalizeHotkey } from "../../shared/hotkeys";
 import { resolveMotionPresetMeta } from "../../features/motion/motionRegistry";
 import {
-  COMMAND_DISPLAY_MODES,
   COMMAND_ISSUE_FILTERS,
   COMMAND_OVERRIDE_FILTERS,
   COMMAND_SORT_OPTIONS,
@@ -141,8 +140,7 @@ export function normalizeCommandViewState(value: unknown): CommandManagementView
     overrideFilter: normalizeEnumValue(value.overrideFilter, COMMAND_OVERRIDE_FILTERS, "all"),
     issueFilter: normalizeEnumValue(value.issueFilter, COMMAND_ISSUE_FILTERS, "all"),
     fileFilter: normalizeFileFilter(value.fileFilter),
-    sortBy: normalizeEnumValue(value.sortBy, COMMAND_SORT_OPTIONS, "default"),
-    displayMode: normalizeEnumValue(value.displayMode, COMMAND_DISPLAY_MODES, "list")
+    sortBy: normalizeEnumValue(value.sortBy, COMMAND_SORT_OPTIONS, "default")
   };
 }
 

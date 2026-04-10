@@ -1,11 +1,9 @@
 import type { MotionPresetMeta } from "../../features/motion/motionRegistry";
 import type {
-  CommandDisplayMode,
   CommandFilterIssue,
   CommandFilterOverride,
   CommandFilterSource,
   CommandFilterStatus,
-  CommandManagementGroup,
   CommandLoadIssueView,
   CommandManagementRow,
   CommandManagementSummary,
@@ -85,9 +83,7 @@ export interface SettingsCommandsProps {
   commandOverrideOptions: CommandSelectOption<CommandFilterOverride>[];
   commandIssueOptions: CommandSelectOption<CommandFilterIssue>[];
   commandSortOptions: CommandSelectOption<CommandSortBy>[];
-  commandDisplayModeOptions: CommandSelectOption<CommandDisplayMode>[];
   commandSourceFileOptions: CommandSourceFileOption[];
-  commandGroups: CommandManagementGroup[];
 }
 
 export interface SettingsAppearanceProps {

@@ -48,7 +48,6 @@ export type CommandFilterStatus = "all" | "enabled" | "disabled";
 export type CommandFilterOverride = "all" | "overridden";
 export type CommandFilterIssue = "all" | "with-issues";
 export type CommandSortBy = "default" | "title" | "category" | "source" | "status";
-export type CommandDisplayMode = "list";
 
 export interface CommandSourceFileOption {
   value: string;
@@ -70,13 +69,4 @@ export interface CommandManagementViewState {
   issueFilter: CommandFilterIssue;
   fileFilter: string;
   sortBy: CommandSortBy;
-  displayMode: CommandDisplayMode;
-}
-
-export interface CommandManagementGroup {
-  key: string;
-  title: string;
-  count: number;
-  sourcePath?: string;
-  rows: CommandManagementRow[];
 }

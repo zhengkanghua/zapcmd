@@ -19,7 +19,6 @@ import {
   COMMAND_ROWS_INITIAL_RENDER_LIMIT,
   COMMAND_ROWS_RENDER_CHUNK_SIZE,
   createAllRows,
-  createCommandGroups,
   createFilteredRows,
   createSummary
 } from "./rows";
@@ -63,7 +62,6 @@ export function useCommandManagement(options: UseCommandManagementOptions) {
   const commandSourceFileOptions = createSourceFileOptions(commandRowsAll);
   const commandCategoryOptions = createCategoryOptions(commandRowsAll);
   const commandRows = createFilteredRows(commandRowsAll, commandView);
-  const commandGroups = createCommandGroups(commandRows);
   const commandFilterOptions = createCommandFilterOptions();
 
   const commandFilteredCount = computed(() => commandRows.value.length);
@@ -90,9 +88,7 @@ export function useCommandManagement(options: UseCommandManagementOptions) {
     commandOverrideOptions: commandFilterOptions.commandOverrideOptions,
     commandIssueOptions: commandFilterOptions.commandIssueOptions,
     commandSortOptions: commandFilterOptions.commandSortOptions,
-    commandDisplayModeOptions: commandFilterOptions.commandDisplayModeOptions,
     commandSourceFileOptions,
-    commandGroups,
     toggleCommandEnabled,
     setFilteredCommandsEnabled,
     updateCommandView,

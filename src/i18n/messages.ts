@@ -212,11 +212,6 @@ export const messages = {
         fileFilter: "按文件筛选",
         moreFilters: "更多筛选",
         sortLabel: "排序",
-        displayMode: "展示方式",
-        displayListTitle: "平铺列表",
-        displayListAria: "平铺列表",
-        displayGroupedTitle: "按文件分组",
-        displayGroupedAria: "按文件分组",
         enableFiltered: "启用当前结果（{count}）",
         disableFiltered: "禁用当前结果（{count}）",
         resetFilters: "重置筛选",
@@ -235,8 +230,6 @@ export const messages = {
         sourceBuiltin: "内置命令",
         enabled: "已启用",
         disabled: "已禁用",
-        groupCount: "{count} 条",
-        unknownSourceFile: "未标注来源文件",
         overrideBadgeHint: "用户命令与内置命令 ID 相同，当前将优先使用用户命令。",
         issueBadgeHint: "该命令来源文件存在校验提示，请查看下方“导入校验提示”。",
         issueStageRead: "读取",
@@ -293,9 +286,7 @@ export const messages = {
         sortTitle: "按标题",
         sortCategory: "按分类",
         sortSource: "按来源",
-        sortStatus: "按状态",
-        displayList: "平铺列表",
-        displayGroupedByFile: "按文件分组"
+        sortStatus: "按状态"
       },
       error: {
         emptyHotkey: "{label} 不能为空。",
@@ -626,11 +617,6 @@ export const messages = {
         fileFilter: "Filter by file",
         moreFilters: "More filters",
         sortLabel: "Sort",
-        displayMode: "Display mode",
-        displayListTitle: "Flat list",
-        displayListAria: "Flat list",
-        displayGroupedTitle: "Group by file",
-        displayGroupedAria: "Group by file",
         enableFiltered: "Enable current results ({count})",
         disableFiltered: "Disable current results ({count})",
         resetFilters: "Reset filters",
@@ -650,8 +636,6 @@ export const messages = {
         sourceBuiltin: "Built-in command",
         enabled: "Enabled",
         disabled: "Disabled",
-        groupCount: "{count} items",
-        unknownSourceFile: "Source file not specified",
         overrideBadgeHint:
           "This user command has the same ID as a built-in command, so the user command takes precedence.",
         issueBadgeHint: "This command's source file has validation warnings. See \"Import validation\" below.",
@@ -709,9 +693,7 @@ export const messages = {
         sortTitle: "By title",
         sortCategory: "By category",
         sortSource: "By source",
-        sortStatus: "By status",
-        displayList: "Flat list",
-        displayGroupedByFile: "Group by file"
+        sortStatus: "By status"
       },
       error: {
         emptyHotkey: "{label} cannot be empty.",

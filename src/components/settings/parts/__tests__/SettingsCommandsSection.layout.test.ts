@@ -47,8 +47,7 @@ describe("SettingsCommandsSection layout", () => {
           overrideFilter: "all",
           issueFilter: "all",
           fileFilter: "all",
-          sortBy: "default",
-          displayMode: "list"
+          sortBy: "default"
         },
         commandSourceOptions: [{ value: "all", label: "全部来源" }],
         commandStatusOptions: [{ value: "all", label: "全部状态" }],
@@ -56,9 +55,7 @@ describe("SettingsCommandsSection layout", () => {
         commandOverrideOptions: [{ value: "all", label: "全部冲突状态" }],
         commandIssueOptions: [{ value: "all", label: "全部问题" }],
         commandSortOptions: [{ value: "default", label: "默认" }],
-        commandDisplayModeOptions: [{ value: "list", label: "列表" }],
-        commandSourceFileOptions: [],
-        commandGroups: []
+        commandSourceFileOptions: []
       }
     });
 
@@ -119,8 +116,7 @@ describe("SettingsCommandsSection layout", () => {
             overrideFilter: "all",
             issueFilter: "all",
             fileFilter: "all",
-            sortBy: "default",
-            displayMode: "list"
+            sortBy: "default"
           },
           commandSourceOptions: [{ value: "all", label: "全部来源" }],
           commandStatusOptions: [{ value: "all", label: "全部状态" }],
@@ -128,9 +124,7 @@ describe("SettingsCommandsSection layout", () => {
           commandOverrideOptions: [{ value: "all", label: "全部冲突状态" }],
           commandIssueOptions: [{ value: "all", label: "全部问题" }],
           commandSortOptions: [{ value: "default", label: "默认" }],
-          commandDisplayModeOptions: [{ value: "list", label: "列表" }],
-          commandSourceFileOptions: [],
-          commandGroups: []
+          commandSourceFileOptions: []
         }
       });
 
@@ -168,8 +162,7 @@ describe("SettingsCommandsSection layout", () => {
           overrideFilter: "all",
           issueFilter: "all",
           fileFilter: "all",
-          sortBy: "default",
-          displayMode: "list"
+          sortBy: "default"
         },
         commandSourceOptions: [{ value: "all", label: "全部来源" }],
         commandStatusOptions: [{ value: "all", label: "全部状态" }],
@@ -177,9 +170,7 @@ describe("SettingsCommandsSection layout", () => {
         commandOverrideOptions: [{ value: "all", label: "全部冲突状态" }],
         commandIssueOptions: [{ value: "all", label: "全部问题" }],
         commandSortOptions: [{ value: "default", label: "默认" }],
-        commandDisplayModeOptions: [{ value: "list", label: "列表" }],
-        commandSourceFileOptions: [],
-        commandGroups: []
+        commandSourceFileOptions: []
       }
     });
 

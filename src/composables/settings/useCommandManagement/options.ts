@@ -1,7 +1,6 @@
 import { computed, type Ref } from "vue";
 import { getCurrentLocale, t } from "../../../i18n";
 import type {
-  CommandDisplayMode,
   CommandFilterIssue,
   CommandFilterOverride,
   CommandFilterSource,
@@ -84,9 +83,6 @@ export function createCommandFilterOptions() {
       { value: "category", label: t("settings.commandFilters.sortCategory") },
       { value: "source", label: t("settings.commandFilters.sortSource") },
       { value: "status", label: t("settings.commandFilters.sortStatus") }
-    ]),
-    commandDisplayModeOptions: computed<CommandSelectOption<CommandDisplayMode>[]>(() => [
-      { value: "list", label: t("settings.commandFilters.displayList") }
     ])
   };
 }
