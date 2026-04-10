@@ -5,7 +5,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use super::TerminalOption;
 
 pub(crate) const TERMINAL_DISCOVERY_CACHE_FILE_NAME: &str = "terminal-discovery-cache.json";
-pub(crate) const TERMINAL_DISCOVERY_CACHE_TTL_MS: u64 = 24 * 60 * 60 * 1000;
+pub(crate) const TERMINAL_DISCOVERY_CACHE_TTL_MS: u64 =
+    60 * 60 * 1000;
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub(crate) struct TerminalDiscoverySnapshot {

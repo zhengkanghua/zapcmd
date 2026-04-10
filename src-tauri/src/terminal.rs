@@ -715,9 +715,7 @@ fn resolve_windows_terminal_program(
         |path| Path::new(path).exists(),
         command_exists,
     ) {
-        clear_terminal_discovery_cache(app, state);
-        let refreshed_options = detect_available_terminals();
-        persist_terminal_discovery_snapshot(app, state, refreshed_options.as_slice());
+        let refreshed_options = refresh_available_terminals_impl(app, state);
         return resolve_windows_terminal_program_from_options(
             terminal_id,
             refreshed_options.as_slice(),
@@ -839,7 +837,7 @@ fn write_memory_terminal_snapshot(
     Ok(())
 }
 
-fn clear_terminal_discovery_cache(app: &tauri::AppHandle, state: &AppState) {
+pub(crate) fn clear_terminal_discovery_cache(app: &tauri::AppHandle, state: &AppState) {
     if let Err(error) = write_memory_terminal_snapshot(state, None) {
         eprintln!("[zapcmd] failed to clear terminal memory cache: {}", error);
     }
@@ -933,12 +931,31 @@ fn discover_available_terminals(
     options
 }
 
+/// 强制走一次完整探测，清理缓存后重新发现终端并持久化结果。
+pub(crate) fn refresh_available_terminals_impl(
+    app: &tauri::AppHandle,
+    state: &AppState,
+) -> Vec<TerminalOption> {
+    clear_terminal_discovery_cache(app, state);
+    let options = detect_available_terminals();
+    persist_terminal_discovery_snapshot(app, state, options.as_slice());
+    options
+}
+
 #[tauri::command]
 pub(crate) fn get_available_terminals(
     app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
 ) -> Result<Vec<TerminalOption>, String> {
     Ok(discover_available_terminals(&app, &state))
+}
+
+#[tauri::command]
+pub(crate) fn refresh_available_terminals(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<Vec<TerminalOption>, String> {
+    Ok(refresh_available_terminals_impl(&app, &state))
 }
 
 #[cfg(target_os = "macos")]

@@ -18,7 +18,10 @@ use command_catalog::{
     read_user_command_files,
 };
 use hotkeys::{get_launcher_hotkey, update_launcher_hotkey};
-use terminal::{get_available_terminals, get_runtime_platform, run_command_in_terminal};
+use terminal::{
+    get_available_terminals, get_runtime_platform, refresh_available_terminals,
+    run_command_in_terminal,
+};
 use windowing::{
     hide_main_window,
     open_settings_window,
@@ -63,6 +66,7 @@ pub fn run() {
             show_settings_window_when_ready,
             hide_main_window,
             get_available_terminals,
+            refresh_available_terminals,
             get_runtime_platform,
             run_command_in_terminal,
             get_user_commands_dir,

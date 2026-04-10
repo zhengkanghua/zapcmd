@@ -21,6 +21,11 @@ fn create_snapshot(checked_at_ms: u64, ids: &[&str]) -> TerminalDiscoverySnapsho
 }
 
 #[test]
+fn terminal_discovery_cache_ttl_is_one_hour() {
+    assert_eq!(TERMINAL_DISCOVERY_CACHE_TTL_MS, 60 * 60 * 1000);
+}
+
+#[test]
 fn pick_cached_terminal_snapshot_prefers_fresh_memory_cache() {
     let memory = create_snapshot(1_000, &["powershell"]);
     let persisted = create_snapshot(900, &["wt"]);
@@ -56,6 +61,15 @@ fn pick_cached_terminal_snapshot_returns_none_when_cache_is_expired() {
         Some(&persisted),
         1_000 + TERMINAL_DISCOVERY_CACHE_TTL_MS + 1,
     );
+
+    assert_eq!(picked, None);
+}
+
+#[test]
+fn pick_cached_terminal_snapshot_expires_after_one_hour() {
+    let persisted = create_snapshot(1_000, &["wt"]);
+
+    let picked = pick_cached_terminal_snapshot(None, Some(&persisted), 1_000 + 60 * 60 * 1000 + 1);
 
     assert_eq!(picked, None);
 }
