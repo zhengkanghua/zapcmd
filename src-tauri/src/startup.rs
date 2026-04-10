@@ -18,6 +18,8 @@ use crate::app_state::{AppState, DEFAULT_LAUNCHER_HOTKEY};
 use crate::bounds::restore_main_window_bounds;
 #[cfg(desktop)]
 use crate::hotkeys::register_launcher_hotkey;
+#[cfg(desktop)]
+use crate::terminal::refresh_available_terminals_impl;
 use crate::windowing::toggle_main_window;
 #[cfg(desktop)]
 use crate::windowing::open_or_focus_settings_window;
@@ -28,7 +30,9 @@ pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
         launcher_hotkey: Mutex::new(DEFAULT_LAUNCHER_HOTKEY.to_string()),
         move_save_inflight: AtomicBool::new(false),
         move_save_token: AtomicU64::new(0),
+        terminal_discovery_exit_requested: AtomicBool::new(false),
         terminal_discovery_cache: Mutex::new(None),
+        terminal_discovery_cache_io_lock: Mutex::new(()),
         #[cfg(target_os = "windows")]
         windows_reusable_session_state: Mutex::new(
             crate::terminal::windows_routing::WindowsReusableSessionState::default(),
@@ -54,6 +58,17 @@ pub(crate) fn initialize_main_window<R: Runtime>(app: &mut App<R>) {
     }
 }
 
+/// 启动时做一次尽力而为的终端探测预热。
+/// 失败只记录日志，不阻断启动。
+#[cfg(desktop)]
+pub(crate) fn preheat_available_terminals_best_effort(app: &App) {
+    let app_handle = app.handle().clone();
+    std::thread::spawn(move || {
+        let state = app_handle.state::<AppState>();
+        let _ = refresh_available_terminals_impl(&app_handle, &state);
+    });
+}
+
 #[cfg(desktop)]
 pub(crate) fn setup_global_shortcut<R: Runtime>(app: &mut App<R>) {
     let shortcut_plugin = tauri_plugin_global_shortcut::Builder::new()
@@ -76,10 +91,11 @@ pub(crate) fn setup_global_shortcut<R: Runtime>(app: &mut App<R>) {
 }
 
 #[cfg(desktop)]
-pub(crate) fn setup_tray<R: Runtime>(app: &mut App<R>) -> tauri::Result<()> {
+pub(crate) fn setup_tray(app: &mut App) -> tauri::Result<()> {
     let tray_menu = MenuBuilder::new(app)
         .text("toggle_window", "Show/Hide")
         .text("open_settings", "Settings")
+        .text("rescan_terminals", "Rescan terminals")
         .separator()
         .text("quit_app", "Quit")
         .build()?;
@@ -94,6 +110,14 @@ pub(crate) fn setup_tray<R: Runtime>(app: &mut App<R>) -> tauri::Result<()> {
                 if let Err(error) = open_or_focus_settings_window(app) {
                     eprintln!("[zapcmd] open settings window failed: {}", error);
                 }
+            }
+            "rescan_terminals" => {
+                // best-effort: 刷新失败不阻断交互，只记日志
+                let app_handle = app.clone();
+                std::thread::spawn(move || {
+                    let state = app_handle.state::<AppState>();
+                    let _ = refresh_available_terminals_impl(&app_handle, &state);
+                });
             }
             "quit_app" => app.exit(0),
             _ => {}

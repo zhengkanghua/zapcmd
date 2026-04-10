@@ -1,6 +1,7 @@
 use super::discovery_cache::{
     cached_terminal_option_requires_refresh,
     pick_cached_terminal_snapshot,
+    should_persist_terminal_discovery_snapshot,
     TerminalDiscoverySnapshot,
     TERMINAL_DISCOVERY_CACHE_TTL_MS,
 };
@@ -23,6 +24,12 @@ fn create_snapshot(checked_at_ms: u64, ids: &[&str]) -> TerminalDiscoverySnapsho
 #[test]
 fn terminal_discovery_cache_ttl_is_one_hour() {
     assert_eq!(TERMINAL_DISCOVERY_CACHE_TTL_MS, 60 * 60 * 1000);
+}
+
+#[test]
+fn terminal_discovery_persist_is_disabled_after_exit_signal() {
+    assert!(should_persist_terminal_discovery_snapshot(false));
+    assert!(!should_persist_terminal_discovery_snapshot(true));
 }
 
 #[test]

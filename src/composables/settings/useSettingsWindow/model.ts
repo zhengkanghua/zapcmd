@@ -51,6 +51,7 @@ export interface UseSettingsWindowOptions {
   setHotkeyValue: (field: HotkeyFieldId, value: string) => void;
   isTauriRuntime: () => boolean;
   readAvailableTerminals: () => Promise<TerminalOption[]>;
+  refreshAvailableTerminals: () => Promise<TerminalOption[]>;
   readAutoStartEnabled: () => Promise<boolean>;
   writeAutoStartEnabled: (enabled: boolean) => Promise<void>;
   writeLauncherHotkey: (value: string) => Promise<void>;

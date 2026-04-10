@@ -38,6 +38,7 @@ const emit = defineEmits<{
   (e: "update-hotkey", field: HotkeyFieldId, value: string): void;
   (e: "update-pointer-action", field: PointerActionFieldId, value: SearchResultPointerAction): void;
   (e: "select-terminal", id: string): void;
+  (e: "refresh-terminals"): void;
   (e: "select-language", locale: AppLocale): void;
   (e: "set-auto-check-update", value: boolean): void;
   (e: "set-launch-at-login", value: boolean): void;
@@ -116,6 +117,7 @@ const emit = defineEmits<{
             :always-elevated-terminal="props.alwaysElevatedTerminal"
             :show-always-elevated-terminal="props.showAlwaysElevatedTerminal"
             @select-terminal="emit('select-terminal', $event)"
+            @refresh-terminals="emit('refresh-terminals')"
             @select-language="emit('select-language', $event)"
             @set-auto-check-update="emit('set-auto-check-update', $event)"
             @set-launch-at-login="emit('set-launch-at-login', $event)"

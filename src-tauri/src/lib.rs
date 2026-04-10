@@ -8,7 +8,7 @@ mod startup;
 mod terminal;
 mod windowing;
 
-use tauri::{Manager, WindowEvent};
+use tauri::{Manager, RunEvent, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
 
 use bounds::handle_main_window_event;
@@ -19,7 +19,8 @@ use command_catalog::{
 };
 use hotkeys::{get_launcher_hotkey, update_launcher_hotkey};
 use terminal::{
-    get_available_terminals, get_runtime_platform, refresh_available_terminals,
+    get_available_terminals, get_runtime_platform, mark_terminal_discovery_exit_requested,
+    refresh_available_terminals,
     run_command_in_terminal,
 };
 use windowing::{
@@ -33,7 +34,8 @@ use animation::{animate_main_window_size, resize_main_window_for_reveal, Animati
 use autostart::{get_autostart_enabled, set_autostart_enabled};
 
 pub fn run() {
-    tauri::Builder::default()
+    let context = tauri::generate_context!();
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, None))
         .plugin(tauri_plugin_shell::init())
@@ -45,6 +47,7 @@ pub fn run() {
             #[cfg(desktop)]
             {
                 startup::setup_global_shortcut(app);
+                startup::preheat_available_terminals_best_effort(app);
                 startup::setup_tray(app)?;
             }
 
@@ -75,6 +78,17 @@ pub fn run() {
             get_autostart_enabled,
             set_autostart_enabled
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(context)
+        .expect("error while building tauri application");
+
+    app.run(|app_handle, event| {
+        #[cfg(desktop)]
+        if matches!(event, RunEvent::Exit) {
+            // 正常退出时删除磁盘缓存（best-effort）。
+            if let Some(state) = app_handle.try_state::<crate::app_state::AppState>() {
+                mark_terminal_discovery_exit_requested(&state);
+                crate::terminal::clear_terminal_discovery_cache(app_handle, &state);
+            }
+        }
+    });
 }

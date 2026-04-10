@@ -8,6 +8,10 @@ pub(crate) const TERMINAL_DISCOVERY_CACHE_FILE_NAME: &str = "terminal-discovery-
 pub(crate) const TERMINAL_DISCOVERY_CACHE_TTL_MS: u64 =
     60 * 60 * 1000;
 
+pub(crate) fn should_persist_terminal_discovery_snapshot(exit_requested: bool) -> bool {
+    !exit_requested
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub(crate) struct TerminalDiscoverySnapshot {
     pub checked_at_ms: u64,

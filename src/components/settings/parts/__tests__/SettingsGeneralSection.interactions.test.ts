@@ -28,6 +28,16 @@ function createProps(
 }
 
 describe("SettingsGeneralSection interactions", () => {
+  it("emits refresh-terminals when the rescan button is clicked", async () => {
+    const wrapper = mount(SettingsGeneralSection, {
+      props: createProps()
+    });
+
+    await wrapper.get(".settings-general__refresh-terminals").trigger("click");
+
+    expect(wrapper.emitted("refresh-terminals")).toHaveLength(1);
+  });
+
   it("forwards dropdown and toggle actions", async () => {
     const wrapper = mount(SettingsGeneralSection, {
       props: createProps()
@@ -67,6 +77,7 @@ describe("SettingsGeneralSection interactions", () => {
     expect((dropdowns[0]!.props("options") as Array<{ value: string; label: string }>)[0]?.value).toBe(
       "__loading__"
     );
+    expect(wrapper.get(".settings-general__refresh-terminals").attributes("disabled")).toBeDefined();
     expect(wrapper.find(".settings-status--loading").exists()).toBe(true);
 
     await wrapper.setProps({
@@ -78,6 +89,7 @@ describe("SettingsGeneralSection interactions", () => {
     dropdowns = wrapper.findAllComponents(SDropdown);
     expect(dropdowns[0]!.props("disabled")).toBe(true);
     expect((dropdowns[0]!.props("options") as Array<{ value: string; label: string }>)[0]?.value).toBe("");
+    expect(wrapper.get(".settings-general__refresh-terminals").attributes("disabled")).toBeUndefined();
     expect(wrapper.find(".settings-status--loading").exists()).toBe(false);
 
     await wrapper.setProps({
@@ -90,6 +102,7 @@ describe("SettingsGeneralSection interactions", () => {
     dropdowns = wrapper.findAllComponents(SDropdown);
     expect(dropdowns[0]!.props("disabled")).toBe(false);
     expect(dropdowns[0]!.props("modelValue")).toBe("wt");
+    expect(wrapper.get(".settings-general__refresh-terminals").attributes("disabled")).toBeUndefined();
     expect(wrapper.get("code.settings-card__mono").text()).toBe("wt.exe");
   });
 });

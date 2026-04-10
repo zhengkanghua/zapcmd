@@ -47,6 +47,7 @@ function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTest
     setHotkeyValue: vi.fn(),
     isTauriRuntime: () => false,
     readAvailableTerminals: vi.fn(async () => []),
+    refreshAvailableTerminals: vi.fn(async () => []),
     readAutoStartEnabled: vi.fn(async () => false),
     writeAutoStartEnabled: vi.fn(async () => {}),
     writeLauncherHotkey: vi.fn(async () => {}),

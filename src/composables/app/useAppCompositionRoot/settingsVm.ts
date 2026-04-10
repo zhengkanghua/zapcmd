@@ -44,6 +44,7 @@ export function createSettingsVm(
     hotkeyErrorMessage: scene.settingsWindow.settingsError,
     availableTerminals: scene.settingsWindow.availableTerminals,
     terminalLoading: scene.settingsWindow.terminalLoading,
+    refreshAvailableTerminals: scene.settingsWindow.refreshAvailableTerminals,
     defaultTerminal: scene.defaultTerminal,
     terminalReusePolicy: scene.terminalReusePolicy,
     language: scene.language,

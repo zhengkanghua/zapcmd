@@ -4,6 +4,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import {
   readAutoStartEnabled,
   readAvailableTerminals,
+  refreshAvailableTerminals,
   readLauncherHotkey,
   readRuntimePlatform,
   readUserCommandFiles,
@@ -34,6 +35,7 @@ export interface AppCompositionRootPorts {
   readUserCommandFiles: typeof readUserCommandFiles;
   readRuntimePlatform: typeof readRuntimePlatform;
   readAvailableTerminals: typeof readAvailableTerminals;
+  refreshAvailableTerminals: typeof refreshAvailableTerminals;
   readAutoStartEnabled: typeof readAutoStartEnabled;
   writeAutoStartEnabled: typeof writeAutoStartEnabled;
   writeLauncherHotkey: typeof writeLauncherHotkey;
@@ -65,6 +67,7 @@ export function createDefaultAppCompositionRootPorts(): AppCompositionRootPorts 
     readUserCommandFiles,
     readRuntimePlatform,
     readAvailableTerminals,
+    refreshAvailableTerminals,
     readAutoStartEnabled,
     writeAutoStartEnabled,
     writeLauncherHotkey,

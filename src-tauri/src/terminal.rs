@@ -1,6 +1,8 @@
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command as ProcessCommand;
+#[cfg(desktop)]
+use std::sync::atomic::Ordering;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use tauri::Manager;
@@ -13,6 +15,7 @@ use self::discovery_cache::{
     pick_cached_terminal_snapshot,
     read_persisted_terminal_snapshot,
     remove_persisted_terminal_snapshot,
+    should_persist_terminal_discovery_snapshot,
     write_persisted_terminal_snapshot,
     TerminalDiscoverySnapshot,
     TERMINAL_DISCOVERY_CACHE_FILE_NAME,
@@ -838,6 +841,14 @@ fn write_memory_terminal_snapshot(
 }
 
 pub(crate) fn clear_terminal_discovery_cache(app: &tauri::AppHandle, state: &AppState) {
+    let _io_guard = match state.terminal_discovery_cache_io_lock.lock() {
+        Ok(guard) => guard,
+        Err(_) => {
+            eprintln!("[zapcmd] failed to lock terminal cache io guard while clearing");
+            return;
+        }
+    };
+
     if let Err(error) = write_memory_terminal_snapshot(state, None) {
         eprintln!("[zapcmd] failed to clear terminal memory cache: {}", error);
     }
@@ -850,11 +861,34 @@ pub(crate) fn clear_terminal_discovery_cache(app: &tauri::AppHandle, state: &App
     }
 }
 
+pub(crate) fn mark_terminal_discovery_exit_requested(state: &AppState) {
+    state
+        .terminal_discovery_exit_requested
+        .store(true, Ordering::Relaxed);
+}
+
 fn persist_terminal_discovery_snapshot(
     app: &tauri::AppHandle,
     state: &AppState,
     options: &[TerminalOption],
 ) {
+    let _io_guard = match state.terminal_discovery_cache_io_lock.lock() {
+        Ok(guard) => guard,
+        Err(_) => {
+            eprintln!("[zapcmd] failed to lock terminal cache io guard while persisting");
+            return;
+        }
+    };
+
+    // 正常退出后不再允许后台刷新线程回写缓存，避免把刚清掉的磁盘快照重新写回来。
+    if !should_persist_terminal_discovery_snapshot(
+        state
+            .terminal_discovery_exit_requested
+            .load(Ordering::Relaxed),
+    ) {
+        return;
+    }
+
     let snapshot = TerminalDiscoverySnapshot {
         checked_at_ms: now_ms(),
         options: options.to_vec(),

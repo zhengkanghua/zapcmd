@@ -8,6 +8,7 @@ export interface TerminalActions {
   selectLanguageOption: (locale: AppLocale) => void;
   onGlobalPointerDown: (event: PointerEvent) => void;
   loadAvailableTerminals: () => Promise<void>;
+  refreshAvailableTerminals: () => Promise<void>;
 }
 
 export function createTerminalActions(deps: {
@@ -73,11 +74,39 @@ export function createTerminalActions(deps: {
     }
   }
 
+  async function refreshAvailableTerminals(): Promise<void> {
+    state.terminalLoading.value = true;
+    try {
+      if (!options.isTauriRuntime()) {
+        state.availableTerminals.value = options.fallbackTerminalOptions();
+      } else {
+        const terminals = await options.refreshAvailableTerminals();
+        state.availableTerminals.value =
+          Array.isArray(terminals) && terminals.length > 0
+            ? terminals
+            : options.fallbackTerminalOptions();
+      }
+
+      if (ensureDefaultTerminal()) {
+        await persistSetting();
+      }
+    } catch (error) {
+      console.warn("refreshAvailableTerminals failed", error);
+      state.availableTerminals.value = options.fallbackTerminalOptions();
+      if (ensureDefaultTerminal()) {
+        await persistSetting();
+      }
+    } finally {
+      state.terminalLoading.value = false;
+    }
+  }
+
   return {
     ensureDefaultTerminal,
     selectTerminalOption,
     selectLanguageOption,
     onGlobalPointerDown,
-    loadAvailableTerminals
+    loadAvailableTerminals,
+    refreshAvailableTerminals
   };
 }

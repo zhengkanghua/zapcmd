@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  refreshAvailableTerminals,
   readAvailableTerminals,
   readUserCommandFiles,
   readUserCommandsDir,
@@ -32,6 +33,13 @@ describe("tauriBridge", () => {
     await readAvailableTerminals();
 
     expect(invokeMock).toHaveBeenCalledWith("get_available_terminals");
+  });
+
+  it("refreshes available terminals through dedicated invoke bridge", async () => {
+    invokeMock.mockResolvedValueOnce([]);
+    await refreshAvailableTerminals();
+
+    expect(invokeMock).toHaveBeenCalledWith("refresh_available_terminals");
   });
 
   it("reads and writes launcher hotkey through invoke bridge", async () => {

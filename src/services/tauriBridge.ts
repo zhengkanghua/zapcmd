@@ -13,6 +13,10 @@ export async function readAvailableTerminals(): Promise<TerminalOption[]> {
   return invoke<TerminalOption[]>("get_available_terminals");
 }
 
+export async function refreshAvailableTerminals(): Promise<TerminalOption[]> {
+  return invoke<TerminalOption[]>("refresh_available_terminals");
+}
+
 export async function readLauncherHotkey(): Promise<string> {
   return invoke<string>("get_launcher_hotkey");
 }

@@ -14,6 +14,7 @@ const { t } = useI18nText();
 
 const emit = defineEmits<{
   (e: "select-terminal", id: string): void;
+  (e: "refresh-terminals"): void;
   (e: "select-language", locale: AppLocale): void;
   (e: "set-auto-check-update", value: boolean): void;
   (e: "set-launch-at-login", value: boolean): void;
@@ -114,12 +115,23 @@ function onTerminalReusePolicySelect(value: string): void {
         :label="t('settings.general.defaultTerminal')"
         :description="t('settings.general.terminalHint')"
       >
-        <SDropdown
-          :model-value="terminalSelectValue"
-          :options="terminalSelectOptions"
-          :disabled="terminalSelectDisabled"
-          @update:model-value="emit('select-terminal', $event)"
-        />
+        <div class="settings-general__terminal-actions flex items-center gap-2">
+          <SDropdown
+            class="min-w-0 flex-1"
+            :model-value="terminalSelectValue"
+            :options="terminalSelectOptions"
+            :disabled="terminalSelectDisabled"
+            @update:model-value="emit('select-terminal', $event)"
+          />
+          <button
+            type="button"
+            class="settings-general__refresh-terminals inline-flex items-center justify-center h-[34px] shrink-0 px-[10px] text-[12px] font-semibold rounded-[8px] border border-ui-text/10 bg-ui-text/5 text-ui-text/80 hover:bg-ui-text/8 hover:border-ui-text/15 transition-colors focus-visible:outline-none focus-visible:shadow-settings-focus disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="props.terminalLoading"
+            @click="emit('refresh-terminals')"
+          >
+            {{ t("settings.general.rescanTerminals") }}
+          </button>
+        </div>
       </SettingItem>
 
       <p

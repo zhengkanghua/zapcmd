@@ -71,6 +71,7 @@ const {
   setTerminalReusePolicy: setTerminalReusePolicySetting,
   loadSettings: loadSettingsSetting,
   loadAvailableTerminals: loadAvailableTerminalsSetting,
+  refreshAvailableTerminals: refreshAvailableTerminalsSetting,
   persistSetting: persistSettingSetting,
   applyHotkeyChange: applyHotkeyChangeSetting,
   getPointerActionValue,
@@ -315,6 +316,7 @@ onBeforeUnmount(() => {
     @set-launch-at-login="setLaunchAtLoginSetting"
     @set-always-elevated-terminal="setAlwaysElevatedTerminalSetting"
     @set-terminal-reuse-policy="setTerminalReusePolicySetting"
+    @refresh-terminals="refreshAvailableTerminalsSetting"
     @toggle-command-enabled="toggleCommandEnabled"
     @set-filtered-commands-enabled="setFilteredCommandsEnabled"
     @update-command-view="updateCommandView"

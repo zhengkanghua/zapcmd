@@ -186,6 +186,7 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
     setHotkeyValue: hotkeyBindings.setHotkeyValue,
     isTauriRuntime: options.ports.isTauriRuntime,
     readAvailableTerminals: options.ports.readAvailableTerminals,
+    refreshAvailableTerminals: options.ports.refreshAvailableTerminals,
     readAutoStartEnabled: options.ports.readAutoStartEnabled,
     writeAutoStartEnabled: options.ports.writeAutoStartEnabled,
     writeLauncherHotkey: options.ports.writeLauncherHotkey,
