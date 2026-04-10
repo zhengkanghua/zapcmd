@@ -1,4 +1,5 @@
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::Ordering;
+use std::sync::{Mutex, MutexGuard};
 use std::time::Duration;
 
 use tauri::LogicalSize;
@@ -27,23 +28,200 @@ pub(crate) enum ResizeCommandMode {
     Reveal,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub(crate) struct ResizeTarget {
+    width: f64,
+    height: f64,
+}
+
+impl ResizeTarget {
+    pub(crate) fn new(width: f64, height: f64) -> Self {
+        Self { width, height }
+    }
+
+    fn approx_eq(self, other: Self) -> bool {
+        (self.width - other.width).abs() < 0.5 && (self.height - other.height).abs() < 0.5
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub(crate) struct ResizeDispatchPlan {
+    pub(crate) start_animation: bool,
+    pub(crate) wait_for_completion: bool,
+    pub(crate) schedule_shrink_token: Option<u64>,
+}
+
+#[derive(Debug)]
+pub(crate) struct ResizeScheduler {
+    latest_target: Option<ResizeTarget>,
+    active_target: Option<ResizeTarget>,
+    animation_running: bool,
+    pending_shrink_token: Option<u64>,
+    next_shrink_token: u64,
+}
+
+impl ResizeScheduler {
+    pub(crate) fn new() -> Self {
+        Self {
+            latest_target: None,
+            active_target: None,
+            animation_running: false,
+            pending_shrink_token: None,
+            next_shrink_token: 1,
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn latest_target(&self) -> Option<ResizeTarget> {
+        self.latest_target
+    }
+
+    pub(crate) fn active_target(&self) -> Option<ResizeTarget> {
+        self.active_target
+    }
+
+    #[cfg(test)]
+    pub(crate) fn pending_shrink_token(&self) -> Option<u64> {
+        self.pending_shrink_token
+    }
+
+    pub(crate) fn sync_current(&mut self, current: ResizeTarget) {
+        self.latest_target = Some(current);
+        self.active_target = Some(current);
+        self.pending_shrink_token = None;
+        self.animation_running = false;
+    }
+
+    fn cancel_pending_shrink_timer(&mut self) {
+        self.pending_shrink_token = None;
+    }
+
+    fn begin_animation(&mut self, wait_for_completion: bool) -> ResizeDispatchPlan {
+        self.animation_running = true;
+        ResizeDispatchPlan {
+            start_animation: true,
+            wait_for_completion,
+            ..ResizeDispatchPlan::default()
+        }
+    }
+
+    fn schedule_shrink(&mut self) -> ResizeDispatchPlan {
+        let token = self.next_shrink_token;
+        self.next_shrink_token += 1;
+        self.pending_shrink_token = Some(token);
+        ResizeDispatchPlan {
+            schedule_shrink_token: Some(token),
+            ..ResizeDispatchPlan::default()
+        }
+    }
+
+    pub(crate) fn request(
+        &mut self,
+        current: ResizeTarget,
+        target: ResizeTarget,
+        mode: ResizeCommandMode,
+    ) -> ResizeDispatchPlan {
+        self.latest_target = Some(target);
+
+        if target.approx_eq(current) {
+            self.active_target = Some(target);
+            self.cancel_pending_shrink_timer();
+            return ResizeDispatchPlan {
+                wait_for_completion: should_block_until_animation_complete(mode)
+                    && self.animation_running,
+                ..ResizeDispatchPlan::default()
+            };
+        }
+
+        if should_block_until_animation_complete(mode) {
+            self.cancel_pending_shrink_timer();
+            self.active_target = Some(target);
+            if self.animation_running {
+                return ResizeDispatchPlan {
+                    wait_for_completion: true,
+                    ..ResizeDispatchPlan::default()
+                };
+            }
+            return self.begin_animation(true);
+        }
+
+        let is_expand = target.height >= current.height;
+        if is_expand {
+            self.cancel_pending_shrink_timer();
+            self.active_target = Some(target);
+            if self.animation_running {
+                return ResizeDispatchPlan::default();
+            }
+            return self.begin_animation(false);
+        }
+
+        self.cancel_pending_shrink_timer();
+        self.schedule_shrink()
+    }
+
+    pub(crate) fn fire_shrink_timer(&mut self, token: u64) -> ResizeDispatchPlan {
+        if self.pending_shrink_token != Some(token) {
+            return ResizeDispatchPlan::default();
+        }
+
+        self.pending_shrink_token = None;
+        if let Some(latest) = self.latest_target {
+            self.active_target = Some(latest);
+        } else {
+            return ResizeDispatchPlan::default();
+        }
+
+        if self.animation_running {
+            return ResizeDispatchPlan::default();
+        }
+
+        self.begin_animation(false)
+    }
+
+    fn target_changed_since(&self, target: ResizeTarget) -> bool {
+        self.active_target
+            .map(|active| !active.approx_eq(target))
+            .unwrap_or(true)
+    }
+
+    fn finish_animation(&mut self, current: ResizeTarget) -> bool {
+        if self
+            .active_target
+            .map(|active| !active.approx_eq(current))
+            .unwrap_or(false)
+        {
+            return true;
+        }
+
+        self.animation_running = false;
+        false
+    }
+
+    fn is_animation_running(&self) -> bool {
+        self.animation_running
+    }
+}
+
 /// 窗口动画控制器 -- 通过 Tauri managed state 注册
 pub(crate) struct AnimationController {
-    /// 动画代纪计数器：每次启动新动画时递增，旧动画检测到代纪变化自动退出
-    pub animation_gen: AtomicU64,
-    /// 收缩延迟代纪计数器：每次取消收缩延迟时递增
-    pub shrink_delay_gen: AtomicU64,
     /// 当前窗口实际尺寸（每帧更新）
     pub current_size: WindowSizeCache,
+    /// latest-target / shrink-timer / 单实例动画的纯调度状态
+    pub scheduler: Mutex<ResizeScheduler>,
 }
 
 impl AnimationController {
     pub fn new() -> Self {
         Self {
-            animation_gen: AtomicU64::new(0),
-            shrink_delay_gen: AtomicU64::new(0),
             current_size: WindowSizeCache::new(),
+            scheduler: Mutex::new(ResizeScheduler::new()),
         }
+    }
+
+    /// 同步外部立即 resize 结果，并取消旧动画 / shrink timer。
+    pub(crate) fn sync_current_size(&self, width: f64, height: f64) {
+        self.current_size.write_or_recover(width, height);
+        lock_scheduler(&self.scheduler).sync_current(ResizeTarget::new(width, height));
     }
 }
 
@@ -56,6 +234,12 @@ pub(crate) fn should_block_until_animation_complete(mode: ResizeCommandMode) -> 
     matches!(mode, ResizeCommandMode::Reveal)
 }
 
+fn lock_scheduler(scheduler: &Mutex<ResizeScheduler>) -> MutexGuard<'_, ResizeScheduler> {
+    scheduler
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
 async fn run_resize_main_window_command(
     window: WebviewWindow,
     state: State<'_, AnimationController>,
@@ -63,60 +247,45 @@ async fn run_resize_main_window_command(
     height: f64,
     mode: ResizeCommandMode,
 ) -> Result<(), String> {
-    let target_w = width.max(MIN_WIDTH);
-    let target_h = height.max(MIN_HEIGHT);
+    let target = ResizeTarget::new(width.max(MIN_WIDTH), height.max(MIN_HEIGHT));
     let (current_w, current_h) = state.current_size.read_or_recover();
+    let current = ResizeTarget::new(current_w, current_h);
 
     // 首次调用 — current_size 为零，即时设置并记录
     if current_w == 0.0 && current_h == 0.0 {
-        set_size_with_position_guard(&window, target_w, target_h);
-        state.current_size.write_or_recover(target_w, target_h);
+        set_size_with_position_guard(&window, target.width, target.height);
+        state.sync_current_size(target.width, target.height);
         return Ok(());
     }
 
-    // 目标与当前一致 — 跳过，但仍需取消待执行的收缩延迟/动画，
-    // 否则快速切换抽屉时旧的 300ms 延迟会在之后意外触发收缩。
-    if (target_w - current_w).abs() < 0.5 && (target_h - current_h).abs() < 0.5 {
-        state.animation_gen.fetch_add(1, Ordering::SeqCst);
-        state.shrink_delay_gen.fetch_add(1, Ordering::SeqCst);
-        return Ok(());
-    }
+    let plan = lock_scheduler(&state.scheduler).request(current, target, mode);
+    let app = window.app_handle().clone();
 
-    // 等高时走扩展路径（即时动画），避免纯宽度变化等 300ms
-    let is_expand = target_h >= current_h;
-
-    if should_block_until_animation_complete(mode) {
-        state.shrink_delay_gen.fetch_add(1, Ordering::SeqCst);
-        let gen = state.animation_gen.fetch_add(1, Ordering::SeqCst) + 1;
-        let app = window.app_handle().clone();
-        run_animation(&window, &app, gen, target_w, target_h).await;
-        return Ok(());
-    }
-
-    if is_expand {
-        // 扩展或等高：取消收缩延迟 + 立即启动动画
-        state.shrink_delay_gen.fetch_add(1, Ordering::SeqCst);
-        let gen = state.animation_gen.fetch_add(1, Ordering::SeqCst) + 1;
+    if let Some(token) = plan.schedule_shrink_token {
         let win = window.clone();
-        let app = window.app_handle().clone();
-        tokio::spawn(async move {
-            run_animation(&win, &app, gen, target_w, target_h).await;
-        });
-    } else {
-        // 收缩：取消当前动画 + 300ms 延迟后启动
-        state.animation_gen.fetch_add(1, Ordering::SeqCst);
-        let delay_gen = state.shrink_delay_gen.fetch_add(1, Ordering::SeqCst) + 1;
-        let win = window.clone();
-        let app = window.app_handle().clone();
+        let app = app.clone();
         tokio::spawn(async move {
             tokio::time::sleep(Duration::from_millis(SHRINK_DELAY_MS)).await;
             let ctrl = app.state::<AnimationController>();
-            if ctrl.shrink_delay_gen.load(Ordering::SeqCst) != delay_gen {
-                return; // 延迟期间被取消
+            let timer_plan = lock_scheduler(&ctrl.scheduler).fire_shrink_timer(token);
+            if !timer_plan.start_animation {
+                return;
             }
-            let gen = ctrl.animation_gen.fetch_add(1, Ordering::SeqCst) + 1;
-            run_animation(&win, &app, gen, target_w, target_h).await;
+            run_animation_loop(&win, &app).await;
         });
+    }
+
+    if plan.start_animation {
+        if plan.wait_for_completion {
+            run_animation_loop(&window, &app).await;
+        } else {
+            let win = window.clone();
+            tokio::spawn(async move {
+                run_animation_loop(&win, &app).await;
+            });
+        }
+    } else if plan.wait_for_completion {
+        wait_for_animation_idle(&app).await;
     }
 
     Ok(())
@@ -142,42 +311,70 @@ pub(crate) async fn resize_main_window_for_reveal(
     run_resize_main_window_command(window, state, width, height, ResizeCommandMode::Reveal).await
 }
 
-/// 帧步进动画循环
-async fn run_animation(
-    window: &WebviewWindow,
-    app: &tauri::AppHandle,
-    gen: u64,
-    target_w: f64,
-    target_h: f64,
-) {
+async fn wait_for_animation_idle(app: &tauri::AppHandle) {
+    loop {
+        let ctrl = app.state::<AnimationController>();
+        if !lock_scheduler(&ctrl.scheduler).is_animation_running() {
+            return;
+        }
+        tokio::time::sleep(Duration::from_millis(ANIMATION_FRAME_MS)).await;
+    }
+}
+
+/// 单实例动画循环：同一个 task 在 active_target 变化时原地重启，始终向最新目标收敛。
+async fn run_animation_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
     let ctrl = app.state::<AnimationController>();
-    let (start_w, start_h) = ctrl.current_size.read_or_recover();
     let total_frames = ANIMATION_DURATION_MS / ANIMATION_FRAME_MS;
 
-    for frame in 1..=total_frames {
-        if ctrl.animation_gen.load(Ordering::SeqCst) != gen {
-            return; // 被更新的动画取消
+    'retarget: loop {
+        let (start_w, start_h) = ctrl.current_size.read_or_recover();
+        let start = ResizeTarget::new(start_w, start_h);
+        let target = {
+            let scheduler = lock_scheduler(&ctrl.scheduler);
+            scheduler.active_target()
+        };
+
+        let Some(target) = target else {
+            lock_scheduler(&ctrl.scheduler).finish_animation(start);
+            return;
+        };
+
+        if target.approx_eq(start) {
+            if !lock_scheduler(&ctrl.scheduler).finish_animation(start) {
+                return;
+            }
+            continue;
         }
-        let t = frame as f64 / total_frames as f64;
-        let eased = ease_out_cubic(t);
-        let w = start_w + (target_w - start_w) * eased;
-        let h = start_h + (target_h - start_h) * eased;
 
-        set_size_with_position_guard(window, w, h);
-        ctrl.current_size.write_or_recover(w, h);
+        for frame in 1..=total_frames {
+            if lock_scheduler(&ctrl.scheduler).target_changed_since(target) {
+                continue 'retarget;
+            }
+            let t = frame as f64 / total_frames as f64;
+            let eased = ease_out_cubic(t);
+            let w = start.width + (target.width - start.width) * eased;
+            let h = start.height + (target.height - start.height) * eased;
 
-        // 最后一帧不 sleep — 避免多等 16ms
-        if frame < total_frames {
-            tokio::time::sleep(Duration::from_millis(ANIMATION_FRAME_MS)).await;
+            set_size_with_position_guard(window, w, h);
+            ctrl.current_size.write_or_recover(w, h);
+
+            if frame < total_frames {
+                tokio::time::sleep(Duration::from_millis(ANIMATION_FRAME_MS)).await;
+            }
+        }
+
+        if lock_scheduler(&ctrl.scheduler).target_changed_since(target) {
+            continue 'retarget;
+        }
+
+        set_size_with_position_guard(window, target.width, target.height);
+        ctrl.current_size
+            .write_or_recover(target.width, target.height);
+
+        if !lock_scheduler(&ctrl.scheduler).finish_animation(target) {
+            return;
         }
     }
-
-    // 最终精确设置目标尺寸（消除浮点误差）
-    if ctrl.animation_gen.load(Ordering::SeqCst) != gen {
-        return;
-    }
-    set_size_with_position_guard(window, target_w, target_h);
-    ctrl.current_size.write_or_recover(target_w, target_h);
 }
 
 /// 设置窗口尺寸并通过 move_save_token 保护位置不漂移

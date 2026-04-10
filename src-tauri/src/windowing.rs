@@ -1,7 +1,7 @@
-use tauri::{AppHandle, Manager, Position, Runtime, WebviewWindow};
-use tauri::{LogicalSize, PhysicalPosition};
 #[cfg(target_os = "windows")]
 use tauri::Theme;
+use tauri::{AppHandle, Manager, Position, Runtime, WebviewWindow};
+use tauri::{LogicalSize, PhysicalPosition};
 
 use std::sync::atomic::Ordering;
 
@@ -44,10 +44,11 @@ pub(crate) fn set_main_window_size(
     }
     // 同步 AnimationController.current_size 并取消待执行的动画/延迟，
     // 避免 immediate resize 后旧的收缩延迟意外触发。
-    if let Some(ctrl) = window.app_handle().try_state::<crate::animation::AnimationController>() {
-        ctrl.animation_gen.fetch_add(1, Ordering::SeqCst);
-        ctrl.shrink_delay_gen.fetch_add(1, Ordering::SeqCst);
-        ctrl.current_size.write_or_recover(width, height);
+    if let Some(ctrl) = window
+        .app_handle()
+        .try_state::<crate::animation::AnimationController>()
+    {
+        ctrl.sync_current_size(width, height);
     }
     Ok(())
 }

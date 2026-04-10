@@ -1,4 +1,7 @@
-use super::{ease_out_cubic, should_block_until_animation_complete, size_cache::WindowSizeCache, ResizeCommandMode};
+use super::{
+    ease_out_cubic, should_block_until_animation_complete, size_cache::WindowSizeCache,
+    ResizeCommandMode, ResizeScheduler, ResizeTarget,
+};
 
 #[test]
 fn ease_out_cubic_at_zero() {
@@ -68,10 +71,88 @@ fn window_size_cache_recovers_after_poison() {
 
 #[test]
 fn reveal_resize_uses_blocking_mode() {
-    assert!(should_block_until_animation_complete(ResizeCommandMode::Reveal));
+    assert!(should_block_until_animation_complete(
+        ResizeCommandMode::Reveal
+    ));
 }
 
 #[test]
 fn normal_animate_resize_keeps_non_blocking_mode() {
-    assert!(!should_block_until_animation_complete(ResizeCommandMode::Animated));
+    assert!(!should_block_until_animation_complete(
+        ResizeCommandMode::Animated
+    ));
+}
+
+#[test]
+fn animated_resize_keeps_latest_target_when_multiple_updates_arrive() {
+    let current = ResizeTarget::new(640.0, 420.0);
+    let expand = ResizeTarget::new(640.0, 560.0);
+    let shrink = ResizeTarget::new(640.0, 360.0);
+    let latest = ResizeTarget::new(640.0, 620.0);
+    let mut scheduler = ResizeScheduler::new();
+
+    let first_plan = scheduler.request(current, expand, ResizeCommandMode::Animated);
+    assert!(first_plan.start_animation);
+    assert_eq!(scheduler.active_target(), Some(expand));
+    assert_eq!(scheduler.latest_target(), Some(expand));
+
+    let shrink_plan = scheduler.request(current, shrink, ResizeCommandMode::Animated);
+    assert_eq!(shrink_plan.schedule_shrink_token, Some(1));
+    assert_eq!(scheduler.active_target(), Some(expand));
+    assert_eq!(scheduler.latest_target(), Some(shrink));
+
+    let latest_plan = scheduler.request(current, latest, ResizeCommandMode::Animated);
+    assert!(!latest_plan.start_animation);
+    assert_eq!(latest_plan.schedule_shrink_token, None);
+    assert_eq!(scheduler.pending_shrink_token(), None);
+    assert_eq!(scheduler.active_target(), Some(latest));
+    assert_eq!(scheduler.latest_target(), Some(latest));
+}
+
+#[test]
+fn shrink_timer_is_replaced_instead_of_accumulated() {
+    let current = ResizeTarget::new(640.0, 520.0);
+    let first_target = ResizeTarget::new(640.0, 420.0);
+    let second_target = ResizeTarget::new(640.0, 360.0);
+    let mut scheduler = ResizeScheduler::new();
+
+    let first_plan = scheduler.request(current, first_target, ResizeCommandMode::Animated);
+    let first_token = first_plan
+        .schedule_shrink_token
+        .expect("first shrink token");
+
+    let second_plan = scheduler.request(current, second_target, ResizeCommandMode::Animated);
+    let second_token = second_plan
+        .schedule_shrink_token
+        .expect("second shrink token");
+
+    assert_ne!(first_token, second_token);
+    assert_eq!(scheduler.pending_shrink_token(), Some(second_token));
+
+    let stale_fire = scheduler.fire_shrink_timer(first_token);
+    assert!(!stale_fire.start_animation);
+    assert_eq!(scheduler.pending_shrink_token(), Some(second_token));
+
+    let live_fire = scheduler.fire_shrink_timer(second_token);
+    assert!(live_fire.start_animation);
+    assert_eq!(scheduler.pending_shrink_token(), None);
+    assert_eq!(scheduler.active_target(), Some(second_target));
+}
+
+#[test]
+fn reveal_request_updates_target_but_keeps_single_animation_instance() {
+    let current = ResizeTarget::new(640.0, 420.0);
+    let first_target = ResizeTarget::new(640.0, 560.0);
+    let reveal_target = ResizeTarget::new(640.0, 620.0);
+    let mut scheduler = ResizeScheduler::new();
+
+    let first_plan = scheduler.request(current, first_target, ResizeCommandMode::Animated);
+    assert!(first_plan.start_animation);
+
+    let reveal_plan = scheduler.request(current, reveal_target, ResizeCommandMode::Reveal);
+    assert!(!reveal_plan.start_animation);
+    assert!(reveal_plan.wait_for_completion);
+    assert_eq!(scheduler.pending_shrink_token(), None);
+    assert_eq!(scheduler.active_target(), Some(reveal_target));
+    assert_eq!(scheduler.latest_target(), Some(reveal_target));
 }
