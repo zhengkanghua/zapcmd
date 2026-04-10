@@ -296,6 +296,19 @@ describe("useCommandExecution", () => {
     localStorage.removeItem(DANGER_DISMISS_STORAGE_KEY);
   });
 
+  it("keeps pendingSubmitMode as an alias of pendingSubmitIntent", () => {
+    const harness = createHarness();
+
+    expect(harness.execution.pendingSubmitMode).toBe(harness.execution.pendingSubmitIntent);
+  });
+
+  it("keeps queue refresh APIs after internal extraction", () => {
+    const harness = createHarness();
+
+    expect(typeof harness.execution.refreshQueuedCommandPreflight).toBe("function");
+    expect(typeof harness.execution.refreshAllQueuedPreflight).toBe("function");
+  });
+
   it("stages no-arg command and triggers queue side effects", () => {
     const harness = createHarness();
     const command = createNoArgCommand();

@@ -240,6 +240,7 @@ describe("LauncherCommandPanel", () => {
       expect(btn.text()).toContain("复制命令");
       expect(btn.classes()).not.toContain("command-panel__btn--danger");
       expect(wrapper.find("[data-testid='danger-banner']").exists()).toBe(false);
+      expect(wrapper.find("[data-testid='dismiss-checkbox']").exists()).toBe(false);
       expect(wrapper.text()).not.toContain("高危拦截与配置");
       expect(wrapper.text()).toContain("参数输入");
     });

@@ -5,6 +5,7 @@ import { createCommandExecutionState } from "./state";
 export function useCommandExecution(options: UseCommandExecutionOptions) {
   const state = createCommandExecutionState(options.feedbackDurationMs);
   const actions = createCommandExecutionActions(options, state);
+  const pendingSubmitMode = state.pendingSubmitIntent;
 
   return {
     executing: state.executing,
@@ -12,7 +13,7 @@ export function useCommandExecution(options: UseCommandExecutionOptions) {
     refreshingQueuedCommandIds: state.refreshingQueuedCommandIds,
     pendingCommand: state.pendingCommand,
     pendingSubmitIntent: state.pendingSubmitIntent,
-    pendingSubmitMode: state.pendingSubmitIntent,
+    pendingSubmitMode,
     pendingArgValues: state.pendingArgValues,
     safetyDialog: state.safetyDialog,
     executionFeedbackMessage: state.executionFeedbackMessage,

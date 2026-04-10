@@ -1,19 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import { useI18nText } from "../../../i18n";
-import {
-  getCommandArgs,
-  resolveCommandExecution
-} from "../../../features/launcher/commandRuntime";
-import {
-  buildSafetyInputFromTemplate,
-  collectTrustedArgKeysFromExecution,
-  checkSingleCommandSafety,
-} from "../../../features/security/commandSafety";
-import { collectCommandArgValidationErrors } from "../../../features/security/commandArgValidation";
 import type { LauncherCommandPanelProps } from "../types";
-import type { CommandArg } from "../../../features/commands/commandTemplates";
 import LauncherIcon from "./LauncherIcon.vue";
+import { useLauncherCommandPanelState } from "./useLauncherCommandPanelState";
 
 const props = defineProps<LauncherCommandPanelProps>();
 
@@ -25,66 +15,27 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18nText();
-
-const args = computed<CommandArg[]>(() => getCommandArgs(props.command));
-const hasArgs = computed(() => args.value.length > 0);
-
-const resolvedCommand = computed(() =>
-  resolveCommandExecution(props.command, props.pendingArgValues)
-);
-const renderedPreview = computed(() => resolvedCommand.value.renderedPreview);
-const resolvedScriptCommand = computed(() =>
-  resolvedCommand.value.execution.kind === "script"
-    ? resolvedCommand.value.execution.command
-    : ""
-);
-const hasMultilineScriptPreview = computed(() => resolvedScriptCommand.value.includes("\n"));
-
-const dangerReasons = computed(() => {
-  const input = buildSafetyInputFromTemplate(
-    props.command,
-    renderedPreview.value,
-    props.pendingArgValues,
-    args.value
-  );
-  const result = checkSingleCommandSafety(input);
-  return result.confirmationReasons;
-});
-const argValidationErrors = computed(() =>
-  collectCommandArgValidationErrors(args.value, props.pendingArgValues, {
-    trustedArgKeys: collectTrustedArgKeysFromExecution(props.command.execution, args.value)
-  })
-);
-const hasArgValidationErrors = computed(() => Object.keys(argValidationErrors.value).length > 0);
-
-const badge = computed(() => {
-  if (props.isDangerous && hasArgs.value) {
-    return t("commandPanel.badge.dangerWithParam");
-  }
-  if (props.isDangerous) {
-    return t("commandPanel.badge.dangerConfirm");
-  }
-  return t("commandPanel.badge.paramInput");
-});
-
-const confirmLabel = computed(() => {
-  if (props.mode === "execute") {
-    return props.isDangerous
-      ? t("commandPanel.btn.confirmExecute")
-      : t("commandPanel.btn.execute");
-  }
-  if (props.mode === "copy") {
-    return t("commandPanel.btn.copy");
-  }
-  return t("commandPanel.btn.addToFlow");
-});
-
-const isDangerBtn = computed(() => props.isDangerous);
+const {
+  args,
+  hasArgs,
+  renderedPreview,
+  resolvedScriptCommand,
+  hasMultilineScriptPreview,
+  dangerReasons,
+  hasArgValidationErrors,
+  badge,
+  confirmLabel,
+  isDangerBtn,
+  dangerDescriptionId,
+  getArgControlId,
+  getArgRequiredHintId,
+  getArgErrorId,
+  getArgDescribedBy,
+  getArgError
+} = useLauncherCommandPanelState(props);
 
 const dismissChecked = ref(false);
-
 const firstControlRef = ref<HTMLInputElement | HTMLSelectElement | null>(null);
-const dangerDescriptionId = computed(() => `${getPanelIdBase()}-danger-description`);
 
 function setFirstInputRef(el: Element | null, index: number): void {
   if (index !== 0) {
@@ -99,50 +50,6 @@ onMounted(() => {
     firstControlRef.value?.focus({ preventScroll: true });
   });
 });
-
-function getPanelIdBase(): string {
-  return `command-panel-${props.command.id.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-}
-
-/**
- * 参数控件 id / 描述 id 必须稳定，才能把 label、必填提示和高危说明可靠挂到同一语义链上。
- * @param argKey 参数 key。
- * @param index 参数顺序，用于兜底避免重复 id。
- * @returns 当前参数字段的稳定 DOM id 前缀。
- */
-function getArgIdBase(argKey: string, index: number): string {
-  return `${getPanelIdBase()}-${argKey.replace(/[^a-zA-Z0-9_-]/g, "-")}-${index}`;
-}
-
-function getArgControlId(argKey: string, index: number): string {
-  return `${getArgIdBase(argKey, index)}-control`;
-}
-
-function getArgRequiredHintId(argKey: string, index: number): string {
-  return `${getArgIdBase(argKey, index)}-required`;
-}
-
-function getArgErrorId(argKey: string, index: number): string {
-  return `${getArgIdBase(argKey, index)}-error`;
-}
-
-function getArgDescribedBy(arg: CommandArg, index: number): string | undefined {
-  const describedBy: string[] = [];
-  if (arg.required !== false) {
-    describedBy.push(getArgRequiredHintId(arg.key, index));
-  }
-  if (props.isDangerous) {
-    describedBy.push(dangerDescriptionId.value);
-  }
-  if (argValidationErrors.value[arg.key]) {
-    describedBy.push(getArgErrorId(arg.key, index));
-  }
-  return describedBy.length > 0 ? describedBy.join(" ") : undefined;
-}
-
-function getArgError(argKey: string): string | undefined {
-  return argValidationErrors.value[argKey];
-}
 
 function onArgInput(key: string, value: string): void {
   emit("arg-input", key, value);

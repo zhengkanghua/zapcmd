@@ -192,6 +192,7 @@ describe("createAppCompositionViewModel", () => {
         executionFeedbackMessage: ref(""),
         executionFeedbackTone: ref("neutral"),
         pendingArgValues: ref({}),
+        pendingSubmitIntent: ref("stage"),
         pendingSubmitMode: ref("stage"),
         safetyDialog: ref(null),
         stageResult: vi.fn(),
@@ -257,6 +258,8 @@ describe("createAppCompositionViewModel", () => {
     expect(isRef(viewModel.launcherVm.search.query)).toBe(false);
     expect(viewModel.launcherVm.search.query).toBe("");
     expect(viewModel.launcherVm.queue.items).toEqual([]);
+    expect(viewModel.launcherVm.command.submitIntent).toBe("stage");
+    expect(viewModel.launcherVm.command.submitMode).toBe("stage");
     expect(viewModel.launcherVm.actions.toggleQueue).toBeTypeOf("function");
     expect(isRef(viewModel.settingsVm.defaultTerminal)).toBe(false);
     expect(viewModel.settingsVm.defaultTerminal).toBe("powershell");
@@ -286,6 +289,7 @@ describe("createAppCompositionViewModel", () => {
         executionFeedbackMessage: ref(""),
         executionFeedbackTone: ref("neutral"),
         pendingArgValues: ref({}),
+        pendingSubmitIntent: ref("stage"),
         pendingSubmitMode: ref("stage"),
         safetyDialog: ref(null),
         stageResult: vi.fn(),
@@ -373,6 +377,7 @@ describe("createAppCompositionViewModel", () => {
         executionFeedbackMessage: ref(""),
         executionFeedbackTone: ref("neutral"),
         pendingArgValues: ref({}),
+        pendingSubmitIntent: ref("stage"),
         pendingSubmitMode: ref("stage"),
         safetyDialog: ref(null),
         stageResult: vi.fn(),

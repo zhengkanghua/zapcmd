@@ -155,9 +155,9 @@ function createLauncherRuntime(context: AppCompositionContext) {
     commandExecution.pendingCommand.value ? getCommandArgs(commandExecution.pendingCommand.value) : []
   );
   const pendingSubmitHint = computed(() =>
-    commandExecution.pendingSubmitMode.value === "execute"
+    commandExecution.pendingSubmitIntent.value === "execute"
       ? t("runtime.submitExecuteHint")
-      : commandExecution.pendingSubmitMode.value === "copy"
+      : commandExecution.pendingSubmitIntent.value === "copy"
         ? t("common.copy")
         : t("runtime.submitStageHint")
   );

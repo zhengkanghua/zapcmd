@@ -510,4 +510,38 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(wrapper.find("launcher-action-panel-stub").exists()).toBe(true);
     expect(wrapper.find("launcher-command-panel-stub").exists()).toBe(false);
   });
+
+  it("command-action actions 变体选择 intent 时保持既有 action -> params 流转契约", async () => {
+    const command = createCommandTemplate("cmd-actions-flow");
+    const commandPage: NavPage = {
+      type: "command-action",
+      props: { command, panel: "actions", isDangerous: false }
+    };
+
+    const { wrapper, launcherVm } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: commandPage,
+          canGoBack: true,
+          stack: [{ type: "search" }, commandPage]
+        }
+      },
+      {
+        LauncherActionPanel: {
+          template:
+            "<div>" +
+            "<button class='stub-select-execute' @click=\"$emit('select-intent', 'execute')\">execute</button>" +
+            "<button class='stub-select-copy' @click=\"$emit('select-intent', 'copy')\">copy</button>" +
+            "</div>"
+        }
+      }
+    );
+
+    await wrapper.get(".stub-select-execute").trigger("click");
+    await wrapper.get(".stub-select-copy").trigger("click");
+
+    expect(launcherVm.actions.selectActionPanelIntent).toHaveBeenNthCalledWith(1, "execute");
+    expect(launcherVm.actions.selectActionPanelIntent).toHaveBeenNthCalledWith(2, "copy");
+    expect(wrapper.emitted("request-command-panel-exit")).toBeUndefined();
+  });
 });
