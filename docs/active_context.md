@@ -25,3 +25,4 @@
 - 2026-04-09：已确认“中强度收口”设计并写入 spec：启动预热+1h 终端缓存/显式重扫、执行链职责拆分、Settings 生命周期并轨、命令管理死链收口、动画改单实例追最新目标；下一阶段写实现计划。
 - 2026-04-09：实现计划已写入 `docs/superpowers/plans/2026-04-09-runtime-boundary-remediation.md`；按终端扫描→命令管理→Settings 生命周期→执行链→动画 5 个 chunk 落地。
 - 2026-04-13：`docs/superpowers/plans/2026-04-09-runtime-boundary-remediation.md` 的 5 个 chunk 已完成：终端扫描与缓存→命令管理死链→Settings 生命周期→执行链拆分→动画调度；`check:all` 全绿，剩余仅是动画模块体积与 reviewer 结论收口。
+- 2026-04-13：已确认命令目录下一轮设计：前 3 个问题拆成 Track A/Track B；Track A 先落地 user command 单文件隔离失败、builtin `Base YAML + locale overlay` 多语言真源、scan/read 两阶段与前端增量缓存 + locale remap；Track B 再拆 `terminal.rs`、`runtime.ts`、`LauncherWindow.vue`、`LauncherQueueReviewPanel.vue`。spec：`docs/superpowers/specs/2026-04-13-command-catalog-i18n-resilience-and-runtime-split-design.md`。
