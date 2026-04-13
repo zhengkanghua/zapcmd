@@ -117,11 +117,13 @@ fn shrink_timer_is_replaced_instead_of_accumulated() {
     let mut scheduler = ResizeScheduler::new();
 
     let first_plan = scheduler.request(current, first_target, ResizeCommandMode::Animated);
+    assert!(first_plan.start_shrink_timer);
     let first_token = first_plan
         .schedule_shrink_token
         .expect("first shrink token");
 
     let second_plan = scheduler.request(current, second_target, ResizeCommandMode::Animated);
+    assert!(!second_plan.start_shrink_timer);
     let second_token = second_plan
         .schedule_shrink_token
         .expect("second shrink token");
@@ -137,6 +139,24 @@ fn shrink_timer_is_replaced_instead_of_accumulated() {
     assert!(live_fire.start_animation);
     assert_eq!(scheduler.pending_shrink_token(), None);
     assert_eq!(scheduler.active_target(), Some(second_target));
+}
+
+#[test]
+fn sync_current_keeps_single_animation_claim_until_running_loop_handles_update() {
+    let current = ResizeTarget::new(640.0, 420.0);
+    let first_target = ResizeTarget::new(640.0, 560.0);
+    let latest_target = ResizeTarget::new(640.0, 620.0);
+    let mut scheduler = ResizeScheduler::new();
+
+    let first_plan = scheduler.request(current, first_target, ResizeCommandMode::Animated);
+    assert!(first_plan.start_animation);
+
+    scheduler.sync_current(current);
+
+    let followup_plan = scheduler.request(current, latest_target, ResizeCommandMode::Animated);
+    assert!(!followup_plan.start_animation);
+    assert_eq!(scheduler.active_target(), Some(latest_target));
+    assert_eq!(scheduler.latest_target(), Some(latest_target));
 }
 
 #[test]

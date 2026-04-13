@@ -1,9 +1,10 @@
 use std::sync::atomic::Ordering;
-use std::sync::{Mutex, MutexGuard};
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 
 use tauri::LogicalSize;
 use tauri::{Manager, State, WebviewWindow};
+use tokio::sync::Notify;
 
 #[cfg(desktop)]
 use crate::app_state::AppState;
@@ -49,6 +50,8 @@ pub(crate) struct ResizeDispatchPlan {
     pub(crate) start_animation: bool,
     pub(crate) wait_for_completion: bool,
     pub(crate) schedule_shrink_token: Option<u64>,
+    pub(crate) start_shrink_timer: bool,
+    pub(crate) wake_shrink_timer: bool,
 }
 
 #[derive(Debug)]
@@ -57,6 +60,7 @@ pub(crate) struct ResizeScheduler {
     active_target: Option<ResizeTarget>,
     animation_running: bool,
     pending_shrink_token: Option<u64>,
+    shrink_timer_running: bool,
     next_shrink_token: u64,
 }
 
@@ -67,6 +71,7 @@ impl ResizeScheduler {
             active_target: None,
             animation_running: false,
             pending_shrink_token: None,
+            shrink_timer_running: false,
             next_shrink_token: 1,
         }
     }
@@ -89,11 +94,6 @@ impl ResizeScheduler {
         self.latest_target = Some(current);
         self.active_target = Some(current);
         self.pending_shrink_token = None;
-        self.animation_running = false;
-    }
-
-    fn cancel_pending_shrink_timer(&mut self) {
-        self.pending_shrink_token = None;
     }
 
     fn begin_animation(&mut self, wait_for_completion: bool) -> ResizeDispatchPlan {
@@ -109,10 +109,19 @@ impl ResizeScheduler {
         let token = self.next_shrink_token;
         self.next_shrink_token += 1;
         self.pending_shrink_token = Some(token);
+        let start_shrink_timer = !self.shrink_timer_running;
+        self.shrink_timer_running = true;
         ResizeDispatchPlan {
             schedule_shrink_token: Some(token),
+            start_shrink_timer,
+            wake_shrink_timer: !start_shrink_timer,
             ..ResizeDispatchPlan::default()
         }
+    }
+
+    fn clear_pending_shrink_token(&mut self) -> bool {
+        self.pending_shrink_token = None;
+        self.shrink_timer_running
     }
 
     pub(crate) fn request(
@@ -125,38 +134,53 @@ impl ResizeScheduler {
 
         if target.approx_eq(current) {
             self.active_target = Some(target);
-            self.cancel_pending_shrink_timer();
+            let wake_shrink_timer = self.clear_pending_shrink_token();
             return ResizeDispatchPlan {
                 wait_for_completion: should_block_until_animation_complete(mode)
                     && self.animation_running,
+                wake_shrink_timer,
                 ..ResizeDispatchPlan::default()
             };
         }
 
         if should_block_until_animation_complete(mode) {
-            self.cancel_pending_shrink_timer();
+            let wake_shrink_timer = self.clear_pending_shrink_token();
             self.active_target = Some(target);
             if self.animation_running {
                 return ResizeDispatchPlan {
                     wait_for_completion: true,
+                    wake_shrink_timer,
                     ..ResizeDispatchPlan::default()
                 };
             }
-            return self.begin_animation(true);
+            let mut plan = self.begin_animation(true);
+            plan.wake_shrink_timer = wake_shrink_timer;
+            return plan;
         }
 
         let is_expand = target.height >= current.height;
         if is_expand {
-            self.cancel_pending_shrink_timer();
+            let wake_shrink_timer = self.clear_pending_shrink_token();
             self.active_target = Some(target);
             if self.animation_running {
-                return ResizeDispatchPlan::default();
+                return ResizeDispatchPlan {
+                    wake_shrink_timer,
+                    ..ResizeDispatchPlan::default()
+                };
             }
-            return self.begin_animation(false);
+            let mut plan = self.begin_animation(false);
+            plan.wake_shrink_timer = wake_shrink_timer;
+            return plan;
         }
 
-        self.cancel_pending_shrink_timer();
         self.schedule_shrink()
+    }
+
+    fn pending_shrink_wait_token(&mut self) -> Option<u64> {
+        if self.pending_shrink_token.is_none() {
+            self.shrink_timer_running = false;
+        }
+        self.pending_shrink_token
     }
 
     pub(crate) fn fire_shrink_timer(&mut self, token: u64) -> ResizeDispatchPlan {
@@ -165,6 +189,7 @@ impl ResizeScheduler {
         }
 
         self.pending_shrink_token = None;
+        self.shrink_timer_running = false;
         if let Some(latest) = self.latest_target {
             self.active_target = Some(latest);
         } else {
@@ -200,6 +225,10 @@ impl ResizeScheduler {
     fn is_animation_running(&self) -> bool {
         self.animation_running
     }
+
+    fn is_shrink_timer_running(&self) -> bool {
+        self.shrink_timer_running
+    }
 }
 
 /// 窗口动画控制器 -- 通过 Tauri managed state 注册
@@ -208,6 +237,8 @@ pub(crate) struct AnimationController {
     pub current_size: WindowSizeCache,
     /// latest-target / shrink-timer / 单实例动画的纯调度状态
     pub scheduler: Mutex<ResizeScheduler>,
+    /// 唤醒单实例 shrink timer worker，以便重置延迟或响应取消。
+    pub shrink_timer_notify: Arc<Notify>,
 }
 
 impl AnimationController {
@@ -215,6 +246,7 @@ impl AnimationController {
         Self {
             current_size: WindowSizeCache::new(),
             scheduler: Mutex::new(ResizeScheduler::new()),
+            shrink_timer_notify: Arc::new(Notify::new()),
         }
     }
 
@@ -222,6 +254,7 @@ impl AnimationController {
     pub(crate) fn sync_current_size(&self, width: f64, height: f64) {
         self.current_size.write_or_recover(width, height);
         lock_scheduler(&self.scheduler).sync_current(ResizeTarget::new(width, height));
+        self.shrink_timer_notify.notify_one();
     }
 }
 
@@ -261,18 +294,14 @@ async fn run_resize_main_window_command(
     let plan = lock_scheduler(&state.scheduler).request(current, target, mode);
     let app = window.app_handle().clone();
 
-    if let Some(token) = plan.schedule_shrink_token {
+    if plan.start_shrink_timer {
         let win = window.clone();
         let app = app.clone();
         tokio::spawn(async move {
-            tokio::time::sleep(Duration::from_millis(SHRINK_DELAY_MS)).await;
-            let ctrl = app.state::<AnimationController>();
-            let timer_plan = lock_scheduler(&ctrl.scheduler).fire_shrink_timer(token);
-            if !timer_plan.start_animation {
-                return;
-            }
-            run_animation_loop(&win, &app).await;
+            run_shrink_timer_loop(&win, &app).await;
         });
+    } else if plan.wake_shrink_timer {
+        state.shrink_timer_notify.notify_one();
     }
 
     if plan.start_animation {
@@ -318,6 +347,44 @@ async fn wait_for_animation_idle(app: &tauri::AppHandle) {
             return;
         }
         tokio::time::sleep(Duration::from_millis(ANIMATION_FRAME_MS)).await;
+    }
+}
+
+async fn run_shrink_timer_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
+    loop {
+        let token = {
+            let ctrl = app.state::<AnimationController>();
+            let mut scheduler = lock_scheduler(&ctrl.scheduler);
+            let Some(token) = scheduler.pending_shrink_wait_token() else {
+                return;
+            };
+            token
+        };
+        let notify = {
+            let ctrl = app.state::<AnimationController>();
+            ctrl.shrink_timer_notify.clone()
+        };
+        let sleep = tokio::time::sleep(Duration::from_millis(SHRINK_DELAY_MS));
+        tokio::pin!(sleep);
+        let notified = notify.notified();
+        tokio::pin!(notified);
+        tokio::select! {
+            _ = &mut sleep => {
+                let timer_plan = {
+                    let ctrl = app.state::<AnimationController>();
+                    let plan = lock_scheduler(&ctrl.scheduler).fire_shrink_timer(token);
+                    plan
+                };
+                if timer_plan.start_animation {
+                    run_animation_loop(window, app).await;
+                }
+            }
+            _ = &mut notified => continue,
+        }
+        let ctrl = app.state::<AnimationController>();
+        if !lock_scheduler(&ctrl.scheduler).is_shrink_timer_running() {
+            return;
+        }
     }
 }
 
