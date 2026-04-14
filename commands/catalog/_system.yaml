@@ -1,9 +1,7 @@
 meta:
-  name: 系统管理
   moduleSlug: system
 commands:
   - id: ps-find
-    name: 按名称查找进程
     category: system
     platform: mac/linux
     script:
@@ -12,7 +10,6 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
     prerequisites:
@@ -29,7 +26,6 @@ commands:
       - find
       - process
   - id: ps-find-win
-    name: 按名称查找进程
     category: system
     platform: win
     script:
@@ -38,7 +34,6 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
     prerequisites:
@@ -55,7 +50,6 @@ commands:
       - find
       - process
   - id: kill-pid
-    name: 按 PID 杀进程
     category: system
     platform: mac/linux
     exec:
@@ -67,7 +61,6 @@ commands:
     dangerous: true
     args:
       - key: pid
-        label: pid
         type: number
         required: true
         validation:
@@ -83,7 +76,6 @@ commands:
       - 进程
       - process
   - id: kill-pid-win
-    name: 按 PID 杀进程
     category: system
     platform: win
     exec:
@@ -96,7 +88,6 @@ commands:
     dangerous: true
     args:
       - key: pid
-        label: pid
         type: number
         required: true
         validation:
@@ -112,7 +103,6 @@ commands:
       - 进程
       - process
   - id: kill-name
-    name: 按名称杀进程
     category: system
     platform: mac/linux
     exec:
@@ -124,7 +114,6 @@ commands:
     dangerous: true
     args:
       - key: name
-        label: name
         type: text
         required: true
     tags:
@@ -138,7 +127,6 @@ commands:
       - 进程
       - process
   - id: kill-name-win
-    name: 按名称杀进程
     category: system
     platform: win
     exec:
@@ -151,7 +139,6 @@ commands:
     dangerous: true
     args:
       - key: name
-        label: name
         type: text
         required: true
     tags:
@@ -165,7 +152,6 @@ commands:
       - 进程
       - process
   - id: disk-usage
-    name: 查看磁盘空间
     category: system
     platform: mac/linux
     exec:
@@ -183,7 +169,6 @@ commands:
       - 查看
       - show
   - id: disk-usage-win
-    name: 查看磁盘空间
     category: system
     platform: win
     script:
@@ -205,7 +190,6 @@ commands:
       - 查看
       - show
   - id: dir-size
-    name: 查看目录大小
     category: system
     platform: mac/linux
     exec:
@@ -216,7 +200,6 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
     tags:
@@ -229,7 +212,6 @@ commands:
       - 查看
       - show
   - id: dir-size-win
-    name: 查看目录大小
     category: system
     platform: win
     script:
@@ -239,7 +221,6 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
     prerequisites:
@@ -257,7 +238,6 @@ commands:
       - 查看
       - show
   - id: memory-usage
-    name: 查看内存使用
     category: system
     platform: mac
     script:
@@ -279,7 +259,6 @@ commands:
       - 查看
       - show
   - id: memory-usage-linux
-    name: 查看内存使用
     category: system
     platform: linux
     exec:
@@ -297,7 +276,6 @@ commands:
       - 查看
       - show
   - id: memory-usage-win
-    name: 查看内存使用
     category: system
     platform: win
     script:
@@ -320,7 +298,6 @@ commands:
       - 查看
       - show
   - id: system-info
-    name: 查看系统信息
     category: system
     platform: mac/linux
     exec:
@@ -335,7 +312,6 @@ commands:
       - 查看
       - show
   - id: system-info-win
-    name: 查看系统信息
     category: system
     platform: win
     exec:
@@ -349,7 +325,6 @@ commands:
       - 查看
       - show
   - id: env-var-set
-    name: 设置环境变量
     category: system
     platform: mac/linux
     exec:
@@ -359,11 +334,9 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: value
-        label: value
         type: text
         required: true
     tags:
@@ -376,7 +349,6 @@ commands:
       - 设置
       - set
   - id: env-var-set-win
-    name: 设置环境变量
     category: system
     platform: win
     script:
@@ -385,11 +357,9 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: value
-        label: value
         type: text
         required: true
     prerequisites:
@@ -407,7 +377,6 @@ commands:
       - 设置
       - set
   - id: env-var-get
-    name: 查看环境变量
     category: system
     platform: mac/linux
     exec:
@@ -417,7 +386,6 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
     tags:
@@ -432,7 +400,6 @@ commands:
       - 查看
       - show
   - id: env-var-get-win
-    name: 查看环境变量
     category: system
     platform: win
     script:
@@ -441,7 +408,6 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
     prerequisites:
@@ -461,7 +427,6 @@ commands:
       - 查看
       - show
   - id: uptime
-    name: 系统运行时间
     category: system
     platform: mac/linux
     exec:
@@ -474,7 +439,6 @@ commands:
       - 运行时间
       - uptime
   - id: cpu-top
-    name: CPU 占用排行
     category: system
     platform: mac/linux
     exec:
@@ -495,7 +459,6 @@ commands:
       - 占用
       - 冲突
   - id: cpu-top-win
-    name: CPU 占用排行
     category: system
     platform: win
     script:
@@ -515,7 +478,6 @@ commands:
       - 占用
       - 冲突
   - id: cron-list
-    name: 查看定时任务
     category: system
     platform: mac/linux
     exec:
@@ -538,7 +500,6 @@ commands:
       - 查看
       - show
   - id: hosts-edit
-    name: 编辑 hosts 文件
     category: system
     platform: mac/linux
     exec:
@@ -556,7 +517,6 @@ commands:
       - 文件
       - file
   - id: hosts-edit-win
-    name: 编辑 hosts 文件
     category: system
     platform: win
     exec:

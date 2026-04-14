@@ -7,6 +7,26 @@ function assertCondition(condition, message) {
   }
 }
 
+function isPlainObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value);
+}
+
+function assertTextValue(value, message) {
+  if (typeof value === "string" && value.trim().length > 0) {
+    return;
+  }
+  if (isPlainObject(value)) {
+    const entries = Object.entries(value);
+    if (
+      entries.length > 0 &&
+      entries.some(([, text]) => typeof text === "string" && text.trim().length > 0)
+    ) {
+      return;
+    }
+  }
+  throw new Error(message);
+}
+
 function cloneIfPresent(value) {
   if (value === undefined) {
     return undefined;
@@ -91,13 +111,21 @@ export function buildRuntimeJson(catalog) {
   const runtimeCommands = [];
   let logicalCount = 0;
 
+  assertTextValue(
+    catalog?.meta?.name,
+    `${catalog.fileName} meta.name is required (string or localized object).`
+  );
+
   for (const command of catalog.commands) {
     assertCondition(
       command && typeof command === "object" && !Array.isArray(command),
       `${catalog.fileName} commands[] must contain objects.`
     );
     assertCondition(typeof command.id === "string" && command.id.trim().length > 0, `${catalog.fileName} command.id is required.`);
-    assertCondition(typeof command.name === "string" && command.name.trim().length > 0, `${catalog.fileName} command '${command.id}' name is required.`);
+    assertTextValue(
+      command.name,
+      `${catalog.fileName} command '${command.id}' name is required (string or localized object).`
+    );
     assertCondition(
       (command.exec && !command.script) || (!command.exec && command.script),
       `${catalog.fileName} command '${command.id}' must define exactly one of exec or script.`

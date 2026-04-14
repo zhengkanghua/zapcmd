@@ -1,0 +1,158 @@
+meta:
+  name: File Operations
+commands:
+  find-file:
+    name: Find Files by Name
+    args:
+      path:
+        label: Path
+      pattern:
+        label: Pattern
+  find-file-win:
+    name: Find Files by Name
+    args:
+      path:
+        label: Path
+      pattern:
+        label: Pattern
+  find-content:
+    name: Search Files by Content
+    args:
+      pattern:
+        label: Pattern
+      path:
+        label: Path
+  find-content-win:
+    name: Search Files by Content
+    args:
+      pattern:
+        label: Pattern
+      path:
+        label: Path
+  list-files:
+    name: List Directory Contents
+    args:
+      path:
+        label: Path
+  list-files-win:
+    name: List Directory Contents
+    args:
+      path:
+        label: Path
+  tree:
+    name: Show Directory Tree
+    args:
+      path:
+        label: Path
+      depth:
+        label: Depth
+  tree-win:
+    name: Show Directory Tree
+    args:
+      path:
+        label: Path
+  file-size:
+    name: Show File Size
+    args:
+      file:
+        label: File
+  file-count:
+    name: Count Files
+    args:
+      path:
+        label: Path
+  file-permissions:
+    name: Change File Permissions
+    args:
+      mode:
+        label: Mode
+      file:
+        label: File
+  file-owner:
+    name: Change File Owner
+    args:
+      owner:
+        label: Owner
+      file:
+        label: File
+  compress-tar:
+    name: Create tar.gz Archive
+    args:
+      input:
+        label: Input
+      output:
+        label: Output
+  extract-tar:
+    name: Extract tar.gz Archive
+    args:
+      file:
+        label: File
+  compress-zip:
+    name: Create ZIP Archive
+    args:
+      input:
+        label: Input
+      output:
+        label: Output
+  extract-zip:
+    name: Extract ZIP Archive
+    args:
+      file:
+        label: File
+      dest:
+        label: Destination
+  compress-zip-win:
+    name: Create ZIP Archive
+    args:
+      input:
+        label: Input
+      output:
+        label: Output
+  extract-zip-win:
+    name: Extract ZIP Archive
+    args:
+      file:
+        label: File
+      dest:
+        label: Destination
+  watch-file:
+    name: Watch File Changes
+    args:
+      path:
+        label: Path
+  tail-log:
+    name: Tail Log File
+    args:
+      file:
+        label: File
+  tail-log-win:
+    name: Tail Log File
+    args:
+      file:
+        label: File
+      lines:
+        label: Lines
+  head-file:
+    name: Show First N Lines
+    args:
+      file:
+        label: File
+      lines:
+        label: Lines
+  head-file-win:
+    name: Show First N Lines
+    args:
+      file:
+        label: File
+      lines:
+        label: Lines
+  wc-lines:
+    name: Count File Lines
+    args:
+      file:
+        label: File
+  wc-lines-win:
+    name: Count File Lines
+    args:
+      file:
+        label: File

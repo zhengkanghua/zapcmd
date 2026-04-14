@@ -115,6 +115,7 @@ describe("useCommandManagement", () => {
   it("formats issue messages for all known codes", () => {
     const { model, refs } = createFixture();
     refs.loadIssues.value = [
+      { code: "scan-failed", stage: "scan", sourceId: USER_PATH, reason: "metadata denied" },
       { code: "read-failed", stage: "read", sourceId: USER_PATH, reason: "permission denied" },
       { code: "invalid-json", stage: "parse", sourceId: USER_PATH, reason: "Unexpected token" },
       { code: "invalid-schema", stage: "schema", sourceId: BUILTIN_PATH, reason: "commands[0].id invalid" },
@@ -129,12 +130,14 @@ describe("useCommandManagement", () => {
       { code: "duplicate-id", stage: "merge", sourceId: BUILTIN_PATH, reason: "duplicate id" }
     ];
 
-    expect(model.commandLoadIssues.value).toHaveLength(6);
+    expect(model.commandLoadIssues.value).toHaveLength(7);
     expect(model.commandLoadIssues.value.at(0)).toMatchObject({
-      code: "read-failed",
-      stage: "read",
-      reason: "permission denied"
+      code: "scan-failed",
+      stage: "scan",
+      reason: "metadata denied"
     });
+    expect(model.commandLoadIssues.value.at(0)?.message).toContain("[扫描]");
+    expect(model.commandLoadIssues.value.at(0)?.message).toContain("扫描命令来源失败");
     for (const issue of model.commandLoadIssues.value) {
       expect(typeof issue.message).toBe("string");
       expect(issue.message.length).toBeGreaterThan(0);

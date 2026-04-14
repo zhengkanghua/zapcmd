@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Kubernetes",
+    "name": {
+      "zh": "Kubernetes",
+      "en": "Kubernetes"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "kubectl-current-context",
-      "name": "kubectl 当前上下文",
+      "name": {
+        "zh": "kubectl 当前上下文",
+        "en": "Show kubectl Current Context"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -34,7 +40,10 @@
     },
     {
       "id": "kubectl-get-contexts",
-      "name": "kubectl 列出上下文",
+      "name": {
+        "zh": "kubectl 列出上下文",
+        "en": "List kubectl Contexts"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -62,7 +71,10 @@
     },
     {
       "id": "kubectl-get-namespaces",
-      "name": "kubectl 列出命名空间",
+      "name": {
+        "zh": "kubectl 列出命名空间",
+        "en": "List kubectl Namespaces"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -90,7 +102,10 @@
     },
     {
       "id": "kubectl-get-pods",
-      "name": "kubectl 查看 Pods",
+      "name": {
+        "zh": "kubectl 查看 Pods",
+        "en": "List kubectl Pods"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -112,10 +127,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -129,7 +147,10 @@
     },
     {
       "id": "kubectl-get-services",
-      "name": "kubectl 查看 Services",
+      "name": {
+        "zh": "kubectl 查看 Services",
+        "en": "List kubectl Services"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -151,10 +172,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -168,7 +192,10 @@
     },
     {
       "id": "kubectl-get-deployments",
-      "name": "kubectl 查看 Deployments",
+      "name": {
+        "zh": "kubectl 查看 Deployments",
+        "en": "List kubectl Deployments"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -192,10 +219,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -209,7 +239,10 @@
     },
     {
       "id": "kubectl-get-nodes",
-      "name": "kubectl 查看 Nodes",
+      "name": {
+        "zh": "kubectl 查看 Nodes",
+        "en": "List kubectl Nodes"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -238,7 +271,10 @@
     },
     {
       "id": "kubectl-get-ingress",
-      "name": "kubectl 查看 Ingress",
+      "name": {
+        "zh": "kubectl 查看 Ingress",
+        "en": "List kubectl Ingress"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -262,10 +298,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -279,7 +318,10 @@
     },
     {
       "id": "kubectl-describe-deployment",
-      "name": "kubectl 查看 Deployment 详情",
+      "name": {
+        "zh": "kubectl 查看 Deployment 详情",
+        "en": "Show kubectl Deployment Details"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -305,16 +347,22 @@
       "args": [
         {
           "key": "deployment",
-          "label": "deployment",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "deployment",
+            "en": "Deployment"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -328,7 +376,10 @@
     },
     {
       "id": "kubectl-describe-pod",
-      "name": "kubectl 查看 Pod 详情",
+      "name": {
+        "zh": "kubectl 查看 Pod 详情",
+        "en": "Show kubectl Pod Details"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -352,16 +403,22 @@
       "args": [
         {
           "key": "pod",
-          "label": "pod",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pod",
+            "en": "Pod"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -375,7 +432,10 @@
     },
     {
       "id": "kubectl-get-configmaps",
-      "name": "kubectl 查看 ConfigMaps",
+      "name": {
+        "zh": "kubectl 查看 ConfigMaps",
+        "en": "List kubectl ConfigMaps"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -399,10 +459,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -416,7 +479,10 @@
     },
     {
       "id": "kubectl-logs",
-      "name": "kubectl 查看 Pod 日志",
+      "name": {
+        "zh": "kubectl 查看 Pod 日志",
+        "en": "Show kubectl Pod Logs"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -439,16 +505,22 @@
       "args": [
         {
           "key": "pod",
-          "label": "pod",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pod",
+            "en": "Pod"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -462,7 +534,10 @@
     },
     {
       "id": "kubectl-logs-follow",
-      "name": "kubectl 持续跟随日志",
+      "name": {
+        "zh": "kubectl 持续跟随日志",
+        "en": "Follow kubectl Pod Logs"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -487,16 +562,22 @@
       "args": [
         {
           "key": "pod",
-          "label": "pod",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pod",
+            "en": "Pod"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -510,7 +591,10 @@
     },
     {
       "id": "kubectl-get-events",
-      "name": "kubectl 查看 Events",
+      "name": {
+        "zh": "kubectl 查看 Events",
+        "en": "Show kubectl Events"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -534,10 +618,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -551,7 +638,10 @@
     },
     {
       "id": "kubectl-exec-sh",
-      "name": "kubectl 进入 Pod Shell",
+      "name": {
+        "zh": "kubectl 进入 Pod Shell",
+        "en": "Open kubectl Pod Shell"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -578,16 +668,22 @@
       "args": [
         {
           "key": "pod",
-          "label": "pod",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pod",
+            "en": "Pod"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -601,7 +697,10 @@
     },
     {
       "id": "kubectl-port-forward",
-      "name": "kubectl 端口转发",
+      "name": {
+        "zh": "kubectl 端口转发",
+        "en": "Run kubectl Port Forward"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -625,39 +724,51 @@
       "args": [
         {
           "key": "resource",
-          "label": "resource",
           "type": "text",
           "required": true,
-          "default": "deployment/my-app"
+          "default": "deployment/my-app",
+          "label": {
+            "zh": "resource",
+            "en": "Resource"
+          }
         },
         {
           "key": "localPort",
-          "label": "localPort",
           "type": "number",
           "required": true,
           "default": "8080",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "localPort",
+            "en": "Local Port"
           }
         },
         {
           "key": "remotePort",
-          "label": "remotePort",
           "type": "number",
           "required": true,
           "default": "80",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "remotePort",
+            "en": "Remote Port"
           }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -671,7 +782,10 @@
     },
     {
       "id": "kubectl-rollout-restart",
-      "name": "kubectl 重启 Rollout",
+      "name": {
+        "zh": "kubectl 重启 Rollout",
+        "en": "Restart kubectl Rollout"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -698,17 +812,23 @@
       "args": [
         {
           "key": "resource",
-          "label": "resource",
           "type": "text",
           "required": true,
-          "default": "deployment/my-app"
+          "default": "deployment/my-app",
+          "label": {
+            "zh": "resource",
+            "en": "Resource"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -722,7 +842,10 @@
     },
     {
       "id": "kubectl-rollout-status",
-      "name": "kubectl 查看 Rollout 状态",
+      "name": {
+        "zh": "kubectl 查看 Rollout 状态",
+        "en": "Show kubectl Rollout Status"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -747,17 +870,23 @@
       "args": [
         {
           "key": "resource",
-          "label": "resource",
           "type": "text",
           "required": true,
-          "default": "deployment/my-app"
+          "default": "deployment/my-app",
+          "label": {
+            "zh": "resource",
+            "en": "Resource"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -771,7 +900,10 @@
     },
     {
       "id": "kubectl-apply-file",
-      "name": "kubectl 应用配置文件",
+      "name": {
+        "zh": "kubectl 应用配置文件",
+        "en": "Apply kubectl Manifest File"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -795,9 +927,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -811,7 +946,10 @@
     },
     {
       "id": "kubectl-delete-file",
-      "name": "kubectl 删除配置文件资源",
+      "name": {
+        "zh": "kubectl 删除配置文件资源",
+        "en": "Delete kubectl Manifest Resources"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -835,9 +973,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -851,7 +992,10 @@
     },
     {
       "id": "kubectl-delete-pod",
-      "name": "kubectl 删除 Pod",
+      "name": {
+        "zh": "kubectl 删除 Pod",
+        "en": "Delete kubectl Pod"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -877,16 +1021,22 @@
       "args": [
         {
           "key": "pod",
-          "label": "pod",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pod",
+            "en": "Pod"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -900,7 +1050,10 @@
     },
     {
       "id": "kubectl-get-all",
-      "name": "kubectl 查看全部资源",
+      "name": {
+        "zh": "kubectl 查看全部资源",
+        "en": "List All kubectl Resources"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -925,10 +1078,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -942,7 +1098,10 @@
     },
     {
       "id": "kubectl-top-pods",
-      "name": "kubectl 查看 Pods 资源占用",
+      "name": {
+        "zh": "kubectl 查看 Pods 资源占用",
+        "en": "Show kubectl Pod Resource Usage"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -969,10 +1128,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -986,7 +1148,10 @@
     },
     {
       "id": "kubectl-top-nodes",
-      "name": "kubectl 查看 Nodes 资源占用",
+      "name": {
+        "zh": "kubectl 查看 Nodes 资源占用",
+        "en": "Show kubectl Node Resource Usage"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -1018,7 +1183,10 @@
     },
     {
       "id": "kubectl-describe-service",
-      "name": "kubectl 查看 Service 详情",
+      "name": {
+        "zh": "kubectl 查看 Service 详情",
+        "en": "Show kubectl Service Details"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -1044,16 +1212,22 @@
       "args": [
         {
           "key": "service",
-          "label": "service",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "service",
+            "en": "Service"
+          }
         },
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -1067,7 +1241,10 @@
     },
     {
       "id": "kubectl-get-pvc",
-      "name": "kubectl 查看 PVC",
+      "name": {
+        "zh": "kubectl 查看 PVC",
+        "en": "List kubectl PVCs"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -1091,10 +1268,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -1108,7 +1288,10 @@
     },
     {
       "id": "kubectl-get-statefulsets",
-      "name": "kubectl 查看 StatefulSets",
+      "name": {
+        "zh": "kubectl 查看 StatefulSets",
+        "en": "List kubectl StatefulSets"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -1132,10 +1315,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -1149,7 +1335,10 @@
     },
     {
       "id": "kubectl-get-jobs",
-      "name": "kubectl 查看 Jobs",
+      "name": {
+        "zh": "kubectl 查看 Jobs",
+        "en": "List kubectl Jobs"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -1173,10 +1362,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [
@@ -1190,7 +1382,10 @@
     },
     {
       "id": "kubectl-get-cronjobs",
-      "name": "kubectl 查看 CronJobs",
+      "name": {
+        "zh": "kubectl 查看 CronJobs",
+        "en": "List kubectl CronJobs"
+      },
       "tags": [
         "kubernetes",
         "kubectl",
@@ -1214,10 +1409,13 @@
       "args": [
         {
           "key": "namespace",
-          "label": "namespace",
           "type": "text",
           "required": true,
-          "default": "default"
+          "default": "default",
+          "label": {
+            "zh": "namespace",
+            "en": "Namespace"
+          }
         }
       ],
       "prerequisites": [

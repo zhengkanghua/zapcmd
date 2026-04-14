@@ -1,0 +1,68 @@
+meta:
+  name: SQLite
+commands:
+  sqlite-shell:
+    name: SQLite Shell
+    args:
+      file:
+        label: file
+  sqlite-tables:
+    name: SQLite 列出数据表
+    args:
+      file:
+        label: file
+  sqlite-schema:
+    name: SQLite 查看 Schema
+    args:
+      file:
+        label: file
+  sqlite-query:
+    name: SQLite 执行 SQL
+    args:
+      file:
+        label: file
+      sql:
+        label: sql
+  sqlite-import:
+    name: SQLite 导入 CSV
+    args:
+      file:
+        label: file
+      csv:
+        label: csv
+      table:
+        label: table
+  sqlite-integrity-check:
+    name: SQLite 完整性检查
+    args:
+      file:
+        label: file
+  sqlite-vacuum:
+    name: SQLite VACUUM
+    args:
+      file:
+        label: file
+  sqlite-table-info:
+    name: SQLite 表字段信息
+    args:
+      file:
+        label: file
+      table:
+        label: table
+  sqlite-index-list:
+    name: SQLite 索引列表
+    args:
+      file:
+        label: file
+      table:
+        label: table
+  sqlite-pragma-journal-mode:
+    name: SQLite Journal Mode
+    args:
+      file:
+        label: file
+  sqlite-foreign-key-check:
+    name: SQLite 外键检查
+    args:
+      file:
+        label: file

@@ -1,0 +1,157 @@
+meta:
+  name: Kubernetes
+commands:
+  kubectl-current-context:
+    name: kubectl 当前上下文
+  kubectl-get-contexts:
+    name: kubectl 列出上下文
+  kubectl-get-namespaces:
+    name: kubectl 列出命名空间
+  kubectl-get-pods:
+    name: kubectl 查看 Pods
+    args:
+      namespace:
+        label: namespace
+  kubectl-get-services:
+    name: kubectl 查看 Services
+    args:
+      namespace:
+        label: namespace
+  kubectl-get-deployments:
+    name: kubectl 查看 Deployments
+    args:
+      namespace:
+        label: namespace
+  kubectl-get-nodes:
+    name: kubectl 查看 Nodes
+  kubectl-get-ingress:
+    name: kubectl 查看 Ingress
+    args:
+      namespace:
+        label: namespace
+  kubectl-describe-deployment:
+    name: kubectl 查看 Deployment 详情
+    args:
+      deployment:
+        label: deployment
+      namespace:
+        label: namespace
+  kubectl-describe-pod:
+    name: kubectl 查看 Pod 详情
+    args:
+      pod:
+        label: pod
+      namespace:
+        label: namespace
+  kubectl-get-configmaps:
+    name: kubectl 查看 ConfigMaps
+    args:
+      namespace:
+        label: namespace
+  kubectl-logs:
+    name: kubectl 查看 Pod 日志
+    args:
+      pod:
+        label: pod
+      namespace:
+        label: namespace
+  kubectl-logs-follow:
+    name: kubectl 持续跟随日志
+    args:
+      pod:
+        label: pod
+      namespace:
+        label: namespace
+  kubectl-get-events:
+    name: kubectl 查看 Events
+    args:
+      namespace:
+        label: namespace
+  kubectl-exec-sh:
+    name: kubectl 进入 Pod Shell
+    args:
+      pod:
+        label: pod
+      namespace:
+        label: namespace
+  kubectl-port-forward:
+    name: kubectl 端口转发
+    args:
+      resource:
+        label: resource
+      localPort:
+        label: localPort
+      remotePort:
+        label: remotePort
+      namespace:
+        label: namespace
+  kubectl-rollout-restart:
+    name: kubectl 重启 Rollout
+    args:
+      resource:
+        label: resource
+      namespace:
+        label: namespace
+  kubectl-rollout-status:
+    name: kubectl 查看 Rollout 状态
+    args:
+      resource:
+        label: resource
+      namespace:
+        label: namespace
+  kubectl-apply-file:
+    name: kubectl 应用配置文件
+    args:
+      file:
+        label: file
+  kubectl-delete-file:
+    name: kubectl 删除配置文件资源
+    args:
+      file:
+        label: file
+  kubectl-delete-pod:
+    name: kubectl 删除 Pod
+    args:
+      pod:
+        label: pod
+      namespace:
+        label: namespace
+  kubectl-get-all:
+    name: kubectl 查看全部资源
+    args:
+      namespace:
+        label: namespace
+  kubectl-top-pods:
+    name: kubectl 查看 Pods 资源占用
+    args:
+      namespace:
+        label: namespace
+  kubectl-top-nodes:
+    name: kubectl 查看 Nodes 资源占用
+  kubectl-describe-service:
+    name: kubectl 查看 Service 详情
+    args:
+      service:
+        label: service
+      namespace:
+        label: namespace
+  kubectl-get-pvc:
+    name: kubectl 查看 PVC
+    args:
+      namespace:
+        label: namespace
+  kubectl-get-statefulsets:
+    name: kubectl 查看 StatefulSets
+    args:
+      namespace:
+        label: namespace
+  kubectl-get-jobs:
+    name: kubectl 查看 Jobs
+    args:
+      namespace:
+        label: namespace
+  kubectl-get-cronjobs:
+    name: kubectl 查看 CronJobs
+    args:
+      namespace:
+        label: namespace

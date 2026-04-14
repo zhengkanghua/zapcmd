@@ -1,9 +1,7 @@
 meta:
-  name: PNPM
   moduleSlug: pnpm
 commands:
   - id: pnpm-add
-    name: PNPM 添加依赖
     category: package
     platform: all
     exec:
@@ -14,7 +12,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -31,7 +28,6 @@ commands:
       - 依赖
       - dependency
   - id: pnpm-run
-    name: PNPM 运行脚本
     category: package
     platform: all
     exec:
@@ -42,7 +38,6 @@ commands:
     adminRequired: false
     args:
       - key: script
-        label: script
         type: text
         required: true
     prerequisites:
@@ -59,7 +54,6 @@ commands:
       - script
       - 脚本
   - id: pnpm-up
-    name: PNPM 升级依赖
     category: package
     platform: all
     exec:
@@ -82,7 +76,6 @@ commands:
       - 升级
       - 依赖
   - id: pnpm-remove
-    name: PNPM 移除依赖
     category: package
     platform: all
     exec:
@@ -93,7 +86,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -111,7 +103,6 @@ commands:
       - 依赖
       - dependency
   - id: pnpm-list
-    name: PNPM 查看已安装
     category: package
     platform: all
     exec:
@@ -137,7 +128,6 @@ commands:
       - 安装
       - install
   - id: pnpm-install-project
-    name: PNPM 安装项目依赖
     category: package
     platform: all
     exec:
@@ -160,7 +150,6 @@ commands:
       - 依赖
       - dependency
   - id: pnpm-add-dev
-    name: PNPM 安装开发依赖
     category: package
     platform: all
     exec:
@@ -172,7 +161,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -190,7 +178,6 @@ commands:
       - 依赖
       - dependency
   - id: pnpm-dlx
-    name: PNPM 运行临时包命令
     category: package
     platform: all
     exec:
@@ -201,7 +188,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:

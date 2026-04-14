@@ -1,0 +1,30 @@
+meta:
+  name: 证书与 OpenSSL
+commands:
+  openssl-x509-text:
+    name: OpenSSL 查看证书全文
+    args:
+      file:
+        label: file
+  openssl-cert-dates:
+    name: OpenSSL 查看证书有效期
+    args:
+      file:
+        label: file
+  openssl-cert-fingerprint:
+    name: OpenSSL 查看证书指纹
+    args:
+      file:
+        label: file
+  openssl-s-client:
+    name: OpenSSL 建立 TLS 连接
+    args:
+      host:
+        label: host
+      port:
+        label: port
+  openssl-pkey-text:
+    name: OpenSSL 查看密钥详情
+    args:
+      file:
+        label: file

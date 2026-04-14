@@ -1,0 +1,115 @@
+meta:
+  name: Git 版本控制
+commands:
+  git-status:
+    name: 查看仓库状态
+  git-log:
+    name: 查看提交历史
+    args:
+      count:
+        label: 数量
+  git-log-graph:
+    name: 图形化提交历史
+    args:
+      count:
+        label: 数量
+  git-diff:
+    name: 查看未暂存更改
+  git-diff-staged:
+    name: 查看已暂存更改
+  git-add-all:
+    name: 暂存所有更改
+  git-commit:
+    name: 提交更改
+    args:
+      message:
+        label: 提交说明
+  git-commit-amend:
+    name: 修改上次提交
+    args:
+      message:
+        label: 提交说明
+  git-push:
+    name: 推送到远程
+    args:
+      branch:
+        label: 分支
+  git-pull:
+    name: 拉取远程更新
+    args:
+      branch:
+        label: 分支
+  git-branch-list:
+    name: 查看所有分支
+  git-branch-create:
+    name: 创建新分支
+    args:
+      branch:
+        label: 分支
+  git-branch-delete:
+    name: 删除本地分支
+    args:
+      branch:
+        label: 分支
+  git-switch:
+    name: 切换分支
+    args:
+      branch:
+        label: 分支
+  git-stash:
+    name: 暂存当前更改
+  git-stash-pop:
+    name: 恢复暂存更改
+  git-stash-list:
+    name: 查看暂存列表
+  git-reset-soft:
+    name: 软回退到提交
+    args:
+      commit:
+        label: 提交
+  git-reset-hard:
+    name: 硬回退到提交
+    args:
+      commit:
+        label: 提交
+  git-cherry-pick:
+    name: Cherry Pick 提交
+    args:
+      commit:
+        label: 提交
+  git-rebase:
+    name: 变基到分支
+    args:
+      branch:
+        label: 分支
+  git-merge:
+    name: 合并分支
+    args:
+      branch:
+        label: 分支
+  git-tag:
+    name: 创建标签
+    args:
+      tag:
+        label: 标签
+  git-remote-url:
+    name: 查看远程地址
+  git-clone:
+    name: 克隆仓库
+    args:
+      url:
+        label: URL
+  git-blame:
+    name: 查看文件修改者
+    args:
+      file:
+        label: 文件
+  git-clean:
+    name: 清理未跟踪文件
+  git-config-user:
+    name: 设置用户名和邮箱
+    args:
+      name:
+        label: 名称
+      email:
+        label: 邮箱

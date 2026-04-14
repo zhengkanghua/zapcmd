@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "文件操作",
+    "name": {
+      "zh": "文件操作",
+      "en": "File Operations"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "find-file-mac",
-      "name": "按名称查找文件",
+      "name": {
+        "zh": "按名称查找文件",
+        "en": "Find Files by Name"
+      },
       "tags": [
         "文件",
         "file",
@@ -27,22 +33,31 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         },
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         }
       ]
     },
     {
       "id": "find-file-linux",
-      "name": "按名称查找文件",
+      "name": {
+        "zh": "按名称查找文件",
+        "en": "Find Files by Name"
+      },
       "tags": [
         "文件",
         "file",
@@ -63,22 +78,31 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         },
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         }
       ]
     },
     {
       "id": "find-file-win",
-      "name": "按名称查找文件",
+      "name": {
+        "zh": "按名称查找文件",
+        "en": "Find Files by Name"
+      },
       "tags": [
         "文件",
         "file",
@@ -95,16 +119,22 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         },
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         }
       ],
       "prerequisites": [
@@ -118,7 +148,10 @@
     },
     {
       "id": "find-content-mac",
-      "name": "按内容搜索文件",
+      "name": {
+        "zh": "按内容搜索文件",
+        "en": "Search Files by Content"
+      },
       "tags": [
         "文件",
         "file",
@@ -141,22 +174,31 @@
       "args": [
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         },
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ]
     },
     {
       "id": "find-content-linux",
-      "name": "按内容搜索文件",
+      "name": {
+        "zh": "按内容搜索文件",
+        "en": "Search Files by Content"
+      },
       "tags": [
         "文件",
         "file",
@@ -179,22 +221,31 @@
       "args": [
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         },
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ]
     },
     {
       "id": "find-content-win",
-      "name": "按内容搜索文件",
+      "name": {
+        "zh": "按内容搜索文件",
+        "en": "Search Files by Content"
+      },
       "tags": [
         "文件",
         "file",
@@ -213,16 +264,22 @@
       "args": [
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         },
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ],
       "prerequisites": [
@@ -236,7 +293,10 @@
     },
     {
       "id": "list-files-mac",
-      "name": "列出目录内容",
+      "name": {
+        "zh": "列出目录内容",
+        "en": "List Directory Contents"
+      },
       "tags": [
         "文件",
         "file",
@@ -259,16 +319,22 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ]
     },
     {
       "id": "list-files-linux",
-      "name": "列出目录内容",
+      "name": {
+        "zh": "列出目录内容",
+        "en": "List Directory Contents"
+      },
       "tags": [
         "文件",
         "file",
@@ -291,16 +357,22 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ]
     },
     {
       "id": "list-files-win",
-      "name": "列出目录内容",
+      "name": {
+        "zh": "列出目录内容",
+        "en": "List Directory Contents"
+      },
       "tags": [
         "文件",
         "file",
@@ -320,10 +392,13 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ],
       "prerequisites": [
@@ -337,7 +412,10 @@
     },
     {
       "id": "tree-mac",
-      "name": "目录树结构",
+      "name": {
+        "zh": "目录树结构",
+        "en": "Show Directory Tree"
+      },
       "tags": [
         "文件",
         "file",
@@ -360,20 +438,26 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         },
         {
           "key": "depth",
-          "label": "depth",
           "type": "number",
           "required": true,
           "default": "3",
           "validation": {
             "min": 1,
             "max": 10
+          },
+          "label": {
+            "zh": "depth",
+            "en": "Depth"
           }
         }
       ],
@@ -388,7 +472,10 @@
     },
     {
       "id": "tree-linux",
-      "name": "目录树结构",
+      "name": {
+        "zh": "目录树结构",
+        "en": "Show Directory Tree"
+      },
       "tags": [
         "文件",
         "file",
@@ -411,20 +498,26 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         },
         {
           "key": "depth",
-          "label": "depth",
           "type": "number",
           "required": true,
           "default": "3",
           "validation": {
             "min": 1,
             "max": 10
+          },
+          "label": {
+            "zh": "depth",
+            "en": "Depth"
           }
         }
       ],
@@ -439,7 +532,10 @@
     },
     {
       "id": "tree-win",
-      "name": "目录树结构",
+      "name": {
+        "zh": "目录树结构",
+        "en": "Show Directory Tree"
+      },
       "tags": [
         "文件",
         "file",
@@ -461,16 +557,22 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ]
     },
     {
       "id": "file-size-mac",
-      "name": "查看文件大小",
+      "name": {
+        "zh": "查看文件大小",
+        "en": "Show File Size"
+      },
       "tags": [
         "文件",
         "file",
@@ -492,15 +594,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "file-size-linux",
-      "name": "查看文件大小",
+      "name": {
+        "zh": "查看文件大小",
+        "en": "Show File Size"
+      },
       "tags": [
         "文件",
         "file",
@@ -522,15 +630,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "file-count-mac",
-      "name": "统计文件数量",
+      "name": {
+        "zh": "统计文件数量",
+        "en": "Count Files"
+      },
       "tags": [
         "文件",
         "file",
@@ -546,10 +660,13 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ],
       "prerequisites": [
@@ -563,7 +680,10 @@
     },
     {
       "id": "file-count-linux",
-      "name": "统计文件数量",
+      "name": {
+        "zh": "统计文件数量",
+        "en": "Count Files"
+      },
       "tags": [
         "文件",
         "file",
@@ -579,10 +699,13 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ],
       "prerequisites": [
@@ -596,7 +719,10 @@
     },
     {
       "id": "file-permissions-mac",
-      "name": "修改文件权限",
+      "name": {
+        "zh": "修改文件权限",
+        "en": "Change File Permissions"
+      },
       "tags": [
         "文件",
         "file",
@@ -616,21 +742,30 @@
       "args": [
         {
           "key": "mode",
-          "label": "mode",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "mode",
+            "en": "Mode"
+          }
         },
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "file-permissions-linux",
-      "name": "修改文件权限",
+      "name": {
+        "zh": "修改文件权限",
+        "en": "Change File Permissions"
+      },
       "tags": [
         "文件",
         "file",
@@ -650,21 +785,30 @@
       "args": [
         {
           "key": "mode",
-          "label": "mode",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "mode",
+            "en": "Mode"
+          }
         },
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "file-owner-mac",
-      "name": "修改文件所有者",
+      "name": {
+        "zh": "修改文件所有者",
+        "en": "Change File Owner"
+      },
       "tags": [
         "文件",
         "file",
@@ -684,21 +828,30 @@
       "args": [
         {
           "key": "owner",
-          "label": "owner",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "owner",
+            "en": "Owner"
+          }
         },
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "file-owner-linux",
-      "name": "修改文件所有者",
+      "name": {
+        "zh": "修改文件所有者",
+        "en": "Change File Owner"
+      },
       "tags": [
         "文件",
         "file",
@@ -718,21 +871,30 @@
       "args": [
         {
           "key": "owner",
-          "label": "owner",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "owner",
+            "en": "Owner"
+          }
         },
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "compress-tar-mac",
-      "name": "打包压缩 (tar.gz)",
+      "name": {
+        "zh": "打包压缩 (tar.gz)",
+        "en": "Create tar.gz Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -754,21 +916,30 @@
       "args": [
         {
           "key": "input",
-          "label": "input",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "input",
+            "en": "Input"
+          }
         },
         {
           "key": "output",
-          "label": "output",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "output",
+            "en": "Output"
+          }
         }
       ]
     },
     {
       "id": "compress-tar-linux",
-      "name": "打包压缩 (tar.gz)",
+      "name": {
+        "zh": "打包压缩 (tar.gz)",
+        "en": "Create tar.gz Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -790,21 +961,30 @@
       "args": [
         {
           "key": "input",
-          "label": "input",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "input",
+            "en": "Input"
+          }
         },
         {
           "key": "output",
-          "label": "output",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "output",
+            "en": "Output"
+          }
         }
       ]
     },
     {
       "id": "extract-tar-mac",
-      "name": "解压 (tar.gz)",
+      "name": {
+        "zh": "解压 (tar.gz)",
+        "en": "Extract tar.gz Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -825,15 +1005,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "extract-tar-linux",
-      "name": "解压 (tar.gz)",
+      "name": {
+        "zh": "解压 (tar.gz)",
+        "en": "Extract tar.gz Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -854,15 +1040,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "compress-zip-mac",
-      "name": "ZIP 压缩",
+      "name": {
+        "zh": "ZIP 压缩",
+        "en": "Create ZIP Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -884,15 +1076,21 @@
       "args": [
         {
           "key": "input",
-          "label": "input",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "input",
+            "en": "Input"
+          }
         },
         {
           "key": "output",
-          "label": "output",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "output",
+            "en": "Output"
+          }
         }
       ],
       "prerequisites": [
@@ -906,7 +1104,10 @@
     },
     {
       "id": "compress-zip-linux",
-      "name": "ZIP 压缩",
+      "name": {
+        "zh": "ZIP 压缩",
+        "en": "Create ZIP Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -928,15 +1129,21 @@
       "args": [
         {
           "key": "input",
-          "label": "input",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "input",
+            "en": "Input"
+          }
         },
         {
           "key": "output",
-          "label": "output",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "output",
+            "en": "Output"
+          }
         }
       ],
       "prerequisites": [
@@ -950,7 +1157,10 @@
     },
     {
       "id": "extract-zip-mac",
-      "name": "ZIP 解压",
+      "name": {
+        "zh": "ZIP 解压",
+        "en": "Extract ZIP Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -972,16 +1182,22 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "dest",
-          "label": "dest",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "dest",
+            "en": "Destination"
+          }
         }
       ],
       "prerequisites": [
@@ -995,7 +1211,10 @@
     },
     {
       "id": "extract-zip-linux",
-      "name": "ZIP 解压",
+      "name": {
+        "zh": "ZIP 解压",
+        "en": "Extract ZIP Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -1017,16 +1236,22 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "dest",
-          "label": "dest",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "dest",
+            "en": "Destination"
+          }
         }
       ],
       "prerequisites": [
@@ -1040,7 +1265,10 @@
     },
     {
       "id": "compress-zip-win",
-      "name": "ZIP 压缩",
+      "name": {
+        "zh": "ZIP 压缩",
+        "en": "Create ZIP Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -1058,15 +1286,21 @@
       "args": [
         {
           "key": "input",
-          "label": "input",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "input",
+            "en": "Input"
+          }
         },
         {
           "key": "output",
-          "label": "output",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "output",
+            "en": "Output"
+          }
         }
       ],
       "prerequisites": [
@@ -1080,7 +1314,10 @@
     },
     {
       "id": "extract-zip-win",
-      "name": "ZIP 解压",
+      "name": {
+        "zh": "ZIP 解压",
+        "en": "Extract ZIP Archive"
+      },
       "tags": [
         "文件",
         "file",
@@ -1098,16 +1335,22 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "dest",
-          "label": "dest",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "dest",
+            "en": "Destination"
+          }
         }
       ],
       "prerequisites": [
@@ -1121,7 +1364,10 @@
     },
     {
       "id": "watch-file-mac",
-      "name": "监听文件变化",
+      "name": {
+        "zh": "监听文件变化",
+        "en": "Watch File Changes"
+      },
       "tags": [
         "文件",
         "file",
@@ -1140,9 +1386,12 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ],
       "prerequisites": [
@@ -1156,7 +1405,10 @@
     },
     {
       "id": "watch-file-linux",
-      "name": "监听文件变化",
+      "name": {
+        "zh": "监听文件变化",
+        "en": "Watch File Changes"
+      },
       "tags": [
         "文件",
         "file",
@@ -1175,9 +1427,12 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ],
       "prerequisites": [
@@ -1191,7 +1446,10 @@
     },
     {
       "id": "tail-log-mac",
-      "name": "实时查看日志",
+      "name": {
+        "zh": "实时查看日志",
+        "en": "Tail Log File"
+      },
       "tags": [
         "文件",
         "file",
@@ -1214,15 +1472,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "tail-log-linux",
-      "name": "实时查看日志",
+      "name": {
+        "zh": "实时查看日志",
+        "en": "Tail Log File"
+      },
       "tags": [
         "文件",
         "file",
@@ -1245,15 +1509,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "tail-log-win",
-      "name": "实时查看日志",
+      "name": {
+        "zh": "实时查看日志",
+        "en": "Tail Log File"
+      },
       "tags": [
         "文件",
         "file",
@@ -1273,19 +1543,25 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "lines",
-          "label": "lines",
           "type": "number",
           "required": true,
           "default": "100",
           "validation": {
             "min": 1,
             "max": 10000
+          },
+          "label": {
+            "zh": "lines",
+            "en": "Lines"
           }
         }
       ],
@@ -1300,7 +1576,10 @@
     },
     {
       "id": "head-file-mac",
-      "name": "查看文件前 N 行",
+      "name": {
+        "zh": "查看文件前 N 行",
+        "en": "Show First N Lines"
+      },
       "tags": [
         "文件",
         "file",
@@ -1322,26 +1601,35 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "lines",
-          "label": "lines",
           "type": "number",
           "required": true,
           "default": "20",
           "validation": {
             "min": 1,
             "max": 10000
+          },
+          "label": {
+            "zh": "lines",
+            "en": "Lines"
           }
         }
       ]
     },
     {
       "id": "head-file-linux",
-      "name": "查看文件前 N 行",
+      "name": {
+        "zh": "查看文件前 N 行",
+        "en": "Show First N Lines"
+      },
       "tags": [
         "文件",
         "file",
@@ -1363,26 +1651,35 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "lines",
-          "label": "lines",
           "type": "number",
           "required": true,
           "default": "20",
           "validation": {
             "min": 1,
             "max": 10000
+          },
+          "label": {
+            "zh": "lines",
+            "en": "Lines"
           }
         }
       ]
     },
     {
       "id": "head-file-win",
-      "name": "查看文件前 N 行",
+      "name": {
+        "zh": "查看文件前 N 行",
+        "en": "Show First N Lines"
+      },
       "tags": [
         "文件",
         "file",
@@ -1400,19 +1697,25 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "lines",
-          "label": "lines",
           "type": "number",
           "required": true,
           "default": "20",
           "validation": {
             "min": 1,
             "max": 10000
+          },
+          "label": {
+            "zh": "lines",
+            "en": "Lines"
           }
         }
       ],
@@ -1427,7 +1730,10 @@
     },
     {
       "id": "wc-lines-mac",
-      "name": "统计文件行数",
+      "name": {
+        "zh": "统计文件行数",
+        "en": "Count File Lines"
+      },
       "tags": [
         "文件",
         "file",
@@ -1449,15 +1755,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "wc-lines-linux",
-      "name": "统计文件行数",
+      "name": {
+        "zh": "统计文件行数",
+        "en": "Count File Lines"
+      },
       "tags": [
         "文件",
         "file",
@@ -1479,15 +1791,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ]
     },
     {
       "id": "wc-lines-win",
-      "name": "统计文件行数",
+      "name": {
+        "zh": "统计文件行数",
+        "en": "Count File Lines"
+      },
       "tags": [
         "文件",
         "file",
@@ -1506,9 +1824,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [

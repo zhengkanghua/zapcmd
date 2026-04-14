@@ -1,0 +1,19 @@
+meta:
+  name: Homebrew
+commands:
+  brew-install:
+    name: Install with Homebrew
+    args:
+      package:
+        label: Package
+  brew-uninstall:
+    name: Uninstall with Homebrew
+    args:
+      package:
+        label: Package
+  brew-update:
+    name: Update Homebrew Index
+  brew-upgrade:
+    name: Upgrade All Homebrew Packages
+  brew-list:
+    name: List Installed Homebrew Packages

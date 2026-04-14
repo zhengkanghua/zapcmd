@@ -2,6 +2,19 @@ function collapseWhitespace(value) {
   return String(value).replace(/\s+/gu, " ").trim();
 }
 
+function pickLocalizedText(value, defaultLocale) {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const direct = value[defaultLocale];
+    if (typeof direct === "string" && direct.trim().length > 0) {
+      return direct;
+    }
+  }
+  return "";
+}
+
 function formatExecutionSummary(command) {
   if (command.exec) {
     return collapseWhitespace([command.exec.program, ...(command.exec.args ?? [])].join(" "));
@@ -17,25 +30,43 @@ function formatPlatform(command) {
 }
 
 export function buildGeneratedMarkdown(catalog) {
+  const defaultLocale =
+    typeof catalog?.localeConfig?.defaultLocale === "string" &&
+    catalog.localeConfig.defaultLocale.trim().length > 0
+      ? catalog.localeConfig.defaultLocale.trim()
+      : "zh";
+
+  const moduleTitle =
+    pickLocalizedText(catalog?.meta?.name, defaultLocale) ||
+    catalog?.moduleSlug ||
+    catalog.fileName.replace(/\.yaml$/u, "");
+
   const lines = [
     `# ${catalog.fileName.replace(/\.yaml$/u, "")}`,
     "",
     "> 此文件为自动生成，禁止手动修改。",
     `> Source: ${catalog.fileName}`,
     "",
-    `## ${catalog.meta.name}`,
+    `## ${moduleTitle}`,
     ""
   ];
 
   if (catalog.meta.description) {
-    lines.push(catalog.meta.description, "");
+    const description = pickLocalizedText(catalog.meta.description, defaultLocale);
+    if (description) {
+      lines.push(description, "");
+    }
   }
 
   lines.push("## Commands", "");
 
   for (const command of catalog.commands) {
     lines.push(`### ${command.id}`, "");
-    lines.push(`- 名称：${command.name}`);
+    const commandName =
+      pickLocalizedText(command.name, defaultLocale) ||
+      (typeof command.name === "string" ? command.name : "") ||
+      command.id;
+    lines.push(`- 名称：${commandName}`);
     lines.push(`- 平台：${formatPlatform(command)}`);
     lines.push(`- 分类：${command.category ?? catalog.moduleSlug}`);
     lines.push(`- 执行：${command.exec ? "exec" : "script"}`);

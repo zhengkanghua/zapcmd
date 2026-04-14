@@ -27,7 +27,7 @@ export interface RuntimeCommandArg {
   type: RuntimeArgType;
   required?: boolean;
   default?: string;
-  placeholder?: string;
+  placeholder?: RuntimeLocalizedTextOrString;
   validation?: RuntimeCommandArgValidation;
 }
 

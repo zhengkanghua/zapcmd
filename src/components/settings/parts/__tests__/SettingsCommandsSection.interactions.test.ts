@@ -150,11 +150,11 @@ describe("SettingsCommandsSection interactions", () => {
       props: createProps({
         commandLoadIssues: [
           {
-            code: "invalid-json",
-            stage: "parse",
+            code: "scan-failed",
+            stage: "scan",
             sourceId: "user.json",
-            reason: "Unexpected token",
-            message: "user.json 解析失败"
+            reason: "permission denied",
+            message: "[扫描] 扫描命令来源失败：user.json（原因：permission denied）"
           }
         ],
         commandView: createCommandView({
@@ -172,7 +172,8 @@ describe("SettingsCommandsSection interactions", () => {
     const issuesHeading = issuesSection.get(`#${issuesLabelId}`);
     expect(issuesHeading.element.tagName).toBe("H2");
     expect(issuesHeading.text().trim().length).toBeGreaterThan(0);
-    expect(issuesSection.text()).toContain("user.json 解析失败");
+    expect(issuesSection.text()).toContain("扫描命令来源失败");
+    expect(issuesSection.text()).toContain("[扫描]");
     expect(wrapper.find("[aria-label='command-load-issues']").exists()).toBe(false);
     expect(wrapper.get(".settings-commands-toolbar__more-filters-count").text()).toBe("1");
 

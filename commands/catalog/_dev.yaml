@@ -1,9 +1,7 @@
 meta:
-  name: 开发工具
   moduleSlug: dev
 commands:
   - id: json-format
-    name: 格式化 JSON
     category: dev
     platform: all
     script:
@@ -12,7 +10,6 @@ commands:
     adminRequired: false
     args:
       - key: json
-        label: json
         type: text
         required: true
     prerequisites:
@@ -31,7 +28,6 @@ commands:
       - 格式化
       - format
   - id: base64-encode
-    name: Base64 编码
     category: dev
     platform: mac/linux
     script:
@@ -40,7 +36,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -55,7 +50,6 @@ commands:
       - 编码
       - encode
   - id: base64-decode
-    name: Base64 解码
     category: dev
     platform: mac/linux
     script:
@@ -64,7 +58,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -79,7 +72,6 @@ commands:
       - 解码
       - decode
   - id: md5-hash
-    name: 计算 MD5 哈希
     category: dev
     platform: mac
     exec:
@@ -90,7 +82,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     tags:
@@ -100,7 +91,6 @@ commands:
       - hash
       - 哈希
   - id: md5-hash-linux
-    name: 计算 MD5 哈希
     category: dev
     platform: linux
     script:
@@ -109,7 +99,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -124,7 +113,6 @@ commands:
       - hash
       - 哈希
   - id: sha256-hash-mac
-    name: 计算 SHA256 哈希
     category: dev
     platform: mac
     script:
@@ -133,7 +121,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -148,7 +135,6 @@ commands:
       - hash
       - 哈希
   - id: sha256-hash-linux
-    name: 计算 SHA256 哈希
     category: dev
     platform: linux
     script:
@@ -157,7 +143,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -172,7 +157,6 @@ commands:
       - hash
       - 哈希
   - id: timestamp-now
-    name: 当前 Unix 时间戳
     category: dev
     platform: mac/linux
     exec:
@@ -187,7 +171,6 @@ commands:
       - timestamp
       - now
   - id: timestamp-now-win
-    name: 当前 Unix 时间戳
     category: dev
     platform: win
     script:
@@ -206,7 +189,6 @@ commands:
       - timestamp
       - now
   - id: timestamp-convert
-    name: 时间戳转日期
     category: dev
     platform: mac
     exec:
@@ -217,7 +199,6 @@ commands:
     adminRequired: false
     args:
       - key: timestamp
-        label: timestamp
         type: number
         required: true
     tags:
@@ -228,7 +209,6 @@ commands:
       - 转换
       - convert
   - id: timestamp-convert-linux
-    name: 时间戳转日期
     category: dev
     platform: linux
     exec:
@@ -239,7 +219,6 @@ commands:
     adminRequired: false
     args:
       - key: timestamp
-        label: timestamp
         type: number
         required: true
     tags:
@@ -250,7 +229,6 @@ commands:
       - 转换
       - convert
   - id: uuid-gen
-    name: 生成 UUID
     category: dev
     platform: mac/linux
     exec:
@@ -263,7 +241,6 @@ commands:
       - uuid
       - gen
   - id: random-string
-    name: 生成随机字符串
     category: dev
     platform: mac/linux
     exec:
@@ -275,7 +252,6 @@ commands:
     adminRequired: false
     args:
       - key: length
-        label: length
         type: number
         required: true
         default: "16"
@@ -295,7 +271,6 @@ commands:
       - 字符串
       - string
   - id: http-server
-    name: 快速启动 HTTP 服务
     category: dev
     platform: all
     exec:
@@ -307,7 +282,6 @@ commands:
     adminRequired: false
     args:
       - key: port
-        label: port
         type: number
         required: true
         default: "8000"
@@ -328,7 +302,6 @@ commands:
       - 启动
       - start
   - id: regex-test-mac
-    name: 正则表达式测试
     category: dev
     platform: mac
     script:
@@ -337,11 +310,9 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
       - key: pattern
-        label: pattern
         type: text
         required: true
     prerequisites:
@@ -357,7 +328,6 @@ commands:
       - test
       - 测试
   - id: regex-test-linux
-    name: 正则表达式测试
     category: dev
     platform: linux
     script:
@@ -366,11 +336,9 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
       - key: pattern
-        label: pattern
         type: text
         required: true
     prerequisites:
@@ -386,7 +354,6 @@ commands:
       - test
       - 测试
   - id: url-encode
-    name: URL 编码
     category: dev
     platform: all
     script:
@@ -395,7 +362,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -414,7 +380,6 @@ commands:
       - 编码
       - encode
   - id: url-decode
-    name: URL 解码
     category: dev
     platform: all
     script:
@@ -423,7 +388,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -442,7 +406,6 @@ commands:
       - 解码
       - decode
   - id: jq-format-json
-    name: 使用 jq 格式化 JSON 文件
     category: dev
     platform: all
     exec:
@@ -453,7 +416,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -471,7 +433,6 @@ commands:
       - 文件
       - file
   - id: jwt-decode
-    name: 解码 JWT
     category: dev
     platform: all
     script:
@@ -483,7 +444,6 @@ commands:
     adminRequired: false
     args:
       - key: token
-        label: token
         type: text
         required: true
     prerequisites:
@@ -503,7 +463,6 @@ commands:
       - 解码
       - token
   - id: epoch-ms-now
-    name: 当前 Unix 毫秒时间戳
     category: dev
     platform: mac/linux
     script:
@@ -528,7 +487,6 @@ commands:
       - timestamp
       - now
   - id: epoch-ms-now-win
-    name: 当前 Unix 毫秒时间戳
     category: dev
     platform: win
     script:
@@ -549,7 +507,6 @@ commands:
       - timestamp
       - now
   - id: epoch-ms-convert
-    name: 毫秒时间戳转日期
     category: dev
     platform: mac/linux
     script:
@@ -560,7 +517,6 @@ commands:
     adminRequired: false
     args:
       - key: timestamp
-        label: timestamp
         type: number
         required: true
         validation:
@@ -585,7 +541,6 @@ commands:
       - 转换
       - 日期
   - id: epoch-ms-convert-win
-    name: 毫秒时间戳转日期
     category: dev
     platform: win
     script:
@@ -594,7 +549,6 @@ commands:
     adminRequired: false
     args:
       - key: timestamp
-        label: timestamp
         type: number
         required: true
         validation:
@@ -615,7 +569,6 @@ commands:
       - 转换
       - 日期
   - id: uuid-gen-win
-    name: 生成 UUID
     category: dev
     platform: win
     script:
@@ -633,7 +586,6 @@ commands:
       - uuid
       - gen
   - id: base64-encode-win
-    name: Base64 编码
     category: dev
     platform: win
     script:
@@ -642,7 +594,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -657,7 +608,6 @@ commands:
       - 编码
       - encode
   - id: base64-decode-win
-    name: Base64 解码
     category: dev
     platform: win
     script:
@@ -666,7 +616,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -681,7 +630,6 @@ commands:
       - 解码
       - decode
   - id: sha256-hash-win
-    name: 计算 SHA256 哈希
     category: dev
     platform: win
     script:
@@ -692,7 +640,6 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
     prerequisites:
@@ -707,7 +654,6 @@ commands:
       - hash
       - 哈希
   - id: regex-test-win
-    name: 正则表达式测试
     category: dev
     platform: win
     script:
@@ -717,11 +663,9 @@ commands:
     adminRequired: false
     args:
       - key: text
-        label: text
         type: text
         required: true
       - key: pattern
-        label: pattern
         type: text
         required: true
     prerequisites:

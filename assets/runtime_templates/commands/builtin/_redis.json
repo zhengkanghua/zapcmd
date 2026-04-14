@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Redis",
+    "name": {
+      "zh": "Redis",
+      "en": "Redis"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "redis-shell",
-      "name": "Redis Shell",
+      "name": {
+        "zh": "Redis Shell",
+        "en": "Redis Shell"
+      },
       "tags": [
         "redis",
         "shell",
@@ -32,7 +38,10 @@
     },
     {
       "id": "redis-ping",
-      "name": "Redis PING",
+      "name": {
+        "zh": "Redis PING",
+        "en": "Redis PING"
+      },
       "tags": [
         "redis",
         "ping",
@@ -59,7 +68,10 @@
     },
     {
       "id": "redis-info",
-      "name": "Redis INFO",
+      "name": {
+        "zh": "Redis INFO",
+        "en": "Redis INFO"
+      },
       "tags": [
         "redis",
         "info",
@@ -85,7 +97,10 @@
     },
     {
       "id": "redis-get",
-      "name": "Redis GET",
+      "name": {
+        "zh": "Redis GET",
+        "en": "Redis GET"
+      },
       "tags": [
         "redis",
         "get",
@@ -106,9 +121,12 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ],
       "prerequisites": [
@@ -122,7 +140,10 @@
     },
     {
       "id": "redis-set",
-      "name": "Redis SET",
+      "name": {
+        "zh": "Redis SET",
+        "en": "Redis SET"
+      },
       "tags": [
         "redis",
         "set",
@@ -145,15 +166,21 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "value",
-          "label": "value",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "value",
+            "en": "Value"
+          }
         }
       ],
       "prerequisites": [
@@ -167,7 +194,10 @@
     },
     {
       "id": "redis-del",
-      "name": "Redis DEL",
+      "name": {
+        "zh": "Redis DEL",
+        "en": "Redis DEL"
+      },
       "tags": [
         "redis",
         "del",
@@ -188,9 +218,12 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ],
       "prerequisites": [
@@ -204,7 +237,10 @@
     },
     {
       "id": "redis-exists",
-      "name": "Redis EXISTS",
+      "name": {
+        "zh": "Redis EXISTS",
+        "en": "Redis EXISTS"
+      },
       "tags": [
         "redis",
         "exists",
@@ -223,9 +259,12 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ],
       "prerequisites": [
@@ -239,7 +278,10 @@
     },
     {
       "id": "redis-expire",
-      "name": "Redis EXPIRE",
+      "name": {
+        "zh": "Redis EXPIRE",
+        "en": "Redis EXPIRE"
+      },
       "tags": [
         "redis",
         "expire",
@@ -261,19 +303,25 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "seconds",
-          "label": "seconds",
           "type": "number",
           "required": true,
           "default": "60",
           "validation": {
             "min": 1,
             "max": 86400
+          },
+          "label": {
+            "zh": "seconds",
+            "en": "Seconds"
           }
         }
       ],
@@ -288,7 +336,10 @@
     },
     {
       "id": "redis-ttl",
-      "name": "Redis TTL",
+      "name": {
+        "zh": "Redis TTL",
+        "en": "Redis TTL"
+      },
       "tags": [
         "redis",
         "ttl",
@@ -307,9 +358,12 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ],
       "prerequisites": [
@@ -323,7 +377,10 @@
     },
     {
       "id": "redis-scan",
-      "name": "Redis SCAN",
+      "name": {
+        "zh": "Redis SCAN",
+        "en": "Redis SCAN"
+      },
       "tags": [
         "redis",
         "scan",
@@ -347,20 +404,26 @@
       "args": [
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
           "required": true,
-          "default": "*"
+          "default": "*",
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         },
         {
           "key": "count",
-          "label": "count",
           "type": "number",
           "required": true,
           "default": "100",
           "validation": {
             "min": 1,
             "max": 1000
+          },
+          "label": {
+            "zh": "count",
+            "en": "Count"
           }
         }
       ],
@@ -375,7 +438,10 @@
     },
     {
       "id": "redis-keys",
-      "name": "Redis KEYS（慎用）",
+      "name": {
+        "zh": "Redis KEYS（慎用）",
+        "en": "Redis KEYS (Use with Caution)"
+      },
       "tags": [
         "redis",
         "keys",
@@ -398,10 +464,13 @@
       "args": [
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
           "required": true,
-          "default": "*"
+          "default": "*",
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         }
       ],
       "prerequisites": [
@@ -415,7 +484,10 @@
     },
     {
       "id": "redis-hget",
-      "name": "Redis HGET",
+      "name": {
+        "zh": "Redis HGET",
+        "en": "Redis HGET"
+      },
       "tags": [
         "redis",
         "hget",
@@ -437,15 +509,21 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "field",
-          "label": "field",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "field",
+            "en": "Field"
+          }
         }
       ],
       "prerequisites": [
@@ -459,7 +537,10 @@
     },
     {
       "id": "redis-hset",
-      "name": "Redis HSET",
+      "name": {
+        "zh": "Redis HSET",
+        "en": "Redis HSET"
+      },
       "tags": [
         "redis",
         "hset",
@@ -483,21 +564,30 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "field",
-          "label": "field",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "field",
+            "en": "Field"
+          }
         },
         {
           "key": "value",
-          "label": "value",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "value",
+            "en": "Value"
+          }
         }
       ],
       "prerequisites": [
@@ -511,7 +601,10 @@
     },
     {
       "id": "redis-hgetall",
-      "name": "Redis HGETALL",
+      "name": {
+        "zh": "Redis HGETALL",
+        "en": "Redis HGETALL"
+      },
       "tags": [
         "redis",
         "hgetall",
@@ -531,9 +624,12 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ],
       "prerequisites": [
@@ -547,7 +643,10 @@
     },
     {
       "id": "redis-lpush",
-      "name": "Redis LPUSH",
+      "name": {
+        "zh": "Redis LPUSH",
+        "en": "Redis LPUSH"
+      },
       "tags": [
         "redis",
         "lpush",
@@ -569,15 +668,21 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "value",
-          "label": "value",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "value",
+            "en": "Value"
+          }
         }
       ],
       "prerequisites": [
@@ -591,7 +696,10 @@
     },
     {
       "id": "redis-lrange",
-      "name": "Redis LRANGE",
+      "name": {
+        "zh": "Redis LRANGE",
+        "en": "Redis LRANGE"
+      },
       "tags": [
         "redis",
         "lrange",
@@ -615,26 +723,35 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "start",
-          "label": "start",
           "type": "number",
           "required": true,
           "default": "0",
           "validation": {
             "min": 0
+          },
+          "label": {
+            "zh": "start",
+            "en": "Start"
           }
         },
         {
           "key": "stop",
-          "label": "stop",
           "type": "number",
           "required": true,
-          "default": "-1"
+          "default": "-1",
+          "label": {
+            "zh": "stop",
+            "en": "Stop"
+          }
         }
       ],
       "prerequisites": [
@@ -648,7 +765,10 @@
     },
     {
       "id": "redis-sadd",
-      "name": "Redis SADD",
+      "name": {
+        "zh": "Redis SADD",
+        "en": "Redis SADD"
+      },
       "tags": [
         "redis",
         "sadd",
@@ -670,15 +790,21 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "member",
-          "label": "member",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "member",
+            "en": "Member"
+          }
         }
       ],
       "prerequisites": [
@@ -692,7 +818,10 @@
     },
     {
       "id": "redis-smembers",
-      "name": "Redis SMEMBERS",
+      "name": {
+        "zh": "Redis SMEMBERS",
+        "en": "Redis SMEMBERS"
+      },
       "tags": [
         "redis",
         "smembers",
@@ -712,9 +841,12 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ],
       "prerequisites": [
@@ -728,7 +860,10 @@
     },
     {
       "id": "redis-zrange",
-      "name": "Redis ZRANGE",
+      "name": {
+        "zh": "Redis ZRANGE",
+        "en": "Redis ZRANGE"
+      },
       "tags": [
         "redis",
         "zrange",
@@ -752,26 +887,35 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "start",
-          "label": "start",
           "type": "number",
           "required": true,
           "default": "0",
           "validation": {
             "min": 0
+          },
+          "label": {
+            "zh": "start",
+            "en": "Start"
           }
         },
         {
           "key": "stop",
-          "label": "stop",
           "type": "number",
           "required": true,
-          "default": "-1"
+          "default": "-1",
+          "label": {
+            "zh": "stop",
+            "en": "Stop"
+          }
         }
       ],
       "prerequisites": [
@@ -785,7 +929,10 @@
     },
     {
       "id": "redis-flushdb",
-      "name": "Redis FLUSHDB（清空当前库）",
+      "name": {
+        "zh": "Redis FLUSHDB（清空当前库）",
+        "en": "Redis FLUSHDB (Clear Current DB)"
+      },
       "tags": [
         "redis",
         "flushdb",
@@ -815,7 +962,10 @@
     },
     {
       "id": "redis-dbsize",
-      "name": "Redis DBSIZE",
+      "name": {
+        "zh": "Redis DBSIZE",
+        "en": "Redis DBSIZE"
+      },
       "tags": [
         "redis",
         "dbsize",
@@ -844,7 +994,10 @@
     },
     {
       "id": "redis-memory",
-      "name": "Redis 内存信息",
+      "name": {
+        "zh": "Redis 内存信息",
+        "en": "Redis Memory Info"
+      },
       "tags": [
         "redis",
         "memory",
@@ -875,7 +1028,10 @@
     },
     {
       "id": "redis-client-list",
-      "name": "Redis 客户端列表",
+      "name": {
+        "zh": "Redis 客户端列表",
+        "en": "Redis Client List"
+      },
       "tags": [
         "redis",
         "client",
@@ -907,7 +1063,10 @@
     },
     {
       "id": "redis-slowlog-get",
-      "name": "Redis 慢日志",
+      "name": {
+        "zh": "Redis 慢日志",
+        "en": "Redis Slow Log"
+      },
       "tags": [
         "redis",
         "slowlog",
@@ -930,13 +1089,16 @@
       "args": [
         {
           "key": "count",
-          "label": "count",
           "type": "number",
           "required": true,
           "default": "10",
           "validation": {
             "min": 1,
             "max": 128
+          },
+          "label": {
+            "zh": "count",
+            "en": "Count"
           }
         }
       ],
@@ -951,7 +1113,10 @@
     },
     {
       "id": "redis-config-get",
-      "name": "Redis 配置查询",
+      "name": {
+        "zh": "Redis 配置查询",
+        "en": "Redis Config Lookup"
+      },
       "tags": [
         "redis",
         "config",
@@ -976,10 +1141,13 @@
       "args": [
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
           "required": true,
-          "default": "*"
+          "default": "*",
+          "label": {
+            "zh": "pattern",
+            "en": "Pattern"
+          }
         }
       ],
       "prerequisites": [

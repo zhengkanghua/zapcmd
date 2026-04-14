@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Bun",
+    "name": {
+      "zh": "Bun",
+      "en": "Bun"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "bun-install",
-      "name": "Bun 安装依赖",
+      "name": {
+        "zh": "Bun 安装依赖",
+        "en": "Install Project Dependencies with Bun"
+      },
       "tags": [
         "包管理",
         "package",
@@ -35,7 +41,10 @@
     },
     {
       "id": "bun-run",
-      "name": "Bun 运行脚本",
+      "name": {
+        "zh": "Bun 运行脚本",
+        "en": "Run Bun Script"
+      },
       "tags": [
         "包管理",
         "package",
@@ -58,9 +67,12 @@
       "args": [
         {
           "key": "script",
-          "label": "script",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "script",
+            "en": "Script"
+          }
         }
       ],
       "prerequisites": [
@@ -74,7 +86,10 @@
     },
     {
       "id": "bun-add",
-      "name": "Bun 添加依赖",
+      "name": {
+        "zh": "Bun 添加依赖",
+        "en": "Add Bun Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -97,9 +112,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -113,7 +131,10 @@
     },
     {
       "id": "bun-remove",
-      "name": "Bun 移除依赖",
+      "name": {
+        "zh": "Bun 移除依赖",
+        "en": "Remove Bun Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -137,9 +158,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [

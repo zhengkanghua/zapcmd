@@ -1,9 +1,7 @@
 meta:
-  name: Postgres
   moduleSlug: postgres
 commands:
   - id: psql-shell
-    name: Postgres Shell
     category: postgres
     platform: all
     exec:
@@ -20,12 +18,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -33,12 +29,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
@@ -55,7 +49,6 @@ commands:
       - 入口
       - 控制台
   - id: postgres-is-ready
-    name: Postgres 就绪检查
     category: postgres
     platform: all
     exec:
@@ -68,12 +61,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -91,7 +82,6 @@ commands:
       - health
       - 检查
   - id: postgres-list-databases
-    name: Postgres 列出数据库
     category: postgres
     platform: all
     exec:
@@ -110,12 +100,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -123,7 +111,6 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
@@ -139,7 +126,6 @@ commands:
       - 数据库
       - 列表
   - id: postgres-list-tables
-    name: Postgres 列出数据表
     category: postgres
     platform: all
     exec:
@@ -158,12 +144,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -171,12 +155,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
@@ -192,7 +174,6 @@ commands:
       - 数据表
       - 列表
   - id: postgres-describe-table
-    name: Postgres 查看表结构
     category: postgres
     platform: all
     exec:
@@ -211,12 +192,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -224,17 +203,14 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
       - key: table
-        label: table
         type: text
         required: true
     prerequisites:
@@ -248,7 +224,6 @@ commands:
       - table
       - schema
   - id: postgres-query
-    name: Postgres 执行 SQL
     category: postgres
     platform: all
     exec:
@@ -267,12 +242,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -280,17 +253,14 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
       - key: sql
-        label: sql
         type: text
         required: true
     prerequisites:
@@ -304,7 +274,6 @@ commands:
       - sql
       - database
   - id: postgres-dump
-    name: Postgres 导出数据库
     category: postgres
     platform: all
     exec:
@@ -323,12 +292,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -336,17 +303,14 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
       - key: output
-        label: output
         type: path
         required: true
     prerequisites:
@@ -361,7 +325,6 @@ commands:
       - backup
       - database
   - id: postgres-restore
-    name: Postgres 导入 SQL 文件
     category: postgres
     platform: all
     exec:
@@ -380,12 +343,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -393,17 +354,14 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -418,7 +376,6 @@ commands:
       - sql
       - database
   - id: postgres-create-database
-    name: Postgres 创建数据库
     category: postgres
     platform: all
     script:
@@ -428,12 +385,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -441,12 +396,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
     prerequisites:
@@ -463,7 +416,6 @@ commands:
       - create
       - database
   - id: postgres-drop-database
-    name: Postgres 删除数据库
     category: postgres
     platform: all
     script:
@@ -474,12 +426,10 @@ commands:
     dangerous: true
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -487,12 +437,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
     prerequisites:
@@ -512,7 +460,6 @@ commands:
       - delete
       - 高危
   - id: postgres-version
-    name: Postgres 版本
     category: postgres
     platform: all
     script:
@@ -522,12 +469,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -535,12 +480,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
@@ -561,7 +504,6 @@ commands:
       - 查看
       - show
   - id: postgres-current-db
-    name: Postgres 当前数据库
     category: postgres
     platform: all
     script:
@@ -571,12 +513,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -584,12 +524,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
@@ -611,7 +549,6 @@ commands:
       - 查看
       - show
   - id: postgres-current-user
-    name: Postgres 当前用户
     category: postgres
     platform: all
     script:
@@ -621,12 +558,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -634,12 +569,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
@@ -661,7 +594,6 @@ commands:
       - 查看
       - show
   - id: postgres-list-extensions
-    name: Postgres 扩展列表
     category: postgres
     platform: all
     script:
@@ -671,12 +603,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -684,12 +614,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
@@ -712,7 +640,6 @@ commands:
       - 查看
       - show
   - id: postgres-db-size
-    name: Postgres 当前库大小
     category: postgres
     platform: all
     script:
@@ -722,12 +649,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -735,12 +660,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres
@@ -763,7 +686,6 @@ commands:
       - 查看
       - show
   - id: postgres-active-queries
-    name: Postgres 活跃查询
     category: postgres
     platform: all
     script:
@@ -774,12 +696,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "5432"
@@ -787,12 +707,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: postgres
       - key: database
-        label: database
         type: text
         required: true
         default: postgres

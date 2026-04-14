@@ -1,0 +1,131 @@
+meta:
+  name: Redis
+commands:
+  redis-shell:
+    name: Redis Shell
+  redis-ping:
+    name: Redis PING
+  redis-info:
+    name: Redis INFO
+  redis-get:
+    name: Redis GET
+    args:
+      key:
+        label: Key
+  redis-set:
+    name: Redis SET
+    args:
+      key:
+        label: Key
+      value:
+        label: Value
+  redis-del:
+    name: Redis DEL
+    args:
+      key:
+        label: Key
+  redis-exists:
+    name: Redis EXISTS
+    args:
+      key:
+        label: Key
+  redis-expire:
+    name: Redis EXPIRE
+    args:
+      key:
+        label: Key
+      seconds:
+        label: Seconds
+  redis-ttl:
+    name: Redis TTL
+    args:
+      key:
+        label: Key
+  redis-scan:
+    name: Redis SCAN
+    args:
+      pattern:
+        label: Pattern
+      count:
+        label: Count
+  redis-keys:
+    name: Redis KEYS (Use with Caution)
+    args:
+      pattern:
+        label: Pattern
+  redis-hget:
+    name: Redis HGET
+    args:
+      key:
+        label: Key
+      field:
+        label: Field
+  redis-hset:
+    name: Redis HSET
+    args:
+      key:
+        label: Key
+      field:
+        label: Field
+      value:
+        label: Value
+  redis-hgetall:
+    name: Redis HGETALL
+    args:
+      key:
+        label: Key
+  redis-lpush:
+    name: Redis LPUSH
+    args:
+      key:
+        label: Key
+      value:
+        label: Value
+  redis-lrange:
+    name: Redis LRANGE
+    args:
+      key:
+        label: Key
+      start:
+        label: Start
+      stop:
+        label: Stop
+  redis-sadd:
+    name: Redis SADD
+    args:
+      key:
+        label: Key
+      member:
+        label: Member
+  redis-smembers:
+    name: Redis SMEMBERS
+    args:
+      key:
+        label: Key
+  redis-zrange:
+    name: Redis ZRANGE
+    args:
+      key:
+        label: Key
+      start:
+        label: Start
+      stop:
+        label: Stop
+  redis-flushdb:
+    name: Redis FLUSHDB (Clear Current DB)
+  redis-dbsize:
+    name: Redis DBSIZE
+  redis-memory:
+    name: Redis Memory Info
+  redis-client-list:
+    name: Redis Client List
+  redis-slowlog-get:
+    name: Redis Slow Log
+    args:
+      count:
+        label: Count
+  redis-config-get:
+    name: Redis Config Lookup
+    args:
+      pattern:
+        label: Pattern

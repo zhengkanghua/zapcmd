@@ -8,6 +8,9 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseYamlCatalog } from "./catalogGenerator/parseYamlCatalog.mjs";
+import { readCatalogLocaleConfig } from "./catalogGenerator/readCatalogLocaleConfig.mjs";
+import { parseYamlCatalogLocaleOverlay } from "./catalogGenerator/parseYamlCatalogLocaleOverlay.mjs";
+import { mergeCatalogLocales } from "./catalogGenerator/mergeCatalogLocales.mjs";
 import { buildRuntimeJson } from "./catalogGenerator/buildRuntimeJson.mjs";
 import {
   buildGeneratedMarkdown,
@@ -55,6 +58,20 @@ function toRelativeDisplayPath(targetPath, cwd) {
 
 function formatJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function assertRequiredLocaleOverlaysExist(sourceDir, fileName, localeConfig) {
+  const requiredLocales = Array.isArray(localeConfig?.requiredBuiltinLocales)
+    ? localeConfig.requiredBuiltinLocales
+    : [];
+  for (const locale of requiredLocales) {
+    const overlayPath = path.join(sourceDir, "locales", locale, fileName);
+    if (!existsSync(overlayPath)) {
+      throw new Error(
+        `Missing required builtin locale overlay '${locale}' for ${fileName}: ${overlayPath}`
+      );
+    }
+  }
 }
 
 function printHelp() {
@@ -145,10 +162,24 @@ export function generateBuiltinCommands(rawOptions = {}) {
   mkdirSync(outputDir, { recursive: true });
   mkdirSync(generatedDocsDir, { recursive: true });
 
+  const localeConfig = readCatalogLocaleConfig(sourceDir);
   const manifestEntries = [];
 
   for (const fileName of sourceFiles) {
-    const catalog = parseYamlCatalog(path.join(sourceDir, fileName));
+    const baseCatalog = parseYamlCatalog(path.join(sourceDir, fileName));
+    assertRequiredLocaleOverlaysExist(sourceDir, fileName, localeConfig);
+    const overlaysByLocale = Object.fromEntries(
+      (localeConfig.supportedLocales ?? []).map((locale) => {
+        const overlayPath = path.join(sourceDir, "locales", locale, fileName);
+        return [locale, parseYamlCatalogLocaleOverlay(overlayPath)];
+      })
+    );
+    const catalog = mergeCatalogLocales({
+      baseCatalog,
+      overlaysByLocale,
+      localeConfig
+    });
+
     const { runtimeJson, manifestEntry } = buildRuntimeJson(catalog);
     const runtimeJsonPath = path.join(outputDir, manifestEntry.file);
     const generatedDocPath = path.join(generatedDocsDir, manifestEntry.docFile);
@@ -161,7 +192,8 @@ export function generateBuiltinCommands(rawOptions = {}) {
   const manifest = writeCatalogManifest({
     sourceDir: toRelativeDisplayPath(sourceDir, cwd),
     sourcePattern: options.sourcePattern,
-    entries: manifestEntries
+    entries: manifestEntries,
+    localeConfig
   });
   const logicalCommandCount = manifest.logicalCommandCount;
   if (

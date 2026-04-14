@@ -1,0 +1,136 @@
+meta:
+  name: 开发工具
+commands:
+  json-format:
+    name: 格式化 JSON
+    args:
+      json:
+        label: JSON
+  base64-encode:
+    name: Base64 编码
+    args:
+      text:
+        label: 文本
+  base64-decode:
+    name: Base64 解码
+    args:
+      text:
+        label: 文本
+  md5-hash:
+    name: 计算 MD5 哈希
+    args:
+      text:
+        label: 文本
+  md5-hash-linux:
+    name: 计算 MD5 哈希
+    args:
+      text:
+        label: 文本
+  sha256-hash-mac:
+    name: 计算 SHA256 哈希
+    args:
+      text:
+        label: 文本
+  sha256-hash-linux:
+    name: 计算 SHA256 哈希
+    args:
+      text:
+        label: 文本
+  timestamp-now:
+    name: 当前 Unix 时间戳
+  timestamp-now-win:
+    name: 当前 Unix 时间戳
+  timestamp-convert:
+    name: 时间戳转日期
+    args:
+      timestamp:
+        label: 时间戳
+  timestamp-convert-linux:
+    name: 时间戳转日期
+    args:
+      timestamp:
+        label: 时间戳
+  uuid-gen:
+    name: 生成 UUID
+  random-string:
+    name: 生成随机字符串
+    args:
+      length:
+        label: 长度
+  http-server:
+    name: 快速启动 HTTP 服务
+    args:
+      port:
+        label: 端口
+  regex-test-mac:
+    name: 正则表达式测试
+    args:
+      text:
+        label: 文本
+      pattern:
+        label: 正则
+  regex-test-linux:
+    name: 正则表达式测试
+    args:
+      text:
+        label: 文本
+      pattern:
+        label: 正则
+  url-encode:
+    name: URL 编码
+    args:
+      text:
+        label: 文本
+  url-decode:
+    name: URL 解码
+    args:
+      text:
+        label: 文本
+  jq-format-json:
+    name: 使用 jq 格式化 JSON 文件
+    args:
+      file:
+        label: 文件
+  jwt-decode:
+    name: 解码 JWT
+    args:
+      token:
+        label: Token
+  epoch-ms-now:
+    name: 当前 Unix 毫秒时间戳
+  epoch-ms-now-win:
+    name: 当前 Unix 毫秒时间戳
+  epoch-ms-convert:
+    name: 毫秒时间戳转日期
+    args:
+      timestamp:
+        label: 时间戳
+  epoch-ms-convert-win:
+    name: 毫秒时间戳转日期
+    args:
+      timestamp:
+        label: 时间戳
+  uuid-gen-win:
+    name: 生成 UUID
+  base64-encode-win:
+    name: Base64 编码
+    args:
+      text:
+        label: 文本
+  base64-decode-win:
+    name: Base64 解码
+    args:
+      text:
+        label: 文本
+  sha256-hash-win:
+    name: 计算 SHA256 哈希
+    args:
+      text:
+        label: 文本
+  regex-test-win:
+    name: 正则表达式测试
+    args:
+      text:
+        label: 文本
+      pattern:
+        label: 正则

@@ -1,0 +1,159 @@
+meta:
+  name: MySQL
+commands:
+  mysql-shell:
+    name: MySQL Shell
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+  mysql-ping:
+    name: MySQL PING
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+  mysql-show-databases:
+    name: Show MySQL Databases
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+  mysql-show-tables:
+    name: Show MySQL Tables
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  mysql-describe-table:
+    name: Show MySQL Table Schema
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+      table:
+        label: Table
+  mysql-query:
+    name: Execute MySQL SQL
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+      sql:
+        label: SQL
+  mysql-dump:
+    name: Export MySQL Database
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+      output:
+        label: Output
+  mysql-import:
+    name: Import MySQL SQL File
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+      file:
+        label: File
+  mysql-create-database:
+    name: Create MySQL Database
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  mysql-drop-database:
+    name: Drop MySQL Database
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  mysql-version:
+    name: Show MySQL Version
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  mysql-processlist:
+    name: Show MySQL Process List
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  mysql-show-status:
+    name: Show MySQL Status Variables
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  mysql-show-variables:
+    name: Show MySQL Configuration Variables
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database

@@ -1,0 +1,181 @@
+meta:
+  name: Postgres
+commands:
+  psql-shell:
+    name: Postgres Shell
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-is-ready:
+    name: Check Postgres Readiness
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+  postgres-list-databases:
+    name: List Postgres Databases
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+  postgres-list-tables:
+    name: List Postgres Tables
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-describe-table:
+    name: Show Postgres Table Schema
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+      table:
+        label: Table
+  postgres-query:
+    name: Execute Postgres SQL
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+      sql:
+        label: SQL
+  postgres-dump:
+    name: Export Postgres Database
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+      output:
+        label: Output
+  postgres-restore:
+    name: Import Postgres SQL File
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+      file:
+        label: File
+  postgres-create-database:
+    name: Create Postgres Database
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-drop-database:
+    name: Drop Postgres Database
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-version:
+    name: Show Postgres Version
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-current-db:
+    name: Show Current Postgres Database
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-current-user:
+    name: Show Current Postgres User
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-list-extensions:
+    name: List Postgres Extensions
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-db-size:
+    name: Show Current Postgres Database Size
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database
+  postgres-active-queries:
+    name: Show Active Postgres Queries
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+      user:
+        label: User
+      database:
+        label: Database

@@ -1,9 +1,7 @@
 meta:
-  name: 文件操作
   moduleSlug: file
 commands:
   - id: find-file
-    name: 按名称查找文件
     category: file
     platform: mac/linux
     exec:
@@ -15,12 +13,10 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
         default: .
       - key: pattern
-        label: pattern
         type: text
         required: true
     tags:
@@ -29,7 +25,6 @@ commands:
       - 查找
       - find
   - id: find-file-win
-    name: 按名称查找文件
     category: file
     platform: win
     script:
@@ -38,12 +33,10 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
         default: .
       - key: pattern
-        label: pattern
         type: text
         required: true
     prerequisites:
@@ -57,7 +50,6 @@ commands:
       - 查找
       - find
   - id: find-content
-    name: 按内容搜索文件
     category: file
     platform: mac/linux
     exec:
@@ -69,11 +61,9 @@ commands:
     adminRequired: false
     args:
       - key: pattern
-        label: pattern
         type: text
         required: true
       - key: path
-        label: path
         type: path
         required: true
         default: .
@@ -85,7 +75,6 @@ commands:
       - 内容
       - content
   - id: find-content-win
-    name: 按内容搜索文件
     category: file
     platform: win
     script:
@@ -94,11 +83,9 @@ commands:
     adminRequired: false
     args:
       - key: pattern
-        label: pattern
         type: text
         required: true
       - key: path
-        label: path
         type: path
         required: true
         default: .
@@ -115,7 +102,6 @@ commands:
       - 内容
       - content
   - id: list-files
-    name: 列出目录内容
     category: file
     platform: mac/linux
     exec:
@@ -126,7 +112,6 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
         default: .
@@ -139,7 +124,6 @@ commands:
       - 目录
       - directory
   - id: list-files-win
-    name: 列出目录内容
     category: file
     platform: win
     script:
@@ -148,7 +132,6 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
         default: .
@@ -166,7 +149,6 @@ commands:
       - 目录
       - directory
   - id: tree
-    name: 目录树结构
     category: file
     platform: mac/linux
     exec:
@@ -178,12 +160,10 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
         default: .
       - key: depth
-        label: depth
         type: number
         required: true
         default: "3"
@@ -203,7 +183,6 @@ commands:
       - 目录
       - directory
   - id: tree-win
-    name: 目录树结构
     category: file
     platform: win
     exec:
@@ -214,7 +193,6 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
         default: .
@@ -226,7 +204,6 @@ commands:
       - 目录
       - directory
   - id: file-size
-    name: 查看文件大小
     category: file
     platform: mac/linux
     exec:
@@ -237,7 +214,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     tags:
@@ -248,7 +224,6 @@ commands:
       - 查看
       - show
   - id: file-count
-    name: 统计文件数量
     category: file
     platform: mac/linux
     script:
@@ -257,7 +232,6 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
         default: .
@@ -271,7 +245,6 @@ commands:
       - file
       - count
   - id: file-permissions
-    name: 修改文件权限
     category: file
     platform: mac/linux
     exec:
@@ -282,11 +255,9 @@ commands:
     adminRequired: false
     args:
       - key: mode
-        label: mode
         type: text
         required: true
       - key: file
-        label: file
         type: path
         required: true
     tags:
@@ -295,7 +266,6 @@ commands:
       - 权限
       - permissions
   - id: file-owner
-    name: 修改文件所有者
     category: file
     platform: mac/linux
     exec:
@@ -306,11 +276,9 @@ commands:
     adminRequired: false
     args:
       - key: owner
-        label: owner
         type: text
         required: true
       - key: file
-        label: file
         type: path
         required: true
     tags:
@@ -319,7 +287,6 @@ commands:
       - 所有者
       - owner
   - id: compress-tar
-    name: 打包压缩 (tar.gz)
     category: file
     platform: mac/linux
     exec:
@@ -331,11 +298,9 @@ commands:
     adminRequired: false
     args:
       - key: input
-        label: input
         type: path
         required: true
       - key: output
-        label: output
         type: text
         required: true
     tags:
@@ -345,7 +310,6 @@ commands:
       - compress
       - tar
   - id: extract-tar
-    name: 解压 (tar.gz)
     category: file
     platform: mac/linux
     exec:
@@ -356,7 +320,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     tags:
@@ -366,7 +329,6 @@ commands:
       - extract
       - tar
   - id: compress-zip
-    name: ZIP 压缩
     category: file
     platform: mac/linux
     exec:
@@ -378,11 +340,9 @@ commands:
     adminRequired: false
     args:
       - key: input
-        label: input
         type: path
         required: true
       - key: output
-        label: output
         type: text
         required: true
     prerequisites:
@@ -397,7 +357,6 @@ commands:
       - compress
       - zip
   - id: extract-zip
-    name: ZIP 解压
     category: file
     platform: mac/linux
     exec:
@@ -409,11 +368,9 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
       - key: dest
-        label: dest
         type: path
         required: true
         default: .
@@ -429,7 +386,6 @@ commands:
       - extract
       - zip
   - id: compress-zip-win
-    name: ZIP 压缩
     category: file
     platform: win
     script:
@@ -439,11 +395,9 @@ commands:
     adminRequired: false
     args:
       - key: input
-        label: input
         type: path
         required: true
       - key: output
-        label: output
         type: text
         required: true
     prerequisites:
@@ -458,7 +412,6 @@ commands:
       - compress
       - zip
   - id: extract-zip-win
-    name: ZIP 解压
     category: file
     platform: win
     script:
@@ -467,11 +420,9 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
       - key: dest
-        label: dest
         type: path
         required: true
         default: .
@@ -487,7 +438,6 @@ commands:
       - extract
       - zip
   - id: watch-file
-    name: 监听文件变化
     category: file
     platform: mac/linux
     exec:
@@ -497,7 +447,6 @@ commands:
     adminRequired: false
     args:
       - key: path
-        label: path
         type: path
         required: true
     prerequisites:
@@ -511,7 +460,6 @@ commands:
       - 监听
       - watch
   - id: tail-log
-    name: 实时查看日志
     category: file
     platform: mac/linux
     exec:
@@ -522,7 +470,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     tags:
@@ -534,7 +481,6 @@ commands:
       - 查看
       - show
   - id: tail-log-win
-    name: 实时查看日志
     category: file
     platform: win
     script:
@@ -543,11 +489,9 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
       - key: lines
-        label: lines
         type: number
         required: true
         default: "100"
@@ -568,7 +512,6 @@ commands:
       - 查看
       - show
   - id: head-file
-    name: 查看文件前 N 行
     category: file
     platform: mac/linux
     exec:
@@ -580,11 +523,9 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
       - key: lines
-        label: lines
         type: number
         required: true
         default: "20"
@@ -598,7 +539,6 @@ commands:
       - 查看
       - show
   - id: head-file-win
-    name: 查看文件前 N 行
     category: file
     platform: win
     script:
@@ -607,11 +547,9 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
       - key: lines
-        label: lines
         type: number
         required: true
         default: "20"
@@ -630,7 +568,6 @@ commands:
       - 查看
       - show
   - id: wc-lines
-    name: 统计文件行数
     category: file
     platform: mac/linux
     exec:
@@ -641,7 +578,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     tags:
@@ -652,7 +588,6 @@ commands:
       - 行
       - lines
   - id: wc-lines-win
-    name: 统计文件行数
     category: file
     platform: win
     script:
@@ -661,7 +596,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:

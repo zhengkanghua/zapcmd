@@ -1,0 +1,136 @@
+meta:
+  name: Developer Tools
+commands:
+  json-format:
+    name: Format JSON
+    args:
+      json:
+        label: JSON
+  base64-encode:
+    name: Base64 Encode
+    args:
+      text:
+        label: Text
+  base64-decode:
+    name: Base64 Decode
+    args:
+      text:
+        label: Text
+  md5-hash:
+    name: Calculate MD5 Hash
+    args:
+      text:
+        label: Text
+  md5-hash-linux:
+    name: Calculate MD5 Hash
+    args:
+      text:
+        label: Text
+  sha256-hash-mac:
+    name: Calculate SHA256 Hash
+    args:
+      text:
+        label: Text
+  sha256-hash-linux:
+    name: Calculate SHA256 Hash
+    args:
+      text:
+        label: Text
+  timestamp-now:
+    name: Show Current Unix Timestamp
+  timestamp-now-win:
+    name: Show Current Unix Timestamp
+  timestamp-convert:
+    name: Convert Timestamp to Date
+    args:
+      timestamp:
+        label: Timestamp
+  timestamp-convert-linux:
+    name: Convert Timestamp to Date
+    args:
+      timestamp:
+        label: Timestamp
+  uuid-gen:
+    name: Generate UUID
+  random-string:
+    name: Generate Random String
+    args:
+      length:
+        label: Length
+  http-server:
+    name: Start HTTP Server
+    args:
+      port:
+        label: Port
+  regex-test-mac:
+    name: Test Regular Expression
+    args:
+      text:
+        label: Text
+      pattern:
+        label: Pattern
+  regex-test-linux:
+    name: Test Regular Expression
+    args:
+      text:
+        label: Text
+      pattern:
+        label: Pattern
+  url-encode:
+    name: URL Encode
+    args:
+      text:
+        label: Text
+  url-decode:
+    name: URL Decode
+    args:
+      text:
+        label: Text
+  jq-format-json:
+    name: Format JSON with jq
+    args:
+      file:
+        label: File
+  jwt-decode:
+    name: Decode JWT
+    args:
+      token:
+        label: Token
+  epoch-ms-now:
+    name: Show Current Unix Timestamp (ms)
+  epoch-ms-now-win:
+    name: Show Current Unix Timestamp (ms)
+  epoch-ms-convert:
+    name: Convert Millisecond Timestamp to Date
+    args:
+      timestamp:
+        label: Timestamp
+  epoch-ms-convert-win:
+    name: Convert Millisecond Timestamp to Date
+    args:
+      timestamp:
+        label: Timestamp
+  uuid-gen-win:
+    name: Generate UUID
+  base64-encode-win:
+    name: Base64 Encode
+    args:
+      text:
+        label: Text
+  base64-decode-win:
+    name: Base64 Decode
+    args:
+      text:
+        label: Text
+  sha256-hash-win:
+    name: Calculate SHA256 Hash
+    args:
+      text:
+        label: Text
+  regex-test-win:
+    name: Test Regular Expression
+    args:
+      text:
+        label: Text
+      pattern:
+        label: Pattern

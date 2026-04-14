@@ -1,9 +1,7 @@
 meta:
-  name: Yarn
   moduleSlug: yarn
 commands:
   - id: yarn-add
-    name: Yarn 添加依赖
     category: package
     platform: all
     exec:
@@ -14,7 +12,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -31,7 +28,6 @@ commands:
       - 依赖
       - dependency
   - id: yarn-run
-    name: Yarn 运行脚本
     category: package
     platform: all
     exec:
@@ -42,7 +38,6 @@ commands:
     adminRequired: false
     args:
       - key: script
-        label: script
         type: text
         required: true
     prerequisites:
@@ -59,7 +54,6 @@ commands:
       - script
       - 脚本
   - id: yarn-remove
-    name: Yarn 移除依赖
     category: package
     platform: all
     exec:
@@ -70,7 +64,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -88,7 +81,6 @@ commands:
       - 依赖
       - dependency
   - id: yarn-upgrade
-    name: Yarn 升级依赖
     category: package
     platform: all
     exec:
@@ -110,7 +102,6 @@ commands:
       - 升级
       - 依赖
   - id: yarn-install-project
-    name: Yarn 安装项目依赖
     category: package
     platform: all
     exec:
@@ -133,7 +124,6 @@ commands:
       - 依赖
       - dependency
   - id: yarn-add-dev
-    name: Yarn 安装开发依赖
     category: package
     platform: all
     exec:
@@ -145,7 +135,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -163,7 +152,6 @@ commands:
       - 依赖
       - dependency
   - id: yarn-dlx
-    name: Yarn 运行临时包命令
     category: package
     platform: all
     exec:
@@ -174,7 +162,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:

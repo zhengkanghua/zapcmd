@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "NPM",
+    "name": {
+      "zh": "NPM",
+      "en": "NPM"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "npm-install",
-      "name": "NPM 安装依赖",
+      "name": {
+        "zh": "NPM 安装依赖",
+        "en": "Install Dependency with NPM"
+      },
       "tags": [
         "包管理",
         "package",
@@ -29,9 +35,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -45,7 +54,10 @@
     },
     {
       "id": "npm-install-dev",
-      "name": "NPM 安装开发依赖",
+      "name": {
+        "zh": "NPM 安装开发依赖",
+        "en": "Install Dev Dependency with NPM"
+      },
       "tags": [
         "包管理",
         "package",
@@ -70,9 +82,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -86,7 +101,10 @@
     },
     {
       "id": "npm-uninstall",
-      "name": "NPM 卸载依赖",
+      "name": {
+        "zh": "NPM 卸载依赖",
+        "en": "Uninstall Dependency with NPM"
+      },
       "tags": [
         "包管理",
         "package",
@@ -109,9 +127,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -125,7 +146,10 @@
     },
     {
       "id": "npm-run",
-      "name": "NPM 运行脚本",
+      "name": {
+        "zh": "NPM 运行脚本",
+        "en": "Run NPM Script"
+      },
       "tags": [
         "包管理",
         "package",
@@ -146,9 +170,12 @@
       "args": [
         {
           "key": "script",
-          "label": "script",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "script",
+            "en": "Script"
+          }
         }
       ],
       "prerequisites": [
@@ -162,7 +189,10 @@
     },
     {
       "id": "npm-list",
-      "name": "NPM 查看已安装",
+      "name": {
+        "zh": "NPM 查看已安装",
+        "en": "List Installed NPM Packages"
+      },
       "tags": [
         "包管理",
         "package",
@@ -195,7 +225,10 @@
     },
     {
       "id": "npm-outdated",
-      "name": "NPM 检查过期依赖",
+      "name": {
+        "zh": "NPM 检查过期依赖",
+        "en": "Check Outdated NPM Dependencies"
+      },
       "tags": [
         "包管理",
         "package",
@@ -225,7 +258,10 @@
     },
     {
       "id": "npm-update",
-      "name": "NPM 更新依赖",
+      "name": {
+        "zh": "NPM 更新依赖",
+        "en": "Update NPM Dependencies"
+      },
       "tags": [
         "包管理",
         "package",
@@ -255,7 +291,10 @@
     },
     {
       "id": "npm-cache-clean",
-      "name": "NPM 清理缓存",
+      "name": {
+        "zh": "NPM 清理缓存",
+        "en": "Clean NPM Cache"
+      },
       "tags": [
         "包管理",
         "package",
@@ -287,7 +326,10 @@
     },
     {
       "id": "npm-install-project",
-      "name": "NPM 安装项目依赖",
+      "name": {
+        "zh": "NPM 安装项目依赖",
+        "en": "Install Project Dependencies with NPM"
+      },
       "tags": [
         "包管理",
         "package",
@@ -318,7 +360,10 @@
     },
     {
       "id": "npm-ci",
-      "name": "NPM 基于 lockfile 安装依赖",
+      "name": {
+        "zh": "NPM 基于 lockfile 安装依赖",
+        "en": "Install Dependencies from Lockfile with NPM"
+      },
       "tags": [
         "包管理",
         "package",
@@ -349,7 +394,10 @@
     },
     {
       "id": "npx-run",
-      "name": "NPX 运行临时包命令",
+      "name": {
+        "zh": "NPX 运行临时包命令",
+        "en": "Run Temporary Package with NPX"
+      },
       "tags": [
         "包管理",
         "package",
@@ -371,9 +419,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [

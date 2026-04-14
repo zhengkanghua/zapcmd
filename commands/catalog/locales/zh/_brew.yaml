@@ -1,0 +1,19 @@
+meta:
+  name: Homebrew
+commands:
+  brew-install:
+    name: Homebrew 安装
+    args:
+      package:
+        label: package
+  brew-uninstall:
+    name: Homebrew 卸载
+    args:
+      package:
+        label: package
+  brew-update:
+    name: Homebrew 更新索引
+  brew-upgrade:
+    name: Homebrew 升级所有
+  brew-list:
+    name: Homebrew 已安装列表

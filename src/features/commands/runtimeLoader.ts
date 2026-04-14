@@ -3,6 +3,8 @@ import { findCommandBlockingIssue } from "./commandIssues";
 import type { RuntimeCommandFile, RuntimePlatform } from "./runtimeTypes";
 import { mapRuntimeCommandToTemplate } from "./runtimeMapper";
 import { validateRuntimeCommandFile } from "./schemaValidation";
+import type { UserCommandJsonFile } from "./userCommandSourceTypes";
+import type { CommandLoadIssue } from "./runtimeIssues";
 
 const builtinModules = import.meta.glob("../../../assets/runtime_templates/commands/builtin/_*.json", {
   eager: true
@@ -29,43 +31,18 @@ function shouldKeepCommand(commandPlatform: RuntimePlatform, runtimePlatform: Ru
   return commandPlatform === "all" || runtimePlatform === "all" || commandPlatform === runtimePlatform;
 }
 
-interface LoadOptions {
+export interface LoadOptions {
   runtimePlatform?: RuntimePlatform;
 }
 
-interface RuntimePayloadEntry {
+export interface RuntimePayloadEntry {
   sourceId: string;
   payload: unknown;
 }
 
-export interface UserCommandJsonFile {
-  path: string;
-  content: string;
-  modifiedMs: number;
-}
-
-export type CommandLoadIssueCode =
-  | "read-failed"
-  | "invalid-json"
-  | "invalid-schema"
-  | "duplicate-id"
-  | "invalid-command-config";
-
-export type CommandLoadIssueStage = "read" | "parse" | "schema" | "merge" | "command";
-
-export interface CommandLoadIssue {
-  code: CommandLoadIssueCode;
-  stage: CommandLoadIssueStage;
-  sourceId: string;
-  reason: string;
-  commandId?: string;
-}
-
-export interface LoadTemplatesResult {
-  templates: CommandTemplate[];
-  issues: CommandLoadIssue[];
-  sourceByCommandId: Record<string, string>;
-}
+export type { UserCommandJsonFile } from "./userCommandSourceTypes";
+export type { CommandLoadIssue, CommandLoadIssueCode, CommandLoadIssueStage } from "./runtimeIssues";
+export { createReadFailedIssue, createScanFailedIssue } from "./runtimeIssues";
 
 function normalizeIssueReason(value: string, fallback: string): string {
   const normalized = value.replace(/\s+/g, " ").trim();
@@ -89,16 +66,13 @@ function extractIssueReason(error: unknown, fallback: string): string {
   return fallback;
 }
 
-export function createReadFailedIssue(sourceId: string, error: unknown): CommandLoadIssue {
-  return {
-    code: "read-failed",
-    stage: "read",
-    sourceId,
-    reason: extractIssueReason(error, "Failed to read command source.")
-  };
+export interface LoadTemplatesResult {
+  templates: CommandTemplate[];
+  issues: CommandLoadIssue[];
+  sourceByCommandId: Record<string, string>;
 }
 
-function loadTemplatesFromPayloadEntries(
+export function loadCommandTemplatesFromPayloadEntries(
   entries: RuntimePayloadEntry[],
   options: LoadOptions = {}
 ): LoadTemplatesResult {
@@ -183,7 +157,7 @@ export function loadBuiltinCommandTemplatesWithReport(options: LoadOptions = {})
       payload: module.default
     }));
 
-  return loadTemplatesFromPayloadEntries(entries, options);
+  return loadCommandTemplatesFromPayloadEntries(entries, options);
 }
 
 export function loadUserCommandTemplates(
@@ -220,7 +194,7 @@ export function loadUserCommandTemplatesWithReport(
     });
   }
 
-  const loaded = loadTemplatesFromPayloadEntries(entries, options);
+  const loaded = loadCommandTemplatesFromPayloadEntries(entries, options);
   return {
     templates: loaded.templates,
     issues: [...issues, ...loaded.issues],

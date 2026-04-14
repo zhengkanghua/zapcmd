@@ -1,0 +1,68 @@
+meta:
+  name: SQLite
+commands:
+  sqlite-shell:
+    name: SQLite Shell
+    args:
+      file:
+        label: File
+  sqlite-tables:
+    name: List SQLite Tables
+    args:
+      file:
+        label: File
+  sqlite-schema:
+    name: Show SQLite Schema
+    args:
+      file:
+        label: File
+  sqlite-query:
+    name: Execute SQLite SQL
+    args:
+      file:
+        label: File
+      sql:
+        label: SQL
+  sqlite-import:
+    name: Import CSV into SQLite
+    args:
+      file:
+        label: File
+      csv:
+        label: CSV
+      table:
+        label: Table
+  sqlite-integrity-check:
+    name: Run SQLite Integrity Check
+    args:
+      file:
+        label: File
+  sqlite-vacuum:
+    name: Run SQLite VACUUM
+    args:
+      file:
+        label: File
+  sqlite-table-info:
+    name: Show SQLite Table Columns
+    args:
+      file:
+        label: File
+      table:
+        label: Table
+  sqlite-index-list:
+    name: List SQLite Indexes
+    args:
+      file:
+        label: File
+      table:
+        label: Table
+  sqlite-pragma-journal-mode:
+    name: Show SQLite Journal Mode
+    args:
+      file:
+        label: File
+  sqlite-foreign-key-check:
+    name: Run SQLite Foreign Key Check
+    args:
+      file:
+        label: File

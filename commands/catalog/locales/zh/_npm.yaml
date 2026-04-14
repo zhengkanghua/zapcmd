@@ -1,0 +1,40 @@
+meta:
+  name: NPM
+commands:
+  npm-install:
+    name: NPM 安装依赖
+    args:
+      package:
+        label: package
+  npm-install-dev:
+    name: NPM 安装开发依赖
+    args:
+      package:
+        label: package
+  npm-uninstall:
+    name: NPM 卸载依赖
+    args:
+      package:
+        label: package
+  npm-run:
+    name: NPM 运行脚本
+    args:
+      script:
+        label: script
+  npm-list:
+    name: NPM 查看已安装
+  npm-outdated:
+    name: NPM 检查过期依赖
+  npm-update:
+    name: NPM 更新依赖
+  npm-cache-clean:
+    name: NPM 清理缓存
+  npm-install-project:
+    name: NPM 安装项目依赖
+  npm-ci:
+    name: NPM 基于 lockfile 安装依赖
+  npx-run:
+    name: NPX 运行临时包命令
+    args:
+      package:
+        label: package

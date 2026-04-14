@@ -1,0 +1,45 @@
+meta:
+  name: Service Management
+commands:
+  service-status-win:
+    name: Show Windows Service Status
+    args:
+      name:
+        label: Name
+  service-list-running-win:
+    name: List Running Windows Services
+  service-status-linux:
+    name: Show Linux Service Status
+    args:
+      name:
+        label: Name
+  service-list-running-linux:
+    name: List Running Linux Services
+  service-logs-linux:
+    name: Show Linux Service Logs
+    args:
+      name:
+        label: Name
+      lines:
+        label: Lines
+  service-list-all-linux:
+    name: List All Linux Services
+  service-list-failed-linux:
+    name: List Failed Linux Services
+  service-enabled-linux:
+    name: Show Linux Service Startup Status
+    args:
+      name:
+        label: Name
+  service-cat-linux:
+    name: Show Linux Service Definition
+    args:
+      name:
+        label: Name
+  service-list-mac:
+    name: List macOS Services
+  service-status-mac:
+    name: Show macOS Service Status
+    args:
+      name:
+        label: Name

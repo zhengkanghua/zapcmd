@@ -1,9 +1,7 @@
 meta:
-  name: Redis
   moduleSlug: redis
 commands:
   - id: redis-shell
-    name: Redis Shell
     category: redis
     platform: all
     exec:
@@ -22,7 +20,6 @@ commands:
       - 入口
       - 控制台
   - id: redis-ping
-    name: Redis PING
     category: redis
     platform: all
     exec:
@@ -41,7 +38,6 @@ commands:
       - 健康检查
       - health
   - id: redis-info
-    name: Redis INFO
     category: redis
     platform: all
     exec:
@@ -59,7 +55,6 @@ commands:
       - info
       - 信息
   - id: redis-get
-    name: Redis GET
     category: redis
     platform: all
     exec:
@@ -70,7 +65,6 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
     prerequisites:
@@ -85,7 +79,6 @@ commands:
       - query
       - key
   - id: redis-set
-    name: Redis SET
     category: redis
     platform: all
     exec:
@@ -97,11 +90,9 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: value
-        label: value
         type: text
         required: true
     prerequisites:
@@ -117,7 +108,6 @@ commands:
       - key
       - value
   - id: redis-del
-    name: Redis DEL
     category: redis
     platform: all
     exec:
@@ -128,7 +118,6 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
     prerequisites:
@@ -143,7 +132,6 @@ commands:
       - delete
       - key
   - id: redis-exists
-    name: Redis EXISTS
     category: redis
     platform: all
     exec:
@@ -154,7 +142,6 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
     prerequisites:
@@ -167,7 +154,6 @@ commands:
       - exists
       - key
   - id: redis-expire
-    name: Redis EXPIRE
     category: redis
     platform: all
     exec:
@@ -179,11 +165,9 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: seconds
-        label: seconds
         type: number
         required: true
         default: "60"
@@ -202,7 +186,6 @@ commands:
       - seconds
       - key
   - id: redis-ttl
-    name: Redis TTL
     category: redis
     platform: all
     exec:
@@ -213,7 +196,6 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
     prerequisites:
@@ -226,7 +208,6 @@ commands:
       - ttl
       - key
   - id: redis-scan
-    name: Redis SCAN
     category: redis
     platform: all
     exec:
@@ -240,12 +221,10 @@ commands:
     adminRequired: false
     args:
       - key: pattern
-        label: pattern
         type: text
         required: true
         default: "*"
       - key: count
-        label: count
         type: number
         required: true
         default: "100"
@@ -264,7 +243,6 @@ commands:
       - query
       - pattern
   - id: redis-keys
-    name: Redis KEYS（慎用）
     category: redis
     platform: all
     exec:
@@ -276,7 +254,6 @@ commands:
     dangerous: true
     args:
       - key: pattern
-        label: pattern
         type: text
         required: true
         default: "*"
@@ -293,7 +270,6 @@ commands:
       - pattern
       - 慎用
   - id: redis-hget
-    name: Redis HGET
     category: redis
     platform: all
     exec:
@@ -305,11 +281,9 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: field
-        label: field
         type: text
         required: true
     prerequisites:
@@ -324,7 +298,6 @@ commands:
       - key
       - field
   - id: redis-hset
-    name: Redis HSET
     category: redis
     platform: all
     exec:
@@ -337,15 +310,12 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: field
-        label: field
         type: text
         required: true
       - key: value
-        label: value
         type: text
         required: true
     prerequisites:
@@ -361,7 +331,6 @@ commands:
       - field
       - value
   - id: redis-hgetall
-    name: Redis HGETALL
     category: redis
     platform: all
     exec:
@@ -372,7 +341,6 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
     prerequisites:
@@ -386,7 +354,6 @@ commands:
       - hash
       - key
   - id: redis-lpush
-    name: Redis LPUSH
     category: redis
     platform: all
     exec:
@@ -398,11 +365,9 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: value
-        label: value
         type: text
         required: true
     prerequisites:
@@ -417,7 +382,6 @@ commands:
       - key
       - value
   - id: redis-lrange
-    name: Redis LRANGE
     category: redis
     platform: all
     exec:
@@ -430,18 +394,15 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: start
-        label: start
         type: number
         required: true
         default: "0"
         validation:
           min: 0
       - key: stop
-        label: stop
         type: number
         required: true
         default: "-1"
@@ -458,7 +419,6 @@ commands:
       - start
       - stop
   - id: redis-sadd
-    name: Redis SADD
     category: redis
     platform: all
     exec:
@@ -470,11 +430,9 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: member
-        label: member
         type: text
         required: true
     prerequisites:
@@ -489,7 +447,6 @@ commands:
       - key
       - member
   - id: redis-smembers
-    name: Redis SMEMBERS
     category: redis
     platform: all
     exec:
@@ -500,7 +457,6 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
     prerequisites:
@@ -514,7 +470,6 @@ commands:
       - set
       - key
   - id: redis-zrange
-    name: Redis ZRANGE
     category: redis
     platform: all
     exec:
@@ -527,18 +482,15 @@ commands:
     adminRequired: false
     args:
       - key: key
-        label: key
         type: text
         required: true
       - key: start
-        label: start
         type: number
         required: true
         default: "0"
         validation:
           min: 0
       - key: stop
-        label: stop
         type: number
         required: true
         default: "-1"
@@ -555,7 +507,6 @@ commands:
       - start
       - stop
   - id: redis-flushdb
-    name: Redis FLUSHDB（清空当前库）
     category: redis
     platform: all
     exec:
@@ -577,7 +528,6 @@ commands:
       - database
       - 高危
   - id: redis-dbsize
-    name: Redis DBSIZE
     category: redis
     platform: all
     exec:
@@ -598,7 +548,6 @@ commands:
       - 查看
       - show
   - id: redis-memory
-    name: Redis 内存信息
     category: redis
     platform: all
     exec:
@@ -621,7 +570,6 @@ commands:
       - 查看
       - show
   - id: redis-client-list
-    name: Redis 客户端列表
     category: redis
     platform: all
     exec:
@@ -645,7 +593,6 @@ commands:
       - 查看
       - show
   - id: redis-slowlog-get
-    name: Redis 慢日志
     category: redis
     platform: all
     exec:
@@ -657,7 +604,6 @@ commands:
     adminRequired: false
     args:
       - key: count
-        label: count
         type: number
         required: true
         default: "10"
@@ -677,7 +623,6 @@ commands:
       - 查看
       - show
   - id: redis-config-get
-    name: Redis 配置查询
     category: redis
     platform: all
     exec:
@@ -689,7 +634,6 @@ commands:
     adminRequired: false
     args:
       - key: pattern
-        label: pattern
         type: text
         required: true
         default: "*"

@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "SQLite",
+    "name": {
+      "zh": "SQLite",
+      "en": "SQLite"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "sqlite-shell",
-      "name": "SQLite Shell",
+      "name": {
+        "zh": "SQLite Shell",
+        "en": "SQLite Shell"
+      },
       "tags": [
         "sqlite",
         "shell",
@@ -26,9 +32,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -42,7 +51,10 @@
     },
     {
       "id": "sqlite-tables",
-      "name": "SQLite 列出数据表",
+      "name": {
+        "zh": "SQLite 列出数据表",
+        "en": "List SQLite Tables"
+      },
       "tags": [
         "sqlite",
         "tables",
@@ -61,9 +73,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -77,7 +92,10 @@
     },
     {
       "id": "sqlite-schema",
-      "name": "SQLite 查看 Schema",
+      "name": {
+        "zh": "SQLite 查看 Schema",
+        "en": "Show SQLite Schema"
+      },
       "tags": [
         "sqlite",
         "schema",
@@ -96,9 +114,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -112,7 +133,10 @@
     },
     {
       "id": "sqlite-query",
-      "name": "SQLite 执行 SQL",
+      "name": {
+        "zh": "SQLite 执行 SQL",
+        "en": "Execute SQLite SQL"
+      },
       "tags": [
         "sqlite",
         "query",
@@ -131,15 +155,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "sql",
-          "label": "sql",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "sql",
+            "en": "SQL"
+          }
         }
       ],
       "prerequisites": [
@@ -153,7 +183,10 @@
     },
     {
       "id": "sqlite-import",
-      "name": "SQLite 导入 CSV",
+      "name": {
+        "zh": "SQLite 导入 CSV",
+        "en": "Import CSV into SQLite"
+      },
       "tags": [
         "sqlite",
         "import",
@@ -174,21 +207,30 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "csv",
-          "label": "csv",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "csv",
+            "en": "CSV"
+          }
         },
         {
           "key": "table",
-          "label": "table",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "table",
+            "en": "Table"
+          }
         }
       ],
       "prerequisites": [
@@ -202,7 +244,10 @@
     },
     {
       "id": "sqlite-integrity-check",
-      "name": "SQLite 完整性检查",
+      "name": {
+        "zh": "SQLite 完整性检查",
+        "en": "Run SQLite Integrity Check"
+      },
       "tags": [
         "sqlite",
         "integrity",
@@ -219,9 +264,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -241,7 +289,10 @@
     },
     {
       "id": "sqlite-vacuum",
-      "name": "SQLite VACUUM",
+      "name": {
+        "zh": "SQLite VACUUM",
+        "en": "Run SQLite VACUUM"
+      },
       "tags": [
         "sqlite",
         "vacuum",
@@ -258,9 +309,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -280,7 +334,10 @@
     },
     {
       "id": "sqlite-table-info",
-      "name": "SQLite 表字段信息",
+      "name": {
+        "zh": "SQLite 表字段信息",
+        "en": "Show SQLite Table Columns"
+      },
       "tags": [
         "sqlite",
         "pragma",
@@ -301,15 +358,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "table",
-          "label": "table",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "table",
+            "en": "Table"
+          }
         }
       ],
       "prerequisites": [
@@ -329,7 +392,10 @@
     },
     {
       "id": "sqlite-index-list",
-      "name": "SQLite 索引列表",
+      "name": {
+        "zh": "SQLite 索引列表",
+        "en": "List SQLite Indexes"
+      },
       "tags": [
         "sqlite",
         "pragma",
@@ -350,15 +416,21 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         },
         {
           "key": "table",
-          "label": "table",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "table",
+            "en": "Table"
+          }
         }
       ],
       "prerequisites": [
@@ -378,7 +450,10 @@
     },
     {
       "id": "sqlite-pragma-journal-mode",
-      "name": "SQLite Journal Mode",
+      "name": {
+        "zh": "SQLite Journal Mode",
+        "en": "Show SQLite Journal Mode"
+      },
       "tags": [
         "sqlite",
         "pragma",
@@ -399,9 +474,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -421,7 +499,10 @@
     },
     {
       "id": "sqlite-foreign-key-check",
-      "name": "SQLite 外键检查",
+      "name": {
+        "zh": "SQLite 外键检查",
+        "en": "Run SQLite Foreign Key Check"
+      },
       "tags": [
         "sqlite",
         "pragma",
@@ -442,9 +523,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [

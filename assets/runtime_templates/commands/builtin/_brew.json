@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Homebrew",
+    "name": {
+      "zh": "Homebrew",
+      "en": "Homebrew"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "brew-install",
-      "name": "Homebrew 安装",
+      "name": {
+        "zh": "Homebrew 安装",
+        "en": "Install with Homebrew"
+      },
       "tags": [
         "包管理",
         "package",
@@ -27,9 +33,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -43,7 +52,10 @@
     },
     {
       "id": "brew-uninstall",
-      "name": "Homebrew 卸载",
+      "name": {
+        "zh": "Homebrew 卸载",
+        "en": "Uninstall with Homebrew"
+      },
       "tags": [
         "包管理",
         "package",
@@ -64,9 +76,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -80,7 +95,10 @@
     },
     {
       "id": "brew-update",
-      "name": "Homebrew 更新索引",
+      "name": {
+        "zh": "Homebrew 更新索引",
+        "en": "Update Homebrew Index"
+      },
       "tags": [
         "包管理",
         "package",
@@ -108,7 +126,10 @@
     },
     {
       "id": "brew-upgrade",
-      "name": "Homebrew 升级所有",
+      "name": {
+        "zh": "Homebrew 升级所有",
+        "en": "Upgrade All Homebrew Packages"
+      },
       "tags": [
         "包管理",
         "package",
@@ -135,7 +156,10 @@
     },
     {
       "id": "brew-list",
-      "name": "Homebrew 已安装列表",
+      "name": {
+        "zh": "Homebrew 已安装列表",
+        "en": "List Installed Homebrew Packages"
+      },
       "tags": [
         "包管理",
         "package",

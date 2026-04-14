@@ -1,0 +1,34 @@
+meta:
+  name: PNPM
+commands:
+  pnpm-add:
+    name: PNPM 添加依赖
+    args:
+      package:
+        label: package
+  pnpm-run:
+    name: PNPM 运行脚本
+    args:
+      script:
+        label: script
+  pnpm-up:
+    name: PNPM 升级依赖
+  pnpm-remove:
+    name: PNPM 移除依赖
+    args:
+      package:
+        label: package
+  pnpm-list:
+    name: PNPM 查看已安装
+  pnpm-install-project:
+    name: PNPM 安装项目依赖
+  pnpm-add-dev:
+    name: PNPM 安装开发依赖
+    args:
+      package:
+        label: package
+  pnpm-dlx:
+    name: PNPM 运行临时包命令
+    args:
+      package:
+        label: package

@@ -1,0 +1,170 @@
+meta:
+  name: 网络工具
+commands:
+  query-port-lsof:
+    name: 查询端口占用 (lsof)
+    args:
+      port:
+        label: 端口
+  query-port-netstat:
+    name: 查询端口占用 (netstat)
+    args:
+      port:
+        label: 端口
+  kill-port-mac:
+    name: 解除端口占用
+    args:
+      port:
+        label: 端口
+  kill-port-win:
+    name: 解除端口占用
+    args:
+      port:
+        label: 端口
+  ping:
+    name: Ping 主机
+    args:
+      host:
+        label: 主机
+  curl-get:
+    name: HTTP GET 请求
+    args:
+      url:
+        label: URL
+  curl-post:
+    name: HTTP POST 请求
+    args:
+      url:
+        label: URL
+      body:
+        label: 请求体
+  curl-headers:
+    name: 查看 HTTP 响应头
+    args:
+      url:
+        label: URL
+  dns-lookup:
+    name: DNS 查询
+    args:
+      domain:
+        label: 域名
+  dig-query:
+    name: DNS 详细查询 (dig)
+    args:
+      domain:
+        label: 域名
+      type:
+        label: 类型
+  check-ip:
+    name: 查看本机公网 IP
+  local-ip-mac:
+    name: 查看本机局域网 IP
+  local-ip-linux:
+    name: 查看本机局域网 IP
+  local-ip-win:
+    name: 查看本机局域网 IP
+  traceroute:
+    name: 路由追踪
+    args:
+      host:
+        label: 主机
+  tracert-win:
+    name: 路由追踪
+    args:
+      host:
+        label: 主机
+  check-open-ports:
+    name: 检查远程端口是否开放
+    args:
+      host:
+        label: 主机
+      port:
+        label: 端口
+  check-open-ports-win:
+    name: 检查远程端口是否开放
+    args:
+      host:
+        label: 主机
+      port:
+        label: 端口
+  wget-download:
+    name: 下载文件
+    args:
+      url:
+        label: URL
+      filename:
+        label: 文件名
+  curl-download:
+    name: 下载文件
+    args:
+      url:
+        label: URL
+      filename:
+        label: 文件名
+  list-listening-ports:
+    name: 查看所有监听端口
+  list-listening-ports-win:
+    name: 查看所有监听端口
+  flush-dns-mac:
+    name: 刷新 DNS 缓存
+  flush-dns-win:
+    name: 刷新 DNS 缓存
+  flush-dns-linux:
+    name: 刷新 DNS 缓存
+  speed-test:
+    name: 网络测速
+  curl-json-get:
+    name: HTTP GET 请求 (JSON)
+    args:
+      url:
+        label: URL
+  http-status-only:
+    name: 仅查看 HTTP 状态码
+    args:
+      url:
+        label: URL
+  http-status-only-win:
+    name: 仅查看 HTTP 状态码
+    args:
+      url:
+        label: URL
+  whois:
+    name: WHOIS 查询
+    args:
+      domain:
+        label: 域名
+  curl-json-post:
+    name: HTTP POST 请求 (JSON)
+    args:
+      url:
+        label: URL
+      body:
+        label: 请求体
+  curl-json-put:
+    name: HTTP PUT 请求 (JSON)
+    args:
+      url:
+        label: URL
+      body:
+        label: 请求体
+  curl-json-delete:
+    name: HTTP DELETE 请求 (JSON)
+    args:
+      url:
+        label: URL
+  curl-form-post:
+    name: HTTP POST 请求 (Form)
+    args:
+      url:
+        label: URL
+      field:
+        label: 字段
+      value:
+        label: 值
+  dig-short:
+    name: DNS 简洁查询 (dig +short)
+    args:
+      domain:
+        label: 域名
+      type:
+        label: 类型

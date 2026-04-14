@@ -1,0 +1,115 @@
+meta:
+  name: Git Version Control
+commands:
+  git-status:
+    name: Show Repository Status
+  git-log:
+    name: Show Commit History
+    args:
+      count:
+        label: Count
+  git-log-graph:
+    name: Show Commit Graph
+    args:
+      count:
+        label: Count
+  git-diff:
+    name: Show Unstaged Changes
+  git-diff-staged:
+    name: Show Staged Changes
+  git-add-all:
+    name: Stage All Changes
+  git-commit:
+    name: Commit Changes
+    args:
+      message:
+        label: Commit Message
+  git-commit-amend:
+    name: Amend Last Commit
+    args:
+      message:
+        label: Commit Message
+  git-push:
+    name: Push to Remote
+    args:
+      branch:
+        label: Branch
+  git-pull:
+    name: Pull Remote Updates
+    args:
+      branch:
+        label: Branch
+  git-branch-list:
+    name: List All Branches
+  git-branch-create:
+    name: Create New Branch
+    args:
+      branch:
+        label: Branch
+  git-branch-delete:
+    name: Delete Local Branch
+    args:
+      branch:
+        label: Branch
+  git-switch:
+    name: Switch Branch
+    args:
+      branch:
+        label: Branch
+  git-stash:
+    name: Stash Current Changes
+  git-stash-pop:
+    name: Apply Stashed Changes
+  git-stash-list:
+    name: List Stashes
+  git-reset-soft:
+    name: Soft Reset to Commit
+    args:
+      commit:
+        label: Commit
+  git-reset-hard:
+    name: Hard Reset to Commit
+    args:
+      commit:
+        label: Commit
+  git-cherry-pick:
+    name: Cherry-pick Commit
+    args:
+      commit:
+        label: Commit
+  git-rebase:
+    name: Rebase onto Branch
+    args:
+      branch:
+        label: Branch
+  git-merge:
+    name: Merge Branch
+    args:
+      branch:
+        label: Branch
+  git-tag:
+    name: Create Tag
+    args:
+      tag:
+        label: Tag
+  git-remote-url:
+    name: Show Remote URL
+  git-clone:
+    name: Clone Repository
+    args:
+      url:
+        label: URL
+  git-blame:
+    name: Show File Blame
+    args:
+      file:
+        label: File
+  git-clean:
+    name: Clean Untracked Files
+  git-config-user:
+    name: Set User Name and Email
+    args:
+      name:
+        label: Name
+      email:
+        label: Email

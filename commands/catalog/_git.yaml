@@ -1,9 +1,7 @@
 meta:
-  name: Git 版本控制
   moduleSlug: git
 commands:
   - id: git-status
-    name: 查看仓库状态
     category: git
     platform: all
     exec:
@@ -24,7 +22,6 @@ commands:
       - 查看
       - show
   - id: git-log
-    name: 查看提交历史
     category: git
     platform: all
     exec:
@@ -36,7 +33,6 @@ commands:
     adminRequired: false
     args:
       - key: count
-        label: count
         type: number
         required: true
         default: "20"
@@ -58,7 +54,6 @@ commands:
       - 提交
       - commit
   - id: git-log-graph
-    name: 图形化提交历史
     category: git
     platform: all
     exec:
@@ -72,7 +67,6 @@ commands:
     adminRequired: false
     args:
       - key: count
-        label: count
         type: number
         required: true
         default: "30"
@@ -94,7 +88,6 @@ commands:
       - 提交
       - commit
   - id: git-diff
-    name: 查看未暂存更改
     category: git
     platform: all
     exec:
@@ -115,7 +108,6 @@ commands:
       - 查看
       - show
   - id: git-diff-staged
-    name: 查看已暂存更改
     category: git
     platform: all
     exec:
@@ -139,7 +131,6 @@ commands:
       - 查看
       - show
   - id: git-add-all
-    name: 暂存所有更改
     category: git
     platform: all
     exec:
@@ -161,7 +152,6 @@ commands:
       - 全部
       - all
   - id: git-commit
-    name: 提交更改
     category: git
     platform: all
     exec:
@@ -173,7 +163,6 @@ commands:
     adminRequired: false
     args:
       - key: message
-        label: message
         type: text
         required: true
     prerequisites:
@@ -187,7 +176,6 @@ commands:
       - 提交
       - commit
   - id: git-commit-amend
-    name: 修改上次提交
     category: git
     platform: all
     exec:
@@ -200,7 +188,6 @@ commands:
     adminRequired: false
     args:
       - key: message
-        label: message
         type: text
         required: true
     prerequisites:
@@ -216,7 +203,6 @@ commands:
       - 修订
       - amend
   - id: git-push
-    name: 推送到远程
     category: git
     platform: all
     exec:
@@ -228,7 +214,6 @@ commands:
     adminRequired: false
     args:
       - key: branch
-        label: branch
         type: text
         required: true
         default: main
@@ -243,7 +228,6 @@ commands:
       - 推送
       - push
   - id: git-pull
-    name: 拉取远程更新
     category: git
     platform: all
     exec:
@@ -255,7 +239,6 @@ commands:
     adminRequired: false
     args:
       - key: branch
-        label: branch
         type: text
         required: true
         default: main
@@ -270,7 +253,6 @@ commands:
       - 拉取
       - pull
   - id: git-branch-list
-    name: 查看所有分支
     category: git
     platform: all
     exec:
@@ -294,7 +276,6 @@ commands:
       - 查看
       - show
   - id: git-branch-create
-    name: 创建新分支
     category: git
     platform: all
     exec:
@@ -306,7 +287,6 @@ commands:
     adminRequired: false
     args:
       - key: branch
-        label: branch
         type: text
         required: true
     prerequisites:
@@ -322,7 +302,6 @@ commands:
       - 创建
       - create
   - id: git-branch-delete
-    name: 删除本地分支
     category: git
     platform: all
     exec:
@@ -334,7 +313,6 @@ commands:
     adminRequired: false
     args:
       - key: branch
-        label: branch
         type: text
         required: true
     prerequisites:
@@ -351,7 +329,6 @@ commands:
       - delete
       - remove
   - id: git-switch
-    name: 切换分支
     category: git
     platform: all
     exec:
@@ -362,7 +339,6 @@ commands:
     adminRequired: false
     args:
       - key: branch
-        label: branch
         type: text
         required: true
     prerequisites:
@@ -378,7 +354,6 @@ commands:
       - 分支
       - branch
   - id: git-stash
-    name: 暂存当前更改
     category: git
     platform: all
     exec:
@@ -397,7 +372,6 @@ commands:
       - 暂存
       - stash
   - id: git-stash-pop
-    name: 恢复暂存更改
     category: git
     platform: all
     exec:
@@ -419,7 +393,6 @@ commands:
       - 恢复
       - pop
   - id: git-stash-list
-    name: 查看暂存列表
     category: git
     platform: all
     exec:
@@ -443,7 +416,6 @@ commands:
       - 查看
       - show
   - id: git-reset-soft
-    name: 软回退到提交
     category: git
     platform: all
     exec:
@@ -455,7 +427,6 @@ commands:
     adminRequired: false
     args:
       - key: commit
-        label: commit
         type: text
         required: true
     prerequisites:
@@ -473,7 +444,6 @@ commands:
       - 提交
       - commit
   - id: git-reset-hard
-    name: 硬回退到提交
     category: git
     platform: all
     exec:
@@ -486,7 +456,6 @@ commands:
     dangerous: true
     args:
       - key: commit
-        label: commit
         type: text
         required: true
     prerequisites:
@@ -504,7 +473,6 @@ commands:
       - 提交
       - commit
   - id: git-cherry-pick
-    name: Cherry Pick 提交
     category: git
     platform: all
     exec:
@@ -515,7 +483,6 @@ commands:
     adminRequired: false
     args:
       - key: commit
-        label: commit
         type: text
         required: true
     prerequisites:
@@ -531,7 +498,6 @@ commands:
       - 提交
       - commit
   - id: git-rebase
-    name: 变基到分支
     category: git
     platform: all
     exec:
@@ -542,7 +508,6 @@ commands:
     adminRequired: false
     args:
       - key: branch
-        label: branch
         type: text
         required: true
     prerequisites:
@@ -558,7 +523,6 @@ commands:
       - 分支
       - branch
   - id: git-merge
-    name: 合并分支
     category: git
     platform: all
     exec:
@@ -569,7 +533,6 @@ commands:
     adminRequired: false
     args:
       - key: branch
-        label: branch
         type: text
         required: true
     prerequisites:
@@ -585,7 +548,6 @@ commands:
       - 分支
       - branch
   - id: git-tag
-    name: 创建标签
     category: git
     platform: all
     exec:
@@ -596,7 +558,6 @@ commands:
     adminRequired: false
     args:
       - key: tag
-        label: tag
         type: text
         required: true
     prerequisites:
@@ -610,7 +571,6 @@ commands:
       - 标签
       - tag
   - id: git-remote-url
-    name: 查看远程地址
     category: git
     platform: all
     exec:
@@ -633,7 +593,6 @@ commands:
       - 查看
       - show
   - id: git-clone
-    name: 克隆仓库
     category: git
     platform: all
     exec:
@@ -644,7 +603,6 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
     prerequisites:
@@ -658,7 +616,6 @@ commands:
       - 克隆
       - clone
   - id: git-blame
-    name: 查看文件修改者
     category: git
     platform: all
     exec:
@@ -669,7 +626,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -686,7 +642,6 @@ commands:
       - 文件
       - file
   - id: git-clean
-    name: 清理未跟踪文件
     category: git
     platform: all
     exec:
@@ -709,7 +664,6 @@ commands:
       - 文件
       - file
   - id: git-config-user
-    name: 设置用户名和邮箱
     category: git
     platform: all
     script:
@@ -719,11 +673,9 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
       - key: email
-        label: email
         type: text
         required: true
     prerequisites:

@@ -1,0 +1,64 @@
+meta:
+  name: GitHub CLI
+commands:
+  gh-auth-status:
+    name: GH 登录状态
+  gh-pr-list:
+    name: GH Pull Requests 列表
+  gh-pr-view:
+    name: GH 查看 Pull Request
+    args:
+      pr:
+        label: pr
+  gh-pr-checkout:
+    name: GH 检出 Pull Request
+    args:
+      pr:
+        label: pr
+  gh-issue-list:
+    name: GH Issues 列表
+  gh-repo-view:
+    name: GH 仓库概览
+  gh-run-list:
+    name: GH Actions Runs 列表
+  gh-run-view:
+    name: GH 查看 Actions Run
+    args:
+      runId:
+        label: runId
+  gh-run-watch:
+    name: GH 跟随 Actions Run
+    args:
+      runId:
+        label: runId
+  gh-pr-checks:
+    name: GH 查看 PR Checks
+    args:
+      pr:
+        label: pr
+  gh-release-list:
+    name: GH Releases 列表
+  gh-workflow-list:
+    name: GH Workflows 列表
+  gh-pr-diff:
+    name: GH 查看 PR 差异
+    args:
+      pr:
+        label: pr
+  gh-workflow-run:
+    name: GH 触发 Workflow
+    args:
+      workflow:
+        label: workflow
+  gh-run-rerun:
+    name: GH 重新运行 Actions Run
+    args:
+      runId:
+        label: runId
+  gh-run-download:
+    name: GH 下载 Run 产物
+    args:
+      runId:
+        label: runId
+      dir:
+        label: dir

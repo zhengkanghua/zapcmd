@@ -1,0 +1,82 @@
+meta:
+  name: SSH 与远程连接
+commands:
+  ssh-connect:
+    name: SSH 连接
+    args:
+      user:
+        label: user
+      host:
+        label: host
+  ssh-connect-port:
+    name: SSH 连接 (指定端口)
+    args:
+      user:
+        label: user
+      host:
+        label: host
+      port:
+        label: port
+  ssh-connect-key:
+    name: SSH 连接 (密钥)
+    args:
+      key:
+        label: key
+      user:
+        label: user
+      host:
+        label: host
+  scp-upload:
+    name: SCP 上传文件
+    args:
+      local:
+        label: local
+      user:
+        label: user
+      host:
+        label: host
+      remote:
+        label: remote
+  scp-download:
+    name: SCP 下载文件
+    args:
+      user:
+        label: user
+      host:
+        label: host
+      remote:
+        label: remote
+      local:
+        label: local
+  ssh-keygen:
+    name: 生成 SSH 密钥
+    args:
+      email:
+        label: email
+  ssh-copy-id:
+    name: 复制公钥到服务器
+    args:
+      user:
+        label: user
+      host:
+        label: host
+  ssh-tunnel:
+    name: SSH 隧道 (端口转发)
+    args:
+      local_port:
+        label: local_port
+      target_host:
+        label: target_host
+      target_port:
+        label: target_port
+      user:
+        label: user
+      host:
+        label: host
+  ssh-config-list:
+    name: 查看 SSH 配置
+  ssh-agent-add:
+    name: 添加密钥到 Agent
+    args:
+      key:
+        label: key

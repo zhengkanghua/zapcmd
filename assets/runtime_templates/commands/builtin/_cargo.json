@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Cargo",
+    "name": {
+      "zh": "Cargo",
+      "en": "Cargo"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "cargo-build",
-      "name": "Cargo 构建",
+      "name": {
+        "zh": "Cargo 构建",
+        "en": "Build with Cargo"
+      },
       "tags": [
         "包管理",
         "package",
@@ -35,7 +41,10 @@
     },
     {
       "id": "cargo-run",
-      "name": "Cargo 运行",
+      "name": {
+        "zh": "Cargo 运行",
+        "en": "Run with Cargo"
+      },
       "tags": [
         "包管理",
         "package",
@@ -63,7 +72,10 @@
     },
     {
       "id": "cargo-test",
-      "name": "Cargo 测试",
+      "name": {
+        "zh": "Cargo 测试",
+        "en": "Test with Cargo"
+      },
       "tags": [
         "包管理",
         "package",
@@ -91,7 +103,10 @@
     },
     {
       "id": "cargo-add",
-      "name": "Cargo 添加依赖",
+      "name": {
+        "zh": "Cargo 添加依赖",
+        "en": "Add Cargo Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -114,9 +129,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [

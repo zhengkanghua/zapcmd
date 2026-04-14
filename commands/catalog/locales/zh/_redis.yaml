@@ -1,0 +1,131 @@
+meta:
+  name: Redis
+commands:
+  redis-shell:
+    name: Redis Shell
+  redis-ping:
+    name: Redis PING
+  redis-info:
+    name: Redis INFO
+  redis-get:
+    name: Redis GET
+    args:
+      key:
+        label: key
+  redis-set:
+    name: Redis SET
+    args:
+      key:
+        label: key
+      value:
+        label: value
+  redis-del:
+    name: Redis DEL
+    args:
+      key:
+        label: key
+  redis-exists:
+    name: Redis EXISTS
+    args:
+      key:
+        label: key
+  redis-expire:
+    name: Redis EXPIRE
+    args:
+      key:
+        label: key
+      seconds:
+        label: seconds
+  redis-ttl:
+    name: Redis TTL
+    args:
+      key:
+        label: key
+  redis-scan:
+    name: Redis SCAN
+    args:
+      pattern:
+        label: pattern
+      count:
+        label: count
+  redis-keys:
+    name: Redis KEYS（慎用）
+    args:
+      pattern:
+        label: pattern
+  redis-hget:
+    name: Redis HGET
+    args:
+      key:
+        label: key
+      field:
+        label: field
+  redis-hset:
+    name: Redis HSET
+    args:
+      key:
+        label: key
+      field:
+        label: field
+      value:
+        label: value
+  redis-hgetall:
+    name: Redis HGETALL
+    args:
+      key:
+        label: key
+  redis-lpush:
+    name: Redis LPUSH
+    args:
+      key:
+        label: key
+      value:
+        label: value
+  redis-lrange:
+    name: Redis LRANGE
+    args:
+      key:
+        label: key
+      start:
+        label: start
+      stop:
+        label: stop
+  redis-sadd:
+    name: Redis SADD
+    args:
+      key:
+        label: key
+      member:
+        label: member
+  redis-smembers:
+    name: Redis SMEMBERS
+    args:
+      key:
+        label: key
+  redis-zrange:
+    name: Redis ZRANGE
+    args:
+      key:
+        label: key
+      start:
+        label: start
+      stop:
+        label: stop
+  redis-flushdb:
+    name: Redis FLUSHDB（清空当前库）
+  redis-dbsize:
+    name: Redis DBSIZE
+  redis-memory:
+    name: Redis 内存信息
+  redis-client-list:
+    name: Redis 客户端列表
+  redis-slowlog-get:
+    name: Redis 慢日志
+    args:
+      count:
+        label: count
+  redis-config-get:
+    name: Redis 配置查询
+    args:
+      pattern:
+        label: pattern

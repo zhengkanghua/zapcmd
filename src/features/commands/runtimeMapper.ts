@@ -5,6 +5,10 @@ import type {
 } from "./types";
 import { getCurrentLocale } from "../../i18n";
 import type { CommandPrerequisite } from "./prerequisiteTypes";
+import {
+  getBuiltinRuntimeLocaleConfig,
+  getRuntimeLocaleCandidates
+} from "./runtimeLocale";
 import type {
   RuntimeCommand,
   RuntimeCommandArg,
@@ -16,18 +20,10 @@ import type {
 } from "./runtimeTypes";
 
 function getPreferredLocalizedText(value: RuntimeLocalizedText): string {
-  const currentLocale = getCurrentLocale();
-  const normalizedCurrent = currentLocale.toLowerCase();
-  const shortCurrent = normalizedCurrent.split("-")[0];
-  const preferredOrder = [
-    currentLocale,
-    normalizedCurrent,
-    shortCurrent,
-    "zh-CN",
-    "zh",
-    "en-US",
-    "en"
-  ];
+  const preferredOrder = getRuntimeLocaleCandidates(
+    getCurrentLocale(),
+    getBuiltinRuntimeLocaleConfig()
+  );
   for (const key of preferredOrder) {
     const text = value[key];
     if (typeof text === "string" && text.trim().length > 0) {
@@ -65,7 +61,7 @@ function mapRuntimeArg(arg: RuntimeCommandArg): CommandArg {
     key: arg.key,
     label: resolveRuntimeText(arg.label) || arg.key,
     token: `{{${arg.key}}}`,
-    placeholder: arg.placeholder,
+    placeholder: resolveOptionalRuntimeText(arg.placeholder),
     required: arg.required ?? false,
     defaultValue: arg.default,
     argType: arg.type,

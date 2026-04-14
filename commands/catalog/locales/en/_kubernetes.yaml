@@ -1,0 +1,157 @@
+meta:
+  name: Kubernetes
+commands:
+  kubectl-current-context:
+    name: Show kubectl Current Context
+  kubectl-get-contexts:
+    name: List kubectl Contexts
+  kubectl-get-namespaces:
+    name: List kubectl Namespaces
+  kubectl-get-pods:
+    name: List kubectl Pods
+    args:
+      namespace:
+        label: Namespace
+  kubectl-get-services:
+    name: List kubectl Services
+    args:
+      namespace:
+        label: Namespace
+  kubectl-get-deployments:
+    name: List kubectl Deployments
+    args:
+      namespace:
+        label: Namespace
+  kubectl-get-nodes:
+    name: List kubectl Nodes
+  kubectl-get-ingress:
+    name: List kubectl Ingress
+    args:
+      namespace:
+        label: Namespace
+  kubectl-describe-deployment:
+    name: Show kubectl Deployment Details
+    args:
+      deployment:
+        label: Deployment
+      namespace:
+        label: Namespace
+  kubectl-describe-pod:
+    name: Show kubectl Pod Details
+    args:
+      pod:
+        label: Pod
+      namespace:
+        label: Namespace
+  kubectl-get-configmaps:
+    name: List kubectl ConfigMaps
+    args:
+      namespace:
+        label: Namespace
+  kubectl-logs:
+    name: Show kubectl Pod Logs
+    args:
+      pod:
+        label: Pod
+      namespace:
+        label: Namespace
+  kubectl-logs-follow:
+    name: Follow kubectl Pod Logs
+    args:
+      pod:
+        label: Pod
+      namespace:
+        label: Namespace
+  kubectl-get-events:
+    name: Show kubectl Events
+    args:
+      namespace:
+        label: Namespace
+  kubectl-exec-sh:
+    name: Open kubectl Pod Shell
+    args:
+      pod:
+        label: Pod
+      namespace:
+        label: Namespace
+  kubectl-port-forward:
+    name: Run kubectl Port Forward
+    args:
+      resource:
+        label: Resource
+      localPort:
+        label: Local Port
+      remotePort:
+        label: Remote Port
+      namespace:
+        label: Namespace
+  kubectl-rollout-restart:
+    name: Restart kubectl Rollout
+    args:
+      resource:
+        label: Resource
+      namespace:
+        label: Namespace
+  kubectl-rollout-status:
+    name: Show kubectl Rollout Status
+    args:
+      resource:
+        label: Resource
+      namespace:
+        label: Namespace
+  kubectl-apply-file:
+    name: Apply kubectl Manifest File
+    args:
+      file:
+        label: File
+  kubectl-delete-file:
+    name: Delete kubectl Manifest Resources
+    args:
+      file:
+        label: File
+  kubectl-delete-pod:
+    name: Delete kubectl Pod
+    args:
+      pod:
+        label: Pod
+      namespace:
+        label: Namespace
+  kubectl-get-all:
+    name: List All kubectl Resources
+    args:
+      namespace:
+        label: Namespace
+  kubectl-top-pods:
+    name: Show kubectl Pod Resource Usage
+    args:
+      namespace:
+        label: Namespace
+  kubectl-top-nodes:
+    name: Show kubectl Node Resource Usage
+  kubectl-describe-service:
+    name: Show kubectl Service Details
+    args:
+      service:
+        label: Service
+      namespace:
+        label: Namespace
+  kubectl-get-pvc:
+    name: List kubectl PVCs
+    args:
+      namespace:
+        label: Namespace
+  kubectl-get-statefulsets:
+    name: List kubectl StatefulSets
+    args:
+      namespace:
+        label: Namespace
+  kubectl-get-jobs:
+    name: List kubectl Jobs
+    args:
+      namespace:
+        label: Namespace
+  kubectl-get-cronjobs:
+    name: List kubectl CronJobs
+    args:
+      namespace:
+        label: Namespace

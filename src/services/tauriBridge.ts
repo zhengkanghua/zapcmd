@@ -1,12 +1,39 @@
 import { invoke } from "@tauri-apps/api/core";
 
 import type { TerminalOption } from "../features/terminals/fallbackTerminals";
-import type { UserCommandJsonFile } from "../features/commands/runtimeLoader";
+import type {
+  UserCommandFileScanResult,
+  UserCommandJsonFile
+} from "../features/commands/userCommandSourceTypes";
 
 interface UserCommandFilePayload {
   path: string;
   content: string;
   modified_ms: number;
+  size?: number;
+}
+
+interface UserCommandFileScanEntryPayload {
+  path: string;
+  modified_ms: number;
+  size: number;
+}
+
+interface UserCommandFileScanResultPayload {
+  files?: UserCommandFileScanEntryPayload[];
+  issues?: Array<{
+    path: string;
+    reason: string;
+  }>;
+}
+
+function normalizeUserCommandFilePayload(item: UserCommandFilePayload): UserCommandJsonFile {
+  return {
+    path: item.path,
+    content: item.content,
+    modifiedMs: Number.isFinite(item.modified_ms) ? item.modified_ms : 0,
+    size: Number.isFinite(item.size) ? item.size : 0
+  };
 }
 
 export async function readAvailableTerminals(): Promise<TerminalOption[]> {
@@ -60,15 +87,26 @@ export async function readUserCommandsDir(): Promise<string> {
   return invoke<string>("get_user_commands_dir");
 }
 
-export async function readUserCommandFiles(): Promise<UserCommandJsonFile[]> {
-  const payload = await invoke<UserCommandFilePayload[]>("read_user_command_files");
-  if (!Array.isArray(payload)) {
-    return [];
-  }
+export async function scanUserCommandFiles(): Promise<UserCommandFileScanResult> {
+  const payload = await invoke<UserCommandFileScanResultPayload>("scan_user_command_files");
+  const files = Array.isArray(payload?.files)
+    ? payload.files.map((item) => ({
+        path: item.path,
+        modifiedMs: Number.isFinite(item.modified_ms) ? item.modified_ms : 0,
+        size: Number.isFinite(item.size) ? item.size : 0
+      }))
+    : [];
+  const issues = Array.isArray(payload?.issues)
+    ? payload.issues.map((item) => ({
+        path: item.path,
+        reason: item.reason
+      }))
+    : [];
 
-  return payload.map((item) => ({
-    path: item.path,
-    content: item.content,
-    modifiedMs: Number.isFinite(item.modified_ms) ? item.modified_ms : 0
-  }));
+  return { files, issues };
+}
+
+export async function readUserCommandFile(path: string): Promise<UserCommandJsonFile> {
+  const payload = await invoke<UserCommandFilePayload>("read_user_command_file", { path });
+  return normalizeUserCommandFilePayload(payload);
 }

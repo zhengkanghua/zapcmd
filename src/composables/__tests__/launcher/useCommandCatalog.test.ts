@@ -3,26 +3,48 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { useCommandCatalog } from "../../launcher/useCommandCatalog";
 import type { CommandTemplate } from "../../../features/commands/types";
+import { setAppLocale } from "../../../i18n";
+
+async function waitForCondition(
+  predicate: () => boolean,
+  maxTries = 12
+): Promise<void> {
+  for (let index = 0; index < maxTries; index += 1) {
+    if (predicate()) {
+      return;
+    }
+    await nextTick();
+    await Promise.resolve();
+  }
+}
 
 function createUserCommandFile(content: string, modifiedMs: number) {
-  return [
-    {
-      path: "C:/Users/test/.zapcmd/commands/custom.json",
-      content,
-      modifiedMs
-    }
-  ];
+  return {
+    path: "C:/Users/test/.zapcmd/commands/custom.json",
+    content,
+    modifiedMs,
+    size: content.length
+  };
+}
+
+function createScanResult(entries: Array<{ path: string; modifiedMs: number; size: number }>) {
+  return {
+    files: entries,
+    issues: []
+  };
 }
 
 describe("useCommandCatalog", () => {
   it("keeps builtin templates when not running in tauri", async () => {
-    const readUserCommandFiles = vi.fn(async () => []);
+    const scanUserCommandFiles = vi.fn(async () => createScanResult([]));
+    const readUserCommandFile = vi.fn();
     let latestCount = 0;
     const Harness = defineComponent({
       setup() {
         const catalog = useCommandCatalog({
           isTauriRuntime: () => false,
-          readUserCommandFiles
+          scanUserCommandFiles,
+          readUserCommandFile
         });
         latestCount = catalog.commandTemplates.value.length;
         return () => null;
@@ -32,8 +54,40 @@ describe("useCommandCatalog", () => {
     mount(Harness);
     await nextTick();
 
-    expect(readUserCommandFiles).not.toHaveBeenCalled();
+    expect(scanUserCommandFiles).not.toHaveBeenCalled();
+    expect(readUserCommandFile).not.toHaveBeenCalled();
     expect(latestCount).toBeGreaterThan(50);
+  });
+
+  it("reports missing scan/read ports when tauri runtime catalog is not wired", async () => {
+    let getIssues: () => Array<{ code: string; stage: string; sourceId: string; reason: string }> =
+      () => [];
+    let isCatalogReady: () => boolean = () => false;
+
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => true
+        });
+        getIssues = () => catalog.loadIssues.value;
+        isCatalogReady = () => catalog.catalogReady.value;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await waitForCondition(() => isCatalogReady());
+
+    expect(getIssues()).toContainEqual(
+      expect.objectContaining({
+        code: "read-failed",
+        stage: "read",
+        sourceId: "user-command-files"
+      })
+    );
+    expect(getIssues()[0]?.reason).toContain("ports are not configured");
+
+    wrapper.unmount();
   });
 
   it("loads user command files once on startup and merges with builtin templates", async () => {
@@ -77,28 +131,37 @@ describe("useCommandCatalog", () => {
         }
       ]
     });
-    const readUserCommandFiles = vi
-      .fn(async () => createUserCommandFile(firstContent, 1))
-      .mockImplementationOnce(async () => createUserCommandFile(firstContent, 1));
+    const userFile = createUserCommandFile(firstContent, 1);
+    const scanUserCommandFiles = vi.fn(async () =>
+      createScanResult([
+        {
+          path: userFile.path,
+          modifiedMs: userFile.modifiedMs,
+          size: userFile.size ?? firstContent.length
+        }
+      ])
+    );
+    const readUserCommandFile = vi.fn(async () => userFile);
     const readRuntimePlatform = vi.fn(async () => "win");
 
     let getTemplates: () => CommandTemplate[] = () => [];
+    let isCatalogReady: () => boolean = () => false;
     const Harness = defineComponent({
       setup() {
         const catalog = useCommandCatalog({
           isTauriRuntime: () => true,
-          readUserCommandFiles,
+          scanUserCommandFiles,
+          readUserCommandFile,
           readRuntimePlatform
         });
         getTemplates = () => catalog.commandTemplates.value;
+        isCatalogReady = () => catalog.catalogReady.value;
         return () => null;
       }
     });
 
     const wrapper = mount(Harness);
-    await nextTick();
-    await Promise.resolve();
-    await nextTick();
+    await waitForCondition(() => isCatalogReady());
 
     const afterFirstLoad = getTemplates();
     expect(afterFirstLoad.some((item: CommandTemplate) => item.id === "custom-hello")).toBe(true);
@@ -106,19 +169,99 @@ describe("useCommandCatalog", () => {
       "覆盖：容器列表"
     );
     expect(afterFirstLoad.some((item: CommandTemplate) => item.id === "linux-only-probe")).toBe(false);
-    expect(readUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(readUserCommandFile).toHaveBeenCalledTimes(1);
     expect(readRuntimePlatform).toHaveBeenCalledTimes(1);
 
     await new Promise((resolve) => setTimeout(resolve, 650));
-    expect(readUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(readUserCommandFile).toHaveBeenCalledTimes(1);
 
     wrapper.unmount();
+  });
+
+  it("falls back to all runtime platform after backend lookup failure and does not resolve it twice", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const content = JSON.stringify({
+      commands: [
+        {
+          id: "custom-platform-fallback",
+          name: "平台回退",
+          tags: ["custom"],
+          category: "custom",
+          platform: "all",
+          exec: {
+            program: "echo",
+            args: ["fallback"]
+          },
+          adminRequired: false
+        }
+      ]
+    });
+    const scanUserCommandFiles = vi.fn(async () =>
+      createScanResult([
+        {
+          path: "C:/Users/test/.zapcmd/commands/custom.json",
+          modifiedMs: 1,
+          size: content.length
+        }
+      ])
+    );
+    const readUserCommandFile = vi.fn(async () => ({
+      path: "C:/Users/test/.zapcmd/commands/custom.json",
+      content,
+      modifiedMs: 1,
+      size: content.length
+    }));
+    const readRuntimePlatform = vi.fn(async () => {
+      throw new Error("platform probe failed");
+    });
+
+    try {
+      let getTemplates: () => CommandTemplate[] = () => [];
+      let refreshUserCommands: () => Promise<void> = async () => undefined;
+      let isCatalogReady: () => boolean = () => false;
+
+      const Harness = defineComponent({
+        setup() {
+          const catalog = useCommandCatalog({
+            isTauriRuntime: () => true,
+            scanUserCommandFiles,
+            readUserCommandFile,
+            readRuntimePlatform
+          });
+          getTemplates = () => catalog.commandTemplates.value;
+          refreshUserCommands = catalog.refreshUserCommands;
+          isCatalogReady = () => catalog.catalogReady.value;
+          return () => null;
+        }
+      });
+
+      const wrapper = mount(Harness);
+      await waitForCondition(() => isCatalogReady());
+      expect(getTemplates().some((item) => item.id === "custom-platform-fallback")).toBe(true);
+      expect(readRuntimePlatform).toHaveBeenCalledTimes(1);
+
+      await refreshUserCommands();
+      await nextTick();
+      await Promise.resolve();
+
+      expect(readRuntimePlatform).toHaveBeenCalledTimes(1);
+      expect(warnSpy).toHaveBeenCalledWith(
+        "[commands] failed to resolve runtime platform from backend",
+        expect.any(Error)
+      );
+
+      wrapper.unmount();
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   it("supports disabled command filtering and exposes load issues", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const disabledCommandIds = ref(["docker-ps"]);
-    const readUserCommandFiles = vi.fn(async () => [
+    const validFile = {
       ...createUserCommandFile(
         JSON.stringify({
           commands: [
@@ -138,24 +281,48 @@ describe("useCommandCatalog", () => {
         }),
         2
       ),
-      {
-        path: "C:/Users/test/.zapcmd/commands/broken.json",
-        content: "{invalid",
-        modifiedMs: 2
+      path: "C:/Users/test/.zapcmd/commands/custom.json"
+    };
+    const brokenPath = "C:/Users/test/.zapcmd/commands/broken.json";
+    const scanUserCommandFiles = vi.fn(async () =>
+      createScanResult([
+        {
+          path: validFile.path,
+          modifiedMs: validFile.modifiedMs,
+          size: validFile.size ?? 0
+        },
+        {
+          path: brokenPath,
+          modifiedMs: 2,
+          size: 8
+        }
+      ])
+    );
+    const readUserCommandFile = vi.fn(async (path: string) => {
+      if (path === validFile.path) {
+        return validFile;
       }
-    ]);
+      return {
+        path: brokenPath,
+        content: "{invalid",
+        modifiedMs: 2,
+        size: 8
+      };
+    });
 
     try {
       let getTemplates: () => CommandTemplate[] = () => [];
       let getAllTemplates: () => CommandTemplate[] = () => [];
       let getIssues: () => { code: string; stage: string; reason: string }[] = () => [];
       let getOverrides: () => string[] = () => [];
+      let isCatalogReady: () => boolean = () => false;
 
       const Harness = defineComponent({
         setup() {
           const catalog = useCommandCatalog({
             isTauriRuntime: () => true,
-            readUserCommandFiles,
+            scanUserCommandFiles,
+            readUserCommandFile,
             readRuntimePlatform: async () => "win",
             disabledCommandIds
           });
@@ -163,14 +330,13 @@ describe("useCommandCatalog", () => {
           getAllTemplates = () => catalog.allCommandTemplates.value;
           getIssues = () => catalog.loadIssues.value;
           getOverrides = () => catalog.overriddenCommandIds.value;
+          isCatalogReady = () => catalog.catalogReady.value;
           return () => null;
         }
       });
 
       const wrapper = mount(Harness);
-      await nextTick();
-      await Promise.resolve();
-      await nextTick();
+      await waitForCondition(() => isCatalogReady());
 
       expect(getAllTemplates().some((item) => item.id === "docker-ps")).toBe(true);
       expect(getTemplates().some((item) => item.id === "docker-ps")).toBe(false);
@@ -193,37 +359,94 @@ describe("useCommandCatalog", () => {
     }
   });
 
-  it("reports read failure as load issue instead of silent warning", async () => {
+  it("reports scan failure when refreshing user command files throws before any payload is read", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    const readUserCommandFiles = vi.fn(async () => {
-      throw new Error("permission denied");
+    const scanUserCommandFiles = vi.fn(async () => {
+      throw new Error("scan broke");
     });
+    const readUserCommandFile = vi.fn();
 
     try {
-      let getIssues: () => { code: string; stage: string; sourceId: string; reason: string }[] = () => [];
+      let getIssues: () => Array<{ code: string; stage: string; sourceId: string; reason: string }> =
+        () => [];
+      let isCatalogReady: () => boolean = () => false;
+
       const Harness = defineComponent({
         setup() {
           const catalog = useCommandCatalog({
             isTauriRuntime: () => true,
-            readUserCommandFiles,
+            scanUserCommandFiles,
+            readUserCommandFile,
             readRuntimePlatform: async () => "win"
           });
           getIssues = () => catalog.loadIssues.value;
+          isCatalogReady = () => catalog.catalogReady.value;
           return () => null;
         }
       });
 
       const wrapper = mount(Harness);
-      await nextTick();
-      await Promise.resolve();
-      await nextTick();
+      await waitForCondition(() => isCatalogReady());
 
-      expect(readUserCommandFiles).toHaveBeenCalledTimes(1);
+      expect(readUserCommandFile).not.toHaveBeenCalled();
+      expect(getIssues()).toContainEqual(
+        expect.objectContaining({
+          code: "scan-failed",
+          stage: "scan",
+          sourceId: "user-command-files"
+        })
+      );
+      expect(getIssues()[0]?.reason).toContain("scan broke");
+
+      wrapper.unmount();
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it("reports read failure as load issue instead of silent warning", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const path = "C:/Users/test/.zapcmd/commands/custom.json";
+    const scanUserCommandFiles = vi.fn(async () =>
+      createScanResult([
+        {
+          path,
+          modifiedMs: 1,
+          size: 1
+        }
+      ])
+    );
+    const readUserCommandFile = vi.fn(async () => {
+      throw new Error("permission denied");
+    });
+
+    try {
+      let getIssues: () => { code: string; stage: string; sourceId: string; reason: string }[] = () => [];
+      let isCatalogReady: () => boolean = () => false;
+      const Harness = defineComponent({
+        setup() {
+          const catalog = useCommandCatalog({
+            isTauriRuntime: () => true,
+            scanUserCommandFiles,
+            readUserCommandFile,
+            readRuntimePlatform: async () => "win"
+          });
+          getIssues = () => catalog.loadIssues.value;
+          isCatalogReady = () => catalog.catalogReady.value;
+          return () => null;
+        }
+      });
+
+      const wrapper = mount(Harness);
+      await waitForCondition(() => isCatalogReady());
+
+      expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
+      expect(readUserCommandFile).toHaveBeenCalledTimes(1);
       expect(getIssues()).toContainEqual(
         expect.objectContaining({
           code: "read-failed",
           stage: "read",
-          sourceId: "user-command-files"
+          sourceId: path
         })
       );
       expect(getIssues()[0]?.reason).toContain("permission denied");
@@ -231,5 +454,297 @@ describe("useCommandCatalog", () => {
     } finally {
       warnSpy.mockRestore();
     }
+  });
+
+  it("remaps cached user payloads on locale change without calling scan or read again", async () => {
+    setAppLocale("zh-CN");
+    const locale = ref<"zh-CN" | "en-US">("zh-CN");
+    const localizedContent = JSON.stringify({
+      commands: [
+        {
+          id: "custom-localized",
+          name: {
+            zh: "中文标题",
+            en: "English Title"
+          },
+          description: {
+            zh: "中文描述",
+            en: "English Description"
+          },
+          tags: ["custom"],
+          category: "custom",
+          platform: "all",
+          exec: {
+            program: "echo",
+            args: ["hello"]
+          },
+          adminRequired: false
+        }
+      ]
+    });
+    const scanUserCommandFiles = vi.fn(async () =>
+      createScanResult([
+        {
+          path: "C:/Users/test/.zapcmd/commands/custom.json",
+          modifiedMs: 1,
+          size: localizedContent.length
+        }
+      ])
+    );
+    const readUserCommandFile = vi.fn(async () => ({
+      path: "C:/Users/test/.zapcmd/commands/custom.json",
+      content: localizedContent,
+      modifiedMs: 1,
+      size: localizedContent.length
+    }));
+
+    let getTemplates: () => CommandTemplate[] = () => [];
+    let isCatalogReady: () => boolean = () => false;
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => true,
+          scanUserCommandFiles,
+          readUserCommandFile,
+          readRuntimePlatform: async () => "win",
+          locale
+        });
+        getTemplates = () => catalog.commandTemplates.value;
+        isCatalogReady = () => catalog.catalogReady.value;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await waitForCondition(() => isCatalogReady());
+
+    expect(getTemplates().find((item) => item.id === "custom-localized")?.title).toBe("中文标题");
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(readUserCommandFile).toHaveBeenCalledTimes(1);
+
+    locale.value = "en-US";
+    await waitForCondition(
+      () => getTemplates().find((item) => item.id === "custom-localized")?.title === "English Title"
+    );
+
+    expect(getTemplates().find((item) => item.id === "custom-localized")?.title).toBe("English Title");
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(readUserCommandFile).toHaveBeenCalledTimes(1);
+
+    wrapper.unmount();
+    setAppLocale("zh-CN");
+  });
+
+  it("preserves scan issues when remapping cached payloads on locale change", async () => {
+    setAppLocale("zh-CN");
+    const locale = ref<"zh-CN" | "en-US">("zh-CN");
+    const localizedContent = JSON.stringify({
+      commands: [
+        {
+          id: "custom-localized",
+          name: {
+            zh: "中文标题",
+            en: "English Title"
+          },
+          tags: ["custom"],
+          category: "custom",
+          platform: "all",
+          exec: {
+            program: "echo",
+            args: ["hello"]
+          },
+          adminRequired: false
+        }
+      ]
+    });
+    const scanIssuePath = "C:/Users/test/.zapcmd/commands/nested";
+    const scanUserCommandFiles = vi.fn(async () => ({
+      files: [
+        {
+          path: "C:/Users/test/.zapcmd/commands/custom.json",
+          modifiedMs: 1,
+          size: localizedContent.length
+        }
+      ],
+      issues: [
+        {
+          path: scanIssuePath,
+          reason: "permission denied"
+        }
+      ]
+    }));
+    const readUserCommandFile = vi.fn(async () => ({
+      path: "C:/Users/test/.zapcmd/commands/custom.json",
+      content: localizedContent,
+      modifiedMs: 1,
+      size: localizedContent.length
+    }));
+
+    let getIssues: () => Array<{ code: string; stage: string; sourceId: string; reason: string }> = () => [];
+    let getTemplates: () => CommandTemplate[] = () => [];
+    let isCatalogReady: () => boolean = () => false;
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => true,
+          scanUserCommandFiles,
+          readUserCommandFile,
+          readRuntimePlatform: async () => "win",
+          locale
+        });
+        getIssues = () => catalog.loadIssues.value;
+        getTemplates = () => catalog.commandTemplates.value;
+        isCatalogReady = () => catalog.catalogReady.value;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await waitForCondition(() => isCatalogReady());
+
+    expect(getTemplates().find((item) => item.id === "custom-localized")?.title).toBe("中文标题");
+    expect(getIssues()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "scan-failed",
+          stage: "scan",
+          sourceId: scanIssuePath
+        })
+      ])
+    );
+
+    locale.value = "en-US";
+    await waitForCondition(
+      () => getTemplates().find((item) => item.id === "custom-localized")?.title === "English Title"
+    );
+
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(readUserCommandFile).toHaveBeenCalledTimes(1);
+    expect(getIssues()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "scan-failed",
+          stage: "scan",
+          sourceId: scanIssuePath
+        })
+      ])
+    );
+
+    wrapper.unmount();
+    setAppLocale("zh-CN");
+  });
+
+  it("only re-reads changed files after scan metadata changes", async () => {
+    const aPath = "C:/Users/test/.zapcmd/commands/a.json";
+    const bPath = "C:/Users/test/.zapcmd/commands/b.json";
+    const scanUserCommandFiles = vi
+      .fn(async () =>
+        createScanResult([
+          { path: aPath, modifiedMs: 1, size: 10 },
+          { path: bPath, modifiedMs: 1, size: 10 }
+        ])
+      )
+      .mockImplementationOnce(async () =>
+        createScanResult([
+          { path: aPath, modifiedMs: 1, size: 10 },
+          { path: bPath, modifiedMs: 1, size: 10 }
+        ])
+      )
+      .mockImplementationOnce(async () =>
+        createScanResult([
+          { path: aPath, modifiedMs: 2, size: 11 },
+          { path: bPath, modifiedMs: 1, size: 10 }
+        ])
+      );
+    const readUserCommandFile = vi.fn(async (path: string) => ({
+      path,
+      content: JSON.stringify({
+        commands: [
+          {
+            id: path.endsWith("a.json") ? "custom-a" : "custom-b",
+            name: path.endsWith("a.json") ? "A" : "B",
+            tags: ["custom"],
+            category: "custom",
+            platform: "all",
+            exec: {
+              program: "echo",
+              args: [path.endsWith("a.json") ? "a" : "b"]
+            },
+            adminRequired: false
+          }
+        ]
+      }),
+      modifiedMs: path.endsWith("a.json") ? 2 : 1,
+      size: path.endsWith("a.json") ? 11 : 10
+    }));
+
+    let refreshUserCommands: () => Promise<void> = async () => undefined;
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => true,
+          scanUserCommandFiles,
+          readUserCommandFile,
+          readRuntimePlatform: async () => "win"
+        });
+        refreshUserCommands = catalog.refreshUserCommands;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await nextTick();
+    await Promise.resolve();
+    await nextTick();
+
+    expect(readUserCommandFile).toHaveBeenCalledTimes(2);
+    expect(readUserCommandFile).toHaveBeenNthCalledWith(1, aPath);
+    expect(readUserCommandFile).toHaveBeenNthCalledWith(2, bPath);
+
+    await refreshUserCommands();
+    await Promise.resolve();
+    await nextTick();
+
+    expect(readUserCommandFile).toHaveBeenCalledTimes(3);
+    expect(readUserCommandFile).toHaveBeenLastCalledWith(aPath);
+
+    wrapper.unmount();
+  });
+
+  it("remaps builtin titles on locale change without touching scan/read in non-tauri mode", async () => {
+    setAppLocale("zh-CN");
+    const locale = ref<"zh-CN" | "en-US">("zh-CN");
+    const scanUserCommandFiles = vi.fn(async () => createScanResult([]));
+    const readUserCommandFile = vi.fn();
+    let getTemplates: () => CommandTemplate[] = () => [];
+
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => false,
+          scanUserCommandFiles,
+          readUserCommandFile,
+          locale
+        });
+        getTemplates = () => catalog.commandTemplates.value;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await nextTick();
+
+    expect(getTemplates().find((item) => item.id === "docker-logs")?.title).toBe("查看容器日志");
+
+    locale.value = "en-US";
+    await waitForCondition(
+      () => getTemplates().find((item) => item.id === "docker-logs")?.title === "Show Container Logs"
+    );
+
+    expect(scanUserCommandFiles).not.toHaveBeenCalled();
+    expect(readUserCommandFile).not.toHaveBeenCalled();
+
+    wrapper.unmount();
+    setAppLocale("zh-CN");
   });
 });

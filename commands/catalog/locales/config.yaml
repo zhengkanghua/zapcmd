@@ -1,0 +1,20 @@
+defaultLocale: zh
+requiredBuiltinLocales:
+  - zh
+  - en
+supportedLocales:
+  - zh
+  - en
+fallbackOrder:
+  zh-CN:
+    - zh
+    - en
+  zh:
+    - zh
+    - en
+  en-US:
+    - en
+    - zh
+  en:
+    - en
+    - zh

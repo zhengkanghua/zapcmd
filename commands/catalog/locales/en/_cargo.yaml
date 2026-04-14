@@ -1,0 +1,14 @@
+meta:
+  name: Cargo
+commands:
+  cargo-build:
+    name: Build with Cargo
+  cargo-run:
+    name: Run with Cargo
+  cargo-test:
+    name: Test with Cargo
+  cargo-add:
+    name: Add Cargo Dependency
+    args:
+      package:
+        label: Package

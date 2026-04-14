@@ -1,9 +1,7 @@
 meta:
-  name: MySQL
   moduleSlug: mysql
 commands:
   - id: mysql-shell
-    name: MySQL Shell
     category: mysql
     platform: all
     exec:
@@ -19,12 +17,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -32,7 +28,6 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
@@ -48,7 +43,6 @@ commands:
       - 入口
       - 控制台
   - id: mysql-ping
-    name: MySQL PING
     category: mysql
     platform: all
     exec:
@@ -65,12 +59,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -78,7 +70,6 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
@@ -93,7 +84,6 @@ commands:
       - 健康检查
       - health
   - id: mysql-show-databases
-    name: MySQL 显示数据库
     category: mysql
     platform: all
     script:
@@ -102,12 +92,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -115,7 +103,6 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
@@ -134,7 +121,6 @@ commands:
       - databases
       - 列表
   - id: mysql-show-tables
-    name: MySQL 显示数据表
     category: mysql
     platform: all
     script:
@@ -144,12 +130,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -157,12 +141,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql
@@ -182,7 +164,6 @@ commands:
       - 列表
       - database
   - id: mysql-describe-table
-    name: MySQL 查看表结构
     category: mysql
     platform: all
     script:
@@ -192,12 +173,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -205,17 +184,14 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql
       - key: table
-        label: table
         type: text
         required: true
     prerequisites:
@@ -234,7 +210,6 @@ commands:
       - schema
       - database
   - id: mysql-query
-    name: MySQL 执行 SQL
     category: mysql
     platform: all
     exec:
@@ -254,12 +229,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -267,17 +240,14 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql
       - key: sql
-        label: sql
         type: text
         required: true
     prerequisites:
@@ -291,7 +261,6 @@ commands:
       - sql
       - database
   - id: mysql-dump
-    name: MySQL 导出数据库
     category: mysql
     platform: all
     script:
@@ -301,12 +270,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -314,17 +281,14 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql
       - key: output
-        label: output
         type: path
         required: true
     prerequisites:
@@ -343,7 +307,6 @@ commands:
       - database
       - backup
   - id: mysql-import
-    name: MySQL 导入 SQL 文件
     category: mysql
     platform: all
     script:
@@ -352,12 +315,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -365,17 +326,14 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -394,7 +352,6 @@ commands:
       - database
       - sql
   - id: mysql-create-database
-    name: MySQL 创建数据库
     category: mysql
     platform: all
     script:
@@ -404,12 +361,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -417,12 +372,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
     prerequisites:
@@ -439,7 +392,6 @@ commands:
       - create
       - database
   - id: mysql-drop-database
-    name: MySQL 删除数据库
     category: mysql
     platform: all
     script:
@@ -450,12 +402,10 @@ commands:
     dangerous: true
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -463,12 +413,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
     prerequisites:
@@ -488,7 +436,6 @@ commands:
       - delete
       - 高危
   - id: mysql-version
-    name: MySQL 版本
     category: mysql
     platform: all
     script:
@@ -498,12 +445,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -511,12 +456,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql
@@ -537,7 +480,6 @@ commands:
       - 查看
       - show
   - id: mysql-processlist
-    name: MySQL 进程列表
     category: mysql
     platform: all
     script:
@@ -547,12 +489,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -560,12 +500,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql
@@ -588,7 +526,6 @@ commands:
       - 查看
       - show
   - id: mysql-show-status
-    name: MySQL 状态变量
     category: mysql
     platform: all
     script:
@@ -598,12 +535,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -611,12 +546,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql
@@ -638,7 +571,6 @@ commands:
       - 查看
       - show
   - id: mysql-show-variables
-    name: MySQL 配置变量
     category: mysql
     platform: all
     script:
@@ -648,12 +580,10 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
         default: 127.0.0.1
       - key: port
-        label: port
         type: number
         required: true
         default: "3306"
@@ -661,12 +591,10 @@ commands:
           min: 1
           max: 65535
       - key: user
-        label: user
         type: text
         required: true
         default: root
       - key: database
-        label: database
         type: text
         required: true
         default: mysql

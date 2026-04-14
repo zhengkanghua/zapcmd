@@ -1,0 +1,148 @@
+meta:
+  name: Docker 容器管理
+commands:
+  docker-ps:
+    name: 查看运行中容器
+  docker-ps-all:
+    name: 查看所有容器
+  docker-images:
+    name: 查看本地镜像
+  docker-run:
+    name: 运行容器
+    args:
+      image:
+        label: 镜像
+      name:
+        label: 名称
+      ports:
+        label: 端口映射
+  docker-stop:
+    name: 停止容器
+    args:
+      container:
+        label: 容器
+  docker-start:
+    name: 启动已停止容器
+    args:
+      container:
+        label: 容器
+  docker-restart:
+    name: 重启容器
+    args:
+      container:
+        label: 容器
+  docker-rm:
+    name: 删除容器
+    args:
+      container:
+        label: 容器
+  docker-rmi:
+    name: 删除镜像
+    args:
+      image:
+        label: 镜像
+  docker-logs:
+    name: 查看容器日志
+    args:
+      container:
+        label: 容器
+      lines:
+        label: 行数
+  docker-logs-follow:
+    name: 实时查看容器日志
+    args:
+      container:
+        label: 容器
+  docker-exec:
+    name: 进入容器 Shell
+    args:
+      container:
+        label: 容器
+      shell:
+        label: Shell
+  docker-inspect:
+    name: 查看容器详情
+    args:
+      container:
+        label: 容器
+  docker-stats:
+    name: 容器资源使用
+  docker-pull:
+    name: 拉取镜像
+    args:
+      image:
+        label: 镜像
+  docker-build:
+    name: 构建镜像
+    args:
+      tag:
+        label: 标签
+      path:
+        label: 路径
+  docker-compose-up:
+    name: 启动 Compose 服务
+  docker-compose-down:
+    name: 停止 Compose 服务
+  docker-compose-logs:
+    name: Compose 日志
+    args:
+      service:
+        label: 服务
+  docker-compose-ps:
+    name: Compose 服务状态
+  docker-compose-config:
+    name: Compose 配置预览
+  docker-compose-pull:
+    name: Compose 拉取镜像
+  docker-system-df:
+    name: Docker 磁盘占用概览
+  docker-prune:
+    name: 清理未使用资源
+  docker-network-ls:
+    name: 查看网络列表
+  docker-volume-ls:
+    name: 查看数据卷
+  docker-cp:
+    name: 复制文件到容器
+    args:
+      src:
+        label: 源路径
+      container:
+        label: 容器
+      dest:
+        label: 目标路径
+  docker-export:
+    name: 导出容器
+    args:
+      container:
+        label: 容器
+      file:
+        label: 文件
+  docker-info:
+    name: Docker 环境信息
+  docker-image-inspect:
+    name: 查看镜像详情
+    args:
+      image:
+        label: 镜像
+  docker-volume-inspect:
+    name: 查看数据卷详情
+    args:
+      volume:
+        label: 数据卷
+  docker-network-inspect:
+    name: 查看网络详情
+    args:
+      network:
+        label: 网络
+  docker-compose-images:
+    name: Compose 镜像列表
+  docker-compose-top:
+    name: Compose 进程列表
+  docker-compose-exec-sh:
+    name: Compose 进入服务 Shell
+    args:
+      service:
+        label: 服务
+      shell:
+        label: Shell

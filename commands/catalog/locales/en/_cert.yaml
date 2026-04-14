@@ -1,0 +1,30 @@
+meta:
+  name: Certificates and OpenSSL
+commands:
+  openssl-x509-text:
+    name: Show Certificate Details
+    args:
+      file:
+        label: File
+  openssl-cert-dates:
+    name: Show Certificate Validity Dates
+    args:
+      file:
+        label: File
+  openssl-cert-fingerprint:
+    name: Show Certificate Fingerprint
+    args:
+      file:
+        label: File
+  openssl-s-client:
+    name: Open TLS Connection with OpenSSL
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+  openssl-pkey-text:
+    name: Show Private Key Details
+    args:
+      file:
+        label: File

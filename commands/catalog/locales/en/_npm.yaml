@@ -1,0 +1,40 @@
+meta:
+  name: NPM
+commands:
+  npm-install:
+    name: Install Dependency with NPM
+    args:
+      package:
+        label: Package
+  npm-install-dev:
+    name: Install Dev Dependency with NPM
+    args:
+      package:
+        label: Package
+  npm-uninstall:
+    name: Uninstall Dependency with NPM
+    args:
+      package:
+        label: Package
+  npm-run:
+    name: Run NPM Script
+    args:
+      script:
+        label: Script
+  npm-list:
+    name: List Installed NPM Packages
+  npm-outdated:
+    name: Check Outdated NPM Dependencies
+  npm-update:
+    name: Update NPM Dependencies
+  npm-cache-clean:
+    name: Clean NPM Cache
+  npm-install-project:
+    name: Install Project Dependencies with NPM
+  npm-ci:
+    name: Install Dependencies from Lockfile with NPM
+  npx-run:
+    name: Run Temporary Package with NPX
+    args:
+      package:
+        label: Package

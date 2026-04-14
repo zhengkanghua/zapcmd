@@ -1,0 +1,181 @@
+meta:
+  name: Postgres
+commands:
+  psql-shell:
+    name: Postgres Shell
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-is-ready:
+    name: Postgres 就绪检查
+    args:
+      host:
+        label: host
+      port:
+        label: port
+  postgres-list-databases:
+    name: Postgres 列出数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+  postgres-list-tables:
+    name: Postgres 列出数据表
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-describe-table:
+    name: Postgres 查看表结构
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+      table:
+        label: table
+  postgres-query:
+    name: Postgres 执行 SQL
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+      sql:
+        label: sql
+  postgres-dump:
+    name: Postgres 导出数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+      output:
+        label: output
+  postgres-restore:
+    name: Postgres 导入 SQL 文件
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+      file:
+        label: file
+  postgres-create-database:
+    name: Postgres 创建数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-drop-database:
+    name: Postgres 删除数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-version:
+    name: Postgres 版本
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-current-db:
+    name: Postgres 当前数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-current-user:
+    name: Postgres 当前用户
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-list-extensions:
+    name: Postgres 扩展列表
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-db-size:
+    name: Postgres 当前库大小
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  postgres-active-queries:
+    name: Postgres 活跃查询
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database

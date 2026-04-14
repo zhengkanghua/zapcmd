@@ -1,7 +1,8 @@
 export function writeCatalogManifest({
   sourceDir,
   sourcePattern,
-  entries
+  entries,
+  localeConfig
 }) {
   const logicalCommandCount = entries.reduce(
     (total, entry) => total + entry.logicalCount,
@@ -15,6 +16,7 @@ export function writeCatalogManifest({
   return {
     sourceDir,
     sourcePattern,
+    ...(localeConfig ? { localeConfig: structuredClone(localeConfig) } : {}),
     logicalCommandCount,
     physicalCommandCount,
     generatedFiles: entries

@@ -171,6 +171,24 @@ describe("schemaValidation", () => {
     expect(validateRuntimeCommandFile(payload).valid).toBe(true);
   });
 
+  it("accepts localized arg placeholder objects", () => {
+    const payload = createValidPayload();
+    payload.commands[0].args = [
+      {
+        key: "text",
+        label: "Text",
+        type: "text",
+        required: true,
+        placeholder: {
+          zh: "输入内容",
+          en: "Enter text"
+        } as unknown as string
+      }
+    ];
+
+    expect(validateRuntimeCommandFile(payload).valid).toBe(true);
+  });
+
   it("rejects payloads that still use the legacy template field", () => {
     const result = validateRuntimeCommandFile({
       commands: [

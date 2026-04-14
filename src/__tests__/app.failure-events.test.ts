@@ -1066,7 +1066,7 @@ describe("App failure and event regression", () => {
     });
 
     const wrapper = await mountApp();
-    await focusSearchAndType(wrapper, "查看容器日志");
+    await focusSearchAndType(wrapper, "docker logs");
     dispatchWindowKeydown("Enter");
     await waitForUi();
     await waitForUi();
@@ -1708,13 +1708,14 @@ describe("App failure and event regression", () => {
   });
 
   it("shows inline validation in en-US and does not execute injected argument", async () => {
+    const snapshot = buildSnapshot("Alt+V");
+    snapshot.general.language = "en-US";
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(snapshot));
+
     const wrapper = await mountApp();
-    const settingsStore = getSettingsStoreFromWrapper(wrapper);
-    settingsStore.setLanguage("en-US");
-    await waitForUi();
     await waitForUi();
 
-    await focusSearchAndType(wrapper, "查看容器日志");
+    await focusSearchAndType(wrapper, "Show Container Logs");
 
     dispatchWindowKeydown("Enter");
     await waitForUi();

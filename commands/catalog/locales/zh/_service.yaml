@@ -1,0 +1,45 @@
+meta:
+  name: Service 服务管理
+commands:
+  service-status-win:
+    name: 查看 Windows 服务状态
+    args:
+      name:
+        label: name
+  service-list-running-win:
+    name: 列出运行中的 Windows 服务
+  service-status-linux:
+    name: 查看 Linux 服务状态
+    args:
+      name:
+        label: name
+  service-list-running-linux:
+    name: 列出运行中的 Linux 服务
+  service-logs-linux:
+    name: 查看 Linux 服务日志
+    args:
+      name:
+        label: name
+      lines:
+        label: lines
+  service-list-all-linux:
+    name: 列出全部 Linux 服务
+  service-list-failed-linux:
+    name: 列出失败的 Linux 服务
+  service-enabled-linux:
+    name: 查看 Linux 服务开机启用状态
+    args:
+      name:
+        label: name
+  service-cat-linux:
+    name: 查看 Linux 服务定义
+    args:
+      name:
+        label: name
+  service-list-mac:
+    name: 列出 macOS 服务
+  service-status-mac:
+    name: 查看 macOS 服务状态
+    args:
+      name:
+        label: name
