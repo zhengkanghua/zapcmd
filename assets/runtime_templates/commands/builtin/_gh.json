@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "GitHub CLI",
+    "name": {
+      "zh": "GitHub CLI",
+      "en": "GitHub CLI"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "gh-auth-status",
-      "name": "GH 登录状态",
+      "name": {
+        "zh": "GH 登录状态",
+        "en": "Show GH Auth Status"
+      },
       "tags": [
         "gh",
         "github",
@@ -39,7 +45,10 @@
     },
     {
       "id": "gh-pr-list",
-      "name": "GH Pull Requests 列表",
+      "name": {
+        "zh": "GH Pull Requests 列表",
+        "en": "List GH Pull Requests"
+      },
       "tags": [
         "gh",
         "github",
@@ -72,7 +81,10 @@
     },
     {
       "id": "gh-pr-view",
-      "name": "GH 查看 Pull Request",
+      "name": {
+        "zh": "GH 查看 Pull Request",
+        "en": "View GH Pull Request"
+      },
       "tags": [
         "gh",
         "github",
@@ -97,9 +109,12 @@
       "args": [
         {
           "key": "pr",
-          "label": "pr",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pr",
+            "en": "Pull Request"
+          }
         }
       ],
       "prerequisites": [
@@ -113,7 +128,10 @@
     },
     {
       "id": "gh-pr-checkout",
-      "name": "GH 检出 Pull Request",
+      "name": {
+        "zh": "GH 检出 Pull Request",
+        "en": "Checkout GH Pull Request"
+      },
       "tags": [
         "gh",
         "github",
@@ -137,9 +155,12 @@
       "args": [
         {
           "key": "pr",
-          "label": "pr",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pr",
+            "en": "Pull Request"
+          }
         }
       ],
       "prerequisites": [
@@ -159,7 +180,10 @@
     },
     {
       "id": "gh-issue-list",
-      "name": "GH Issues 列表",
+      "name": {
+        "zh": "GH Issues 列表",
+        "en": "List GH Issues"
+      },
       "tags": [
         "gh",
         "github",
@@ -191,7 +215,10 @@
     },
     {
       "id": "gh-repo-view",
-      "name": "GH 仓库概览",
+      "name": {
+        "zh": "GH 仓库概览",
+        "en": "Show GH Repository Overview"
+      },
       "tags": [
         "gh",
         "github",
@@ -224,7 +251,10 @@
     },
     {
       "id": "gh-run-list",
-      "name": "GH Actions Runs 列表",
+      "name": {
+        "zh": "GH Actions Runs 列表",
+        "en": "List GH Actions Runs"
+      },
       "tags": [
         "gh",
         "github",
@@ -257,7 +287,10 @@
     },
     {
       "id": "gh-run-view",
-      "name": "GH 查看 Actions Run",
+      "name": {
+        "zh": "GH 查看 Actions Run",
+        "en": "View GH Actions Run"
+      },
       "tags": [
         "gh",
         "github",
@@ -282,9 +315,12 @@
       "args": [
         {
           "key": "runId",
-          "label": "runId",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "runId",
+            "en": "Run ID"
+          }
         }
       ],
       "prerequisites": [
@@ -298,7 +334,10 @@
     },
     {
       "id": "gh-run-watch",
-      "name": "GH 跟随 Actions Run",
+      "name": {
+        "zh": "GH 跟随 Actions Run",
+        "en": "Watch GH Actions Run"
+      },
       "tags": [
         "gh",
         "github",
@@ -323,9 +362,12 @@
       "args": [
         {
           "key": "runId",
-          "label": "runId",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "runId",
+            "en": "Run ID"
+          }
         }
       ],
       "prerequisites": [
@@ -339,7 +381,10 @@
     },
     {
       "id": "gh-pr-checks",
-      "name": "GH 查看 PR Checks",
+      "name": {
+        "zh": "GH 查看 PR Checks",
+        "en": "View GH PR Checks"
+      },
       "tags": [
         "gh",
         "github",
@@ -364,9 +409,12 @@
       "args": [
         {
           "key": "pr",
-          "label": "pr",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pr",
+            "en": "Pull Request"
+          }
         }
       ],
       "prerequisites": [
@@ -380,7 +428,10 @@
     },
     {
       "id": "gh-release-list",
-      "name": "GH Releases 列表",
+      "name": {
+        "zh": "GH Releases 列表",
+        "en": "List GH Releases"
+      },
       "tags": [
         "gh",
         "github",
@@ -412,7 +463,10 @@
     },
     {
       "id": "gh-workflow-list",
-      "name": "GH Workflows 列表",
+      "name": {
+        "zh": "GH Workflows 列表",
+        "en": "List GH Workflows"
+      },
       "tags": [
         "gh",
         "github",
@@ -444,7 +498,10 @@
     },
     {
       "id": "gh-pr-diff",
-      "name": "GH 查看 PR 差异",
+      "name": {
+        "zh": "GH 查看 PR 差异",
+        "en": "View GH PR Diff"
+      },
       "tags": [
         "gh",
         "github",
@@ -470,9 +527,12 @@
       "args": [
         {
           "key": "pr",
-          "label": "pr",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "pr",
+            "en": "Pull Request"
+          }
         }
       ],
       "prerequisites": [
@@ -486,7 +546,10 @@
     },
     {
       "id": "gh-workflow-run",
-      "name": "GH 触发 Workflow",
+      "name": {
+        "zh": "GH 触发 Workflow",
+        "en": "Trigger GH Workflow"
+      },
       "tags": [
         "gh",
         "github",
@@ -510,9 +573,12 @@
       "args": [
         {
           "key": "workflow",
-          "label": "workflow",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "workflow",
+            "en": "Workflow"
+          }
         }
       ],
       "prerequisites": [
@@ -526,7 +592,10 @@
     },
     {
       "id": "gh-run-rerun",
-      "name": "GH 重新运行 Actions Run",
+      "name": {
+        "zh": "GH 重新运行 Actions Run",
+        "en": "Rerun GH Actions Run"
+      },
       "tags": [
         "gh",
         "github",
@@ -550,9 +619,12 @@
       "args": [
         {
           "key": "runId",
-          "label": "runId",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "runId",
+            "en": "Run ID"
+          }
         }
       ],
       "prerequisites": [
@@ -566,7 +638,10 @@
     },
     {
       "id": "gh-run-download",
-      "name": "GH 下载 Run 产物",
+      "name": {
+        "zh": "GH 下载 Run 产物",
+        "en": "Download GH Run Artifacts"
+      },
       "tags": [
         "gh",
         "github",
@@ -594,16 +669,22 @@
       "args": [
         {
           "key": "runId",
-          "label": "runId",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "runId",
+            "en": "Run ID"
+          }
         },
         {
           "key": "dir",
-          "label": "dir",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "dir",
+            "en": "Directory"
+          }
         }
       ],
       "prerequisites": [

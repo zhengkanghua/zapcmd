@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "系统管理",
+    "name": {
+      "zh": "系统管理",
+      "en": "System Management"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "ps-find-mac",
-      "name": "按名称查找进程",
+      "name": {
+        "zh": "按名称查找进程",
+        "en": "Find Process by Name"
+      },
       "tags": [
         "系统",
         "system",
@@ -26,9 +32,12 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ],
       "prerequisites": [
@@ -42,7 +51,10 @@
     },
     {
       "id": "ps-find-linux",
-      "name": "按名称查找进程",
+      "name": {
+        "zh": "按名称查找进程",
+        "en": "Find Process by Name"
+      },
       "tags": [
         "系统",
         "system",
@@ -62,9 +74,12 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ],
       "prerequisites": [
@@ -78,7 +93,10 @@
     },
     {
       "id": "ps-find-win",
-      "name": "按名称查找进程",
+      "name": {
+        "zh": "按名称查找进程",
+        "en": "Find Process by Name"
+      },
       "tags": [
         "系统",
         "system",
@@ -98,9 +116,12 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ],
       "prerequisites": [
@@ -114,7 +135,10 @@
     },
     {
       "id": "kill-pid-mac",
-      "name": "按 PID 杀进程",
+      "name": {
+        "zh": "按 PID 杀进程",
+        "en": "Kill Process by PID"
+      },
       "tags": [
         "系统",
         "system",
@@ -139,19 +163,25 @@
       "args": [
         {
           "key": "pid",
-          "label": "pid",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 2147483647
+          },
+          "label": {
+            "zh": "pid",
+            "en": "PID"
           }
         }
       ]
     },
     {
       "id": "kill-pid-linux",
-      "name": "按 PID 杀进程",
+      "name": {
+        "zh": "按 PID 杀进程",
+        "en": "Kill Process by PID"
+      },
       "tags": [
         "系统",
         "system",
@@ -176,19 +206,25 @@
       "args": [
         {
           "key": "pid",
-          "label": "pid",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 2147483647
+          },
+          "label": {
+            "zh": "pid",
+            "en": "PID"
           }
         }
       ]
     },
     {
       "id": "kill-pid-win",
-      "name": "按 PID 杀进程",
+      "name": {
+        "zh": "按 PID 杀进程",
+        "en": "Kill Process by PID"
+      },
       "tags": [
         "系统",
         "system",
@@ -214,19 +250,25 @@
       "args": [
         {
           "key": "pid",
-          "label": "pid",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 2147483647
+          },
+          "label": {
+            "zh": "pid",
+            "en": "PID"
           }
         }
       ]
     },
     {
       "id": "kill-name-mac",
-      "name": "按名称杀进程",
+      "name": {
+        "zh": "按名称杀进程",
+        "en": "Kill Process by Name"
+      },
       "tags": [
         "系统",
         "system",
@@ -252,15 +294,21 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ]
     },
     {
       "id": "kill-name-linux",
-      "name": "按名称杀进程",
+      "name": {
+        "zh": "按名称杀进程",
+        "en": "Kill Process by Name"
+      },
       "tags": [
         "系统",
         "system",
@@ -286,15 +334,21 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ]
     },
     {
       "id": "kill-name-win",
-      "name": "按名称杀进程",
+      "name": {
+        "zh": "按名称杀进程",
+        "en": "Kill Process by Name"
+      },
       "tags": [
         "系统",
         "system",
@@ -321,15 +375,21 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ]
     },
     {
       "id": "disk-usage-mac",
-      "name": "查看磁盘空间",
+      "name": {
+        "zh": "查看磁盘空间",
+        "en": "Show Disk Usage"
+      },
       "tags": [
         "系统",
         "system",
@@ -352,7 +412,10 @@
     },
     {
       "id": "disk-usage-linux",
-      "name": "查看磁盘空间",
+      "name": {
+        "zh": "查看磁盘空间",
+        "en": "Show Disk Usage"
+      },
       "tags": [
         "系统",
         "system",
@@ -375,7 +438,10 @@
     },
     {
       "id": "disk-usage-win",
-      "name": "查看磁盘空间",
+      "name": {
+        "zh": "查看磁盘空间",
+        "en": "Show Disk Usage"
+      },
       "tags": [
         "系统",
         "system",
@@ -404,7 +470,10 @@
     },
     {
       "id": "dir-size-mac",
-      "name": "查看目录大小",
+      "name": {
+        "zh": "查看目录大小",
+        "en": "Show Directory Size"
+      },
       "tags": [
         "系统",
         "system",
@@ -428,15 +497,21 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ]
     },
     {
       "id": "dir-size-linux",
-      "name": "查看目录大小",
+      "name": {
+        "zh": "查看目录大小",
+        "en": "Show Directory Size"
+      },
       "tags": [
         "系统",
         "system",
@@ -460,15 +535,21 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ]
     },
     {
       "id": "dir-size-win",
-      "name": "查看目录大小",
+      "name": {
+        "zh": "查看目录大小",
+        "en": "Show Directory Size"
+      },
       "tags": [
         "系统",
         "system",
@@ -489,9 +570,12 @@
       "args": [
         {
           "key": "path",
-          "label": "path",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "path",
+            "en": "Path"
+          }
         }
       ],
       "prerequisites": [
@@ -505,7 +589,10 @@
     },
     {
       "id": "memory-usage",
-      "name": "查看内存使用",
+      "name": {
+        "zh": "查看内存使用",
+        "en": "Show Memory Usage"
+      },
       "tags": [
         "系统",
         "system",
@@ -534,7 +621,10 @@
     },
     {
       "id": "memory-usage-linux",
-      "name": "查看内存使用",
+      "name": {
+        "zh": "查看内存使用",
+        "en": "Show Memory Usage"
+      },
       "tags": [
         "系统",
         "system",
@@ -557,7 +647,10 @@
     },
     {
       "id": "memory-usage-win",
-      "name": "查看内存使用",
+      "name": {
+        "zh": "查看内存使用",
+        "en": "Show Memory Usage"
+      },
       "tags": [
         "系统",
         "system",
@@ -586,7 +679,10 @@
     },
     {
       "id": "system-info-mac",
-      "name": "查看系统信息",
+      "name": {
+        "zh": "查看系统信息",
+        "en": "Show System Information"
+      },
       "tags": [
         "系统",
         "system",
@@ -606,7 +702,10 @@
     },
     {
       "id": "system-info-linux",
-      "name": "查看系统信息",
+      "name": {
+        "zh": "查看系统信息",
+        "en": "Show System Information"
+      },
       "tags": [
         "系统",
         "system",
@@ -626,7 +725,10 @@
     },
     {
       "id": "system-info-win",
-      "name": "查看系统信息",
+      "name": {
+        "zh": "查看系统信息",
+        "en": "Show System Information"
+      },
       "tags": [
         "系统",
         "system",
@@ -644,7 +746,10 @@
     },
     {
       "id": "env-var-set-mac",
-      "name": "设置环境变量",
+      "name": {
+        "zh": "设置环境变量",
+        "en": "Set Environment Variable"
+      },
       "tags": [
         "系统",
         "system",
@@ -667,21 +772,30 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "value",
-          "label": "value",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "value",
+            "en": "Value"
+          }
         }
       ]
     },
     {
       "id": "env-var-set-linux",
-      "name": "设置环境变量",
+      "name": {
+        "zh": "设置环境变量",
+        "en": "Set Environment Variable"
+      },
       "tags": [
         "系统",
         "system",
@@ -704,21 +818,30 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "value",
-          "label": "value",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "value",
+            "en": "Value"
+          }
         }
       ]
     },
     {
       "id": "env-var-set-win",
-      "name": "设置环境变量",
+      "name": {
+        "zh": "设置环境变量",
+        "en": "Set Environment Variable"
+      },
       "tags": [
         "系统",
         "system",
@@ -739,15 +862,21 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "value",
-          "label": "value",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "value",
+            "en": "Value"
+          }
         }
       ],
       "prerequisites": [
@@ -761,7 +890,10 @@
     },
     {
       "id": "env-var-get-mac",
-      "name": "查看环境变量",
+      "name": {
+        "zh": "查看环境变量",
+        "en": "Show Environment Variable"
+      },
       "tags": [
         "系统",
         "system",
@@ -786,15 +918,21 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ]
     },
     {
       "id": "env-var-get-linux",
-      "name": "查看环境变量",
+      "name": {
+        "zh": "查看环境变量",
+        "en": "Show Environment Variable"
+      },
       "tags": [
         "系统",
         "system",
@@ -819,15 +957,21 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ]
     },
     {
       "id": "env-var-get-win",
-      "name": "查看环境变量",
+      "name": {
+        "zh": "查看环境变量",
+        "en": "Show Environment Variable"
+      },
       "tags": [
         "系统",
         "system",
@@ -850,9 +994,12 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ],
       "prerequisites": [
@@ -866,7 +1013,10 @@
     },
     {
       "id": "uptime-mac",
-      "name": "系统运行时间",
+      "name": {
+        "zh": "系统运行时间",
+        "en": "Show System Uptime"
+      },
       "tags": [
         "系统",
         "system",
@@ -883,7 +1033,10 @@
     },
     {
       "id": "uptime-linux",
-      "name": "系统运行时间",
+      "name": {
+        "zh": "系统运行时间",
+        "en": "Show System Uptime"
+      },
       "tags": [
         "系统",
         "system",
@@ -900,7 +1053,10 @@
     },
     {
       "id": "cpu-top-mac",
-      "name": "CPU 占用排行",
+      "name": {
+        "zh": "CPU 占用排行",
+        "en": "Show Top CPU Processes"
+      },
       "tags": [
         "系统",
         "system",
@@ -926,7 +1082,10 @@
     },
     {
       "id": "cpu-top-linux",
-      "name": "CPU 占用排行",
+      "name": {
+        "zh": "CPU 占用排行",
+        "en": "Show Top CPU Processes"
+      },
       "tags": [
         "系统",
         "system",
@@ -952,7 +1111,10 @@
     },
     {
       "id": "cpu-top-win",
-      "name": "CPU 占用排行",
+      "name": {
+        "zh": "CPU 占用排行",
+        "en": "Show Top CPU Processes"
+      },
       "tags": [
         "系统",
         "system",
@@ -979,7 +1141,10 @@
     },
     {
       "id": "cron-list-mac",
-      "name": "查看定时任务",
+      "name": {
+        "zh": "查看定时任务",
+        "en": "List Scheduled Tasks"
+      },
       "tags": [
         "系统",
         "system",
@@ -1010,7 +1175,10 @@
     },
     {
       "id": "cron-list-linux",
-      "name": "查看定时任务",
+      "name": {
+        "zh": "查看定时任务",
+        "en": "List Scheduled Tasks"
+      },
       "tags": [
         "系统",
         "system",
@@ -1041,7 +1209,10 @@
     },
     {
       "id": "hosts-edit-mac",
-      "name": "编辑 hosts 文件",
+      "name": {
+        "zh": "编辑 hosts 文件",
+        "en": "Edit Hosts File"
+      },
       "tags": [
         "系统",
         "system",
@@ -1064,7 +1235,10 @@
     },
     {
       "id": "hosts-edit-linux",
-      "name": "编辑 hosts 文件",
+      "name": {
+        "zh": "编辑 hosts 文件",
+        "en": "Edit Hosts File"
+      },
       "tags": [
         "系统",
         "system",
@@ -1087,7 +1261,10 @@
     },
     {
       "id": "hosts-edit-win",
-      "name": "编辑 hosts 文件",
+      "name": {
+        "zh": "编辑 hosts 文件",
+        "en": "Edit Hosts File"
+      },
       "tags": [
         "系统",
         "system",

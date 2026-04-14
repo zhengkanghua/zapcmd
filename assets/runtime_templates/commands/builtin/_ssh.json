@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "SSH 与远程连接",
+    "name": {
+      "zh": "SSH 与远程连接",
+      "en": "SSH and Remote Connections"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "ssh-connect",
-      "name": "SSH 连接",
+      "name": {
+        "zh": "SSH 连接",
+        "en": "Connect via SSH"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -25,15 +31,21 @@
       "args": [
         {
           "key": "user",
-          "label": "user",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         }
       ],
       "prerequisites": [
@@ -47,7 +59,10 @@
     },
     {
       "id": "ssh-connect-port",
-      "name": "SSH 连接 (指定端口)",
+      "name": {
+        "zh": "SSH 连接 (指定端口)",
+        "en": "Connect via SSH on Custom Port"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -70,24 +85,33 @@
       "args": [
         {
           "key": "user",
-          "label": "user",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         }
       ],
@@ -102,7 +126,10 @@
     },
     {
       "id": "ssh-connect-key",
-      "name": "SSH 连接 (密钥)",
+      "name": {
+        "zh": "SSH 连接 (密钥)",
+        "en": "Connect via SSH with Key"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -125,21 +152,30 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         }
       ],
       "prerequisites": [
@@ -153,7 +189,10 @@
     },
     {
       "id": "scp-upload",
-      "name": "SCP 上传文件",
+      "name": {
+        "zh": "SCP 上传文件",
+        "en": "Upload File via SCP"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -176,27 +215,39 @@
       "args": [
         {
           "key": "local",
-          "label": "local",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "local",
+            "en": "Local Path"
+          }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "remote",
-          "label": "remote",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "remote",
+            "en": "Remote Path"
+          }
         }
       ],
       "prerequisites": [
@@ -210,7 +261,10 @@
     },
     {
       "id": "scp-download",
-      "name": "SCP 下载文件",
+      "name": {
+        "zh": "SCP 下载文件",
+        "en": "Download File via SCP"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -233,27 +287,39 @@
       "args": [
         {
           "key": "user",
-          "label": "user",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "remote",
-          "label": "remote",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "remote",
+            "en": "Remote Path"
+          }
         },
         {
           "key": "local",
-          "label": "local",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "local",
+            "en": "Local Path"
+          }
         }
       ],
       "prerequisites": [
@@ -267,7 +333,10 @@
     },
     {
       "id": "ssh-keygen",
-      "name": "生成 SSH 密钥",
+      "name": {
+        "zh": "生成 SSH 密钥",
+        "en": "Generate SSH Key"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -291,9 +360,12 @@
       "args": [
         {
           "key": "email",
-          "label": "email",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "email",
+            "en": "Email"
+          }
         }
       ],
       "prerequisites": [
@@ -307,7 +379,10 @@
     },
     {
       "id": "ssh-copy-id-mac",
-      "name": "复制公钥到服务器",
+      "name": {
+        "zh": "复制公钥到服务器",
+        "en": "Copy Public Key to Server"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -326,15 +401,21 @@
       "args": [
         {
           "key": "user",
-          "label": "user",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         }
       ],
       "prerequisites": [
@@ -348,7 +429,10 @@
     },
     {
       "id": "ssh-copy-id-linux",
-      "name": "复制公钥到服务器",
+      "name": {
+        "zh": "复制公钥到服务器",
+        "en": "Copy Public Key to Server"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -367,15 +451,21 @@
       "args": [
         {
           "key": "user",
-          "label": "user",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         }
       ],
       "prerequisites": [
@@ -389,7 +479,10 @@
     },
     {
       "id": "ssh-tunnel",
-      "name": "SSH 隧道 (端口转发)",
+      "name": {
+        "zh": "SSH 隧道 (端口转发)",
+        "en": "Create SSH Tunnel (Port Forwarding)"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -412,41 +505,56 @@
       "args": [
         {
           "key": "local_port",
-          "label": "local_port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "local_port",
+            "en": "Local Port"
           }
         },
         {
           "key": "target_host",
-          "label": "target_host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "target_host",
+            "en": "Target Host"
+          }
         },
         {
           "key": "target_port",
-          "label": "target_port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "target_port",
+            "en": "Target Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         }
       ],
       "prerequisites": [
@@ -460,7 +568,10 @@
     },
     {
       "id": "ssh-config-list",
-      "name": "查看 SSH 配置",
+      "name": {
+        "zh": "查看 SSH 配置",
+        "en": "Show SSH Configuration"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -483,7 +594,10 @@
     },
     {
       "id": "ssh-agent-add",
-      "name": "添加密钥到 Agent",
+      "name": {
+        "zh": "添加密钥到 Agent",
+        "en": "Add Key to SSH Agent"
+      },
       "tags": [
         "ssh",
         "远程",
@@ -505,10 +619,13 @@
       "args": [
         {
           "key": "key",
-          "label": "key",
           "type": "path",
           "required": true,
-          "default": "~/.ssh/id_ed25519"
+          "default": "~/.ssh/id_ed25519",
+          "label": {
+            "zh": "key",
+            "en": "Key"
+          }
         }
       ],
       "prerequisites": [

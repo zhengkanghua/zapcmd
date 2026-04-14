@@ -4,6 +4,9 @@ import type { CommandLoadIssue } from "../../../features/commands/runtimeLoader"
 import type { CommandLoadIssueView } from "../../../features/settings/types";
 
 export function formatIssueStage(issue: CommandLoadIssue): string {
+  if (issue.stage === "scan") {
+    return t("settings.commands.issueStageScan");
+  }
   if (issue.stage === "read") {
     return t("settings.commands.issueStageRead");
   }
@@ -24,6 +27,9 @@ export function formatIssue(issue: CommandLoadIssue): string {
   const reason = issue.reason.trim().length > 0 ? issue.reason : t("execution.failedFallback");
 
   let summary = "";
+  if (issue.code === "scan-failed") {
+    summary = t("settings.commands.issueScanFailed", { sourceId: issue.sourceId });
+  }
   if (issue.code === "read-failed") {
     summary = t("settings.commands.issueReadFailed", { sourceId: issue.sourceId });
   }

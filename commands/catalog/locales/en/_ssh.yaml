@@ -1,0 +1,82 @@
+meta:
+  name: SSH and Remote Connections
+commands:
+  ssh-connect:
+    name: Connect via SSH
+    args:
+      user:
+        label: User
+      host:
+        label: Host
+  ssh-connect-port:
+    name: Connect via SSH on Custom Port
+    args:
+      user:
+        label: User
+      host:
+        label: Host
+      port:
+        label: Port
+  ssh-connect-key:
+    name: Connect via SSH with Key
+    args:
+      key:
+        label: Key
+      user:
+        label: User
+      host:
+        label: Host
+  scp-upload:
+    name: Upload File via SCP
+    args:
+      local:
+        label: Local Path
+      user:
+        label: User
+      host:
+        label: Host
+      remote:
+        label: Remote Path
+  scp-download:
+    name: Download File via SCP
+    args:
+      user:
+        label: User
+      host:
+        label: Host
+      remote:
+        label: Remote Path
+      local:
+        label: Local Path
+  ssh-keygen:
+    name: Generate SSH Key
+    args:
+      email:
+        label: Email
+  ssh-copy-id:
+    name: Copy Public Key to Server
+    args:
+      user:
+        label: User
+      host:
+        label: Host
+  ssh-tunnel:
+    name: Create SSH Tunnel (Port Forwarding)
+    args:
+      local_port:
+        label: Local Port
+      target_host:
+        label: Target Host
+      target_port:
+        label: Target Port
+      user:
+        label: User
+      host:
+        label: Host
+  ssh-config-list:
+    name: Show SSH Configuration
+  ssh-agent-add:
+    name: Add Key to SSH Agent
+    args:
+      key:
+        label: Key

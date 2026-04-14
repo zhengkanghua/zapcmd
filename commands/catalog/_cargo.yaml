@@ -1,9 +1,7 @@
 meta:
-  name: Cargo
   moduleSlug: cargo
 commands:
   - id: cargo-build
-    name: Cargo 构建
     category: package
     platform: all
     exec:
@@ -24,7 +22,6 @@ commands:
       - 构建
       - build
   - id: cargo-run
-    name: Cargo 运行
     category: package
     platform: all
     exec:
@@ -44,7 +41,6 @@ commands:
       - 运行
       - run
   - id: cargo-test
-    name: Cargo 测试
     category: package
     platform: all
     exec:
@@ -64,7 +60,6 @@ commands:
       - test
       - 测试
   - id: cargo-add
-    name: Cargo 添加依赖
     category: package
     platform: all
     exec:
@@ -75,7 +70,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:

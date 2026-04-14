@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Service 服务管理",
+    "name": {
+      "zh": "Service 服务管理",
+      "en": "Service Management"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "service-status-win",
-      "name": "查看 Windows 服务状态",
+      "name": {
+        "zh": "查看 Windows 服务状态",
+        "en": "Show Windows Service Status"
+      },
       "tags": [
         "service",
         "服务",
@@ -27,9 +33,12 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ],
       "prerequisites": [
@@ -43,7 +52,10 @@
     },
     {
       "id": "service-list-running-win",
-      "name": "列出运行中的 Windows 服务",
+      "name": {
+        "zh": "列出运行中的 Windows 服务",
+        "en": "List Running Windows Services"
+      },
       "tags": [
         "service",
         "服务",
@@ -72,7 +84,10 @@
     },
     {
       "id": "service-status-linux",
-      "name": "查看 Linux 服务状态",
+      "name": {
+        "zh": "查看 Linux 服务状态",
+        "en": "Show Linux Service Status"
+      },
       "tags": [
         "service",
         "服务",
@@ -96,9 +111,12 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ],
       "prerequisites": [
@@ -112,7 +130,10 @@
     },
     {
       "id": "service-list-running-linux",
-      "name": "列出运行中的 Linux 服务",
+      "name": {
+        "zh": "列出运行中的 Linux 服务",
+        "en": "List Running Linux Services"
+      },
       "tags": [
         "service",
         "服务",
@@ -145,7 +166,10 @@
     },
     {
       "id": "service-logs-linux",
-      "name": "查看 Linux 服务日志",
+      "name": {
+        "zh": "查看 Linux 服务日志",
+        "en": "Show Linux Service Logs"
+      },
       "tags": [
         "service",
         "服务",
@@ -172,19 +196,25 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         },
         {
           "key": "lines",
-          "label": "lines",
           "type": "number",
           "required": true,
           "default": "100",
           "validation": {
             "min": 1,
             "max": 10000
+          },
+          "label": {
+            "zh": "lines",
+            "en": "Lines"
           }
         }
       ],
@@ -199,7 +229,10 @@
     },
     {
       "id": "service-list-all-linux",
-      "name": "列出全部 Linux 服务",
+      "name": {
+        "zh": "列出全部 Linux 服务",
+        "en": "List All Linux Services"
+      },
       "tags": [
         "service",
         "服务",
@@ -234,7 +267,10 @@
     },
     {
       "id": "service-list-failed-linux",
-      "name": "列出失败的 Linux 服务",
+      "name": {
+        "zh": "列出失败的 Linux 服务",
+        "en": "List Failed Linux Services"
+      },
       "tags": [
         "service",
         "服务",
@@ -269,7 +305,10 @@
     },
     {
       "id": "service-enabled-linux",
-      "name": "查看 Linux 服务开机启用状态",
+      "name": {
+        "zh": "查看 Linux 服务开机启用状态",
+        "en": "Show Linux Service Startup Status"
+      },
       "tags": [
         "service",
         "服务",
@@ -293,9 +332,12 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ],
       "prerequisites": [
@@ -309,7 +351,10 @@
     },
     {
       "id": "service-cat-linux",
-      "name": "查看 Linux 服务定义",
+      "name": {
+        "zh": "查看 Linux 服务定义",
+        "en": "Show Linux Service Definition"
+      },
       "tags": [
         "service",
         "服务",
@@ -333,9 +378,12 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ],
       "prerequisites": [
@@ -349,7 +397,10 @@
     },
     {
       "id": "service-list-mac",
-      "name": "列出 macOS 服务",
+      "name": {
+        "zh": "列出 macOS 服务",
+        "en": "List macOS Services"
+      },
       "tags": [
         "service",
         "服务",
@@ -372,7 +423,10 @@
     },
     {
       "id": "service-status-mac",
-      "name": "查看 macOS 服务状态",
+      "name": {
+        "zh": "查看 macOS 服务状态",
+        "en": "Show macOS Service Status"
+      },
       "tags": [
         "service",
         "服务",
@@ -393,9 +447,12 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "name",
+            "en": "Name"
+          }
         }
       ],
       "prerequisites": [

@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Postgres",
+    "name": {
+      "zh": "Postgres",
+      "en": "Postgres"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "psql-shell",
-      "name": "Postgres Shell",
+      "name": {
+        "zh": "Postgres Shell",
+        "en": "Postgres Shell"
+      },
       "tags": [
         "postgres",
         "psql",
@@ -34,35 +40,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -76,7 +94,10 @@
     },
     {
       "id": "postgres-is-ready",
-      "name": "Postgres 就绪检查",
+      "name": {
+        "zh": "Postgres 就绪检查",
+        "en": "Check Postgres Readiness"
+      },
       "tags": [
         "postgres",
         "ready",
@@ -98,20 +119,26 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         }
       ],
@@ -126,7 +153,10 @@
     },
     {
       "id": "postgres-list-databases",
-      "name": "Postgres 列出数据库",
+      "name": {
+        "zh": "Postgres 列出数据库",
+        "en": "List Postgres Databases"
+      },
       "tags": [
         "postgres",
         "list",
@@ -155,28 +185,37 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         }
       ],
       "prerequisites": [
@@ -190,7 +229,10 @@
     },
     {
       "id": "postgres-list-tables",
-      "name": "Postgres 列出数据表",
+      "name": {
+        "zh": "Postgres 列出数据表",
+        "en": "List Postgres Tables"
+      },
       "tags": [
         "postgres",
         "list",
@@ -219,35 +261,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -261,7 +315,10 @@
     },
     {
       "id": "postgres-describe-table",
-      "name": "Postgres 查看表结构",
+      "name": {
+        "zh": "Postgres 查看表结构",
+        "en": "Show Postgres Table Schema"
+      },
       "tags": [
         "postgres",
         "describe",
@@ -289,41 +346,56 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         },
         {
           "key": "table",
-          "label": "table",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "table",
+            "en": "Table"
+          }
         }
       ],
       "prerequisites": [
@@ -337,7 +409,10 @@
     },
     {
       "id": "postgres-query",
-      "name": "Postgres 执行 SQL",
+      "name": {
+        "zh": "Postgres 执行 SQL",
+        "en": "Execute Postgres SQL"
+      },
       "tags": [
         "postgres",
         "query",
@@ -365,41 +440,56 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         },
         {
           "key": "sql",
-          "label": "sql",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "sql",
+            "en": "SQL"
+          }
         }
       ],
       "prerequisites": [
@@ -413,7 +503,10 @@
     },
     {
       "id": "postgres-dump",
-      "name": "Postgres 导出数据库",
+      "name": {
+        "zh": "Postgres 导出数据库",
+        "en": "Export Postgres Database"
+      },
       "tags": [
         "postgres",
         "dump",
@@ -442,41 +535,56 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         },
         {
           "key": "output",
-          "label": "output",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "output",
+            "en": "Output"
+          }
         }
       ],
       "prerequisites": [
@@ -490,7 +598,10 @@
     },
     {
       "id": "postgres-restore",
-      "name": "Postgres 导入 SQL 文件",
+      "name": {
+        "zh": "Postgres 导入 SQL 文件",
+        "en": "Import Postgres SQL File"
+      },
       "tags": [
         "postgres",
         "restore",
@@ -519,41 +630,56 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         },
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -567,7 +693,10 @@
     },
     {
       "id": "postgres-create-database",
-      "name": "Postgres 创建数据库",
+      "name": {
+        "zh": "Postgres 创建数据库",
+        "en": "Create Postgres Database"
+      },
       "tags": [
         "postgres",
         "create",
@@ -583,34 +712,46 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -630,7 +771,10 @@
     },
     {
       "id": "postgres-drop-database",
-      "name": "Postgres 删除数据库",
+      "name": {
+        "zh": "Postgres 删除数据库",
+        "en": "Drop Postgres Database"
+      },
       "tags": [
         "postgres",
         "drop",
@@ -650,34 +794,46 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -697,7 +853,10 @@
     },
     {
       "id": "postgres-version",
-      "name": "Postgres 版本",
+      "name": {
+        "zh": "Postgres 版本",
+        "en": "Show Postgres Version"
+      },
       "tags": [
         "postgres",
         "version",
@@ -716,35 +875,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -764,7 +935,10 @@
     },
     {
       "id": "postgres-current-db",
-      "name": "Postgres 当前数据库",
+      "name": {
+        "zh": "Postgres 当前数据库",
+        "en": "Show Current Postgres Database"
+      },
       "tags": [
         "postgres",
         "current",
@@ -784,35 +958,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -832,7 +1018,10 @@
     },
     {
       "id": "postgres-current-user",
-      "name": "Postgres 当前用户",
+      "name": {
+        "zh": "Postgres 当前用户",
+        "en": "Show Current Postgres User"
+      },
       "tags": [
         "postgres",
         "current",
@@ -852,35 +1041,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -900,7 +1101,10 @@
     },
     {
       "id": "postgres-list-extensions",
-      "name": "Postgres 扩展列表",
+      "name": {
+        "zh": "Postgres 扩展列表",
+        "en": "List Postgres Extensions"
+      },
       "tags": [
         "postgres",
         "extensions",
@@ -921,35 +1125,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -969,7 +1185,10 @@
     },
     {
       "id": "postgres-db-size",
-      "name": "Postgres 当前库大小",
+      "name": {
+        "zh": "Postgres 当前库大小",
+        "en": "Show Current Postgres Database Size"
+      },
       "tags": [
         "postgres",
         "database",
@@ -990,35 +1209,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -1038,7 +1269,10 @@
     },
     {
       "id": "postgres-active-queries",
-      "name": "Postgres 活跃查询",
+      "name": {
+        "zh": "Postgres 活跃查询",
+        "en": "Show Active Postgres Queries"
+      },
       "tags": [
         "postgres",
         "active",
@@ -1059,35 +1293,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "5432",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "postgres"
+          "default": "postgres",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [

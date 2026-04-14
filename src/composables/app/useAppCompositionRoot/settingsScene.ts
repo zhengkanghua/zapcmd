@@ -197,7 +197,8 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
   });
   const commandCatalog = useCommandCatalog({
     isTauriRuntime: options.ports.isTauriRuntime,
-    readUserCommandFiles: options.ports.readUserCommandFiles,
+    scanUserCommandFiles: options.ports.scanUserCommandFiles,
+    readUserCommandFile: options.ports.readUserCommandFile,
     readRuntimePlatform: options.ports.readRuntimePlatform,
     disabledCommandIds: settingsRefs.disabledCommandIds,
     locale: currentLocale

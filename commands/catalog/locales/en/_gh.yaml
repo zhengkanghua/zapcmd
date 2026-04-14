@@ -1,0 +1,64 @@
+meta:
+  name: GitHub CLI
+commands:
+  gh-auth-status:
+    name: Show GH Auth Status
+  gh-pr-list:
+    name: List GH Pull Requests
+  gh-pr-view:
+    name: View GH Pull Request
+    args:
+      pr:
+        label: Pull Request
+  gh-pr-checkout:
+    name: Checkout GH Pull Request
+    args:
+      pr:
+        label: Pull Request
+  gh-issue-list:
+    name: List GH Issues
+  gh-repo-view:
+    name: Show GH Repository Overview
+  gh-run-list:
+    name: List GH Actions Runs
+  gh-run-view:
+    name: View GH Actions Run
+    args:
+      runId:
+        label: Run ID
+  gh-run-watch:
+    name: Watch GH Actions Run
+    args:
+      runId:
+        label: Run ID
+  gh-pr-checks:
+    name: View GH PR Checks
+    args:
+      pr:
+        label: Pull Request
+  gh-release-list:
+    name: List GH Releases
+  gh-workflow-list:
+    name: List GH Workflows
+  gh-pr-diff:
+    name: View GH PR Diff
+    args:
+      pr:
+        label: Pull Request
+  gh-workflow-run:
+    name: Trigger GH Workflow
+    args:
+      workflow:
+        label: Workflow
+  gh-run-rerun:
+    name: Rerun GH Actions Run
+    args:
+      runId:
+        label: Run ID
+  gh-run-download:
+    name: Download GH Run Artifacts
+    args:
+      runId:
+        label: Run ID
+      dir:
+        label: Directory

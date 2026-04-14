@@ -31,12 +31,13 @@ export interface CommandManagementSummary {
 
 export interface CommandLoadIssueView {
   code:
+    | "scan-failed"
     | "read-failed"
     | "invalid-json"
     | "invalid-schema"
     | "duplicate-id"
     | "invalid-command-config";
-  stage: "read" | "parse" | "schema" | "merge" | "command";
+  stage: "scan" | "read" | "parse" | "schema" | "merge" | "command";
   sourceId: string;
   reason: string;
   commandId?: string;

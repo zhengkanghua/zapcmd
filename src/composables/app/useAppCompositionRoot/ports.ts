@@ -4,10 +4,11 @@ import { open } from "@tauri-apps/plugin-shell";
 import {
   readAutoStartEnabled,
   readAvailableTerminals,
+  readUserCommandFile,
   refreshAvailableTerminals,
   readLauncherHotkey,
   readRuntimePlatform,
-  readUserCommandFiles,
+  scanUserCommandFiles,
   requestAnimateMainWindowSize,
   requestHideMainWindow,
   requestResizeMainWindowForReveal,
@@ -32,7 +33,8 @@ export interface AppCompositionRootPorts {
   openExternalUrl: (url: string) => Promise<void>;
   getLocalStorage: () => Storage | null;
   checkStartupUpdate: (options: StartupUpdateCheckInput) => Promise<StartupUpdateCheckResult>;
-  readUserCommandFiles: typeof readUserCommandFiles;
+  scanUserCommandFiles: typeof scanUserCommandFiles;
+  readUserCommandFile: typeof readUserCommandFile;
   readRuntimePlatform: typeof readRuntimePlatform;
   readAvailableTerminals: typeof readAvailableTerminals;
   refreshAvailableTerminals: typeof refreshAvailableTerminals;
@@ -64,7 +66,8 @@ export function createDefaultAppCompositionRootPorts(): AppCompositionRootPorts 
     },
     getLocalStorage: () => (typeof window === "undefined" ? null : window.localStorage),
     checkStartupUpdate: maybeCheckForUpdateAtStartup,
-    readUserCommandFiles,
+    scanUserCommandFiles,
+    readUserCommandFile,
     readRuntimePlatform,
     readAvailableTerminals,
     refreshAvailableTerminals,

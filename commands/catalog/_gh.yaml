@@ -1,9 +1,7 @@
 meta:
-  name: GitHub CLI
   moduleSlug: gh
 commands:
   - id: gh-auth-status
-    name: GH 登录状态
     category: gh
     platform: all
     exec:
@@ -28,7 +26,6 @@ commands:
       - 查看
       - show
   - id: gh-pr-list
-    name: GH Pull Requests 列表
     category: gh
     platform: all
     exec:
@@ -53,7 +50,6 @@ commands:
       - 查看
       - show
   - id: gh-pr-view
-    name: GH 查看 Pull Request
     category: gh
     platform: all
     exec:
@@ -65,7 +61,6 @@ commands:
     adminRequired: false
     args:
       - key: pr
-        label: pr
         type: text
         required: true
     prerequisites:
@@ -83,7 +78,6 @@ commands:
       - 查看
       - show
   - id: gh-pr-checkout
-    name: GH 检出 Pull Request
     category: gh
     platform: all
     exec:
@@ -95,7 +89,6 @@ commands:
     adminRequired: false
     args:
       - key: pr
-        label: pr
         type: text
         required: true
     prerequisites:
@@ -116,7 +109,6 @@ commands:
       - checkout
       - 检出
   - id: gh-issue-list
-    name: GH Issues 列表
     category: gh
     platform: all
     exec:
@@ -140,7 +132,6 @@ commands:
       - 查看
       - show
   - id: gh-repo-view
-    name: GH 仓库概览
     category: gh
     platform: all
     exec:
@@ -165,7 +156,6 @@ commands:
       - 查看
       - show
   - id: gh-run-list
-    name: GH Actions Runs 列表
     category: gh
     platform: all
     exec:
@@ -190,7 +180,6 @@ commands:
       - 查看
       - show
   - id: gh-run-view
-    name: GH 查看 Actions Run
     category: gh
     platform: all
     exec:
@@ -202,7 +191,6 @@ commands:
     adminRequired: false
     args:
       - key: runId
-        label: runId
         type: text
         required: true
     prerequisites:
@@ -220,7 +208,6 @@ commands:
       - 查看
       - show
   - id: gh-run-watch
-    name: GH 跟随 Actions Run
     category: gh
     platform: all
     exec:
@@ -232,7 +219,6 @@ commands:
     adminRequired: false
     args:
       - key: runId
-        label: runId
         type: text
         required: true
     prerequisites:
@@ -250,7 +236,6 @@ commands:
       - 跟随
       - 观察
   - id: gh-pr-checks
-    name: GH 查看 PR Checks
     category: gh
     platform: all
     exec:
@@ -262,7 +247,6 @@ commands:
     adminRequired: false
     args:
       - key: pr
-        label: pr
         type: text
         required: true
     prerequisites:
@@ -280,7 +264,6 @@ commands:
       - 查看
       - show
   - id: gh-release-list
-    name: GH Releases 列表
     category: gh
     platform: all
     exec:
@@ -304,7 +287,6 @@ commands:
       - 查看
       - show
   - id: gh-workflow-list
-    name: GH Workflows 列表
     category: gh
     platform: all
     exec:
@@ -328,7 +310,6 @@ commands:
       - 查看
       - show
   - id: gh-pr-diff
-    name: GH 查看 PR 差异
     category: gh
     platform: all
     exec:
@@ -340,7 +321,6 @@ commands:
     adminRequired: false
     args:
       - key: pr
-        label: pr
         type: text
         required: true
     prerequisites:
@@ -359,7 +339,6 @@ commands:
       - 查看
       - show
   - id: gh-workflow-run
-    name: GH 触发 Workflow
     category: gh
     platform: all
     exec:
@@ -371,7 +350,6 @@ commands:
     adminRequired: false
     args:
       - key: workflow
-        label: workflow
         type: text
         required: true
     prerequisites:
@@ -388,7 +366,6 @@ commands:
       - 触发
       - 执行
   - id: gh-run-rerun
-    name: GH 重新运行 Actions Run
     category: gh
     platform: all
     exec:
@@ -400,7 +377,6 @@ commands:
     adminRequired: false
     args:
       - key: runId
-        label: runId
         type: text
         required: true
     prerequisites:
@@ -417,7 +393,6 @@ commands:
       - rerun
       - 重跑
   - id: gh-run-download
-    name: GH 下载 Run 产物
     category: gh
     platform: all
     exec:
@@ -431,11 +406,9 @@ commands:
     adminRequired: false
     args:
       - key: runId
-        label: runId
         type: text
         required: true
       - key: dir
-        label: dir
         type: path
         required: true
         default: .

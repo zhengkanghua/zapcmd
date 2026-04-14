@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "网络工具",
+    "name": {
+      "zh": "网络工具",
+      "en": "Network Tools"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "query-port-lsof-mac",
-      "name": "查询端口占用 (lsof)",
+      "name": {
+        "zh": "查询端口占用 (lsof)",
+        "en": "Check Port Usage (lsof)"
+      },
       "tags": [
         "网络",
         "network",
@@ -33,12 +39,15 @@
       "args": [
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -53,7 +62,10 @@
     },
     {
       "id": "query-port-lsof-linux",
-      "name": "查询端口占用 (lsof)",
+      "name": {
+        "zh": "查询端口占用 (lsof)",
+        "en": "Check Port Usage (lsof)"
+      },
       "tags": [
         "网络",
         "network",
@@ -80,12 +92,15 @@
       "args": [
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -100,7 +115,10 @@
     },
     {
       "id": "query-port-netstat",
-      "name": "查询端口占用 (netstat)",
+      "name": {
+        "zh": "查询端口占用 (netstat)",
+        "en": "Check Port Usage (netstat)"
+      },
       "tags": [
         "网络",
         "network",
@@ -124,12 +142,15 @@
       "args": [
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -144,7 +165,10 @@
     },
     {
       "id": "kill-port-mac-mac",
-      "name": "解除端口占用",
+      "name": {
+        "zh": "解除端口占用",
+        "en": "Release Occupied Port"
+      },
       "tags": [
         "网络",
         "network",
@@ -169,12 +193,15 @@
       "args": [
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -195,7 +222,10 @@
     },
     {
       "id": "kill-port-mac-linux",
-      "name": "解除端口占用",
+      "name": {
+        "zh": "解除端口占用",
+        "en": "Release Occupied Port"
+      },
       "tags": [
         "网络",
         "network",
@@ -220,12 +250,15 @@
       "args": [
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -246,7 +279,10 @@
     },
     {
       "id": "kill-port-win",
-      "name": "解除端口占用",
+      "name": {
+        "zh": "解除端口占用",
+        "en": "Release Occupied Port"
+      },
       "tags": [
         "网络",
         "network",
@@ -271,12 +307,15 @@
       "args": [
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -291,7 +330,10 @@
     },
     {
       "id": "ping",
-      "name": "Ping 主机",
+      "name": {
+        "zh": "Ping 主机",
+        "en": "Ping Host"
+      },
       "tags": [
         "网络",
         "network",
@@ -309,15 +351,21 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "主机",
+            "en": "Host"
+          }
         }
       ]
     },
     {
       "id": "curl-get",
-      "name": "HTTP GET 请求",
+      "name": {
+        "zh": "HTTP GET 请求",
+        "en": "HTTP GET Request"
+      },
       "tags": [
         "网络",
         "network",
@@ -339,9 +387,12 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         }
       ],
       "prerequisites": [
@@ -355,7 +406,10 @@
     },
     {
       "id": "curl-post",
-      "name": "HTTP POST 请求",
+      "name": {
+        "zh": "HTTP POST 请求",
+        "en": "HTTP POST Request"
+      },
       "tags": [
         "网络",
         "network",
@@ -373,15 +427,21 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         },
         {
           "key": "body",
-          "label": "body",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "请求体",
+            "en": "Request Body"
+          }
         }
       ],
       "prerequisites": [
@@ -401,7 +461,10 @@
     },
     {
       "id": "curl-headers",
-      "name": "查看 HTTP 响应头",
+      "name": {
+        "zh": "查看 HTTP 响应头",
+        "en": "Show HTTP Response Headers"
+      },
       "tags": [
         "网络",
         "network",
@@ -424,9 +487,12 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         }
       ],
       "prerequisites": [
@@ -440,7 +506,10 @@
     },
     {
       "id": "dns-lookup",
-      "name": "DNS 查询",
+      "name": {
+        "zh": "DNS 查询",
+        "en": "DNS Lookup"
+      },
       "tags": [
         "网络",
         "network",
@@ -461,15 +530,21 @@
       "args": [
         {
           "key": "domain",
-          "label": "domain",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "域名",
+            "en": "Domain"
+          }
         }
       ]
     },
     {
       "id": "dig-query-mac",
-      "name": "DNS 详细查询 (dig)",
+      "name": {
+        "zh": "DNS 详细查询 (dig)",
+        "en": "Detailed DNS Query (dig)"
+      },
       "tags": [
         "网络",
         "network",
@@ -490,13 +565,15 @@
       "args": [
         {
           "key": "domain",
-          "label": "domain",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "域名",
+            "en": "Domain"
+          }
         },
         {
           "key": "type",
-          "label": "type",
           "type": "select",
           "required": true,
           "validation": {
@@ -508,6 +585,10 @@
               "NS",
               "TXT"
             ]
+          },
+          "label": {
+            "zh": "类型",
+            "en": "Type"
           }
         }
       ],
@@ -522,7 +603,10 @@
     },
     {
       "id": "dig-query-linux",
-      "name": "DNS 详细查询 (dig)",
+      "name": {
+        "zh": "DNS 详细查询 (dig)",
+        "en": "Detailed DNS Query (dig)"
+      },
       "tags": [
         "网络",
         "network",
@@ -543,13 +627,15 @@
       "args": [
         {
           "key": "domain",
-          "label": "domain",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "域名",
+            "en": "Domain"
+          }
         },
         {
           "key": "type",
-          "label": "type",
           "type": "select",
           "required": true,
           "validation": {
@@ -561,6 +647,10 @@
               "NS",
               "TXT"
             ]
+          },
+          "label": {
+            "zh": "类型",
+            "en": "Type"
           }
         }
       ],
@@ -575,7 +665,10 @@
     },
     {
       "id": "check-ip",
-      "name": "查看本机公网 IP",
+      "name": {
+        "zh": "查看本机公网 IP",
+        "en": "Show Public IP Address"
+      },
       "tags": [
         "网络",
         "network",
@@ -606,7 +699,10 @@
     },
     {
       "id": "local-ip-mac",
-      "name": "查看本机局域网 IP",
+      "name": {
+        "zh": "查看本机局域网 IP",
+        "en": "Show Local IP Address"
+      },
       "tags": [
         "网络",
         "network",
@@ -629,7 +725,10 @@
     },
     {
       "id": "local-ip-linux",
-      "name": "查看本机局域网 IP",
+      "name": {
+        "zh": "查看本机局域网 IP",
+        "en": "Show Local IP Address"
+      },
       "tags": [
         "网络",
         "network",
@@ -651,7 +750,10 @@
     },
     {
       "id": "local-ip-win",
-      "name": "查看本机局域网 IP",
+      "name": {
+        "zh": "查看本机局域网 IP",
+        "en": "Show Local IP Address"
+      },
       "tags": [
         "网络",
         "network",
@@ -671,7 +773,10 @@
     },
     {
       "id": "traceroute-mac",
-      "name": "路由追踪",
+      "name": {
+        "zh": "路由追踪",
+        "en": "Trace Route"
+      },
       "tags": [
         "网络",
         "network",
@@ -690,15 +795,21 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "主机",
+            "en": "Host"
+          }
         }
       ]
     },
     {
       "id": "traceroute-linux",
-      "name": "路由追踪",
+      "name": {
+        "zh": "路由追踪",
+        "en": "Trace Route"
+      },
       "tags": [
         "网络",
         "network",
@@ -717,15 +828,21 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "主机",
+            "en": "Host"
+          }
         }
       ]
     },
     {
       "id": "tracert-win",
-      "name": "路由追踪",
+      "name": {
+        "zh": "路由追踪",
+        "en": "Trace Route"
+      },
       "tags": [
         "网络",
         "network",
@@ -744,15 +861,21 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "主机",
+            "en": "Host"
+          }
         }
       ]
     },
     {
       "id": "check-open-ports-mac",
-      "name": "检查远程端口是否开放",
+      "name": {
+        "zh": "检查远程端口是否开放",
+        "en": "Check Remote Port Availability"
+      },
       "tags": [
         "网络",
         "network",
@@ -777,18 +900,24 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "主机",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -803,7 +932,10 @@
     },
     {
       "id": "check-open-ports-linux",
-      "name": "检查远程端口是否开放",
+      "name": {
+        "zh": "检查远程端口是否开放",
+        "en": "Check Remote Port Availability"
+      },
       "tags": [
         "网络",
         "network",
@@ -828,18 +960,24 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "主机",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -854,7 +992,10 @@
     },
     {
       "id": "check-open-ports-win",
-      "name": "检查远程端口是否开放",
+      "name": {
+        "zh": "检查远程端口是否开放",
+        "en": "Check Remote Port Availability"
+      },
       "tags": [
         "网络",
         "network",
@@ -875,18 +1016,24 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "主机",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -901,7 +1048,10 @@
     },
     {
       "id": "wget-download-mac",
-      "name": "下载文件",
+      "name": {
+        "zh": "下载文件",
+        "en": "Download File"
+      },
       "tags": [
         "网络",
         "network",
@@ -925,15 +1075,21 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         },
         {
           "key": "filename",
-          "label": "filename",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文件名",
+            "en": "Filename"
+          }
         }
       ],
       "prerequisites": [
@@ -947,7 +1103,10 @@
     },
     {
       "id": "wget-download-linux",
-      "name": "下载文件",
+      "name": {
+        "zh": "下载文件",
+        "en": "Download File"
+      },
       "tags": [
         "网络",
         "network",
@@ -971,15 +1130,21 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         },
         {
           "key": "filename",
-          "label": "filename",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文件名",
+            "en": "Filename"
+          }
         }
       ],
       "prerequisites": [
@@ -993,7 +1158,10 @@
     },
     {
       "id": "curl-download",
-      "name": "下载文件",
+      "name": {
+        "zh": "下载文件",
+        "en": "Download File"
+      },
       "tags": [
         "网络",
         "network",
@@ -1019,15 +1187,21 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         },
         {
           "key": "filename",
-          "label": "filename",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文件名",
+            "en": "Filename"
+          }
         }
       ],
       "prerequisites": [
@@ -1041,7 +1215,10 @@
     },
     {
       "id": "list-listening-ports-mac",
-      "name": "查看所有监听端口",
+      "name": {
+        "zh": "查看所有监听端口",
+        "en": "List Listening Ports"
+      },
       "tags": [
         "网络",
         "network",
@@ -1066,7 +1243,10 @@
     },
     {
       "id": "list-listening-ports-linux",
-      "name": "查看所有监听端口",
+      "name": {
+        "zh": "查看所有监听端口",
+        "en": "List Listening Ports"
+      },
       "tags": [
         "网络",
         "network",
@@ -1091,7 +1271,10 @@
     },
     {
       "id": "list-listening-ports-win",
-      "name": "查看所有监听端口",
+      "name": {
+        "zh": "查看所有监听端口",
+        "en": "List Listening Ports"
+      },
       "tags": [
         "网络",
         "network",
@@ -1122,7 +1305,10 @@
     },
     {
       "id": "flush-dns-mac",
-      "name": "刷新 DNS 缓存",
+      "name": {
+        "zh": "刷新 DNS 缓存",
+        "en": "Flush DNS Cache"
+      },
       "tags": [
         "网络",
         "network",
@@ -1148,7 +1334,10 @@
     },
     {
       "id": "flush-dns-win",
-      "name": "刷新 DNS 缓存",
+      "name": {
+        "zh": "刷新 DNS 缓存",
+        "en": "Flush DNS Cache"
+      },
       "tags": [
         "网络",
         "network",
@@ -1168,7 +1357,10 @@
     },
     {
       "id": "flush-dns-linux",
-      "name": "刷新 DNS 缓存",
+      "name": {
+        "zh": "刷新 DNS 缓存",
+        "en": "Flush DNS Cache"
+      },
       "tags": [
         "网络",
         "network",
@@ -1197,7 +1389,10 @@
     },
     {
       "id": "speed-test",
-      "name": "网络测速",
+      "name": {
+        "zh": "网络测速",
+        "en": "Run Network Speed Test"
+      },
       "tags": [
         "网络",
         "network",
@@ -1237,7 +1432,10 @@
     },
     {
       "id": "curl-json-get",
-      "name": "HTTP GET 请求 (JSON)",
+      "name": {
+        "zh": "HTTP GET 请求 (JSON)",
+        "en": "HTTP GET Request (JSON)"
+      },
       "tags": [
         "网络",
         "network",
@@ -1262,9 +1460,12 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         }
       ],
       "prerequisites": [
@@ -1278,7 +1479,10 @@
     },
     {
       "id": "http-status-only-mac",
-      "name": "仅查看 HTTP 状态码",
+      "name": {
+        "zh": "仅查看 HTTP 状态码",
+        "en": "Show HTTP Status Code Only"
+      },
       "tags": [
         "网络",
         "network",
@@ -1305,9 +1509,12 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         }
       ],
       "prerequisites": [
@@ -1321,7 +1528,10 @@
     },
     {
       "id": "http-status-only-linux",
-      "name": "仅查看 HTTP 状态码",
+      "name": {
+        "zh": "仅查看 HTTP 状态码",
+        "en": "Show HTTP Status Code Only"
+      },
       "tags": [
         "网络",
         "network",
@@ -1348,9 +1558,12 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         }
       ],
       "prerequisites": [
@@ -1364,7 +1577,10 @@
     },
     {
       "id": "http-status-only-win",
-      "name": "仅查看 HTTP 状态码",
+      "name": {
+        "zh": "仅查看 HTTP 状态码",
+        "en": "Show HTTP Status Code Only"
+      },
       "tags": [
         "网络",
         "network",
@@ -1391,9 +1607,12 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         }
       ],
       "prerequisites": [
@@ -1407,7 +1626,10 @@
     },
     {
       "id": "whois-mac",
-      "name": "WHOIS 查询",
+      "name": {
+        "zh": "WHOIS 查询",
+        "en": "WHOIS Lookup"
+      },
       "tags": [
         "网络",
         "network",
@@ -1429,9 +1651,12 @@
       "args": [
         {
           "key": "domain",
-          "label": "domain",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "域名",
+            "en": "Domain"
+          }
         }
       ],
       "prerequisites": [
@@ -1445,7 +1670,10 @@
     },
     {
       "id": "whois-linux",
-      "name": "WHOIS 查询",
+      "name": {
+        "zh": "WHOIS 查询",
+        "en": "WHOIS Lookup"
+      },
       "tags": [
         "网络",
         "network",
@@ -1467,9 +1695,12 @@
       "args": [
         {
           "key": "domain",
-          "label": "domain",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "域名",
+            "en": "Domain"
+          }
         }
       ],
       "prerequisites": [
@@ -1483,7 +1714,10 @@
     },
     {
       "id": "curl-json-post",
-      "name": "HTTP POST 请求 (JSON)",
+      "name": {
+        "zh": "HTTP POST 请求 (JSON)",
+        "en": "HTTP POST Request (JSON)"
+      },
       "tags": [
         "网络",
         "network",
@@ -1502,15 +1736,21 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         },
         {
           "key": "body",
-          "label": "body",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "请求体",
+            "en": "Request Body"
+          }
         }
       ],
       "prerequisites": [
@@ -1530,7 +1770,10 @@
     },
     {
       "id": "curl-json-put",
-      "name": "HTTP PUT 请求 (JSON)",
+      "name": {
+        "zh": "HTTP PUT 请求 (JSON)",
+        "en": "HTTP PUT Request (JSON)"
+      },
       "tags": [
         "网络",
         "network",
@@ -1549,15 +1792,21 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         },
         {
           "key": "body",
-          "label": "body",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "请求体",
+            "en": "Request Body"
+          }
         }
       ],
       "prerequisites": [
@@ -1577,7 +1826,10 @@
     },
     {
       "id": "curl-json-delete",
-      "name": "HTTP DELETE 请求 (JSON)",
+      "name": {
+        "zh": "HTTP DELETE 请求 (JSON)",
+        "en": "HTTP DELETE Request (JSON)"
+      },
       "tags": [
         "网络",
         "network",
@@ -1603,9 +1855,12 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         }
       ],
       "prerequisites": [
@@ -1619,7 +1874,10 @@
     },
     {
       "id": "curl-form-post",
-      "name": "HTTP POST 请求 (Form)",
+      "name": {
+        "zh": "HTTP POST 请求 (Form)",
+        "en": "HTTP POST Request (Form)"
+      },
       "tags": [
         "网络",
         "network",
@@ -1645,21 +1903,30 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         },
         {
           "key": "field",
-          "label": "field",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "字段",
+            "en": "Field"
+          }
         },
         {
           "key": "value",
-          "label": "value",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "值",
+            "en": "Value"
+          }
         }
       ],
       "prerequisites": [
@@ -1673,7 +1940,10 @@
     },
     {
       "id": "dig-short-mac",
-      "name": "DNS 简洁查询 (dig +short)",
+      "name": {
+        "zh": "DNS 简洁查询 (dig +short)",
+        "en": "Short DNS Query (dig +short)"
+      },
       "tags": [
         "网络",
         "network",
@@ -1697,13 +1967,15 @@
       "args": [
         {
           "key": "domain",
-          "label": "domain",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "域名",
+            "en": "Domain"
+          }
         },
         {
           "key": "type",
-          "label": "type",
           "type": "select",
           "required": true,
           "validation": {
@@ -1715,6 +1987,10 @@
               "TXT",
               "NS"
             ]
+          },
+          "label": {
+            "zh": "类型",
+            "en": "Type"
           }
         }
       ],
@@ -1729,7 +2005,10 @@
     },
     {
       "id": "dig-short-linux",
-      "name": "DNS 简洁查询 (dig +short)",
+      "name": {
+        "zh": "DNS 简洁查询 (dig +short)",
+        "en": "Short DNS Query (dig +short)"
+      },
       "tags": [
         "网络",
         "network",
@@ -1753,13 +2032,15 @@
       "args": [
         {
           "key": "domain",
-          "label": "domain",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "域名",
+            "en": "Domain"
+          }
         },
         {
           "key": "type",
-          "label": "type",
           "type": "select",
           "required": true,
           "validation": {
@@ -1771,6 +2052,10 @@
               "TXT",
               "NS"
             ]
+          },
+          "label": {
+            "zh": "类型",
+            "en": "Type"
           }
         }
       ],

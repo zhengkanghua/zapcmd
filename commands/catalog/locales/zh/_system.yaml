@@ -1,0 +1,93 @@
+meta:
+  name: 系统管理
+commands:
+  ps-find:
+    name: 按名称查找进程
+    args:
+      name:
+        label: name
+  ps-find-win:
+    name: 按名称查找进程
+    args:
+      name:
+        label: name
+  kill-pid:
+    name: 按 PID 杀进程
+    args:
+      pid:
+        label: pid
+  kill-pid-win:
+    name: 按 PID 杀进程
+    args:
+      pid:
+        label: pid
+  kill-name:
+    name: 按名称杀进程
+    args:
+      name:
+        label: name
+  kill-name-win:
+    name: 按名称杀进程
+    args:
+      name:
+        label: name
+  disk-usage:
+    name: 查看磁盘空间
+  disk-usage-win:
+    name: 查看磁盘空间
+  dir-size:
+    name: 查看目录大小
+    args:
+      path:
+        label: path
+  dir-size-win:
+    name: 查看目录大小
+    args:
+      path:
+        label: path
+  memory-usage:
+    name: 查看内存使用
+  memory-usage-linux:
+    name: 查看内存使用
+  memory-usage-win:
+    name: 查看内存使用
+  system-info:
+    name: 查看系统信息
+  system-info-win:
+    name: 查看系统信息
+  env-var-set:
+    name: 设置环境变量
+    args:
+      key:
+        label: key
+      value:
+        label: value
+  env-var-set-win:
+    name: 设置环境变量
+    args:
+      key:
+        label: key
+      value:
+        label: value
+  env-var-get:
+    name: 查看环境变量
+    args:
+      key:
+        label: key
+  env-var-get-win:
+    name: 查看环境变量
+    args:
+      key:
+        label: key
+  uptime:
+    name: 系统运行时间
+  cpu-top:
+    name: CPU 占用排行
+  cpu-top-win:
+    name: CPU 占用排行
+  cron-list:
+    name: 查看定时任务
+  hosts-edit:
+    name: 编辑 hosts 文件
+  hosts-edit-win:
+    name: 编辑 hosts 文件

@@ -1,0 +1,17 @@
+meta:
+  name: Pip
+commands:
+  pip-install:
+    name: Install Pip Package
+    args:
+      package:
+        label: Package
+  pip-uninstall:
+    name: Uninstall Pip Package
+    args:
+      package:
+        label: Package
+  pip-list:
+    name: List Installed Pip Packages
+  pip-freeze:
+    name: Export Pip Dependencies

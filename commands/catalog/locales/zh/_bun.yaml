@@ -1,0 +1,20 @@
+meta:
+  name: Bun
+commands:
+  bun-install:
+    name: Bun 安装依赖
+  bun-run:
+    name: Bun 运行脚本
+    args:
+      script:
+        label: script
+  bun-add:
+    name: Bun 添加依赖
+    args:
+      package:
+        label: package
+  bun-remove:
+    name: Bun 移除依赖
+    args:
+      package:
+        label: package

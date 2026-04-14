@@ -1,0 +1,17 @@
+meta:
+  name: Pip
+commands:
+  pip-install:
+    name: Pip 安装包
+    args:
+      package:
+        label: package
+  pip-uninstall:
+    name: Pip 卸载包
+    args:
+      package:
+        label: package
+  pip-list:
+    name: Pip 查看已安装
+  pip-freeze:
+    name: Pip 导出依赖

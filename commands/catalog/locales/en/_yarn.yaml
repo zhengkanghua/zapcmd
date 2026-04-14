@@ -1,0 +1,32 @@
+meta:
+  name: Yarn
+commands:
+  yarn-add:
+    name: Add Yarn Dependency
+    args:
+      package:
+        label: Package
+  yarn-run:
+    name: Run Yarn Script
+    args:
+      script:
+        label: Script
+  yarn-remove:
+    name: Remove Yarn Dependency
+    args:
+      package:
+        label: Package
+  yarn-upgrade:
+    name: Upgrade Yarn Dependencies
+  yarn-install-project:
+    name: Install Project Dependencies with Yarn
+  yarn-add-dev:
+    name: Add Yarn Dev Dependency
+    args:
+      package:
+        label: Package
+  yarn-dlx:
+    name: Run Temporary Package with Yarn
+    args:
+      package:
+        label: Package

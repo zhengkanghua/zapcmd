@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "证书与 OpenSSL",
+    "name": {
+      "zh": "证书与 OpenSSL",
+      "en": "Certificates and OpenSSL"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "openssl-x509-text",
-      "name": "OpenSSL 查看证书全文",
+      "name": {
+        "zh": "OpenSSL 查看证书全文",
+        "en": "Show Certificate Details"
+      },
       "tags": [
         "openssl",
         "cert",
@@ -34,9 +40,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -50,7 +59,10 @@
     },
     {
       "id": "openssl-cert-dates",
-      "name": "OpenSSL 查看证书有效期",
+      "name": {
+        "zh": "OpenSSL 查看证书有效期",
+        "en": "Show Certificate Validity Dates"
+      },
       "tags": [
         "openssl",
         "cert",
@@ -77,9 +89,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -93,7 +108,10 @@
     },
     {
       "id": "openssl-cert-fingerprint",
-      "name": "OpenSSL 查看证书指纹",
+      "name": {
+        "zh": "OpenSSL 查看证书指纹",
+        "en": "Show Certificate Fingerprint"
+      },
       "tags": [
         "openssl",
         "cert",
@@ -121,9 +139,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -137,7 +158,10 @@
     },
     {
       "id": "openssl-s-client",
-      "name": "OpenSSL 建立 TLS 连接",
+      "name": {
+        "zh": "OpenSSL 建立 TLS 连接",
+        "en": "Open TLS Connection with OpenSSL"
+      },
       "tags": [
         "openssl",
         "s_client",
@@ -164,19 +188,25 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "443",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         }
       ],
@@ -191,7 +221,10 @@
     },
     {
       "id": "openssl-pkey-text",
-      "name": "OpenSSL 查看密钥详情",
+      "name": {
+        "zh": "OpenSSL 查看密钥详情",
+        "en": "Show Private Key Details"
+      },
       "tags": [
         "openssl",
         "pkey",
@@ -219,9 +252,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [

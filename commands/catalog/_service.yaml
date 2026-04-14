@@ -1,9 +1,7 @@
 meta:
-  name: Service 服务管理
   moduleSlug: service
 commands:
   - id: service-status-win
-    name: 查看 Windows 服务状态
     category: service
     platform: win
     script:
@@ -12,7 +10,6 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
     prerequisites:
@@ -30,7 +27,6 @@ commands:
       - 查看
       - show
   - id: service-list-running-win
-    name: 列出运行中的 Windows 服务
     category: service
     platform: win
     script:
@@ -53,7 +49,6 @@ commands:
       - 运行
       - 列表
   - id: service-status-linux
-    name: 查看 Linux 服务状态
     category: service
     platform: linux
     exec:
@@ -65,7 +60,6 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
     prerequisites:
@@ -82,7 +76,6 @@ commands:
       - 查看
       - show
   - id: service-list-running-linux
-    name: 列出运行中的 Linux 服务
     category: service
     platform: linux
     exec:
@@ -107,7 +100,6 @@ commands:
       - 运行
       - 列表
   - id: service-logs-linux
-    name: 查看 Linux 服务日志
     category: service
     platform: linux
     exec:
@@ -121,11 +113,9 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
       - key: lines
-        label: lines
         type: number
         required: true
         default: "100"
@@ -147,7 +137,6 @@ commands:
       - 查看
       - show
   - id: service-list-all-linux
-    name: 列出全部 Linux 服务
     category: service
     platform: linux
     exec:
@@ -174,7 +163,6 @@ commands:
       - 查看
       - show
   - id: service-list-failed-linux
-    name: 列出失败的 Linux 服务
     category: service
     platform: linux
     exec:
@@ -201,7 +189,6 @@ commands:
       - 查看
       - show
   - id: service-enabled-linux
-    name: 查看 Linux 服务开机启用状态
     category: service
     platform: linux
     exec:
@@ -212,7 +199,6 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
     prerequisites:
@@ -230,7 +216,6 @@ commands:
       - 查看
       - show
   - id: service-cat-linux
-    name: 查看 Linux 服务定义
     category: service
     platform: linux
     exec:
@@ -241,7 +226,6 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
     prerequisites:
@@ -259,7 +243,6 @@ commands:
       - 查看
       - show
   - id: service-list-mac
-    name: 列出 macOS 服务
     category: service
     platform: mac
     exec:
@@ -277,7 +260,6 @@ commands:
       - 查看
       - show
   - id: service-status-mac
-    name: 查看 macOS 服务状态
     category: service
     platform: mac
     script:
@@ -286,7 +268,6 @@ commands:
     adminRequired: false
     args:
       - key: name
-        label: name
         type: text
         required: true
     prerequisites:

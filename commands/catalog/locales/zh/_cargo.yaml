@@ -1,0 +1,14 @@
+meta:
+  name: Cargo
+commands:
+  cargo-build:
+    name: Cargo 构建
+  cargo-run:
+    name: Cargo 运行
+  cargo-test:
+    name: Cargo 测试
+  cargo-add:
+    name: Cargo 添加依赖
+    args:
+      package:
+        label: package

@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Pip",
+    "name": {
+      "zh": "Pip",
+      "en": "Pip"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "pip-install",
-      "name": "Pip 安装包",
+      "name": {
+        "zh": "Pip 安装包",
+        "en": "Install Pip Package"
+      },
       "tags": [
         "包管理",
         "package",
@@ -27,9 +33,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -43,7 +52,10 @@
     },
     {
       "id": "pip-uninstall",
-      "name": "Pip 卸载包",
+      "name": {
+        "zh": "Pip 卸载包",
+        "en": "Uninstall Pip Package"
+      },
       "tags": [
         "包管理",
         "package",
@@ -64,9 +76,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -80,7 +95,10 @@
     },
     {
       "id": "pip-list",
-      "name": "Pip 查看已安装",
+      "name": {
+        "zh": "Pip 查看已安装",
+        "en": "List Installed Pip Packages"
+      },
       "tags": [
         "包管理",
         "package",
@@ -112,7 +130,10 @@
     },
     {
       "id": "pip-freeze",
-      "name": "Pip 导出依赖",
+      "name": {
+        "zh": "Pip 导出依赖",
+        "en": "Export Pip Dependencies"
+      },
       "tags": [
         "包管理",
         "package",

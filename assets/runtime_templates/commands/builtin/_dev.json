@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "开发工具",
+    "name": {
+      "zh": "开发工具",
+      "en": "Developer Tools"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "json-format",
-      "name": "格式化 JSON",
+      "name": {
+        "zh": "格式化 JSON",
+        "en": "Format JSON"
+      },
       "tags": [
         "开发",
         "dev",
@@ -24,9 +30,12 @@
       "args": [
         {
           "key": "json",
-          "label": "json",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "JSON",
+            "en": "JSON"
+          }
         }
       ],
       "prerequisites": [
@@ -46,7 +55,10 @@
     },
     {
       "id": "base64-encode-mac",
-      "name": "Base64 编码",
+      "name": {
+        "zh": "Base64 编码",
+        "en": "Base64 Encode"
+      },
       "tags": [
         "开发",
         "dev",
@@ -64,9 +76,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -80,7 +95,10 @@
     },
     {
       "id": "base64-encode-linux",
-      "name": "Base64 编码",
+      "name": {
+        "zh": "Base64 编码",
+        "en": "Base64 Encode"
+      },
       "tags": [
         "开发",
         "dev",
@@ -98,9 +116,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -114,7 +135,10 @@
     },
     {
       "id": "base64-decode-mac",
-      "name": "Base64 解码",
+      "name": {
+        "zh": "Base64 解码",
+        "en": "Base64 Decode"
+      },
       "tags": [
         "开发",
         "dev",
@@ -132,9 +156,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -148,7 +175,10 @@
     },
     {
       "id": "base64-decode-linux",
-      "name": "Base64 解码",
+      "name": {
+        "zh": "Base64 解码",
+        "en": "Base64 Decode"
+      },
       "tags": [
         "开发",
         "dev",
@@ -166,9 +196,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -182,7 +215,10 @@
     },
     {
       "id": "md5-hash",
-      "name": "计算 MD5 哈希",
+      "name": {
+        "zh": "计算 MD5 哈希",
+        "en": "Calculate MD5 Hash"
+      },
       "tags": [
         "开发",
         "dev",
@@ -203,15 +239,21 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ]
     },
     {
       "id": "md5-hash-linux",
-      "name": "计算 MD5 哈希",
+      "name": {
+        "zh": "计算 MD5 哈希",
+        "en": "Calculate MD5 Hash"
+      },
       "tags": [
         "开发",
         "dev",
@@ -229,9 +271,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -245,7 +290,10 @@
     },
     {
       "id": "sha256-hash-mac",
-      "name": "计算 SHA256 哈希",
+      "name": {
+        "zh": "计算 SHA256 哈希",
+        "en": "Calculate SHA256 Hash"
+      },
       "tags": [
         "开发",
         "dev",
@@ -263,9 +311,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -279,7 +330,10 @@
     },
     {
       "id": "sha256-hash-linux",
-      "name": "计算 SHA256 哈希",
+      "name": {
+        "zh": "计算 SHA256 哈希",
+        "en": "Calculate SHA256 Hash"
+      },
       "tags": [
         "开发",
         "dev",
@@ -297,9 +351,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -313,7 +370,10 @@
     },
     {
       "id": "timestamp-now-mac",
-      "name": "当前 Unix 时间戳",
+      "name": {
+        "zh": "当前 Unix 时间戳",
+        "en": "Show Current Unix Timestamp"
+      },
       "tags": [
         "开发",
         "dev",
@@ -333,7 +393,10 @@
     },
     {
       "id": "timestamp-now-linux",
-      "name": "当前 Unix 时间戳",
+      "name": {
+        "zh": "当前 Unix 时间戳",
+        "en": "Show Current Unix Timestamp"
+      },
       "tags": [
         "开发",
         "dev",
@@ -353,7 +416,10 @@
     },
     {
       "id": "timestamp-now-win",
-      "name": "当前 Unix 时间戳",
+      "name": {
+        "zh": "当前 Unix 时间戳",
+        "en": "Show Current Unix Timestamp"
+      },
       "tags": [
         "开发",
         "dev",
@@ -379,7 +445,10 @@
     },
     {
       "id": "timestamp-convert",
-      "name": "时间戳转日期",
+      "name": {
+        "zh": "时间戳转日期",
+        "en": "Convert Timestamp to Date"
+      },
       "tags": [
         "开发",
         "dev",
@@ -401,15 +470,21 @@
       "args": [
         {
           "key": "timestamp",
-          "label": "timestamp",
           "type": "number",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "时间戳",
+            "en": "Timestamp"
+          }
         }
       ]
     },
     {
       "id": "timestamp-convert-linux",
-      "name": "时间戳转日期",
+      "name": {
+        "zh": "时间戳转日期",
+        "en": "Convert Timestamp to Date"
+      },
       "tags": [
         "开发",
         "dev",
@@ -431,15 +506,21 @@
       "args": [
         {
           "key": "timestamp",
-          "label": "timestamp",
           "type": "number",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "时间戳",
+            "en": "Timestamp"
+          }
         }
       ]
     },
     {
       "id": "uuid-gen-mac",
-      "name": "生成 UUID",
+      "name": {
+        "zh": "生成 UUID",
+        "en": "Generate UUID"
+      },
       "tags": [
         "开发",
         "dev",
@@ -456,7 +537,10 @@
     },
     {
       "id": "uuid-gen-linux",
-      "name": "生成 UUID",
+      "name": {
+        "zh": "生成 UUID",
+        "en": "Generate UUID"
+      },
       "tags": [
         "开发",
         "dev",
@@ -473,7 +557,10 @@
     },
     {
       "id": "random-string-mac",
-      "name": "生成随机字符串",
+      "name": {
+        "zh": "生成随机字符串",
+        "en": "Generate Random String"
+      },
       "tags": [
         "开发",
         "dev",
@@ -496,13 +583,16 @@
       "args": [
         {
           "key": "length",
-          "label": "length",
           "type": "number",
           "required": true,
           "default": "16",
           "validation": {
             "min": 1,
             "max": 1024
+          },
+          "label": {
+            "zh": "长度",
+            "en": "Length"
           }
         }
       ],
@@ -517,7 +607,10 @@
     },
     {
       "id": "random-string-linux",
-      "name": "生成随机字符串",
+      "name": {
+        "zh": "生成随机字符串",
+        "en": "Generate Random String"
+      },
       "tags": [
         "开发",
         "dev",
@@ -540,13 +633,16 @@
       "args": [
         {
           "key": "length",
-          "label": "length",
           "type": "number",
           "required": true,
           "default": "16",
           "validation": {
             "min": 1,
             "max": 1024
+          },
+          "label": {
+            "zh": "长度",
+            "en": "Length"
           }
         }
       ],
@@ -561,7 +657,10 @@
     },
     {
       "id": "http-server",
-      "name": "快速启动 HTTP 服务",
+      "name": {
+        "zh": "快速启动 HTTP 服务",
+        "en": "Start HTTP Server"
+      },
       "tags": [
         "开发",
         "dev",
@@ -585,13 +684,16 @@
       "args": [
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "8000",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "端口",
+            "en": "Port"
           }
         }
       ],
@@ -606,7 +708,10 @@
     },
     {
       "id": "regex-test-mac",
-      "name": "正则表达式测试",
+      "name": {
+        "zh": "正则表达式测试",
+        "en": "Test Regular Expression"
+      },
       "tags": [
         "开发",
         "dev",
@@ -625,15 +730,21 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         },
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "正则",
+            "en": "Pattern"
+          }
         }
       ],
       "prerequisites": [
@@ -647,7 +758,10 @@
     },
     {
       "id": "regex-test-linux",
-      "name": "正则表达式测试",
+      "name": {
+        "zh": "正则表达式测试",
+        "en": "Test Regular Expression"
+      },
       "tags": [
         "开发",
         "dev",
@@ -666,15 +780,21 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         },
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "正则",
+            "en": "Pattern"
+          }
         }
       ],
       "prerequisites": [
@@ -688,7 +808,10 @@
     },
     {
       "id": "url-encode",
-      "name": "URL 编码",
+      "name": {
+        "zh": "URL 编码",
+        "en": "URL Encode"
+      },
       "tags": [
         "开发",
         "dev",
@@ -706,9 +829,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -728,7 +854,10 @@
     },
     {
       "id": "url-decode",
-      "name": "URL 解码",
+      "name": {
+        "zh": "URL 解码",
+        "en": "URL Decode"
+      },
       "tags": [
         "开发",
         "dev",
@@ -746,9 +875,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -768,7 +900,10 @@
     },
     {
       "id": "jq-format-json",
-      "name": "使用 jq 格式化 JSON 文件",
+      "name": {
+        "zh": "使用 jq 格式化 JSON 文件",
+        "en": "Format JSON with jq"
+      },
       "tags": [
         "开发",
         "dev",
@@ -792,9 +927,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文件",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -808,7 +946,10 @@
     },
     {
       "id": "jwt-decode",
-      "name": "解码 JWT",
+      "name": {
+        "zh": "解码 JWT",
+        "en": "Decode JWT"
+      },
       "tags": [
         "开发",
         "dev",
@@ -827,9 +968,12 @@
       "args": [
         {
           "key": "token",
-          "label": "token",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "Token",
+            "en": "Token"
+          }
         }
       ],
       "prerequisites": [
@@ -849,7 +993,10 @@
     },
     {
       "id": "epoch-ms-now-mac",
-      "name": "当前 Unix 毫秒时间戳",
+      "name": {
+        "zh": "当前 Unix 毫秒时间戳",
+        "en": "Show Current Unix Timestamp (ms)"
+      },
       "tags": [
         "开发",
         "dev",
@@ -883,7 +1030,10 @@
     },
     {
       "id": "epoch-ms-now-linux",
-      "name": "当前 Unix 毫秒时间戳",
+      "name": {
+        "zh": "当前 Unix 毫秒时间戳",
+        "en": "Show Current Unix Timestamp (ms)"
+      },
       "tags": [
         "开发",
         "dev",
@@ -917,7 +1067,10 @@
     },
     {
       "id": "epoch-ms-now-win",
-      "name": "当前 Unix 毫秒时间戳",
+      "name": {
+        "zh": "当前 Unix 毫秒时间戳",
+        "en": "Show Current Unix Timestamp (ms)"
+      },
       "tags": [
         "开发",
         "dev",
@@ -945,7 +1098,10 @@
     },
     {
       "id": "epoch-ms-convert-mac",
-      "name": "毫秒时间戳转日期",
+      "name": {
+        "zh": "毫秒时间戳转日期",
+        "en": "Convert Millisecond Timestamp to Date"
+      },
       "tags": [
         "开发",
         "dev",
@@ -967,11 +1123,14 @@
       "args": [
         {
           "key": "timestamp",
-          "label": "timestamp",
           "type": "number",
           "required": true,
           "validation": {
             "min": 0
+          },
+          "label": {
+            "zh": "时间戳",
+            "en": "Timestamp"
           }
         }
       ],
@@ -992,7 +1151,10 @@
     },
     {
       "id": "epoch-ms-convert-linux",
-      "name": "毫秒时间戳转日期",
+      "name": {
+        "zh": "毫秒时间戳转日期",
+        "en": "Convert Millisecond Timestamp to Date"
+      },
       "tags": [
         "开发",
         "dev",
@@ -1014,11 +1176,14 @@
       "args": [
         {
           "key": "timestamp",
-          "label": "timestamp",
           "type": "number",
           "required": true,
           "validation": {
             "min": 0
+          },
+          "label": {
+            "zh": "时间戳",
+            "en": "Timestamp"
           }
         }
       ],
@@ -1039,7 +1204,10 @@
     },
     {
       "id": "epoch-ms-convert-win",
-      "name": "毫秒时间戳转日期",
+      "name": {
+        "zh": "毫秒时间戳转日期",
+        "en": "Convert Millisecond Timestamp to Date"
+      },
       "tags": [
         "开发",
         "dev",
@@ -1061,11 +1229,14 @@
       "args": [
         {
           "key": "timestamp",
-          "label": "timestamp",
           "type": "number",
           "required": true,
           "validation": {
             "min": 0
+          },
+          "label": {
+            "zh": "时间戳",
+            "en": "Timestamp"
           }
         }
       ],
@@ -1080,7 +1251,10 @@
     },
     {
       "id": "uuid-gen-win",
-      "name": "生成 UUID",
+      "name": {
+        "zh": "生成 UUID",
+        "en": "Generate UUID"
+      },
       "tags": [
         "开发",
         "dev",
@@ -1105,7 +1279,10 @@
     },
     {
       "id": "base64-encode-win",
-      "name": "Base64 编码",
+      "name": {
+        "zh": "Base64 编码",
+        "en": "Base64 Encode"
+      },
       "tags": [
         "开发",
         "dev",
@@ -1123,9 +1300,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -1139,7 +1319,10 @@
     },
     {
       "id": "base64-decode-win",
-      "name": "Base64 解码",
+      "name": {
+        "zh": "Base64 解码",
+        "en": "Base64 Decode"
+      },
       "tags": [
         "开发",
         "dev",
@@ -1157,9 +1340,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -1173,7 +1359,10 @@
     },
     {
       "id": "sha256-hash-win",
-      "name": "计算 SHA256 哈希",
+      "name": {
+        "zh": "计算 SHA256 哈希",
+        "en": "Calculate SHA256 Hash"
+      },
       "tags": [
         "开发",
         "dev",
@@ -1191,9 +1380,12 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         }
       ],
       "prerequisites": [
@@ -1207,7 +1399,10 @@
     },
     {
       "id": "regex-test-win",
-      "name": "正则表达式测试",
+      "name": {
+        "zh": "正则表达式测试",
+        "en": "Test Regular Expression"
+      },
       "tags": [
         "开发",
         "dev",
@@ -1226,15 +1421,21 @@
       "args": [
         {
           "key": "text",
-          "label": "text",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文本",
+            "en": "Text"
+          }
         },
         {
           "key": "pattern",
-          "label": "pattern",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "正则",
+            "en": "Pattern"
+          }
         }
       ],
       "prerequisites": [

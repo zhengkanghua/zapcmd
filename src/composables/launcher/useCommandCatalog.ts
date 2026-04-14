@@ -1,14 +1,19 @@
 import { onMounted, ref, watch, type Ref } from "vue";
 import type { CommandTemplate } from "../../features/commands/types";
 import type { RuntimePlatform } from "../../features/commands/runtimeTypes";
-import type { AppLocale } from "../../i18n";
+import { setAppLocale, type AppLocale } from "../../i18n";
 import {
-  createReadFailedIssue,
+  createScanFailedIssue,
   type CommandLoadIssue,
+  loadCommandTemplatesFromPayloadEntries,
   loadBuiltinCommandTemplatesWithReport,
-  loadUserCommandTemplatesWithReport,
-  type UserCommandJsonFile
+  createReadFailedIssue
 } from "../../features/commands/runtimeLoader";
+import { createUserCommandSourceCache } from "../../features/commands/userCommandSourceCache";
+import type {
+  UserCommandFileScanResult,
+  UserCommandJsonFile as UserCommandSingleFile
+} from "../../features/commands/userCommandSourceTypes";
 
 const USER_COMMAND_SOURCE_ID = "user-command-files";
 
@@ -38,13 +43,6 @@ function mergeCommandTemplates(
   }
 
   return merged;
-}
-
-function createUserFilesSignature(files: UserCommandJsonFile[]): string {
-  return files
-    .map((file) => `${file.path}:${file.modifiedMs}:${file.content.length}`)
-    .sort()
-    .join("|");
 }
 
 function normalizeRuntimePlatform(value: unknown): RuntimePlatform {
@@ -98,7 +96,8 @@ function mergeCommandSourceById(
 
 interface UseCommandCatalogOptions {
   isTauriRuntime: () => boolean;
-  readUserCommandFiles: () => Promise<UserCommandJsonFile[]>;
+  scanUserCommandFiles?: () => Promise<UserCommandFileScanResult>;
+  readUserCommandFile?: (path: string) => Promise<UserCommandSingleFile>;
   readRuntimePlatform?: () => Promise<string>;
   disabledCommandIds?: Readonly<Ref<string[]>>;
   locale?: Readonly<Ref<AppLocale>>;
@@ -113,6 +112,146 @@ interface UseCommandCatalogReturn {
   loadIssues: Ref<CommandLoadIssue[]>;
   catalogReady: Ref<boolean>;
   refreshUserCommands: () => Promise<void>;
+}
+
+function createCommandCatalogState(
+  options: UseCommandCatalogOptions,
+  initialBuiltinLoaded: ReturnType<typeof loadBuiltinCommandTemplatesWithReport>
+) {
+  const builtinTemplates = ref<CommandTemplate[]>(initialBuiltinLoaded.templates);
+  const userTemplates = ref<CommandTemplate[]>([]);
+  const allCommandTemplates = ref<CommandTemplate[]>(builtinTemplates.value);
+  const commandTemplates = ref<CommandTemplate[]>(builtinTemplates.value);
+  const builtinCommandSourceById = ref<Record<string, string>>(initialBuiltinLoaded.sourceByCommandId);
+  const commandSourceById = ref<Record<string, string>>({});
+  const userCommandSourceById = ref<Record<string, string>>({});
+  const overriddenCommandIds = ref<string[]>([]);
+  const loadIssues = ref<CommandLoadIssue[]>([]);
+  const catalogReady = ref(!options.isTauriRuntime());
+  const userCommandSourceCache =
+    options.scanUserCommandFiles && options.readUserCommandFile
+      ? createUserCommandSourceCache({
+          scanUserCommandFiles: options.scanUserCommandFiles,
+          readUserCommandFile: options.readUserCommandFile
+        })
+      : null;
+
+  return {
+    builtinTemplates,
+    userTemplates,
+    allCommandTemplates,
+    commandTemplates,
+    builtinCommandSourceById,
+    commandSourceById,
+    userCommandSourceById,
+    overriddenCommandIds,
+    loadIssues,
+    catalogReady,
+    userCommandSourceCache
+  };
+}
+
+function buildCommandCatalogReturn(params: {
+  commandTemplates: Ref<CommandTemplate[]>;
+  allCommandTemplates: Ref<CommandTemplate[]>;
+  commandSourceById: Ref<Record<string, string>>;
+  userCommandSourceById: Ref<Record<string, string>>;
+  overriddenCommandIds: Ref<string[]>;
+  loadIssues: Ref<CommandLoadIssue[]>;
+  catalogReady: Ref<boolean>;
+  refreshUserCommands: () => Promise<void>;
+}): UseCommandCatalogReturn {
+  return {
+    commandTemplates: params.commandTemplates,
+    allCommandTemplates: params.allCommandTemplates,
+    commandSourceById: params.commandSourceById,
+    userCommandSourceById: params.userCommandSourceById,
+    overriddenCommandIds: params.overriddenCommandIds,
+    loadIssues: params.loadIssues,
+    catalogReady: params.catalogReady,
+    refreshUserCommands: params.refreshUserCommands
+  };
+}
+
+function loadBuiltinTemplatesAndSourceForState(params: {
+  builtinTemplates: Ref<CommandTemplate[]>;
+  builtinCommandSourceById: Ref<Record<string, string>>;
+  runtimePlatform: RuntimePlatform | null;
+}): void {
+  const loaded = params.runtimePlatform
+    ? loadBuiltinCommandTemplatesWithReport({ runtimePlatform: params.runtimePlatform })
+    : loadBuiltinCommandTemplatesWithReport();
+  params.builtinTemplates.value = loaded.templates;
+  params.builtinCommandSourceById.value = loaded.sourceByCommandId;
+}
+
+function applyUserTemplatesFromPayload(params: {
+  payloadEntries: Array<{ sourceId: string; payload: unknown }>;
+  sourceIssues: CommandLoadIssue[];
+  runtimePlatform: RuntimePlatform | null;
+  userTemplates: Ref<CommandTemplate[]>;
+  userCommandSourceById: Ref<Record<string, string>>;
+  loadIssues: Ref<CommandLoadIssue[]>;
+  applyMergedTemplates: () => void;
+}): void {
+  const loaded = loadCommandTemplatesFromPayloadEntries(
+    params.payloadEntries,
+    params.runtimePlatform ? { runtimePlatform: params.runtimePlatform } : {}
+  );
+  params.userTemplates.value = loaded.templates;
+  params.userCommandSourceById.value = loaded.sourceByCommandId;
+  params.loadIssues.value = [...params.sourceIssues, ...loaded.issues];
+  params.applyMergedTemplates();
+}
+
+async function resolveRuntimePlatformOnce(params: {
+  options: UseCommandCatalogOptions;
+  getRuntimePlatform: () => RuntimePlatform | null;
+  setRuntimePlatform: (value: RuntimePlatform) => void;
+}): Promise<void> {
+  if (!params.options.readRuntimePlatform || !params.options.isTauriRuntime()) {
+    return;
+  }
+  if (params.getRuntimePlatform() !== null) {
+    return;
+  }
+  try {
+    const resolved = await params.options.readRuntimePlatform();
+    params.setRuntimePlatform(normalizeRuntimePlatform(resolved));
+  } catch (error) {
+    console.warn("[commands] failed to resolve runtime platform from backend", error);
+    params.setRuntimePlatform("all");
+  }
+}
+
+function applyMergedCommandCatalogState(params: {
+  builtinTemplates: Ref<CommandTemplate[]>;
+  userTemplates: Ref<CommandTemplate[]>;
+  allCommandTemplates: Ref<CommandTemplate[]>;
+  commandTemplates: Ref<CommandTemplate[]>;
+  builtinCommandSourceById: Ref<Record<string, string>>;
+  commandSourceById: Ref<Record<string, string>>;
+  userCommandSourceById: Ref<Record<string, string>>;
+  overriddenCommandIds: Ref<string[]>;
+  disabledCommandIds: Readonly<Ref<string[]>> | undefined;
+}): void {
+  const merged = mergeCommandTemplates(params.builtinTemplates.value, params.userTemplates.value);
+  params.allCommandTemplates.value = merged;
+  params.commandSourceById.value = mergeCommandSourceById(
+    params.builtinCommandSourceById.value,
+    params.userCommandSourceById.value,
+    merged
+  );
+  params.overriddenCommandIds.value = computeOverrideIds(
+    params.builtinTemplates.value,
+    params.userTemplates.value
+  );
+  const disabledIds = readDisabledCommandIds(params.disabledCommandIds);
+  if (disabledIds.size === 0) {
+    params.commandTemplates.value = merged;
+    return;
+  }
+  params.commandTemplates.value = merged.filter((item) => !disabledIds.has(item.id));
 }
 
 function bindCatalogWatchers(params: {
@@ -136,6 +275,8 @@ function bindCatalogWatchers(params: {
     watch(
       options.locale,
       () => {
+        // Runtime text mapping currently resolves localized fields through the global i18n singleton.
+        setAppLocale(options.locale?.value);
         onLocaleChanged();
       },
       { deep: false }
@@ -184,7 +325,7 @@ function bindCommandCatalogLifecycle(params: {
   loadIssues: Ref<CommandLoadIssue[]>;
   applyMergedTemplates: () => void;
   refreshUserCommands: () => Promise<void>;
-  resetLastSignature: () => void;
+  remapFromCacheIfPrimed: () => Promise<boolean>;
 }): void {
   bindCatalogWatchers({
     options: params.options,
@@ -192,13 +333,17 @@ function bindCommandCatalogLifecycle(params: {
       params.applyMergedTemplates();
     },
     onLocaleChanged: () => {
-      params.resetLastSignature();
       if (!params.options.isTauriRuntime()) {
         params.loadBuiltinTemplatesAndSource();
         params.applyMergedTemplates();
         return;
       }
-      void params.refreshUserCommands();
+      void params.remapFromCacheIfPrimed().then((handled) => {
+        if (!handled) {
+          return params.refreshUserCommands();
+        }
+        return undefined;
+      });
     }
   });
   bindCatalogMountedHook(params);
@@ -206,59 +351,64 @@ function bindCommandCatalogLifecycle(params: {
 
 export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommandCatalogReturn {
   const initialBuiltinLoaded = loadBuiltinCommandTemplatesWithReport();
-  const builtinTemplates = ref<CommandTemplate[]>(initialBuiltinLoaded.templates);
-  const userTemplates = ref<CommandTemplate[]>([]);
-  const allCommandTemplates = ref<CommandTemplate[]>(builtinTemplates.value);
-  const commandTemplates = ref<CommandTemplate[]>(builtinTemplates.value);
-  const builtinCommandSourceById = ref<Record<string, string>>(initialBuiltinLoaded.sourceByCommandId);
-  const commandSourceById = ref<Record<string, string>>({});
-  const userCommandSourceById = ref<Record<string, string>>({});
-  const overriddenCommandIds = ref<string[]>([]);
-  const loadIssues = ref<CommandLoadIssue[]>([]);
-  const catalogReady = ref(!options.isTauriRuntime());
-  let lastSignature = "";
-  let runtimePlatform: RuntimePlatform | null = null, appliedRuntimePlatform: RuntimePlatform | null = null;
+  const {
+    builtinTemplates,
+    userTemplates,
+    allCommandTemplates,
+    commandTemplates,
+    builtinCommandSourceById,
+    commandSourceById,
+    userCommandSourceById,
+    overriddenCommandIds,
+    loadIssues,
+    catalogReady,
+    userCommandSourceCache
+  } = createCommandCatalogState(options, initialBuiltinLoaded);
+  let runtimePlatform: RuntimePlatform | null = null;
 
-  async function resolveRuntimePlatform(): Promise<void> {
-    if (!options.readRuntimePlatform || !options.isTauriRuntime()) {
-      return;
-    }
-    if (runtimePlatform !== null) {
-      return;
-    }
-    try {
-      const resolved = await options.readRuntimePlatform();
-      runtimePlatform = normalizeRuntimePlatform(resolved);
-    } catch (error) {
-      console.warn("[commands] failed to resolve runtime platform from backend", error);
-      runtimePlatform = "all";
-    }
-  }
+  const resolveRuntimePlatform = () =>
+    resolveRuntimePlatformOnce({
+      options,
+      getRuntimePlatform: () => runtimePlatform,
+      setRuntimePlatform: (value) => {
+        runtimePlatform = value;
+      }
+    });
 
-  function loadBuiltinTemplatesAndSource(): void {
-    const loaded = runtimePlatform
-      ? loadBuiltinCommandTemplatesWithReport({ runtimePlatform })
-      : loadBuiltinCommandTemplatesWithReport();
-    builtinTemplates.value = loaded.templates;
-    builtinCommandSourceById.value = loaded.sourceByCommandId;
-  }
+  const loadBuiltinTemplatesAndSource = () =>
+    loadBuiltinTemplatesAndSourceForState({ builtinTemplates, builtinCommandSourceById, runtimePlatform });
 
-  function applyMergedTemplates(): void {
-    const merged = mergeCommandTemplates(builtinTemplates.value, userTemplates.value);
-    allCommandTemplates.value = merged;
-    commandSourceById.value = mergeCommandSourceById(
-      builtinCommandSourceById.value,
-      userCommandSourceById.value,
-      merged
-    );
-    overriddenCommandIds.value = computeOverrideIds(builtinTemplates.value, userTemplates.value);
-    const disabledIds = readDisabledCommandIds(options.disabledCommandIds);
-    if (disabledIds.size === 0) {
-      commandTemplates.value = merged;
-      return;
+  const applyMergedTemplates = () =>
+    applyMergedCommandCatalogState({
+      builtinTemplates,
+      userTemplates,
+      allCommandTemplates,
+      commandTemplates,
+      builtinCommandSourceById,
+      commandSourceById,
+      userCommandSourceById,
+      overriddenCommandIds,
+      disabledCommandIds: options.disabledCommandIds
+    });
+
+  async function remapFromCacheIfPrimed(): Promise<boolean> {
+    if (!userCommandSourceCache || !userCommandSourceCache.hasPrimedScan()) {
+      return false;
     }
-
-    commandTemplates.value = merged.filter((item) => !disabledIds.has(item.id));
+    await resolveRuntimePlatform();
+    loadBuiltinTemplatesAndSource();
+    const cached = userCommandSourceCache.remapFromCache();
+    applyUserTemplatesFromPayload({
+      payloadEntries: cached.payloadEntries,
+      sourceIssues: cached.issues,
+      runtimePlatform,
+      userTemplates,
+      userCommandSourceById,
+      loadIssues,
+      applyMergedTemplates
+    });
+    catalogReady.value = true;
+    return true;
   }
 
   async function refreshUserCommands(): Promise<void> {
@@ -268,28 +418,34 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
       return;
     }
     try {
-      await resolveRuntimePlatform();
-      const files = await options.readUserCommandFiles();
-      if (!Array.isArray(files)) {
+      if (!userCommandSourceCache) {
+        loadIssues.value = [
+          createReadFailedIssue(USER_COMMAND_SOURCE_ID, "user command scan/read ports are not configured.")
+        ];
         return;
       }
-      const currentPlatform = runtimePlatform ?? null;
-      const signature = createUserFilesSignature(files);
-      const platformChanged = currentPlatform !== appliedRuntimePlatform;
-      if (signature === lastSignature && !platformChanged) {
-        return;
-      }
+      const [, scanned] = await Promise.all([
+        resolveRuntimePlatform(),
+        userCommandSourceCache.refreshFromScan()
+      ]);
       loadBuiltinTemplatesAndSource();
-      const userLoaded = loadUserCommandTemplatesWithReport(files, runtimePlatform ? { runtimePlatform } : {});
-      userTemplates.value = userLoaded.templates;
-      userCommandSourceById.value = userLoaded.sourceByCommandId;
-      loadIssues.value = userLoaded.issues;
-      applyMergedTemplates();
-      lastSignature = signature;
-      appliedRuntimePlatform = currentPlatform;
+      applyUserTemplatesFromPayload({
+        payloadEntries: scanned.payloadEntries,
+        sourceIssues: scanned.issues,
+        runtimePlatform,
+        userTemplates,
+        userCommandSourceById,
+        loadIssues,
+        applyMergedTemplates
+      });
     } catch (error) {
       console.warn("[commands] failed to refresh user command files", error);
-      loadIssues.value = [createReadFailedIssue(USER_COMMAND_SOURCE_ID, error)];
+      userCommandSourceCache?.clear();
+      loadIssues.value = [
+        userCommandSourceCache
+          ? createScanFailedIssue(USER_COMMAND_SOURCE_ID, error)
+          : createReadFailedIssue(USER_COMMAND_SOURCE_ID, error)
+      ];
     } finally {
       catalogReady.value = true;
     }
@@ -304,12 +460,10 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
     loadIssues,
     applyMergedTemplates,
     refreshUserCommands,
-    resetLastSignature: () => {
-      lastSignature = "";
-    }
+    remapFromCacheIfPrimed
   });
 
-  return {
+  return buildCommandCatalogReturn({
     commandTemplates,
     allCommandTemplates,
     commandSourceById,
@@ -318,5 +472,5 @@ export function useCommandCatalog(options: UseCommandCatalogOptions): UseCommand
     loadIssues,
     catalogReady,
     refreshUserCommands
-  };
+  });
 }

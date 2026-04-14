@@ -11,33 +11,31 @@ mod windowing;
 use tauri::{Manager, RunEvent, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
 
+use animation::{animate_main_window_size, resize_main_window_for_reveal, AnimationController};
+use autostart::{get_autostart_enabled, set_autostart_enabled};
 use bounds::handle_main_window_event;
 use command_catalog::{
-    get_user_commands_dir,
-    probe_command_prerequisites,
-    read_user_command_files,
+    get_user_commands_dir, probe_command_prerequisites, read_user_command_file,
+    scan_user_command_files,
 };
 use hotkeys::{get_launcher_hotkey, update_launcher_hotkey};
 use terminal::{
     get_available_terminals, get_runtime_platform, mark_terminal_discovery_exit_requested,
-    refresh_available_terminals,
-    run_command_in_terminal,
+    refresh_available_terminals, run_command_in_terminal,
 };
 use windowing::{
-    hide_main_window,
-    open_settings_window,
-    ping,
-    set_main_window_size,
+    hide_main_window, open_settings_window, ping, set_main_window_size,
     show_settings_window_when_ready,
 };
-use animation::{animate_main_window_size, resize_main_window_for_reveal, AnimationController};
-use autostart::{get_autostart_enabled, set_autostart_enabled};
 
 pub fn run() {
     let context = tauri::generate_context!();
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, None))
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            None,
+        ))
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             startup::initialize_state(app);
@@ -73,7 +71,8 @@ pub fn run() {
             get_runtime_platform,
             run_command_in_terminal,
             get_user_commands_dir,
-            read_user_command_files,
+            scan_user_command_files,
+            read_user_command_file,
             probe_command_prerequisites,
             get_autostart_enabled,
             set_autostart_enabled

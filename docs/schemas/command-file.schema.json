@@ -133,7 +133,7 @@
           "type": "string"
         },
         "placeholder": {
-          "type": "string"
+          "$ref": "#/$defs/localizedTextOrString"
         },
         "validation": {
           "$ref": "#/$defs/commandArgValidation"

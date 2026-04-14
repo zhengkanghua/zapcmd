@@ -1,9 +1,7 @@
 meta:
-  name: Docker 容器管理
   moduleSlug: docker
 commands:
   - id: docker-ps
-    name: 查看运行中容器
     category: docker
     platform: all
     exec:
@@ -25,7 +23,6 @@ commands:
       - show
       - container
   - id: docker-ps-all
-    name: 查看所有容器
     category: docker
     platform: all
     exec:
@@ -50,7 +47,6 @@ commands:
       - show
       - container
   - id: docker-images
-    name: 查看本地镜像
     category: docker
     platform: all
     exec:
@@ -72,7 +68,6 @@ commands:
       - show
       - image
   - id: docker-run
-    name: 运行容器
     category: docker
     platform: all
     exec:
@@ -88,15 +83,12 @@ commands:
     adminRequired: false
     args:
       - key: image
-        label: image
         type: text
         required: true
       - key: name
-        label: name
         type: text
         required: true
       - key: ports
-        label: ports
         type: text
         required: true
     prerequisites:
@@ -111,7 +103,6 @@ commands:
       - run
       - container
   - id: docker-stop
-    name: 停止容器
     category: docker
     platform: all
     exec:
@@ -122,7 +113,6 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
     prerequisites:
@@ -138,7 +128,6 @@ commands:
       - container
       - 容器管理
   - id: docker-start
-    name: 启动已停止容器
     category: docker
     platform: all
     exec:
@@ -149,7 +138,6 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
     prerequisites:
@@ -167,7 +155,6 @@ commands:
       - container
       - 容器管理
   - id: docker-restart
-    name: 重启容器
     category: docker
     platform: all
     exec:
@@ -178,7 +165,6 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
     prerequisites:
@@ -194,7 +180,6 @@ commands:
       - container
       - 容器管理
   - id: docker-rm
-    name: 删除容器
     category: docker
     platform: all
     exec:
@@ -205,7 +190,6 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
     prerequisites:
@@ -221,7 +205,6 @@ commands:
       - remove
       - container
   - id: docker-rmi
-    name: 删除镜像
     category: docker
     platform: all
     exec:
@@ -232,7 +215,6 @@ commands:
     adminRequired: false
     args:
       - key: image
-        label: image
         type: text
         required: true
     prerequisites:
@@ -250,7 +232,6 @@ commands:
       - 镜像
       - image
   - id: docker-logs
-    name: 查看容器日志
     category: docker
     platform: all
     exec:
@@ -263,11 +244,9 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
       - key: lines
-        label: lines
         type: number
         required: true
         default: "100"
@@ -289,7 +268,6 @@ commands:
       - log
       - container
   - id: docker-logs-follow
-    name: 实时查看容器日志
     category: docker
     platform: all
     exec:
@@ -301,7 +279,6 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
     prerequisites:
@@ -321,7 +298,6 @@ commands:
       - log
       - container
   - id: docker-exec
-    name: 进入容器 Shell
     category: docker
     platform: all
     exec:
@@ -334,11 +310,9 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
       - key: shell
-        label: shell
         type: select
         required: true
         validation:
@@ -357,7 +331,6 @@ commands:
       - exec
       - container
   - id: docker-inspect
-    name: 查看容器详情
     category: docker
     platform: all
     exec:
@@ -368,7 +341,6 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
     prerequisites:
@@ -385,7 +357,6 @@ commands:
       - show
       - container
   - id: docker-stats
-    name: 容器资源使用
     category: docker
     platform: all
     exec:
@@ -406,7 +377,6 @@ commands:
       - stats
       - container
   - id: docker-pull
-    name: 拉取镜像
     category: docker
     platform: all
     exec:
@@ -417,7 +387,6 @@ commands:
     adminRequired: false
     args:
       - key: image
-        label: image
         type: text
         required: true
     prerequisites:
@@ -433,7 +402,6 @@ commands:
       - 镜像
       - image
   - id: docker-build
-    name: 构建镜像
     category: docker
     platform: all
     exec:
@@ -446,11 +414,9 @@ commands:
     adminRequired: false
     args:
       - key: tag
-        label: tag
         type: text
         required: true
       - key: path
-        label: path
         type: path
         required: true
         default: .
@@ -467,7 +433,6 @@ commands:
       - 镜像
       - image
   - id: docker-compose-up
-    name: 启动 Compose 服务
     category: docker
     platform: all
     exec:
@@ -490,7 +455,6 @@ commands:
       - up
       - start
   - id: docker-compose-down
-    name: 停止 Compose 服务
     category: docker
     platform: all
     exec:
@@ -512,7 +476,6 @@ commands:
       - down
       - stop
   - id: docker-compose-logs
-    name: Compose 日志
     category: docker
     platform: all
     exec:
@@ -525,7 +488,6 @@ commands:
     adminRequired: false
     args:
       - key: service
-        label: service
         type: text
         required: true
     prerequisites:
@@ -541,7 +503,6 @@ commands:
       - logs
       - log
   - id: docker-compose-ps
-    name: Compose 服务状态
     category: docker
     platform: all
     exec:
@@ -565,7 +526,6 @@ commands:
       - 查看
       - show
   - id: docker-compose-config
-    name: Compose 配置预览
     category: docker
     platform: all
     exec:
@@ -589,7 +549,6 @@ commands:
       - 查看
       - show
   - id: docker-compose-pull
-    name: Compose 拉取镜像
     category: docker
     platform: all
     exec:
@@ -612,7 +571,6 @@ commands:
       - 镜像
       - image
   - id: docker-system-df
-    name: Docker 磁盘占用概览
     category: docker
     platform: all
     exec:
@@ -638,7 +596,6 @@ commands:
       - 查看
       - show
   - id: docker-prune
-    name: 清理未使用资源
     category: docker
     platform: all
     exec:
@@ -660,7 +617,6 @@ commands:
       - 清理
       - prune
   - id: docker-network-ls
-    name: 查看网络列表
     category: docker
     platform: all
     exec:
@@ -683,7 +639,6 @@ commands:
       - 查看
       - show
   - id: docker-volume-ls
-    name: 查看数据卷
     category: docker
     platform: all
     exec:
@@ -706,7 +661,6 @@ commands:
       - 查看
       - show
   - id: docker-cp
-    name: 复制文件到容器
     category: docker
     platform: all
     exec:
@@ -718,15 +672,12 @@ commands:
     adminRequired: false
     args:
       - key: src
-        label: src
         type: path
         required: true
       - key: container
-        label: container
         type: text
         required: true
       - key: dest
-        label: dest
         type: text
         required: true
     prerequisites:
@@ -743,7 +694,6 @@ commands:
       - 文件
       - file
   - id: docker-export
-    name: 导出容器
     category: docker
     platform: all
     script:
@@ -752,11 +702,9 @@ commands:
     adminRequired: false
     args:
       - key: container
-        label: container
         type: text
         required: true
       - key: file
-        label: file
         type: text
         required: true
     prerequisites:
@@ -775,7 +723,6 @@ commands:
       - export
       - container
   - id: docker-info
-    name: Docker 环境信息
     category: docker
     platform: all
     exec:
@@ -797,7 +744,6 @@ commands:
       - 查看
       - show
   - id: docker-image-inspect
-    name: 查看镜像详情
     category: docker
     platform: all
     exec:
@@ -809,7 +755,6 @@ commands:
     adminRequired: false
     args:
       - key: image
-        label: image
         type: text
         required: true
     prerequisites:
@@ -826,7 +771,6 @@ commands:
       - 查看
       - show
   - id: docker-volume-inspect
-    name: 查看数据卷详情
     category: docker
     platform: all
     exec:
@@ -838,7 +782,6 @@ commands:
     adminRequired: false
     args:
       - key: volume
-        label: volume
         type: text
         required: true
     prerequisites:
@@ -855,7 +798,6 @@ commands:
       - 查看
       - show
   - id: docker-network-inspect
-    name: 查看网络详情
     category: docker
     platform: all
     exec:
@@ -867,7 +809,6 @@ commands:
     adminRequired: false
     args:
       - key: network
-        label: network
         type: text
         required: true
     prerequisites:
@@ -884,7 +825,6 @@ commands:
       - 查看
       - show
   - id: docker-compose-images
-    name: Compose 镜像列表
     category: docker
     platform: all
     exec:
@@ -907,7 +847,6 @@ commands:
       - 查看
       - show
   - id: docker-compose-top
-    name: Compose 进程列表
     category: docker
     platform: all
     exec:
@@ -930,7 +869,6 @@ commands:
       - 查看
       - show
   - id: docker-compose-exec-sh
-    name: Compose 进入服务 Shell
     category: docker
     platform: all
     exec:
@@ -943,11 +881,9 @@ commands:
     adminRequired: false
     args:
       - key: service
-        label: service
         type: text
         required: true
       - key: shell
-        label: shell
         type: select
         required: true
         validation:

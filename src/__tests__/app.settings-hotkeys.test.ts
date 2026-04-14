@@ -140,8 +140,16 @@ beforeEach(() => {
     if (command === "get_runtime_platform") {
       return "";
     }
-    if (command === "read_user_command_files") {
-      return [];
+    if (command === "scan_user_command_files") {
+      return { files: [], issues: [] };
+    }
+    if (command === "read_user_command_file") {
+      return {
+        path: "",
+        content: "",
+        modified_ms: 0,
+        size: 0
+      };
     }
     return undefined;
   });

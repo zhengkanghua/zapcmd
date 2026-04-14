@@ -1,9 +1,7 @@
 meta:
-  name: Kubernetes
   moduleSlug: kubernetes
 commands:
   - id: kubectl-current-context
-    name: kubectl 当前上下文
     category: kubernetes
     platform: all
     exec:
@@ -23,7 +21,6 @@ commands:
       - context
       - current
   - id: kubectl-get-contexts
-    name: kubectl 列出上下文
     category: kubernetes
     platform: all
     exec:
@@ -43,7 +40,6 @@ commands:
       - context
       - list
   - id: kubectl-get-namespaces
-    name: kubectl 列出命名空间
     category: kubernetes
     platform: all
     exec:
@@ -63,7 +59,6 @@ commands:
       - namespaces
       - list
   - id: kubectl-get-pods
-    name: kubectl 查看 Pods
     category: kubernetes
     platform: all
     exec:
@@ -76,7 +71,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -91,7 +85,6 @@ commands:
       - pods
       - namespace
   - id: kubectl-get-services
-    name: kubectl 查看 Services
     category: kubernetes
     platform: all
     exec:
@@ -104,7 +97,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -119,7 +111,6 @@ commands:
       - services
       - namespace
   - id: kubectl-get-deployments
-    name: kubectl 查看 Deployments
     category: kubernetes
     platform: all
     exec:
@@ -132,7 +123,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -149,7 +139,6 @@ commands:
       - 查看
       - show
   - id: kubectl-get-nodes
-    name: kubectl 查看 Nodes
     category: kubernetes
     platform: all
     exec:
@@ -170,7 +159,6 @@ commands:
       - 查看
       - show
   - id: kubectl-get-ingress
-    name: kubectl 查看 Ingress
     category: kubernetes
     platform: all
     exec:
@@ -183,7 +171,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -200,7 +187,6 @@ commands:
       - 查看
       - show
   - id: kubectl-describe-deployment
-    name: kubectl 查看 Deployment 详情
     category: kubernetes
     platform: all
     exec:
@@ -214,11 +200,9 @@ commands:
     adminRequired: false
     args:
       - key: deployment
-        label: deployment
         type: text
         required: true
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -236,7 +220,6 @@ commands:
       - 查看
       - show
   - id: kubectl-describe-pod
-    name: kubectl 查看 Pod 详情
     category: kubernetes
     platform: all
     exec:
@@ -250,11 +233,9 @@ commands:
     adminRequired: false
     args:
       - key: pod
-        label: pod
         type: text
         required: true
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -270,7 +251,6 @@ commands:
       - pod
       - namespace
   - id: kubectl-get-configmaps
-    name: kubectl 查看 ConfigMaps
     category: kubernetes
     platform: all
     exec:
@@ -283,7 +263,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -300,7 +279,6 @@ commands:
       - 查看
       - show
   - id: kubectl-logs
-    name: kubectl 查看 Pod 日志
     category: kubernetes
     platform: all
     exec:
@@ -313,11 +291,9 @@ commands:
     adminRequired: false
     args:
       - key: pod
-        label: pod
         type: text
         required: true
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -333,7 +309,6 @@ commands:
       - pod
       - namespace
   - id: kubectl-logs-follow
-    name: kubectl 持续跟随日志
     category: kubernetes
     platform: all
     exec:
@@ -347,11 +322,9 @@ commands:
     adminRequired: false
     args:
       - key: pod
-        label: pod
         type: text
         required: true
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -368,7 +341,6 @@ commands:
       - pod
       - namespace
   - id: kubectl-get-events
-    name: kubectl 查看 Events
     category: kubernetes
     platform: all
     exec:
@@ -381,7 +353,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -398,7 +369,6 @@ commands:
       - 查看
       - show
   - id: kubectl-exec-sh
-    name: kubectl 进入 Pod Shell
     category: kubernetes
     platform: all
     exec:
@@ -414,11 +384,9 @@ commands:
     adminRequired: false
     args:
       - key: pod
-        label: pod
         type: text
         required: true
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -435,7 +403,6 @@ commands:
       - pod
       - namespace
   - id: kubectl-port-forward
-    name: kubectl 端口转发
     category: kubernetes
     platform: all
     exec:
@@ -449,12 +416,10 @@ commands:
     adminRequired: false
     args:
       - key: resource
-        label: resource
         type: text
         required: true
         default: deployment/my-app
       - key: localPort
-        label: localPort
         type: number
         required: true
         default: "8080"
@@ -462,7 +427,6 @@ commands:
           min: 1
           max: 65535
       - key: remotePort
-        label: remotePort
         type: number
         required: true
         default: "80"
@@ -470,7 +434,6 @@ commands:
           min: 1
           max: 65535
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -486,7 +449,6 @@ commands:
       - resource
       - namespace
   - id: kubectl-rollout-restart
-    name: kubectl 重启 Rollout
     category: kubernetes
     platform: all
     exec:
@@ -501,12 +463,10 @@ commands:
     dangerous: true
     args:
       - key: resource
-        label: resource
         type: text
         required: true
         default: deployment/my-app
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -524,7 +484,6 @@ commands:
       - namespace
       - 高危
   - id: kubectl-rollout-status
-    name: kubectl 查看 Rollout 状态
     category: kubernetes
     platform: all
     exec:
@@ -538,12 +497,10 @@ commands:
     adminRequired: false
     args:
       - key: resource
-        label: resource
         type: text
         required: true
         default: deployment/my-app
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -560,7 +517,6 @@ commands:
       - resource
       - namespace
   - id: kubectl-apply-file
-    name: kubectl 应用配置文件
     category: kubernetes
     platform: all
     exec:
@@ -573,7 +529,6 @@ commands:
     dangerous: true
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -589,7 +544,6 @@ commands:
       - 配置
       - 高危
   - id: kubectl-delete-file
-    name: kubectl 删除配置文件资源
     category: kubernetes
     platform: all
     exec:
@@ -602,7 +556,6 @@ commands:
     dangerous: true
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -618,7 +571,6 @@ commands:
       - 资源
       - 高危
   - id: kubectl-delete-pod
-    name: kubectl 删除 Pod
     category: kubernetes
     platform: all
     exec:
@@ -633,11 +585,9 @@ commands:
     dangerous: true
     args:
       - key: pod
-        label: pod
         type: text
         required: true
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -654,7 +604,6 @@ commands:
       - namespace
       - 高危
   - id: kubectl-get-all
-    name: kubectl 查看全部资源
     category: kubernetes
     platform: all
     exec:
@@ -667,7 +616,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -685,7 +633,6 @@ commands:
       - 查看
       - show
   - id: kubectl-top-pods
-    name: kubectl 查看 Pods 资源占用
     category: kubernetes
     platform: all
     exec:
@@ -698,7 +645,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -718,7 +664,6 @@ commands:
       - 查看
       - show
   - id: kubectl-top-nodes
-    name: kubectl 查看 Nodes 资源占用
     category: kubernetes
     platform: all
     exec:
@@ -742,7 +687,6 @@ commands:
       - 查看
       - show
   - id: kubectl-describe-service
-    name: kubectl 查看 Service 详情
     category: kubernetes
     platform: all
     exec:
@@ -756,11 +700,9 @@ commands:
     adminRequired: false
     args:
       - key: service
-        label: service
         type: text
         required: true
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -778,7 +720,6 @@ commands:
       - 查看
       - show
   - id: kubectl-get-pvc
-    name: kubectl 查看 PVC
     category: kubernetes
     platform: all
     exec:
@@ -791,7 +732,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -808,7 +748,6 @@ commands:
       - 查看
       - show
   - id: kubectl-get-statefulsets
-    name: kubectl 查看 StatefulSets
     category: kubernetes
     platform: all
     exec:
@@ -821,7 +760,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -838,7 +776,6 @@ commands:
       - 查看
       - show
   - id: kubectl-get-jobs
-    name: kubectl 查看 Jobs
     category: kubernetes
     platform: all
     exec:
@@ -851,7 +788,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default
@@ -868,7 +804,6 @@ commands:
       - 查看
       - show
   - id: kubectl-get-cronjobs
-    name: kubectl 查看 CronJobs
     category: kubernetes
     platform: all
     exec:
@@ -881,7 +816,6 @@ commands:
     adminRequired: false
     args:
       - key: namespace
-        label: namespace
         type: text
         required: true
         default: default

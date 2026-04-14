@@ -1,9 +1,7 @@
 meta:
-  name: Bun
   moduleSlug: bun
 commands:
   - id: bun-install
-    name: Bun 安装依赖
     category: package
     platform: all
     exec:
@@ -24,7 +22,6 @@ commands:
       - 安装
       - 依赖
   - id: bun-run
-    name: Bun 运行脚本
     category: package
     platform: all
     exec:
@@ -35,7 +32,6 @@ commands:
     adminRequired: false
     args:
       - key: script
-        label: script
         type: text
         required: true
     prerequisites:
@@ -52,7 +48,6 @@ commands:
       - script
       - 脚本
   - id: bun-add
-    name: Bun 添加依赖
     category: package
     platform: all
     exec:
@@ -63,7 +58,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -80,7 +74,6 @@ commands:
       - 依赖
       - dependency
   - id: bun-remove
-    name: Bun 移除依赖
     category: package
     platform: all
     exec:
@@ -91,7 +84,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:

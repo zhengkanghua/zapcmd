@@ -1,9 +1,7 @@
 meta:
-  name: 网络工具
   moduleSlug: network
 commands:
   - id: query-port-lsof
-    name: 查询端口占用 (lsof)
     category: network
     platform: mac/linux
     exec:
@@ -14,7 +12,6 @@ commands:
     adminRequired: false
     args:
       - key: port
-        label: port
         type: number
         required: true
         validation:
@@ -38,7 +35,6 @@ commands:
       - 端口占用
       - 查端口
   - id: query-port-netstat
-    name: 查询端口占用 (netstat)
     category: network
     platform: win
     script:
@@ -47,7 +43,6 @@ commands:
     adminRequired: false
     args:
       - key: port
-        label: port
         type: number
         required: true
         validation:
@@ -71,7 +66,6 @@ commands:
       - 端口占用
       - 查端口
   - id: kill-port-mac
-    name: 解除端口占用
     category: network
     platform: mac/linux
     script:
@@ -81,7 +75,6 @@ commands:
     dangerous: true
     args:
       - key: port
-        label: port
         type: number
         required: true
         validation:
@@ -109,7 +102,6 @@ commands:
       - 端口占用
       - 释放端口
   - id: kill-port-win
-    name: 解除端口占用
     category: network
     platform: win
     script:
@@ -120,7 +112,6 @@ commands:
     dangerous: true
     args:
       - key: port
-        label: port
         type: number
         required: true
         validation:
@@ -144,7 +135,6 @@ commands:
       - 端口占用
       - 释放端口
   - id: ping
-    name: Ping 主机
     category: network
     platform: all
     exec:
@@ -154,7 +144,6 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
     tags:
@@ -162,7 +151,6 @@ commands:
       - network
       - ping
   - id: curl-get
-    name: HTTP GET 请求
     category: network
     platform: all
     exec:
@@ -173,7 +161,6 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
     prerequisites:
@@ -189,7 +176,6 @@ commands:
       - 获取
       - get
   - id: curl-post
-    name: HTTP POST 请求
     category: network
     platform: all
     script:
@@ -199,11 +185,9 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
       - key: body
-        label: body
         type: text
         required: true
     prerequisites:
@@ -222,7 +206,6 @@ commands:
       - http
       - post
   - id: curl-headers
-    name: 查看 HTTP 响应头
     category: network
     platform: all
     exec:
@@ -233,7 +216,6 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
     prerequisites:
@@ -250,7 +232,6 @@ commands:
       - 查看
       - show
   - id: dns-lookup
-    name: DNS 查询
     category: network
     platform: all
     exec:
@@ -260,7 +241,6 @@ commands:
     adminRequired: false
     args:
       - key: domain
-        label: domain
         type: text
         required: true
     tags:
@@ -271,7 +251,6 @@ commands:
       - 查询
       - query
   - id: dig-query
-    name: DNS 详细查询 (dig)
     category: network
     platform: mac/linux
     exec:
@@ -282,11 +261,9 @@ commands:
     adminRequired: false
     args:
       - key: domain
-        label: domain
         type: text
         required: true
       - key: type
-        label: type
         type: select
         required: true
         validation:
@@ -309,7 +286,6 @@ commands:
       - 查询
       - query
   - id: check-ip
-    name: 查看本机公网 IP
     category: network
     platform: all
     exec:
@@ -332,7 +308,6 @@ commands:
       - 查看
       - show
   - id: local-ip-mac
-    name: 查看本机局域网 IP
     category: network
     platform: mac
     exec:
@@ -350,7 +325,6 @@ commands:
       - 查看
       - show
   - id: local-ip-linux
-    name: 查看本机局域网 IP
     category: network
     platform: linux
     exec:
@@ -367,7 +341,6 @@ commands:
       - 查看
       - show
   - id: local-ip-win
-    name: 查看本机局域网 IP
     category: network
     platform: win
     exec:
@@ -383,7 +356,6 @@ commands:
       - 查看
       - show
   - id: traceroute
-    name: 路由追踪
     category: network
     platform: mac/linux
     exec:
@@ -393,7 +365,6 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
     tags:
@@ -402,7 +373,6 @@ commands:
       - traceroute
       - 路由追踪
   - id: tracert-win
-    name: 路由追踪
     category: network
     platform: win
     exec:
@@ -412,7 +382,6 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
     tags:
@@ -421,7 +390,6 @@ commands:
       - tracert
       - 路由追踪
   - id: check-open-ports
-    name: 检查远程端口是否开放
     category: network
     platform: mac/linux
     exec:
@@ -433,11 +401,9 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
       - key: port
-        label: port
         type: number
         required: true
         validation:
@@ -458,7 +424,6 @@ commands:
       - 端口
       - port
   - id: check-open-ports-win
-    name: 检查远程端口是否开放
     category: network
     platform: win
     script:
@@ -468,11 +433,9 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
       - key: port
-        label: port
         type: number
         required: true
         validation:
@@ -493,7 +456,6 @@ commands:
       - 端口
       - port
   - id: wget-download
-    name: 下载文件
     category: network
     platform: mac/linux
     exec:
@@ -505,11 +467,9 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
       - key: filename
-        label: filename
         type: text
         required: true
     prerequisites:
@@ -526,7 +486,6 @@ commands:
       - 文件
       - file
   - id: curl-download
-    name: 下载文件
     category: network
     platform: all
     exec:
@@ -539,11 +498,9 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
       - key: filename
-        label: filename
         type: text
         required: true
     prerequisites:
@@ -561,7 +518,6 @@ commands:
       - 文件
       - file
   - id: list-listening-ports
-    name: 查看所有监听端口
     category: network
     platform: mac/linux
     exec:
@@ -581,7 +537,6 @@ commands:
       - 查看
       - show
   - id: list-listening-ports-win
-    name: 查看所有监听端口
     category: network
     platform: win
     script:
@@ -605,7 +560,6 @@ commands:
       - 查看
       - show
   - id: flush-dns-mac
-    name: 刷新 DNS 缓存
     category: network
     platform: mac
     script:
@@ -624,7 +578,6 @@ commands:
       - flush
       - dns
   - id: flush-dns-win
-    name: 刷新 DNS 缓存
     category: network
     platform: win
     exec:
@@ -639,7 +592,6 @@ commands:
       - flush
       - dns
   - id: flush-dns-linux
-    name: 刷新 DNS 缓存
     category: network
     platform: linux
     exec:
@@ -660,7 +612,6 @@ commands:
       - flush
       - dns
   - id: speed-test
-    name: 网络测速
     category: network
     platform: all
     script:
@@ -691,7 +642,6 @@ commands:
       - test
       - 测试
   - id: curl-json-get
-    name: HTTP GET 请求 (JSON)
     category: network
     platform: all
     exec:
@@ -704,7 +654,6 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
     prerequisites:
@@ -721,7 +670,6 @@ commands:
       - get
       - 获取
   - id: http-status-only
-    name: 仅查看 HTTP 状态码
     category: network
     platform: mac/linux
     exec:
@@ -736,7 +684,6 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
     prerequisites:
@@ -753,7 +700,6 @@ commands:
       - 状态码
       - code
   - id: http-status-only-win
-    name: 仅查看 HTTP 状态码
     category: network
     platform: win
     exec:
@@ -768,7 +714,6 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
     prerequisites:
@@ -785,7 +730,6 @@ commands:
       - 状态码
       - code
   - id: whois
-    name: WHOIS 查询
     category: network
     platform: mac/linux
     exec:
@@ -795,7 +739,6 @@ commands:
     adminRequired: false
     args:
       - key: domain
-        label: domain
         type: text
         required: true
     prerequisites:
@@ -812,7 +755,6 @@ commands:
       - 查询
       - query
   - id: curl-json-post
-    name: HTTP POST 请求 (JSON)
     category: network
     platform: all
     script:
@@ -822,11 +764,9 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
       - key: body
-        label: body
         type: text
         required: true
     prerequisites:
@@ -846,7 +786,6 @@ commands:
       - json
       - post
   - id: curl-json-put
-    name: HTTP PUT 请求 (JSON)
     category: network
     platform: all
     script:
@@ -856,11 +795,9 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
       - key: body
-        label: body
         type: text
         required: true
     prerequisites:
@@ -880,7 +817,6 @@ commands:
       - json
       - put
   - id: curl-json-delete
-    name: HTTP DELETE 请求 (JSON)
     category: network
     platform: all
     exec:
@@ -895,7 +831,6 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
     prerequisites:
@@ -911,7 +846,6 @@ commands:
       - json
       - delete
   - id: curl-form-post
-    name: HTTP POST 请求 (Form)
     category: network
     platform: all
     exec:
@@ -926,15 +860,12 @@ commands:
     adminRequired: false
     args:
       - key: url
-        label: url
         type: text
         required: true
       - key: field
-        label: field
         type: text
         required: true
       - key: value
-        label: value
         type: text
         required: true
     prerequisites:
@@ -950,7 +881,6 @@ commands:
       - form
       - post
   - id: dig-short
-    name: DNS 简洁查询 (dig +short)
     category: network
     platform: mac/linux
     exec:
@@ -962,11 +892,9 @@ commands:
     adminRequired: false
     args:
       - key: domain
-        label: domain
         type: text
         required: true
       - key: type
-        label: type
         type: select
         required: true
         validation:

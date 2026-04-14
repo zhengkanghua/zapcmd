@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Yarn",
+    "name": {
+      "zh": "Yarn",
+      "en": "Yarn"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "yarn-add",
-      "name": "Yarn 添加依赖",
+      "name": {
+        "zh": "Yarn 添加依赖",
+        "en": "Add Yarn Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -29,9 +35,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -45,7 +54,10 @@
     },
     {
       "id": "yarn-run",
-      "name": "Yarn 运行脚本",
+      "name": {
+        "zh": "Yarn 运行脚本",
+        "en": "Run Yarn Script"
+      },
       "tags": [
         "包管理",
         "package",
@@ -68,9 +80,12 @@
       "args": [
         {
           "key": "script",
-          "label": "script",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "script",
+            "en": "Script"
+          }
         }
       ],
       "prerequisites": [
@@ -84,7 +99,10 @@
     },
     {
       "id": "yarn-remove",
-      "name": "Yarn 移除依赖",
+      "name": {
+        "zh": "Yarn 移除依赖",
+        "en": "Remove Yarn Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -108,9 +126,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -124,7 +145,10 @@
     },
     {
       "id": "yarn-upgrade",
-      "name": "Yarn 升级依赖",
+      "name": {
+        "zh": "Yarn 升级依赖",
+        "en": "Upgrade Yarn Dependencies"
+      },
       "tags": [
         "包管理",
         "package",
@@ -154,7 +178,10 @@
     },
     {
       "id": "yarn-install-project",
-      "name": "Yarn 安装项目依赖",
+      "name": {
+        "zh": "Yarn 安装项目依赖",
+        "en": "Install Project Dependencies with Yarn"
+      },
       "tags": [
         "包管理",
         "package",
@@ -185,7 +212,10 @@
     },
     {
       "id": "yarn-add-dev",
-      "name": "Yarn 安装开发依赖",
+      "name": {
+        "zh": "Yarn 安装开发依赖",
+        "en": "Add Yarn Dev Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -210,9 +240,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -226,7 +259,10 @@
     },
     {
       "id": "yarn-dlx",
-      "name": "Yarn 运行临时包命令",
+      "name": {
+        "zh": "Yarn 运行临时包命令",
+        "en": "Run Temporary Package with Yarn"
+      },
       "tags": [
         "包管理",
         "package",
@@ -250,9 +286,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [

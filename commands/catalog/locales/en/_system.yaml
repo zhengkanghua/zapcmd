@@ -1,0 +1,93 @@
+meta:
+  name: System Management
+commands:
+  ps-find:
+    name: Find Process by Name
+    args:
+      name:
+        label: Name
+  ps-find-win:
+    name: Find Process by Name
+    args:
+      name:
+        label: Name
+  kill-pid:
+    name: Kill Process by PID
+    args:
+      pid:
+        label: PID
+  kill-pid-win:
+    name: Kill Process by PID
+    args:
+      pid:
+        label: PID
+  kill-name:
+    name: Kill Process by Name
+    args:
+      name:
+        label: Name
+  kill-name-win:
+    name: Kill Process by Name
+    args:
+      name:
+        label: Name
+  disk-usage:
+    name: Show Disk Usage
+  disk-usage-win:
+    name: Show Disk Usage
+  dir-size:
+    name: Show Directory Size
+    args:
+      path:
+        label: Path
+  dir-size-win:
+    name: Show Directory Size
+    args:
+      path:
+        label: Path
+  memory-usage:
+    name: Show Memory Usage
+  memory-usage-linux:
+    name: Show Memory Usage
+  memory-usage-win:
+    name: Show Memory Usage
+  system-info:
+    name: Show System Information
+  system-info-win:
+    name: Show System Information
+  env-var-set:
+    name: Set Environment Variable
+    args:
+      key:
+        label: Key
+      value:
+        label: Value
+  env-var-set-win:
+    name: Set Environment Variable
+    args:
+      key:
+        label: Key
+      value:
+        label: Value
+  env-var-get:
+    name: Show Environment Variable
+    args:
+      key:
+        label: Key
+  env-var-get-win:
+    name: Show Environment Variable
+    args:
+      key:
+        label: Key
+  uptime:
+    name: Show System Uptime
+  cpu-top:
+    name: Show Top CPU Processes
+  cpu-top-win:
+    name: Show Top CPU Processes
+  cron-list:
+    name: List Scheduled Tasks
+  hosts-edit:
+    name: Edit Hosts File
+  hosts-edit-win:
+    name: Edit Hosts File

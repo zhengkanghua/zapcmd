@@ -1,0 +1,159 @@
+meta:
+  name: MySQL
+commands:
+  mysql-shell:
+    name: MySQL Shell
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+  mysql-ping:
+    name: MySQL PING
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+  mysql-show-databases:
+    name: MySQL 显示数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+  mysql-show-tables:
+    name: MySQL 显示数据表
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  mysql-describe-table:
+    name: MySQL 查看表结构
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+      table:
+        label: table
+  mysql-query:
+    name: MySQL 执行 SQL
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+      sql:
+        label: sql
+  mysql-dump:
+    name: MySQL 导出数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+      output:
+        label: output
+  mysql-import:
+    name: MySQL 导入 SQL 文件
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+      file:
+        label: file
+  mysql-create-database:
+    name: MySQL 创建数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  mysql-drop-database:
+    name: MySQL 删除数据库
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  mysql-version:
+    name: MySQL 版本
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  mysql-processlist:
+    name: MySQL 进程列表
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  mysql-show-status:
+    name: MySQL 状态变量
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database
+  mysql-show-variables:
+    name: MySQL 配置变量
+    args:
+      host:
+        label: host
+      port:
+        label: port
+      user:
+        label: user
+      database:
+        label: database

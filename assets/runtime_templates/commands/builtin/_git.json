@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Git 版本控制",
+    "name": {
+      "zh": "Git 版本控制",
+      "en": "Git Version Control"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "git-status",
-      "name": "查看仓库状态",
+      "name": {
+        "zh": "查看仓库状态",
+        "en": "Show Repository Status"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -35,7 +41,10 @@
     },
     {
       "id": "git-log",
-      "name": "查看提交历史",
+      "name": {
+        "zh": "查看提交历史",
+        "en": "Show Commit History"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -60,13 +69,16 @@
       "args": [
         {
           "key": "count",
-          "label": "count",
           "type": "number",
           "required": true,
           "default": "20",
           "validation": {
             "min": 1,
             "max": 200
+          },
+          "label": {
+            "zh": "数量",
+            "en": "Count"
           }
         }
       ],
@@ -81,7 +93,10 @@
     },
     {
       "id": "git-log-graph",
-      "name": "图形化提交历史",
+      "name": {
+        "zh": "图形化提交历史",
+        "en": "Show Commit Graph"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -108,13 +123,16 @@
       "args": [
         {
           "key": "count",
-          "label": "count",
           "type": "number",
           "required": true,
           "default": "30",
           "validation": {
             "min": 1,
             "max": 200
+          },
+          "label": {
+            "zh": "数量",
+            "en": "Count"
           }
         }
       ],
@@ -129,7 +147,10 @@
     },
     {
       "id": "git-diff",
-      "name": "查看未暂存更改",
+      "name": {
+        "zh": "查看未暂存更改",
+        "en": "Show Unstaged Changes"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -158,7 +179,10 @@
     },
     {
       "id": "git-diff-staged",
-      "name": "查看已暂存更改",
+      "name": {
+        "zh": "查看已暂存更改",
+        "en": "Show Staged Changes"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -190,7 +214,10 @@
     },
     {
       "id": "git-add-all",
-      "name": "暂存所有更改",
+      "name": {
+        "zh": "暂存所有更改",
+        "en": "Stage All Changes"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -220,7 +247,10 @@
     },
     {
       "id": "git-commit",
-      "name": "提交更改",
+      "name": {
+        "zh": "提交更改",
+        "en": "Commit Changes"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -241,9 +271,12 @@
       "args": [
         {
           "key": "message",
-          "label": "message",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "提交说明",
+            "en": "Commit Message"
+          }
         }
       ],
       "prerequisites": [
@@ -257,7 +290,10 @@
     },
     {
       "id": "git-commit-amend",
-      "name": "修改上次提交",
+      "name": {
+        "zh": "修改上次提交",
+        "en": "Amend Last Commit"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -281,9 +317,12 @@
       "args": [
         {
           "key": "message",
-          "label": "message",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "提交说明",
+            "en": "Commit Message"
+          }
         }
       ],
       "prerequisites": [
@@ -297,7 +336,10 @@
     },
     {
       "id": "git-push",
-      "name": "推送到远程",
+      "name": {
+        "zh": "推送到远程",
+        "en": "Push to Remote"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -318,10 +360,13 @@
       "args": [
         {
           "key": "branch",
-          "label": "branch",
           "type": "text",
           "required": true,
-          "default": "main"
+          "default": "main",
+          "label": {
+            "zh": "分支",
+            "en": "Branch"
+          }
         }
       ],
       "prerequisites": [
@@ -335,7 +380,10 @@
     },
     {
       "id": "git-pull",
-      "name": "拉取远程更新",
+      "name": {
+        "zh": "拉取远程更新",
+        "en": "Pull Remote Updates"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -356,10 +404,13 @@
       "args": [
         {
           "key": "branch",
-          "label": "branch",
           "type": "text",
           "required": true,
-          "default": "main"
+          "default": "main",
+          "label": {
+            "zh": "分支",
+            "en": "Branch"
+          }
         }
       ],
       "prerequisites": [
@@ -373,7 +424,10 @@
     },
     {
       "id": "git-branch-list",
-      "name": "查看所有分支",
+      "name": {
+        "zh": "查看所有分支",
+        "en": "List All Branches"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -405,7 +459,10 @@
     },
     {
       "id": "git-branch-create",
-      "name": "创建新分支",
+      "name": {
+        "zh": "创建新分支",
+        "en": "Create New Branch"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -428,9 +485,12 @@
       "args": [
         {
           "key": "branch",
-          "label": "branch",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "分支",
+            "en": "Branch"
+          }
         }
       ],
       "prerequisites": [
@@ -444,7 +504,10 @@
     },
     {
       "id": "git-branch-delete",
-      "name": "删除本地分支",
+      "name": {
+        "zh": "删除本地分支",
+        "en": "Delete Local Branch"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -468,9 +531,12 @@
       "args": [
         {
           "key": "branch",
-          "label": "branch",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "分支",
+            "en": "Branch"
+          }
         }
       ],
       "prerequisites": [
@@ -484,7 +550,10 @@
     },
     {
       "id": "git-switch",
-      "name": "切换分支",
+      "name": {
+        "zh": "切换分支",
+        "en": "Switch Branch"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -506,9 +575,12 @@
       "args": [
         {
           "key": "branch",
-          "label": "branch",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "分支",
+            "en": "Branch"
+          }
         }
       ],
       "prerequisites": [
@@ -522,7 +594,10 @@
     },
     {
       "id": "git-stash",
-      "name": "暂存当前更改",
+      "name": {
+        "zh": "暂存当前更改",
+        "en": "Stash Current Changes"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -549,7 +624,10 @@
     },
     {
       "id": "git-stash-pop",
-      "name": "恢复暂存更改",
+      "name": {
+        "zh": "恢复暂存更改",
+        "en": "Apply Stashed Changes"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -579,7 +657,10 @@
     },
     {
       "id": "git-stash-list",
-      "name": "查看暂存列表",
+      "name": {
+        "zh": "查看暂存列表",
+        "en": "List Stashes"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -611,7 +692,10 @@
     },
     {
       "id": "git-reset-soft",
-      "name": "软回退到提交",
+      "name": {
+        "zh": "软回退到提交",
+        "en": "Soft Reset to Commit"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -636,9 +720,12 @@
       "args": [
         {
           "key": "commit",
-          "label": "commit",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "提交",
+            "en": "Commit"
+          }
         }
       ],
       "prerequisites": [
@@ -652,7 +739,10 @@
     },
     {
       "id": "git-reset-hard",
-      "name": "硬回退到提交",
+      "name": {
+        "zh": "硬回退到提交",
+        "en": "Hard Reset to Commit"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -678,9 +768,12 @@
       "args": [
         {
           "key": "commit",
-          "label": "commit",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "提交",
+            "en": "Commit"
+          }
         }
       ],
       "prerequisites": [
@@ -694,7 +787,10 @@
     },
     {
       "id": "git-cherry-pick",
-      "name": "Cherry Pick 提交",
+      "name": {
+        "zh": "Cherry Pick 提交",
+        "en": "Cherry-pick Commit"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -716,9 +812,12 @@
       "args": [
         {
           "key": "commit",
-          "label": "commit",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "提交",
+            "en": "Commit"
+          }
         }
       ],
       "prerequisites": [
@@ -732,7 +831,10 @@
     },
     {
       "id": "git-rebase",
-      "name": "变基到分支",
+      "name": {
+        "zh": "变基到分支",
+        "en": "Rebase onto Branch"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -754,9 +856,12 @@
       "args": [
         {
           "key": "branch",
-          "label": "branch",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "分支",
+            "en": "Branch"
+          }
         }
       ],
       "prerequisites": [
@@ -770,7 +875,10 @@
     },
     {
       "id": "git-merge",
-      "name": "合并分支",
+      "name": {
+        "zh": "合并分支",
+        "en": "Merge Branch"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -792,9 +900,12 @@
       "args": [
         {
           "key": "branch",
-          "label": "branch",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "分支",
+            "en": "Branch"
+          }
         }
       ],
       "prerequisites": [
@@ -808,7 +919,10 @@
     },
     {
       "id": "git-tag",
-      "name": "创建标签",
+      "name": {
+        "zh": "创建标签",
+        "en": "Create Tag"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -828,9 +942,12 @@
       "args": [
         {
           "key": "tag",
-          "label": "tag",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "标签",
+            "en": "Tag"
+          }
         }
       ],
       "prerequisites": [
@@ -844,7 +961,10 @@
     },
     {
       "id": "git-remote-url",
-      "name": "查看远程地址",
+      "name": {
+        "zh": "查看远程地址",
+        "en": "Show Remote URL"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -875,7 +995,10 @@
     },
     {
       "id": "git-clone",
-      "name": "克隆仓库",
+      "name": {
+        "zh": "克隆仓库",
+        "en": "Clone Repository"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -895,9 +1018,12 @@
       "args": [
         {
           "key": "url",
-          "label": "url",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "URL",
+            "en": "URL"
+          }
         }
       ],
       "prerequisites": [
@@ -911,7 +1037,10 @@
     },
     {
       "id": "git-blame",
-      "name": "查看文件修改者",
+      "name": {
+        "zh": "查看文件修改者",
+        "en": "Show File Blame"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -934,9 +1063,12 @@
       "args": [
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文件",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -950,7 +1082,10 @@
     },
     {
       "id": "git-clean",
-      "name": "清理未跟踪文件",
+      "name": {
+        "zh": "清理未跟踪文件",
+        "en": "Clean Untracked Files"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -981,7 +1116,10 @@
     },
     {
       "id": "git-config-user",
-      "name": "设置用户名和邮箱",
+      "name": {
+        "zh": "设置用户名和邮箱",
+        "en": "Set User Name and Email"
+      },
       "tags": [
         "git",
         "版本控制",
@@ -1000,15 +1138,21 @@
       "args": [
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "名称",
+            "en": "Name"
+          }
         },
         {
           "key": "email",
-          "label": "email",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "邮箱",
+            "en": "Email"
+          }
         }
       ],
       "prerequisites": [

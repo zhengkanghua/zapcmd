@@ -1,0 +1,34 @@
+meta:
+  name: PNPM
+commands:
+  pnpm-add:
+    name: Add PNPM Dependency
+    args:
+      package:
+        label: Package
+  pnpm-run:
+    name: Run PNPM Script
+    args:
+      script:
+        label: Script
+  pnpm-up:
+    name: Upgrade PNPM Dependencies
+  pnpm-remove:
+    name: Remove PNPM Dependency
+    args:
+      package:
+        label: Package
+  pnpm-list:
+    name: List Installed PNPM Packages
+  pnpm-install-project:
+    name: Install Project Dependencies with PNPM
+  pnpm-add-dev:
+    name: Add PNPM Dev Dependency
+    args:
+      package:
+        label: Package
+  pnpm-dlx:
+    name: Run Temporary Package with PNPM
+    args:
+      package:
+        label: Package

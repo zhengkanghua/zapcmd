@@ -1,9 +1,7 @@
 meta:
-  name: Pip
   moduleSlug: pip
 commands:
   - id: pip-install
-    name: Pip 安装包
     category: package
     platform: all
     exec:
@@ -14,7 +12,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -29,7 +26,6 @@ commands:
       - install
       - 安装
   - id: pip-uninstall
-    name: Pip 卸载包
     category: package
     platform: all
     exec:
@@ -40,7 +36,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -55,7 +50,6 @@ commands:
       - 卸载
       - uninstall
   - id: pip-list
-    name: Pip 查看已安装
     category: package
     platform: all
     exec:
@@ -79,7 +73,6 @@ commands:
       - 安装
       - install
   - id: pip-freeze
-    name: Pip 导出依赖
     category: package
     platform: all
     script:

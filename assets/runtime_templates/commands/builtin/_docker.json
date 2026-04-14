@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "Docker 容器管理",
+    "name": {
+      "zh": "Docker 容器管理",
+      "en": "Docker Container Management"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "docker-ps",
-      "name": "查看运行中容器",
+      "name": {
+        "zh": "查看运行中容器",
+        "en": "List Running Containers"
+      },
       "tags": [
         "docker",
         "容器",
@@ -36,7 +42,10 @@
     },
     {
       "id": "docker-ps-all",
-      "name": "查看所有容器",
+      "name": {
+        "zh": "查看所有容器",
+        "en": "List All Containers"
+      },
       "tags": [
         "docker",
         "容器",
@@ -69,7 +78,10 @@
     },
     {
       "id": "docker-images",
-      "name": "查看本地镜像",
+      "name": {
+        "zh": "查看本地镜像",
+        "en": "List Local Images"
+      },
       "tags": [
         "docker",
         "容器",
@@ -99,7 +111,10 @@
     },
     {
       "id": "docker-run",
-      "name": "运行容器",
+      "name": {
+        "zh": "运行容器",
+        "en": "Run Container"
+      },
       "tags": [
         "docker",
         "容器",
@@ -125,21 +140,30 @@
       "args": [
         {
           "key": "image",
-          "label": "image",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "镜像",
+            "en": "Image"
+          }
         },
         {
           "key": "name",
-          "label": "name",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "名称",
+            "en": "Name"
+          }
         },
         {
           "key": "ports",
-          "label": "ports",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "端口映射",
+            "en": "Port Mapping"
+          }
         }
       ],
       "prerequisites": [
@@ -153,7 +177,10 @@
     },
     {
       "id": "docker-stop",
-      "name": "停止容器",
+      "name": {
+        "zh": "停止容器",
+        "en": "Stop Container"
+      },
       "tags": [
         "docker",
         "容器",
@@ -175,9 +202,12 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         }
       ],
       "prerequisites": [
@@ -191,7 +221,10 @@
     },
     {
       "id": "docker-start",
-      "name": "启动已停止容器",
+      "name": {
+        "zh": "启动已停止容器",
+        "en": "Start Stopped Container"
+      },
       "tags": [
         "docker",
         "容器",
@@ -215,9 +248,12 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         }
       ],
       "prerequisites": [
@@ -231,7 +267,10 @@
     },
     {
       "id": "docker-restart",
-      "name": "重启容器",
+      "name": {
+        "zh": "重启容器",
+        "en": "Restart Container"
+      },
       "tags": [
         "docker",
         "容器",
@@ -253,9 +292,12 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         }
       ],
       "prerequisites": [
@@ -269,7 +311,10 @@
     },
     {
       "id": "docker-rm",
-      "name": "删除容器",
+      "name": {
+        "zh": "删除容器",
+        "en": "Remove Container"
+      },
       "tags": [
         "docker",
         "容器",
@@ -291,9 +336,12 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         }
       ],
       "prerequisites": [
@@ -307,7 +355,10 @@
     },
     {
       "id": "docker-rmi",
-      "name": "删除镜像",
+      "name": {
+        "zh": "删除镜像",
+        "en": "Remove Image"
+      },
       "tags": [
         "docker",
         "容器",
@@ -331,9 +382,12 @@
       "args": [
         {
           "key": "image",
-          "label": "image",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "镜像",
+            "en": "Image"
+          }
         }
       ],
       "prerequisites": [
@@ -347,7 +401,10 @@
     },
     {
       "id": "docker-logs",
-      "name": "查看容器日志",
+      "name": {
+        "zh": "查看容器日志",
+        "en": "Show Container Logs"
+      },
       "tags": [
         "docker",
         "容器",
@@ -373,19 +430,25 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         },
         {
           "key": "lines",
-          "label": "lines",
           "type": "number",
           "required": true,
           "default": "100",
           "validation": {
             "min": 1,
             "max": 10000
+          },
+          "label": {
+            "zh": "行数",
+            "en": "Lines"
           }
         }
       ],
@@ -400,7 +463,10 @@
     },
     {
       "id": "docker-logs-follow",
-      "name": "实时查看容器日志",
+      "name": {
+        "zh": "实时查看容器日志",
+        "en": "Follow Container Logs"
+      },
       "tags": [
         "docker",
         "容器",
@@ -427,9 +493,12 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         }
       ],
       "prerequisites": [
@@ -443,7 +512,10 @@
     },
     {
       "id": "docker-exec",
-      "name": "进入容器 Shell",
+      "name": {
+        "zh": "进入容器 Shell",
+        "en": "Open Shell in Container"
+      },
       "tags": [
         "docker",
         "容器",
@@ -466,13 +538,15 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         },
         {
           "key": "shell",
-          "label": "shell",
           "type": "select",
           "required": true,
           "validation": {
@@ -480,6 +554,10 @@
               "/bin/sh",
               "/bin/bash"
             ]
+          },
+          "label": {
+            "zh": "Shell",
+            "en": "Shell"
           }
         }
       ],
@@ -494,7 +572,10 @@
     },
     {
       "id": "docker-inspect",
-      "name": "查看容器详情",
+      "name": {
+        "zh": "查看容器详情",
+        "en": "Show Container Details"
+      },
       "tags": [
         "docker",
         "容器",
@@ -517,9 +598,12 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         }
       ],
       "prerequisites": [
@@ -533,7 +617,10 @@
     },
     {
       "id": "docker-stats",
-      "name": "容器资源使用",
+      "name": {
+        "zh": "容器资源使用",
+        "en": "Show Container Resource Usage"
+      },
       "tags": [
         "docker",
         "容器",
@@ -562,7 +649,10 @@
     },
     {
       "id": "docker-pull",
-      "name": "拉取镜像",
+      "name": {
+        "zh": "拉取镜像",
+        "en": "Pull Image"
+      },
       "tags": [
         "docker",
         "容器",
@@ -584,9 +674,12 @@
       "args": [
         {
           "key": "image",
-          "label": "image",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "镜像",
+            "en": "Image"
+          }
         }
       ],
       "prerequisites": [
@@ -600,7 +693,10 @@
     },
     {
       "id": "docker-build",
-      "name": "构建镜像",
+      "name": {
+        "zh": "构建镜像",
+        "en": "Build Image"
+      },
       "tags": [
         "docker",
         "容器",
@@ -624,16 +720,22 @@
       "args": [
         {
           "key": "tag",
-          "label": "tag",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "标签",
+            "en": "Tag"
+          }
         },
         {
           "key": "path",
-          "label": "path",
           "type": "path",
           "required": true,
-          "default": "."
+          "default": ".",
+          "label": {
+            "zh": "路径",
+            "en": "Path"
+          }
         }
       ],
       "prerequisites": [
@@ -647,7 +749,10 @@
     },
     {
       "id": "docker-compose-up",
-      "name": "启动 Compose 服务",
+      "name": {
+        "zh": "启动 Compose 服务",
+        "en": "Start Compose Services"
+      },
       "tags": [
         "docker",
         "容器",
@@ -678,7 +783,10 @@
     },
     {
       "id": "docker-compose-down",
-      "name": "停止 Compose 服务",
+      "name": {
+        "zh": "停止 Compose 服务",
+        "en": "Stop Compose Services"
+      },
       "tags": [
         "docker",
         "容器",
@@ -708,7 +816,10 @@
     },
     {
       "id": "docker-compose-logs",
-      "name": "Compose 日志",
+      "name": {
+        "zh": "Compose 日志",
+        "en": "Show Compose Logs"
+      },
       "tags": [
         "docker",
         "容器",
@@ -732,9 +843,12 @@
       "args": [
         {
           "key": "service",
-          "label": "service",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "服务",
+            "en": "Service"
+          }
         }
       ],
       "prerequisites": [
@@ -748,7 +862,10 @@
     },
     {
       "id": "docker-compose-ps",
-      "name": "Compose 服务状态",
+      "name": {
+        "zh": "Compose 服务状态",
+        "en": "Show Compose Service Status"
+      },
       "tags": [
         "docker",
         "容器",
@@ -780,7 +897,10 @@
     },
     {
       "id": "docker-compose-config",
-      "name": "Compose 配置预览",
+      "name": {
+        "zh": "Compose 配置预览",
+        "en": "Preview Compose Config"
+      },
       "tags": [
         "docker",
         "容器",
@@ -812,7 +932,10 @@
     },
     {
       "id": "docker-compose-pull",
-      "name": "Compose 拉取镜像",
+      "name": {
+        "zh": "Compose 拉取镜像",
+        "en": "Pull Compose Images"
+      },
       "tags": [
         "docker",
         "容器",
@@ -843,7 +966,10 @@
     },
     {
       "id": "docker-system-df",
-      "name": "Docker 磁盘占用概览",
+      "name": {
+        "zh": "Docker 磁盘占用概览",
+        "en": "Show Docker Disk Usage"
+      },
       "tags": [
         "docker",
         "容器",
@@ -877,7 +1003,10 @@
     },
     {
       "id": "docker-prune",
-      "name": "清理未使用资源",
+      "name": {
+        "zh": "清理未使用资源",
+        "en": "Clean Unused Resources"
+      },
       "tags": [
         "docker",
         "容器",
@@ -907,7 +1036,10 @@
     },
     {
       "id": "docker-network-ls",
-      "name": "查看网络列表",
+      "name": {
+        "zh": "查看网络列表",
+        "en": "List Networks"
+      },
       "tags": [
         "docker",
         "容器",
@@ -938,7 +1070,10 @@
     },
     {
       "id": "docker-volume-ls",
-      "name": "查看数据卷",
+      "name": {
+        "zh": "查看数据卷",
+        "en": "List Volumes"
+      },
       "tags": [
         "docker",
         "容器",
@@ -969,7 +1104,10 @@
     },
     {
       "id": "docker-cp",
-      "name": "复制文件到容器",
+      "name": {
+        "zh": "复制文件到容器",
+        "en": "Copy Files to Container"
+      },
       "tags": [
         "docker",
         "容器",
@@ -993,21 +1131,30 @@
       "args": [
         {
           "key": "src",
-          "label": "src",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "源路径",
+            "en": "Source Path"
+          }
         },
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         },
         {
           "key": "dest",
-          "label": "dest",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "目标路径",
+            "en": "Destination Path"
+          }
         }
       ],
       "prerequisites": [
@@ -1021,7 +1168,10 @@
     },
     {
       "id": "docker-export",
-      "name": "导出容器",
+      "name": {
+        "zh": "导出容器",
+        "en": "Export Container"
+      },
       "tags": [
         "docker",
         "容器",
@@ -1039,15 +1189,21 @@
       "args": [
         {
           "key": "container",
-          "label": "container",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "容器",
+            "en": "Container"
+          }
         },
         {
           "key": "file",
-          "label": "file",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "文件",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -1067,7 +1223,10 @@
     },
     {
       "id": "docker-info",
-      "name": "Docker 环境信息",
+      "name": {
+        "zh": "Docker 环境信息",
+        "en": "Show Docker Environment Info"
+      },
       "tags": [
         "docker",
         "info",
@@ -1097,7 +1256,10 @@
     },
     {
       "id": "docker-image-inspect",
-      "name": "查看镜像详情",
+      "name": {
+        "zh": "查看镜像详情",
+        "en": "Show Image Details"
+      },
       "tags": [
         "docker",
         "image",
@@ -1121,9 +1283,12 @@
       "args": [
         {
           "key": "image",
-          "label": "image",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "镜像",
+            "en": "Image"
+          }
         }
       ],
       "prerequisites": [
@@ -1137,7 +1302,10 @@
     },
     {
       "id": "docker-volume-inspect",
-      "name": "查看数据卷详情",
+      "name": {
+        "zh": "查看数据卷详情",
+        "en": "Show Volume Details"
+      },
       "tags": [
         "docker",
         "volume",
@@ -1161,9 +1329,12 @@
       "args": [
         {
           "key": "volume",
-          "label": "volume",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "数据卷",
+            "en": "Volume"
+          }
         }
       ],
       "prerequisites": [
@@ -1177,7 +1348,10 @@
     },
     {
       "id": "docker-network-inspect",
-      "name": "查看网络详情",
+      "name": {
+        "zh": "查看网络详情",
+        "en": "Show Network Details"
+      },
       "tags": [
         "docker",
         "network",
@@ -1201,9 +1375,12 @@
       "args": [
         {
           "key": "network",
-          "label": "network",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "网络",
+            "en": "Network"
+          }
         }
       ],
       "prerequisites": [
@@ -1217,7 +1394,10 @@
     },
     {
       "id": "docker-compose-images",
-      "name": "Compose 镜像列表",
+      "name": {
+        "zh": "Compose 镜像列表",
+        "en": "List Compose Images"
+      },
       "tags": [
         "docker",
         "compose",
@@ -1248,7 +1428,10 @@
     },
     {
       "id": "docker-compose-top",
-      "name": "Compose 进程列表",
+      "name": {
+        "zh": "Compose 进程列表",
+        "en": "List Compose Processes"
+      },
       "tags": [
         "docker",
         "compose",
@@ -1279,7 +1462,10 @@
     },
     {
       "id": "docker-compose-exec-sh",
-      "name": "Compose 进入服务 Shell",
+      "name": {
+        "zh": "Compose 进入服务 Shell",
+        "en": "Open Shell in Compose Service"
+      },
       "tags": [
         "docker",
         "compose",
@@ -1303,13 +1489,15 @@
       "args": [
         {
           "key": "service",
-          "label": "service",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "服务",
+            "en": "Service"
+          }
         },
         {
           "key": "shell",
-          "label": "shell",
           "type": "select",
           "required": true,
           "validation": {
@@ -1317,6 +1505,10 @@
               "/bin/sh",
               "/bin/bash"
             ]
+          },
+          "label": {
+            "zh": "Shell",
+            "en": "Shell"
           }
         }
       ],

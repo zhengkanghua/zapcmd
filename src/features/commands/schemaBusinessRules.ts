@@ -158,6 +158,13 @@ function findArgBusinessRuleViolation(
   if (labelKeyViolation) {
     return labelKeyViolation;
   }
+  const placeholderKeyViolation = findLocalizedTextViolation(
+    arg.placeholder,
+    `${argPath}.placeholder`
+  );
+  if (placeholderKeyViolation) {
+    return placeholderKeyViolation;
+  }
 
   if (
     typeof arg.validation?.min === "number" &&

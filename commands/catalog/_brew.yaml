@@ -1,9 +1,7 @@
 meta:
-  name: Homebrew
   moduleSlug: brew
 commands:
   - id: brew-install
-    name: Homebrew 安装
     category: package
     platform: mac
     exec:
@@ -14,7 +12,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -29,7 +26,6 @@ commands:
       - install
       - 安装
   - id: brew-uninstall
-    name: Homebrew 卸载
     category: package
     platform: mac
     exec:
@@ -40,7 +36,6 @@ commands:
     adminRequired: false
     args:
       - key: package
-        label: package
         type: text
         required: true
     prerequisites:
@@ -55,7 +50,6 @@ commands:
       - 卸载
       - uninstall
   - id: brew-update
-    name: Homebrew 更新索引
     category: package
     platform: mac
     exec:
@@ -75,7 +69,6 @@ commands:
       - 更新
       - update
   - id: brew-upgrade
-    name: Homebrew 升级所有
     category: package
     platform: mac
     exec:
@@ -94,7 +87,6 @@ commands:
       - brew
       - upgrade
   - id: brew-list
-    name: Homebrew 已安装列表
     category: package
     platform: mac
     exec:

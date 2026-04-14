@@ -1,0 +1,20 @@
+meta:
+  name: Bun
+commands:
+  bun-install:
+    name: Install Project Dependencies with Bun
+  bun-run:
+    name: Run Bun Script
+    args:
+      script:
+        label: Script
+  bun-add:
+    name: Add Bun Dependency
+    args:
+      package:
+        label: Package
+  bun-remove:
+    name: Remove Bun Dependency
+    args:
+      package:
+        label: Package

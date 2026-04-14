@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "MySQL",
+    "name": {
+      "zh": "MySQL",
+      "en": "MySQL"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "mysql-shell",
-      "name": "MySQL Shell",
+      "name": {
+        "zh": "MySQL Shell",
+        "en": "MySQL Shell"
+      },
       "tags": [
         "mysql",
         "shell",
@@ -32,28 +38,37 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         }
       ],
       "prerequisites": [
@@ -67,7 +82,10 @@
     },
     {
       "id": "mysql-ping",
-      "name": "MySQL PING",
+      "name": {
+        "zh": "MySQL PING",
+        "en": "MySQL PING"
+      },
       "tags": [
         "mysql",
         "ping",
@@ -93,28 +111,37 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         }
       ],
       "prerequisites": [
@@ -128,7 +155,10 @@
     },
     {
       "id": "mysql-show-databases",
-      "name": "MySQL 显示数据库",
+      "name": {
+        "zh": "MySQL 显示数据库",
+        "en": "Show MySQL Databases"
+      },
       "tags": [
         "mysql",
         "show",
@@ -145,28 +175,37 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         }
       ],
       "prerequisites": [
@@ -186,7 +225,10 @@
     },
     {
       "id": "mysql-show-tables",
-      "name": "MySQL 显示数据表",
+      "name": {
+        "zh": "MySQL 显示数据表",
+        "en": "Show MySQL Tables"
+      },
       "tags": [
         "mysql",
         "show",
@@ -204,35 +246,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -252,7 +306,10 @@
     },
     {
       "id": "mysql-describe-table",
-      "name": "MySQL 查看表结构",
+      "name": {
+        "zh": "MySQL 查看表结构",
+        "en": "Show MySQL Table Schema"
+      },
       "tags": [
         "mysql",
         "describe",
@@ -270,41 +327,56 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         },
         {
           "key": "table",
-          "label": "table",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "table",
+            "en": "Table"
+          }
         }
       ],
       "prerequisites": [
@@ -324,7 +396,10 @@
     },
     {
       "id": "mysql-query",
-      "name": "MySQL 执行 SQL",
+      "name": {
+        "zh": "MySQL 执行 SQL",
+        "en": "Execute MySQL SQL"
+      },
       "tags": [
         "mysql",
         "query",
@@ -353,41 +428,56 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         },
         {
           "key": "sql",
-          "label": "sql",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "sql",
+            "en": "SQL"
+          }
         }
       ],
       "prerequisites": [
@@ -401,7 +491,10 @@
     },
     {
       "id": "mysql-dump",
-      "name": "MySQL 导出数据库",
+      "name": {
+        "zh": "MySQL 导出数据库",
+        "en": "Export MySQL Database"
+      },
       "tags": [
         "mysql",
         "dump",
@@ -419,41 +512,56 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         },
         {
           "key": "output",
-          "label": "output",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "output",
+            "en": "Output"
+          }
         }
       ],
       "prerequisites": [
@@ -473,7 +581,10 @@
     },
     {
       "id": "mysql-import",
-      "name": "MySQL 导入 SQL 文件",
+      "name": {
+        "zh": "MySQL 导入 SQL 文件",
+        "en": "Import MySQL SQL File"
+      },
       "tags": [
         "mysql",
         "import",
@@ -491,41 +602,56 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         },
         {
           "key": "file",
-          "label": "file",
           "type": "path",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "file",
+            "en": "File"
+          }
         }
       ],
       "prerequisites": [
@@ -545,7 +671,10 @@
     },
     {
       "id": "mysql-create-database",
-      "name": "MySQL 创建数据库",
+      "name": {
+        "zh": "MySQL 创建数据库",
+        "en": "Create MySQL Database"
+      },
       "tags": [
         "mysql",
         "create",
@@ -561,34 +690,46 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -608,7 +749,10 @@
     },
     {
       "id": "mysql-drop-database",
-      "name": "MySQL 删除数据库",
+      "name": {
+        "zh": "MySQL 删除数据库",
+        "en": "Drop MySQL Database"
+      },
       "tags": [
         "mysql",
         "drop",
@@ -628,34 +772,46 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -675,7 +831,10 @@
     },
     {
       "id": "mysql-version",
-      "name": "MySQL 版本",
+      "name": {
+        "zh": "MySQL 版本",
+        "en": "Show MySQL Version"
+      },
       "tags": [
         "mysql",
         "version",
@@ -694,35 +853,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -742,7 +913,10 @@
     },
     {
       "id": "mysql-processlist",
-      "name": "MySQL 进程列表",
+      "name": {
+        "zh": "MySQL 进程列表",
+        "en": "Show MySQL Process List"
+      },
       "tags": [
         "mysql",
         "processlist",
@@ -763,35 +937,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -811,7 +997,10 @@
     },
     {
       "id": "mysql-show-status",
-      "name": "MySQL 状态变量",
+      "name": {
+        "zh": "MySQL 状态变量",
+        "en": "Show MySQL Status Variables"
+      },
       "tags": [
         "mysql",
         "status",
@@ -831,35 +1020,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [
@@ -879,7 +1080,10 @@
     },
     {
       "id": "mysql-show-variables",
-      "name": "MySQL 配置变量",
+      "name": {
+        "zh": "MySQL 配置变量",
+        "en": "Show MySQL Configuration Variables"
+      },
       "tags": [
         "mysql",
         "variables",
@@ -899,35 +1103,47 @@
       "args": [
         {
           "key": "host",
-          "label": "host",
           "type": "text",
           "required": true,
-          "default": "127.0.0.1"
+          "default": "127.0.0.1",
+          "label": {
+            "zh": "host",
+            "en": "Host"
+          }
         },
         {
           "key": "port",
-          "label": "port",
           "type": "number",
           "required": true,
           "default": "3306",
           "validation": {
             "min": 1,
             "max": 65535
+          },
+          "label": {
+            "zh": "port",
+            "en": "Port"
           }
         },
         {
           "key": "user",
-          "label": "user",
           "type": "text",
           "required": true,
-          "default": "root"
+          "default": "root",
+          "label": {
+            "zh": "user",
+            "en": "User"
+          }
         },
         {
           "key": "database",
-          "label": "database",
           "type": "text",
           "required": true,
-          "default": "mysql"
+          "default": "mysql",
+          "label": {
+            "zh": "database",
+            "en": "Database"
+          }
         }
       ],
       "prerequisites": [

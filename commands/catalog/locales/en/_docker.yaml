@@ -1,0 +1,148 @@
+meta:
+  name: Docker Container Management
+commands:
+  docker-ps:
+    name: List Running Containers
+  docker-ps-all:
+    name: List All Containers
+  docker-images:
+    name: List Local Images
+  docker-run:
+    name: Run Container
+    args:
+      image:
+        label: Image
+      name:
+        label: Name
+      ports:
+        label: Port Mapping
+  docker-stop:
+    name: Stop Container
+    args:
+      container:
+        label: Container
+  docker-start:
+    name: Start Stopped Container
+    args:
+      container:
+        label: Container
+  docker-restart:
+    name: Restart Container
+    args:
+      container:
+        label: Container
+  docker-rm:
+    name: Remove Container
+    args:
+      container:
+        label: Container
+  docker-rmi:
+    name: Remove Image
+    args:
+      image:
+        label: Image
+  docker-logs:
+    name: Show Container Logs
+    args:
+      container:
+        label: Container
+      lines:
+        label: Lines
+  docker-logs-follow:
+    name: Follow Container Logs
+    args:
+      container:
+        label: Container
+  docker-exec:
+    name: Open Shell in Container
+    args:
+      container:
+        label: Container
+      shell:
+        label: Shell
+  docker-inspect:
+    name: Show Container Details
+    args:
+      container:
+        label: Container
+  docker-stats:
+    name: Show Container Resource Usage
+  docker-pull:
+    name: Pull Image
+    args:
+      image:
+        label: Image
+  docker-build:
+    name: Build Image
+    args:
+      tag:
+        label: Tag
+      path:
+        label: Path
+  docker-compose-up:
+    name: Start Compose Services
+  docker-compose-down:
+    name: Stop Compose Services
+  docker-compose-logs:
+    name: Show Compose Logs
+    args:
+      service:
+        label: Service
+  docker-compose-ps:
+    name: Show Compose Service Status
+  docker-compose-config:
+    name: Preview Compose Config
+  docker-compose-pull:
+    name: Pull Compose Images
+  docker-system-df:
+    name: Show Docker Disk Usage
+  docker-prune:
+    name: Clean Unused Resources
+  docker-network-ls:
+    name: List Networks
+  docker-volume-ls:
+    name: List Volumes
+  docker-cp:
+    name: Copy Files to Container
+    args:
+      src:
+        label: Source Path
+      container:
+        label: Container
+      dest:
+        label: Destination Path
+  docker-export:
+    name: Export Container
+    args:
+      container:
+        label: Container
+      file:
+        label: File
+  docker-info:
+    name: Show Docker Environment Info
+  docker-image-inspect:
+    name: Show Image Details
+    args:
+      image:
+        label: Image
+  docker-volume-inspect:
+    name: Show Volume Details
+    args:
+      volume:
+        label: Volume
+  docker-network-inspect:
+    name: Show Network Details
+    args:
+      network:
+        label: Network
+  docker-compose-images:
+    name: List Compose Images
+  docker-compose-top:
+    name: List Compose Processes
+  docker-compose-exec-sh:
+    name: Open Shell in Compose Service
+    args:
+      service:
+        label: Service
+      shell:
+        label: Shell

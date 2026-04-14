@@ -1,0 +1,170 @@
+meta:
+  name: Network Tools
+commands:
+  query-port-lsof:
+    name: Check Port Usage (lsof)
+    args:
+      port:
+        label: Port
+  query-port-netstat:
+    name: Check Port Usage (netstat)
+    args:
+      port:
+        label: Port
+  kill-port-mac:
+    name: Release Occupied Port
+    args:
+      port:
+        label: Port
+  kill-port-win:
+    name: Release Occupied Port
+    args:
+      port:
+        label: Port
+  ping:
+    name: Ping Host
+    args:
+      host:
+        label: Host
+  curl-get:
+    name: HTTP GET Request
+    args:
+      url:
+        label: URL
+  curl-post:
+    name: HTTP POST Request
+    args:
+      url:
+        label: URL
+      body:
+        label: Request Body
+  curl-headers:
+    name: Show HTTP Response Headers
+    args:
+      url:
+        label: URL
+  dns-lookup:
+    name: DNS Lookup
+    args:
+      domain:
+        label: Domain
+  dig-query:
+    name: Detailed DNS Query (dig)
+    args:
+      domain:
+        label: Domain
+      type:
+        label: Type
+  check-ip:
+    name: Show Public IP Address
+  local-ip-mac:
+    name: Show Local IP Address
+  local-ip-linux:
+    name: Show Local IP Address
+  local-ip-win:
+    name: Show Local IP Address
+  traceroute:
+    name: Trace Route
+    args:
+      host:
+        label: Host
+  tracert-win:
+    name: Trace Route
+    args:
+      host:
+        label: Host
+  check-open-ports:
+    name: Check Remote Port Availability
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+  check-open-ports-win:
+    name: Check Remote Port Availability
+    args:
+      host:
+        label: Host
+      port:
+        label: Port
+  wget-download:
+    name: Download File
+    args:
+      url:
+        label: URL
+      filename:
+        label: Filename
+  curl-download:
+    name: Download File
+    args:
+      url:
+        label: URL
+      filename:
+        label: Filename
+  list-listening-ports:
+    name: List Listening Ports
+  list-listening-ports-win:
+    name: List Listening Ports
+  flush-dns-mac:
+    name: Flush DNS Cache
+  flush-dns-win:
+    name: Flush DNS Cache
+  flush-dns-linux:
+    name: Flush DNS Cache
+  speed-test:
+    name: Run Network Speed Test
+  curl-json-get:
+    name: HTTP GET Request (JSON)
+    args:
+      url:
+        label: URL
+  http-status-only:
+    name: Show HTTP Status Code Only
+    args:
+      url:
+        label: URL
+  http-status-only-win:
+    name: Show HTTP Status Code Only
+    args:
+      url:
+        label: URL
+  whois:
+    name: WHOIS Lookup
+    args:
+      domain:
+        label: Domain
+  curl-json-post:
+    name: HTTP POST Request (JSON)
+    args:
+      url:
+        label: URL
+      body:
+        label: Request Body
+  curl-json-put:
+    name: HTTP PUT Request (JSON)
+    args:
+      url:
+        label: URL
+      body:
+        label: Request Body
+  curl-json-delete:
+    name: HTTP DELETE Request (JSON)
+    args:
+      url:
+        label: URL
+  curl-form-post:
+    name: HTTP POST Request (Form)
+    args:
+      url:
+        label: URL
+      field:
+        label: Field
+      value:
+        label: Value
+  dig-short:
+    name: Short DNS Query (dig +short)
+    args:
+      domain:
+        label: Domain
+      type:
+        label: Type

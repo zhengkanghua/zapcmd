@@ -1,0 +1,32 @@
+meta:
+  name: Yarn
+commands:
+  yarn-add:
+    name: Yarn 添加依赖
+    args:
+      package:
+        label: package
+  yarn-run:
+    name: Yarn 运行脚本
+    args:
+      script:
+        label: script
+  yarn-remove:
+    name: Yarn 移除依赖
+    args:
+      package:
+        label: package
+  yarn-upgrade:
+    name: Yarn 升级依赖
+  yarn-install-project:
+    name: Yarn 安装项目依赖
+  yarn-add-dev:
+    name: Yarn 安装开发依赖
+    args:
+      package:
+        label: package
+  yarn-dlx:
+    name: Yarn 运行临时包命令
+    args:
+      package:
+        label: package

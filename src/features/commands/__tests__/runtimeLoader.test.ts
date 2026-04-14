@@ -1,16 +1,76 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createReadFailedIssue,
+  loadCommandTemplatesFromPayloadEntries,
   loadBuiltinCommandTemplates,
   loadBuiltinCommandTemplatesWithReport,
   loadUserCommandTemplatesWithReport
 } from "../runtimeLoader";
+import { setAppLocale } from "../../../i18n";
 
 describe("runtimeLoader", () => {
+  afterEach(() => {
+    setAppLocale("zh-CN");
+  });
+
+  it("loads templates directly from cached payload entries", () => {
+    const loaded = loadCommandTemplatesFromPayloadEntries(
+      [
+        {
+          sourceId: "C:/Users/test/.zapcmd/commands/cached.json",
+          payload: {
+            commands: [
+              {
+                id: "custom-cached",
+                name: "Cached Command",
+                tags: ["custom"],
+                category: "custom",
+                platform: "win",
+                exec: {
+                  program: "echo",
+                  args: ["cached"]
+                },
+                adminRequired: false
+              }
+            ]
+          }
+        }
+      ],
+      { runtimePlatform: "win" }
+    );
+
+    expect(loaded.templates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "custom-cached",
+          title: "Cached Command"
+        })
+      ])
+    );
+    expect(loaded.sourceByCommandId["custom-cached"]).toBe(
+      "C:/Users/test/.zapcmd/commands/cached.json"
+    );
+    expect(loaded.issues).toHaveLength(0);
+  });
+
   it("loads command templates for current platform", () => {
     const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     expect(templates.length).toBeGreaterThan(50);
     expect(templates.some((item) => item.id === "docker-ps")).toBe(true);
+  });
+
+  it("maps pilot builtin overlays to english runtime templates when locale is en-US", () => {
+    setAppLocale("en-US");
+
+    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const dockerPs = templates.find((item) => item.id === "docker-ps");
+    const queryPortNetstat = templates.find((item) => item.id === "query-port-netstat");
+    const jqFormatJson = templates.find((item) => item.id === "jq-format-json");
+
+    expect(dockerPs?.title).toBe("List Running Containers");
+    expect(queryPortNetstat?.title).toBe("Check Port Usage (netstat)");
+    expect(queryPortNetstat?.argLabel).toBe("Port");
+    expect(jqFormatJson?.title).toBe("Format JSON with jq");
   });
 
   it("does not model shell builtins or powershell cmdlets as binary prerequisites", () => {

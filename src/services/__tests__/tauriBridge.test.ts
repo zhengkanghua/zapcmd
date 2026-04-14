@@ -1,14 +1,16 @@
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as tauriBridge from "../tauriBridge";
 
 import {
   refreshAvailableTerminals,
   readAvailableTerminals,
-  readUserCommandFiles,
+  readUserCommandFile,
   readUserCommandsDir,
   readLauncherHotkey,
   readRuntimePlatform,
   readAutoStartEnabled,
+  scanUserCommandFiles,
   requestAnimateMainWindowSize,
   requestHideMainWindow,
   requestResizeMainWindowForReveal,
@@ -26,6 +28,25 @@ describe("tauriBridge", () => {
 
   beforeEach(() => {
     invokeMock.mockReset();
+  });
+
+  it("does not expose the legacy bulk-read bridge after cache migration", () => {
+    expect(Object.keys(tauriBridge).sort()).toEqual([
+      "readAutoStartEnabled",
+      "readAvailableTerminals",
+      "readLauncherHotkey",
+      "readRuntimePlatform",
+      "readUserCommandFile",
+      "readUserCommandsDir",
+      "refreshAvailableTerminals",
+      "requestAnimateMainWindowSize",
+      "requestHideMainWindow",
+      "requestResizeMainWindowForReveal",
+      "requestSetMainWindowSize",
+      "scanUserCommandFiles",
+      "writeAutoStartEnabled",
+      "writeLauncherHotkey"
+    ]);
   });
 
   it("reads available terminals through invoke bridge", async () => {
@@ -94,28 +115,70 @@ describe("tauriBridge", () => {
     });
   });
 
-  it("reads user command directory and files through invoke bridge", async () => {
+  it("reads user command directory through invoke bridge", async () => {
     invokeMock.mockResolvedValueOnce("C:/Users/demo/.zapcmd/commands");
-    invokeMock.mockResolvedValueOnce([
-      {
-        path: "C:/Users/demo/.zapcmd/commands/custom.json",
-        content: "{\"commands\":[]}",
-        modified_ms: 1700000000000
-      }
-    ]);
 
     const userDir = await readUserCommandsDir();
-    const files = await readUserCommandFiles();
 
     expect(userDir).toContain(".zapcmd/commands");
-    expect(files).toEqual([
-      {
-        path: "C:/Users/demo/.zapcmd/commands/custom.json",
-        content: "{\"commands\":[]}",
-        modifiedMs: 1700000000000
-      }
-    ]);
-    expect(invokeMock).toHaveBeenNthCalledWith(1, "get_user_commands_dir");
-    expect(invokeMock).toHaveBeenNthCalledWith(2, "read_user_command_files");
+    expect(invokeMock).toHaveBeenCalledWith("get_user_commands_dir");
+  });
+
+  it("bridges scan_user_command_files and normalizes scan payload", async () => {
+    invokeMock.mockResolvedValueOnce({
+      files: [
+        {
+          path: "C:/Users/demo/.zapcmd/commands/custom.json",
+          modified_ms: 1700000000000,
+          size: 42
+        }
+      ],
+      issues: [
+        {
+          path: "C:/Users/demo/.zapcmd/commands/broken.json",
+          reason: "metadata boom"
+        }
+      ]
+    });
+
+    const result = await scanUserCommandFiles();
+
+    expect(result).toEqual({
+      files: [
+        {
+          path: "C:/Users/demo/.zapcmd/commands/custom.json",
+          modifiedMs: 1700000000000,
+          size: 42
+        }
+      ],
+      issues: [
+        {
+          path: "C:/Users/demo/.zapcmd/commands/broken.json",
+          reason: "metadata boom"
+        }
+      ]
+    });
+    expect(invokeMock).toHaveBeenCalledWith("scan_user_command_files");
+  });
+
+  it("bridges read_user_command_file and normalizes modifiedMs and size", async () => {
+    invokeMock.mockResolvedValueOnce({
+      path: "C:/Users/demo/.zapcmd/commands/custom.json",
+      content: "{\"commands\":[]}",
+      modified_ms: 1700000000000,
+      size: 42
+    });
+
+    const file = await readUserCommandFile("C:/Users/demo/.zapcmd/commands/custom.json");
+
+    expect(file).toEqual({
+      path: "C:/Users/demo/.zapcmd/commands/custom.json",
+      content: "{\"commands\":[]}",
+      modifiedMs: 1700000000000,
+      size: 42
+    });
+    expect(invokeMock).toHaveBeenCalledWith("read_user_command_file", {
+      path: "C:/Users/demo/.zapcmd/commands/custom.json"
+    });
   });
 });

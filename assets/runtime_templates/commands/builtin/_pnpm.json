@@ -1,12 +1,18 @@
 {
   "_meta": {
-    "name": "PNPM",
+    "name": {
+      "zh": "PNPM",
+      "en": "PNPM"
+    },
     "source": "builtin"
   },
   "commands": [
     {
       "id": "pnpm-add",
-      "name": "PNPM 添加依赖",
+      "name": {
+        "zh": "PNPM 添加依赖",
+        "en": "Add PNPM Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -29,9 +35,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -45,7 +54,10 @@
     },
     {
       "id": "pnpm-run",
-      "name": "PNPM 运行脚本",
+      "name": {
+        "zh": "PNPM 运行脚本",
+        "en": "Run PNPM Script"
+      },
       "tags": [
         "包管理",
         "package",
@@ -68,9 +80,12 @@
       "args": [
         {
           "key": "script",
-          "label": "script",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "script",
+            "en": "Script"
+          }
         }
       ],
       "prerequisites": [
@@ -84,7 +99,10 @@
     },
     {
       "id": "pnpm-up",
-      "name": "PNPM 升级依赖",
+      "name": {
+        "zh": "PNPM 升级依赖",
+        "en": "Upgrade PNPM Dependencies"
+      },
       "tags": [
         "包管理",
         "package",
@@ -115,7 +133,10 @@
     },
     {
       "id": "pnpm-remove",
-      "name": "PNPM 移除依赖",
+      "name": {
+        "zh": "PNPM 移除依赖",
+        "en": "Remove PNPM Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -139,9 +160,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -155,7 +179,10 @@
     },
     {
       "id": "pnpm-list",
-      "name": "PNPM 查看已安装",
+      "name": {
+        "zh": "PNPM 查看已安装",
+        "en": "List Installed PNPM Packages"
+      },
       "tags": [
         "包管理",
         "package",
@@ -189,7 +216,10 @@
     },
     {
       "id": "pnpm-install-project",
-      "name": "PNPM 安装项目依赖",
+      "name": {
+        "zh": "PNPM 安装项目依赖",
+        "en": "Install Project Dependencies with PNPM"
+      },
       "tags": [
         "包管理",
         "package",
@@ -220,7 +250,10 @@
     },
     {
       "id": "pnpm-add-dev",
-      "name": "PNPM 安装开发依赖",
+      "name": {
+        "zh": "PNPM 安装开发依赖",
+        "en": "Add PNPM Dev Dependency"
+      },
       "tags": [
         "包管理",
         "package",
@@ -245,9 +278,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [
@@ -261,7 +297,10 @@
     },
     {
       "id": "pnpm-dlx",
-      "name": "PNPM 运行临时包命令",
+      "name": {
+        "zh": "PNPM 运行临时包命令",
+        "en": "Run Temporary Package with PNPM"
+      },
       "tags": [
         "包管理",
         "package",
@@ -285,9 +324,12 @@
       "args": [
         {
           "key": "package",
-          "label": "package",
           "type": "text",
-          "required": true
+          "required": true,
+          "label": {
+            "zh": "package",
+            "en": "Package"
+          }
         }
       ],
       "prerequisites": [

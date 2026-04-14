@@ -1,0 +1,158 @@
+meta:
+  name: 文件操作
+commands:
+  find-file:
+    name: 按名称查找文件
+    args:
+      path:
+        label: path
+      pattern:
+        label: pattern
+  find-file-win:
+    name: 按名称查找文件
+    args:
+      path:
+        label: path
+      pattern:
+        label: pattern
+  find-content:
+    name: 按内容搜索文件
+    args:
+      pattern:
+        label: pattern
+      path:
+        label: path
+  find-content-win:
+    name: 按内容搜索文件
+    args:
+      pattern:
+        label: pattern
+      path:
+        label: path
+  list-files:
+    name: 列出目录内容
+    args:
+      path:
+        label: path
+  list-files-win:
+    name: 列出目录内容
+    args:
+      path:
+        label: path
+  tree:
+    name: 目录树结构
+    args:
+      path:
+        label: path
+      depth:
+        label: depth
+  tree-win:
+    name: 目录树结构
+    args:
+      path:
+        label: path
+  file-size:
+    name: 查看文件大小
+    args:
+      file:
+        label: file
+  file-count:
+    name: 统计文件数量
+    args:
+      path:
+        label: path
+  file-permissions:
+    name: 修改文件权限
+    args:
+      mode:
+        label: mode
+      file:
+        label: file
+  file-owner:
+    name: 修改文件所有者
+    args:
+      owner:
+        label: owner
+      file:
+        label: file
+  compress-tar:
+    name: 打包压缩 (tar.gz)
+    args:
+      input:
+        label: input
+      output:
+        label: output
+  extract-tar:
+    name: 解压 (tar.gz)
+    args:
+      file:
+        label: file
+  compress-zip:
+    name: ZIP 压缩
+    args:
+      input:
+        label: input
+      output:
+        label: output
+  extract-zip:
+    name: ZIP 解压
+    args:
+      file:
+        label: file
+      dest:
+        label: dest
+  compress-zip-win:
+    name: ZIP 压缩
+    args:
+      input:
+        label: input
+      output:
+        label: output
+  extract-zip-win:
+    name: ZIP 解压
+    args:
+      file:
+        label: file
+      dest:
+        label: dest
+  watch-file:
+    name: 监听文件变化
+    args:
+      path:
+        label: path
+  tail-log:
+    name: 实时查看日志
+    args:
+      file:
+        label: file
+  tail-log-win:
+    name: 实时查看日志
+    args:
+      file:
+        label: file
+      lines:
+        label: lines
+  head-file:
+    name: 查看文件前 N 行
+    args:
+      file:
+        label: file
+      lines:
+        label: lines
+  head-file-win:
+    name: 查看文件前 N 行
+    args:
+      file:
+        label: file
+      lines:
+        label: lines
+  wc-lines:
+    name: 统计文件行数
+    args:
+      file:
+        label: file
+  wc-lines-win:
+    name: 统计文件行数
+    args:
+      file:
+        label: file

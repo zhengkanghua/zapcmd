@@ -1,9 +1,7 @@
 meta:
-  name: 证书与 OpenSSL
   moduleSlug: cert
 commands:
   - id: openssl-x509-text
-    name: OpenSSL 查看证书全文
     category: cert
     platform: all
     exec:
@@ -17,7 +15,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -36,7 +33,6 @@ commands:
       - 查看
       - show
   - id: openssl-cert-dates
-    name: OpenSSL 查看证书有效期
     category: cert
     platform: all
     exec:
@@ -50,7 +46,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -68,7 +63,6 @@ commands:
       - 查看
       - show
   - id: openssl-cert-fingerprint
-    name: OpenSSL 查看证书指纹
     category: cert
     platform: all
     exec:
@@ -83,7 +77,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:
@@ -101,7 +94,6 @@ commands:
       - 查看
       - show
   - id: openssl-s-client
-    name: OpenSSL 建立 TLS 连接
     category: cert
     platform: all
     exec:
@@ -115,11 +107,9 @@ commands:
     adminRequired: false
     args:
       - key: host
-        label: host
         type: text
         required: true
       - key: port
-        label: port
         type: number
         required: true
         default: "443"
@@ -141,7 +131,6 @@ commands:
       - 握手
       - handshake
   - id: openssl-pkey-text
-    name: OpenSSL 查看密钥详情
     category: cert
     platform: all
     exec:
@@ -155,7 +144,6 @@ commands:
     adminRequired: false
     args:
       - key: file
-        label: file
         type: path
         required: true
     prerequisites:

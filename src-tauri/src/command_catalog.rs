@@ -1,18 +1,16 @@
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::time::UNIX_EPOCH;
 
+mod contracts;
 mod prerequisites;
+mod read;
+mod scan;
 
+pub(crate) use contracts::{
+    UserCommandFile, UserCommandFileScanEntry, UserCommandFileScanIssue, UserCommandFileScanResult,
+};
 pub(crate) use prerequisites::probe_command_prerequisites;
-
-#[derive(serde::Serialize)]
-pub(crate) struct UserCommandFile {
-    path: String,
-    content: String,
-    modified_ms: u64,
-}
 
 fn resolve_home_dir_with<F>(get_env: F) -> Option<PathBuf>
 where
@@ -56,13 +54,19 @@ fn resolve_user_commands_dir_path_in(home: &Path) -> PathBuf {
 
 fn ensure_user_commands_dir_with(home: &Path) -> Result<PathBuf, String> {
     let dir = resolve_user_commands_dir_path_in(home);
-    fs::create_dir_all(&dir)
-        .map_err(|err| format!("Failed to create user commands dir {}: {}", dir.display(), err))?;
+    fs::create_dir_all(&dir).map_err(|err| {
+        format!(
+            "Failed to create user commands dir {}: {}",
+            dir.display(),
+            err
+        )
+    })?;
     Ok(dir)
 }
 
 fn ensure_user_commands_dir() -> Result<PathBuf, String> {
-    let home = resolve_home_dir().ok_or_else(|| "Failed to resolve user home directory.".to_string())?;
+    let home =
+        resolve_home_dir().ok_or_else(|| "Failed to resolve user home directory.".to_string())?;
     ensure_user_commands_dir_with(&home)
 }
 
@@ -73,65 +77,37 @@ fn is_json_file(path: &Path) -> bool {
         .unwrap_or(false)
 }
 
-fn collect_json_files_recursive(root: &Path) -> Result<Vec<PathBuf>, String> {
-    let mut stack = vec![root.to_path_buf()];
-    let mut files = Vec::<PathBuf>::new();
+fn validate_user_command_file_path_in(user_commands_dir: &Path, path: &Path) -> Result<PathBuf, String> {
+    let canonical_dir = fs::canonicalize(user_commands_dir).map_err(|err| {
+        format!(
+            "Failed to resolve user commands dir {}: {}",
+            user_commands_dir.display(),
+            err
+        )
+    })?;
+    let canonical_path = fs::canonicalize(path)
+        .map_err(|err| format!("Failed to resolve command file {}: {}", path.display(), err))?;
 
-    while let Some(current) = stack.pop() {
-        let entries = fs::read_dir(&current)
-            .map_err(|err| format!("Failed to read dir {}: {}", current.display(), err))?;
-        for entry in entries {
-            let entry = entry.map_err(|err| format!("Failed to read dir entry: {}", err))?;
-            let path = entry.path();
-            let file_type = entry
-                .file_type()
-                .map_err(|err| format!("Failed to read file type for {}: {}", path.display(), err))?;
-            if file_type.is_dir() {
-                stack.push(path);
-                continue;
-            }
-            if file_type.is_file() && is_json_file(&path) {
-                files.push(path);
-            }
-        }
+    if !canonical_path.starts_with(&canonical_dir) {
+        return Err(format!(
+            "Command file {} is outside user commands dir {}.",
+            canonical_path.display(),
+            canonical_dir.display()
+        ));
+    }
+    if !is_json_file(&canonical_path) {
+        return Err(format!(
+            "Command file {} must be a JSON file.",
+            canonical_path.display()
+        ));
     }
 
-    files.sort_by(|left, right| left.to_string_lossy().cmp(&right.to_string_lossy()));
-    Ok(files)
+    Ok(canonical_path)
 }
 
-fn read_single_user_command_file_with<R, M>(
-    path: &Path,
-    read_to_string: R,
-    metadata: M,
-) -> Result<UserCommandFile, String>
-where
-    R: for<'a> Fn(&'a Path) -> Result<String, std::io::Error>,
-    M: for<'a> Fn(&'a Path) -> Result<std::fs::Metadata, std::io::Error>,
-{
-    let content = read_to_string(path)
-        .map_err(|err| format!("Failed to read command file {}: {}", path.display(), err))?;
-
-    let modified_ms = metadata(path)
-        .ok()
-        .and_then(|metadata| metadata.modified().ok())
-        .and_then(|time| time.duration_since(UNIX_EPOCH).ok())
-        .map(|duration| duration.as_millis() as u64)
-        .unwrap_or(0);
-
-    Ok(UserCommandFile {
-        path: path.to_string_lossy().to_string(),
-        content,
-        modified_ms,
-    })
-}
-
-fn read_single_user_command_file(path: &Path) -> Result<UserCommandFile, String> {
-    read_single_user_command_file_with(
-        path,
-        |path| fs::read_to_string(path),
-        |path| fs::metadata(path),
-    )
+fn read_user_command_file_in(user_commands_dir: &Path, path: String) -> Result<UserCommandFile, String> {
+    let validated = validate_user_command_file_path_in(user_commands_dir, Path::new(&path))?;
+    read::read_user_command_file(&validated)
 }
 
 #[tauri::command]
@@ -140,14 +116,15 @@ pub(crate) fn get_user_commands_dir() -> Result<String, String> {
 }
 
 #[tauri::command]
-pub(crate) fn read_user_command_files() -> Result<Vec<UserCommandFile>, String> {
+pub(crate) fn scan_user_command_files() -> Result<UserCommandFileScanResult, String> {
     let dir = ensure_user_commands_dir()?;
-    let files = collect_json_files_recursive(&dir)?;
-    let mut payload = Vec::<UserCommandFile>::new();
-    for file in files {
-        payload.push(read_single_user_command_file(&file)?);
-    }
-    Ok(payload)
+    scan::scan_user_command_files_in(&dir)
+}
+
+#[tauri::command]
+pub(crate) fn read_user_command_file(path: String) -> Result<UserCommandFile, String> {
+    let dir = ensure_user_commands_dir()?;
+    read_user_command_file_in(&dir, path)
 }
 
 #[cfg(test)]
