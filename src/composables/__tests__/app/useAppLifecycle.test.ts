@@ -47,6 +47,15 @@ interface LifecycleHarnessOptions {
   isTauriRuntime?: boolean;
   currentWindowLabel?: string;
   readLauncherHotkeyResult?: string;
+  readLauncherHotkeyImpl?: () => Promise<string>;
+  loadAvailableTerminalsImpl?: () => Promise<void>;
+  onFocusChangedImpl?: (
+    callback: (event: { payload: boolean }) => void
+  ) => Promise<() => void>;
+  resolveAppWindowImpl?: () => {
+    label: string;
+    onFocusChanged?: (handler: (event: { payload: boolean }) => void) => Promise<() => void>;
+  } | null;
   onMainReady?: ReturnType<typeof vi.fn>;
   onSettingsReady?: ReturnType<typeof vi.fn>;
 }
@@ -63,6 +72,22 @@ function createFocusListenerCapture(): FocusListenerCapture {
   };
 }
 
+interface Deferred<T> {
+  promise: Promise<T>;
+  resolve: (value: T | PromiseLike<T>) => void;
+  reject: (reason?: unknown) => void;
+}
+
+function createDeferred<T>(): Deferred<T> {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
 function createHarness(options: LifecycleHarnessOptions = {}) {
   const settingsSyncChannel = ref<BroadcastChannel | null>(null);
   const currentWindowLabel = ref("main");
@@ -70,14 +95,16 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
   const focusCapture = createFocusListenerCapture();
 
   const loadSettings = vi.fn();
-  const loadAvailableTerminals = vi.fn(async () => {});
+  const loadAvailableTerminals = vi.fn(options.loadAvailableTerminalsImpl ?? (async () => {}));
   const applySettingsRouteFromHash = vi.fn();
   const onSettingsHashChange = vi.fn();
   const onWindowKeydown = vi.fn();
   const onGlobalPointerDown = vi.fn();
   const onViewportResize = vi.fn();
   const onAppFocused = vi.fn();
-  const readLauncherHotkey = vi.fn(async () => options.readLauncherHotkeyResult ?? "");
+  const readLauncherHotkey = vi.fn(
+    options.readLauncherHotkeyImpl ?? (async () => options.readLauncherHotkeyResult ?? "")
+  );
   const onLauncherHotkeyLoaded = vi.fn();
   const scheduleSearchInputFocus = vi.fn();
   const syncWindowSize = vi.fn(async () => {});
@@ -88,13 +115,19 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
   const onMainReady = options.onMainReady ?? vi.fn();
   const onSettingsReady = options.onSettingsReady ?? vi.fn();
 
-  const resolveAppWindow = vi.fn(() => ({
-    label: options.currentWindowLabel ?? "main",
-    onFocusChanged: vi.fn(async (callback: (event: { payload: boolean }) => void) => {
-      focusCapture.callback = callback;
-      return focusCapture.unlisten;
-    })
-  }));
+  const resolveAppWindow = vi.fn(
+    options.resolveAppWindowImpl ??
+      (() => ({
+        label: options.currentWindowLabel ?? "main",
+        onFocusChanged: (callback: (event: { payload: boolean }) => void) => {
+          focusCapture.callback = callback;
+          if (options.onFocusChangedImpl) {
+            return options.onFocusChangedImpl(callback);
+          }
+          return Promise.resolve(focusCapture.unlisten);
+        }
+      }))
+  );
 
   const Harness = defineComponent({
     setup() {
@@ -221,6 +254,81 @@ describe("useAppLifecycle", () => {
     expect(channel.close).toHaveBeenCalledTimes(1);
   });
 
+  it("does not bind listeners after the scope is already unmounted during async settings bootstrap", async () => {
+    const deferred = createDeferred<void>();
+    const { Harness, state, spies } = createHarness({
+      isSettingsWindow: true,
+      currentWindowLabel: "settings",
+      loadAvailableTerminalsImpl: () => deferred.promise
+    });
+
+    const wrapper = mount(Harness);
+    await nextTick();
+
+    expect(spies.loadAvailableTerminals).toHaveBeenCalledTimes(1);
+    wrapper.unmount();
+    deferred.resolve();
+    await flushUi();
+
+    expect(state.settingsSyncChannel.value).toBeNull();
+    expect(MockBroadcastChannel.instances).toHaveLength(0);
+    expect(spies.applySettingsRouteFromHash).not.toHaveBeenCalled();
+    expect(spies.onSettingsReady).not.toHaveBeenCalled();
+  });
+
+  it("在 storage key 为空时重新加载设置，并忽略非 settings 广播", async () => {
+    const { Harness, spies } = createHarness();
+
+    mount(Harness);
+    await flushUi();
+
+    const loadCountBeforeEvents = spies.loadSettings.mock.calls.length;
+    const channel = MockBroadcastChannel.instances[0];
+
+    channel.emit(undefined);
+    await flushUi();
+    expect(spies.loadSettings).toHaveBeenCalledTimes(loadCountBeforeEvents);
+
+    window.dispatchEvent(new StorageEvent("storage"));
+    await flushUi();
+    expect(spies.loadSettings).toHaveBeenCalledTimes(loadCountBeforeEvents + 1);
+  });
+
+  it("在 BroadcastChannel 不可用时仍完成主窗口启动", async () => {
+    Object.defineProperty(window, "BroadcastChannel", {
+      configurable: true,
+      writable: true,
+      value: undefined
+    });
+
+    const { Harness, state, spies } = createHarness();
+
+    mount(Harness);
+    await flushUi();
+
+    expect(state.settingsSyncChannel.value).toBeNull();
+    expect(MockBroadcastChannel.instances).toHaveLength(0);
+    expect(spies.scheduleSearchInputFocus).toHaveBeenCalledWith(false);
+    expect(spies.syncWindowSize).toHaveBeenCalledTimes(1);
+  });
+
+  it("窗口标签解析为 settings 时仍会预热终端，但不进入 settings ready 分支", async () => {
+    const onMainReady = vi.fn();
+    const onSettingsReady = vi.fn();
+    const { Harness, spies } = createHarness({
+      currentWindowLabel: "settings",
+      onMainReady,
+      onSettingsReady
+    });
+
+    mount(Harness);
+    await flushUi();
+
+    expect(spies.loadAvailableTerminals).toHaveBeenCalledTimes(1);
+    expect(onMainReady).toHaveBeenCalledTimes(1);
+    expect(onSettingsReady).not.toHaveBeenCalled();
+  });
+
   it("handles tauri focus listener and launcher hotkey bootstrap", async () => {
     const { Harness, state, spies } = createHarness({
       isTauriRuntime: true,
@@ -238,6 +346,39 @@ describe("useAppLifecycle", () => {
 
     wrapper.unmount();
     expect(state.focusCapture.unlisten).toHaveBeenCalledTimes(1);
+  });
+
+  it("忽略未获得焦点的 tauri 事件与空热键", async () => {
+    const { Harness, state, spies } = createHarness({
+      isTauriRuntime: true,
+      readLauncherHotkeyResult: ""
+    });
+
+    mount(Harness);
+    await flushUi();
+
+    state.focusCapture.callback?.({ payload: false });
+    expect(spies.onAppFocused).not.toHaveBeenCalled();
+    expect(spies.onLauncherHotkeyLoaded).not.toHaveBeenCalled();
+  });
+
+  it("在 focus 订阅回调返回前卸载时，会立即执行迟到的 unlisten", async () => {
+    const focusChangedDeferred = createDeferred<() => void>();
+    const lateUnlisten = vi.fn();
+    const { Harness, spies } = createHarness({
+      isTauriRuntime: true,
+      onFocusChangedImpl: () => focusChangedDeferred.promise
+    });
+
+    const wrapper = mount(Harness);
+    await nextTick();
+
+    wrapper.unmount();
+    focusChangedDeferred.resolve(lateUnlisten);
+    await flushUi();
+
+    expect(lateUnlisten).toHaveBeenCalledTimes(1);
+    expect(spies.readLauncherHotkey).not.toHaveBeenCalled();
   });
 
   it("invokes onSettingsReady for settings windows without main-window focus bootstrap", async () => {
@@ -276,6 +417,27 @@ describe("useAppLifecycle", () => {
         error: expect.any(Error)
       })
     );
+    warnSpy.mockRestore();
+  });
+
+  it("在热键读取延迟失败且组件已卸载时，不再输出告警", async () => {
+    const hotkeyDeferred = createDeferred<string>();
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { Harness, spies } = createHarness({
+      isTauriRuntime: true,
+      readLauncherHotkeyImpl: () => hotkeyDeferred.promise
+    });
+
+    const wrapper = mount(Harness);
+    await nextTick();
+
+    expect(spies.readLauncherHotkey).toHaveBeenCalledTimes(1);
+
+    wrapper.unmount();
+    hotkeyDeferred.reject(new Error("late hotkey failure"));
+    await flushUi();
+
+    expect(warnSpy).not.toHaveBeenCalled();
     warnSpy.mockRestore();
   });
 });

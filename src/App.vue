@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import { toRef } from "vue";
 import LauncherWindow from "./components/launcher/LauncherWindow.vue";
-import { useAppCompositionRoot } from "./composables/app/useAppCompositionRoot";
+import { useLauncherEntry } from "./composables/app/useAppCompositionRoot/launcherEntry";
 
-const { launcherVm, settingsVm, appShellVm } = useAppCompositionRoot();
-
-const availableTerminals = toRef(settingsVm, "availableTerminals");
-const terminalLoading = toRef(settingsVm, "terminalLoading");
+const { launcherVm, launcherCompatVm, appShellVm } = useLauncherEntry();
 
 // 主入口只保留 Launcher 渲染；这里继续暴露 settings 兼容字段给既有测试与壳层契约。
 function submitParamInput(): void {
@@ -17,8 +13,8 @@ function submitParamInput(): void {
 }
 
 defineExpose({
-  availableTerminals,
-  terminalLoading,
+  availableTerminals: launcherCompatVm.availableTerminals,
+  terminalLoading: launcherCompatVm.terminalLoading,
   submitParamInput
 });
 </script>

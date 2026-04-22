@@ -87,10 +87,14 @@ function createStorageHandler(options: UseAppLifecycleOptions) {
 
 export function useAppLifecycle(options: UseAppLifecycleOptions): void {
   let unlistenFocusChanged: (() => void) | null = null;
+  let disposed = false;
   const onSettingsStorageChanged = createStorageHandler(options);
   const onSettingsBroadcast = createSettingsBroadcastHandler(options);
 
   onMounted(async () => {
+    if (disposed) {
+      return;
+    }
     options.loadSettings();
     const appWindow = options.resolveAppWindow();
     if (appWindow) {
@@ -99,29 +103,51 @@ export function useAppLifecycle(options: UseAppLifecycleOptions): void {
     const inSettingsWindow = options.isSettingsWindow.value || appWindow?.label === "settings";
     if (inSettingsWindow) {
       await options.loadAvailableTerminals();
+      if (disposed) {
+        return;
+      }
     }
 
     attachWindowListeners(options, onSettingsStorageChanged);
+    if (disposed) {
+      detachWindowListeners(options, onSettingsStorageChanged);
+      return;
+    }
     if (typeof BroadcastChannel !== "undefined") {
       options.settingsSyncChannel.value = new BroadcastChannel("zapcmd-settings-sync");
       options.settingsSyncChannel.value.addEventListener("message", onSettingsBroadcast);
+      if (disposed) {
+        closeSettingsSyncChannel(options, onSettingsBroadcast);
+        return;
+      }
     }
 
     if (options.isTauriRuntime()) {
       if (appWindow?.onFocusChanged) {
-        unlistenFocusChanged = await appWindow.onFocusChanged(({ payload }) => {
+        const onFocusChangedUnlisten = await appWindow.onFocusChanged(({ payload }) => {
           if (payload) {
             options.onAppFocused();
           }
         });
+        if (disposed) {
+          onFocusChangedUnlisten();
+          return;
+        }
+        unlistenFocusChanged = onFocusChangedUnlisten;
       }
 
       try {
         const currentLauncherHotkey = await options.readLauncherHotkey();
+        if (disposed) {
+          return;
+        }
         if (currentLauncherHotkey) {
           options.onLauncherHotkeyLoaded(currentLauncherHotkey);
         }
       } catch (error) {
+        if (disposed) {
+          return;
+        }
         console.warn("launcher hotkey read failed", {
           windowLabel: options.currentWindowLabel.value,
           error
@@ -130,6 +156,9 @@ export function useAppLifecycle(options: UseAppLifecycleOptions): void {
     }
 
     await nextTick();
+    if (disposed) {
+      return;
+    }
     if (!options.isSettingsWindow.value) {
       options.scheduleSearchInputFocus(false);
       void options.syncWindowSize();
@@ -140,6 +169,7 @@ export function useAppLifecycle(options: UseAppLifecycleOptions): void {
   });
 
   onBeforeUnmount(() => {
+    disposed = true;
     closeSettingsSyncChannel(options, onSettingsBroadcast);
     detachWindowListeners(options, onSettingsStorageChanged);
 

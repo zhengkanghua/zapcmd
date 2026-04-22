@@ -65,6 +65,10 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
   const theme = ref("obsidian");
   const blurEnabled = ref(true);
   const motionPreset = ref("expressive");
+  const pointerActions = ref({
+    leftClick: "execute",
+    rightClick: "stage"
+  });
   const checkUpdate = vi.fn();
   const downloadUpdate = vi.fn();
   const openHomepage = vi.fn();
@@ -125,6 +129,7 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     stagedCommands: ref([]),
     stagingGripReorderActive: ref(false),
     hotkeyBindings,
+    pointerActions,
     settingsWindow,
     commandManagement,
     themeManager,
@@ -265,9 +270,11 @@ describe("createAppCompositionViewModel", () => {
     expect(viewModel.settingsVm.defaultTerminal).toBe("powershell");
     expect("pointerActionFields" in viewModel.settingsVm).toBe(true);
     expect("applyPointerActionChange" in viewModel.settingsVm).toBe(true);
+    expect(appSource).toContain('import { useLauncherEntry } from "./composables/app/useAppCompositionRoot/launcherEntry";');
     expect(appSource).toMatch(
-      /const\s*\{\s*launcherVm,\s*settingsVm,\s*appShellVm\s*\}\s*=\s*useAppCompositionRoot\(\);/s
+      /const\s*\{\s*launcherVm,\s*launcherCompatVm,\s*appShellVm\s*\}\s*=\s*useLauncherEntry\(\);/s
     );
+    expect(appSource).not.toContain("useAppCompositionRoot(");
     expect(appSource).not.toContain("import SettingsWindow");
     expect(appSource).toContain("<LauncherWindow :launcher-vm=\"launcherVm\"");
   });

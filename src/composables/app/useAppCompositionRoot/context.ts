@@ -66,6 +66,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
   return {
     search, commandCatalog, domBridge, stagedCommands,
     hotkeyBindings: settingsScene.hotkeyBindings,
+    pointerActions: settingsScene.pointerActions,
     defaultTerminal: settingsScene.defaultTerminal,
     terminalReusePolicy: settingsScene.terminalReusePolicy,
     language: settingsScene.language,

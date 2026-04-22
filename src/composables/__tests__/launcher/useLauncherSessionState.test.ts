@@ -394,7 +394,8 @@ describe("useLauncherSessionState", () => {
     expect(storage.getItem).not.toHaveBeenCalled();
   });
 
-  it("persists queue structure immediately using only the minimal snapshot payload", async () => {
+  it("persists queue structure asynchronously using only the minimal snapshot payload", async () => {
+    vi.useFakeTimers();
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([]);
     const stagingExpanded = ref(false);
@@ -429,6 +430,11 @@ describe("useLauncherSessionState", () => {
       createStagedCommand("b")
     ];
     stagingExpanded.value = true;
+    await nextTick();
+
+    expect(storage.setItem).not.toHaveBeenCalled();
+
+    await vi.runOnlyPendingTimersAsync();
     await nextTick();
 
     const payload = readLatestPayload(storage);
@@ -466,6 +472,7 @@ describe("useLauncherSessionState", () => {
   });
 
   it("stops persisting when enabled becomes false", async () => {
+    vi.useFakeTimers();
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([]);
     const stagingExpanded = ref(false);
@@ -480,6 +487,8 @@ describe("useLauncherSessionState", () => {
     });
 
     stagedCommands.value = [createStagedCommand("a")];
+    await nextTick();
+    await vi.runOnlyPendingTimersAsync();
     await nextTick();
     const firstCallCount = storage.setItem.mock.calls.length;
     expect(firstCallCount).toBeGreaterThan(0);
@@ -558,6 +567,7 @@ describe("useLauncherSessionState", () => {
   });
 
   it("defers persistence while suspendPersistence is true and flushes once after resume", async () => {
+    vi.useFakeTimers();
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([]);
     const stagingExpanded = ref(true);
@@ -580,6 +590,8 @@ describe("useLauncherSessionState", () => {
     expect(storage.setItem).not.toHaveBeenCalled();
 
     suspendPersistence.value = false;
+    await nextTick();
+    await vi.runOnlyPendingTimersAsync();
     await nextTick();
 
     expect(storage.setItem).toHaveBeenCalledTimes(1);
@@ -659,6 +671,7 @@ describe("useLauncherSessionState", () => {
   });
 
   it("persists the latest queue order after delete and reorder, then restores that order", async () => {
+    vi.useFakeTimers();
     const storage = createStorage(null);
     const writerCommands = ref<StagedCommand[]>([]);
 
@@ -679,6 +692,8 @@ describe("useLauncherSessionState", () => {
 
     writerCommands.value = [createStagedCommand("c"), createStagedCommand("a")];
     await nextTick();
+    await vi.runOnlyPendingTimersAsync();
+    await nextTick();
 
     const restoredCommands = ref<StagedCommand[]>([]);
     useLauncherSessionState({
@@ -693,7 +708,7 @@ describe("useLauncherSessionState", () => {
     expect(restoredCommands.value.map((item) => item.id)).toEqual(["c", "a"]);
   });
 
-  it("cancels pending delayed persistence when the scope is disposed", async () => {
+  it("flushes pending delayed persistence when the scope is disposed", async () => {
     vi.useFakeTimers();
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([createStagedCommand("debounced")]);
@@ -715,10 +730,17 @@ describe("useLauncherSessionState", () => {
     stagedCommands.value[0]!.renderedPreview = "echo 456";
     await nextTick();
     scope.stop();
-
-    vi.runAllTimers();
     await nextTick();
 
-    expect(storage.setItem).not.toHaveBeenCalled();
+    expect(storage.setItem).toHaveBeenCalledTimes(1);
+    expect(readLatestPayload(storage).stagedCommands[0]).toEqual(
+      createPersistedCommandSnapshot("debounced", {
+        renderedPreview: "echo 456",
+        rawPreview: "echo debounced",
+        argValues: {
+          pid: "456"
+        }
+      })
+    );
   });
 });
