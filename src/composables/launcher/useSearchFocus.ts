@@ -1,11 +1,13 @@
-import type { Ref } from "vue";
+import { getCurrentScope, onScopeDispose, type Ref } from "vue";
 
 type FrameScheduler = (callback: FrameRequestCallback) => number;
+type FrameCanceler = (handle: number) => void;
 
 interface UseSearchFocusOptions {
   searchInputRef: Ref<HTMLInputElement | null>;
   shouldBlockFocus?: () => boolean;
   requestFrame?: FrameScheduler;
+  cancelFrame?: FrameCanceler;
 }
 
 function getDefaultFrameScheduler(): FrameScheduler {
@@ -15,10 +17,35 @@ function getDefaultFrameScheduler(): FrameScheduler {
   return (callback) => setTimeout(() => callback(0), 0) as unknown as number;
 }
 
+function getDefaultFrameCanceler(): FrameCanceler {
+  if (typeof window !== "undefined" && typeof window.cancelAnimationFrame === "function") {
+    return (handle) => window.cancelAnimationFrame(handle);
+  }
+  return (handle) => clearTimeout(handle);
+}
+
 export function useSearchFocus(options: UseSearchFocusOptions) {
   const scheduleFrame = options.requestFrame ?? getDefaultFrameScheduler();
+  const cancelFrame = options.cancelFrame ?? getDefaultFrameCanceler();
   const maxFocusRetries = 40;
   let focusRequestToken = 0;
+  let pendingFrameHandle: number | null = null;
+
+  function clearPendingFrame(): void {
+    if (pendingFrameHandle === null) {
+      return;
+    }
+    cancelFrame(pendingFrameHandle);
+    pendingFrameHandle = null;
+  }
+
+  function schedulePendingFrame(callback: FrameRequestCallback): void {
+    clearPendingFrame();
+    pendingFrameHandle = scheduleFrame((timestamp) => {
+      pendingFrameHandle = null;
+      callback(timestamp);
+    });
+  }
 
   function focusSearchInput(selectText = false): void {
     if (options.shouldBlockFocus?.()) {
@@ -53,10 +80,18 @@ export function useSearchFocus(options: UseSearchFocusOptions) {
       if (attempts >= maxFocusRetries) {
         return;
       }
-      scheduleFrame(() => attemptFocus());
+      schedulePendingFrame(() => attemptFocus());
     };
 
-    scheduleFrame(() => attemptFocus());
+    schedulePendingFrame(() => attemptFocus());
+  }
+
+  // 组件卸载后必须让迟到的 focus 调度失效，避免旧回调继续触碰已销毁输入框。
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      focusRequestToken += 1;
+      clearPendingFrame();
+    });
   }
 
   return {

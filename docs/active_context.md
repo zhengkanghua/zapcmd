@@ -33,3 +33,5 @@
 - 2026-04-14：Track A Chunk 4 / Task 4.1 已完成；pilot `_git/_network/_docker/_dev` 已迁到 zh/en overlay，新增 `commands/catalog/locales/config.yaml`，builtin runtime json 改为 localized object；`docs/generated_commands/*` 因 `defaultLocale=zh` 内容未变。验证：`npm run commands:builtin:generate -- --expectedLogicalCount 357` 与 3 个命令测试文件 44/44 通过。
 - 2026-04-14：Track A Chunk 4 / Task 4.2 已完成；剩余 18 个 builtin 模块全部迁到 `base YAML + zh/en overlay`，删除 inline text legacy fallback，`requiredBuiltinLocales` 现为 blocking gate；验证：`commands:builtin:generate`、manifest `357/403`、定向 `test:run` 96/96、`command_catalog::tests_io` 11/11、`check:all` 全绿。spec reviewer ✅，code quality reviewer 超时，已按本地 checklist 复核；Track A 已达到完成态。
 - 2026-04-22：补修 4 点：生命周期异步卸载守卫、Launcher 入口从全量 composition root 拆分、命令源缓存改为限并发且不保留原始 JSON、session 持久化改为去重延迟写入并在销毁时 flush；`npm run check:all` 已通过。
+- 2026-04-22：运行时审查补修已覆盖 `useSearchFocus` 生命周期取消与 `useLauncherWatchers` 等长结果集重置回归；验证：定向 `test:run` 10/10 + `lint` + `typecheck` 通过。
+- 2026-04-23：Launcher 显式 context、runtime bridge 与 `useCommandCatalog` 子模块拆分已收口；新增桥接/merge 回归，`lint`、`typecheck`、`test:coverage`、`build`、`check:rust` 通过。

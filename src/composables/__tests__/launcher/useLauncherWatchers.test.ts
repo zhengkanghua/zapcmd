@@ -110,6 +110,28 @@ describe("useLauncherWatchers", () => {
     harness.scope.stop();
   });
 
+  it("resets result list view state when filtered result identity changes with the same length", async () => {
+    const harness = createHarness();
+
+    harness.state.filteredResults.value = [{ id: "alpha" }, { id: "beta" }];
+    await flushWatchers();
+
+    harness.state.resultButtons.value = [document.createElement("button")];
+    harness.state.activeIndex.value = 1;
+    harness.state.drawerRef.value!.scrollTop = 48;
+    harness.spies.ensureActiveResultVisible.mockClear();
+
+    harness.state.filteredResults.value = [{ id: "gamma" }, { id: "delta" }];
+    await flushWatchers();
+
+    expect(harness.state.resultButtons.value).toEqual([]);
+    expect(harness.state.activeIndex.value).toBe(0);
+    expect(harness.state.drawerRef.value?.scrollTop).toBe(0);
+    expect(harness.spies.ensureActiveResultVisible).toHaveBeenCalled();
+
+    harness.scope.stop();
+  });
+
   it("focuses first param input when pending command appears", async () => {
     const harness = createHarness();
 

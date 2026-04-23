@@ -9,7 +9,6 @@ import {
 } from "../../../features/launcher/stagedCommands";
 import { cleanExpiredDismissals } from "../../../features/security/dangerDismiss";
 import { isTypingElement, useMainWindowShell } from "../../launcher/useMainWindowShell";
-import { useAppLifecycleBridge } from "../useAppLifecycleBridge";
 import { useAppWindowKeydown } from "../useAppWindowKeydown";
 import {
   STAGING_TRANSITION_MS,
@@ -27,19 +26,16 @@ import { useLauncherNavStack } from "../../launcher/useLauncherNavStack";
 import { useCommandQueue } from "../../launcher/useCommandQueue";
 import type { StagedCommand } from "../../../features/launcher/types";
 import { useWindowSizing } from "../../launcher/useWindowSizing";
-import type { createAppCompositionContext } from "./context";
-import { SETTINGS_STORAGE_KEYS } from "./constants";
+import type { LauncherRuntimeContext } from "./launcherContext";
 import {
-  evaluateSettingsWindowOpenPolicy,
-  evaluateStartupUpdateFeedbackPolicy,
-  evaluateStartupUpdatePolicy
-} from "./policies";
+  bindLifecycleBridge,
+  createWindowSizingSettleNotifiers
+} from "./launcherRuntimeBindings";
 
-type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 type LauncherRuntime = ReturnType<typeof createLauncherRuntime>;
 
 function restoreLauncherSessionCommands(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   commands: PersistedLauncherSessionCommand[]
 ): StagedCommand[] {
   // 只有在 catalog ready 之后才恢复，并按当前模板重建队列项；找不到模板时保留为 stale 条目并阻断执行。
@@ -55,7 +51,7 @@ function restoreLauncherSessionCommands(
   );
 }
 
-function createLauncherRuntime(context: AppCompositionContext) {
+function createLauncherRuntime(context: LauncherRuntimeContext) {
   const prepareDrawerRevealRef = {
     value: async () => {}
   };
@@ -175,105 +171,8 @@ function createLauncherRuntime(context: AppCompositionContext) {
   };
 }
 
-function createOnMainReady(context: AppCompositionContext, launcherRuntime: LauncherRuntime) {
-  return () => {
-    const startupPolicy = evaluateStartupUpdatePolicy({
-      isTauriRuntime: context.ports.isTauriRuntime(),
-      autoCheckUpdateEnabled: context.autoCheckUpdate.value
-    });
-    if (!startupPolicy.shouldCheck) {
-      return;
-    }
-
-    void context.ports
-      .checkStartupUpdate({
-        enabled: startupPolicy.enabled,
-        storage: context.ports.getLocalStorage()
-      })
-      .then((updateResult) => {
-        const feedbackPolicy = evaluateStartupUpdateFeedbackPolicy(updateResult);
-        if (!feedbackPolicy.shouldNotify) {
-          return;
-        }
-        launcherRuntime.commandExecution.setExecutionFeedback(
-          "neutral",
-          t("settings.about.updateAvailable", { version: feedbackPolicy.version })
-        );
-      })
-      .catch((error) => {
-        context.ports.logError("startup update check failed", error);
-      });
-  };
-}
-
-function createOnSettingsReady(context: AppCompositionContext) {
-  return () => {
-    const openPolicy = evaluateSettingsWindowOpenPolicy({
-      isTauriRuntime: context.ports.isTauriRuntime()
-    });
-    if (!openPolicy.shouldOpen) {
-      return;
-    }
-    context.ports.invoke("open_settings_window").catch((error) => {
-      context.ports.logError("open_settings_window invoke failed", {
-        windowLabel: context.currentWindowLabel.value,
-        error
-      });
-    });
-  };
-}
-
-function bindLifecycleBridge(
-  context: AppCompositionContext,
-  launcherRuntime: LauncherRuntime,
-  windowSizing: ReturnType<typeof useWindowSizing>,
-  onWindowKeydown: (event: KeyboardEvent) => void
-): void {
-  useAppLifecycleBridge({
-    runtime: {
-      isSettingsWindow: context.isSettingsWindow,
-      isTauriRuntime: context.ports.isTauriRuntime,
-      resolveAppWindow: context.resolveAppWindow,
-      currentWindowLabel: context.currentWindowLabel,
-      settingsSyncChannel: context.settingsSyncChannel,
-      settingsStorageKeys: SETTINGS_STORAGE_KEYS
-    },
-    settingsWindow: context.settingsWindow,
-    windowSizing,
-    queue: launcherRuntime.stagingQueue,
-    stagedFeedback: context.stagedFeedback,
-    execution: launcherRuntime.commandExecution,
-    onWindowKeydown,
-    readLauncherHotkey: context.ports.readLauncherHotkey,
-    launcherHotkey: context.hotkeyBindings.launcherHotkey,
-    scheduleSearchInputFocus: context.scheduleSearchInputFocus,
-    onMainReady: createOnMainReady(context, launcherRuntime),
-    onSettingsReady: createOnSettingsReady(context)
-  });
-}
-
-function createWindowSizingSettleNotifiers(windowSizing: ReturnType<typeof useWindowSizing>) {
-  return {
-    notifySearchPageSettled(): void {
-      windowSizing.notifySearchPageSettled();
-    },
-    notifyCommandPageSettled(): void {
-      windowSizing.notifyCommandPageSettled();
-    },
-    notifyFlowPanelHeightChange(): void {
-      windowSizing.notifyFlowPanelHeightChange();
-    },
-    notifyFlowPanelPrepared(): void {
-      windowSizing.notifyFlowPanelPrepared();
-    },
-    notifyFlowPanelSettled(): void {
-      windowSizing.notifyFlowPanelSettled();
-    }
-  };
-}
-
 function createWindowSizingOptions(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   launcherRuntime: LauncherRuntime,
   panelHeightSession: ReturnType<typeof createPanelHeightSession>
 ): Parameters<typeof useWindowSizing>[0] {
@@ -308,7 +207,7 @@ function createWindowSizingOptions(
 }
 
 function createWindowKeydownOptions(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   launcherRuntime: LauncherRuntime,
   handleMainEscape: () => void,
   closeSettingsWindow: () => void,
@@ -355,7 +254,7 @@ function createWindowKeydownOptions(
 }
 
 function bindAppRuntime(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   launcherRuntime: LauncherRuntime
 ) {
   const panelHeightSession = createPanelHeightSession();
@@ -457,7 +356,7 @@ function bindAppRuntime(
   };
 }
 
-export function createAppCompositionRuntime(context: AppCompositionContext) {
+export function createAppCompositionRuntime(context: LauncherRuntimeContext) {
   const launcherRuntime = createLauncherRuntime(context);
   const appRuntime = bindAppRuntime(context, launcherRuntime);
 

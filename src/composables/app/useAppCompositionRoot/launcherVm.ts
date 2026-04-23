@@ -1,12 +1,11 @@
 import { computed, proxyRefs } from "vue";
-import type { createAppCompositionContext } from "./context";
+import type { LauncherRuntimeContext } from "./launcherContext";
 import type { createAppCompositionRuntime } from "./runtime";
 
-type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 type AppCompositionRuntime = ReturnType<typeof createAppCompositionRuntime>;
 
 function createSearchVm(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   runtime: AppCompositionRuntime
 ) {
   return proxyRefs({
@@ -25,7 +24,7 @@ function createSearchVm(
 }
 
 function createCommandVm(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   runtime: AppCompositionRuntime
 ) {
   return proxyRefs({
@@ -43,7 +42,7 @@ function createCommandVm(
 }
 
 function createQueueVm(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   runtime: AppCompositionRuntime
 ) {
   return proxyRefs({
@@ -70,7 +69,7 @@ function createNavVm(runtime: AppCompositionRuntime) {
   });
 }
 
-function createDomVm(context: AppCompositionContext) {
+function createDomVm(context: LauncherRuntimeContext) {
   return {
     setSearchShellRef: context.domBridge.setSearchShellRef,
     setSearchInputRef: context.domBridge.setSearchInputRef,
@@ -83,7 +82,7 @@ function createDomVm(context: AppCompositionContext) {
 }
 
 function createActionVm(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   runtime: AppCompositionRuntime
 ) {
   function submitParamInput(): boolean {
@@ -147,7 +146,7 @@ function createActionVm(
 }
 
 export function createLauncherVm(
-  context: AppCompositionContext,
+  context: LauncherRuntimeContext,
   runtime: AppCompositionRuntime
 ) {
   return {

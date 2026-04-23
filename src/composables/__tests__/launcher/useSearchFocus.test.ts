@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { effectScope, ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useSearchFocus } from "../../launcher/useSearchFocus";
 
@@ -75,5 +75,38 @@ describe("useSearchFocus", () => {
     expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
     expect(selectSpy).toHaveBeenCalledTimes(1);
   });
-});
 
+  it("cancels pending scheduled focus when scope is disposed", () => {
+    const callbacks: FrameRequestCallback[] = [];
+    const cancelFrame = vi.fn();
+    const requestFrame = vi.fn((callback: FrameRequestCallback) => {
+      callbacks.push(callback);
+      return callbacks.length;
+    });
+
+    const inputRef = ref<HTMLInputElement | null>(null);
+    const input = document.createElement("input");
+    const focusSpy = vi.spyOn(input, "focus");
+
+    const scope = effectScope();
+    scope.run(() => {
+      const focus = useSearchFocus({
+        searchInputRef: inputRef,
+        shouldBlockFocus: () => false,
+        requestFrame: requestFrame as unknown as (callback: FrameRequestCallback) => number,
+        cancelFrame
+      });
+
+      focus.scheduleSearchInputFocus(false);
+    });
+
+    expect(requestFrame).toHaveBeenCalledTimes(1);
+
+    scope.stop();
+    inputRef.value = input;
+    callbacks.shift()?.(0);
+
+    expect(cancelFrame).toHaveBeenCalledWith(1);
+    expect(focusSpy).not.toHaveBeenCalled();
+  });
+});

@@ -34,7 +34,7 @@ function bindLayoutWatchers(options: UseLauncherWatchersOptions): void {
 
 function bindResultWatcher(options: UseLauncherWatchersOptions): void {
   watch(
-    () => options.filteredResults.value.length,
+    () => options.filteredResults.value,
     () => {
       options.resultButtons.value = [];
       options.activeIndex.value = 0;
