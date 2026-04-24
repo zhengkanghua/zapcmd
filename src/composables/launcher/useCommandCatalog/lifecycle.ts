@@ -1,6 +1,4 @@
-import { onMounted, watch, type Ref } from "vue";
-import type { CommandLoadIssue } from "../../../features/commands/runtimeLoader";
-import type { CommandTemplate } from "../../../features/commands/types";
+import { onMounted, watch } from "vue";
 import { setAppLocale } from "../../../i18n";
 import type { UseCommandCatalogOptions } from "./types";
 
@@ -36,30 +34,12 @@ function bindCatalogWatchers(params: {
 
 function bindCatalogMountedHook(params: {
   options: UseCommandCatalogOptions;
-  loadBuiltinTemplatesAndSource: () => void;
-  userTemplates: Ref<CommandTemplate[]>;
-  userCommandSourceById: Ref<Record<string, string>>;
-  loadIssues: Ref<CommandLoadIssue[]>;
-  applyMergedTemplates: () => void;
   refreshUserCommands: () => Promise<void>;
 }) {
-  const {
-    options,
-    loadBuiltinTemplatesAndSource,
-    userTemplates,
-    userCommandSourceById,
-    loadIssues,
-    applyMergedTemplates,
-    refreshUserCommands
-  } = params;
+  const { options, refreshUserCommands } = params;
 
   onMounted(async () => {
     if (!options.isTauriRuntime()) {
-      loadBuiltinTemplatesAndSource();
-      userTemplates.value = [];
-      userCommandSourceById.value = {};
-      loadIssues.value = [];
-      applyMergedTemplates();
       return;
     }
 
@@ -70,9 +50,6 @@ function bindCatalogMountedHook(params: {
 export function bindCommandCatalogLifecycle(params: {
   options: UseCommandCatalogOptions;
   loadBuiltinTemplatesAndSource: () => void;
-  userTemplates: Ref<CommandTemplate[]>;
-  userCommandSourceById: Ref<Record<string, string>>;
-  loadIssues: Ref<CommandLoadIssue[]>;
   applyMergedTemplates: () => void;
   refreshUserCommands: () => Promise<void>;
   remapFromCacheIfPrimed: () => Promise<boolean>;

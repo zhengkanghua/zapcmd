@@ -72,6 +72,9 @@ export interface LoadTemplatesResult {
   sourceByCommandId: Record<string, string>;
 }
 
+let builtinPayloadEntriesCache: RuntimePayloadEntry[] | null = null;
+let builtinPayloadBuildCount = 0;
+
 export function loadCommandTemplatesFromPayloadEntries(
   entries: RuntimePayloadEntry[],
   options: LoadOptions = {}
@@ -149,15 +152,28 @@ export function loadBuiltinCommandTemplates(options: LoadOptions = {}): CommandT
   return loadBuiltinCommandTemplatesWithReport(options).templates;
 }
 
-export function loadBuiltinCommandTemplatesWithReport(options: LoadOptions = {}): LoadTemplatesResult {
-  const entries = Object.entries(builtinModules)
+export function loadBuiltinCommandPayloadEntries(): RuntimePayloadEntry[] {
+  if (builtinPayloadEntriesCache) {
+    return builtinPayloadEntriesCache;
+  }
+
+  builtinPayloadBuildCount += 1;
+  builtinPayloadEntriesCache = Object.entries(builtinModules)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([filePath, module]) => ({
       sourceId: filePath,
       payload: module.default
     }));
 
-  return loadCommandTemplatesFromPayloadEntries(entries, options);
+  return builtinPayloadEntriesCache;
+}
+
+export function loadBuiltinCommandTemplatesWithReport(options: LoadOptions = {}): LoadTemplatesResult {
+  return loadCommandTemplatesFromPayloadEntries(loadBuiltinCommandPayloadEntries(), options);
+}
+
+export function getBuiltinCommandPayloadBuildCountForTest(): number {
+  return builtinPayloadBuildCount;
 }
 
 export function loadUserCommandTemplates(

@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createReadFailedIssue,
+  getBuiltinCommandPayloadBuildCountForTest,
   loadCommandTemplatesFromPayloadEntries,
   loadBuiltinCommandTemplates,
+  loadBuiltinCommandPayloadEntries,
   loadBuiltinCommandTemplatesWithReport,
   loadUserCommandTemplatesWithReport
 } from "../runtimeLoader";
@@ -51,6 +53,18 @@ describe("runtimeLoader", () => {
       "C:/Users/test/.zapcmd/commands/cached.json"
     );
     expect(loaded.issues).toHaveLength(0);
+  });
+
+  it("reuses builtin payload entry cache across repeated reads", () => {
+    const before = getBuiltinCommandPayloadBuildCountForTest();
+
+    const first = loadBuiltinCommandPayloadEntries();
+    const afterFirst = getBuiltinCommandPayloadBuildCountForTest();
+    const second = loadBuiltinCommandPayloadEntries();
+
+    expect(second).toBe(first);
+    expect(afterFirst === before || afterFirst === before + 1).toBe(true);
+    expect(getBuiltinCommandPayloadBuildCountForTest()).toBe(afterFirst);
   });
 
   it("loads command templates for current platform", () => {

@@ -145,9 +145,6 @@ export function useCommandCatalog(
   bindCommandCatalogLifecycle({
     options,
     loadBuiltinTemplatesAndSource,
-    userTemplates: state.userTemplates,
-    userCommandSourceById: state.userCommandSourceById,
-    loadIssues: state.loadIssues,
     applyMergedTemplates,
     refreshUserCommands,
     remapFromCacheIfPrimed

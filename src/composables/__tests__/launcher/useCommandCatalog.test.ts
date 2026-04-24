@@ -1,9 +1,10 @@
 import { defineComponent, nextTick, ref } from "vue";
 import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useCommandCatalog } from "../../launcher/useCommandCatalog";
 import type { CommandTemplate } from "../../../features/commands/types";
 import { setAppLocale } from "../../../i18n";
+import * as runtimeLoader from "../../../features/commands/runtimeLoader";
 
 async function waitForCondition(
   predicate: () => boolean,
@@ -35,6 +36,10 @@ function createScanResult(entries: Array<{ path: string; modifiedMs: number; siz
 }
 
 describe("useCommandCatalog", () => {
+  beforeEach(() => {
+    setAppLocale("zh-CN");
+  });
+
   it("keeps builtin templates when not running in tauri", async () => {
     const scanUserCommandFiles = vi.fn(async () => createScanResult([]));
     const readUserCommandFile = vi.fn();
@@ -88,6 +93,30 @@ describe("useCommandCatalog", () => {
     expect(getIssues()[0]?.reason).toContain("ports are not configured");
 
     wrapper.unmount();
+  });
+
+  it("does not reload builtin payload twice during non-tauri startup", async () => {
+    const builtinSpy = vi.spyOn(runtimeLoader, "loadBuiltinCommandTemplatesWithReport");
+
+    try {
+      const Harness = defineComponent({
+        setup() {
+          useCommandCatalog({
+            isTauriRuntime: () => false
+          });
+          return () => null;
+        }
+      });
+
+      const wrapper = mount(Harness);
+      await nextTick();
+
+      expect(builtinSpy).toHaveBeenCalledTimes(1);
+
+      wrapper.unmount();
+    } finally {
+      builtinSpy.mockRestore();
+    }
   });
 
   it("loads user command files once on startup and merges with builtin templates", async () => {
@@ -746,5 +775,36 @@ describe("useCommandCatalog", () => {
 
     wrapper.unmount();
     setAppLocale("zh-CN");
+  });
+
+  it("remaps builtin locale without rebuilding builtin payload on every switch", async () => {
+    setAppLocale("zh-CN");
+    const locale = ref<"zh-CN" | "en-US">("zh-CN");
+
+    try {
+      const Harness = defineComponent({
+        setup() {
+          useCommandCatalog({
+            isTauriRuntime: () => false,
+            locale
+          });
+          return () => null;
+        }
+      });
+
+      const wrapper = mount(Harness);
+      await nextTick();
+      const mountedBuildCount = runtimeLoader.getBuiltinCommandPayloadBuildCountForTest();
+
+      locale.value = "en-US";
+      await nextTick();
+      await Promise.resolve();
+
+      expect(runtimeLoader.getBuiltinCommandPayloadBuildCountForTest()).toBe(mountedBuildCount);
+
+      wrapper.unmount();
+    } finally {
+      setAppLocale("zh-CN");
+    }
   });
 });
