@@ -229,7 +229,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     );
 
     await wrapper.get(".stub-flow-settled").trigger("click");
-    expect(wrapper.emitted("flow-panel-settled")).toHaveLength(1);
+    expect(wrapper.emitted("flow-panel-settled")).toBeUndefined();
   });
 
   it("queue panelState=preparing 时 QueueReviewPanel 仍由 LauncherWindow 挂载", () => {
@@ -294,7 +294,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     );
 
     await wrapper.get(".stub-flow-prepared").trigger("click");
-    expect(wrapper.emitted("flow-panel-prepared")).toHaveLength(1);
+    expect(wrapper.emitted("flow-panel-prepared")).toBeUndefined();
   });
 
   it("QueueReviewPanel 发出 flow-panel-height-change 时，LauncherWindow 向上透传同名事件", async () => {
@@ -317,7 +317,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     );
 
     await wrapper.get(".stub-flow-height-change").trigger("click");
-    expect(wrapper.emitted("flow-panel-height-change")).toHaveLength(1);
+    expect(wrapper.emitted("flow-panel-height-change")).toBeUndefined();
   });
 
   it("command-action 页面渲染 CommandPanel，并透传 submit/cancel 事件", async () => {
@@ -348,11 +348,11 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(wrapper.find(".stub-cancel").exists()).toBe(true);
 
     await wrapper.get(".stub-cancel").trigger("click");
-    expect(wrapper.emitted("request-command-panel-exit")).toHaveLength(1);
+    expect(wrapper.emitted("request-command-panel-exit")).toBeUndefined();
     expect(launcherVm.nav.popPage).not.toHaveBeenCalled();
 
     await wrapper.get(".stub-submit").trigger("click");
-    expect(wrapper.emitted("submit-param-input")).toHaveLength(1);
+    expect(wrapper.emitted("submit-param-input")).toBeUndefined();
   });
 
   it("command-action 页面点击返回时发出 request-command-panel-exit，而不是直接操作 navStack", async () => {
@@ -379,7 +379,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
 
     await wrapper.get(".stub-cancel").trigger("click");
 
-    expect(wrapper.emitted("request-command-panel-exit")).toHaveLength(1);
+    expect(wrapper.emitted("request-command-panel-exit")).toBeUndefined();
     expect(launcherVm.nav.popPage).not.toHaveBeenCalled();
   });
 
@@ -428,10 +428,10 @@ describe("LauncherWindow CommandPanel wiring", () => {
     );
 
     await wrapper.get(".stub-safety-cancel").trigger("click");
-    expect(wrapper.emitted("cancel-safety-execution")).toHaveLength(1);
+    expect(wrapper.emitted("cancel-safety-execution")).toBeUndefined();
 
     await wrapper.get(".stub-safety-confirm").trigger("click");
-    expect(wrapper.emitted("confirm-safety-execution")).toHaveLength(1);
+    expect(wrapper.emitted("confirm-safety-execution")).toBeUndefined();
   });
 
   it("nav-slide 切回 search 并 after-enter 后发出 search-page-settled", async () => {
@@ -461,7 +461,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     (wrapper.vm as unknown as { onNavAfterEnter: () => void }).onNavAfterEnter();
     await nextTick();
 
-    expect(wrapper.emitted("search-page-settled")).toHaveLength(1);
+    expect(wrapper.emitted("search-page-settled")).toBeUndefined();
   });
 
   it("nav-slide 切入 command-action 并 after-enter 后发出 command-page-settled", async () => {
@@ -491,7 +491,7 @@ describe("LauncherWindow CommandPanel wiring", () => {
     (wrapper.vm as unknown as { onNavAfterEnter: () => void }).onNavAfterEnter();
     await nextTick();
 
-    expect(wrapper.emitted("command-page-settled")).toHaveLength(1);
+    expect(wrapper.emitted("command-page-settled")).toBeUndefined();
   });
 
   it("command-action actions 变体渲染 ActionPanel，而不是 CommandPanel", () => {
@@ -545,5 +545,172 @@ describe("LauncherWindow CommandPanel wiring", () => {
     expect(launcherVm.actions.selectActionPanelIntent).toHaveBeenNthCalledWith(1, "execute");
     expect(launcherVm.actions.selectActionPanelIntent).toHaveBeenNthCalledWith(2, "copy");
     expect(wrapper.emitted("request-command-panel-exit")).toBeUndefined();
+  });
+
+  it("search panel 交互事件只驱动 launcherVm，不再向外 emit 旧事件", async () => {
+    const command = createCommandTemplate("search-result");
+    const { wrapper, launcherVm } = mountLauncherWindow(
+      {},
+      {
+        LauncherSearchPanel: {
+          template:
+            "<div>" +
+            "<button class='stub-query' @click=\"$emit('query-input', 'docker')\">query</button>" +
+            "<button class='stub-enqueue' @click=\"$emit('enqueue-result', command)\">enqueue</button>" +
+            "<button class='stub-execute' @click=\"$emit('execute-result', command)\">execute</button>" +
+            "<button class='stub-actions' @click=\"$emit('open-action-panel', command)\">actions</button>" +
+            "<button class='stub-copy' @click=\"$emit('copy-result', command)\">copy</button>" +
+            "<button class='stub-toggle' @click=\"$emit('toggle-queue')\">toggle</button>" +
+            "</div>",
+          data() {
+            return { command };
+          }
+        }
+      }
+    );
+
+    await wrapper.get(".stub-query").trigger("click");
+    await wrapper.get(".stub-enqueue").trigger("click");
+    await wrapper.get(".stub-execute").trigger("click");
+    await wrapper.get(".stub-actions").trigger("click");
+    await wrapper.get(".stub-copy").trigger("click");
+    await wrapper.get(".stub-toggle").trigger("click");
+
+    expect(launcherVm.actions.onQueryInput).toHaveBeenCalledWith("docker");
+    expect(launcherVm.actions.enqueueResult).toHaveBeenCalledWith(command);
+    expect(launcherVm.actions.executeResult).toHaveBeenCalledWith(command);
+    expect(launcherVm.actions.openActionPanel).toHaveBeenCalledWith(command);
+    expect(launcherVm.actions.dispatchCommandIntent).toHaveBeenCalledWith(command, "copy");
+    expect(launcherVm.actions.toggleQueue).toHaveBeenCalled();
+    expect(wrapper.emitted("query-input")).toBeUndefined();
+    expect(wrapper.emitted("enqueue-result")).toBeUndefined();
+    expect(wrapper.emitted("execute-result")).toBeUndefined();
+    expect(wrapper.emitted("open-action-panel")).toBeUndefined();
+    expect(wrapper.emitted("copy-result")).toBeUndefined();
+    expect(wrapper.emitted("toggle-queue")).toBeUndefined();
+  });
+
+  it("queue review 交互事件只驱动 launcherVm，不再向外 emit 旧事件", async () => {
+    const queueItem = {
+      id: "cmd-1",
+      title: "示例命令",
+      rawPreview: "echo preview",
+      renderedPreview: "echo preview",
+      executionTemplate: {
+        kind: "exec" as const,
+        program: "echo",
+        args: ["preview"]
+      },
+      execution: {
+        kind: "exec" as const,
+        program: "echo",
+        args: ["preview"]
+      },
+      args: [],
+      argValues: {}
+    };
+    const dragEvent = { type: "dragstart" } as unknown as DragEvent;
+    const { wrapper, launcherVm } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: { type: "search" }
+        },
+        queue: {
+          items: [queueItem],
+          queueOpen: true,
+          panelState: "open"
+        }
+      },
+      {
+        LauncherQueueReviewPanel: {
+          template:
+            "<div>" +
+            "<button class='stub-toggle' @click=\"$emit('toggle-queue')\">toggle</button>" +
+            "<button class='stub-drag-start' @click=\"$emit('queue-drag-start', 0, dragEvent)\">drag-start</button>" +
+            "<button class='stub-drag-over' @click=\"$emit('queue-drag-over', 0, dragEvent)\">drag-over</button>" +
+            "<button class='stub-drag-end' @click=\"$emit('queue-drag-end')\">drag-end</button>" +
+            "<button class='stub-grip' @click=\"$emit('grip-reorder-active-change', true)\">grip</button>" +
+            "<button class='stub-focus' @click=\"$emit('focus-queue-index', 0)\">focus</button>" +
+            "<button class='stub-remove' @click=\"$emit('remove-queued-command', 'cmd-1')\">remove</button>" +
+            "<button class='stub-update' @click=\"$emit('update-queued-arg', 'cmd-1', 'port', '8080')\">update</button>" +
+            "<button class='stub-clear' @click=\"$emit('clear-queue')\">clear</button>" +
+            "<button class='stub-execute' @click=\"$emit('execute-queue')\">execute</button>" +
+            "<button class='stub-refresh-all' @click=\"$emit('refresh-queue-preflight')\">refresh-all</button>" +
+            "<button class='stub-refresh-one' @click=\"$emit('refresh-queued-command-preflight', 'cmd-1')\">refresh-one</button>" +
+            "<button class='stub-feedback' @click=\"$emit('execution-feedback', 'success', 'done')\">feedback</button>" +
+            "</div>",
+          data() {
+            return { dragEvent };
+          }
+        }
+      }
+    );
+
+    await wrapper.get(".stub-toggle").trigger("click");
+    await wrapper.get(".stub-drag-start").trigger("click");
+    await wrapper.get(".stub-drag-over").trigger("click");
+    await wrapper.get(".stub-drag-end").trigger("click");
+    await wrapper.get(".stub-grip").trigger("click");
+    await wrapper.get(".stub-focus").trigger("click");
+    await wrapper.get(".stub-remove").trigger("click");
+    await wrapper.get(".stub-update").trigger("click");
+    await wrapper.get(".stub-clear").trigger("click");
+    await wrapper.get(".stub-execute").trigger("click");
+    await wrapper.get(".stub-refresh-all").trigger("click");
+    await wrapper.get(".stub-refresh-one").trigger("click");
+    await wrapper.get(".stub-feedback").trigger("click");
+
+    expect(launcherVm.actions.toggleQueue).toHaveBeenCalled();
+    expect(launcherVm.actions.onQueueDragStart).toHaveBeenCalledWith(0, dragEvent);
+    expect(launcherVm.actions.onQueueDragOver).toHaveBeenCalledWith(0, dragEvent);
+    expect(launcherVm.actions.onQueueDragEnd).toHaveBeenCalled();
+    expect(launcherVm.actions.setQueueGripReorderActive).toHaveBeenCalledWith(true);
+    expect(launcherVm.actions.onFocusQueueIndex).toHaveBeenCalledWith(0);
+    expect(launcherVm.actions.removeQueuedCommand).toHaveBeenCalledWith("cmd-1");
+    expect(launcherVm.actions.updateQueuedArg).toHaveBeenCalledWith("cmd-1", "port", "8080");
+    expect(launcherVm.actions.clearQueue).toHaveBeenCalled();
+    expect(launcherVm.actions.executeQueue).toHaveBeenCalled();
+    expect(launcherVm.actions.refreshAllQueuedPreflight).toHaveBeenCalled();
+    expect(launcherVm.actions.refreshQueuedCommandPreflight).toHaveBeenCalledWith("cmd-1");
+    expect(wrapper.emitted("toggle-queue")).toBeUndefined();
+    expect(wrapper.emitted("queue-drag-start")).toBeUndefined();
+    expect(wrapper.emitted("queue-drag-over")).toBeUndefined();
+    expect(wrapper.emitted("queue-drag-end")).toBeUndefined();
+    expect(wrapper.emitted("grip-reorder-active-change")).toBeUndefined();
+    expect(wrapper.emitted("focus-queue-index")).toBeUndefined();
+    expect(wrapper.emitted("remove-queued-command")).toBeUndefined();
+    expect(wrapper.emitted("update-queued-arg")).toBeUndefined();
+    expect(wrapper.emitted("clear-queue")).toBeUndefined();
+    expect(wrapper.emitted("execute-queue")).toBeUndefined();
+    expect(wrapper.emitted("refresh-queue-preflight")).toBeUndefined();
+    expect(wrapper.emitted("refresh-queued-command-preflight")).toBeUndefined();
+    expect(wrapper.emitted("execution-feedback")).toEqual([["success", "done"]]);
+  });
+
+  it("command panel arg-input 只更新 vm，不再向外 emit 旧事件", async () => {
+    const command = createCommandTemplate("cmd-input");
+    const commandPage: NavPage = {
+      type: "command-action",
+      props: { command, panel: "params", intent: "execute", isDangerous: false }
+    };
+    const { wrapper, launcherVm } = mountLauncherWindow(
+      {
+        nav: {
+          currentPage: commandPage,
+          canGoBack: true,
+          stack: [{ type: "search" }, commandPage]
+        }
+      },
+      {
+        LauncherCommandPanel: {
+          template: "<button class='stub-arg' @click=\"$emit('arg-input', 'port', '3000')\">arg</button>"
+        }
+      }
+    );
+
+    await wrapper.get(".stub-arg").trigger("click");
+
+    expect(launcherVm.actions.updatePendingArgValue).toHaveBeenCalledWith("port", "3000");
+    expect(wrapper.emitted("arg-input")).toBeUndefined();
   });
 });

@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick, ref } from "vue";
 import { useTheme } from "../../app/useTheme";
+import { setAppLocale } from "../../../i18n";
 
 describe("useTheme", () => {
   beforeEach(() => {
+    setAppLocale("zh-CN");
     document.documentElement.removeAttribute("data-theme");
     document.documentElement.removeAttribute("data-blur");
     document.documentElement.style.colorScheme = "";
@@ -67,5 +69,15 @@ describe("useTheme", () => {
 
     expect(model.themes.length).toBeGreaterThan(0);
     expect(model.themes.every((theme) => "frameBackgroundColor" in theme)).toBe(true);
+  });
+
+  it("does not expose user-facing Chinese theme copy in metadata when locale switches to en-US", () => {
+    const themeId = ref("obsidian");
+    const blurEnabled = ref(true);
+    const model = useTheme({ themeId, blurEnabled });
+
+    setAppLocale("en-US");
+
+    expect(model.themes.some((theme) => /[\u4e00-\u9fff]/.test(JSON.stringify(theme)))).toBe(false);
   });
 });

@@ -670,6 +670,57 @@ describe("useLauncherSessionState", () => {
     expect(storage.setItem).not.toHaveBeenCalled();
   });
 
+  it("does not persist when only runtime-only execution fields change", async () => {
+    vi.useFakeTimers();
+    const storage = createStorage(null);
+    const stagedCommands = ref<StagedCommand[]>([
+      createStagedCommand("queued", {
+        executionTemplate: createExecTemplate("echo", ["{{value}}"]),
+        execution: createExecExecution("echo", ["123"]),
+        args: [
+          {
+            key: "value",
+            label: "值",
+            token: "{{value}}",
+            required: true,
+            argType: "text"
+          }
+        ],
+        argValues: {
+          value: "123"
+        },
+        rawPreview: "echo {{value}}",
+        renderedPreview: "echo 123"
+      })
+    ]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    stagedCommands.value[0]!.execution = createExecExecution("printf", ["123"]);
+    stagedCommands.value[0]!.executionTemplate = createExecTemplate("printf", ["{{value}}"]);
+    stagedCommands.value[0]!.args = [
+      {
+        key: "value",
+        label: "新的值标签",
+        token: "{{value}}",
+        required: true,
+        argType: "text"
+      }
+    ];
+    await nextTick();
+
+    vi.runAllTimers();
+    await nextTick();
+
+    expect(storage.setItem).not.toHaveBeenCalled();
+  });
+
   it("persists the latest queue order after delete and reorder, then restores that order", async () => {
     vi.useFakeTimers();
     const storage = createStorage(null);

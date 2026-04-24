@@ -1,11 +1,16 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { MOTION_PRESET_REGISTRY } from "../../../../features/motion/motionRegistry";
 import { THEME_REGISTRY } from "../../../../features/themes/themeRegistry";
+import { setAppLocale } from "../../../../i18n";
 import SettingsAppearanceSection from "../SettingsAppearanceSection.vue";
 
 describe("SettingsAppearanceSection layout", () => {
+  beforeEach(() => {
+    setAppLocale("zh-CN");
+  });
+
   it("renders theme, motion, effects and preview cards", () => {
     const wrapper = mount(SettingsAppearanceSection, {
       props: {
@@ -108,5 +113,27 @@ describe("SettingsAppearanceSection layout", () => {
     expect(wrapper.text()).toContain("动画风格");
     expect(wrapper.text()).toContain("当前默认");
     expect(wrapper.text()).toContain("更稳");
+  });
+
+  it("renders English theme and motion copy when locale is en-US", () => {
+    setAppLocale("en-US");
+
+    const wrapper = mount(SettingsAppearanceSection, {
+      props: {
+        windowOpacity: 0.96,
+        theme: "linen",
+        blurEnabled: true,
+        motionPreset: "steady-tool",
+        themes: THEME_REGISTRY,
+        motionPresets: MOTION_PRESET_REGISTRY
+      }
+    });
+
+    expect(wrapper.text()).toContain("Linen");
+    expect(wrapper.text()).toContain("Steady Tool");
+    expect(wrapper.text()).not.toContain("亚麻纸");
+    expect(wrapper.text()).not.toContain("更稳");
+
+    setAppLocale("zh-CN");
   });
 });

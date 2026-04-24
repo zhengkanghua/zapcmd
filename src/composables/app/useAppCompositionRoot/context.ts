@@ -4,8 +4,9 @@ import {
 } from "./ports";
 import {
   createAppWindowRuntimeState,
-  createLauncherRuntimeAssembly
+  createWindowScopedLauncherRuntime
 } from "./launcherRuntimeAssembly";
+import { createSettingsSyncBroadcaster } from "./launcherSettingsWindow";
 import { createSettingsScene } from "./settingsScene";
 
 export interface AppCompositionContextOptions {
@@ -22,20 +23,18 @@ export function createAppCompositionContext(options: AppCompositionContextOption
   });
   const commandCatalog = settingsScene.commandCatalog;
   const settingsWindow = settingsScene.settingsWindow;
-  const launcherRuntime = createLauncherRuntimeAssembly({
+  const launcherRuntime = createWindowScopedLauncherRuntime({
     ports,
+    windowRuntime,
     commandCatalog,
-    currentWindowLabel: windowRuntime.currentWindowLabel,
-    settingsSyncChannel: windowRuntime.settingsSyncChannel,
-    resolveAppWindow: windowRuntime.resolveAppWindow,
     defaultTerminal: settingsScene.defaultTerminal,
     alwaysElevatedTerminal: settingsScene.alwaysElevatedTerminal,
     terminalReusePolicy: settingsScene.terminalReusePolicy,
     availableTerminals: settingsWindow.availableTerminals,
-    persistCorrectedTerminal: () => {
-      settingsScene.settingsStore.persist();
-      windowRuntime.settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
-    }
+    persistCorrectedTerminal: createSettingsSyncBroadcaster(
+      settingsScene.settingsStore,
+      windowRuntime.settingsSyncChannel
+    )
   });
   const commandManagement = settingsScene.commandManagement;
 

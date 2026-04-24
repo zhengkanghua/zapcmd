@@ -35,6 +35,17 @@ interface CreateLauncherRuntimeAssemblyOptions {
   persistCorrectedTerminal: () => void;
 }
 
+interface CreateWindowScopedLauncherRuntimeOptions {
+  ports: AppCompositionRootPorts;
+  windowRuntime: AppWindowRuntimeState;
+  commandCatalog: UseCommandCatalogReturn;
+  defaultTerminal: Ref<string>;
+  alwaysElevatedTerminal: Ref<boolean>;
+  terminalReusePolicy: Ref<TerminalReusePolicy>;
+  availableTerminals: Ref<TerminalOption[]>;
+  persistCorrectedTerminal: () => void;
+}
+
 /**
  * 统一创建窗口级基础状态，避免 Launcher / App context 重复拼接 window label 与 resolver。
  */
@@ -43,8 +54,13 @@ export function createAppWindowRuntimeState(
   fallbackLabel = "main"
 ): AppWindowRuntimeState {
   const settingsSyncChannel = ref<BroadcastChannel | null>(null);
-  const resolveAppWindow = createAppWindowResolver(ports.getCurrentWindow);
-  const currentWindowLabel = ref(resolveAppWindow()?.label ?? fallbackLabel);
+  const isTauriRuntime = ports.isTauriRuntime();
+  const resolveAppWindow = createAppWindowResolver(ports.getCurrentWindow, {
+    suppressWarning: !isTauriRuntime
+  });
+  const currentWindowLabel = ref(
+    isTauriRuntime ? resolveAppWindow()?.label ?? fallbackLabel : fallbackLabel
+  );
   const isSettingsWindow = computed(() => currentWindowLabel.value === "settings");
 
   return {
@@ -104,4 +120,25 @@ export function createLauncherRuntimeAssembly(
     runCommandInTerminal,
     runCommandsInTerminal
   };
+}
+
+/**
+ * 基于既有 windowRuntime 统一构造 Launcher runtime，避免 context / launcher entry
+ * 分别手动转发 currentWindowLabel、settingsSyncChannel、resolveAppWindow。
+ */
+export function createWindowScopedLauncherRuntime(
+  options: CreateWindowScopedLauncherRuntimeOptions
+) {
+  return createLauncherRuntimeAssembly({
+    ports: options.ports,
+    commandCatalog: options.commandCatalog,
+    currentWindowLabel: options.windowRuntime.currentWindowLabel,
+    settingsSyncChannel: options.windowRuntime.settingsSyncChannel,
+    resolveAppWindow: options.windowRuntime.resolveAppWindow,
+    defaultTerminal: options.defaultTerminal,
+    alwaysElevatedTerminal: options.alwaysElevatedTerminal,
+    terminalReusePolicy: options.terminalReusePolicy,
+    availableTerminals: options.availableTerminals,
+    persistCorrectedTerminal: options.persistCorrectedTerminal
+  });
 }

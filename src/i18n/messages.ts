@@ -34,6 +34,12 @@ export const messages = {
       paramTitle: "填写参数",
       executeNow: "立即执行",
       stageToQueue: "加入队列",
+      actionPanel: {
+        execute: "执行",
+        stage: "加入执行流",
+        copy: "复制",
+        hint: "选择动作后继续；鼠标和键盘都遵循同一条执行路径。"
+      },
       safetyDialogAria: "高风险命令确认",
       flowAdded: "已加入队列",
       flowRemoved: "已从队列移除",
@@ -261,6 +267,14 @@ export const messages = {
         opacityHint: "调整主窗口的背景透明度，数值越小越通透。",
         opacityValue: "{value}%",
         preview: "效果预览",
+        themes: {
+          obsidian: {
+            name: "黑曜石"
+          },
+          linen: {
+            name: "亚麻纸"
+          }
+        },
         motionPresets: {
           expressive: {
             name: "Expressive",
@@ -339,9 +353,11 @@ export const messages = {
       staleCommandSnapshot: "该命令来自旧队列快照，当前定义已变化，需重新加入队列。",
       staleCommandSnapshotDetail:
         "队列中的命令“{commandId}”无法与当前命令目录对齐，已禁止直接执行。请删除后重新加入最新版本。",
+      invalidRequest: "执行请求无效",
       elevationCancelled: "已取消管理员授权，本次未执行",
       elevationLaunchFailed: "管理员终端启动失败",
       terminalLaunchFailed: "终端启动失败",
+      platformUnsupported: "当前平台暂不支持执行命令",
       queueEmpty: "队列中没有可运行命令。",
       queueSuccess: "已在同一终端顺序执行 {count} 个节点（首个：{firstCommand}）。",
       queueFailed: "运行队列失败：{reason}",
@@ -366,10 +382,13 @@ export const messages = {
       preflightProbeFailed: "执行前检查暂时失败，请重试或查看日志。",
       preflightProbeInvalidResponse: "执行前检查返回了无效结果，请重试或查看日志。",
       nextStepTerminalUnavailable: "检查并切换可用终端后重试。",
+      nextStepTerminalLaunchFailed: "请检查设置中的终端配置后重试。",
+      nextStepInvalidRequest: "请检查命令参数或终端配置后重试。",
       nextStepInvalidParams: "检查必填参数与输入格式后重试。",
       nextStepCommandConfig: "前往 Settings -> Commands 查看问题命令并修复命令模板后重试。",
       nextStepPrerequisite: "补齐缺失依赖、环境变量或前置条件后重试。",
       nextStepBlocked: "移除高风险或注入片段后重试。",
+      nextStepPlatformUnsupported: "请在桌面版 ZapCmd 支持的平台上执行该命令。",
       nextStepUnknown: "请重试；若仍失败请查看日志并反馈。",
       safetyQueueTitle: "确认运行高风险队列",
       safetyQueueDescription: "队列中有 {count} 个命令涉及高风险操作，请确认后执行。",
@@ -440,6 +459,12 @@ export const messages = {
       paramTitle: "Fill parameters",
       executeNow: "Run now",
       stageToQueue: "Add to flow",
+      actionPanel: {
+        execute: "Execute",
+        stage: "Add to flow",
+        copy: "Copy",
+        hint: "Choose an action to continue. Mouse and keyboard follow the same execution path."
+      },
       safetyDialogAria: "High-risk command confirmation",
       flowAdded: "Added to flow",
       flowRemoved: "Removed",
@@ -673,6 +698,14 @@ export const messages = {
         opacityHint: "Adjust the background opacity of the main window. Lower values are more transparent.",
         opacityValue: "{value}%",
         preview: "Preview",
+        themes: {
+          obsidian: {
+            name: "Obsidian"
+          },
+          linen: {
+            name: "Linen"
+          }
+        },
         motionPresets: {
           expressive: {
             name: "Expressive",
@@ -751,9 +784,11 @@ export const messages = {
         "This command came from an old flow snapshot and must be re-added before it can run.",
       staleCommandSnapshotDetail:
         "The queued command \"{commandId}\" no longer matches the current catalog and was blocked. Remove it and add the latest version again.",
+      invalidRequest: "Invalid execution request.",
       elevationCancelled: "Elevation was cancelled. Nothing was executed.",
       elevationLaunchFailed: "Failed to launch elevated terminal.",
       terminalLaunchFailed: "Failed to launch terminal.",
+      platformUnsupported: "Running commands is not supported on this platform.",
       queueEmpty: "No executable commands in the flow.",
       queueSuccess: "Executed {count} node(s) sequentially in the same terminal (first: {firstCommand}).",
       queueFailed: "Flow execution failed: {reason}",
@@ -783,11 +818,15 @@ export const messages = {
       preflightProbeInvalidResponse:
         "Prerequisite probing returned an invalid response. Retry or check logs.",
       nextStepTerminalUnavailable: "Check available terminals and retry.",
+      nextStepTerminalLaunchFailed: "Check the terminal configuration in Settings and retry.",
+      nextStepInvalidRequest: "Check the command arguments or terminal configuration and retry.",
       nextStepInvalidParams: "Fix required arguments or invalid input, then retry.",
       nextStepCommandConfig:
         "Open Settings -> Commands, fix the problem command template, then retry.",
       nextStepPrerequisite: "Install the missing dependency, env var, or prerequisite before retrying.",
       nextStepBlocked: "Remove risky or injection-like fragments, then retry.",
+      nextStepPlatformUnsupported:
+        "Run this command on a platform supported by the desktop ZapCmd app.",
       nextStepUnknown: "Retry once; if it still fails, check logs and report.",
       safetyQueueTitle: "Confirm high-risk flow execution",
       safetyQueueDescription:

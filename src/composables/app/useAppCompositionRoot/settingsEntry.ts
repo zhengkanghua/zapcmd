@@ -69,8 +69,11 @@ export function useSettingsEntry(options: UseSettingsEntryOptions = {}) {
   const ports = createAppCompositionRootPorts(options.ports);
   const settingsSyncChannel = ref<BroadcastChannel | null>(null);
   const isSettingsWindow = ref(true);
-  const resolveAppWindow = createAppWindowResolver(ports.getCurrentWindow);
-  const currentWindowLabel = ref(resolveAppWindow()?.label ?? "settings");
+  const isTauriRuntime = ports.isTauriRuntime();
+  const resolveAppWindow = createAppWindowResolver(ports.getCurrentWindow, {
+    suppressWarning: !isTauriRuntime
+  });
+  const currentWindowLabel = ref(isTauriRuntime ? resolveAppWindow()?.label ?? "settings" : "settings");
   const settingsScene = createSettingsScene({
     ports,
     isSettingsWindow,

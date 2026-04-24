@@ -30,6 +30,10 @@ const percentDisplay = computed(() =>
 
 const formatOpacityValue = (v: number) => `${Math.round(v * 100)}%`;
 
+function getThemeName(id: string): string {
+  return t(`settings.appearance.themes.${id}.name`);
+}
+
 function getMotionPresetName(id: string): string {
   return t(`settings.appearance.motionPresets.${id}.name`);
 }
@@ -84,7 +88,9 @@ function getMotionPresetBadge(id: string): string {
                   class="theme-card__swatch h-[24px] w-[24px] rounded-md border border-ui-border bg-ui-text"
                 />
               </div>
-              <span class="theme-card__name text-[12px] text-ui-text">{{ themeMeta.name }}</span>
+              <span class="theme-card__name text-[12px] text-ui-text">
+                {{ getThemeName(themeMeta.id) }}
+              </span>
             </button>
           </div>
         </div>

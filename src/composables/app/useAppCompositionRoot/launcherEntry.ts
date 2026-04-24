@@ -12,7 +12,7 @@ import { bindLauncherAppearanceState } from "./launcherAppearance";
 import { createLauncherRuntimeContext } from "./launcherContext";
 import {
   createAppWindowRuntimeState,
-  createLauncherRuntimeAssembly
+  createWindowScopedLauncherRuntime
 } from "./launcherRuntimeAssembly";
 import { createLauncherVm } from "./launcherVm";
 import {
@@ -65,12 +65,10 @@ export function useLauncherEntry(options: UseLauncherEntryOptions = {}) {
     terminalLoading,
     settingsSyncChannel: windowRuntime.settingsSyncChannel
   });
-  const launcherRuntime = createLauncherRuntimeAssembly({
+  const launcherRuntime = createWindowScopedLauncherRuntime({
     ports,
+    windowRuntime,
     commandCatalog,
-    currentWindowLabel: windowRuntime.currentWindowLabel,
-    settingsSyncChannel: windowRuntime.settingsSyncChannel,
-    resolveAppWindow: windowRuntime.resolveAppWindow,
     defaultTerminal: settingsRefs.defaultTerminal,
     alwaysElevatedTerminal: settingsRefs.alwaysElevatedTerminal,
     terminalReusePolicy: settingsRefs.terminalReusePolicy,

@@ -21,9 +21,9 @@ const showKeyboardSelection = ref(true);
 const panelRef = ref<HTMLElement | null>(null);
 const hasBlockingIssue = computed(() => !!props.command.blockingIssue);
 const actionLabels = computed<Record<CommandSubmitIntent, string>>(() => ({
-  execute: "执行",
-  stage: "加入执行流",
-  copy: "复制"
+  execute: t("launcher.actionPanel.execute"),
+  stage: t("launcher.actionPanel.stage"),
+  copy: t("launcher.actionPanel.copy")
 }));
 const activeVisualIndex = computed<number | null>(() =>
   hoveredIndex.value ?? (showKeyboardSelection.value ? keyboardIndex.value : null)
@@ -125,7 +125,7 @@ function onKeydown(event: KeyboardEvent): void {
         </div>
       </div>
       <p class="text-[11px] leading-[1.45] text-ui-subtle/88">
-        选择动作后继续；鼠标和键盘都遵循同一条执行路径。
+        {{ t("launcher.actionPanel.hint") }}
       </p>
       <p
         v-if="props.command.blockingIssue"

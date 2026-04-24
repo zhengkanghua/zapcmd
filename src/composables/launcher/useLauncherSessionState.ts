@@ -35,6 +35,32 @@ function createPersistedCommandIdSignature(stagedCommands: readonly StagedComman
   return stagedCommands.map((command) => command.id).join("\u0001");
 }
 
+function serializeArgValues(argValues: Record<string, string>): string {
+  const keys = Object.keys(argValues).sort();
+  if (keys.length === 0) {
+    return "";
+  }
+
+  return keys
+    .map((key) => `${key}\u0002${argValues[key] ?? ""}`)
+    .join("\u0001");
+}
+
+function createPersistedCommandValueSignature(stagedCommands: readonly StagedCommand[]): string {
+  return stagedCommands
+    .map((command) =>
+      [
+        command.id,
+        command.sourceCommandId ?? "",
+        command.title,
+        command.rawPreview,
+        command.renderedPreview,
+        serializeArgValues(command.argValues)
+      ].join("\u0001")
+    )
+    .join("\u0004");
+}
+
 function buildPersistedLauncherSessionCommands(
   stagedCommands: readonly StagedCommand[]
 ): PersistedLauncherSessionCommand[] {
@@ -173,15 +199,19 @@ function bindArgPersistenceWatcher(params: {
   clearPendingPersist: () => void;
   readSkipNextDeferredWrite: () => boolean;
   setSkipNextDeferredWrite: (value: boolean) => void;
-  scheduleArgPersist: (stagedCommands: readonly PersistedLauncherSessionCommand[]) => void;
+  scheduleArgPersist: (
+    stagedCommands: readonly PersistedLauncherSessionCommand[],
+    stagingExpanded: boolean
+  ) => void;
 }) {
   watch(
     [
-      () => buildPersistedLauncherSessionCommands(params.options.stagedCommands.value),
+      () => createPersistedCommandValueSignature(params.options.stagedCommands.value),
       params.options.enabled,
-      () => params.options.suspendPersistence?.value ?? false
+      () => params.options.suspendPersistence?.value ?? false,
+      params.options.stagingExpanded
     ],
-    ([stagedCommands, enabled, suspendPersistence]) => {
+    ([_valueSignature, enabled, suspendPersistence, stagingExpanded]) => {
       if (!enabled || params.restoring() || suspendPersistence) {
         params.clearPendingPersist();
         params.setSkipNextDeferredWrite(false);
@@ -193,9 +223,11 @@ function bindArgPersistenceWatcher(params: {
         return;
       }
 
-      params.scheduleArgPersist(stagedCommands);
-    },
-    { deep: true }
+      params.scheduleArgPersist(
+        buildPersistedLauncherSessionCommands(params.options.stagedCommands.value),
+        stagingExpanded
+      );
+    }
   );
 }
 
@@ -307,8 +339,8 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
     setSkipNextDeferredWrite: (value) => {
       skipNextDeferredWrite = value;
     },
-    scheduleArgPersist: (stagedCommands) => {
-      scheduleDeferredPersist(stagedCommands, options.stagingExpanded.value);
+    scheduleArgPersist: (stagedCommands, stagingExpanded) => {
+      scheduleDeferredPersist(stagedCommands, stagingExpanded);
     }
   });
 }

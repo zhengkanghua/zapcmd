@@ -18,33 +18,6 @@ const props = defineProps<{
 const { t } = useI18nText();
 
 const emit = defineEmits<{
-  (e: "query-input", value: string): void;
-  (e: "enqueue-result", command: CommandTemplate): void;
-  (e: "execute-result", command: CommandTemplate): void;
-  (e: "open-action-panel", command: CommandTemplate): void;
-  (e: "copy-result", command: CommandTemplate): void;
-  (e: "toggle-queue"): void;
-  (e: "queue-drag-start", index: number, event: DragEvent): void;
-  (e: "queue-drag-over", index: number, event: DragEvent): void;
-  (e: "queue-drag-end"): void;
-  (e: "grip-reorder-active-change", value: boolean): void;
-  (e: "focus-queue-index", index: number): void;
-  (e: "remove-queued-command", id: string): void;
-  (e: "update-queued-arg", id: string, key: string, value: string): void;
-  (e: "clear-queue"): void;
-  (e: "execute-queue"): void;
-  (e: "refresh-queue-preflight"): void;
-  (e: "refresh-queued-command-preflight", id: string): void;
-  (e: "submit-param-input"): void;
-  (e: "request-command-panel-exit"): void;
-  (e: "command-page-settled"): void;
-  (e: "flow-panel-prepared"): void;
-  (e: "flow-panel-height-change"): void;
-  (e: "search-page-settled"): void;
-  (e: "flow-panel-settled"): void;
-  (e: "arg-input", key: string, value: string): void;
-  (e: "confirm-safety-execution"): void;
-  (e: "cancel-safety-execution"): void;
   (e: "blank-pointerdown"): void;
   (e: "execution-feedback", tone: "neutral" | "success" | "error", message: string): void;
 }>();
@@ -73,93 +46,75 @@ function submitParamInput(): void {
 
 function onQueryInput(value: string): void {
   props.launcherVm.actions.onQueryInput(value);
-  emit("query-input", value);
 }
 
 function onEnqueueResult(command: CommandTemplate): void {
   props.launcherVm.actions.enqueueResult(command);
-  emit("enqueue-result", command);
 }
 
 function onExecuteResult(command: CommandTemplate): void {
   props.launcherVm.actions.executeResult(command);
-  emit("execute-result", command);
 }
 
 function onOpenActionPanel(command: CommandTemplate): void {
   props.launcherVm.actions.openActionPanel(command);
-  emit("open-action-panel", command);
 }
 
 function onCopyResult(command: CommandTemplate): void {
   props.launcherVm.actions.dispatchCommandIntent(command, "copy");
-  emit("copy-result", command);
 }
 
 function toggleQueue(): void {
   props.launcherVm.actions.toggleQueue();
-  emit("toggle-queue");
 }
 
 function onQueueDragStart(index: number, event: DragEvent): void {
   props.launcherVm.actions.onQueueDragStart(index, event);
-  emit("queue-drag-start", index, event);
 }
 
 function onQueueDragOver(index: number, event: DragEvent): void {
   props.launcherVm.actions.onQueueDragOver(index, event);
-  emit("queue-drag-over", index, event);
 }
 
 function onQueueDragEnd(): void {
   props.launcherVm.actions.onQueueDragEnd();
-  emit("queue-drag-end");
 }
 
 function onQueueGripReorderActiveChange(value: boolean): void {
   props.launcherVm.actions.setQueueGripReorderActive(value);
-  emit("grip-reorder-active-change", value);
 }
 
 function onFocusQueueIndex(index: number): void {
   props.launcherVm.actions.onFocusQueueIndex(index);
-  emit("focus-queue-index", index);
 }
 
 function onRemoveQueuedCommand(id: string): void {
   props.launcherVm.actions.removeQueuedCommand(id);
-  emit("remove-queued-command", id);
 }
 
 function onUpdateQueuedArg(id: string, key: string, value: string): void {
   props.launcherVm.actions.updateQueuedArg(id, key, value);
-  emit("update-queued-arg", id, key, value);
 }
 
 function onClearQueue(): void {
   props.launcherVm.actions.clearQueue();
-  emit("clear-queue");
 }
 
 function onExecuteQueue(): void {
   props.launcherVm.actions.executeQueue();
-  emit("execute-queue");
 }
 
 function onRefreshQueuePreflight(): void {
   props.launcherVm.actions.refreshAllQueuedPreflight();
-  emit("refresh-queue-preflight");
 }
 
 function onRefreshQueuedCommandPreflight(id: string): void {
   props.launcherVm.actions.refreshQueuedCommandPreflight(id);
-  emit("refresh-queued-command-preflight", id);
 }
 
 function onSearchCapsuleBack(): void {
   if (props.launcherVm.nav.currentPage.type === "command-action") {
     props.launcherVm.actions.requestCommandPanelExit();
-    emit("request-command-panel-exit");
     return;
   }
   if (props.launcherVm.nav.canGoBack) {
@@ -177,17 +132,14 @@ function onCommandPanelSubmit(argValues: Record<string, string>, shouldDismiss: 
     dismissDanger(props.launcherVm.nav.currentPage.props.command.id);
   }
   submitParamInput();
-  emit("submit-param-input");
 }
 
 function onCommandPanelCancel(): void {
   props.launcherVm.actions.requestCommandPanelExit();
-  emit("request-command-panel-exit");
 }
 
 function onActionPanelCancel(): void {
   props.launcherVm.actions.requestCommandPanelExit();
-  emit("request-command-panel-exit");
 }
 
 function onActionPanelSelect(intent: "execute" | "stage" | "copy"): void {
@@ -196,44 +148,36 @@ function onActionPanelSelect(intent: "execute" | "stage" | "copy"): void {
 
 function onArgInput(key: string, value: string): void {
   props.launcherVm.actions.updatePendingArgValue(key, value);
-  emit("arg-input", key, value);
 }
 
 function onFlowPanelPrepared(): void {
   props.launcherVm.actions.notifyFlowPanelPrepared();
-  emit("flow-panel-prepared");
 }
 
 function onFlowPanelHeightChange(): void {
   props.launcherVm.actions.notifyFlowPanelHeightChange();
-  emit("flow-panel-height-change");
 }
 
 function onFlowPanelSettled(): void {
   props.launcherVm.actions.notifyFlowPanelSettled();
-  emit("flow-panel-settled");
 }
 
 function onConfirmSafetyExecution(): void {
   props.launcherVm.actions.confirmSafetyExecution();
-  emit("confirm-safety-execution");
 }
 
 function onCancelSafetyExecution(): void {
   props.launcherVm.actions.cancelSafetyExecution();
-  emit("cancel-safety-execution");
 }
 
 function onNavAfterEnter(): void {
   void nextTick(() => {
     if (props.launcherVm.nav.currentPage.type === "search") {
       props.launcherVm.actions.notifySearchPageSettled();
-      emit("search-page-settled");
       return;
     }
     if (props.launcherVm.nav.currentPage.type === "command-action") {
       props.launcherVm.actions.notifyCommandPageSettled();
-      emit("command-page-settled");
     }
   });
 }

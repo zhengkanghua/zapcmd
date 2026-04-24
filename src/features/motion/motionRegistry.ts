@@ -1,22 +1,13 @@
 export interface MotionPresetMeta {
   id: string;
-  name: string;
-  description: string;
-  badge?: string;
 }
 
 export const MOTION_PRESET_REGISTRY: ReadonlyArray<MotionPresetMeta> = [
   {
-    id: "expressive",
-    name: "Expressive",
-    description: "保留当前偏弹性、偏氛围化的默认动效",
-    badge: "当前默认"
+    id: "expressive"
   },
   {
-    id: "steady-tool",
-    name: "Steady Tool",
-    description: "收紧回弹与位移，更像桌面工具的稳态反馈",
-    badge: "更稳"
+    id: "steady-tool"
   }
 ];
 

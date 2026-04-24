@@ -863,7 +863,7 @@ describe("useCommandExecution", () => {
     errorSpy.mockRestore();
   });
 
-  it("maps terminal unavailable failure to actionable next step", async () => {
+  it("does not classify terminal-looking plain errors by message content", async () => {
     const harness = createHarness();
     const command = createNoArgCommand();
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -874,7 +874,80 @@ describe("useCommandExecution", () => {
 
     expect(harness.execution.executionFeedbackTone.value).toBe("error");
     expect(harness.execution.executionFeedbackMessage.value).toContain("ENOENT");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("检查并切换可用终端");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("请重试；若仍失败请查看日志并反馈");
+    errorSpy.mockRestore();
+  });
+
+  it("does not classify plain string errors by message content anymore", async () => {
+    const harness = createHarness();
+    const command = createNoArgCommand();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.runCommandInTerminal.mockRejectedValueOnce(new Error("ENOENT: terminal not found"));
+
+    harness.execution.executeResult(command);
+    await flushExecution();
+
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("ENOENT");
+    expect(harness.execution.executionFeedbackMessage.value).not.toContain("检查并切换可用终端");
+    expect(harness.execution.executionFeedbackMessage.value).not.toContain("请检查设置中的终端配置");
+    errorSpy.mockRestore();
+  });
+
+  it("maps terminal-launch-failed by structured error code", async () => {
+    const harness = createHarness();
+    const command = createNoArgCommand();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.runCommandInTerminal.mockRejectedValueOnce(
+      new CommandExecutionError("terminal-launch-failed", "spawn failed")
+    );
+
+    harness.execution.executeResult(command);
+    await flushExecution();
+
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toBe(
+      "执行失败：终端启动失败。下一步：请检查设置中的终端配置后重试。"
+    );
+    errorSpy.mockRestore();
+  });
+
+  it("maps invalid-request to actionable invalid request feedback", async () => {
+    const harness = createHarness();
+    const command = createNoArgCommand();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.runCommandInTerminal.mockRejectedValueOnce(
+      new CommandExecutionError("invalid-request", "Unknown terminal id: ghost")
+    );
+
+    harness.execution.executeResult(command);
+    await flushExecution();
+
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toBe(
+      "执行失败：执行请求无效。下一步：请检查命令参数或终端配置后重试。"
+    );
+    errorSpy.mockRestore();
+  });
+
+  it("maps unsupported platform terminal-launch-failed to platform guidance", async () => {
+    const harness = createHarness();
+    const command = createNoArgCommand();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.runCommandInTerminal.mockRejectedValueOnce(
+      new CommandExecutionError(
+        "terminal-launch-failed",
+        "Running commands is not supported on this platform."
+      )
+    );
+
+    harness.execution.executeResult(command);
+    await flushExecution();
+
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toBe(
+      "执行失败：当前平台暂不支持执行命令。下一步：请在桌面版 ZapCmd 支持的平台上执行该命令。"
+    );
     errorSpy.mockRestore();
   });
 

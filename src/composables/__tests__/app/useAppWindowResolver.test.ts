@@ -20,6 +20,20 @@ describe("createAppWindowResolver", () => {
     expect(warnSpy).toHaveBeenCalledTimes(1);
     warnSpy.mockRestore();
   });
-});
 
+  it("returns null without warning when suppressWarning is enabled", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const resolveWindow = createAppWindowResolver(
+      () => {
+        throw new Error("not in tauri runtime");
+      },
+      { suppressWarning: true }
+    );
+
+    expect(resolveWindow()).toBeNull();
+    expect(resolveWindow()).toBeNull();
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+});
 

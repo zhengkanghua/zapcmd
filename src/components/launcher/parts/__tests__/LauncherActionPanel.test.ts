@@ -2,6 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 
 import type { CommandTemplate } from "../../../../features/commands/commandTemplates";
+import { setAppLocale } from "../../../../i18n";
 import LauncherActionPanel from "../LauncherActionPanel.vue";
 
 function createCommand(): CommandTemplate {
@@ -22,6 +23,24 @@ function createCommand(): CommandTemplate {
 }
 
 describe("LauncherActionPanel", () => {
+  it("renders non-Chinese action labels when locale is en-US", () => {
+    setAppLocale("en-US");
+
+    const wrapper = mount(LauncherActionPanel, {
+      props: {
+        command: createCommand()
+      }
+    });
+
+    const actionTexts = wrapper
+      .findAll(".launcher-action-panel__action")
+      .map((item) => item.text().trim());
+
+    expect(actionTexts.every((text) => !/[\u4e00-\u9fff]/.test(text))).toBe(true);
+
+    setAppLocale("zh-CN");
+  });
+
   it("提供鼠标可点击的返回按钮", async () => {
     const wrapper = mount(LauncherActionPanel, {
       props: {

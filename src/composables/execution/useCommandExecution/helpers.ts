@@ -29,29 +29,6 @@ import {
   type CommandPreflightIssue
 } from "./preflightFeedback";
 
-type ExecutionFailureKind = "terminal-unavailable" | "invalid-params" | "blocked" | "unknown";
-
-const TERMINAL_UNAVAILABLE_MARKERS = [
-  "terminal unavailable",
-  "terminal not found",
-  "enoent",
-  "not recognized as an internal or external command",
-  "command not found",
-  "终端不可用",
-  "未检测到可用终端",
-  "找不到终端"
-];
-const INVALID_PARAMS_MARKERS = [
-  "required",
-  "不能为空",
-  "invalid argument",
-  "invalid parameter",
-  "参数",
-  "not in allowed options",
-  "does not match"
-];
-const BLOCKED_MARKERS = ["blocked", "拦截", "injection", "注入"];
-
 function toErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message.trim()) {
     return error.message.trim();
@@ -62,43 +39,11 @@ function toErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-function includesAny(input: string, markers: string[]): boolean {
-  return markers.some((marker) => input.includes(marker));
-}
-
-function classifyExecutionFailure(reason: string): ExecutionFailureKind {
-  const normalized = reason.trim().toLowerCase();
-  if (includesAny(normalized, TERMINAL_UNAVAILABLE_MARKERS)) {
-    return "terminal-unavailable";
-  }
-  if (includesAny(normalized, INVALID_PARAMS_MARKERS)) {
-    return "invalid-params";
-  }
-  if (includesAny(normalized, BLOCKED_MARKERS)) {
-    return "blocked";
-  }
-  return "unknown";
-}
-
-function mapFailureKindToNextStep(kind: ExecutionFailureKind): string {
-  if (kind === "terminal-unavailable") {
-    return t("execution.nextStepTerminalUnavailable");
-  }
-  if (kind === "invalid-params") {
-    return t("execution.nextStepInvalidParams");
-  }
-  if (kind === "blocked") {
-    return t("execution.nextStepBlocked");
-  }
-  return t("execution.nextStepUnknown");
-}
-
-function formatFailureMessage(
+function buildStructuredFailureFeedback(
   reason: string,
-  kind: ExecutionFailureKind,
+  nextStep: string,
   mode: "single" | "queue"
 ): string {
-  const nextStep = mapFailureKindToNextStep(kind);
   if (mode === "queue") {
     return t("execution.queueFailedWithNextStep", {
       reason,
@@ -111,9 +56,20 @@ function formatFailureMessage(
   });
 }
 
+function isPlatformUnsupportedLaunch(error: CommandExecutionError): boolean {
+  return /not supported on this platform/i.test(error.message);
+}
+
 function resolveStructuredExecutionFeedback(error: unknown): string | null {
   if (!(error instanceof CommandExecutionError)) {
     return null;
+  }
+  if (error.code === "invalid-request") {
+    return buildStructuredFailureFeedback(
+      t("execution.invalidRequest"),
+      t("execution.nextStepInvalidRequest"),
+      "single"
+    );
   }
   if (error.code === "elevation-cancelled") {
     return t("execution.elevationCancelled");
@@ -122,19 +78,70 @@ function resolveStructuredExecutionFeedback(error: unknown): string | null {
     return t("execution.elevationLaunchFailed");
   }
   if (error.code === "terminal-launch-failed") {
-    return t("execution.terminalLaunchFailed");
+    if (isPlatformUnsupportedLaunch(error)) {
+      return buildStructuredFailureFeedback(
+        t("execution.platformUnsupported"),
+        t("execution.nextStepPlatformUnsupported"),
+        "single"
+      );
+    }
+    return buildStructuredFailureFeedback(
+      t("execution.terminalLaunchFailed"),
+      t("execution.nextStepTerminalLaunchFailed"),
+      "single"
+    );
   }
   return null;
 }
 
 export function buildExecutionFailureFeedback(error: unknown, mode: "single" | "queue"): string {
-  const structuredFeedback = resolveStructuredExecutionFeedback(error);
+  const structuredFeedback = resolveStructuredExecutionFeedbackByMode(error, mode);
   if (structuredFeedback) {
     return structuredFeedback;
   }
   const fallback = mode === "queue" ? t("execution.queueFailedFallback") : t("execution.failedFallback");
   const reason = toErrorMessage(error, fallback);
-  return formatFailureMessage(reason, classifyExecutionFailure(reason), mode);
+  if (mode === "queue") {
+    return t("execution.queueFailedWithNextStep", {
+      reason,
+      nextStep: t("execution.nextStepUnknown")
+    });
+  }
+  return t("execution.failedWithNextStep", {
+    reason,
+    nextStep: t("execution.nextStepUnknown")
+  });
+}
+
+function resolveStructuredExecutionFeedbackByMode(
+  error: unknown,
+  mode: "single" | "queue"
+): string | null {
+  if (!(error instanceof CommandExecutionError)) {
+    return null;
+  }
+  if (error.code === "invalid-request") {
+    return buildStructuredFailureFeedback(
+      t("execution.invalidRequest"),
+      t("execution.nextStepInvalidRequest"),
+      mode
+    );
+  }
+  if (error.code === "terminal-launch-failed") {
+    if (isPlatformUnsupportedLaunch(error)) {
+      return buildStructuredFailureFeedback(
+        t("execution.platformUnsupported"),
+        t("execution.nextStepPlatformUnsupported"),
+        mode
+      );
+    }
+    return buildStructuredFailureFeedback(
+      t("execution.terminalLaunchFailed"),
+      t("execution.nextStepTerminalLaunchFailed"),
+      mode
+    );
+  }
+  return resolveStructuredExecutionFeedback(error);
 }
 
 export function buildCommandUnavailableFeedback(
