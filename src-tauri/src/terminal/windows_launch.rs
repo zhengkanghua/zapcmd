@@ -7,6 +7,9 @@ use std::os::windows::process::CommandExt;
 use windows_sys::Win32::Foundation::GetLastError;
 use windows_sys::Win32::UI::Shell::{ShellExecuteExW, SHELLEXECUTEINFOW};
 
+use std::process::Command as ProcessCommand;
+
+use super::launch_posix::{spawn_and_forget, terminal_launch_failed};
 use super::windows_routing::{
     decide_windows_route,
     ResolvedTerminalProgram,
@@ -17,7 +20,7 @@ use super::windows_routing::{
     WindowsRoutingInput,
     WindowsSessionKind,
 };
-use super::{spawn_and_forget, terminal_launch_failed, ProcessCommand, TerminalExecutionError};
+use super::TerminalExecutionError;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum WindowsLaunchMode {

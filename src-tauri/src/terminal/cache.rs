@@ -10,8 +10,8 @@ use super::TerminalOption;
 use super::discovery::{command_exists, detect_available_terminals};
 pub(crate) use super::discovery_cache::TERMINAL_DISCOVERY_CACHE_FILE_NAME;
 pub(crate) use super::discovery_cache::TerminalDiscoverySnapshot;
+pub(crate) use super::discovery_cache::cached_terminal_option_requires_refresh;
 use super::discovery_cache::{
-    cached_terminal_option_requires_refresh,
     now_ms,
     pick_cached_terminal_snapshot,
     read_persisted_terminal_snapshot,

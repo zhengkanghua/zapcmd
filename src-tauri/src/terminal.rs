@@ -40,7 +40,7 @@ pub(crate) use self::windows_launch::{
     to_wide,
     WindowsLaunchMode,
 };
-#[cfg(target_os = "windows")]
+#[cfg(all(test, target_os = "windows"))]
 pub(crate) use self::discovery::resolve_windows_terminal_program_from_options;
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
