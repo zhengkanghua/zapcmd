@@ -1,6 +1,10 @@
 use std::path::Path;
 use std::path::PathBuf;
+#[cfg(not(target_os = "windows"))]
+use std::process::Child;
 use std::process::Command as ProcessCommand;
+#[cfg(not(target_os = "windows"))]
+use std::thread;
 #[cfg(desktop)]
 use std::sync::atomic::Ordering;
 #[cfg(target_os = "windows")]
@@ -545,8 +549,34 @@ pub(crate) fn build_windows_host_command(
     }
 }
 
+#[cfg(not(target_os = "windows"))]
+fn spawn_with_reaper<F>(cmd: &mut ProcessCommand, reaper: F) -> Result<(), String>
+where
+    F: FnOnce(Child),
+{
+    let child = cmd.spawn().map_err(|err| err.to_string())?;
+    reaper(child);
+    Ok(())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn reap_spawned_child_in_background(mut child: Child) {
+    // Unix/mac 若父进程从不 wait 已退出子进程，可能留下 zombie；这里异步回收句柄。
+    thread::spawn(move || {
+        let _ = child.wait();
+    });
+}
+
 fn spawn_and_forget(cmd: &mut ProcessCommand) -> Result<(), String> {
-    cmd.spawn().map(|_| ()).map_err(|err| err.to_string())
+    #[cfg(target_os = "windows")]
+    {
+        return cmd.spawn().map(|_| ()).map_err(|err| err.to_string());
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        return spawn_with_reaper(cmd, reap_spawned_child_in_background);
+    }
 }
 
 pub(super) fn terminal_launch_failed(message: impl Into<String>) -> TerminalExecutionError {

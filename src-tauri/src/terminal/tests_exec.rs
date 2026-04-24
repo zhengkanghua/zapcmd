@@ -1,5 +1,11 @@
 use super::{sanitize_command, spawn_and_forget, ProcessCommand, TerminalExecutionError};
 
+#[cfg(not(target_os = "windows"))]
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
+
 #[cfg(target_os = "windows")]
 fn exec_step(summary: &str, program: &str, args: &[&str]) -> super::TerminalExecutionStep {
     super::TerminalExecutionStep {
@@ -69,6 +75,23 @@ fn sanitize_command_keeps_structured_invalid_request_error() {
 fn spawn_and_forget_propagates_spawn_error() {
     let mut cmd = ProcessCommand::new("definitely-not-a-real-binary-xyz");
     assert!(spawn_and_forget(&mut cmd).is_err());
+}
+
+#[cfg(not(target_os = "windows"))]
+#[test]
+fn spawn_with_reaper_invokes_reaper_after_spawn() {
+    let reaped = Arc::new(AtomicBool::new(false));
+    let reaped_flag = Arc::clone(&reaped);
+    let mut cmd = ProcessCommand::new("sh");
+    cmd.args(["-c", "exit 0"]);
+
+    super::spawn_with_reaper(&mut cmd, move |mut child| {
+        let _ = child.wait();
+        reaped_flag.store(true, Ordering::SeqCst);
+    })
+    .expect("spawn with reaper should succeed");
+
+    assert!(reaped.load(Ordering::SeqCst));
 }
 
 #[cfg(target_os = "windows")]
