@@ -96,7 +96,8 @@ vi.mock("../../launcher/useCommandCatalog", () => ({
   useCommandCatalog: vi.fn(() => ({
     commandTemplates: ref(mockState.commandTemplateItems),
     allCommandTemplates: ref([]),
-    catalogReady: ref(true)
+    catalogReady: ref(true),
+    catalogStatus: ref("ready")
   }))
 }));
 
@@ -264,11 +265,15 @@ describe("useLauncherEntry", () => {
     expect(channel.postMessage).toHaveBeenCalledWith({ type: "settings-updated" });
 
     vi.clearAllMocks();
+    mockState.resolveEffectiveTerminal.mockReturnValue({
+      effectiveId: "fallback",
+      corrected: false
+    });
     context.settingsWindow.loadSettings();
 
-    expect(store.hydrateFromStorage).toHaveBeenCalledTimes(1);
-    expect(store.persist).toHaveBeenCalledTimes(1);
-    expect(store.setDefaultTerminal).toHaveBeenCalledWith("fallback");
+    expect(store.hydrateFromStorage).not.toHaveBeenCalled();
+    expect(store.persist).not.toHaveBeenCalled();
+    expect(store.setDefaultTerminal).not.toHaveBeenCalled();
 
     scope.stop();
   });
@@ -361,6 +366,14 @@ describe("useLauncherEntry", () => {
         })
       })
     );
+
+    scope.stop();
+  });
+
+  it("入口装配只执行一次 settings hydrate", () => {
+    const { scope } = runLauncherEntry();
+
+    expect(getStore().hydrateFromStorage).toHaveBeenCalledTimes(1);
 
     scope.stop();
   });

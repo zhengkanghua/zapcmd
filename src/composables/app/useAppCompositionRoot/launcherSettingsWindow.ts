@@ -96,7 +96,6 @@ export function createLauncherSettingsWindow(options: CreateLauncherSettingsWind
     availableTerminals: options.availableTerminals,
     terminalLoading: options.terminalLoading,
     loadSettings(): void {
-      options.settingsStore.hydrateFromStorage();
       if (
         options.availableTerminals.value.length > 0 &&
         ensureDefaultTerminal(options)

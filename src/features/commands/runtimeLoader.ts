@@ -6,9 +6,10 @@ import { validateRuntimeCommandFile } from "./schemaValidation";
 import type { UserCommandJsonFile } from "./userCommandSourceTypes";
 import type { CommandLoadIssue } from "./runtimeIssues";
 
-const builtinModules = import.meta.glob("../../../assets/runtime_templates/commands/builtin/_*.json", {
-  eager: true
-}) as Record<string, { default: unknown }>;
+const builtinModuleLoaders = import.meta.glob("../../../assets/runtime_templates/commands/builtin/_*.json") as Record<
+  string,
+  () => Promise<{ default: unknown }>
+>;
 
 function detectRuntimePlatform(): RuntimePlatform {
   if (typeof navigator !== "undefined") {
@@ -73,6 +74,7 @@ export interface LoadTemplatesResult {
 }
 
 let builtinPayloadEntriesCache: RuntimePayloadEntry[] | null = null;
+let builtinPayloadEntriesPromise: Promise<RuntimePayloadEntry[]> | null = null;
 let builtinPayloadBuildCount = 0;
 
 export function loadCommandTemplatesFromPayloadEntries(
@@ -148,28 +150,45 @@ export function loadCommandTemplatesFromPayloadEntries(
   };
 }
 
-export function loadBuiltinCommandTemplates(options: LoadOptions = {}): CommandTemplate[] {
-  return loadBuiltinCommandTemplatesWithReport(options).templates;
+export async function loadBuiltinCommandTemplates(options: LoadOptions = {}): Promise<CommandTemplate[]> {
+  return (await loadBuiltinCommandTemplatesWithReport(options)).templates;
 }
 
-export function loadBuiltinCommandPayloadEntries(): RuntimePayloadEntry[] {
+export async function loadBuiltinCommandPayloadEntries(): Promise<RuntimePayloadEntry[]> {
   if (builtinPayloadEntriesCache) {
     return builtinPayloadEntriesCache;
   }
+  if (builtinPayloadEntriesPromise) {
+    return builtinPayloadEntriesPromise;
+  }
 
   builtinPayloadBuildCount += 1;
-  builtinPayloadEntriesCache = Object.entries(builtinModules)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([filePath, module]) => ({
-      sourceId: filePath,
-      payload: module.default
-    }));
+  builtinPayloadEntriesPromise = Promise.all(
+    Object.entries(builtinModuleLoaders)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(async ([filePath, loadModule]) => {
+        const module = await loadModule();
+        return {
+          sourceId: filePath,
+          payload: module.default
+        };
+      })
+  )
+    .then((entries) => {
+      builtinPayloadEntriesCache = entries;
+      return entries;
+    })
+    .finally(() => {
+      builtinPayloadEntriesPromise = null;
+    });
 
-  return builtinPayloadEntriesCache;
+  return builtinPayloadEntriesPromise;
 }
 
-export function loadBuiltinCommandTemplatesWithReport(options: LoadOptions = {}): LoadTemplatesResult {
-  return loadCommandTemplatesFromPayloadEntries(loadBuiltinCommandPayloadEntries(), options);
+export async function loadBuiltinCommandTemplatesWithReport(
+  options: LoadOptions = {}
+): Promise<LoadTemplatesResult> {
+  return loadCommandTemplatesFromPayloadEntries(await loadBuiltinCommandPayloadEntries(), options);
 }
 
 export function getBuiltinCommandPayloadBuildCountForTest(): number {

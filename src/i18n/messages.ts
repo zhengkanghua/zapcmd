@@ -20,6 +20,8 @@ export const messages = {
     },
     launcher: {
       searchPlaceholder: "输入命令关键词...",
+      catalogLoading: "命令仍在加载",
+      catalogLoadingHint: "命令目录正在启动后预热，保持输入即可，完成后会自动显示结果。",
       noResult: "没有匹配到命令。",
       noResultHint: "试试更短的关键词，或按 Esc 清空后重新搜索。",
       problemCommandBadge: "问题命令",
@@ -423,6 +425,9 @@ export const messages = {
     },
     launcher: {
       searchPlaceholder: "Type command keywords...",
+      catalogLoading: "Commands are still loading",
+      catalogLoadingHint:
+        "The command catalog is warming up after startup. Keep typing and results will appear automatically.",
       noResult: "No matching command found.",
       noResultHint: "Try a shorter keyword, or press Esc to clear and search again.",
       problemCommandBadge: "Problem Command",

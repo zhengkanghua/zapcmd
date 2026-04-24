@@ -278,6 +278,8 @@ function onNavAfterEnter(): void {
             :executing="props.launcherVm.command.executing"
             :execution-feedback-message="props.launcherVm.command.executionFeedbackMessage"
             :execution-feedback-tone="props.launcherVm.command.executionFeedbackTone"
+            :catalog-loading="props.launcherVm.search.catalogLoading"
+            :catalog-ready="props.launcherVm.search.catalogReady"
             :drawer-open="props.launcherVm.search.drawerOpen"
             :drawer-viewport-height="props.launcherVm.search.drawerViewportHeight"
             :keyboard-hints="props.launcherVm.search.keyboardHints"

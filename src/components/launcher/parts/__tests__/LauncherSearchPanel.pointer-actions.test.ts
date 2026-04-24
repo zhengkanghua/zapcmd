@@ -24,6 +24,8 @@ function createProps(
     executing: false,
     executionFeedbackMessage: "",
     executionFeedbackTone: "neutral",
+    catalogLoading: false,
+    catalogReady: true,
     drawerOpen: true,
     drawerViewportHeight: 320,
     keyboardHints: [],

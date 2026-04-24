@@ -26,16 +26,16 @@ export function normalizeRuntimePlatform(value: unknown): RuntimePlatform {
   return "all";
 }
 
-export function loadBuiltinTemplatesAndSourceForState(params: {
+export async function loadBuiltinTemplatesAndSourceForState(params: {
   builtinTemplates: Ref<CommandTemplate[]>;
   builtinCommandSourceById: Ref<Record<string, string>>;
   runtimePlatform: RuntimePlatform | null;
-}): void {
+}): Promise<void> {
   const loaded = params.runtimePlatform
-    ? loadBuiltinCommandTemplatesWithReport({
+    ? await loadBuiltinCommandTemplatesWithReport({
         runtimePlatform: params.runtimePlatform
       })
-    : loadBuiltinCommandTemplatesWithReport();
+    : await loadBuiltinCommandTemplatesWithReport();
   params.builtinTemplates.value = loaded.templates;
   params.builtinCommandSourceById.value = loaded.sourceByCommandId;
 }

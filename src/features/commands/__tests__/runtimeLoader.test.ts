@@ -55,28 +55,28 @@ describe("runtimeLoader", () => {
     expect(loaded.issues).toHaveLength(0);
   });
 
-  it("reuses builtin payload entry cache across repeated reads", () => {
+  it("reuses builtin payload entry cache across repeated reads", async () => {
     const before = getBuiltinCommandPayloadBuildCountForTest();
 
-    const first = loadBuiltinCommandPayloadEntries();
+    const first = await loadBuiltinCommandPayloadEntries();
     const afterFirst = getBuiltinCommandPayloadBuildCountForTest();
-    const second = loadBuiltinCommandPayloadEntries();
+    const second = await loadBuiltinCommandPayloadEntries();
 
     expect(second).toBe(first);
     expect(afterFirst === before || afterFirst === before + 1).toBe(true);
     expect(getBuiltinCommandPayloadBuildCountForTest()).toBe(afterFirst);
   });
 
-  it("loads command templates for current platform", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads command templates for current platform", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     expect(templates.length).toBeGreaterThan(50);
     expect(templates.some((item) => item.id === "docker-ps")).toBe(true);
   });
 
-  it("maps pilot builtin overlays to english runtime templates when locale is en-US", () => {
+  it("maps pilot builtin overlays to english runtime templates when locale is en-US", async () => {
     setAppLocale("en-US");
 
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     const dockerPs = templates.find((item) => item.id === "docker-ps");
     const queryPortNetstat = templates.find((item) => item.id === "query-port-netstat");
     const jqFormatJson = templates.find((item) => item.id === "jq-format-json");
@@ -87,13 +87,13 @@ describe("runtimeLoader", () => {
     expect(jqFormatJson?.title).toBe("Format JSON with jq");
   });
 
-  it("keeps builtin command ids stable across locale remap while switching localized runtime text", () => {
-    const zhTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("keeps builtin command ids stable across locale remap while switching localized runtime text", async () => {
+    const zhTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     const zhDockerPs = zhTemplates.find((item) => item.id === "docker-ps");
 
     setAppLocale("en-US");
 
-    const enTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const enTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     const enDockerPs = enTemplates.find((item) => item.id === "docker-ps");
 
     expect(zhDockerPs?.id).toBe("docker-ps");
@@ -102,8 +102,8 @@ describe("runtimeLoader", () => {
     expect(enDockerPs?.title).toBe("List Running Containers");
   });
 
-  it("does not model shell builtins or powershell cmdlets as binary prerequisites", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "all" });
+  it("does not model shell builtins or powershell cmdlets as binary prerequisites", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "all" });
     const invalidBinaryPrerequisites = new Set([
       "echo",
       "get-childitem",
@@ -134,8 +134,8 @@ describe("runtimeLoader", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("does not keep generic shell prerequisite in builtin templates", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "all" });
+  it("does not keep generic shell prerequisite in builtin templates", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "all" });
     const offenders = templates.flatMap((item) =>
       (item.prerequisites ?? [])
         .filter((prerequisite) => prerequisite.type === "shell" && prerequisite.check === "shell:shell")
@@ -145,8 +145,8 @@ describe("runtimeLoader", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("keeps powershell prerequisite for powershell builtin commands without cmdlet-level binary checks", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("keeps powershell prerequisite for powershell builtin commands without cmdlet-level binary checks", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     const command = templates.find((item) => item.id === "kill-port-win");
 
     expect(command?.prerequisites).toEqual([
@@ -161,9 +161,9 @@ describe("runtimeLoader", () => {
     ]);
   });
 
-  it("only keeps prerequisite checks for explicit external dependencies", () => {
-    const allTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "all" });
-    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("only keeps prerequisite checks for explicit external dependencies", async () => {
+    const allTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "all" });
+    const winTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     const dockerPs = allTemplates.find((item) => item.id === "docker-ps");
     const sshConfigList = allTemplates.find((item) => item.id === "ssh-config-list");
@@ -185,35 +185,35 @@ describe("runtimeLoader", () => {
     expect(localIpWin?.prerequisites ?? []).toEqual([]);
   });
 
-  it("filters out non-target platform templates", () => {
-    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("filters out non-target platform templates", async () => {
+    const winTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     expect(winTemplates.some((item) => item.id === "base64-encode-mac")).toBe(false);
     expect(winTemplates.some((item) => item.id === "base64-encode-linux")).toBe(false);
   });
 
-  it("keeps command ids unique after loading", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("keeps command ids unique after loading", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
     const ids = templates.map((item) => item.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("exposes redis builtin category after source split", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("exposes redis builtin category after source split", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.category === "redis")).toBe(true);
     expect(templates.some((item) => item.category === "database")).toBe(false);
   });
 
-  it("loads mysql/postgres/sqlite builtin categories", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads mysql/postgres/sqlite builtin categories", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.category === "mysql")).toBe(true);
     expect(templates.some((item) => item.category === "postgres")).toBe(true);
     expect(templates.some((item) => item.category === "sqlite")).toBe(true);
   });
 
-  it("loads database observability builtin commands", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads database observability builtin commands", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.id === "postgres-version")).toBe(true);
     expect(templates.some((item) => item.id === "postgres-current-db")).toBe(true);
@@ -239,16 +239,16 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.id === "sqlite-foreign-key-check")).toBe(true);
   });
 
-  it("loads kubernetes builtin category", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads kubernetes builtin category", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.category === "kubernetes")).toBe(true);
   });
 
-  it("loads second-round network builtin commands with correct platform split", () => {
-    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
-    const macTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
-    const linuxTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
+  it("loads second-round network builtin commands with correct platform split", async () => {
+    const winTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const macTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
+    const linuxTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
 
     expect(winTemplates.some((item) => item.id === "curl-json-get")).toBe(true);
     expect(winTemplates.some((item) => item.id === "curl-json-post")).toBe(true);
@@ -269,10 +269,10 @@ describe("runtimeLoader", () => {
     expect(linuxTemplates.some((item) => item.id === "dig-short-linux")).toBe(true);
   });
 
-  it("loads second-round dev builtin commands", () => {
-    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
-    const macTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
-    const linuxTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
+  it("loads second-round dev builtin commands", async () => {
+    const winTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const macTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
+    const linuxTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
 
     expect(winTemplates.some((item) => item.id === "jq-format-json")).toBe(true);
     expect(winTemplates.some((item) => item.id === "jwt-decode")).toBe(true);
@@ -293,8 +293,8 @@ describe("runtimeLoader", () => {
     expect(linuxTemplates.some((item) => item.id === "uuid-gen-win")).toBe(false);
   });
 
-  it("loads cwd-transparent package builtin commands without introducing new categories", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads cwd-transparent package builtin commands without introducing new categories", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.id === "npm-install-project")).toBe(true);
     expect(templates.some((item) => item.id === "npm-ci")).toBe(true);
@@ -319,8 +319,8 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.category === "bun")).toBe(false);
   });
 
-  it("loads split package modules without introducing new runtime categories", () => {
-    const loaded = loadBuiltinCommandTemplatesWithReport({ runtimePlatform: "all" });
+  it("loads split package modules without introducing new runtime categories", async () => {
+    const loaded = await loadBuiltinCommandTemplatesWithReport({ runtimePlatform: "all" });
     const categories = new Set(loaded.templates.map((item) => item.category));
 
     expect(loaded.templates.some((item) => item.id === "npm-install")).toBe(true);
@@ -383,8 +383,8 @@ describe("runtimeLoader", () => {
     ).toBe(false);
   });
 
-  it("loads docker and kubernetes coverage additions", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads docker and kubernetes coverage additions", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.id === "docker-compose-ps")).toBe(true);
     expect(templates.some((item) => item.id === "docker-system-df")).toBe(true);
@@ -398,8 +398,8 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.id === "kubectl-get-configmaps")).toBe(true);
   });
 
-  it("loads third-round docker and kubernetes readonly diagnostics", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads third-round docker and kubernetes readonly diagnostics", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.id === "docker-info")).toBe(true);
     expect(templates.some((item) => item.id === "docker-image-inspect")).toBe(true);
@@ -419,10 +419,10 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.id === "kubectl-get-cronjobs")).toBe(true);
   });
 
-  it("loads service builtin commands with platform split", () => {
-    const winTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
-    const macTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
-    const linuxTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
+  it("loads service builtin commands with platform split", async () => {
+    const winTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const macTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "mac" });
+    const linuxTemplates = await loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
 
     expect(winTemplates.some((item) => item.category === "service")).toBe(true);
     expect(winTemplates.some((item) => item.id === "service-status-win")).toBe(true);
@@ -447,8 +447,8 @@ describe("runtimeLoader", () => {
     expect(linuxTemplates.some((item) => item.id === "service-status-mac")).toBe(false);
   });
 
-  it("loads gh builtin commands as a separate category", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads gh builtin commands as a separate category", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.category === "gh")).toBe(true);
     expect(templates.some((item) => item.id === "gh-auth-status")).toBe(true);
@@ -469,8 +469,8 @@ describe("runtimeLoader", () => {
     expect(templates.some((item) => item.id === "gh-run-download")).toBe(true);
   });
 
-  it("loads cert builtin commands as a separate category", () => {
-    const templates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+  it("loads cert builtin commands as a separate category", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "win" });
 
     expect(templates.some((item) => item.category === "cert")).toBe(true);
     expect(templates.some((item) => item.id === "openssl-x509-text")).toBe(true);

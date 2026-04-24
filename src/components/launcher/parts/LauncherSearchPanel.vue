@@ -31,6 +31,13 @@ const renderedResultCount = ref(SEARCH_RESULTS_INITIAL_RENDER_LIMIT);
 const visibleResults = computed(() =>
   props.filteredResults.slice(0, renderedResultCount.value)
 );
+const showCatalogLoadingState = computed(
+  () =>
+    props.query.trim().length > 0 &&
+    props.catalogLoading &&
+    !props.catalogReady &&
+    props.filteredResults.length === 0
+);
 
 function normalizeToHTMLElement(el: ElementRefArg): HTMLElement | null {
   if (el instanceof HTMLElement) {
@@ -268,6 +275,24 @@ watch(
             </button>
           </li>
         </ul>
+        <div
+          v-else-if="showCatalogLoadingState"
+          class="drawer-empty drawer-empty--loading m-0 p-[12px_14px] flex items-center justify-between border border-transparent rounded-surface bg-transparent text-ui-subtle text-[13px]"
+        >
+          <div class="drawer-empty__body flex items-center gap-[8px]">
+            <LauncherIcon
+              name="search"
+              :size="20"
+              class="drawer-empty__icon text-ui-brand shrink-0"
+            />
+            <span class="drawer-empty__title text-ui-text font-semibold text-[13px]">
+              {{ t("launcher.catalogLoading") }}
+            </span>
+            <span class="drawer-empty__hint text-[12px] leading-[1.45] text-ui-subtle">
+              {{ t("launcher.catalogLoadingHint") }}
+            </span>
+          </div>
+        </div>
         <div
           v-else
           class="drawer-empty m-0 p-[12px_14px] flex items-center justify-between border border-transparent rounded-surface bg-transparent text-ui-subtle text-[13px]"

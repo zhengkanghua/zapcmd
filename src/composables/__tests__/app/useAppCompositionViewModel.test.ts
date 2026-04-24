@@ -69,6 +69,10 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     leftClick: "execute",
     rightClick: "stage"
   });
+  const commandCatalog = {
+    catalogStatus: ref<"idle" | "loading" | "ready" | "error">("ready"),
+    catalogReady: ref(true)
+  };
   const checkUpdate = vi.fn();
   const downloadUpdate = vi.fn();
   const openHomepage = vi.fn();
@@ -114,6 +118,7 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
       activeIndex: ref(0),
       onQueryInput: vi.fn()
     },
+    commandCatalog,
     domBridge: {
       setSearchShellRef: vi.fn(),
       setSearchInputRef: vi.fn(),

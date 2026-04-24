@@ -43,6 +43,8 @@ function createLauncherVmStub(overrides: Record<string, unknown> = {}) {
       searchHintLines: [],
       leftClickAction: "action-panel" as const,
       rightClickAction: "stage" as const,
+      catalogLoading: false,
+      catalogReady: true,
       filteredResults: [],
       activeIndex: 0,
       searchShellStyle: {} as Record<string, string>,

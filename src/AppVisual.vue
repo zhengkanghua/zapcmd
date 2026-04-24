@@ -437,6 +437,8 @@ watch(
             :executing="false"
             execution-feedback-message="已加入 Flow"
             execution-feedback-tone="success"
+            :catalog-loading="false"
+            :catalog-ready="true"
             :drawer-open="true"
             :drawer-viewport-height="220"
             :keyboard-hints="[{ keys: ['Enter'], action: '执行' }, { keys: ['Tab'], action: '入队' }]"

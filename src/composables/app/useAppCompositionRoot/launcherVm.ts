@@ -12,6 +12,12 @@ function createSearchVm(
     query: context.search.query,
     keyboardHints: context.hotkeyBindings.keyboardHints,
     searchHintLines: context.hotkeyBindings.searchHintLines,
+    catalogLoading: computed(
+      () =>
+        context.commandCatalog.catalogStatus.value === "idle" ||
+        context.commandCatalog.catalogStatus.value === "loading"
+    ),
+    catalogReady: context.commandCatalog.catalogReady,
     leftClickAction: computed(() => context.pointerActions.value.leftClick),
     rightClickAction: computed(() => context.pointerActions.value.rightClick),
     filteredResults: context.search.filteredResults,

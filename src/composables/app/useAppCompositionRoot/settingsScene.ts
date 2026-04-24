@@ -136,7 +136,6 @@ function bindSettingsSideEffects(deps: {
  */
 export function createSettingsScene(options: CreateSettingsSceneOptions): SettingsScene {
   const settingsStore = useSettingsStore();
-  settingsStore.hydrateFromStorage();
   const homepageActionStatus = ref<SettingsActionStatus | null>(null);
   let homepageActionStatusTimer: ReturnType<typeof setTimeout> | null = null;
 

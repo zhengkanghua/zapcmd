@@ -43,6 +43,8 @@ function createProps(
     executing: false,
     executionFeedbackMessage: "",
     executionFeedbackTone: "neutral",
+    catalogLoading: false,
+    catalogReady: true,
     drawerOpen: true,
     drawerViewportHeight: DEFAULT_DRAWER_FLOOR_VIEWPORT_HEIGHT_PX,
     keyboardHints,
@@ -157,6 +159,25 @@ describe("LauncherSearchPanel floor height 语义约束（Phase 13）", () => {
 
     expect(wrapper.find('[data-testid="result-drawer-floor"]').exists()).toBe(false);
     expect(wrapper.find(".result-drawer__filler").exists()).toBe(false);
+  });
+
+  it("query 非空且 catalog 仍在加载时展示加载态而不是无结果态", () => {
+    const wrapper = mount(LauncherSearchPanel, {
+      props: createProps({
+        query: "dock",
+        filteredResults: [],
+        catalogLoading: true,
+        catalogReady: false
+      }),
+      global: {
+        stubs: {
+          LauncherHighlightText: { template: "<span />" }
+        }
+      }
+    });
+
+    expect(wrapper.text()).toContain("命令仍在加载");
+    expect(wrapper.text()).not.toContain("没有匹配到命令");
   });
 
   it("普通搜索态点击 search capsule 不会错误触发回退", async () => {
@@ -342,6 +363,8 @@ describe("LauncherSearchPanel in-panel Review 契约回归（Phase 17）", () =>
             :executing="false"
             :execution-feedback-message="''"
             :execution-feedback-tone="'neutral'"
+            :catalog-loading="false"
+            :catalog-ready="true"
             :drawer-open="true"
             :drawer-viewport-height="drawerHeight"
             :keyboard-hints="[{ keys: ['Esc'], action: '返回' }]"

@@ -52,6 +52,8 @@ export interface LauncherSearchPanelProps {
   executing: boolean;
   executionFeedbackMessage: string;
   executionFeedbackTone: "neutral" | "success" | "error";
+  catalogLoading: boolean;
+  catalogReady: boolean;
   drawerOpen: boolean;
   drawerViewportHeight: number;
   keyboardHints: KeyboardHint[];

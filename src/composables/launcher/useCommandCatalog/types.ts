@@ -8,6 +8,7 @@ import type {
 import type { AppLocale } from "../../../i18n";
 
 export const USER_COMMAND_SOURCE_ID = "user-command-files";
+export type CommandCatalogStatus = "idle" | "loading" | "ready" | "error";
 
 export interface UseCommandCatalogOptions {
   isTauriRuntime: () => boolean;
@@ -26,5 +27,6 @@ export interface UseCommandCatalogReturn {
   overriddenCommandIds: Ref<string[]>;
   loadIssues: Ref<CommandLoadIssue[]>;
   catalogReady: Ref<boolean>;
+  catalogStatus: Ref<CommandCatalogStatus>;
   refreshUserCommands: () => Promise<void>;
 }

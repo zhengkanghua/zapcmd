@@ -36,20 +36,14 @@ function bindCatalogMountedHook(params: {
   options: UseCommandCatalogOptions;
   refreshUserCommands: () => Promise<void>;
 }) {
-  const { options, refreshUserCommands } = params;
-
   onMounted(async () => {
-    if (!options.isTauriRuntime()) {
-      return;
-    }
-
-    await refreshUserCommands();
+    await params.refreshUserCommands();
   });
 }
 
 export function bindCommandCatalogLifecycle(params: {
   options: UseCommandCatalogOptions;
-  loadBuiltinTemplatesAndSource: () => void;
+  loadBuiltinTemplatesAndSource: () => Promise<void>;
   applyMergedTemplates: () => void;
   refreshUserCommands: () => Promise<void>;
   remapFromCacheIfPrimed: () => Promise<boolean>;
@@ -61,8 +55,9 @@ export function bindCommandCatalogLifecycle(params: {
     },
     onLocaleChanged: () => {
       if (!params.options.isTauriRuntime()) {
-        params.loadBuiltinTemplatesAndSource();
-        params.applyMergedTemplates();
+        void params.loadBuiltinTemplatesAndSource().then(() => {
+          params.applyMergedTemplates();
+        });
         return;
       }
       void params.remapFromCacheIfPrimed().then((handled) => {

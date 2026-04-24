@@ -1,7 +1,6 @@
 import {
   createReadFailedIssue,
-  createScanFailedIssue,
-  loadBuiltinCommandTemplatesWithReport
+  createScanFailedIssue
 } from "../../features/commands/runtimeLoader";
 import type { RuntimePlatform } from "../../features/commands/runtimeTypes";
 import { applyMergedCommandCatalogState } from "./useCommandCatalog/merge";
@@ -63,7 +62,7 @@ function createCommandCatalogRuntimeController(
       return false;
     }
     await resolveRuntimePlatform();
-    loadBuiltinTemplatesAndSource();
+    await loadBuiltinTemplatesAndSource();
     const cached = state.userCommandSourceCache.remapFromCache();
     applyUserTemplatesFromPayload({
       payloadEntries: cached.payloadEntries,
@@ -74,17 +73,28 @@ function createCommandCatalogRuntimeController(
       loadIssues: state.loadIssues,
       applyMergedTemplates
     });
+    state.catalogStatus.value = "ready";
     state.catalogReady.value = true;
     return true;
   }
 
   async function refreshUserCommands(): Promise<void> {
-    if (!options.isTauriRuntime()) {
-      state.catalogReady.value = true;
-      applyMergedTemplates();
-      return;
-    }
+    state.catalogStatus.value = "loading";
+    state.catalogReady.value = false;
+    let builtinLoaded = false;
+
     try {
+      await resolveRuntimePlatform();
+      await loadBuiltinTemplatesAndSource();
+      builtinLoaded = true;
+
+      if (!options.isTauriRuntime()) {
+        applyMergedTemplates();
+        state.catalogStatus.value = "ready";
+        state.catalogReady.value = true;
+        return;
+      }
+
       if (!state.userCommandSourceCache) {
         state.loadIssues.value = [
           createReadFailedIssue(
@@ -92,13 +102,12 @@ function createCommandCatalogRuntimeController(
             "user command scan/read ports are not configured."
           )
         ];
+        applyMergedTemplates();
+        state.catalogStatus.value = "ready";
+        state.catalogReady.value = true;
         return;
       }
-      const [, scanned] = await Promise.all([
-        resolveRuntimePlatform(),
-        state.userCommandSourceCache.refreshFromScan()
-      ]);
-      loadBuiltinTemplatesAndSource();
+      const scanned = await state.userCommandSourceCache.refreshFromScan();
       applyUserTemplatesFromPayload({
         payloadEntries: scanned.payloadEntries,
         sourceIssues: scanned.issues,
@@ -108,6 +117,8 @@ function createCommandCatalogRuntimeController(
         loadIssues: state.loadIssues,
         applyMergedTemplates
       });
+      state.catalogStatus.value = "ready";
+      state.catalogReady.value = true;
     } catch (error) {
       console.warn("[commands] failed to refresh user command files", error);
       state.userCommandSourceCache?.clear();
@@ -116,8 +127,14 @@ function createCommandCatalogRuntimeController(
           ? createScanFailedIssue(USER_COMMAND_SOURCE_ID, error)
           : createReadFailedIssue(USER_COMMAND_SOURCE_ID, error)
       ];
-    } finally {
-      state.catalogReady.value = true;
+      applyMergedTemplates();
+      if (builtinLoaded) {
+        state.catalogStatus.value = "ready";
+        state.catalogReady.value = true;
+      } else {
+        state.catalogStatus.value = "error";
+        state.catalogReady.value = false;
+      }
     }
   }
 
@@ -132,8 +149,7 @@ function createCommandCatalogRuntimeController(
 export function useCommandCatalog(
   options: UseCommandCatalogOptions
 ): UseCommandCatalogReturn {
-  const initialBuiltinLoaded = loadBuiltinCommandTemplatesWithReport();
-  const state = createCommandCatalogState(options, initialBuiltinLoaded);
+  const state = createCommandCatalogState(options);
   const {
     loadBuiltinTemplatesAndSource,
     applyMergedTemplates,
@@ -141,7 +157,6 @@ export function useCommandCatalog(
     refreshUserCommands
   } = createCommandCatalogRuntimeController(options, state);
 
-  applyMergedTemplates();
   bindCommandCatalogLifecycle({
     options,
     loadBuiltinTemplatesAndSource,
@@ -158,6 +173,7 @@ export function useCommandCatalog(
     overriddenCommandIds: state.overriddenCommandIds,
     loadIssues: state.loadIssues,
     catalogReady: state.catalogReady,
+    catalogStatus: state.catalogStatus,
     refreshUserCommands
   });
 }

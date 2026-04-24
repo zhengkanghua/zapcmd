@@ -8,7 +8,7 @@ import * as runtimeLoader from "../../../features/commands/runtimeLoader";
 
 async function waitForCondition(
   predicate: () => boolean,
-  maxTries = 12
+  maxTries = 60
 ): Promise<void> {
   for (let index = 0; index < maxTries; index += 1) {
     if (predicate()) {
@@ -16,7 +16,9 @@ async function waitForCondition(
     }
     await nextTick();
     await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
   }
+  throw new Error("condition not satisfied in time");
 }
 
 function createUserCommandFile(content: string, modifiedMs: number) {
@@ -43,7 +45,8 @@ describe("useCommandCatalog", () => {
   it("keeps builtin templates when not running in tauri", async () => {
     const scanUserCommandFiles = vi.fn(async () => createScanResult([]));
     const readUserCommandFile = vi.fn();
-    let latestCount = 0;
+    let getTemplates: () => CommandTemplate[] = () => [];
+    let isCatalogReady: () => boolean = () => false;
     const Harness = defineComponent({
       setup() {
         const catalog = useCommandCatalog({
@@ -51,17 +54,18 @@ describe("useCommandCatalog", () => {
           scanUserCommandFiles,
           readUserCommandFile
         });
-        latestCount = catalog.commandTemplates.value.length;
+        getTemplates = () => catalog.commandTemplates.value;
+        isCatalogReady = () => catalog.catalogReady.value;
         return () => null;
       }
     });
 
     mount(Harness);
-    await nextTick();
+    await waitForCondition(() => isCatalogReady());
 
     expect(scanUserCommandFiles).not.toHaveBeenCalled();
     expect(readUserCommandFile).not.toHaveBeenCalled();
-    expect(latestCount).toBeGreaterThan(50);
+    expect(getTemplates().length).toBeGreaterThan(50);
   });
 
   it("reports missing scan/read ports when tauri runtime catalog is not wired", async () => {
@@ -99,17 +103,19 @@ describe("useCommandCatalog", () => {
     const builtinSpy = vi.spyOn(runtimeLoader, "loadBuiltinCommandTemplatesWithReport");
 
     try {
+      let isCatalogReady: () => boolean = () => false;
       const Harness = defineComponent({
         setup() {
-          useCommandCatalog({
+          const catalog = useCommandCatalog({
             isTauriRuntime: () => false
           });
+          isCatalogReady = () => catalog.catalogReady.value;
           return () => null;
         }
       });
 
       const wrapper = mount(Harness);
-      await nextTick();
+      await waitForCondition(() => isCatalogReady());
 
       expect(builtinSpy).toHaveBeenCalledTimes(1);
 
@@ -206,6 +212,61 @@ describe("useCommandCatalog", () => {
     expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
     expect(readUserCommandFile).toHaveBeenCalledTimes(1);
 
+    wrapper.unmount();
+  });
+
+  it("enters loading before async startup refresh completes in tauri runtime", async () => {
+    let resolverReady = false;
+    let resolveScan = (_value: ReturnType<typeof createScanResult>): void => {
+      throw new Error("scan resolver not initialized");
+    };
+    const scanUserCommandFiles = vi.fn(
+      () =>
+        new Promise<ReturnType<typeof createScanResult>>((resolve) => {
+          resolverReady = true;
+          resolveScan = (value) => {
+            resolve(value);
+          };
+        })
+    );
+    const readUserCommandFile = vi.fn(async () =>
+      createUserCommandFile(
+        JSON.stringify({
+          commands: []
+        }),
+        1
+      )
+    );
+    const readRuntimePlatform = vi.fn(async () => "win");
+
+    let getCatalogReady: () => boolean = () => false;
+    let getCatalogStatus: () => string = () => "idle";
+
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => true,
+          scanUserCommandFiles,
+          readUserCommandFile,
+          readRuntimePlatform
+        });
+        getCatalogReady = () => catalog.catalogReady.value;
+        getCatalogStatus = () => catalog.catalogStatus.value;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await waitForCondition(() => resolverReady);
+
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(getCatalogStatus()).toBe("loading");
+    expect(getCatalogReady()).toBe(false);
+
+    resolveScan(createScanResult([]));
+    await waitForCondition(() => getCatalogStatus() === "ready");
+
+    expect(getCatalogReady()).toBe(true);
     wrapper.unmount();
   });
 
@@ -722,17 +783,14 @@ describe("useCommandCatalog", () => {
     });
 
     const wrapper = mount(Harness);
-    await nextTick();
-    await Promise.resolve();
-    await nextTick();
+    await waitForCondition(() => readUserCommandFile.mock.calls.length === 2);
 
     expect(readUserCommandFile).toHaveBeenCalledTimes(2);
     expect(readUserCommandFile).toHaveBeenNthCalledWith(1, aPath);
     expect(readUserCommandFile).toHaveBeenNthCalledWith(2, bPath);
 
     await refreshUserCommands();
-    await Promise.resolve();
-    await nextTick();
+    await waitForCondition(() => readUserCommandFile.mock.calls.length === 3);
 
     expect(readUserCommandFile).toHaveBeenCalledTimes(3);
     expect(readUserCommandFile).toHaveBeenLastCalledWith(aPath);
@@ -746,6 +804,7 @@ describe("useCommandCatalog", () => {
     const scanUserCommandFiles = vi.fn(async () => createScanResult([]));
     const readUserCommandFile = vi.fn();
     let getTemplates: () => CommandTemplate[] = () => [];
+    let isCatalogReady: () => boolean = () => false;
 
     const Harness = defineComponent({
       setup() {
@@ -756,12 +815,13 @@ describe("useCommandCatalog", () => {
           locale
         });
         getTemplates = () => catalog.commandTemplates.value;
+        isCatalogReady = () => catalog.catalogReady.value;
         return () => null;
       }
     });
 
     const wrapper = mount(Harness);
-    await nextTick();
+    await waitForCondition(() => isCatalogReady());
 
     expect(getTemplates().find((item) => item.id === "docker-logs")?.title).toBe("查看容器日志");
 
@@ -782,23 +842,24 @@ describe("useCommandCatalog", () => {
     const locale = ref<"zh-CN" | "en-US">("zh-CN");
 
     try {
+      let isCatalogReady: () => boolean = () => false;
       const Harness = defineComponent({
         setup() {
-          useCommandCatalog({
+          const catalog = useCommandCatalog({
             isTauriRuntime: () => false,
             locale
           });
+          isCatalogReady = () => catalog.catalogReady.value;
           return () => null;
         }
       });
 
       const wrapper = mount(Harness);
-      await nextTick();
+      await waitForCondition(() => isCatalogReady());
       const mountedBuildCount = runtimeLoader.getBuiltinCommandPayloadBuildCountForTest();
 
       locale.value = "en-US";
-      await nextTick();
-      await Promise.resolve();
+      await waitForCondition(() => isCatalogReady());
 
       expect(runtimeLoader.getBuiltinCommandPayloadBuildCountForTest()).toBe(mountedBuildCount);
 

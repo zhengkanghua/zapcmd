@@ -10,6 +10,10 @@ function createContextStub() {
       activeIndex: ref(0),
       onQueryInput: vi.fn()
     },
+    commandCatalog: {
+      catalogStatus: ref<"idle" | "loading" | "ready" | "error">("ready"),
+      catalogReady: ref(true)
+    },
     hotkeyBindings: {
       keyboardHints: ref([]),
       searchHintLines: ref([]),

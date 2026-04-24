@@ -1,31 +1,24 @@
 import { ref, type Ref } from "vue";
-import {
-  type CommandLoadIssue,
-  loadBuiltinCommandTemplatesWithReport
-} from "../../../features/commands/runtimeLoader";
+import { type CommandLoadIssue } from "../../../features/commands/runtimeLoader";
 import type { CommandTemplate } from "../../../features/commands/types";
 import { createUserCommandSourceCache } from "../../../features/commands/userCommandSourceCache";
-import type { UseCommandCatalogOptions, UseCommandCatalogReturn } from "./types";
+import type { CommandCatalogStatus, UseCommandCatalogOptions, UseCommandCatalogReturn } from "./types";
 
 /**
  * catalog state 只负责持有 refs 与 cache，不承担任何业务合并或生命周期逻辑。
  */
-export function createCommandCatalogState(
-  options: UseCommandCatalogOptions,
-  initialBuiltinLoaded: ReturnType<typeof loadBuiltinCommandTemplatesWithReport>
-) {
-  const builtinTemplates = ref<CommandTemplate[]>(initialBuiltinLoaded.templates);
+export function createCommandCatalogState(options: UseCommandCatalogOptions) {
+  const builtinTemplates = ref<CommandTemplate[]>([]);
   const userTemplates = ref<CommandTemplate[]>([]);
-  const allCommandTemplates = ref<CommandTemplate[]>(builtinTemplates.value);
-  const commandTemplates = ref<CommandTemplate[]>(builtinTemplates.value);
-  const builtinCommandSourceById = ref<Record<string, string>>(
-    initialBuiltinLoaded.sourceByCommandId
-  );
+  const allCommandTemplates = ref<CommandTemplate[]>([]);
+  const commandTemplates = ref<CommandTemplate[]>([]);
+  const builtinCommandSourceById = ref<Record<string, string>>({});
   const commandSourceById = ref<Record<string, string>>({});
   const userCommandSourceById = ref<Record<string, string>>({});
   const overriddenCommandIds = ref<string[]>([]);
   const loadIssues = ref<CommandLoadIssue[]>([]);
-  const catalogReady = ref(!options.isTauriRuntime());
+  const catalogReady = ref(false);
+  const catalogStatus = ref<CommandCatalogStatus>("idle");
   const userCommandSourceCache =
     options.scanUserCommandFiles && options.readUserCommandFile
       ? createUserCommandSourceCache({
@@ -45,6 +38,7 @@ export function createCommandCatalogState(
     overriddenCommandIds,
     loadIssues,
     catalogReady,
+    catalogStatus,
     userCommandSourceCache
   };
 }
@@ -57,6 +51,7 @@ interface BuildCommandCatalogReturnOptions {
   overriddenCommandIds: Ref<string[]>;
   loadIssues: Ref<CommandLoadIssue[]>;
   catalogReady: Ref<boolean>;
+  catalogStatus: Ref<CommandCatalogStatus>;
   refreshUserCommands: () => Promise<void>;
 }
 
@@ -71,6 +66,7 @@ export function buildCommandCatalogReturn(
     overriddenCommandIds: options.overriddenCommandIds,
     loadIssues: options.loadIssues,
     catalogReady: options.catalogReady,
+    catalogStatus: options.catalogStatus,
     refreshUserCommands: options.refreshUserCommands
   };
 }
