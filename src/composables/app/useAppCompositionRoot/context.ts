@@ -1,17 +1,11 @@
-import { computed, ref } from "vue";
-import type { StagedCommand } from "../../../features/launcher/types";
-import { fallbackTerminalOptions } from "../../../features/terminals/fallbackTerminals";
-import { createCommandExecutor } from "../../../services/commandExecutor";
-import { createAppWindowResolver } from "../useAppWindowResolver";
-import { useLauncherDomBridge } from "../../launcher/useLauncherDomBridge";
-import { useLauncherSearch } from "../../launcher/useLauncherSearch";
-import { useSearchFocus } from "../../launcher/useSearchFocus";
-import { useStagedFeedback } from "../../launcher/useStagedFeedback";
-import { useTerminalExecution } from "../../launcher/useTerminalExecution";
 import {
   createAppCompositionRootPorts,
   type AppCompositionRootPorts
 } from "./ports";
+import {
+  createAppWindowRuntimeState,
+  createLauncherRuntimeAssembly
+} from "./launcherRuntimeAssembly";
 import { createSettingsScene } from "./settingsScene";
 
 export interface AppCompositionContextOptions {
@@ -20,51 +14,36 @@ export interface AppCompositionContextOptions {
 
 export function createAppCompositionContext(options: AppCompositionContextOptions = {}) {
   const ports = createAppCompositionRootPorts(options.ports);
-  const settingsSyncChannel = ref<BroadcastChannel | null>(null);
-  const currentWindowLabel = ref(createAppWindowResolver(ports.getCurrentWindow)()?.label ?? "main");
-  const isSettingsWindow = computed(() => currentWindowLabel.value === "settings");
+  const windowRuntime = createAppWindowRuntimeState(ports, "main");
   const settingsScene = createSettingsScene({
     ports,
-    isSettingsWindow,
-    settingsSyncChannel
+    isSettingsWindow: windowRuntime.isSettingsWindow,
+    settingsSyncChannel: windowRuntime.settingsSyncChannel
   });
   const commandCatalog = settingsScene.commandCatalog;
-  const search = useLauncherSearch({
-    commandSource: commandCatalog.commandTemplates
-  });
-  const domBridge = useLauncherDomBridge();
-  const stagedCommands = ref<StagedCommand[]>([]);
-  const resolveAppWindow = createAppWindowResolver(ports.getCurrentWindow);
-  const stagedFeedback = useStagedFeedback({
-    durationMs: 220
-  });
-  const stagingGripReorderActive = ref(false);
-  const shouldBlockSearchInputFocusRef = ref<() => boolean>(() => false);
-  const { scheduleSearchInputFocus } = useSearchFocus({
-    searchInputRef: domBridge.searchInputRef,
-    shouldBlockFocus: () => shouldBlockSearchInputFocusRef.value()
-  });
-  const ensureActiveStagingVisibleRef = ref<() => void>(() => {});
   const settingsWindow = settingsScene.settingsWindow;
-  const commandExecutor = createCommandExecutor();
-  const { runCommandInTerminal, runCommandsInTerminal } = useTerminalExecution({
-    commandExecutor,
+  const launcherRuntime = createLauncherRuntimeAssembly({
+    ports,
+    commandCatalog,
+    currentWindowLabel: windowRuntime.currentWindowLabel,
+    settingsSyncChannel: windowRuntime.settingsSyncChannel,
+    resolveAppWindow: windowRuntime.resolveAppWindow,
     defaultTerminal: settingsScene.defaultTerminal,
     alwaysElevatedTerminal: settingsScene.alwaysElevatedTerminal,
     terminalReusePolicy: settingsScene.terminalReusePolicy,
     availableTerminals: settingsWindow.availableTerminals,
-    fallbackTerminalOptions,
-    isTauriRuntime: ports.isTauriRuntime,
-    readAvailableTerminals: ports.readAvailableTerminals,
     persistCorrectedTerminal: () => {
       settingsScene.settingsStore.persist();
-      settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
+      windowRuntime.settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
     }
   });
   const commandManagement = settingsScene.commandManagement;
 
   return {
-    search, commandCatalog, domBridge, stagedCommands,
+    search: launcherRuntime.search,
+    commandCatalog,
+    domBridge: launcherRuntime.domBridge,
+    stagedCommands: launcherRuntime.stagedCommands,
     hotkeyBindings: settingsScene.hotkeyBindings,
     pointerActions: settingsScene.pointerActions,
     defaultTerminal: settingsScene.defaultTerminal,
@@ -73,15 +52,25 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     autoCheckUpdate: settingsScene.autoCheckUpdate,
     launchAtLogin: settingsScene.launchAtLogin,
     alwaysElevatedTerminal: settingsScene.alwaysElevatedTerminal,
-    currentWindowLabel, settingsSyncChannel, resolveAppWindow,
-    runCommandInTerminal, runCommandsInTerminal, stagedFeedback, stagingGripReorderActive,
-    shouldBlockSearchInputFocusRef, scheduleSearchInputFocus, appVersion: settingsScene.appVersion,
+    currentWindowLabel: launcherRuntime.currentWindowLabel,
+    settingsSyncChannel: launcherRuntime.settingsSyncChannel,
+    resolveAppWindow: launcherRuntime.resolveAppWindow,
+    runCommandInTerminal: launcherRuntime.runCommandInTerminal,
+    runCommandsInTerminal: launcherRuntime.runCommandsInTerminal,
+    stagedFeedback: launcherRuntime.stagedFeedback,
+    stagingGripReorderActive: launcherRuntime.stagingGripReorderActive,
+    shouldBlockSearchInputFocusRef: launcherRuntime.shouldBlockSearchInputFocusRef,
+    scheduleSearchInputFocus: launcherRuntime.scheduleSearchInputFocus,
+    appVersion: settingsScene.appVersion,
     updateStatus: settingsScene.updateManager.updateStatus,
     runtimePlatform: settingsScene.updateManager.runtimePlatform,
     checkUpdate: settingsScene.updateManager.checkUpdate,
     downloadUpdate: settingsScene.updateManager.downloadUpdate,
     openHomepage: settingsScene.openHomepage,
-    ensureActiveStagingVisibleRef, isSettingsWindow, settingsWindow, commandManagement,
+    ensureActiveStagingVisibleRef: launcherRuntime.ensureActiveStagingVisibleRef,
+    isSettingsWindow: windowRuntime.isSettingsWindow,
+    settingsWindow,
+    commandManagement,
     settingsScene,
     windowOpacity: settingsScene.windowOpacity,
     theme: settingsScene.theme,

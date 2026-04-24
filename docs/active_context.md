@@ -40,3 +40,5 @@
 - 2026-04-24：Chunk 3 已移除 `useLauncherSearch` 对模块级 builtin 的隐式 fallback，命令搜索只认 `useCommandCatalog` 注入源；相关 58 条定向测试与 `typecheck` 通过。
 - 2026-04-24：Chunk 4 已消除非 Tauri 启动期 builtin 重复加载，并为 builtin payload 增加运行期缓存；`test:rust`、`check:rust`、`test:run`、`typecheck`、`build` 全绿。
 - 2026-04-24：补齐 Windows dev 编译收口；`commands.rs` 中 `terminal_launch_failed` 改为仅非 Windows 导入，消除本地 `cargo run` unused import 告警；相关 Rust check 与 terminal 定向测试已通过。
+- 2026-04-24：项目审查已完成；确认无明显未清理监听/定时器泄漏，主风险集中在 Launcher/Settings 高复杂度热点与装配重复。已补 `useStagedFeedback` scope dispose 清理与回归测试；`check:all` 全绿。
+- 2026-04-24：已抽出共享 `launcherRuntimeAssembly`，统一 `createAppCompositionContext` 与 `useLauncherEntry` 的 Launcher 运行时装配；补齐 context/入口回归与 `submitParamInput` 成功路径覆盖，`check:all` 全绿。

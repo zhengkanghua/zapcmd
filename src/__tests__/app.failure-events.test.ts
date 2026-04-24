@@ -1555,6 +1555,27 @@ describe("App failure and event regression", () => {
     expectQueueCount(wrapper, 0);
   });
 
+  it("submitParamInput exits the command panel when pending args submit succeeds", async () => {
+    const wrapper = await mountApp();
+    await focusSearchAndType(wrapper, "查看容器日志");
+
+    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await waitForUi();
+    expect(wrapper.find(".command-panel").exists()).toBe(true);
+
+    const inputs = wrapper.findAll(".command-panel__form .command-panel__input");
+    expect(inputs.length).toBeGreaterThanOrEqual(2);
+    await inputs[0].setValue("container-a");
+    await inputs[1].setValue("50");
+
+    const setupState = getSetupState(wrapper);
+    setupState.submitParamInput();
+    await waitForUi();
+
+    expect(wrapper.find(".command-panel").exists()).toBe(false);
+    expectQueueCount(wrapper, 1);
+  });
+
   it("updates staged command preview when staged arg input changes", async () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");

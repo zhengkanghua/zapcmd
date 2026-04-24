@@ -1,3 +1,4 @@
+import { effectScope } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useStagedFeedback } from "../../launcher/useStagedFeedback";
 
@@ -44,6 +45,41 @@ describe("useStagedFeedback", () => {
     expect(feedback.stagedFeedbackCommandId.value).toBe("cmd-z");
     vi.useRealTimers();
   });
+
+  it("clears pending timer when enclosing scope is disposed", () => {
+    vi.useFakeTimers();
+    const scope = effectScope();
+    const feedback = scope.run(() => useStagedFeedback({ durationMs: 80 }));
+
+    if (!feedback) {
+      throw new Error("expected staged feedback composable to initialize");
+    }
+
+    feedback.triggerStagedFeedback("cmd-scope");
+    expect(vi.getTimerCount()).toBe(1);
+
+    scope.stop();
+
+    expect(vi.getTimerCount()).toBe(0);
+    vi.advanceTimersByTime(200);
+    expect(feedback.stagedFeedbackCommandId.value).toBe("cmd-scope");
+    vi.useRealTimers();
+  });
+
+  it("ignores new feedback requests after enclosing scope is disposed", () => {
+    vi.useFakeTimers();
+    const scope = effectScope();
+    const feedback = scope.run(() => useStagedFeedback({ durationMs: 80 }));
+
+    if (!feedback) {
+      throw new Error("expected staged feedback composable to initialize");
+    }
+
+    scope.stop();
+    feedback.triggerStagedFeedback("cmd-after-stop");
+
+    expect(feedback.stagedFeedbackCommandId.value).toBeNull();
+    expect(vi.getTimerCount()).toBe(0);
+    vi.useRealTimers();
+  });
 });
-
-
