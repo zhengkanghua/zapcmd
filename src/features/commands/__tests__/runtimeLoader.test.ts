@@ -73,6 +73,21 @@ describe("runtimeLoader", () => {
     expect(jqFormatJson?.title).toBe("Format JSON with jq");
   });
 
+  it("keeps builtin command ids stable across locale remap while switching localized runtime text", () => {
+    const zhTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const zhDockerPs = zhTemplates.find((item) => item.id === "docker-ps");
+
+    setAppLocale("en-US");
+
+    const enTemplates = loadBuiltinCommandTemplates({ runtimePlatform: "win" });
+    const enDockerPs = enTemplates.find((item) => item.id === "docker-ps");
+
+    expect(zhDockerPs?.id).toBe("docker-ps");
+    expect(enDockerPs?.id).toBe("docker-ps");
+    expect(zhDockerPs?.title).not.toBe(enDockerPs?.title);
+    expect(enDockerPs?.title).toBe("List Running Containers");
+  });
+
   it("does not model shell builtins or powershell cmdlets as binary prerequisites", () => {
     const templates = loadBuiltinCommandTemplates({ runtimePlatform: "all" });
     const invalidBinaryPrerequisites = new Set([

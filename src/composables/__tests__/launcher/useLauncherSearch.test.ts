@@ -46,8 +46,20 @@ function createInstrumentedTitle(value: string, counter: InstrumentedScoreCounte
 }
 
 describe("useLauncherSearch", () => {
+  it("requires explicit command source instead of falling back to module-level builtin templates", () => {
+    const unsafeUseLauncherSearch = useLauncherSearch as unknown as (
+      options?: unknown
+    ) => ReturnType<typeof useLauncherSearch>;
+
+    expect(() => unsafeUseLauncherSearch()).toThrow("commandSource");
+  });
+
   it("filters by title/description/preview using case-insensitive contains", () => {
-    const search = useLauncherSearch();
+    const search = useLauncherSearch({
+      commandSource: ref([
+        createCommand("docker-ps", "Docker ps", "docker ps", "container command")
+      ])
+    });
     search.onQueryInput("DoCkEr");
 
     expect(search.filteredResults.value.length).toBeGreaterThan(0);
@@ -181,7 +193,22 @@ describe("useLauncherSearch", () => {
   });
 
   it("clamps active index when query shrinks result size", () => {
-    const search = useLauncherSearch();
+    const search = useLauncherSearch({
+      commandSource: ref([
+        createCommand("docker-logs", "docker logs", "docker logs"),
+        createCommand("docker-logs-tail", "docker logs tail", "docker logs --tail"),
+        createCommand("docker-image-list", "docker image list", "docker image ls"),
+        createCommand("docker-network-list", "docker network list", "docker network ls"),
+        createCommand("docker-volume-list", "docker volume list", "docker volume ls"),
+        createCommand("docker-compose-ps", "docker compose ps", "docker compose ps"),
+        createCommand("docker-inspect", "docker inspect", "docker inspect"),
+        createCommand(
+          "docker-logs-tail-1",
+          "docker logs tail",
+          "docker logs tail 100"
+        )
+      ])
+    });
     search.onQueryInput("docker");
     search.activeIndex.value = 7;
 
@@ -211,7 +238,9 @@ describe("useLauncherSearch", () => {
   });
 
   it("clears query and selection", () => {
-    const search = useLauncherSearch();
+    const search = useLauncherSearch({
+      commandSource: ref([createCommand("git-status", "git status", "git status")])
+    });
     search.onQueryInput("git");
     search.activeIndex.value = 2;
 

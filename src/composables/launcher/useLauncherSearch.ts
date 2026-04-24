@@ -1,5 +1,4 @@
 import { computed, ref, type Ref } from "vue";
-import { commandTemplates } from "../../features/commands/commandTemplates";
 import type { CommandTemplate } from "../../features/commands/types";
 
 const MAX_FILTERED_RESULTS = 500;
@@ -89,11 +88,15 @@ function scoreCommand(
 }
 
 interface UseLauncherSearchOptions {
-  commandSource?: Ref<CommandTemplate[]>;
+  commandSource: Ref<CommandTemplate[]>;
 }
 
-export function useLauncherSearch(options: UseLauncherSearchOptions = {}) {
-  const commandSource = options.commandSource ?? ref(commandTemplates);
+export function useLauncherSearch(options: UseLauncherSearchOptions) {
+  if (!options.commandSource) {
+    throw new Error("commandSource is required");
+  }
+
+  const { commandSource } = options;
   const query = ref("");
   const activeIndex = ref(0);
   const searchableCommands = computed<SearchableCommand[]>(() =>

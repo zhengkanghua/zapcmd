@@ -6,6 +6,7 @@ const mockState = vi.hoisted(() => {
     fallbackTerminals: [
       { id: "fallback", label: "Fallback Terminal", path: "/bin/fallback" }
     ],
+    commandTemplateItems: [{ id: "catalog-command" }],
     store: null as ReturnType<typeof createStore> | null,
     runtime: { runtimeId: "launcher-runtime" },
     currentWindow: { label: "main" },
@@ -63,11 +64,12 @@ vi.mock("../../launcher/useLauncherDomBridge", () => ({
 }));
 
 vi.mock("../../launcher/useLauncherSearch", () => ({
-  useLauncherSearch: vi.fn(() => ({
+  useLauncherSearch: vi.fn((options?: { commandSource?: { value: unknown } }) => ({
     query: ref(""),
     filteredResults: ref([]),
     activeIndex: ref(0),
-    onQueryInput: vi.fn()
+    onQueryInput: vi.fn(),
+    commandSource: options?.commandSource
   }))
 }));
 
@@ -92,7 +94,7 @@ vi.mock("../../launcher/useTerminalExecution", () => ({
 
 vi.mock("../../launcher/useCommandCatalog", () => ({
   useCommandCatalog: vi.fn(() => ({
-    commandTemplates: ref([]),
+    commandTemplates: ref(mockState.commandTemplateItems),
     allCommandTemplates: ref([]),
     catalogReady: ref(true)
   }))
@@ -157,6 +159,7 @@ vi.mock("../../app/useAppCompositionRoot/ports", () => ({
 }));
 
 import { useLauncherEntry } from "../../app/useAppCompositionRoot/launcherEntry";
+import { useLauncherSearch } from "../../launcher/useLauncherSearch";
 
 function createStore() {
   const refs = {
@@ -344,6 +347,20 @@ describe("useLauncherEntry", () => {
     expect(entry.launcherCompatVm.availableTerminals.value).toEqual(mockState.fallbackTerminals);
     expect(store.setDefaultTerminal).not.toHaveBeenCalled();
     expect(store.persist).not.toHaveBeenCalled();
+
+    scope.stop();
+  });
+
+  it("将 command catalog 作为 launcher search 的唯一命令来源注入", () => {
+    const { scope } = runLauncherEntry();
+
+    expect(useLauncherSearch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        commandSource: expect.objectContaining({
+          value: mockState.commandTemplateItems
+        })
+      })
+    );
 
     scope.stop();
   });
