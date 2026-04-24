@@ -1,4 +1,5 @@
-use super::{sanitize_command, spawn_and_forget, ProcessCommand, TerminalExecutionError};
+use crate::terminal::execution::sanitize_command;
+use super::{spawn_and_forget, ProcessCommand, TerminalExecutionError};
 
 #[cfg(not(target_os = "windows"))]
 use std::sync::{
@@ -97,7 +98,6 @@ fn spawn_with_reaper_invokes_reaper_after_spawn() {
 #[cfg(target_os = "windows")]
 mod windows {
     use crate::terminal::{
-        build_windows_host_command,
         join_windows_arguments,
         map_windows_launch_error,
         resolve_windows_terminal_program_from_options,
@@ -118,6 +118,7 @@ mod windows {
         TerminalExecutionError,
         TerminalOption,
     };
+    use crate::terminal::execution::build_windows_host_command;
     use std::path::PathBuf;
     use std::slice;
     use windows_sys::Win32::Foundation::LocalFree;
@@ -361,7 +362,8 @@ mod windows {
 #[cfg(target_os = "macos")]
 mod macos {
     use super::assert_command;
-    use crate::terminal::{build_command_macos, build_posix_host_command};
+    use crate::terminal::execution::build_posix_host_command;
+    use crate::terminal::launch_posix::build_command_macos;
 
     #[test]
     fn build_macos_terminal_script_escape_contract() {
@@ -407,7 +409,8 @@ mod macos {
 #[cfg(all(unix, not(target_os = "macos")))]
 mod linux {
     use super::{assert_command, command_args};
-    use crate::terminal::{build_command_linux, build_posix_host_command};
+    use crate::terminal::execution::build_posix_host_command;
+    use crate::terminal::launch_posix::build_command_linux;
 
     #[test]
     fn build_linux_gnome_terminal_bash_lc_contract() {

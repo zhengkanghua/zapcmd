@@ -36,3 +36,4 @@
 - 2026-04-22：运行时审查补修已覆盖 `useSearchFocus` 生命周期取消与 `useLauncherWatchers` 等长结果集重置回归；验证：定向 `test:run` 10/10 + `lint` + `typecheck` 通过。
 - 2026-04-23：Launcher 显式 context、runtime bridge 与 `useCommandCatalog` 子模块拆分已收口；新增桥接/merge 回归，`lint`、`typecheck`、`test:coverage`、`build`、`check:rust` 通过。
 - 2026-04-24：运行时安全与启动效率 spec/plan 已写入；Chunk 1 已补 Unix/mac 终端子进程后台回收，`test:rust` 与 `check:rust` 通过。
+- 2026-04-24：Chunk 2 已把 `terminal.rs` 拆成 execution/discovery/cache/launch/commands 子模块，保留原有运行时 contract；Rust 定向与全量回归通过。

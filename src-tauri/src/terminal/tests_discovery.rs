@@ -1,4 +1,5 @@
-use super::{parse_first_non_empty_line, TerminalOption};
+use crate::terminal::discovery::parse_first_non_empty_line;
+use super::TerminalOption;
 use std::collections::HashSet;
 
 fn collect_ids(options: &[TerminalOption]) -> HashSet<String> {
@@ -23,7 +24,7 @@ fn parse_first_non_empty_line_returns_none_when_all_blank() {
 #[cfg(target_os = "windows")]
 mod windows {
     use super::{collect_ids, expected_ids};
-    use crate::terminal::resolve_windows_terminals;
+    use crate::terminal::discovery::resolve_windows_terminals;
 
     #[test]
     fn resolve_windows_terminals_contains_all_ids_when_all_exist() {
@@ -56,7 +57,7 @@ mod windows {
 #[cfg(target_os = "macos")]
 mod macos {
     use super::{collect_ids, expected_ids};
-    use crate::terminal::resolve_macos_terminals;
+    use crate::terminal::discovery::resolve_macos_terminals;
 
     #[test]
     fn resolve_macos_terminals_includes_terminal_and_optionally_iterm2() {
@@ -74,7 +75,7 @@ mod macos {
 #[cfg(all(unix, not(target_os = "macos")))]
 mod linux {
     use super::{collect_ids, expected_ids};
-    use crate::terminal::resolve_linux_terminals;
+    use crate::terminal::discovery::resolve_linux_terminals;
 
     #[test]
     fn resolve_linux_terminals_contains_existing_terminal() {
@@ -96,4 +97,3 @@ mod linux {
         assert!(options.iter().any(|option| option.id == "x-terminal-emulator"));
     }
 }
-

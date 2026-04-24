@@ -1,10 +1,10 @@
-use super::discovery_cache::{
+use crate::terminal::discovery_cache::{
     cached_terminal_option_requires_refresh,
     pick_cached_terminal_snapshot,
     should_persist_terminal_discovery_snapshot,
-    TerminalDiscoverySnapshot,
     TERMINAL_DISCOVERY_CACHE_TTL_MS,
 };
+use crate::terminal::cache::TerminalDiscoverySnapshot;
 use super::TerminalOption;
 
 fn create_snapshot(checked_at_ms: u64, ids: &[&str]) -> TerminalDiscoverySnapshot {
