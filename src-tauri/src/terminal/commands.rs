@@ -24,6 +24,7 @@ use super::execution::build_windows_host_command;
 use super::launch_posix::run_command_linux;
 #[cfg(target_os = "macos")]
 use super::launch_posix::run_command_macos;
+#[cfg(not(target_os = "windows"))]
 use super::launch_posix::terminal_launch_failed;
 #[cfg(target_os = "windows")]
 use super::windows_launch::run_command_windows;

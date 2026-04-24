@@ -39,3 +39,4 @@
 - 2026-04-24：Chunk 2 已把 `terminal.rs` 拆成 execution/discovery/cache/launch/commands 子模块，保留原有运行时 contract；Rust 定向与全量回归通过。
 - 2026-04-24：Chunk 3 已移除 `useLauncherSearch` 对模块级 builtin 的隐式 fallback，命令搜索只认 `useCommandCatalog` 注入源；相关 58 条定向测试与 `typecheck` 通过。
 - 2026-04-24：Chunk 4 已消除非 Tauri 启动期 builtin 重复加载，并为 builtin payload 增加运行期缓存；`test:rust`、`check:rust`、`test:run`、`typecheck`、`build` 全绿。
+- 2026-04-24：补齐 Windows dev 编译收口；`commands.rs` 中 `terminal_launch_failed` 改为仅非 Windows 导入，消除本地 `cargo run` unused import 告警；相关 Rust check 与 terminal 定向测试已通过。
