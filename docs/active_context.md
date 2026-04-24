@@ -43,3 +43,4 @@
 - 2026-04-24：项目审查已完成；确认无明显未清理监听/定时器泄漏，主风险集中在 Launcher/Settings 高复杂度热点与装配重复。已补 `useStagedFeedback` scope dispose 清理与回归测试；`check:all` 全绿。
 - 2026-04-24：已抽出共享 `launcherRuntimeAssembly`，统一 `createAppCompositionContext` 与 `useLauncherEntry` 的 Launcher 运行时装配；补齐 context/入口回归与 `submitParamInput` 成功路径覆盖，`check:all` 全绿。
 - 2026-04-24：已写入 `plan/2026-04-24-window-sizing-dropdown-split-implementation-plan.md`；下一阶段按 TDD 执行 `useWindowSizing/controller.ts` 与 `SDropdown.vue` 拆分，要求内部职责下沉、外部 contract 不变，并以 `npm run check:all` 为最终验收。
+- 2026-04-24：`useWindowSizing` 与 `SDropdown` 已完成 helper 拆分与契约测试补齐；外部 API/DOM/ARIA contract 保持不变，`npm run check:all` 全绿。

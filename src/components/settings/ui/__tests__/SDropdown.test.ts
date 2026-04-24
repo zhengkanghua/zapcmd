@@ -132,6 +132,8 @@ describe("SDropdown", () => {
     expect(trigger.attributes("aria-expanded")).toBe("true");
     expect(trigger.attributes("aria-controls")).toBeTruthy();
     expect(trigger.attributes("aria-activedescendant")).toContain("-option-");
+    expect(wrapper.get(".s-dropdown").attributes("data-local-escape-scope")).toBe("true");
+    expect(document.body.querySelector(".s-dropdown__list[role='listbox']")).not.toBeNull();
     await trigger.trigger("keydown", { key: "Escape" });
 
     expect(document.body.querySelector(".s-dropdown__panel")).toBeNull();

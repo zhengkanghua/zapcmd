@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch, type StyleValue } from "vue";
+import { computed, nextTick, ref, useAttrs, watch, type StyleValue } from "vue";
+import { resolveDropdownKeyAction } from "./dropdownKeyboard";
+import { resolveDropdownPanelStyle } from "./dropdownPositioning";
+import type { DropdownOption, DropdownVariant } from "./dropdownTypes";
+import { useDropdownGlobalInteractions } from "./useDropdownGlobalInteractions";
 
 defineOptions({
   inheritAttrs: false
 });
-
-type DropdownVariant = "default" | "ghost";
-
-interface DropdownOption {
-  value: string;
-  label: string;
-  description?: string;
-  meta?: string;
-}
 
 interface SDropdownProps {
   modelValue: string;
@@ -84,17 +79,10 @@ function syncPanelPosition(): void {
     return;
   }
 
-  const rect = trigger.getBoundingClientRect();
-  const minWidth =
-    props.variant === "ghost" ? Math.max(Math.round(rect.width), 160) : Math.round(rect.width);
-
-  panelStyle.value = {
-    position: "fixed",
-    top: `${Math.round(rect.bottom + 6)}px`,
-    left: `${Math.round(rect.left)}px`,
-    minWidth: `${minWidth}px`,
-    zIndex: "var(--ui-settings-z-popover)"
-  };
+  panelStyle.value = resolveDropdownPanelStyle({
+    triggerRect: trigger.getBoundingClientRect(),
+    variant: props.variant
+  });
 }
 
 function closeDropdown(): void {
@@ -119,78 +107,42 @@ function selectValue(value: string): void {
   closeDropdown();
 }
 
-function isEventInside(event: PointerEvent): boolean {
-  if (!(event.target instanceof Element)) {
-    return false;
-  }
-
-  return (
-    triggerRef.value?.contains(event.target) === true ||
-    panelRef.value?.contains(event.target) === true
-  );
-}
-
-function onGlobalPointerDown(event: PointerEvent): void {
-  if (open.value && !isEventInside(event)) {
-    closeDropdown();
-  }
-}
-
 function onTriggerKeydown(event: KeyboardEvent): void {
-  if (!open.value) {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      void openDropdown(selectedIndex.value >= 0 ? selectedIndex.value + 1 : 0);
-      return;
-    }
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      void openDropdown(props.options.length - 1);
-      return;
-    }
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      void openDropdown();
-    }
-    return;
-  }
+  const action = resolveDropdownKeyAction({
+    key: event.key,
+    open: open.value,
+    selectedIndex: selectedIndex.value,
+    focusIndex: focusIndex.value,
+    optionCount: props.options.length
+  });
 
-  if (event.key === "Escape") {
-    event.preventDefault();
-    event.stopPropagation();
-    closeDropdown();
-    return;
-  }
-  if (event.key === "Tab") {
-    closeDropdown();
-    return;
-  }
-  if (event.key === "ArrowDown") {
-    event.preventDefault();
-    setFocusedIndex(focusIndex.value + 1);
-    return;
-  }
-  if (event.key === "ArrowUp") {
-    event.preventDefault();
-    setFocusedIndex(focusIndex.value - 1);
-    return;
-  }
-  if (event.key === "Home") {
-    event.preventDefault();
-    setFocusedIndex(0);
-    return;
-  }
-  if (event.key === "End") {
-    event.preventDefault();
-    setFocusedIndex(props.options.length - 1);
-    return;
-  }
-  if (event.key === "Enter" || event.key === " ") {
-    event.preventDefault();
-    const option = props.options[focusIndex.value];
-    if (option) {
-      selectValue(option.value);
+  switch (action.type) {
+    case "open":
+      event.preventDefault();
+      void openDropdown(action.initialIndex);
+      return;
+    case "close":
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      closeDropdown();
+      return;
+    case "focus":
+      event.preventDefault();
+      setFocusedIndex(action.nextIndex);
+      return;
+    case "select": {
+      event.preventDefault();
+      const option = props.options[focusIndex.value];
+      if (option) {
+        selectValue(option.value);
+      }
+      return;
     }
+    case "noop":
+    default:
+      return;
   }
 }
 
@@ -230,27 +182,12 @@ watch(focusIndex, async (index) => {
   syncFocusedOptionIntoView();
 });
 
-watch(
-  open,
-  (isOpen) => {
-    if (isOpen) {
-      document.addEventListener("pointerdown", onGlobalPointerDown);
-      window.addEventListener("resize", syncPanelPosition);
-      window.addEventListener("scroll", syncPanelPosition, true);
-      return;
-    }
-
-    document.removeEventListener("pointerdown", onGlobalPointerDown);
-    window.removeEventListener("resize", syncPanelPosition);
-    window.removeEventListener("scroll", syncPanelPosition, true);
-  },
-  { immediate: true }
-);
-
-onBeforeUnmount(() => {
-  document.removeEventListener("pointerdown", onGlobalPointerDown);
-  window.removeEventListener("resize", syncPanelPosition);
-  window.removeEventListener("scroll", syncPanelPosition, true);
+useDropdownGlobalInteractions({
+  isOpen: open,
+  triggerRef,
+  panelRef,
+  closeDropdown,
+  syncPanelPosition
 });
 </script>
 
