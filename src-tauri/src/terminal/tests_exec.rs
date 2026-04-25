@@ -324,7 +324,9 @@ mod windows {
 
         assert!(command.contains("[zapcmd][run][1/2] git status"));
         assert!(command.contains("[zapcmd][run][2/2] git branch"));
-        assert!(command.contains(r#""git" status"#));
+        assert!(
+            command.contains(" & git status & ") || command.contains(r#" & "git" status & "#)
+        );
         assert!(command.contains("[zapcmd][failed][2/2] git branch"));
     }
 

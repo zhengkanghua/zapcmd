@@ -46,6 +46,21 @@ async function waitForUi(): Promise<void> {
   await nextTick();
 }
 
+async function waitForCondition(
+  predicate: () => boolean,
+  options: { attempts?: number; label?: string } = {}
+): Promise<void> {
+  const attempts = options.attempts ?? 20;
+  for (let index = 0; index < attempts; index += 1) {
+    if (predicate()) {
+      return;
+    }
+    await waitForUi();
+  }
+
+  expect(predicate(), options.label ?? "condition should eventually match").toBe(true);
+}
+
 async function mountAppSettings(): Promise<VueWrapper> {
   const wrapper = mount(AppSettings, {
     attachTo: document.body,
@@ -251,6 +266,11 @@ describe("AppSettings hotkeys regression", () => {
 
     const focus = findHotkeyRecorder(wrapper, "切换焦点区域");
     await recordHotkey(focus, { key: "k", ctrlKey: true });
+
+    await waitForCondition(
+      () => wrapper.findAll("button.s-hotkey-recorder.s-hotkey-recorder--conflict").length >= 2,
+      { label: "duplicate hotkey conflict state should propagate to both recorders" }
+    );
 
     const conflicts = wrapper.findAll("button.s-hotkey-recorder.s-hotkey-recorder--conflict");
     expect(conflicts.length).toBeGreaterThanOrEqual(2);

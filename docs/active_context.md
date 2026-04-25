@@ -56,3 +56,4 @@
 - 2026-04-25：已修 CI Gate Windows shell 合同：builtin generate 同步检查改显式 `pwsh` + PowerShell 条件分支，避免 Bash `|| (...)` 在 Windows runner 解析失败；新增 workflow 合同测试。
 - 2026-04-25：已修 Rust Windows test 编译回归：`src-tauri/src/terminal/tests_exec.rs` 的 Windows 子模块改直接导入 `ExecutionSpec` / `TerminalExecutionStep`，不再误用 `super::` 指向 `tests_exec`；本地 `cargo check`、`cargo test` 通过。
 - 2026-04-25：已把部分 CI Gate 前移到开发期：新增 `check:ci-parity` / `check:builtin-command-sync`，workflow 改动不再按 docs-only 跳过，builtin 产物同步检查前移，本地 pre-commit 对 `src-tauri/src/terminal/**` 等高风险 Rust 目录追加 `cargo test`。
+- 2026-04-25：已收口最新 CI 失败：hotkeys 回归测试改为等待冲突态稳定回流，Windows terminal 测试不再把 `git` 无空格参数强制写死为带引号；`check:all` fresh 通过，hotkeys 单测重复 30 轮通过。
