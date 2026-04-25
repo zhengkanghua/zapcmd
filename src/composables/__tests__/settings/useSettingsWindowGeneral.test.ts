@@ -169,4 +169,26 @@ describe("useSettingsWindow general actions", () => {
     expect(state.launchAtLoginBaseline.value).toBe(false);
     expect(state.launchAtLoginLoading.value).toBe(false);
   });
+
+  it("loadAutoStartEnabled 读取失败时写入可见错误状态", async () => {
+    const options = createOptions({
+      isTauriRuntime: () => true,
+      readAutoStartEnabled: vi.fn(async () => {
+        throw new Error("autostart read failed");
+      })
+    });
+    const state = createSettingsState();
+    const actions = createGeneralActions({
+      options,
+      state,
+      persistSetting: vi.fn(async () => {}),
+      applyAutoStartChange: vi.fn(async () => {})
+    });
+
+    await actions.loadAutoStartEnabled();
+
+    expect(state.settingsError.value).toBe("autostart read failed");
+    expect(state.settingsErrorRoute.value).toBe("general");
+    expect(state.launchAtLoginLoading.value).toBe(false);
+  });
 });

@@ -72,6 +72,7 @@ export interface SettingsWindowState {
   settingsErrorRoute: Ref<SettingsRoute | null>;
   settingsErrorHotkeyFieldIds: Ref<HotkeyFieldId[]>;
   settingsErrorPrimaryHotkeyField: Ref<HotkeyFieldId | null>;
+  generalErrorMessage: Ref<string>;
 }
 
 export function createSettingsState(): SettingsWindowState {
@@ -84,7 +85,8 @@ export function createSettingsState(): SettingsWindowState {
     settingsError: ref(""),
     settingsErrorRoute: ref(null),
     settingsErrorHotkeyFieldIds: ref([]),
-    settingsErrorPrimaryHotkeyField: ref(null)
+    settingsErrorPrimaryHotkeyField: ref(null),
+    generalErrorMessage: ref("")
   };
 }
  
@@ -93,6 +95,7 @@ export function clearSettingsErrorState(state: SettingsWindowState): void {
   state.settingsErrorRoute.value = null;
   state.settingsErrorHotkeyFieldIds.value = [];
   state.settingsErrorPrimaryHotkeyField.value = null;
+  state.generalErrorMessage.value = "";
 }
 
 export function applySettingsValidationIssue(
@@ -103,6 +106,7 @@ export function applySettingsValidationIssue(
   state.settingsErrorRoute.value = issue.route;
   state.settingsErrorHotkeyFieldIds.value = issue.hotkeyFieldIds ?? [];
   state.settingsErrorPrimaryHotkeyField.value = issue.primaryHotkeyField ?? null;
+  state.generalErrorMessage.value = issue.route === "general" ? issue.message : "";
 }
 
 export function getHotkeyEntries(options: UseSettingsWindowOptions): HotkeyEntry[] {

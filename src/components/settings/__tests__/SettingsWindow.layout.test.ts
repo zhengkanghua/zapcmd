@@ -77,6 +77,7 @@ function createSettingsWindowProps(
     autoCheckUpdate: defaults.general.autoCheckUpdate,
     launchAtLogin: defaults.general.launchAtLogin,
     alwaysElevatedTerminal: defaults.general.alwaysElevatedTerminal,
+    generalErrorMessage: "",
     showAlwaysElevatedTerminal: true,
     commandRows: [],
     visibleCommandRows: [],
@@ -145,6 +146,19 @@ describe("SettingsWindow stable shell", () => {
     expect("closeConfirmOpen" in props).toBe(false);
     expect(emitsOptions.confirm).toBeUndefined();
     expect(emitsOptions["navigate-to-error"]).toBeUndefined();
+  });
+
+  it("forwards general error message into the general section", () => {
+    const wrapper = mountSettingsWindow(
+      createSettingsWindowProps({
+        settingsRoute: "general",
+        generalErrorMessage: "autostart read failed"
+      })
+    );
+
+    expect(wrapper.getComponent({ name: "SettingsGeneralSection" }).props("generalErrorMessage")).toBe(
+      "autostart read failed"
+    );
   });
 
   it("renders app topbar without custom window controls", () => {

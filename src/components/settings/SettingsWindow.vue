@@ -115,6 +115,7 @@ const emit = defineEmits<{
             :auto-check-update="props.autoCheckUpdate"
             :launch-at-login="props.launchAtLogin"
             :always-elevated-terminal="props.alwaysElevatedTerminal"
+            :general-error-message="props.generalErrorMessage"
             :show-always-elevated-terminal="props.showAlwaysElevatedTerminal"
             @select-terminal="emit('select-terminal', $event)"
             @refresh-terminals="emit('refresh-terminals')"

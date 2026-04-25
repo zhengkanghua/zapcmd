@@ -1,5 +1,11 @@
 import type { TerminalReusePolicy } from "../../../stores/settingsStore";
-import { clearSettingsErrorState, type SettingsWindowState, type UseSettingsWindowOptions } from "./model";
+import {
+  applySettingsValidationIssue,
+  clearSettingsErrorState,
+  type SettingsWindowState,
+  type UseSettingsWindowOptions
+} from "./model";
+import { t } from "../../../i18n";
 
 export interface GeneralActions {
   setAutoCheckUpdate: (value: boolean) => void;
@@ -63,6 +69,10 @@ export function createGeneralActions(deps: {
     } catch (error) {
       console.error("read autostart status failed:", error);
       state.launchAtLoginBaseline.value ??= options.launchAtLogin.value;
+      applySettingsValidationIssue(state, {
+        message: error instanceof Error && error.message ? error.message : t("settings.error.readLaunchAtLoginFailed"),
+        route: "general"
+      });
     } finally {
       state.launchAtLoginLoading.value = false;
     }

@@ -26,6 +26,7 @@ describe("SettingsGeneralSection i18n", () => {
         autoCheckUpdate: true,
         launchAtLogin: false,
         alwaysElevatedTerminal: false,
+        generalErrorMessage: "",
         showAlwaysElevatedTerminal: true
       }
     });
@@ -80,6 +81,7 @@ describe("SettingsGeneralSection i18n", () => {
         autoCheckUpdate: true,
         launchAtLogin: false,
         alwaysElevatedTerminal: true,
+        generalErrorMessage: "",
         showAlwaysElevatedTerminal: false
       }
     });

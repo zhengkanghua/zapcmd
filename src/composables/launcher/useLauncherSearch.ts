@@ -20,6 +20,10 @@ interface RankedMatch {
   score: number;
 }
 
+interface SearchRankWindowEntry extends RankedMatch {
+  sortKey: number;
+}
+
 function tokenizeQuery(query: string): string[] {
   return query.split(/\s+/).filter(Boolean);
 }
@@ -87,6 +91,38 @@ function scoreCommand(
   return score;
 }
 
+function createSortKey(match: RankedMatch): number {
+  return (-match.score * 100_000) + match.index;
+}
+
+function insertRankedMatch(
+  window: SearchRankWindowEntry[],
+  match: RankedMatch,
+  limit: number
+): void {
+  const entry: SearchRankWindowEntry = {
+    ...match,
+    sortKey: createSortKey(match)
+  };
+
+  let insertIndex = window.length;
+  for (let index = 0; index < window.length; index += 1) {
+    if (entry.sortKey < window[index]!.sortKey) {
+      insertIndex = index;
+      break;
+    }
+  }
+
+  if (insertIndex >= limit) {
+    return;
+  }
+
+  window.splice(insertIndex, 0, entry);
+  if (window.length > limit) {
+    window.length = limit;
+  }
+}
+
 interface UseLauncherSearchOptions {
   commandSource: Ref<CommandTemplate[]>;
 }
@@ -109,24 +145,25 @@ export function useLauncherSearch(options: UseLauncherSearchOptions) {
       return [];
     }
     const tokens = tokenizeQuery(normalized);
-    const rankedMatches = searchableCommands.value
-      .filter((item) => matchCommand(tokens, item))
-      .map<RankedMatch>((item) => ({
-        command: item.command,
-        index: item.index,
-        score: scoreCommand(normalized, tokens, item)
-      }));
+    const rankedWindow: SearchRankWindowEntry[] = [];
 
-    return rankedMatches
-      .sort((left, right) => {
-        const scoreDiff = right.score - left.score;
-        if (scoreDiff !== 0) {
-          return scoreDiff;
-        }
-        return left.index - right.index;
-      })
-      .slice(0, MAX_FILTERED_RESULTS)
-      .map((item) => item.command);
+    for (const item of searchableCommands.value) {
+      if (!matchCommand(tokens, item)) {
+        continue;
+      }
+
+      insertRankedMatch(
+        rankedWindow,
+        {
+          command: item.command,
+          index: item.index,
+          score: scoreCommand(normalized, tokens, item)
+        },
+        MAX_FILTERED_RESULTS
+      );
+    }
+
+    return rankedWindow.map((item) => item.command);
   });
 
   function normalizeActiveIndex(): void {

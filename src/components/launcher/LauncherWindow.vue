@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, nextTick, provide, toRef } from "vue";
-import type { CommandTemplate } from "../../features/commands/commandTemplates";
 import { useI18nText } from "../../i18n";
 import { useLauncherHitZones } from "../../composables/launcher/useLauncherHitZones";
 import { LAUNCHER_NAV_STACK_KEY, type LauncherNavStack } from "../../composables/launcher/useLauncherNavStack";
 import type { LauncherVm } from "../../composables/app/useAppCompositionRoot/launcherVm";
 import { dismissDanger } from "../../features/security/dangerDismiss";
+import { createLauncherWindowHandlers } from "./launcherWindowHandlers";
 import LauncherQueueReviewPanel from "./parts/LauncherQueueReviewPanel.vue";
 import LauncherActionPanel from "./parts/LauncherActionPanel.vue";
 import LauncherCommandPanel from "./parts/LauncherCommandPanel.vue";
@@ -36,139 +36,10 @@ const navStackProvided: LauncherNavStack = {
   resetToSearch: props.launcherVm.nav.resetToSearch
 };
 provide(LAUNCHER_NAV_STACK_KEY, navStackProvided);
-
-function submitParamInput(): void {
-  if (!props.launcherVm.actions.submitParamInput()) {
-    return;
-  }
-  props.launcherVm.actions.requestCommandPanelExit();
-}
-
-function onQueryInput(value: string): void {
-  props.launcherVm.actions.onQueryInput(value);
-}
-
-function onEnqueueResult(command: CommandTemplate): void {
-  props.launcherVm.actions.enqueueResult(command);
-}
-
-function onExecuteResult(command: CommandTemplate): void {
-  props.launcherVm.actions.executeResult(command);
-}
-
-function onOpenActionPanel(command: CommandTemplate): void {
-  props.launcherVm.actions.openActionPanel(command);
-}
-
-function onCopyResult(command: CommandTemplate): void {
-  props.launcherVm.actions.dispatchCommandIntent(command, "copy");
-}
-
-function toggleQueue(): void {
-  props.launcherVm.actions.toggleQueue();
-}
-
-function onQueueDragStart(index: number, event: DragEvent): void {
-  props.launcherVm.actions.onQueueDragStart(index, event);
-}
-
-function onQueueDragOver(index: number, event: DragEvent): void {
-  props.launcherVm.actions.onQueueDragOver(index, event);
-}
-
-function onQueueDragEnd(): void {
-  props.launcherVm.actions.onQueueDragEnd();
-}
-
-function onQueueGripReorderActiveChange(value: boolean): void {
-  props.launcherVm.actions.setQueueGripReorderActive(value);
-}
-
-function onFocusQueueIndex(index: number): void {
-  props.launcherVm.actions.onFocusQueueIndex(index);
-}
-
-function onRemoveQueuedCommand(id: string): void {
-  props.launcherVm.actions.removeQueuedCommand(id);
-}
-
-function onUpdateQueuedArg(id: string, key: string, value: string): void {
-  props.launcherVm.actions.updateQueuedArg(id, key, value);
-}
-
-function onClearQueue(): void {
-  props.launcherVm.actions.clearQueue();
-}
-
-function onExecuteQueue(): void {
-  props.launcherVm.actions.executeQueue();
-}
-
-function onRefreshQueuePreflight(): void {
-  props.launcherVm.actions.refreshAllQueuedPreflight();
-}
-
-function onRefreshQueuedCommandPreflight(id: string): void {
-  props.launcherVm.actions.refreshQueuedCommandPreflight(id);
-}
-
-function onSearchCapsuleBack(): void {
-  if (props.launcherVm.nav.currentPage.type === "command-action") {
-    props.launcherVm.actions.requestCommandPanelExit();
-    return;
-  }
-  if (props.launcherVm.nav.canGoBack) {
-    props.launcherVm.nav.popPage();
-    return;
-  }
-  if (props.launcherVm.queue.queueOpen) {
-    toggleQueue();
-  }
-}
-
-function onCommandPanelSubmit(argValues: Record<string, string>, shouldDismiss: boolean): void {
-  void argValues;
-  if (shouldDismiss && props.launcherVm.nav.currentPage.props?.command) {
-    dismissDanger(props.launcherVm.nav.currentPage.props.command.id);
-  }
-  submitParamInput();
-}
-
-function onCommandPanelCancel(): void {
-  props.launcherVm.actions.requestCommandPanelExit();
-}
-
-function onActionPanelCancel(): void {
-  props.launcherVm.actions.requestCommandPanelExit();
-}
-
-function onActionPanelSelect(intent: "execute" | "stage" | "copy"): void {
-  props.launcherVm.actions.selectActionPanelIntent(intent);
-}
-
-function onArgInput(key: string, value: string): void {
-  props.launcherVm.actions.updatePendingArgValue(key, value);
-}
-
-function onFlowPanelPrepared(): void {
-  props.launcherVm.actions.notifyFlowPanelPrepared();
-}
-
-function onFlowPanelHeightChange(): void {
-  props.launcherVm.actions.notifyFlowPanelHeightChange();
-}
-
-function onFlowPanelSettled(): void {
-  props.launcherVm.actions.notifyFlowPanelSettled();
-}
-
-function onConfirmSafetyExecution(): void {
-  props.launcherVm.actions.confirmSafetyExecution();
-}
-
-function onCancelSafetyExecution(): void {
-  props.launcherVm.actions.cancelSafetyExecution();
-}
+const handlers = createLauncherWindowHandlers({
+  launcherVm: props.launcherVm,
+  dismissDanger
+});
 
 function onNavAfterEnter(): void {
   void nextTick(() => {
@@ -239,13 +110,13 @@ function onNavAfterEnter(): void {
             :set-search-input-ref="props.launcherVm.dom.setSearchInputRef"
             :set-drawer-ref="props.launcherVm.dom.setDrawerRef"
             :set-result-button-ref="props.launcherVm.dom.setResultButtonRef"
-            @query-input="onQueryInput"
-            @enqueue-result="onEnqueueResult"
-            @execute-result="onExecuteResult"
-            @open-action-panel="onOpenActionPanel"
-            @copy-result="onCopyResult"
-            @toggle-queue="toggleQueue"
-            @search-capsule-back="onSearchCapsuleBack"
+            @query-input="handlers.onQueryInput"
+            @enqueue-result="handlers.onEnqueueResult"
+            @execute-result="handlers.onExecuteResult"
+            @open-action-panel="handlers.onOpenActionPanel"
+            @copy-result="handlers.onCopyResult"
+            @toggle-queue="handlers.toggleQueue"
+            @search-capsule-back="handlers.onSearchCapsuleBack"
           />
 
           <LauncherActionPanel
@@ -255,8 +126,8 @@ function onNavAfterEnter(): void {
             "
             key="command-action-actions"
             :command="props.launcherVm.nav.currentPage.props?.command!"
-            @select-intent="onActionPanelSelect"
-            @cancel="onActionPanelCancel"
+            @select-intent="handlers.onActionPanelSelect"
+            @cancel="handlers.onActionPanelCancel"
           />
 
           <LauncherCommandPanel
@@ -269,10 +140,10 @@ function onNavAfterEnter(): void {
             :queued-command-count="props.launcherVm.queue.items.length"
             :execution-feedback-message="props.launcherVm.command.executionFeedbackMessage"
             :execution-feedback-tone="props.launcherVm.command.executionFeedbackTone"
-            @submit="onCommandPanelSubmit"
-            @cancel="onCommandPanelCancel"
-            @arg-input="onArgInput"
-            @toggle-queue="toggleQueue"
+            @submit="handlers.onCommandPanelSubmit"
+            @cancel="handlers.onCommandPanelCancel"
+            @arg-input="handlers.onArgInput"
+            @toggle-queue="handlers.toggleQueue"
           />
         </Transition>
 
@@ -280,8 +151,8 @@ function onNavAfterEnter(): void {
           v-if="props.launcherVm.command.safetyDialog"
           :safety-dialog="props.launcherVm.command.safetyDialog"
           :executing="props.launcherVm.command.executing"
-          @confirm-safety-execution="onConfirmSafetyExecution"
-          @cancel-safety-execution="onCancelSafetyExecution"
+          @confirm-safety-execution="handlers.onConfirmSafetyExecution"
+          @cancel-safety-execution="handlers.onCancelSafetyExecution"
         />
 
         <LauncherQueueReviewPanel
@@ -300,21 +171,21 @@ function onNavAfterEnter(): void {
           :execution-feedback-tone="props.launcherVm.command.executionFeedbackTone"
           :set-queue-panel-ref="props.launcherVm.dom.setQueuePanelRef"
           :set-queue-list-ref="props.launcherVm.dom.setQueueListRef"
-          @toggle-queue="toggleQueue"
-          @queue-drag-start="onQueueDragStart"
-          @queue-drag-over="onQueueDragOver"
-          @queue-drag-end="onQueueDragEnd"
-          @grip-reorder-active-change="onQueueGripReorderActiveChange"
-          @focus-queue-index="onFocusQueueIndex"
-          @remove-queued-command="onRemoveQueuedCommand"
-          @update-queued-arg="onUpdateQueuedArg"
-          @clear-queue="onClearQueue"
-          @execute-queue="onExecuteQueue"
-          @refresh-queue-preflight="onRefreshQueuePreflight"
-          @refresh-queued-command-preflight="onRefreshQueuedCommandPreflight"
-          @flow-panel-prepared="onFlowPanelPrepared"
-          @flow-panel-height-change="onFlowPanelHeightChange"
-          @flow-panel-settled="onFlowPanelSettled"
+          @toggle-queue="handlers.toggleQueue"
+          @queue-drag-start="handlers.onQueueDragStart"
+          @queue-drag-over="handlers.onQueueDragOver"
+          @queue-drag-end="handlers.onQueueDragEnd"
+          @grip-reorder-active-change="handlers.onQueueGripReorderActiveChange"
+          @focus-queue-index="handlers.onFocusQueueIndex"
+          @remove-queued-command="handlers.onRemoveQueuedCommand"
+          @update-queued-arg="handlers.onUpdateQueuedArg"
+          @clear-queue="handlers.onClearQueue"
+          @execute-queue="handlers.onExecuteQueue"
+          @refresh-queue-preflight="handlers.onRefreshQueuePreflight"
+          @refresh-queued-command-preflight="handlers.onRefreshQueuedCommandPreflight"
+          @flow-panel-prepared="handlers.onFlowPanelPrepared"
+          @flow-panel-height-change="handlers.onFlowPanelHeightChange"
+          @flow-panel-settled="handlers.onFlowPanelSettled"
           @execution-feedback="(t: 'neutral' | 'success' | 'error', m: string) => emit('execution-feedback', t, m)"
         />
       </div>

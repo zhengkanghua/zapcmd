@@ -237,6 +237,32 @@ describe("useLauncherSearch", () => {
     expect(search.filteredResults.value.some((item) => item.id === "git-12")).toBe(true);
   });
 
+  it("does not rely on Array.sort when selecting ranked matches", () => {
+    const commandSource = ref<CommandTemplate[]>(
+      Array.from({ length: 12 }, (_, index) =>
+        createCommand(`git-${index}`, `git command ${index}`, `git status ${index}`)
+      )
+    );
+    const search = useLauncherSearch({ commandSource });
+    const originalSort = Array.prototype.sort;
+    const resultIds = (() => {
+      try {
+        Array.prototype.sort = function failingSort() {
+          throw new Error("sort should not be used in launcher search");
+        };
+
+        search.onQueryInput("git");
+        return search.filteredResults.value.map((item) => item.id);
+      } finally {
+        Array.prototype.sort = originalSort;
+      }
+    })();
+
+    expect(resultIds).toHaveLength(12);
+    expect(resultIds[0]).toBe("git-0");
+    expect(resultIds[1]).toBe("git-1");
+  });
+
   it("clears query and selection", () => {
     const search = useLauncherSearch({
       commandSource: ref([createCommand("git-status", "git status", "git status")])

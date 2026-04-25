@@ -313,6 +313,7 @@ export const messages = {
         terminalUnavailable: "默认终端不可用，请重新选择。",
         updateLauncherHotkeyFailed: "更新唤起快捷键失败。",
         updateLaunchAtLoginFailed: "更新开机自启设置失败。",
+        readLaunchAtLoginFailed: "读取开机自启状态失败。",
         persistSettingsFailed: "保存设置到本地失败。",
         broadcastSettingsFailed: "同步设置失败。"
       }
@@ -745,6 +746,7 @@ export const messages = {
         terminalUnavailable: "Default terminal is unavailable. Please choose another one.",
         updateLauncherHotkeyFailed: "Failed to update launcher hotkey.",
         updateLaunchAtLoginFailed: "Failed to update launch at login setting.",
+        readLaunchAtLoginFailed: "Failed to read launch at login status.",
         persistSettingsFailed: "Failed to persist settings.",
         broadcastSettingsFailed: "Failed to broadcast settings updates."
       }

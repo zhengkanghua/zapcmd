@@ -67,6 +67,7 @@ export function createSettingsViewModel(deps: {
             ? t("settings.general.languageOptionZhCn")
             : t("settings.general.languageOptionEnUs")
       }))
-    )
+    ),
+    generalErrorMessage: state.generalErrorMessage
   };
 }

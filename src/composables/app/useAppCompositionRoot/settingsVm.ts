@@ -55,6 +55,7 @@ export function createSettingsVm(
     autoCheckUpdate: scene.autoCheckUpdate,
     launchAtLogin: scene.launchAtLogin,
     alwaysElevatedTerminal: scene.alwaysElevatedTerminal,
+    generalErrorMessage: scene.settingsWindow.generalErrorMessage,
     showAlwaysElevatedTerminal: computed(() => scene.updateManager.runtimePlatform.value === "win"),
     selectedTerminalPath: scene.settingsWindow.selectedTerminalPath,
     languageOptions: scene.settingsWindow.languageOptions,

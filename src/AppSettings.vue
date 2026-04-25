@@ -48,6 +48,7 @@ defineExpose({
     :auto-check-update="settingsVm.autoCheckUpdate"
     :launch-at-login="settingsVm.launchAtLogin"
     :always-elevated-terminal="settingsVm.alwaysElevatedTerminal"
+    :general-error-message="settingsVm.generalErrorMessage"
     :show-always-elevated-terminal="settingsVm.showAlwaysElevatedTerminal"
     :command-rows="settingsVm.commandRows"
     :visible-command-rows="settingsVm.visibleCommandRows"

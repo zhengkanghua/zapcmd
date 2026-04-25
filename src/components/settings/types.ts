@@ -68,6 +68,7 @@ export interface SettingsGeneralProps {
   autoCheckUpdate: boolean;
   launchAtLogin: boolean;
   alwaysElevatedTerminal: boolean;
+  generalErrorMessage: string;
   showAlwaysElevatedTerminal: boolean;
 }
 

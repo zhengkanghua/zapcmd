@@ -88,6 +88,14 @@ function onTerminalReusePolicySelect(value: string): void {
 
 <template>
   <section class="settings-group settings-general grid gap-[24px]" aria-label="settings-general">
+    <p
+      v-if="props.generalErrorMessage.trim().length > 0"
+      class="settings-status settings-status--error mt-0 mb-0 px-[12px] py-[9px] border border-ui-danger/25 rounded-[8px] bg-ui-danger/8 text-[12px] leading-[1.45] text-ui-danger"
+      role="alert"
+    >
+      {{ props.generalErrorMessage }}
+    </p>
+
     <SettingSection :label="t('settings.general.sectionStartup')" heading-id="settings-general-startup">
       <SettingItem
         :label="t('settings.general.autoCheckUpdate')"

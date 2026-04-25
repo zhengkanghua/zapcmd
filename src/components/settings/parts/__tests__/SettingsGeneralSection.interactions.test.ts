@@ -22,6 +22,7 @@ function createProps(
     autoCheckUpdate: true,
     launchAtLogin: false,
     alwaysElevatedTerminal: false,
+    generalErrorMessage: "",
     showAlwaysElevatedTerminal: true,
     ...overrides
   };
@@ -104,5 +105,15 @@ describe("SettingsGeneralSection interactions", () => {
     expect(dropdowns[0]!.props("modelValue")).toBe("wt");
     expect(wrapper.get(".settings-general__refresh-terminals").attributes("disabled")).toBeUndefined();
     expect(wrapper.get("code.settings-card__mono").text()).toBe("wt.exe");
+  });
+
+  it("renders a visible error banner for general settings failures", () => {
+    const wrapper = mount(SettingsGeneralSection, {
+      props: createProps({
+        generalErrorMessage: "autostart read failed"
+      }) as never
+    });
+
+    expect(wrapper.get(".settings-status--error").text()).toContain("autostart read failed");
   });
 });
