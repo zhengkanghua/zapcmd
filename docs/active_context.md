@@ -54,3 +54,4 @@
 - 2026-04-25：已补 `useUpdateManager` 的 `readRuntimePlatform` 注入，`settingsScene` 改走 composition root ports；同时补齐 command catalog controller 与 userCommandSourceCache 缺口分支测试，`test:coverage` 现为 1122 测试全过、分支 90.50%。
 - 2026-04-25：已收口 1/3/4/5：搜索改有界插入排名，General 自启读取失败可见告警，`LauncherWindow` 事件桥接抽出，补执行失败热点测试；`check:all` 全绿。
 - 2026-04-25：已修 CI Gate Windows shell 合同：builtin generate 同步检查改显式 `pwsh` + PowerShell 条件分支，避免 Bash `|| (...)` 在 Windows runner 解析失败；新增 workflow 合同测试。
+- 2026-04-25：已修 Rust Windows test 编译回归：`src-tauri/src/terminal/tests_exec.rs` 的 Windows 子模块改直接导入 `ExecutionSpec` / `TerminalExecutionStep`，不再误用 `super::` 指向 `tests_exec`；本地 `cargo check`、`cargo test` 通过。

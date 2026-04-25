@@ -98,6 +98,7 @@ fn spawn_with_reaper_invokes_reaper_after_spawn() {
 #[cfg(target_os = "windows")]
 mod windows {
     use crate::terminal::{
+        ExecutionSpec,
         join_windows_arguments,
         map_windows_launch_error,
         resolve_windows_terminal_program_from_options,
@@ -116,6 +117,7 @@ mod windows {
         },
         WindowsLaunchMode,
         TerminalExecutionError,
+        TerminalExecutionStep,
         TerminalOption,
     };
     use crate::terminal::execution::build_windows_host_command;
@@ -348,9 +350,9 @@ mod windows {
     fn wt_exec_step_with_stdin_uses_base64_instead_of_here_string() {
         let command = build_windows_host_command(
             "wt",
-            &[super::TerminalExecutionStep {
+            &[TerminalExecutionStep {
                 summary: "sqlite query".to_string(),
-                execution: super::ExecutionSpec::Exec {
+                execution: ExecutionSpec::Exec {
                     program: "sqlite3".to_string(),
                     args: vec!["data.db".to_string()],
                     stdin_arg_key: Some("sql".to_string()),
