@@ -36,10 +36,6 @@ export function createPointerActions(deps: {
   ): Promise<void> {
     clearSettingsErrorState(state);
 
-    options.pointerActions.value = {
-      ...options.pointerActions.value,
-      [field]: action
-    };
     options.settingsStore.setPointerAction(field, action);
 
     try {

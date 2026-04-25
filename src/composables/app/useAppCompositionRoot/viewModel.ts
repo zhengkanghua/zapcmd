@@ -15,10 +15,12 @@ type AppCompositionContext = ReturnType<typeof createAppCompositionContext>;
 type AppCompositionRuntime = ReturnType<typeof createAppCompositionRuntime>;
 
 const SETTINGS_SAVED_TOAST_DISMISS_DELAY_MS = 2200;
+const SETTINGS_APPEARANCE_PERSIST_DEBOUNCE_MS = 120;
 
 export function createSettingsMutationHandlers(context: SettingsVmContext) {
   const scene = context.settingsScene;
   let settingsSavedTimer: ReturnType<typeof setTimeout> | null = null;
+  let appearancePersistTimer: ReturnType<typeof setTimeout> | null = null;
   let disposed = false;
   const settingsSaved = ref(false);
 
@@ -28,6 +30,14 @@ export function createSettingsMutationHandlers(context: SettingsVmContext) {
     }
     clearTimeout(settingsSavedTimer);
     settingsSavedTimer = null;
+  }
+
+  function clearAppearancePersistTimer(): void {
+    if (!appearancePersistTimer) {
+      return;
+    }
+    clearTimeout(appearancePersistTimer);
+    appearancePersistTimer = null;
   }
 
   function resetSavedToast(): void {
@@ -65,11 +75,23 @@ export function createSettingsMutationHandlers(context: SettingsVmContext) {
     });
   }
 
+  function persistAppearanceSoon(): void {
+    resetSavedToast();
+    clearAppearancePersistTimer();
+    appearancePersistTimer = setTimeout(() => {
+      appearancePersistTimer = null;
+      void scene.settingsWindow.persistSetting().then(() => {
+        handlePersistSuccess();
+      });
+    }, SETTINGS_APPEARANCE_PERSIST_DEBOUNCE_MS);
+  }
+
   // 作用域销毁后不再允许旧定时器回写 toast 状态，避免残留异步闭包继续更新已卸载视图。
   if (getCurrentScope()) {
     onScopeDispose(() => {
       disposed = true;
       clearSettingsSavedTimer();
+      clearAppearancePersistTimer();
     });
   }
 
@@ -104,19 +126,19 @@ export function createSettingsMutationHandlers(context: SettingsVmContext) {
     },
     setWindowOpacity(value: number): void {
       scene.settingsStore.setWindowOpacity(value);
-      persistImmediate();
+      persistAppearanceSoon();
     },
     setTheme(value: string): void {
       scene.settingsStore.setTheme(value);
-      persistImmediate();
+      persistAppearanceSoon();
     },
     setMotionPreset(value: string): void {
       scene.settingsStore.setMotionPreset(value);
-      persistImmediate();
+      persistAppearanceSoon();
     },
     setBlurEnabled(value: boolean): void {
       scene.settingsStore.setBlurEnabled(value);
-      persistImmediate();
+      persistAppearanceSoon();
     },
     async saveSettings(): Promise<void> {
       resetSavedToast();

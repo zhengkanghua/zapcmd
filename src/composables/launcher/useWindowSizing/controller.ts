@@ -48,7 +48,9 @@ export function createWindowSizingController(options: UseWindowSizingOptions) {
   const flowPanelPreparedGate: FlowPanelPreparedGate = {
     prepared: false,
     promise: null,
-    resolve: null
+    resolve: null,
+    reject: null,
+    version: 0
   };
 
   /** 缓动动画路径，用于 watcher 触发的响应式更新。 */

@@ -544,6 +544,39 @@ describe("createAppCompositionViewModel", () => {
     }
   });
 
+  it("连续调整 windowOpacity 时会合并持久化，只在 settle 后保存一次", async () => {
+    vi.useFakeTimers();
+    try {
+      const context = createContextStub();
+      const persistSetting = vi.fn().mockResolvedValue(undefined);
+      const settingsWindow = context.settingsScene.settingsWindow as {
+        persistSetting?: () => Promise<void>;
+        settingsError?: { value: string };
+      };
+      settingsWindow.persistSetting = persistSetting;
+      settingsWindow.settingsError = ref("");
+      const viewModel = createAppCompositionViewModel(
+        context as never,
+        createDeepStub() as never
+      );
+
+      viewModel.settingsVm.setWindowOpacity(0.9);
+      viewModel.settingsVm.setWindowOpacity(0.88);
+      viewModel.settingsVm.setWindowOpacity(0.86);
+
+      expect(context.settingsScene.settingsStore.setWindowOpacity).toHaveBeenCalledTimes(3);
+      expect(persistSetting).not.toHaveBeenCalled();
+
+      vi.runAllTimers();
+      await Promise.resolve();
+
+      expect(context.settingsScene.settingsStore.setWindowOpacity).toHaveBeenLastCalledWith(0.86);
+      expect(persistSetting).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it.each(["execute", "stage", "copy"] as const)(
     "动作面板选择无参 %s 后会请求收口回搜索页",
     async (intent) => {

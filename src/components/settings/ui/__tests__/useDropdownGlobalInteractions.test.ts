@@ -1,9 +1,13 @@
 import { effectScope, ref } from "vue";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useDropdownGlobalInteractions } from "../useDropdownGlobalInteractions";
 
 describe("useDropdownGlobalInteractions", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("打开时注册 pointerdown/resize/scroll，关闭和卸载时完整清理", async () => {
     const addDocumentListener = vi.spyOn(document, "addEventListener");
     const removeDocumentListener = vi.spyOn(document, "removeEventListener");
@@ -33,8 +37,8 @@ describe("useDropdownGlobalInteractions", () => {
       "pointerdown",
       expect.any(Function)
     );
-    expect(addWindowListener).toHaveBeenCalledWith("resize", syncPanelPosition);
-    expect(addWindowListener).toHaveBeenCalledWith("scroll", syncPanelPosition, true);
+    expect(addWindowListener).toHaveBeenCalledWith("resize", expect.any(Function));
+    expect(addWindowListener).toHaveBeenCalledWith("scroll", expect.any(Function), true);
 
     isOpen.value = false;
     await Promise.resolve();
@@ -43,8 +47,8 @@ describe("useDropdownGlobalInteractions", () => {
       "pointerdown",
       expect.any(Function)
     );
-    expect(removeWindowListener).toHaveBeenCalledWith("resize", syncPanelPosition);
-    expect(removeWindowListener).toHaveBeenCalledWith("scroll", syncPanelPosition, true);
+    expect(removeWindowListener).toHaveBeenCalledWith("resize", expect.any(Function));
+    expect(removeWindowListener).toHaveBeenCalledWith("scroll", expect.any(Function), true);
 
     scope.stop();
 
@@ -85,5 +89,57 @@ describe("useDropdownGlobalInteractions", () => {
 
     scope.stop();
     document.body.innerHTML = "";
+  });
+
+  it("resize 和 scroll 高频触发时会合并到同一帧同步位置", async () => {
+    vi.useFakeTimers();
+    let rafId = 0;
+    const rafCallbacks = new Map<number, FrameRequestCallback>();
+    const windowListeners = new Map<string, EventListener>();
+    vi.spyOn(window, "addEventListener").mockImplementation(
+      ((type: string, listener: EventListenerOrEventListenerObject) => {
+        if (typeof listener === "function") {
+          windowListeners.set(type, listener as EventListener);
+        }
+      }) as typeof window.addEventListener
+    );
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback: FrameRequestCallback) => {
+      rafId += 1;
+      rafCallbacks.set(rafId, callback);
+      return rafId;
+    });
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation((id: number) => {
+      rafCallbacks.delete(id);
+    });
+
+    const isOpen = ref(true);
+    const triggerRef = ref<HTMLElement | null>(document.createElement("button"));
+    const panelRef = ref<HTMLElement | null>(document.createElement("div"));
+    const closeDropdown = vi.fn();
+    const syncPanelPosition = vi.fn();
+    const scope = effectScope();
+
+    scope.run(() => {
+      useDropdownGlobalInteractions({
+        isOpen,
+        triggerRef,
+        panelRef,
+        closeDropdown,
+        syncPanelPosition
+      });
+    });
+
+    windowListeners.get("resize")?.(new Event("resize"));
+    windowListeners.get("resize")?.(new Event("resize"));
+    windowListeners.get("scroll")?.(new Event("scroll"));
+
+    expect(syncPanelPosition).not.toHaveBeenCalled();
+    expect(rafCallbacks.size).toBe(1);
+
+    rafCallbacks.values().next().value?.(16);
+
+    expect(syncPanelPosition).toHaveBeenCalledTimes(1);
+    scope.stop();
+    vi.useRealTimers();
   });
 });

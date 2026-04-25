@@ -32,7 +32,9 @@ describe("createWindowSizingEvents", () => {
       flowPanelPreparedGate: {
         prepared: false,
         promise: null,
-        resolve: null
+        resolve: null,
+        reject: null,
+        version: 0
       },
       scheduleWindowSync
     });
@@ -51,7 +53,9 @@ describe("createWindowSizingEvents", () => {
     const flowPanelPreparedGate: FlowPanelPreparedGate = {
       prepared: false,
       promise: Promise.resolve(),
-      resolve
+      resolve,
+      reject: null,
+      version: 0
     };
     const events = createWindowSizingEvents({
       state: createState(),
@@ -81,7 +85,9 @@ describe("createWindowSizingEvents", () => {
       flowPanelPreparedGate: {
         prepared: false,
         promise: null,
-        resolve: null
+        resolve: null,
+        reject: null,
+        version: 0
       },
       scheduleWindowSync
     });
@@ -107,7 +113,9 @@ describe("createWindowSizingEvents", () => {
       flowPanelPreparedGate: {
         prepared: false,
         promise: null,
-        resolve: null
+        resolve: null,
+        reject: null,
+        version: 0
       },
       scheduleWindowSync: vi.fn()
     });

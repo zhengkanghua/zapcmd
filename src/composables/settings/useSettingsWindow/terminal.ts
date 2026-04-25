@@ -28,18 +28,18 @@ export function createTerminalActions(deps: {
       return false;
     }
 
-    options.defaultTerminal.value = resolution.effectiveId;
+    options.settingsStore.setDefaultTerminal(resolution.effectiveId);
     return true;
   }
 
   function selectTerminalOption(id: string): void {
-    options.defaultTerminal.value = id;
+    options.settingsStore.setDefaultTerminal(id);
     clearSettingsErrorState(state);
     void persistSetting();
   }
 
   function selectLanguageOption(locale: AppLocale): void {
-    options.language.value = normalizeAppLocale(locale);
+    options.settingsStore.setLanguage(normalizeAppLocale(locale));
     clearSettingsErrorState(state);
     void persistSetting();
   }

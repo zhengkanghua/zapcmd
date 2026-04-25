@@ -24,9 +24,13 @@ interface CreateWindowSizingSyncInput {
 }
 
 function resetFlowPanelPreparedGate(gate: FlowPanelPreparedGate): void {
+  const cancelWaiter = gate.reject ?? gate.resolve;
+  cancelWaiter?.();
   gate.prepared = false;
   gate.promise = null;
   gate.resolve = null;
+  gate.reject = null;
+  gate.version += 1;
 }
 
 export function createWindowSizingSync(input: CreateWindowSizingSyncInput) {

@@ -134,14 +134,12 @@ export function createPersistenceActions(deps: {
     clearSettingsErrorState(state);
 
     const oldValue = options.launchAtLogin.value;
-    options.launchAtLogin.value = enabled;
     options.settingsStore.setLaunchAtLogin(enabled);
 
     if (options.isTauriRuntime()) {
       try {
         await options.writeAutoStartEnabled(enabled);
       } catch (error) {
-        options.launchAtLogin.value = oldValue;
         options.settingsStore.setLaunchAtLogin(oldValue);
         applySettingsValidationIssue(state, {
           message: resolveSettingsError(error, "settings.error.updateLaunchAtLoginFailed"),

@@ -2,16 +2,31 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import type { HotkeyFieldDefinition } from "../../../features/settings/types";
-import { createDefaultSettingsSnapshot, type HotkeyFieldId } from "../../../stores/settingsStore";
+import {
+  createDefaultSettingsSnapshot,
+  type HotkeyFieldId,
+  type TerminalReusePolicy
+} from "../../../stores/settingsStore";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
 import { createTerminalActions } from "../../settings/useSettingsWindow/terminal";
 
 type TerminalTestOptions = UseSettingsWindowOptions & {
   refreshAvailableTerminals: ReturnType<typeof vi.fn>;
+  settingsStore: UseSettingsWindowOptions["settingsStore"] & {
+    setDefaultTerminal: ReturnType<typeof vi.fn>;
+    setLanguage: ReturnType<typeof vi.fn>;
+    setAutoCheckUpdate: ReturnType<typeof vi.fn>;
+  };
 };
 
 function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTestOptions {
   const baseSnapshot = createDefaultSettingsSnapshot();
+  const defaultTerminal = ref("ghost");
+  const terminalReusePolicy = ref<TerminalReusePolicy>("never");
+  const language = ref<"zh-CN" | "en-US">("zh-CN");
+  const autoCheckUpdate = ref(true);
+  const launchAtLogin = ref(false);
+  const alwaysElevatedTerminal = ref(false);
   const settingsStore = {
     persist: vi.fn(),
     hydrateFromStorage: vi.fn(),
@@ -19,9 +34,24 @@ function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTe
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
     setPointerAction: vi.fn(),
-    setLaunchAtLogin: vi.fn(),
-    setAlwaysElevatedTerminal: vi.fn(),
-    setTerminalReusePolicy: vi.fn()
+    setDefaultTerminal: vi.fn((value: string) => {
+      defaultTerminal.value = value;
+    }),
+    setLaunchAtLogin: vi.fn((value: boolean) => {
+      launchAtLogin.value = value;
+    }),
+    setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
+      alwaysElevatedTerminal.value = value;
+    }),
+    setLanguage: vi.fn((value: "zh-CN" | "en-US") => {
+      language.value = value;
+    }),
+    setAutoCheckUpdate: vi.fn((value: boolean) => {
+      autoCheckUpdate.value = value;
+    }),
+    setTerminalReusePolicy: vi.fn((value: TerminalReusePolicy) => {
+      terminalReusePolicy.value = value;
+    })
   };
 
   const hotkeyDefinitions: HotkeyFieldDefinition[] = [
@@ -32,12 +62,12 @@ function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTe
     settingsHashPrefix: "#settings:",
     hotkeyDefinitions,
     isSettingsWindow: ref(true),
-    defaultTerminal: ref("ghost"),
-    terminalReusePolicy: ref("never"),
-    language: ref("zh-CN"),
-    autoCheckUpdate: ref(true),
-    launchAtLogin: ref(false),
-    alwaysElevatedTerminal: ref(false),
+    defaultTerminal,
+    terminalReusePolicy,
+    language,
+    autoCheckUpdate,
+    launchAtLogin,
+    alwaysElevatedTerminal,
     pointerActions: ref(baseSnapshot.general.pointerActions),
     settingsStore,
     getHotkeyValue: vi.fn((field: HotkeyFieldId) => baseSnapshot.hotkeys[field]),
@@ -55,6 +85,40 @@ function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTe
 }
 
 describe("useSettingsWindow terminal actions", () => {
+  it("selectTerminalOption 统一走 store action 持久化", () => {
+    const options = createOptions();
+    const state = createSettingsState();
+    const persistSetting = vi.fn(async () => {});
+    const actions = createTerminalActions({
+      options,
+      state,
+      persistSetting
+    });
+
+    actions.selectTerminalOption("wt");
+
+    expect(options.defaultTerminal.value).toBe("wt");
+    expect(options.settingsStore.setDefaultTerminal).toHaveBeenCalledWith("wt");
+    expect(persistSetting).toHaveBeenCalledTimes(1);
+  });
+
+  it("selectLanguageOption 统一走 store action 持久化", () => {
+    const options = createOptions();
+    const state = createSettingsState();
+    const persistSetting = vi.fn(async () => {});
+    const actions = createTerminalActions({
+      options,
+      state,
+      persistSetting
+    });
+
+    actions.selectLanguageOption("en-US");
+
+    expect(options.language.value).toBe("en-US");
+    expect(options.settingsStore.setLanguage).toHaveBeenCalledWith("en-US");
+    expect(persistSetting).toHaveBeenCalledTimes(1);
+  });
+
   it("refreshAvailableTerminals bypasses cached read and re-runs ensureDefaultTerminal", async () => {
     const options = createOptions();
     const state = createSettingsState();

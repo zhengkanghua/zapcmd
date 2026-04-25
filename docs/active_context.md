@@ -48,3 +48,4 @@
 - 2026-04-24：运行时审查收口已落地：theme/motion 展示文案改走 i18n，执行失败只认结构化 error code，`LauncherWindow` 外部事件面缩到父层真实消费项，session 持久化改为最小 DTO 签名监听并避开 runtime-only 字段；composition root/launcher entry 共享 window-scoped launcher runtime 装配。待/已跑 `check:all` 作为最终验收。
 - 2026-04-24：补做运行期取证与二次审查；浏览器 100 轮搜索+Flow 开关后 `jsEventListeners` 0 增长、DOM +5、heap +1.27MB，暂无明确泄漏证据；剩余真实风险集中在 web 预览 warning、`LauncherWindow` 事件桥接仍偏厚、`useLauncherSessionState` 的 JSON 签名成本。
 - 2026-04-24：二次审查剩余项已收口：执行错误新增 `invalid-request` / 平台不支持映射，非 Tauri window resolver 静默，`LauncherWindow` 对外 contract 继续收窄，session 签名改为轻量串联；`npm run check:all` 全绿。
+- 2026-04-25：已收口 4 个真实质量问题：Settings 写入统一走 store action；Flow reveal gate 增加 cancel/version，关闭后旧异步不再推进；Command Catalog 增加 latest-only 并发保护；Dropdown 改 rAF 合帧，Appearance 持久化改 debounce。定向 59 测试、`lint`、`typecheck`、`check:rust` 通过。

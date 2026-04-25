@@ -32,11 +32,27 @@ async function waitForFlowPanelPrepared(
     return;
   }
   if (gate.promise === null) {
+    const version = gate.version;
     gate.promise = new Promise<void>((resolve) => {
       gate.resolve = () => {
+        if (gate.version !== version) {
+          resolve();
+          return;
+        }
         gate.prepared = true;
         gate.promise = null;
         gate.resolve = null;
+        gate.reject = null;
+        resolve();
+      };
+      gate.reject = () => {
+        if (gate.version !== version) {
+          resolve();
+          return;
+        }
+        gate.promise = null;
+        gate.resolve = null;
+        gate.reject = null;
         resolve();
       };
     });
@@ -67,6 +83,7 @@ export function createFlowRevealCoordinator(input: CreateFlowRevealCoordinatorIn
 
   return {
     async prepare(): Promise<void> {
+      const prepareVersion = flowPanelPreparedGate.version;
       if (options.isSettingsWindow.value || !options.stagingExpanded.value) {
         return;
       }
@@ -77,9 +94,18 @@ export function createFlowRevealCoordinator(input: CreateFlowRevealCoordinatorIn
       }
 
       await waitForFlowPanelPrepared(options, flowPanelPreparedGate);
+      if (
+        prepareVersion !== flowPanelPreparedGate.version ||
+        options.isSettingsWindow.value ||
+        !options.stagingExpanded.value ||
+        !state.flowPanelActive
+      ) {
+        return;
+      }
 
       const measuredMinHeight = await measureFlowPanelMinHeightForReveal(options);
       if (
+        prepareVersion !== flowPanelPreparedGate.version ||
         measuredMinHeight === null ||
         !Number.isFinite(measuredMinHeight) ||
         measuredMinHeight <= 0

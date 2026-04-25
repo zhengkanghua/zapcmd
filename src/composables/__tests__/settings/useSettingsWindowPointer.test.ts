@@ -1,34 +1,63 @@
 import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
-import { createDefaultSettingsSnapshot } from "../../../stores/settingsStore";
+import {
+  createDefaultSettingsSnapshot,
+  type PointerActionFieldId,
+  type SearchResultPointerAction,
+  type TerminalReusePolicy
+} from "../../../stores/settingsStore";
 import { createPointerActions } from "../../settings/useSettingsWindow/pointer";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
 
 function createOptions() {
   const snapshot = createDefaultSettingsSnapshot();
+  const defaultTerminal = ref(snapshot.general.defaultTerminal);
+  const terminalReusePolicy = ref<TerminalReusePolicy>(snapshot.general.terminalReusePolicy);
+  const language = ref(snapshot.general.language);
+  const autoCheckUpdate = ref(snapshot.general.autoCheckUpdate);
+  const launchAtLogin = ref(snapshot.general.launchAtLogin);
+  const alwaysElevatedTerminal = ref(snapshot.general.alwaysElevatedTerminal);
+  const pointerActions = ref(snapshot.general.pointerActions);
 
   return {
     settingsHashPrefix: "#settings:",
     hotkeyDefinitions: [],
     isSettingsWindow: ref(true),
-    defaultTerminal: ref(snapshot.general.defaultTerminal),
-    terminalReusePolicy: ref(snapshot.general.terminalReusePolicy),
-    language: ref(snapshot.general.language),
-    autoCheckUpdate: ref(snapshot.general.autoCheckUpdate),
-    launchAtLogin: ref(snapshot.general.launchAtLogin),
-    alwaysElevatedTerminal: ref(snapshot.general.alwaysElevatedTerminal),
-    pointerActions: ref(snapshot.general.pointerActions),
+    defaultTerminal,
+    terminalReusePolicy,
+    language,
+    autoCheckUpdate,
+    launchAtLogin,
+    alwaysElevatedTerminal,
+    pointerActions,
     settingsStore: {
       persist: vi.fn(),
       hydrateFromStorage: vi.fn(),
       toSnapshot: vi.fn(() => snapshot),
       applySnapshot: vi.fn(),
       setHotkey: vi.fn(),
-      setPointerAction: vi.fn(),
-      setLaunchAtLogin: vi.fn(),
-      setAlwaysElevatedTerminal: vi.fn(),
-      setTerminalReusePolicy: vi.fn()
+      setPointerAction: vi.fn((field: PointerActionFieldId, action: SearchResultPointerAction) => {
+        pointerActions.value[field] = action;
+      }),
+      setDefaultTerminal: vi.fn((value: string) => {
+        defaultTerminal.value = value;
+      }),
+      setLanguage: vi.fn((value: "zh-CN" | "en-US") => {
+        language.value = value;
+      }),
+      setAutoCheckUpdate: vi.fn((value: boolean) => {
+        autoCheckUpdate.value = value;
+      }),
+      setLaunchAtLogin: vi.fn((value: boolean) => {
+        launchAtLogin.value = value;
+      }),
+      setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
+        alwaysElevatedTerminal.value = value;
+      }),
+      setTerminalReusePolicy: vi.fn((value: TerminalReusePolicy) => {
+        terminalReusePolicy.value = value;
+      })
     },
     getHotkeyValue: vi.fn(() => ""),
     setHotkeyValue: vi.fn(),
@@ -59,6 +88,19 @@ describe("useSettingsWindow pointer actions", () => {
     expect(persistSetting).toHaveBeenCalledTimes(1);
     expect(state.settingsError.value).toBe("");
     expect(state.settingsErrorRoute.value).toBeNull();
+  });
+
+  it("pointer action 变更后不再手动重建 ref 对象", async () => {
+    const options = createOptions();
+    const originalPointerActions = options.pointerActions.value;
+    const state = createSettingsState();
+    const persistSetting = vi.fn(async () => {});
+    const actions = createPointerActions({ options, state, persistSetting });
+
+    await actions.applyPointerActionChange("leftClick", "copy");
+
+    expect(options.pointerActions.value).toBe(originalPointerActions);
+    expect(options.settingsStore.setPointerAction).toHaveBeenCalledWith("leftClick", "copy");
   });
 
   it("shows the thrown error message when persistence fails with Error", async () => {

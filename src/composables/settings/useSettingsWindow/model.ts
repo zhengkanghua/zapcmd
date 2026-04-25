@@ -23,6 +23,9 @@ interface SettingsStoreLike {
   applySnapshot: (snapshot: PersistedSettingsSnapshot) => void;
   setHotkey: (field: HotkeyFieldId, value: string) => void;
   setPointerAction: (field: PointerActionFieldId, action: SearchResultPointerAction) => void;
+  setDefaultTerminal: (value: string) => void;
+  setLanguage: (value: AppLocale) => void;
+  setAutoCheckUpdate: (value: boolean) => void;
   setLaunchAtLogin: (value: boolean) => void;
   setAlwaysElevatedTerminal: (value: boolean) => void;
   setTerminalReusePolicy: (value: TerminalReusePolicy) => void;

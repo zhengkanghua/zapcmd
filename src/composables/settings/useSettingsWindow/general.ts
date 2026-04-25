@@ -18,7 +18,7 @@ export function createGeneralActions(deps: {
   const { options, state, persistSetting, applyAutoStartChange } = deps;
 
   function setAutoCheckUpdate(value: boolean): void {
-    options.autoCheckUpdate.value = value;
+    options.settingsStore.setAutoCheckUpdate(value);
     clearSettingsErrorState(state);
     void persistSetting();
   }
@@ -28,14 +28,12 @@ export function createGeneralActions(deps: {
   }
 
   function setAlwaysElevatedTerminal(value: boolean): void {
-    options.alwaysElevatedTerminal.value = value;
     options.settingsStore.setAlwaysElevatedTerminal(value);
     clearSettingsErrorState(state);
     void persistSetting();
   }
 
   function setTerminalReusePolicy(value: TerminalReusePolicy): void {
-    options.terminalReusePolicy.value = value;
     options.settingsStore.setTerminalReusePolicy(value);
     clearSettingsErrorState(state);
     void persistSetting();
@@ -59,8 +57,8 @@ export function createGeneralActions(deps: {
         return;
       }
       const enabled = rawEnabled;
-      options.launchAtLogin.value = enabled;
       state.launchAtLoginBaseline.value = enabled;
+      options.settingsStore.setLaunchAtLogin(enabled);
       clearSettingsErrorState(state);
     } catch (error) {
       console.error("read autostart status failed:", error);

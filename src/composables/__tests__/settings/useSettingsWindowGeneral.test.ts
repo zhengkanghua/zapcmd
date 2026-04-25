@@ -2,19 +2,31 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import type { HotkeyFieldDefinition } from "../../../features/settings/types";
-import { createDefaultSettingsSnapshot, type HotkeyFieldId } from "../../../stores/settingsStore";
+import {
+  createDefaultSettingsSnapshot,
+  type HotkeyFieldId,
+  type TerminalReusePolicy
+} from "../../../stores/settingsStore";
 import { createGeneralActions } from "../../settings/useSettingsWindow/general";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
 
 type GeneralTestOptions = UseSettingsWindowOptions & {
-  terminalReusePolicy: { value: string };
+  terminalReusePolicy: { value: TerminalReusePolicy };
   settingsStore: UseSettingsWindowOptions["settingsStore"] & {
+    setAutoCheckUpdate: ReturnType<typeof vi.fn>;
+    setLanguage: ReturnType<typeof vi.fn>;
     setTerminalReusePolicy: ReturnType<typeof vi.fn>;
   };
 };
 
 function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTestOptions {
   const baseSnapshot = createDefaultSettingsSnapshot();
+  const defaultTerminal = ref("powershell");
+  const terminalReusePolicy = ref<TerminalReusePolicy>("never");
+  const language = ref<"zh-CN" | "en-US">("zh-CN");
+  const autoCheckUpdate = ref(true);
+  const launchAtLogin = ref(false);
+  const alwaysElevatedTerminal = ref(false);
   const settingsStore = {
     persist: vi.fn(),
     hydrateFromStorage: vi.fn(),
@@ -22,9 +34,24 @@ function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTest
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
     setPointerAction: vi.fn(),
-    setLaunchAtLogin: vi.fn(),
-    setAlwaysElevatedTerminal: vi.fn(),
-    setTerminalReusePolicy: vi.fn()
+    setDefaultTerminal: vi.fn((value: string) => {
+      defaultTerminal.value = value;
+    }),
+    setLaunchAtLogin: vi.fn((value: boolean) => {
+      launchAtLogin.value = value;
+    }),
+    setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
+      alwaysElevatedTerminal.value = value;
+    }),
+    setAutoCheckUpdate: vi.fn((value: boolean) => {
+      autoCheckUpdate.value = value;
+    }),
+    setLanguage: vi.fn((value: "zh-CN" | "en-US") => {
+      language.value = value;
+    }),
+    setTerminalReusePolicy: vi.fn((value: TerminalReusePolicy) => {
+      terminalReusePolicy.value = value;
+    })
   };
 
   const hotkeyDefinitions: HotkeyFieldDefinition[] = [
@@ -35,12 +62,12 @@ function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTest
     settingsHashPrefix: "#settings:",
     hotkeyDefinitions,
     isSettingsWindow: ref(true),
-    defaultTerminal: ref("powershell"),
-    terminalReusePolicy: ref("never"),
-    language: ref("zh-CN"),
-    autoCheckUpdate: ref(true),
-    launchAtLogin: ref(false),
-    alwaysElevatedTerminal: ref(false),
+    defaultTerminal,
+    terminalReusePolicy,
+    language,
+    autoCheckUpdate,
+    launchAtLogin,
+    alwaysElevatedTerminal,
     pointerActions: ref(baseSnapshot.general.pointerActions),
     settingsStore,
     getHotkeyValue: vi.fn((field: HotkeyFieldId) => baseSnapshot.hotkeys[field]),
@@ -93,13 +120,32 @@ describe("useSettingsWindow general actions", () => {
       persistSetting,
       applyAutoStartChange
     }) as ReturnType<typeof createGeneralActions> & {
-      setTerminalReusePolicy?: (value: string) => void;
+      setTerminalReusePolicy?: (value: TerminalReusePolicy) => void;
     };
 
     actions.setTerminalReusePolicy?.("normal-only");
 
     expect(options.terminalReusePolicy.value).toBe("normal-only");
     expect(options.settingsStore.setTerminalReusePolicy).toHaveBeenCalledWith("normal-only");
+    expect(persistSetting).toHaveBeenCalledTimes(1);
+  });
+
+  it("setAutoCheckUpdate 统一走 store action 持久化", () => {
+    const options = createOptions();
+    const state = createSettingsState();
+    const persistSetting = vi.fn(async () => {});
+    const applyAutoStartChange = vi.fn(async () => {});
+    const actions = createGeneralActions({
+      options,
+      state,
+      persistSetting,
+      applyAutoStartChange
+    });
+
+    actions.setAutoCheckUpdate(false);
+
+    expect(options.autoCheckUpdate.value).toBe(false);
+    expect(options.settingsStore.setAutoCheckUpdate).toHaveBeenCalledWith(false);
     expect(persistSetting).toHaveBeenCalledTimes(1);
   });
 

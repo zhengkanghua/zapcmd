@@ -53,7 +53,9 @@ function createRevealHarness(overrides: Partial<UseWindowSizingOptions> = {}) {
   const flowPanelPreparedGate: FlowPanelPreparedGate = {
     prepared: false,
     promise: null,
-    resolve: null
+    resolve: null,
+    reject: null,
+    version: 0
   };
 
   return {
@@ -136,5 +138,31 @@ describe("createFlowRevealCoordinator", () => {
 
     expect(harness.options.flowPanelLockedHeight.value).toBe(280);
     expect(harness.options.requestResizeMainWindowForReveal).toHaveBeenCalledTimes(1);
+  });
+
+  it("prepared gate 在失效后，旧 prepare 不应继续推进 reveal", async () => {
+    const panel = buildFlowPanelShellForLock({
+      headerHeight: 52,
+      footerHeight: 60,
+      cardHeights: [96, 124]
+    });
+    const harness = createRevealHarness({
+      stagingPanelRef: ref<HTMLElement | null>(null)
+    });
+
+    let settled = false;
+    const task = harness.reveal.prepare().finally(() => {
+      settled = true;
+    });
+    harness.flowPanelPreparedGate.version += 1;
+    harness.flowPanelPreparedGate.reject?.();
+    harness.options.stagingExpanded.value = false;
+    harness.options.stagingPanelRef.value = panel;
+    harness.reveal.notifyPrepared();
+    await task;
+
+    expect(settled).toBe(true);
+    expect(harness.options.flowPanelLockedHeight.value).toBeNull();
+    expect(harness.options.requestResizeMainWindowForReveal).not.toHaveBeenCalled();
   });
 });

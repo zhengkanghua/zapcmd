@@ -2,7 +2,13 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import type { HotkeyFieldDefinition } from "../../../features/settings/types";
-import { createDefaultSettingsSnapshot, type HotkeyFieldId } from "../../../stores/settingsStore";
+import {
+  createDefaultSettingsSnapshot,
+  type HotkeyFieldId,
+  type PointerActionFieldId,
+  type SearchResultPointerAction,
+  type TerminalReusePolicy
+} from "../../../stores/settingsStore";
 import { createPersistenceActions } from "../../settings/useSettingsWindow/persistence";
 import { createTerminalActions } from "../../settings/useSettingsWindow/terminal";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
@@ -17,6 +23,18 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
   ];
 
   const baseSnapshot = createDefaultSettingsSnapshot();
+  const defaultTerminal = overrides.defaultTerminal ?? ref("powershell");
+  const terminalReusePolicy = overrides.terminalReusePolicy ?? ref<TerminalReusePolicy>("never");
+  const language = overrides.language ?? ref<"zh-CN" | "en-US">("zh-CN");
+  const autoCheckUpdate = overrides.autoCheckUpdate ?? ref(true);
+  const launchAtLogin = overrides.launchAtLogin ?? ref(false);
+  const alwaysElevatedTerminal = overrides.alwaysElevatedTerminal ?? ref(false);
+  const pointerActions =
+    overrides.pointerActions ??
+    ref({
+      leftClick: "action-panel",
+      rightClick: "stage"
+    });
 
   const settingsStore = {
     persist: vi.fn(),
@@ -38,26 +56,40 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     })),
     applySnapshot: vi.fn(),
     setHotkey: vi.fn(),
-    setPointerAction: vi.fn(),
-    setLaunchAtLogin: vi.fn(),
-    setAlwaysElevatedTerminal: vi.fn(),
-    setTerminalReusePolicy: vi.fn()
+    setPointerAction: vi.fn((field: PointerActionFieldId, action: SearchResultPointerAction) => {
+      pointerActions.value[field] = action;
+    }),
+    setLaunchAtLogin: vi.fn((value: boolean) => {
+      launchAtLogin.value = value;
+    }),
+    setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
+      alwaysElevatedTerminal.value = value;
+    }),
+    setDefaultTerminal: vi.fn((value: string) => {
+      defaultTerminal.value = value;
+    }),
+    setLanguage: vi.fn((value: "zh-CN" | "en-US") => {
+      language.value = value;
+    }),
+    setAutoCheckUpdate: vi.fn((value: boolean) => {
+      autoCheckUpdate.value = value;
+    }),
+    setTerminalReusePolicy: vi.fn((value: TerminalReusePolicy) => {
+      terminalReusePolicy.value = value;
+    })
   };
 
   const options: UseSettingsWindowOptions = {
     settingsHashPrefix: "#settings:",
     hotkeyDefinitions,
     isSettingsWindow: ref(true),
-    defaultTerminal: ref("powershell"),
-    terminalReusePolicy: ref("never"),
-    language: ref("zh-CN"),
-    autoCheckUpdate: ref(true),
-    launchAtLogin: ref(false),
-    alwaysElevatedTerminal: ref(false),
-    pointerActions: ref({
-      leftClick: "action-panel",
-      rightClick: "stage"
-    }),
+    defaultTerminal,
+    terminalReusePolicy,
+    language,
+    autoCheckUpdate,
+    launchAtLogin,
+    alwaysElevatedTerminal,
+    pointerActions,
     settingsStore,
     getHotkeyValue: vi.fn(() => "Alt+K"),
     setHotkeyValue: vi.fn(),

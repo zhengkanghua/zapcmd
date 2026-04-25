@@ -52,7 +52,9 @@ function createSyncHarness(overrides: Partial<UseWindowSizingOptions> = {}) {
   const flowPanelPreparedGate: FlowPanelPreparedGate = {
     prepared: false,
     promise: null,
-    resolve: null
+    resolve: null,
+    reject: null,
+    version: 0
   };
   const scheduleWindowSync = vi.fn();
   return {
@@ -132,7 +134,9 @@ describe("createWindowSizingSync", () => {
     const gate: FlowPanelPreparedGate = {
       prepared: true,
       promise: Promise.resolve(),
-      resolve: vi.fn()
+      resolve: vi.fn(),
+      reject: null,
+      version: 0
     };
     const harness = createSyncHarness({
       stagingExpanded: ref(false),
@@ -149,6 +153,31 @@ describe("createWindowSizingSync", () => {
 
     expect(harness.state.flowPanelActive).toBe(true);
     expect(harness.flowPanelPreparedGate.prepared).toBe(false);
+    expect(harness.flowPanelPreparedGate.promise).toBeNull();
+    expect(harness.flowPanelPreparedGate.resolve).toBeNull();
+  });
+
+  it("重置 prepared gate 时会终止旧 waiter，避免悬挂 promise", async () => {
+    let settled = false;
+    let rejectGate!: () => void;
+    const harness = createSyncHarness({
+      stagingExpanded: ref(false),
+      flowPanelInheritedHeight: ref<number | null>(320)
+    });
+    harness.flowPanelPreparedGate.promise = new Promise<void>((resolve) => {
+      rejectGate = () => {
+        settled = true;
+        resolve();
+      };
+    });
+    harness.flowPanelPreparedGate.reject = rejectGate;
+    const bridge = vi.fn(async () => {});
+
+    harness.options.stagingExpanded.value = true;
+    await harness.sync.run(bridge);
+    await Promise.resolve();
+
+    expect(settled).toBe(true);
     expect(harness.flowPanelPreparedGate.promise).toBeNull();
     expect(harness.flowPanelPreparedGate.resolve).toBeNull();
   });

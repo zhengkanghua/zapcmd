@@ -24,10 +24,31 @@ function isEventInside(
 }
 
 export function useDropdownGlobalInteractions(input: UseDropdownGlobalInteractionsInput): void {
+  let positionSyncFrame = 0;
+
+  const cancelScheduledPanelPositionSync = (): void => {
+    if (positionSyncFrame === 0) {
+      return;
+    }
+    window.cancelAnimationFrame(positionSyncFrame);
+    positionSyncFrame = 0;
+  };
+
+  const schedulePanelPositionSync = (): void => {
+    if (positionSyncFrame !== 0) {
+      return;
+    }
+    positionSyncFrame = window.requestAnimationFrame(() => {
+      positionSyncFrame = 0;
+      input.syncPanelPosition();
+    });
+  };
+
   const cleanup = (): void => {
     document.removeEventListener("pointerdown", onGlobalPointerDown);
-    window.removeEventListener("resize", input.syncPanelPosition);
-    window.removeEventListener("scroll", input.syncPanelPosition, true);
+    window.removeEventListener("resize", schedulePanelPositionSync);
+    window.removeEventListener("scroll", schedulePanelPositionSync, true);
+    cancelScheduledPanelPositionSync();
   };
 
   const onGlobalPointerDown = (event: PointerEvent): void => {
@@ -41,8 +62,8 @@ export function useDropdownGlobalInteractions(input: UseDropdownGlobalInteractio
     (isOpen) => {
       if (isOpen) {
         document.addEventListener("pointerdown", onGlobalPointerDown);
-        window.addEventListener("resize", input.syncPanelPosition);
-        window.addEventListener("scroll", input.syncPanelPosition, true);
+        window.addEventListener("resize", schedulePanelPositionSync);
+        window.addEventListener("scroll", schedulePanelPositionSync, true);
         return;
       }
 

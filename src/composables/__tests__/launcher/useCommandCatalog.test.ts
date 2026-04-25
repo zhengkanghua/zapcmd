@@ -868,4 +868,136 @@ describe("useCommandCatalog", () => {
       setAppLocale("zh-CN");
     }
   });
+
+  it("并发 refresh 时只允许最新请求结果回写", async () => {
+    const stalePath = "C:/Users/test/.zapcmd/commands/stale.json";
+    const latestPath = "C:/Users/test/.zapcmd/commands/latest.json";
+    let staleScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
+    let latestScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
+    let staleReadResolve!: (value: ReturnType<typeof createUserCommandFile>) => void;
+    let latestReadResolve!: (value: ReturnType<typeof createUserCommandFile>) => void;
+    const scanUserCommandFiles = vi
+      .fn(async () => createScanResult([]))
+      .mockImplementationOnce(async () => createScanResult([]))
+      .mockImplementationOnce(
+        () =>
+          new Promise<ReturnType<typeof createScanResult>>((resolve) => {
+            staleScanResolve = resolve;
+          })
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<ReturnType<typeof createScanResult>>((resolve) => {
+            latestScanResolve = resolve;
+          })
+      );
+    const readUserCommandFile = vi.fn(
+      (path: string) =>
+        new Promise<ReturnType<typeof createUserCommandFile>>((resolve) => {
+          if (path === stalePath) {
+            staleReadResolve = resolve;
+            return;
+          }
+          latestReadResolve = resolve;
+        })
+    );
+
+    let getTemplates: () => CommandTemplate[] = () => [];
+    let refreshUserCommands: () => Promise<void> = async () => undefined;
+    let isCatalogReady: () => boolean = () => false;
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => true,
+          scanUserCommandFiles,
+          readUserCommandFile,
+          readRuntimePlatform: async () => "win"
+        });
+        getTemplates = () => catalog.commandTemplates.value;
+        refreshUserCommands = catalog.refreshUserCommands;
+        isCatalogReady = () => catalog.catalogReady.value;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await waitForCondition(() => isCatalogReady());
+
+    const staleRefresh = refreshUserCommands();
+    await waitForCondition(() => typeof staleScanResolve === "function");
+    staleScanResolve(
+      createScanResult([
+        {
+          path: stalePath,
+          modifiedMs: 1,
+          size: 1
+        }
+      ])
+    );
+    await waitForCondition(() => typeof staleReadResolve === "function");
+
+    const latestRefresh = refreshUserCommands();
+    await waitForCondition(() => typeof latestScanResolve === "function");
+    latestScanResolve(
+      createScanResult([
+        {
+          path: latestPath,
+          modifiedMs: 2,
+          size: 2
+        }
+      ])
+    );
+    await waitForCondition(() => typeof latestReadResolve === "function");
+    latestReadResolve(
+      createUserCommandFile(
+        JSON.stringify({
+          commands: [
+            {
+              id: "latest-command",
+              name: "Latest Command",
+              tags: ["latest"],
+              category: "custom",
+              platform: "all",
+              exec: {
+                program: "echo",
+                args: ["latest"]
+              },
+              adminRequired: false
+            }
+          ]
+        }),
+        2
+      )
+    );
+    await latestRefresh;
+    await waitForCondition(() => getTemplates().some((item) => item.id === "latest-command"));
+
+    staleReadResolve(
+      createUserCommandFile(
+        JSON.stringify({
+          commands: [
+            {
+              id: "stale-command",
+              name: "Stale Command",
+              tags: ["stale"],
+              category: "custom",
+              platform: "all",
+              exec: {
+                program: "echo",
+                args: ["stale"]
+              },
+              adminRequired: false
+            }
+          ]
+        }),
+        1
+      )
+    );
+    await staleRefresh;
+
+    expect(getTemplates().some((item) => item.id === "latest-command")).toBe(true);
+    expect(getTemplates().some((item) => item.id === "stale-command")).toBe(false);
+
+    wrapper.unmount();
+  });
 });

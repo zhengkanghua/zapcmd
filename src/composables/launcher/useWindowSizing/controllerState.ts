@@ -11,6 +11,8 @@ export interface FlowPanelPreparedGate {
   prepared: boolean;
   promise: Promise<void> | null;
   resolve: (() => void) | null;
+  reject: (() => void) | null;
+  version: number;
 }
 
 function isCommandPageOpen(options: UseWindowSizingOptions): boolean {
