@@ -94,4 +94,25 @@ describe("createUserCommandSourceCache", () => {
     expect(firstSnapshot.payloadEntries).toEqual(secondSnapshot.payloadEntries);
     expect(secondSnapshot.issues).toEqual(firstSnapshot.issues);
   });
+
+  it("keeps scan issues for files rejected by backend limits", async () => {
+    const path = "C:/Users/test/.zapcmd/commands/huge.json";
+    const cache = createUserCommandSourceCache({
+      scanUserCommandFiles: async () => ({
+        files: [],
+        issues: [{ path, reason: "Command file exceeds maximum size of 1048576 bytes." }]
+      }),
+      readUserCommandFile: vi.fn()
+    });
+
+    const snapshot = await cache.refreshFromScan();
+
+    expect(snapshot.payloadEntries).toEqual([]);
+    expect(snapshot.issues).toEqual([
+      expect.objectContaining({
+        sourceId: path,
+        code: "scan-failed"
+      })
+    ]);
+  });
 });

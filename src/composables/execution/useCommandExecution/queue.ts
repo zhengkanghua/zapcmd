@@ -30,6 +30,33 @@ interface QueueActionDeps {
 }
 
 type QueueActionContext = Pick<QueueActionDeps, "options" | "state">;
+const QUEUED_PREFLIGHT_REFRESH_CONCURRENCY = 4;
+
+async function mapWithConcurrencyLimit<TInput, TOutput>(
+  items: readonly TInput[],
+  maxConcurrent: number,
+  mapper: (item: TInput) => Promise<TOutput>
+): Promise<TOutput[]> {
+  if (items.length === 0) {
+    return [];
+  }
+
+  const results = new Array<TOutput>(items.length);
+  let nextIndex = 0;
+
+  async function worker(): Promise<void> {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await mapper(items[currentIndex]!);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(maxConcurrent, items.length) }, () => worker())
+  );
+  return results;
+}
 
 function createStageCommandWithPreflight({
   options,
@@ -221,13 +248,15 @@ function createQueuedPreflightRefreshActions({
     state.refreshingAllQueuedPreflight.value = true;
     state.refreshingQueuedCommandIds.value = snapshot.map((item) => item.id);
     try {
-      const nextCaches = await Promise.all(
-        snapshot.map(async (item) => ({
+      const nextCaches = await mapWithConcurrencyLimit(
+        snapshot,
+        QUEUED_PREFLIGHT_REFRESH_CONCURRENCY,
+        async (item) => ({
           id: item.id,
           cache:
             (await collectCommandPreflightCache(options, item.title, item.prerequisites)) ??
             createEmptyPreflightCache()
-        }))
+        })
       );
 
       const cacheMap = new Map(nextCaches.map((item) => [item.id, item.cache]));

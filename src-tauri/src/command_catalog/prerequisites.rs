@@ -1,11 +1,21 @@
 use std::env;
+use std::collections::HashMap;
 use std::process::Command;
+use std::time::Duration;
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
+const PROBE_PROCESS_TIMEOUT_MS: u64 = 1_500;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ProbeBinaryStatus {
+    Present,
+    Missing,
+    TimedOut,
+}
 
 #[derive(Clone, Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -34,23 +44,48 @@ fn create_hidden_process(program: &str) -> Command {
     process
 }
 
-fn command_exists(command: &str) -> bool {
+fn command_exists(command: &str) -> ProbeBinaryStatus {
     #[cfg(target_os = "windows")]
     {
-        return create_hidden_process("where")
-            .arg(command)
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false);
+        return run_probe_process_with_timeout(create_hidden_process("where").arg(command));
     }
 
     #[cfg(not(target_os = "windows"))]
     {
-        return Command::new("which")
-            .arg(command)
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false);
+        return run_probe_process_with_timeout(Command::new("which").arg(command));
+    }
+}
+
+fn run_probe_process_with_timeout(command: &mut Command) -> ProbeBinaryStatus {
+    let Ok(mut child) = command.spawn() else {
+        return ProbeBinaryStatus::Missing;
+    };
+    let timeout = Duration::from_millis(PROBE_PROCESS_TIMEOUT_MS);
+    let start = std::time::Instant::now();
+
+    loop {
+        match child.try_wait() {
+            Ok(Some(status)) => {
+                return if status.success() {
+                    ProbeBinaryStatus::Present
+                } else {
+                    ProbeBinaryStatus::Missing
+                };
+            }
+            Ok(None) => {
+                if start.elapsed() >= timeout {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return ProbeBinaryStatus::TimedOut;
+                }
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            Err(_) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return ProbeBinaryStatus::TimedOut;
+            }
+        }
     }
 }
 
@@ -98,28 +133,33 @@ fn normalize_check_target<'a>(input: &'a PrerequisiteProbeInput) -> &'a str {
     check
 }
 
-pub(crate) fn probe_prerequisite_with<B, E>(
+fn probe_prerequisite_with<B, E>(
     input: &PrerequisiteProbeInput,
-    binary_exists: B,
-    read_env: E,
+    mut binary_exists: B,
+    mut read_env: E,
 ) -> PrerequisiteProbeResult
 where
-    B: Fn(&str) -> bool,
-    E: Fn(&str) -> Option<String>,
+    B: FnMut(&str) -> ProbeBinaryStatus,
+    E: FnMut(&str) -> Option<String>,
 {
     let check = normalize_check_target(input);
 
     match input.r#type.as_str() {
         "binary" => {
-            if binary_exists(check) {
-                build_probe_result(input, true, "ok", "")
-            } else {
-                build_probe_result(
+            match binary_exists(check) {
+                ProbeBinaryStatus::Present => build_probe_result(input, true, "ok", ""),
+                ProbeBinaryStatus::Missing => build_probe_result(
                     input,
                     false,
                     "missing-binary",
                     format!("required binary not found: {}", check),
-                )
+                ),
+                ProbeBinaryStatus::TimedOut => build_probe_result(
+                    input,
+                    false,
+                    "probe-timeout",
+                    format!("prerequisite probe timed out: {}", check),
+                ),
             }
         }
         "env" => {
@@ -137,15 +177,22 @@ where
         "shell" => {
             if check.eq_ignore_ascii_case("shell") {
                 build_probe_result(input, true, "ok", "")
-            } else if binary_exists(check) {
-                build_probe_result(input, true, "ok", "")
             } else {
-                build_probe_result(
-                    input,
-                    false,
-                    "missing-shell",
-                    format!("required shell not found: {}", check),
-                )
+                match binary_exists(check) {
+                    ProbeBinaryStatus::Present => build_probe_result(input, true, "ok", ""),
+                    ProbeBinaryStatus::Missing => build_probe_result(
+                        input,
+                        false,
+                        "missing-shell",
+                        format!("required shell not found: {}", check),
+                    ),
+                    ProbeBinaryStatus::TimedOut => build_probe_result(
+                        input,
+                        false,
+                        "probe-timeout",
+                        format!("prerequisite probe timed out: {}", check),
+                    ),
+                }
             }
         }
         other => build_probe_result(
@@ -157,19 +204,50 @@ where
     }
 }
 
+fn probe_command_prerequisites_with<B, E>(
+    prerequisites: &[PrerequisiteProbeInput],
+    mut binary_exists: B,
+    mut read_env: E,
+) -> Vec<PrerequisiteProbeResult>
+where
+    B: FnMut(&str) -> ProbeBinaryStatus,
+    E: FnMut(&str) -> Option<String>,
+{
+    let mut binary_cache = HashMap::<String, ProbeBinaryStatus>::new();
+    let mut env_cache = HashMap::<String, Option<String>>::new();
+    let mut results = Vec::with_capacity(prerequisites.len());
+
+    for prerequisite in prerequisites {
+        let result = probe_prerequisite_with(
+            prerequisite,
+            |command| {
+                *binary_cache
+                    .entry(command.to_string())
+                    .or_insert_with(|| binary_exists(command))
+            },
+            |key| {
+                env_cache
+                    .entry(key.to_string())
+                    .or_insert_with(|| read_env(key))
+                    .clone()
+            },
+        );
+        results.push(result);
+    }
+
+    results
+}
+
 #[tauri::command]
 pub(crate) fn probe_command_prerequisites(
     prerequisites: Vec<PrerequisiteProbeInput>,
 ) -> Vec<PrerequisiteProbeResult> {
-    prerequisites
-        .iter()
-        .map(|prerequisite| probe_prerequisite_with(prerequisite, command_exists, read_env_value))
-        .collect()
+    probe_command_prerequisites_with(prerequisites.as_slice(), command_exists, read_env_value)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{probe_prerequisite_with, PrerequisiteProbeInput};
+    use super::{probe_prerequisite_with, PrerequisiteProbeInput, ProbeBinaryStatus};
 
     #[test]
     fn binary_prerequisite_reports_missing_binary() {
@@ -180,7 +258,7 @@ mod tests {
                 required: true,
                 check: "docker".to_string(),
             },
-            |_| false,
+            |_| ProbeBinaryStatus::Missing,
             |_| None,
         );
 
@@ -197,7 +275,7 @@ mod tests {
                 required: true,
                 check: "GITHUB_TOKEN".to_string(),
             },
-            |_| true,
+            |_| ProbeBinaryStatus::Present,
             |_| None,
         );
 
@@ -214,7 +292,7 @@ mod tests {
                 required: true,
                 check: "corp-vpn".to_string(),
             },
-            |_| true,
+            |_| ProbeBinaryStatus::Present,
             |_| Some("pwsh".to_string()),
         );
 
@@ -231,7 +309,13 @@ mod tests {
                 required: true,
                 check: "shell:powershell".to_string(),
             },
-            |command| command == "powershell",
+            |command| {
+                if command == "powershell" {
+                    ProbeBinaryStatus::Present
+                } else {
+                    ProbeBinaryStatus::Missing
+                }
+            },
             |_| None,
         );
 
@@ -248,7 +332,13 @@ mod tests {
                 required: true,
                 check: "shell:pwsh".to_string(),
             },
-            |command| command == "pwsh",
+            |command| {
+                if command == "pwsh" {
+                    ProbeBinaryStatus::Present
+                } else {
+                    ProbeBinaryStatus::Missing
+                }
+            },
             |_| None,
         );
 
@@ -266,7 +356,13 @@ mod tests {
                     required: true,
                     check: format!("shell:{}", runner),
                 },
-                |command| command == runner,
+                |command| {
+                    if command == runner {
+                        ProbeBinaryStatus::Present
+                    } else {
+                        ProbeBinaryStatus::Missing
+                    }
+                },
                 |_| None,
             );
 
@@ -284,7 +380,7 @@ mod tests {
                 required: true,
                 check: "shell:pwsh".to_string(),
             },
-            |_| false,
+            |_| ProbeBinaryStatus::Missing,
             |_| None,
         );
 
@@ -302,7 +398,7 @@ mod tests {
                 required: true,
                 check: "shell:shell".to_string(),
             },
-            |_| false,
+            |_| ProbeBinaryStatus::Missing,
             |_| None,
         );
 
@@ -319,7 +415,13 @@ mod tests {
                 required: true,
                 check: "binary:ipconfig".to_string(),
             },
-            |command| command == "ipconfig",
+            |command| {
+                if command == "ipconfig" {
+                    ProbeBinaryStatus::Present
+                } else {
+                    ProbeBinaryStatus::Missing
+                }
+            },
             |_| None,
         );
 
@@ -336,11 +438,66 @@ mod tests {
                 required: true,
                 check: "env:GITHUB_TOKEN".to_string(),
             },
-            |_| true,
+            |_| ProbeBinaryStatus::Present,
             |key| (key == "GITHUB_TOKEN").then(|| "token".to_string()),
         );
 
         assert!(result.ok);
         assert_eq!(result.code, "ok");
+    }
+
+    #[test]
+    fn probe_command_prerequisites_reuses_binary_probe_results() {
+        let mut binary_calls = 0usize;
+        let mut env_calls = 0usize;
+        let prerequisites = vec![
+            PrerequisiteProbeInput {
+                id: "docker-a".to_string(),
+                r#type: "binary".to_string(),
+                required: true,
+                check: "docker".to_string(),
+            },
+            PrerequisiteProbeInput {
+                id: "docker-b".to_string(),
+                r#type: "binary".to_string(),
+                required: false,
+                check: "binary:docker".to_string(),
+            },
+        ];
+
+        let results = super::probe_command_prerequisites_with(
+            prerequisites.as_slice(),
+            |_| {
+                binary_calls += 1;
+                ProbeBinaryStatus::Present
+            },
+            |_| {
+                env_calls += 1;
+                None
+            },
+        );
+
+        assert_eq!(results.len(), 2);
+        assert!(results.iter().all(|result| result.ok));
+        assert_eq!(binary_calls, 1);
+        assert_eq!(env_calls, 0);
+    }
+
+    #[test]
+    fn binary_prerequisite_reports_probe_timeout() {
+        let result = probe_prerequisite_with(
+            &PrerequisiteProbeInput {
+                id: "docker".to_string(),
+                r#type: "binary".to_string(),
+                required: true,
+                check: "docker".to_string(),
+            },
+            |_| ProbeBinaryStatus::TimedOut,
+            |_| None,
+        );
+
+        assert!(!result.ok);
+        assert_eq!(result.code, "probe-timeout");
+        assert!(result.message.contains("timed out"));
     }
 }

@@ -7,6 +7,11 @@ mod prerequisites;
 mod read;
 mod scan;
 
+pub(super) const USER_COMMAND_SOURCE_MAX_FILES: usize = 1_000;
+pub(super) const USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES: u64 = 1_048_576;
+pub(super) const USER_COMMAND_SOURCE_MAX_TOTAL_BYTES: u64 = 16 * 1_048_576;
+pub(super) const USER_COMMAND_SOURCE_MAX_DEPTH: usize = 16;
+
 pub(crate) use contracts::{
     UserCommandFile, UserCommandFileScanEntry, UserCommandFileScanIssue, UserCommandFileScanResult,
 };
@@ -107,6 +112,15 @@ fn validate_user_command_file_path_in(user_commands_dir: &Path, path: &Path) -> 
 
 fn read_user_command_file_in(user_commands_dir: &Path, path: String) -> Result<UserCommandFile, String> {
     let validated = validate_user_command_file_path_in(user_commands_dir, Path::new(&path))?;
+    let metadata = fs::metadata(&validated)
+        .map_err(|err| format!("Failed to read metadata for {}: {}", validated.display(), err))?;
+    if metadata.len() > USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES {
+        return Err(format!(
+            "Command file {} exceeds maximum size of {} bytes.",
+            validated.display(),
+            USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES
+        ));
+    }
     read::read_user_command_file(&validated)
 }
 

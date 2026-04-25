@@ -199,6 +199,19 @@ describe("preflightFeedback", () => {
     ).toContain("执行前检查返回了无效结果");
   });
 
+  it("formats probe timeout as a system failure", () => {
+    expect(
+      formatBlockingPreflightFeedback([
+        createIssue({
+          result: createProbeResult({
+            code: "probe-timeout",
+            message: "prerequisite probe timed out: docker"
+          })
+        })
+      ])
+    ).toContain("执行前检查超时");
+  });
+
   it("formats multiple optional warnings with plural summary", () => {
     const message = formatWarningPreflightFeedback([
       createIssue({
@@ -244,6 +257,13 @@ describe("preflightFeedback", () => {
       isSystemPreflightFailure(
         createProbeResult({
           code: "probe-invalid-response"
+        })
+      )
+    ).toBe(true);
+    expect(
+      isSystemPreflightFailure(
+        createProbeResult({
+          code: "probe-timeout"
         })
       )
     ).toBe(true);

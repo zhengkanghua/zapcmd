@@ -58,6 +58,9 @@ function formatIssueReason(issue: CommandPreflightIssue): string {
 }
 
 function formatSystemFailure(issues: CommandPreflightIssue[]): string {
+  if (issues.every((issue) => issue.result.code === "probe-timeout")) {
+    return t("execution.preflightProbeTimeout");
+  }
   if (issues.every((issue) => issue.result.code === "probe-invalid-response")) {
     return t("execution.preflightProbeInvalidResponse");
   }

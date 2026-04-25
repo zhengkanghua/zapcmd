@@ -380,6 +380,7 @@ export const messages = {
       preflightInstallHint: "安装建议：{hint}",
       preflightFallbackCommand: "可改用命令：{commandId}",
       preflightProbeFailed: "执行前检查暂时失败，请重试或查看日志。",
+      preflightProbeTimeout: "执行前检查超时，请重试或检查本机环境。",
       preflightProbeInvalidResponse: "执行前检查返回了无效结果，请重试或查看日志。",
       nextStepTerminalUnavailable: "检查并切换可用终端后重试。",
       nextStepTerminalLaunchFailed: "请检查设置中的终端配置后重试。",
@@ -815,6 +816,7 @@ export const messages = {
       preflightInstallHint: "Install hint: {hint}",
       preflightFallbackCommand: "Try fallback command: {commandId}",
       preflightProbeFailed: "The preflight check is temporarily unavailable. Retry or check logs.",
+      preflightProbeTimeout: "The preflight check timed out. Retry or inspect the local environment.",
       preflightProbeInvalidResponse:
         "Prerequisite probing returned an invalid response. Retry or check logs.",
       nextStepTerminalUnavailable: "Check available terminals and retry.",

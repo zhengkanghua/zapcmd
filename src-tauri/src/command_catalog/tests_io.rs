@@ -235,6 +235,123 @@ fn scan_user_command_files_collects_nonfatal_nested_read_dir_issues() {
 }
 
 #[test]
+fn scan_user_command_files_skips_files_over_size_limit() {
+    let root = create_temp_dir("scan-size-limit");
+    let small = root.join("small.json");
+    let large = root.join("large.json");
+
+    write_file(&small, r#"{"id":"small"}"#);
+    fs::write(&large, vec![b'x'; USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES as usize + 1]).unwrap();
+
+    let scan = super::scan::scan_user_command_files_in(&root).unwrap();
+
+    assert_eq!(
+        scan.files
+            .iter()
+            .map(|entry| entry.path.clone())
+            .collect::<Vec<_>>(),
+        vec![small.to_string_lossy().to_string()]
+    );
+    assert_eq!(scan.issues.len(), 1);
+    assert_eq!(scan.issues[0].path, large.to_string_lossy().to_string());
+    assert!(scan.issues[0].reason.contains("maximum size"));
+
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn scan_user_command_files_limits_accepted_file_count() {
+    let root = create_temp_dir("scan-count-limit");
+
+    for index in 0..=USER_COMMAND_SOURCE_MAX_FILES {
+        write_file(
+            &root.join(format!("{:04}.json", index)),
+            r#"{"commands":[]}"#,
+        );
+    }
+
+    let scan = super::scan::scan_user_command_files_in(&root).unwrap();
+
+    assert_eq!(scan.files.len(), USER_COMMAND_SOURCE_MAX_FILES);
+    assert_eq!(scan.issues.len(), 1);
+    assert!(scan.issues[0].reason.contains("file count"));
+
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn scan_user_command_files_limits_total_bytes() {
+    let root = create_temp_dir("scan-total-size-limit");
+    let per_file = USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES as usize;
+
+    for index in 0..(USER_COMMAND_SOURCE_MAX_TOTAL_BYTES / USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES) {
+        fs::write(
+            root.join(format!("accepted-{:02}.json", index)),
+            vec![b'a'; per_file],
+        )
+        .unwrap();
+    }
+    let overflow = root.join("overflow.json");
+    fs::write(&overflow, vec![b'b'; per_file]).unwrap();
+
+    let scan = super::scan::scan_user_command_files_in(&root).unwrap();
+
+    assert_eq!(
+        scan.files.len() as u64,
+        USER_COMMAND_SOURCE_MAX_TOTAL_BYTES / USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES
+    );
+    assert_eq!(scan.issues.len(), 1);
+    assert_eq!(scan.issues[0].path, overflow.to_string_lossy().to_string());
+    assert!(scan.issues[0].reason.contains("total user command bytes"));
+
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn scan_user_command_files_reports_depth_limit() {
+    let root = create_temp_dir("scan-depth-limit");
+    let deepest_allowed = (0..USER_COMMAND_SOURCE_MAX_DEPTH).fold(root.clone(), |path, index| {
+        path.join(format!("level-{}", index))
+    });
+    let beyond_limit = deepest_allowed.join("too-deep");
+
+    let scan = super::scan::scan_user_command_files_in_with(
+        &root,
+        |dir: &Path| {
+            if dir == root {
+                return Ok(vec![super::scan::ScanDirEntry::Dir(root.join("level-0"))]);
+            }
+
+            if dir.starts_with(&deepest_allowed) {
+                if dir == deepest_allowed {
+                    return Ok(vec![super::scan::ScanDirEntry::Dir(beyond_limit.clone())]);
+                }
+                return Ok(vec![]);
+            }
+
+            let name = dir.file_name().and_then(|value| value.to_str()).unwrap_or_default();
+            let Some(level_str) = name.strip_prefix("level-") else {
+                return Ok(vec![]);
+            };
+            let Ok(level) = level_str.parse::<usize>() else {
+                return Ok(vec![]);
+            };
+            let next = dir.join(format!("level-{}", level + 1));
+            Ok(vec![super::scan::ScanDirEntry::Dir(next)])
+        },
+        |path| fs::metadata(path),
+    )
+    .unwrap();
+
+    assert!(scan.files.is_empty());
+    assert_eq!(scan.issues.len(), 1);
+    assert_eq!(scan.issues[0].path, beyond_limit.to_string_lossy().to_string());
+    assert!(scan.issues[0].reason.contains("depth exceeded"));
+
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
 fn read_user_command_file_returns_single_file_payload_without_touching_other_entries() {
     let root = create_temp_dir("read-one");
     let target = root.join("target.json");
@@ -254,6 +371,21 @@ fn read_user_command_file_returns_single_file_payload_without_touching_other_ent
     assert_eq!(fs::read_to_string(&other).unwrap(), other_content);
 
     let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn read_user_command_file_rejects_files_over_size_limit() {
+    let home = create_temp_dir("read-size-limit");
+    let commands_dir = ensure_user_commands_dir_with(&home).unwrap();
+    let large = commands_dir.join("large.json");
+
+    fs::write(&large, vec![b'x'; USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES as usize + 1]).unwrap();
+
+    let err = read_user_command_file_in(&commands_dir, large.to_string_lossy().to_string()).unwrap_err();
+
+    assert!(err.contains("exceeds maximum size"));
+
+    let _ = fs::remove_dir_all(&home);
 }
 
 #[test]

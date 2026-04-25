@@ -9,6 +9,45 @@ use super::execution_common::{
 };
 use super::windows_launch;
 
+fn encode_base64_chunk(value: u8) -> char {
+    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    TABLE[value as usize] as char
+}
+
+fn encode_utf8_to_base64(value: &str) -> String {
+    let bytes = value.as_bytes();
+    let mut encoded = String::with_capacity(((bytes.len() + 2) / 3) * 4);
+    let mut index = 0usize;
+
+    while index + 3 <= bytes.len() {
+        let block = ((bytes[index] as u32) << 16)
+            | ((bytes[index + 1] as u32) << 8)
+            | bytes[index + 2] as u32;
+        encoded.push(encode_base64_chunk(((block >> 18) & 0x3f) as u8));
+        encoded.push(encode_base64_chunk(((block >> 12) & 0x3f) as u8));
+        encoded.push(encode_base64_chunk(((block >> 6) & 0x3f) as u8));
+        encoded.push(encode_base64_chunk((block & 0x3f) as u8));
+        index += 3;
+    }
+
+    let remaining = bytes.len() - index;
+    if remaining == 1 {
+        let block = (bytes[index] as u32) << 16;
+        encoded.push(encode_base64_chunk(((block >> 18) & 0x3f) as u8));
+        encoded.push(encode_base64_chunk(((block >> 12) & 0x3f) as u8));
+        encoded.push('=');
+        encoded.push('=');
+    } else if remaining == 2 {
+        let block = ((bytes[index] as u32) << 16) | ((bytes[index + 1] as u32) << 8);
+        encoded.push(encode_base64_chunk(((block >> 18) & 0x3f) as u8));
+        encoded.push(encode_base64_chunk(((block >> 12) & 0x3f) as u8));
+        encoded.push(encode_base64_chunk(((block >> 6) & 0x3f) as u8));
+        encoded.push('=');
+    }
+
+    encoded
+}
+
 fn escape_cmd_echo_text(value: &str) -> String {
     value.chars()
         .map(|character| match character {
@@ -67,8 +106,8 @@ fn build_powershell_exec_invocation(
 
     match stdin {
         Some(value) => format!(
-            "$zapcmdInput = @'\n{}\n'@; $zapcmdInput | {}",
-            value.replace("\r\n", "\n"),
+            "$zapcmdInputBytes = [Convert]::FromBase64String({}); $zapcmdInput = [Text.Encoding]::UTF8.GetString($zapcmdInputBytes); $zapcmdInput | {}",
+            quote_powershell_single_quoted(encode_utf8_to_base64(value.replace("\r\n", "\n").as_str()).as_str()),
             call
         ),
         None => call,

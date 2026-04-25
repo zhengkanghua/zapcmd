@@ -1339,6 +1339,53 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("unsupported prerequisite");
   });
 
+  it("limits concurrent queued preflight refreshes", async () => {
+    vi.useFakeTimers();
+    const harness = createHarness();
+    harness.stagedCommands.value = Array.from({ length: 9 }, (_, index) => ({
+      id: `cmd-${index}`,
+      title: `Cmd ${index}`,
+      rawPreview: `echo ${index}`,
+      renderedPreview: `echo ${index}`,
+      executionTemplate: {
+        kind: "exec",
+        program: "echo",
+        args: [`${index}`]
+      },
+      execution: {
+        kind: "exec",
+        program: "echo",
+        args: [`${index}`]
+      },
+      args: [],
+      argValues: {},
+      prerequisites: [{ id: `bin-${index}`, type: "binary", required: true, check: "echo" }]
+    }));
+
+    let inFlight = 0;
+    let maxInFlight = 0;
+    harness.runCommandPreflight.mockImplementation(async (prerequisites: CommandPrerequisite[]) => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      inFlight -= 1;
+      return prerequisites.map((prerequisite) => ({
+        id: prerequisite.id,
+        ok: true,
+        code: "ok",
+        message: "",
+        required: prerequisite.required
+      }));
+    });
+
+    const pending = harness.execution.refreshAllQueuedPreflight();
+    await vi.runAllTimersAsync();
+    await pending;
+
+    expect(maxInFlight).toBeLessThanOrEqual(4);
+    vi.useRealTimers();
+  });
+
   it("removes staged command and clamps active index", () => {
     const harness = createHarness();
     harness.stagedCommands.value = [

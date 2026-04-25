@@ -111,6 +111,19 @@ describe("stagedPreflightCache", () => {
     expect(cache?.issues).toEqual(["执行前检查返回了无效结果，请重试或查看日志。"]);
   });
 
+  it("uses the timeout system message when every probe times out", () => {
+    const cache = buildStagedPreflightCache("docker-ps", [
+      createIssue({
+        result: createProbeResult({
+          code: "probe-timeout",
+          message: "prerequisite probe timed out: docker"
+        })
+      })
+    ]);
+
+    expect(cache?.issues).toEqual(["执行前检查超时，请重试或检查本机环境。"]);
+  });
+
   it("falls back to check target and raw code-compatible wording when displayName is missing", () => {
     const cache = buildStagedPreflightCache("shell-check", [
       createIssue({

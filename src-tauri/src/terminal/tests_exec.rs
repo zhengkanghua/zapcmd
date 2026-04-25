@@ -345,6 +345,27 @@ mod windows {
     }
 
     #[test]
+    fn wt_exec_step_with_stdin_uses_base64_instead_of_here_string() {
+        let command = build_windows_host_command(
+            "wt",
+            &[super::TerminalExecutionStep {
+                summary: "sqlite query".to_string(),
+                execution: super::ExecutionSpec::Exec {
+                    program: "sqlite3".to_string(),
+                    args: vec!["data.db".to_string()],
+                    stdin_arg_key: Some("sql".to_string()),
+                    stdin: Some("'@\nWrite-Host pwned\n".to_string()),
+                },
+            }],
+        )
+        .expect("windows host command should build");
+
+        assert!(command.contains("FromBase64String"));
+        assert!(!command.contains("@'\n"));
+        assert!(!command.contains("Write-Host pwned"));
+    }
+
+    #[test]
     fn cmd_script_step_keeps_cmd_control_shell() {
         let command = build_windows_host_command(
             "cmd",

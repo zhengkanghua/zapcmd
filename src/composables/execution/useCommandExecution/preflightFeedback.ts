@@ -80,6 +80,9 @@ function formatReason(issue: CommandPreflightIssue): string {
       target: resolveCheckTarget(issue.prerequisite) ?? trimText(issue.result.id)
     });
   }
+  if (issue.result.code === "probe-timeout") {
+    return t("execution.preflightProbeTimeout");
+  }
   return ensureSentence(trimText(issue.result.message) || trimText(issue.result.code));
 }
 
@@ -121,6 +124,9 @@ function formatIssue(
 }
 
 function formatSystemFailure(issues: CommandPreflightIssue[]): string {
+  if (issues.every((issue) => issue.result.code === "probe-timeout")) {
+    return t("execution.preflightProbeTimeout");
+  }
   if (issues.every((issue) => issue.result.code === "probe-invalid-response")) {
     return t("execution.preflightProbeInvalidResponse");
   }
@@ -130,7 +136,11 @@ function formatSystemFailure(issues: CommandPreflightIssue[]): string {
 export function isSystemPreflightFailure(
   result: CommandPrerequisiteProbeResult
 ): boolean {
-  return result.code === "probe-error" || result.code === "probe-invalid-response";
+  return (
+    result.code === "probe-error" ||
+    result.code === "probe-invalid-response" ||
+    result.code === "probe-timeout"
+  );
 }
 
 function collapseSystemPreflightIssues(
