@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { maybeCheckForUpdateAtStartup, LAST_UPDATE_CHECK_STORAGE_KEY } from "../startupUpdateCheck";
+import {
+  maybeCheckForUpdateAtStartup,
+  LAST_UPDATE_ATTEMPT_STORAGE_KEY,
+  LAST_UPDATE_CHECK_STORAGE_KEY
+} from "../startupUpdateCheck";
 import { checkForUpdate } from "../updateService";
 
 vi.mock("../updateService", () => ({
@@ -10,6 +14,7 @@ vi.mock("../updateService", () => ({
 describe("startupUpdateCheck", () => {
   beforeEach(() => {
     localStorage.clear();
+    vi.clearAllMocks();
   });
 
   it("skips when disabled", async () => {
@@ -45,7 +50,7 @@ describe("startupUpdateCheck", () => {
     expect(localStorage.getItem(LAST_UPDATE_CHECK_STORAGE_KEY)).toBe("5000");
   });
 
-  it("does not update timestamp when update check fails", async () => {
+  it("records attempt timestamp when update check fails", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     localStorage.setItem(LAST_UPDATE_CHECK_STORAGE_KEY, "1000");
     vi.mocked(checkForUpdate).mockRejectedValueOnce(new Error("network failed"));
@@ -59,7 +64,22 @@ describe("startupUpdateCheck", () => {
 
     expect(result.checked).toBe(true);
     expect(localStorage.getItem(LAST_UPDATE_CHECK_STORAGE_KEY)).toBe("1000");
+    expect(localStorage.getItem(LAST_UPDATE_ATTEMPT_STORAGE_KEY)).toBe("5000");
     errorSpy.mockRestore();
+  });
+
+  it("skips retry when the last failed attempt is still within the interval", async () => {
+    localStorage.setItem(LAST_UPDATE_ATTEMPT_STORAGE_KEY, "4800");
+
+    const result = await maybeCheckForUpdateAtStartup({
+      enabled: true,
+      storage: localStorage,
+      nowMs: 5000,
+      intervalMs: 500
+    });
+
+    expect(result).toEqual({ checked: false, available: false });
+    expect(checkForUpdate).not.toHaveBeenCalled();
   });
 
   it("skips when storage is unavailable", async () => {

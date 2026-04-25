@@ -23,7 +23,25 @@ vi.mock("../../../services/updateService", () => ({
 
 describe("useUpdateManager", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+  });
+
+  it("prefers injected runtime platform reader over tauriBridge import", async () => {
+    const injectedReadRuntimePlatform = vi.fn(async () => "mac");
+    const manager = (
+      useUpdateManager as unknown as (options: {
+        readRuntimePlatform: () => Promise<string>;
+      }) => ReturnType<typeof useUpdateManager>
+    )({
+      readRuntimePlatform: injectedReadRuntimePlatform
+    });
+
+    vi.mocked(readRuntimePlatform).mockRejectedValueOnce(new Error("should not be called"));
+    await manager.loadRuntimePlatform();
+
+    expect(injectedReadRuntimePlatform).toHaveBeenCalledTimes(1);
+    expect(readRuntimePlatform).not.toHaveBeenCalled();
+    expect(manager.runtimePlatform.value).toBe("mac");
   });
 
   it("loads runtime platform and falls back to empty string on invalid values/errors", async () => {

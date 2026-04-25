@@ -170,9 +170,9 @@ pub(crate) fn discover_available_terminals(
         clear_terminal_discovery_cache(app, state);
     }
 
-    let options = detect_available_terminals();
-    persist_terminal_discovery_snapshot(app, state, options.as_slice());
-    options
+    run_terminal_discovery(state, |options| {
+        persist_terminal_discovery_snapshot(app, state, options);
+    })
 }
 
 /// 强制走一次完整探测，清理缓存后重新发现终端并持久化结果。
@@ -181,7 +181,18 @@ pub(crate) fn refresh_available_terminals_impl(
     state: &AppState,
 ) -> Vec<TerminalOption> {
     clear_terminal_discovery_cache(app, state);
-    let options = detect_available_terminals();
-    persist_terminal_discovery_snapshot(app, state, options.as_slice());
-    options
+    run_terminal_discovery(state, |options| {
+        persist_terminal_discovery_snapshot(app, state, options);
+    })
+}
+
+fn run_terminal_discovery(
+    state: &AppState,
+    after_detect: impl Fn(&[TerminalOption]),
+) -> Vec<TerminalOption> {
+    state.terminal_discovery_singleflight.run(|| {
+        let options = detect_available_terminals();
+        after_detect(options.as_slice());
+        options
+    })
 }

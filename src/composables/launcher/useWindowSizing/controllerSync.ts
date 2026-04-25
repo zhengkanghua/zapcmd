@@ -33,19 +33,42 @@ function resetFlowPanelPreparedGate(gate: FlowPanelPreparedGate): void {
   gate.version += 1;
 }
 
+function beginWindowSync(
+  options: UseWindowSizingOptions,
+  state: WindowSizingState
+): boolean {
+  if (options.isSettingsWindow.value) {
+    return false;
+  }
+  if (state.syncingWindowSize) {
+    state.queuedWindowSync = true;
+    return false;
+  }
+
+  state.syncingWindowSize = true;
+  return true;
+}
+
+function finalizeWindowSync(
+  state: WindowSizingState,
+  scheduleWindowSync: () => void
+): void {
+  state.syncingWindowSize = false;
+  if (!state.queuedWindowSync) {
+    return;
+  }
+  state.queuedWindowSync = false;
+  scheduleWindowSync();
+}
+
 export function createWindowSizingSync(input: CreateWindowSizingSyncInput) {
   const { options, state, commandPanelExit, flowPanelPreparedGate, scheduleWindowSync } = input;
 
   const run = async (bridge: ResizeBridge): Promise<void> => {
-    if (options.isSettingsWindow.value) {
-      return;
-    }
-    if (state.syncingWindowSize) {
-      state.queuedWindowSync = true;
+    if (!beginWindowSync(options, state)) {
       return;
     }
 
-    state.syncingWindowSize = true;
     await nextTick();
     try {
       const dragStripHeight = resolveShellDragStripHeightFromDom(options);
@@ -85,11 +108,7 @@ export function createWindowSizingSync(input: CreateWindowSizingSyncInput) {
         }
       );
     } finally {
-      state.syncingWindowSize = false;
-      if (state.queuedWindowSync) {
-        state.queuedWindowSync = false;
-        scheduleWindowSync();
-      }
+      finalizeWindowSync(state, scheduleWindowSync);
     }
   };
 

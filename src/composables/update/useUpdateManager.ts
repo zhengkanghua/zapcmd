@@ -24,14 +24,18 @@ function resolveFailureStage(error: unknown, fallbackStage: UpdateFailureStage):
   return fallbackStage;
 }
 
-export function useUpdateManager() {
+interface UseUpdateManagerOptions {
+  readRuntimePlatform?: () => Promise<string>;
+}
+
+export function useUpdateManager(options: UseUpdateManagerOptions = {}) {
   const runtimePlatform = ref("");
   const updateStatus = ref<UpdateStatus>({ ...INITIAL_UPDATE_STATUS });
   const pendingUpdate = shallowRef<Update | null>(null);
 
   async function loadRuntimePlatform(): Promise<void> {
     try {
-      const value = await readRuntimePlatform();
+      const value = await (options.readRuntimePlatform ?? readRuntimePlatform)();
       runtimePlatform.value = typeof value === "string" ? value : "";
     } catch (error) {
       console.error("load runtime platform failed:", error);

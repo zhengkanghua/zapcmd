@@ -70,6 +70,52 @@ describe("createUserCommandSourceCache", () => {
     expect(snapshot.payloadEntries).toHaveLength(files.length);
   });
 
+  it("stops scheduling remaining file reads when refresh is cancelled", async () => {
+    const files = Array.from({ length: 6 }, (_, index) => ({
+      path: `C:/Users/test/.zapcmd/commands/${index}.json`,
+      modifiedMs: 1,
+      size: 16
+    }));
+    let shouldContinue = true;
+    const pendingResolvers: Array<() => void> = [];
+    const readUserCommandFile = vi.fn((path: string) => {
+      return new Promise<ReturnType<typeof createCommandFile>>((resolve) => {
+        pendingResolvers.push(() => {
+          resolve(createCommandFile(path, path.split("/").at(-1) ?? "custom"));
+        });
+      });
+    });
+
+    const cache = createUserCommandSourceCache({
+      scanUserCommandFiles: async () => ({
+        files,
+        issues: []
+      }),
+      readUserCommandFile
+    });
+
+    const pending = (
+      cache as unknown as {
+        refreshFromScan: (options: { shouldContinue: () => boolean }) => Promise<unknown>;
+      }
+    ).refreshFromScan({
+      shouldContinue: () => shouldContinue
+    });
+
+    await vi.waitFor(() => {
+      expect(readUserCommandFile).toHaveBeenCalledTimes(4);
+    });
+
+    shouldContinue = false;
+    for (const resolve of pendingResolvers.splice(0)) {
+      resolve();
+    }
+
+    await pending;
+
+    expect(readUserCommandFile).toHaveBeenCalledTimes(4);
+  });
+
   it("remaps from parsed cache without re-reading unchanged files", async () => {
     const path = "C:/Users/test/.zapcmd/commands/custom.json";
     const readUserCommandFile = vi.fn(async () => createCommandFile(path, "custom"));
@@ -95,6 +141,75 @@ describe("createUserCommandSourceCache", () => {
     expect(secondSnapshot.issues).toEqual(firstSnapshot.issues);
   });
 
+  it("skips re-reading unchanged files on subsequent refresh scans", async () => {
+    const path = "C:/Users/test/.zapcmd/commands/custom.json";
+    const file = createCommandFile(path, "custom");
+    const scanUserCommandFiles = vi.fn(async () => ({
+      files: [
+        {
+          path,
+          modifiedMs: file.modifiedMs,
+          size: file.size
+        }
+      ],
+      issues: []
+    }));
+    const readUserCommandFile = vi.fn(async () => file);
+    const cache = createUserCommandSourceCache({
+      scanUserCommandFiles,
+      readUserCommandFile
+    });
+
+    const firstSnapshot = await cache.refreshFromScan();
+    const secondSnapshot = await cache.refreshFromScan();
+
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(2);
+    expect(readUserCommandFile).toHaveBeenCalledTimes(1);
+    expect(secondSnapshot.payloadEntries).toEqual(firstSnapshot.payloadEntries);
+    expect(secondSnapshot.issues).toEqual(firstSnapshot.issues);
+  });
+
+  it("drops removed files from cached snapshot after a later scan", async () => {
+    const keepPath = "C:/Users/test/.zapcmd/commands/keep.json";
+    const removePath = "C:/Users/test/.zapcmd/commands/remove.json";
+    const scanUserCommandFiles = vi
+      .fn(async () => ({
+        files: [
+          { path: keepPath, modifiedMs: 1, size: 16 },
+          { path: removePath, modifiedMs: 1, size: 16 }
+        ],
+        issues: []
+      }))
+      .mockImplementationOnce(async () => ({
+        files: [
+          { path: keepPath, modifiedMs: 1, size: 16 },
+          { path: removePath, modifiedMs: 1, size: 16 }
+        ],
+        issues: []
+      }))
+      .mockImplementationOnce(async () => ({
+        files: [{ path: keepPath, modifiedMs: 1, size: 16 }],
+        issues: []
+      }));
+    const readUserCommandFile = vi.fn(async (path: string) =>
+      createCommandFile(path, path.split("/").at(-1) ?? "custom")
+    );
+    const cache = createUserCommandSourceCache({
+      scanUserCommandFiles,
+      readUserCommandFile
+    });
+
+    await cache.refreshFromScan();
+    const refreshedSnapshot = await cache.refreshFromScan();
+
+    expect(
+      refreshedSnapshot.payloadEntries.some((entry) => entry.sourceId === keepPath)
+    ).toBe(true);
+    expect(
+      refreshedSnapshot.payloadEntries.some((entry) => entry.sourceId === removePath)
+    ).toBe(false);
+  });
+
   it("keeps scan issues for files rejected by backend limits", async () => {
     const path = "C:/Users/test/.zapcmd/commands/huge.json";
     const cache = createUserCommandSourceCache({
@@ -114,5 +229,54 @@ describe("createUserCommandSourceCache", () => {
         code: "scan-failed"
       })
     ]);
+  });
+
+  it("falls back to default parse error reason for unknown/blank thrown values", async () => {
+    const blankPath = "C:/Users/test/.zapcmd/commands/blank.json";
+    const unknownPath = "C:/Users/test/.zapcmd/commands/unknown.json";
+    const parseSpy = vi.spyOn(JSON, "parse");
+    parseSpy
+      .mockImplementationOnce(() => {
+        throw "   ";
+      })
+      .mockImplementationOnce(() => {
+        throw Object.create(null) as object;
+      });
+    const cache = createUserCommandSourceCache({
+      scanUserCommandFiles: async () => ({
+        files: [
+          { path: blankPath, modifiedMs: 1, size: 8 },
+          { path: unknownPath, modifiedMs: 1, size: 8 }
+        ],
+        issues: []
+      }),
+      readUserCommandFile: vi.fn(async (path: string) => ({
+        path,
+        content: "{\"commands\":[]}",
+        modifiedMs: 1,
+        size: 15
+      }))
+    });
+
+    try {
+      const snapshot = await cache.refreshFromScan();
+
+      expect(snapshot.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            sourceId: blankPath,
+            code: "invalid-json",
+            reason: "JSON parse failed."
+          }),
+          expect.objectContaining({
+            sourceId: unknownPath,
+            code: "invalid-json",
+            reason: "JSON parse failed."
+          })
+        ])
+      );
+    } finally {
+      parseSpy.mockRestore();
+    }
   });
 });

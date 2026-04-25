@@ -17,6 +17,7 @@ export interface UseCommandCatalogOptions {
   readRuntimePlatform?: () => Promise<string>;
   disabledCommandIds?: Readonly<Ref<string[]>>;
   locale?: Readonly<Ref<AppLocale>>;
+  activated?: Readonly<Ref<boolean>>;
 }
 
 export interface UseCommandCatalogReturn {

@@ -10,6 +10,7 @@ mod execution_posix;
 mod execution_windows;
 pub(crate) mod discovery;
 pub(crate) mod cache;
+pub(crate) mod singleflight;
 pub(crate) mod launch_posix;
 pub(crate) mod commands;
 #[cfg(target_os = "windows")]

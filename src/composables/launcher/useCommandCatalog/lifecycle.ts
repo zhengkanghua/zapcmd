@@ -2,6 +2,10 @@ import { onMounted, watch } from "vue";
 import { setAppLocale } from "../../../i18n";
 import type { UseCommandCatalogOptions } from "./types";
 
+function isCatalogActivated(options: UseCommandCatalogOptions): boolean {
+  return options.activated?.value ?? true;
+}
+
 function bindCatalogWatchers(params: {
   options: UseCommandCatalogOptions;
   onDisabledCommandIdsChanged: () => void;
@@ -37,6 +41,9 @@ function bindCatalogMountedHook(params: {
   refreshUserCommands: () => Promise<void>;
 }) {
   onMounted(async () => {
+    if (!isCatalogActivated(params.options)) {
+      return;
+    }
     await params.refreshUserCommands();
   });
 }
@@ -68,5 +75,17 @@ export function bindCommandCatalogLifecycle(params: {
       });
     }
   });
+  if (params.options.activated) {
+    watch(
+      params.options.activated,
+      (activated, previousActivated) => {
+        if (!activated || previousActivated) {
+          return;
+        }
+        void params.refreshUserCommands();
+      },
+      { immediate: false }
+    );
+  }
   bindCatalogMountedHook(params);
 }

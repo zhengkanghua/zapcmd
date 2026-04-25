@@ -50,3 +50,5 @@
 - 2026-04-24：二次审查剩余项已收口：执行错误新增 `invalid-request` / 平台不支持映射，非 Tauri window resolver 静默，`LauncherWindow` 对外 contract 继续收窄，session 签名改为轻量串联；`npm run check:all` 全绿。
 - 2026-04-25：已收口 4 个真实质量问题：Settings 写入统一走 store action；Flow reveal gate 增加 cancel/version，关闭后旧异步不再推进；Command Catalog 增加 latest-only 并发保护；Dropdown 改 rAF 合帧，Appearance 持久化改 debounce。定向 59 测试、`lint`、`typecheck`、`check:rust` 通过。
 - 2026-04-25：继续治理两处结构债：`useCommandCatalog` 顶层控制器拆到 `requestGuard/controller` 子模块，外部 API 不变；命令管理页的渐进渲染窗口前移到 `useCommandManagement`，`SettingsCommandsSection` 只负责调度 timer。对应 launcher/settings 定向测试已通过，待 `check:all` 收口。
+- 2026-04-25：运行时收口续作完成：Settings 独立窗按 route 延迟激活命令目录，命令扫描支持取消，启动更新失败退避，Rust 终端探测加 singleflight 去重；complexity guard 已接入，`lint`、`typecheck`、`test:coverage`、`build`、`check:rust`、`test:rust` 全绿。
+- 2026-04-25：已补 `useUpdateManager` 的 `readRuntimePlatform` 注入，`settingsScene` 改走 composition root ports；同时补齐 command catalog controller 与 userCommandSourceCache 缺口分支测试，`test:coverage` 现为 1122 测试全过、分支 90.50%。

@@ -68,6 +68,49 @@ describe("useCommandCatalog", () => {
     expect(getTemplates().length).toBeGreaterThan(50);
   });
 
+  it("does not auto refresh until activated becomes true", async () => {
+    const activated = ref(false);
+    const scanUserCommandFiles = vi.fn(async () => createScanResult([]));
+    const readUserCommandFile = vi.fn();
+    const readRuntimePlatform = vi.fn(async () => "win");
+
+    let getCatalogStatus: () => string = () => "idle";
+    let isCatalogReady: () => boolean = () => false;
+
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => true,
+          scanUserCommandFiles,
+          readUserCommandFile,
+          readRuntimePlatform,
+          activated
+        });
+        getCatalogStatus = () => catalog.catalogStatus.value;
+        isCatalogReady = () => catalog.catalogReady.value;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await nextTick();
+    await Promise.resolve();
+
+    expect(scanUserCommandFiles).not.toHaveBeenCalled();
+    expect(readUserCommandFile).not.toHaveBeenCalled();
+    expect(readRuntimePlatform).not.toHaveBeenCalled();
+    expect(getCatalogStatus()).toBe("idle");
+    expect(isCatalogReady()).toBe(false);
+
+    activated.value = true;
+    await waitForCondition(() => isCatalogReady());
+
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
+    expect(readRuntimePlatform).toHaveBeenCalledTimes(1);
+
+    wrapper.unmount();
+  });
+
   it("reports missing scan/read ports when tauri runtime catalog is not wired", async () => {
     let getIssues: () => Array<{ code: string; stage: string; sourceId: string; reason: string }> =
       () => [];
@@ -997,6 +1040,144 @@ describe("useCommandCatalog", () => {
 
     expect(getTemplates().some((item) => item.id === "latest-command")).toBe(true);
     expect(getTemplates().some((item) => item.id === "stale-command")).toBe(false);
+
+    wrapper.unmount();
+  });
+
+  it("并发 refresh 被新请求取代后不会继续启动剩余文件读取", async () => {
+    const stalePaths = [
+      "C:/Users/test/.zapcmd/commands/stale-1.json",
+      "C:/Users/test/.zapcmd/commands/stale-2.json",
+      "C:/Users/test/.zapcmd/commands/stale-3.json",
+      "C:/Users/test/.zapcmd/commands/stale-4.json",
+      "C:/Users/test/.zapcmd/commands/stale-5.json"
+    ];
+    const latestPath = "C:/Users/test/.zapcmd/commands/latest-only.json";
+    let staleScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
+    let latestScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
+    const staleReadResolvers = new Map<string, (value: ReturnType<typeof createUserCommandFile>) => void>();
+    let latestReadResolve!: (value: ReturnType<typeof createUserCommandFile>) => void;
+
+    const scanUserCommandFiles = vi
+      .fn(async () => createScanResult([]))
+      .mockImplementationOnce(async () => createScanResult([]))
+      .mockImplementationOnce(
+        () =>
+          new Promise<ReturnType<typeof createScanResult>>((resolve) => {
+            staleScanResolve = resolve;
+          })
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<ReturnType<typeof createScanResult>>((resolve) => {
+            latestScanResolve = resolve;
+          })
+      );
+    const readUserCommandFile = vi.fn(
+      (path: string) =>
+        new Promise<ReturnType<typeof createUserCommandFile>>((resolve) => {
+          if (path === latestPath) {
+            latestReadResolve = resolve;
+            return;
+          }
+          staleReadResolvers.set(path, resolve);
+        })
+    );
+
+    let refreshUserCommands: () => Promise<void> = async () => undefined;
+    let isCatalogReady: () => boolean = () => false;
+    const Harness = defineComponent({
+      setup() {
+        const catalog = useCommandCatalog({
+          isTauriRuntime: () => true,
+          scanUserCommandFiles,
+          readUserCommandFile,
+          readRuntimePlatform: async () => "win"
+        });
+        refreshUserCommands = catalog.refreshUserCommands;
+        isCatalogReady = () => catalog.catalogReady.value;
+        return () => null;
+      }
+    });
+
+    const wrapper = mount(Harness);
+    await waitForCondition(() => isCatalogReady());
+
+    const staleRefresh = refreshUserCommands();
+    await waitForCondition(() => typeof staleScanResolve === "function");
+    staleScanResolve(
+      createScanResult(
+        stalePaths.map((path, index) => ({
+          path,
+          modifiedMs: index + 1,
+          size: index + 10
+        }))
+      )
+    );
+    await waitForCondition(() => staleReadResolvers.size === 4);
+
+    const latestRefresh = refreshUserCommands();
+    await waitForCondition(() => typeof latestScanResolve === "function");
+    latestScanResolve(
+      createScanResult([
+        {
+          path: latestPath,
+          modifiedMs: 9,
+          size: 99
+        }
+      ])
+    );
+    await waitForCondition(() => typeof latestReadResolve === "function");
+    latestReadResolve(
+      createUserCommandFile(
+        JSON.stringify({
+          commands: [
+            {
+              id: "latest-only-command",
+              name: "Latest Only",
+              tags: ["latest"],
+              category: "custom",
+              platform: "all",
+              exec: {
+                program: "echo",
+                args: ["latest"]
+              },
+              adminRequired: false
+            }
+          ]
+        }),
+        9
+      )
+    );
+
+    for (const [path, resolve] of staleReadResolvers.entries()) {
+      resolve(
+        createUserCommandFile(
+          JSON.stringify({
+            commands: [
+              {
+                id: path.split("/").at(-1) ?? "stale",
+                name: path,
+                tags: ["stale"],
+                category: "custom",
+                platform: "all",
+                exec: {
+                  program: "echo",
+                  args: [path]
+                },
+                adminRequired: false
+              }
+            ]
+          }),
+          1
+        )
+      );
+    }
+
+    await latestRefresh;
+    await staleRefresh;
+
+    expect(readUserCommandFile).toHaveBeenCalledTimes(5);
 
     wrapper.unmount();
   });

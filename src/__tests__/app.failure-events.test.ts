@@ -437,6 +437,19 @@ async function focusSearchAndType(
   await input.setValue(value);
   (input.element as HTMLInputElement).focus();
   await waitForUi();
+  await waitForSearchResultsSettled(wrapper);
+}
+
+async function waitForSearchResultsSettled(wrapper: VueWrapper): Promise<void> {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const loadingState = wrapper.find(".drawer-empty--loading");
+    if (!loadingState.exists()) {
+      return;
+    }
+    await waitForUi();
+  }
+
+  throw new Error("search results did not settle before assertion");
 }
 
 function readQueueCount(wrapper: VueWrapper): number {

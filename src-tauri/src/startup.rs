@@ -20,6 +20,8 @@ use crate::bounds::restore_main_window_bounds;
 use crate::hotkeys::register_launcher_hotkey;
 #[cfg(desktop)]
 use crate::terminal::refresh_available_terminals_impl;
+#[cfg(desktop)]
+use crate::terminal::singleflight::TerminalDiscoverySingleflight;
 use crate::windowing::toggle_main_window;
 #[cfg(desktop)]
 use crate::windowing::open_or_focus_settings_window;
@@ -33,6 +35,7 @@ pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
         terminal_discovery_exit_requested: AtomicBool::new(false),
         terminal_discovery_cache: Mutex::new(None),
         terminal_discovery_cache_io_lock: Mutex::new(()),
+        terminal_discovery_singleflight: TerminalDiscoverySingleflight::new(),
         #[cfg(target_os = "windows")]
         windows_reusable_session_state: Mutex::new(
             crate::terminal::windows_routing::WindowsReusableSessionState::default(),

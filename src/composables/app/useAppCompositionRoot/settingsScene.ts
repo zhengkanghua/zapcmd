@@ -1,5 +1,5 @@
 import { storeToRefs } from "pinia";
-import { onScopeDispose, ref, watch, type Ref } from "vue";
+import { computed, onScopeDispose, ref, watch, type Ref } from "vue";
 import { fallbackTerminalOptions } from "../../../features/terminals/fallbackTerminals";
 import { currentLocale, setAppLocale, t } from "../../../i18n";
 import {
@@ -130,12 +130,7 @@ function bindSettingsSideEffects(deps: {
   );
 }
 
-/**
- * 创建一套可复用的 settings scene 装配。
- * 这里故意只收拢 Settings 相关状态，不引入跨窗口共享单例。
- */
-export function createSettingsScene(options: CreateSettingsSceneOptions): SettingsScene {
-  const settingsStore = useSettingsStore();
+function createHomepageActionStatusController() {
   const homepageActionStatus = ref<SettingsActionStatus | null>(null);
   let homepageActionStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -160,64 +155,116 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
     clearHomepageActionStatusTimer();
   });
 
-  const settingsRefs = createSettingsStoreRefs(settingsStore);
-  const updateManager = useUpdateManager();
+  return {
+    homepageActionStatus,
+    showHomepageActionStatus
+  };
+}
+
+function createSettingsSceneRuntime(params: {
+  options: CreateSettingsSceneOptions;
+  settingsStore: ReturnType<typeof useSettingsStore>;
+  settingsRefs: SettingsStoreRefs;
+}) {
+  const updateManager = useUpdateManager({
+    readRuntimePlatform: params.options.ports.readRuntimePlatform
+  });
   const hotkeyBindings = useHotkeyBindings({
-    hotkeys: settingsRefs.hotkeys,
-    pointerActions: settingsRefs.pointerActions,
+    hotkeys: params.settingsRefs.hotkeys,
+    pointerActions: params.settingsRefs.pointerActions,
     setHotkey: (field, value) => {
-      settingsStore.setHotkey(field, value);
+      params.settingsStore.setHotkey(field, value);
     }
   });
   const settingsWindow = useSettingsWindow({
     settingsHashPrefix: SETTINGS_HASH_PREFIX,
     hotkeyDefinitions: HOTKEY_DEFINITIONS,
-    isSettingsWindow: options.isSettingsWindow,
-    defaultTerminal: settingsRefs.defaultTerminal,
-    terminalReusePolicy: settingsRefs.terminalReusePolicy,
-    language: settingsRefs.language,
-    autoCheckUpdate: settingsRefs.autoCheckUpdate,
-    launchAtLogin: settingsRefs.launchAtLogin,
-    alwaysElevatedTerminal: settingsRefs.alwaysElevatedTerminal,
-    pointerActions: settingsRefs.pointerActions,
-    settingsStore,
+    isSettingsWindow: params.options.isSettingsWindow,
+    defaultTerminal: params.settingsRefs.defaultTerminal,
+    terminalReusePolicy: params.settingsRefs.terminalReusePolicy,
+    language: params.settingsRefs.language,
+    autoCheckUpdate: params.settingsRefs.autoCheckUpdate,
+    launchAtLogin: params.settingsRefs.launchAtLogin,
+    alwaysElevatedTerminal: params.settingsRefs.alwaysElevatedTerminal,
+    pointerActions: params.settingsRefs.pointerActions,
+    settingsStore: params.settingsStore,
     getHotkeyValue: hotkeyBindings.getHotkeyValue,
     setHotkeyValue: hotkeyBindings.setHotkeyValue,
-    isTauriRuntime: options.ports.isTauriRuntime,
-    readAvailableTerminals: options.ports.readAvailableTerminals,
-    refreshAvailableTerminals: options.ports.refreshAvailableTerminals,
-    readAutoStartEnabled: options.ports.readAutoStartEnabled,
-    writeAutoStartEnabled: options.ports.writeAutoStartEnabled,
-    writeLauncherHotkey: options.ports.writeLauncherHotkey,
+    isTauriRuntime: params.options.ports.isTauriRuntime,
+    readAvailableTerminals: params.options.ports.readAvailableTerminals,
+    refreshAvailableTerminals: params.options.ports.refreshAvailableTerminals,
+    readAutoStartEnabled: params.options.ports.readAutoStartEnabled,
+    writeAutoStartEnabled: params.options.ports.writeAutoStartEnabled,
+    writeLauncherHotkey: params.options.ports.writeLauncherHotkey,
     fallbackTerminalOptions,
     broadcastSettingsUpdated: () => {
-      options.settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
+      params.options.settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
     }
   });
+  const commandCatalogActivated = computed(
+    () =>
+      !params.options.isSettingsWindow.value ||
+      settingsWindow.settingsRoute.value === "commands"
+  );
   const commandCatalog = useCommandCatalog({
-    isTauriRuntime: options.ports.isTauriRuntime,
-    scanUserCommandFiles: options.ports.scanUserCommandFiles,
-    readUserCommandFile: options.ports.readUserCommandFile,
-    readRuntimePlatform: options.ports.readRuntimePlatform,
-    disabledCommandIds: settingsRefs.disabledCommandIds,
-    locale: currentLocale
+    isTauriRuntime: params.options.ports.isTauriRuntime,
+    scanUserCommandFiles: params.options.ports.scanUserCommandFiles,
+    readUserCommandFile: params.options.ports.readUserCommandFile,
+    readRuntimePlatform: params.options.ports.readRuntimePlatform,
+    disabledCommandIds: params.settingsRefs.disabledCommandIds,
+    locale: currentLocale,
+    activated: commandCatalogActivated
   });
   const commandManagement = useCommandManagement({
     allCommandTemplates: commandCatalog.allCommandTemplates,
-    disabledCommandIds: settingsRefs.disabledCommandIds,
+    disabledCommandIds: params.settingsRefs.disabledCommandIds,
     commandSourceById: commandCatalog.commandSourceById,
     userCommandSourceById: commandCatalog.userCommandSourceById,
     overriddenCommandIds: commandCatalog.overriddenCommandIds,
     loadIssues: commandCatalog.loadIssues,
-    setCommandEnabled: settingsStore.setCommandEnabled.bind(settingsStore),
-    setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore)
+    setCommandEnabled: params.settingsStore.setCommandEnabled.bind(params.settingsStore),
+    setDisabledCommandIds: params.settingsStore.setDisabledCommandIds.bind(params.settingsStore)
   });
   const themeManager = useTheme({
-    themeId: settingsRefs.theme,
-    blurEnabled: settingsRefs.blurEnabled
+    themeId: params.settingsRefs.theme,
+    blurEnabled: params.settingsRefs.blurEnabled
   });
   const motionPresetManager = useMotionPreset({
-    presetId: settingsRefs.motionPreset
+    presetId: params.settingsRefs.motionPreset
+  });
+
+  return {
+    updateManager,
+    hotkeyBindings,
+    settingsWindow,
+    commandCatalog,
+    commandManagement,
+    themeManager,
+    motionPresetManager
+  };
+}
+
+/**
+ * 创建一套可复用的 settings scene 装配。
+ * 这里故意只收拢 Settings 相关状态，不引入跨窗口共享单例。
+ */
+export function createSettingsScene(options: CreateSettingsSceneOptions): SettingsScene {
+  const settingsStore = useSettingsStore();
+  const settingsRefs = createSettingsStoreRefs(settingsStore);
+  const { homepageActionStatus, showHomepageActionStatus } =
+    createHomepageActionStatusController();
+  const {
+    updateManager,
+    hotkeyBindings,
+    settingsWindow,
+    commandCatalog,
+    commandManagement,
+    themeManager,
+    motionPresetManager
+  } = createSettingsSceneRuntime({
+    options,
+    settingsStore,
+    settingsRefs
   });
 
   bindSettingsSideEffects({
