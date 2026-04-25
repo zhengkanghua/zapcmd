@@ -19,6 +19,7 @@ ZapCmd 是一个 Tauri 桌面应用（Rust + Web）。
 1. 安装依赖：`npm install`
 2. 启动开发：`npm run tauri:dev`
 3. 执行门禁：`npm run check:all`
+4. 如需更早贴近 CI，可先执行：`npm run check:ci-parity`
 
 说明：
 
@@ -29,6 +30,9 @@ ZapCmd 是一个 Tauri 桌面应用（Rust + Web）。
    - `npm run test:run`
    - `npm run build`
    但 CI 仍会跑完整门禁，提 PR 前请确保 `npm run check:all` 能通过。
+3. `npm run check:ci-parity` 会额外覆盖本地可执行的 CI 专属静态检查：
+   - 内置命令生成产物同步检查
+   - workflow/gate 合同测试
 
 ## 2. 规则
 
@@ -45,6 +49,7 @@ ZapCmd 是一个 Tauri 桌面应用（Rust + Web）。
    - `npm run test:run`
    - `npm run test:coverage`
 2. 提 PR 前必须通过：
+   - `npm run check:ci-parity`
    - `npm run check:all`
 3. 若影响终端/窗口/热键：
    - 请在 PR 描述里把“行为变化”讲清楚

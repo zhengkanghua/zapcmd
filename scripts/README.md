@@ -33,6 +33,18 @@ node scripts/sync-keys.mjs
 npm run verify:local
 ```
 
+本地贴近 CI 的静态前置检查：
+
+```bash
+npm run check:ci-parity
+```
+
+当前覆盖：
+- builtin command 生成产物是否同步提交
+- workflow / gate 合同测试
+
+注意：Windows-only 的 desktop smoke 与 controlled-runner 仍然无法在 Linux/WSL 上完全等价复现。
+
 说明：在 Windows 上会自动检测 `tauri-driver` / `msedgedriver`，缺失时先补装再继续执行。
 在 WSL 上，视觉回归默认复用当前 Linux worktree 的 `dist` 与 baseline，并调用 Windows `msedge.exe` / `pwsh.exe` 完成截图与 diff。
 在 macOS 上，只有显式启用 experimental probe 时才会预检 `tauri-driver` / `safaridriver`；前置不满足时直接失败并给出修复指引。

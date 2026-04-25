@@ -55,3 +55,4 @@
 - 2026-04-25：已收口 1/3/4/5：搜索改有界插入排名，General 自启读取失败可见告警，`LauncherWindow` 事件桥接抽出，补执行失败热点测试；`check:all` 全绿。
 - 2026-04-25：已修 CI Gate Windows shell 合同：builtin generate 同步检查改显式 `pwsh` + PowerShell 条件分支，避免 Bash `|| (...)` 在 Windows runner 解析失败；新增 workflow 合同测试。
 - 2026-04-25：已修 Rust Windows test 编译回归：`src-tauri/src/terminal/tests_exec.rs` 的 Windows 子模块改直接导入 `ExecutionSpec` / `TerminalExecutionStep`，不再误用 `super::` 指向 `tests_exec`；本地 `cargo check`、`cargo test` 通过。
+- 2026-04-25：已把部分 CI Gate 前移到开发期：新增 `check:ci-parity` / `check:builtin-command-sync`，workflow 改动不再按 docs-only 跳过，builtin 产物同步检查前移，本地 pre-commit 对 `src-tauri/src/terminal/**` 等高风险 Rust 目录追加 `cargo test`。

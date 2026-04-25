@@ -8,12 +8,19 @@ function readProjectFile(targetPath: string): string {
 }
 
 describe("ci gate workflow contract", () => {
-  it("keeps builtin command sync guard PowerShell-safe on windows runner", () => {
+  it("keeps builtin command sync guard aligned across package scripts and workflow", () => {
+    const packageJson = JSON.parse(readProjectFile("package.json")) as {
+      scripts: Record<string, string>;
+    };
     const workflow = readProjectFile(".github/workflows/ci-gate.yml");
+    const localParityScript = readProjectFile("scripts/check-ci-parity.mjs");
 
+    expect(packageJson.scripts["check:builtin-command-sync"]).toBeDefined();
+    expect(packageJson.scripts["check:ci-parity"]).toBeDefined();
+    expect(localParityScript).toContain('"check:builtin-command-sync"');
+    expect(packageJson.scripts["check:all"]).toContain("npm run check:ci-parity");
     expect(workflow).toContain("name: 检查内置命令生成产物已同步提交");
-    expect(workflow).toContain("shell: pwsh");
-    expect(workflow).toContain("if ($LASTEXITCODE -ne 0) {");
+    expect(workflow).toContain("npm run check:builtin-command-sync");
     expect(workflow).not.toContain("|| (");
   });
 });
