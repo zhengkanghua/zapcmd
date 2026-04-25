@@ -112,6 +112,30 @@ describe("useCommandManagement", () => {
     expect(COMMAND_ROWS_RENDER_CHUNK_SIZE).toBe(80);
   });
 
+  it("exposes visible row window state and advances progressively", () => {
+    const { model } = createFixture();
+    const windowedModel = model as typeof model & {
+      renderedCommandRowCount: { value: number };
+      visibleCommandRows: { value: Array<{ id: string }> };
+      advanceVisibleCommandRows: () => void;
+      resetVisibleCommandRows: () => void;
+    };
+
+    expect(windowedModel.renderedCommandRowCount.value).toBe(4);
+    expect(windowedModel.visibleCommandRows.value.map((row) => row.id)).toEqual([
+      "cmd-a",
+      "cmd-b",
+      "cmd-c",
+      "cmd-no-source"
+    ]);
+
+    windowedModel.advanceVisibleCommandRows();
+    expect(windowedModel.renderedCommandRowCount.value).toBe(4);
+
+    windowedModel.resetVisibleCommandRows();
+    expect(windowedModel.visibleCommandRows.value).toHaveLength(4);
+  });
+
   it("formats issue messages for all known codes", () => {
     const { model, refs } = createFixture();
     refs.loadIssues.value = [
@@ -249,18 +273,33 @@ describe("useCommandManagement", () => {
 
   it("supports toggle/update/reset view actions", () => {
     const { model, spies } = createFixture();
+    const windowedModel = model as typeof model & {
+      renderedCommandRowCount: { value: number };
+      visibleCommandRows: { value: Array<{ id: string }> };
+      advanceVisibleCommandRows: () => void;
+      resetVisibleCommandRows: () => void;
+    };
 
     model.toggleCommandEnabled("cmd-a", false);
     expect(spies.setCommandEnabled).toHaveBeenCalledWith("cmd-a", false);
 
     model.updateCommandView({ query: "docker" });
     expect(model.commandView.value.query).toBe("docker");
+    expect(windowedModel.renderedCommandRowCount.value).toBe(2);
+    expect(windowedModel.visibleCommandRows.value.map((row) => row.id)).toEqual([
+      "cmd-a",
+      "cmd-c"
+    ]);
 
     model.updateCommandView({ sourceFilter: "user" });
     expect(model.commandView.value.sourceFilter).toBe("user");
+    expect(windowedModel.renderedCommandRowCount.value).toBe(0);
+    expect(windowedModel.visibleCommandRows.value).toHaveLength(0);
 
     model.resetCommandFilters();
     expect(model.commandView.value).toEqual(createDefaultViewState());
     expect(model.commandRows.value).toHaveLength(4);
+    expect(windowedModel.renderedCommandRowCount.value).toBe(4);
+    expect(windowedModel.visibleCommandRows.value).toHaveLength(4);
   });
 });

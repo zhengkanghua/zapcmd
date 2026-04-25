@@ -73,9 +73,11 @@ export interface SettingsGeneralProps {
 
 export interface SettingsCommandsProps {
   commandRows: CommandManagementRow[];
+  visibleCommandRows: CommandManagementRow[];
   commandSummary: CommandManagementSummary;
   commandLoadIssues: CommandLoadIssueView[];
   commandFilteredCount: number;
+  renderedCommandRowCount: number;
   commandView: CommandManagementViewState;
   commandSourceOptions: CommandSelectOption<CommandFilterSource>[];
   commandStatusOptions: CommandSelectOption<CommandFilterStatus>[];
@@ -84,6 +86,7 @@ export interface SettingsCommandsProps {
   commandIssueOptions: CommandSelectOption<CommandFilterIssue>[];
   commandSortOptions: CommandSelectOption<CommandSortBy>[];
   commandSourceFileOptions: CommandSourceFileOption[];
+  advanceVisibleCommandRows: () => void;
 }
 
 export interface SettingsAppearanceProps {

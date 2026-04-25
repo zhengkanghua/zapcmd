@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from "vue";
-import {
-  COMMAND_ROWS_INITIAL_RENDER_LIMIT,
-  COMMAND_ROWS_RENDER_CHUNK_SIZE
-} from "../../../composables/settings/useCommandManagement";
+import { onBeforeUnmount, ref, watch } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
 import { useI18nText } from "../../../i18n";
 import type { SettingsCommandsProps } from "../types";
@@ -25,12 +21,7 @@ const emit = defineEmits<{
 }>();
 
 const moreFiltersOpen = ref(false);
-const renderedCommandRowCount = ref(COMMAND_ROWS_INITIAL_RENDER_LIMIT);
 let deferredCommandRowTimer: number | null = null;
-
-const visibleCommandRows = computed(() =>
-  props.commandRows.slice(0, renderedCommandRowCount.value)
-);
 
 function cancelDeferredCommandRows(): void {
   if (deferredCommandRowTimer === null) {
@@ -42,17 +33,14 @@ function cancelDeferredCommandRows(): void {
 
 function scheduleDeferredCommandRows(): void {
   cancelDeferredCommandRows();
-  if (renderedCommandRowCount.value >= props.commandRows.length) {
+  if (props.visibleCommandRows.length >= props.commandRows.length) {
     return;
   }
 
   deferredCommandRowTimer = window.setTimeout(() => {
     deferredCommandRowTimer = null;
-    renderedCommandRowCount.value = Math.min(
-      props.commandRows.length,
-      renderedCommandRowCount.value + COMMAND_ROWS_RENDER_CHUNK_SIZE
-    );
-    if (renderedCommandRowCount.value < props.commandRows.length) {
+    props.advanceVisibleCommandRows();
+    if (props.visibleCommandRows.length < props.commandRows.length) {
       scheduleDeferredCommandRows();
     }
   }, 0);
@@ -60,10 +48,9 @@ function scheduleDeferredCommandRows(): void {
 
 watch(
   () => props.commandRows,
-  (rows) => {
+  () => {
     cancelDeferredCommandRows();
-    renderedCommandRowCount.value = Math.min(rows.length, COMMAND_ROWS_INITIAL_RENDER_LIMIT);
-    if (rows.length > renderedCommandRowCount.value) {
+    if (props.commandRows.length > props.visibleCommandRows.length) {
       scheduleDeferredCommandRows();
     }
   },
@@ -101,7 +88,7 @@ onBeforeUnmount(() => {
 
     <SettingsCommandsTable
       :command-rows="props.commandRows"
-      :visible-command-rows="visibleCommandRows"
+      :visible-command-rows="props.visibleCommandRows"
       @toggle-command-enabled="(commandId, enabled) => emit('toggle-command-enabled', commandId, enabled)"
     />
   </section>

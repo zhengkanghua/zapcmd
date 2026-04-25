@@ -1,16 +1,40 @@
 import { mount } from "@vue/test-utils";
-import { nextTick } from "vue";
+import { computed, defineComponent, nextTick, ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import SettingsCommandsSection from "../SettingsCommandsSection.vue";
 import SettingsCommandsTable from "../settingsCommands/SettingsCommandsTable.vue";
 import SettingsCommandsToolbar from "../settingsCommands/SettingsCommandsToolbar.vue";
+import {
+  COMMAND_ROWS_INITIAL_RENDER_LIMIT,
+  COMMAND_ROWS_RENDER_CHUNK_SIZE
+} from "../../../../composables/settings/useCommandManagement";
 
 describe("SettingsCommandsSection layout", () => {
   it("renders a two-stage toolbar and a bounded table structure", () => {
     const wrapper = mount(SettingsCommandsSection, {
       props: {
         commandRows: [
+          {
+            id: "docker.logs",
+            title: "查看容器日志",
+            category: "docker",
+            source: "builtin",
+            enabled: true,
+            overridesBuiltin: false,
+            hasLoadIssue: false
+          },
+          {
+            id: "user.echo",
+            title: "用户命令",
+            category: "custom",
+            source: "user",
+            enabled: false,
+            overridesBuiltin: false,
+            hasLoadIssue: false
+          }
+        ],
+        visibleCommandRows: [
           {
             id: "docker.logs",
             title: "查看容器日志",
@@ -39,6 +63,7 @@ describe("SettingsCommandsSection layout", () => {
         },
         commandLoadIssues: [],
         commandFilteredCount: 2,
+        renderedCommandRowCount: 2,
         commandView: {
           query: "",
           sourceFilter: "all",
@@ -55,7 +80,8 @@ describe("SettingsCommandsSection layout", () => {
         commandOverrideOptions: [{ value: "all", label: "全部冲突状态" }],
         commandIssueOptions: [{ value: "all", label: "全部问题" }],
         commandSortOptions: [{ value: "default", label: "默认" }],
-        commandSourceFileOptions: []
+        commandSourceFileOptions: [],
+        advanceVisibleCommandRows: () => {}
       }
     });
 
@@ -96,37 +122,67 @@ describe("SettingsCommandsSection layout", () => {
         hasLoadIssue: false
       }));
 
-      const wrapper = mount(SettingsCommandsSection, {
-        props: {
-          commandRows,
-          commandSummary: {
-            total: 260,
-            enabled: commandRows.filter((row) => row.enabled).length,
-            disabled: commandRows.filter((row) => !row.enabled).length,
-            userDefined: commandRows.filter((row) => row.source === "user").length,
-            overridden: 0
-          },
-          commandLoadIssues: [],
-          commandFilteredCount: 260,
-          commandView: {
-            query: "",
-            sourceFilter: "all",
-            statusFilter: "all",
-            categoryFilter: "all",
-            overrideFilter: "all",
-            issueFilter: "all",
-            fileFilter: "all",
-            sortBy: "default"
-          },
-          commandSourceOptions: [{ value: "all", label: "全部来源" }],
-          commandStatusOptions: [{ value: "all", label: "全部状态" }],
-          commandCategoryOptions: [{ value: "all", label: "全部分类" }],
-          commandOverrideOptions: [{ value: "all", label: "全部冲突状态" }],
-          commandIssueOptions: [{ value: "all", label: "全部问题" }],
-          commandSortOptions: [{ value: "default", label: "默认" }],
-          commandSourceFileOptions: []
-        }
+      const Harness = defineComponent({
+        components: {
+          SettingsCommandsSection
+        },
+        setup() {
+          const renderedCount = ref(COMMAND_ROWS_INITIAL_RENDER_LIMIT);
+          const visibleCommandRows = computed(() =>
+            commandRows.slice(0, renderedCount.value)
+          );
+
+          function advanceVisibleCommandRows(): void {
+            renderedCount.value = Math.min(
+              commandRows.length,
+              renderedCount.value + COMMAND_ROWS_RENDER_CHUNK_SIZE
+            );
+          }
+
+          return {
+            commandRows,
+            visibleCommandRows,
+            renderedCount,
+            advanceVisibleCommandRows
+          };
+        },
+        template: `
+          <SettingsCommandsSection
+            :command-rows="commandRows"
+            :visible-command-rows="visibleCommandRows"
+            :command-summary="{
+              total: 260,
+              enabled: commandRows.filter((row) => row.enabled).length,
+              disabled: commandRows.filter((row) => !row.enabled).length,
+              userDefined: commandRows.filter((row) => row.source === 'user').length,
+              overridden: 0
+            }"
+            :command-load-issues="[]"
+            :command-filtered-count="260"
+            :rendered-command-row-count="renderedCount"
+            :command-view="{
+              query: '',
+              sourceFilter: 'all',
+              statusFilter: 'all',
+              categoryFilter: 'all',
+              overrideFilter: 'all',
+              issueFilter: 'all',
+              fileFilter: 'all',
+              sortBy: 'default'
+            }"
+            :command-source-options="[{ value: 'all', label: '全部来源' }]"
+            :command-status-options="[{ value: 'all', label: '全部状态' }]"
+            :command-category-options="[{ value: 'all', label: '全部分类' }]"
+            :command-override-options="[{ value: 'all', label: '全部冲突状态' }]"
+            :command-issue-options="[{ value: 'all', label: '全部问题' }]"
+            :command-sort-options="[{ value: 'default', label: '默认' }]"
+            :command-source-file-options="[]"
+            :advance-visible-command-rows="advanceVisibleCommandRows"
+          />
+        `
       });
+
+      const wrapper = mount(Harness);
 
       expect(wrapper.findAll(".settings-commands-table__row")).toHaveLength(120);
       expect(wrapper.get(".settings-commands-table__container").attributes("data-rendered-rows")).toBe("120");
@@ -145,6 +201,7 @@ describe("SettingsCommandsSection layout", () => {
     const wrapper = mount(SettingsCommandsSection, {
       props: {
         commandRows: [],
+        visibleCommandRows: [],
         commandSummary: {
           total: 0,
           enabled: 0,
@@ -154,6 +211,7 @@ describe("SettingsCommandsSection layout", () => {
         },
         commandLoadIssues: [],
         commandFilteredCount: 0,
+        renderedCommandRowCount: 0,
         commandView: {
           query: "",
           sourceFilter: "all",
@@ -170,7 +228,8 @@ describe("SettingsCommandsSection layout", () => {
         commandOverrideOptions: [{ value: "all", label: "全部冲突状态" }],
         commandIssueOptions: [{ value: "all", label: "全部问题" }],
         commandSortOptions: [{ value: "default", label: "默认" }],
-        commandSourceFileOptions: []
+        commandSourceFileOptions: [],
+        advanceVisibleCommandRows: () => {}
       }
     });
 

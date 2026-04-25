@@ -28,28 +28,31 @@ function createCommandView(
 function createProps(
   overrides: Partial<SettingsCommandsProps> = {}
 ): SettingsCommandsProps {
+  const commandRows = [
+    {
+      id: "docker.logs",
+      title: "查看容器日志",
+      category: "docker",
+      source: "builtin" as const,
+      enabled: true,
+      overridesBuiltin: false,
+      hasLoadIssue: false
+    },
+    {
+      id: "user.echo",
+      title: "用户命令",
+      category: "custom",
+      source: "user" as const,
+      sourcePath: "commands/user.json",
+      enabled: false,
+      overridesBuiltin: false,
+      hasLoadIssue: true
+    }
+  ];
+
   return {
-    commandRows: [
-      {
-        id: "docker.logs",
-        title: "查看容器日志",
-        category: "docker",
-        source: "builtin" as const,
-        enabled: true,
-        overridesBuiltin: false,
-        hasLoadIssue: false
-      },
-      {
-        id: "user.echo",
-        title: "用户命令",
-        category: "custom",
-        source: "user" as const,
-        sourcePath: "commands/user.json",
-        enabled: false,
-        overridesBuiltin: false,
-        hasLoadIssue: true
-      }
-    ],
+    commandRows,
+    visibleCommandRows: commandRows,
     commandSummary: {
       total: 2,
       enabled: 1,
@@ -59,6 +62,7 @@ function createProps(
     },
     commandLoadIssues: [],
     commandFilteredCount: 2,
+    renderedCommandRowCount: commandRows.length,
     commandView: createCommandView(),
     commandSourceOptions: [
       { value: "all" as const, label: "来源-全部" },
@@ -91,6 +95,7 @@ function createProps(
       { value: "builtin.json", label: "内置文件", count: 1 },
       { value: "user.json", label: "用户文件", count: 1 }
     ],
+    advanceVisibleCommandRows: () => {},
     ...overrides
   };
 }

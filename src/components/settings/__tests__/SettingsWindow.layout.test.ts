@@ -79,6 +79,7 @@ function createSettingsWindowProps(
     alwaysElevatedTerminal: defaults.general.alwaysElevatedTerminal,
     showAlwaysElevatedTerminal: true,
     commandRows: [],
+    visibleCommandRows: [],
     commandSummary: {
       total: 0,
       enabled: 0,
@@ -88,6 +89,7 @@ function createSettingsWindowProps(
     },
     commandLoadIssues: [],
     commandFilteredCount: 0,
+    renderedCommandRowCount: 0,
     commandView: createDefaultCommandViewState(),
     commandSourceOptions: [],
     commandStatusOptions: [],
@@ -96,6 +98,7 @@ function createSettingsWindowProps(
     commandIssueOptions: [],
     commandSortOptions: [],
     commandSourceFileOptions: [],
+    advanceVisibleCommandRows: () => {},
     windowOpacity: defaults.appearance.windowOpacity,
     theme: defaults.appearance.theme,
     blurEnabled: defaults.appearance.blurEnabled,

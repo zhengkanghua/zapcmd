@@ -1,4 +1,4 @@
-import { computed, type Ref } from "vue";
+import { computed, ref, watch, type Ref } from "vue";
 import type { CommandTemplate } from "../../../features/commands/types";
 import type {
   CommandManagementRow,
@@ -81,6 +81,45 @@ export function createFilteredRows(
       .slice()
       .sort((left, right) => compareRows(left, right, view.sortBy));
   });
+}
+
+export function createVisibleRowsWindow(
+  rows: Readonly<Ref<CommandManagementRow[]>>
+) {
+  const renderedCommandRowCount = ref(0);
+
+  function resetVisibleCommandRows(): void {
+    renderedCommandRowCount.value = Math.min(
+      rows.value.length,
+      COMMAND_ROWS_INITIAL_RENDER_LIMIT
+    );
+  }
+
+  function advanceVisibleCommandRows(): void {
+    renderedCommandRowCount.value = Math.min(
+      rows.value.length,
+      renderedCommandRowCount.value + COMMAND_ROWS_RENDER_CHUNK_SIZE
+    );
+  }
+
+  const visibleCommandRows = computed(() =>
+    rows.value.slice(0, renderedCommandRowCount.value)
+  );
+
+  watch(
+    rows,
+    () => {
+      resetVisibleCommandRows();
+    },
+    { immediate: true, flush: "sync" }
+  );
+
+  return {
+    renderedCommandRowCount,
+    visibleCommandRows,
+    advanceVisibleCommandRows,
+    resetVisibleCommandRows
+  };
 }
 
 export function createSummary(rows: Readonly<Ref<CommandManagementIndexedRow[]>>) {
