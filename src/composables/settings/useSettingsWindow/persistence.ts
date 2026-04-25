@@ -49,7 +49,7 @@ function validateSingleHotkeyChange(params: {
 }
 
 export interface InstantPersistenceActions {
-  persistSetting: () => Promise<void>;
+  persistSetting: (options?: { clearErrors?: boolean }) => Promise<void>;
   loadSettings: () => void;
   applyHotkeyChange: (fieldId: HotkeyFieldId, value: string) => Promise<void>;
   applyAutoStartChange: (enabled: boolean) => Promise<void>;
@@ -63,8 +63,14 @@ export function createPersistenceActions(deps: {
 }): InstantPersistenceActions {
   const { options, state } = deps;
 
-  async function persistSetting(): Promise<void> {
-    clearSettingsErrorState(state);
+  /**
+   * 统一持久化 settings，并允许初始化同步场景保留现有校验错误态。
+   * 这样挂载期的补偿写回不会把用户刚触发的冲突提示抹掉。
+   */
+  async function persistSetting(persistOptions: { clearErrors?: boolean } = {}): Promise<void> {
+    if (persistOptions.clearErrors ?? true) {
+      clearSettingsErrorState(state);
+    }
 
     try {
       options.settingsStore.persist();
@@ -91,7 +97,7 @@ export function createPersistenceActions(deps: {
     const corrected = deps.ensureDefaultTerminal?.() ?? false;
     clearSettingsErrorState(state);
     if (corrected) {
-      void persistSetting();
+      void persistSetting({ clearErrors: false });
     }
     void deps.loadAutoStartEnabled?.();
   }

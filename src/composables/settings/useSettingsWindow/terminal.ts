@@ -14,7 +14,7 @@ export interface TerminalActions {
 export function createTerminalActions(deps: {
   options: UseSettingsWindowOptions;
   state: SettingsWindowState;
-  persistSetting: () => Promise<void>;
+  persistSetting: (options?: { clearErrors?: boolean }) => Promise<void>;
 }): TerminalActions {
   const { options, state, persistSetting } = deps;
 
@@ -61,13 +61,13 @@ export function createTerminalActions(deps: {
             : options.fallbackTerminalOptions();
       }
       if (ensureDefaultTerminal()) {
-        await persistSetting();
+        await persistSetting({ clearErrors: false });
       }
     } catch (error) {
       console.warn("loadAvailableTerminals failed; using fallback", error);
       state.availableTerminals.value = options.fallbackTerminalOptions();
       if (ensureDefaultTerminal()) {
-        await persistSetting();
+        await persistSetting({ clearErrors: false });
       }
     } finally {
       state.terminalLoading.value = false;
@@ -88,13 +88,13 @@ export function createTerminalActions(deps: {
       }
 
       if (ensureDefaultTerminal()) {
-        await persistSetting();
+        await persistSetting({ clearErrors: false });
       }
     } catch (error) {
       console.warn("refreshAvailableTerminals failed", error);
       state.availableTerminals.value = options.fallbackTerminalOptions();
       if (ensureDefaultTerminal()) {
-        await persistSetting();
+        await persistSetting({ clearErrors: false });
       }
     } finally {
       state.terminalLoading.value = false;

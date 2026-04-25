@@ -219,6 +219,28 @@ describe("useSettingsWindow persistence", () => {
     expect(harness.state.settingsErrorPrimaryHotkeyField.value).toBe("launcher");
   });
 
+  it("preserves hotkey conflict state while terminal bootstrap persists a corrected default", async () => {
+    const harness = createHarness({
+      defaultTerminal: ref("ghost"),
+      fallbackTerminalOptions: () => [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }]
+    });
+
+    harness.state.settingsError.value = "duplicate hotkey";
+    harness.state.settingsErrorRoute.value = "hotkeys";
+    harness.state.settingsErrorHotkeyFieldIds.value = ["launcher", "toggleQueue"];
+    harness.state.settingsErrorPrimaryHotkeyField.value = "launcher";
+
+    await harness.terminal.loadAvailableTerminals();
+
+    expect(harness.options.defaultTerminal.value).toBe("cmd");
+    expect(harness.settingsStore.persist).toHaveBeenCalledTimes(1);
+    expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
+    expect(harness.state.settingsError.value).toBe("duplicate hotkey");
+    expect(harness.state.settingsErrorRoute.value).toBe("hotkeys");
+    expect(harness.state.settingsErrorHotkeyFieldIds.value).toEqual(["launcher", "toggleQueue"]);
+    expect(harness.state.settingsErrorPrimaryHotkeyField.value).toBe("launcher");
+  });
+
   it("captures persist failure and skips broadcasting", async () => {
     const harness = createHarness();
     vi.mocked(harness.settingsStore.persist).mockImplementationOnce(() => {

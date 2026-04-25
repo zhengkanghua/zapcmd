@@ -170,6 +170,36 @@ describe("useSettingsWindow general actions", () => {
     expect(state.launchAtLoginLoading.value).toBe(false);
   });
 
+  it("loadAutoStartEnabled 成功同步系统值时保留现有 hotkey 错误态", async () => {
+    const options = createOptions({
+      isTauriRuntime: () => true,
+      launchAtLogin: ref(false),
+      readAutoStartEnabled: vi.fn(async () => true)
+    });
+    const state = createSettingsState();
+    state.settingsError.value = "duplicate hotkey";
+    state.settingsErrorRoute.value = "hotkeys";
+    state.settingsErrorHotkeyFieldIds.value = ["launcher", "toggleQueue"];
+    state.settingsErrorPrimaryHotkeyField.value = "launcher";
+
+    const actions = createGeneralActions({
+      options,
+      state,
+      persistSetting: vi.fn(async () => {}),
+      applyAutoStartChange: vi.fn(async () => {})
+    });
+
+    await actions.loadAutoStartEnabled();
+
+    expect(options.settingsStore.setLaunchAtLogin).toHaveBeenCalledWith(true);
+    expect(state.launchAtLoginBaseline.value).toBe(true);
+    expect(state.settingsError.value).toBe("duplicate hotkey");
+    expect(state.settingsErrorRoute.value).toBe("hotkeys");
+    expect(state.settingsErrorHotkeyFieldIds.value).toEqual(["launcher", "toggleQueue"]);
+    expect(state.settingsErrorPrimaryHotkeyField.value).toBe("launcher");
+    expect(state.launchAtLoginLoading.value).toBe(false);
+  });
+
   it("loadAutoStartEnabled 读取失败时写入可见错误状态", async () => {
     const options = createOptions({
       isTauriRuntime: () => true,

@@ -65,7 +65,6 @@ export function createGeneralActions(deps: {
       const enabled = rawEnabled;
       state.launchAtLoginBaseline.value = enabled;
       options.settingsStore.setLaunchAtLogin(enabled);
-      clearSettingsErrorState(state);
     } catch (error) {
       console.error("read autostart status failed:", error);
       state.launchAtLoginBaseline.value ??= options.launchAtLogin.value;
