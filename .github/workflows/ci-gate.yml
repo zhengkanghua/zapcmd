@@ -38,15 +38,21 @@ jobs:
         run: npm ci
 
       - name: 检查内置命令生成产物已同步提交
+        shell: pwsh
         run: |
           npm run commands:builtin:generate
-          git diff --exit-code -- commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands || (
-            echo "检测到内置命令生成产物未同步提交。请在本地执行："
-            echo "  npm run commands:builtin:generate"
-            echo "然后提交生成产物："
-            echo "  git add commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands"
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+          git diff --exit-code -- commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "检测到内置命令生成产物未同步提交。请在本地执行："
+            Write-Host "  npm run commands:builtin:generate"
+            Write-Host "然后提交生成产物："
+            Write-Host "  git add commands/catalog assets/runtime_templates/commands/builtin docs/generated_commands"
             exit 1
-          )
+          }
 
       - name: Run quality gate
         run: npm run check:all

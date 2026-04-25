@@ -53,3 +53,4 @@
 - 2026-04-25：运行时收口续作完成：Settings 独立窗按 route 延迟激活命令目录，命令扫描支持取消，启动更新失败退避，Rust 终端探测加 singleflight 去重；complexity guard 已接入，`lint`、`typecheck`、`test:coverage`、`build`、`check:rust`、`test:rust` 全绿。
 - 2026-04-25：已补 `useUpdateManager` 的 `readRuntimePlatform` 注入，`settingsScene` 改走 composition root ports；同时补齐 command catalog controller 与 userCommandSourceCache 缺口分支测试，`test:coverage` 现为 1122 测试全过、分支 90.50%。
 - 2026-04-25：已收口 1/3/4/5：搜索改有界插入排名，General 自启读取失败可见告警，`LauncherWindow` 事件桥接抽出，补执行失败热点测试；`check:all` 全绿。
+- 2026-04-25：已修 CI Gate Windows shell 合同：builtin generate 同步检查改显式 `pwsh` + PowerShell 条件分支，避免 Bash `|| (...)` 在 Windows runner 解析失败；新增 workflow 合同测试。
