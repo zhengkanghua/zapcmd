@@ -260,12 +260,26 @@ describe("AppSettings hotkeys regression", () => {
 
   it("shows conflict state when duplicate hotkeys are entered", async () => {
     const wrapper = await mountAppSettings();
+    const settingsStore = getSettingsStoreFromWrapper(wrapper);
 
     const launcher = findHotkeyRecorder(wrapper, "唤起窗口");
     await recordHotkey(launcher, { key: "k", ctrlKey: true });
+    await waitForCondition(() => settingsStore.hotkeys.launcher === "Ctrl+K", {
+      label: "launcher hotkey should persist before duplicate conflict is evaluated"
+    });
 
     const focus = findHotkeyRecorder(wrapper, "切换焦点区域");
     await recordHotkey(focus, { key: "k", ctrlKey: true });
+    await waitForCondition(
+      () =>
+        settingsStore.hotkeys.launcher === "Ctrl+K" &&
+        settingsStore.hotkeys.switchFocus === "Ctrl+K",
+      { label: "duplicate hotkeys should be committed into settings state before conflict render" }
+    );
+    await waitForCondition(
+      () => wrapper.text().includes("冲突") && wrapper.text().toLowerCase().includes("ctrl+k"),
+      { label: "duplicate hotkey conflict text should be visible before recorder class assertions" }
+    );
 
     await waitForCondition(
       () => wrapper.findAll("button.s-hotkey-recorder.s-hotkey-recorder--conflict").length >= 2,

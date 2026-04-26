@@ -69,4 +69,33 @@ describe("SettingsHotkeysSection layout", () => {
     expect(wrapper.text()).not.toContain("全局错误");
     expect(wrapper.findAllComponents(SHotkeyRecorder)[1].props("conflict")).toContain("duplicate");
   });
+
+  it("marks every conflicting recorder when the error references multiple hotkey fields", () => {
+    const wrapper = mount(SettingsHotkeysSection, {
+      props: {
+        hotkeyGlobalFields: [{ id: "launcher", label: "唤起窗口", scope: "global" }],
+        hotkeySearchFields: [{ id: "switchFocus", label: "切换焦点区域", scope: "local" }],
+        hotkeyQueueFields: [{ id: "executeQueue", label: "执行队列", scope: "local" }],
+        pointerActionFields: [
+          { id: "leftClick", label: "搜索结果左键" },
+          { id: "rightClick", label: "搜索结果右键" }
+        ],
+        pointerActionOptions: [
+          { value: "action-panel", label: "动作面板" },
+          { value: "execute", label: "执行" },
+          { value: "stage", label: "入队" },
+          { value: "copy", label: "复制" }
+        ],
+        getHotkeyValue: (field) => (field === "executeQueue" ? "Ctrl+Enter" : "Ctrl+K"),
+        getPointerActionValue: () => "action-panel",
+        hotkeyErrorFields: ["launcher", "switchFocus"],
+        hotkeyErrorMessage: "duplicate hotkey: ctrl+k"
+      }
+    });
+
+    const recorders = wrapper.findAllComponents(SHotkeyRecorder);
+    expect(recorders[0].props("conflict")).toContain("ctrl+k");
+    expect(recorders[1].props("conflict")).toContain("ctrl+k");
+    expect(recorders[2].props("conflict")).toBeUndefined();
+  });
 });

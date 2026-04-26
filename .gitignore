@@ -5,6 +5,7 @@
 # docs/.maintainer/
 
 .omc/
+.playwright-mcp/
 # .ai/
 # .claude/
 # .codex/

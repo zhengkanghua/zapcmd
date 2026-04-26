@@ -58,3 +58,4 @@
 - 2026-04-25：已把部分 CI Gate 前移到开发期：新增 `check:ci-parity` / `check:builtin-command-sync`，workflow 改动不再按 docs-only 跳过，builtin 产物同步检查前移，本地 pre-commit 对 `src-tauri/src/terminal/**` 等高风险 Rust 目录追加 `cargo test`。
 - 2026-04-25：已收口最新 CI 失败：hotkeys 回归测试改为等待冲突态稳定回流，Windows terminal 测试不再把 `git` 无空格参数强制写死为带引号；`check:all` fresh 通过，hotkeys 单测重复 30 轮通过。
 - 2026-04-25：继续收口 Settings 初始化竞态；终端默认值纠正与自启动同步不再清空既有 hotkey 冲突态，新增 persistence/general 回归，`npm run check:all` 再次全绿。
+- 2026-04-26：继续收口 hotkeys CI 偶发红灯；重复热键回归先等待 store 与冲突文案稳定，再断言双 recorder 冲突样式；同时补 `SettingsHotkeysSection` 双冲突字段透传测试。定向 test 与覆盖率插桩下子集测试均通过。
