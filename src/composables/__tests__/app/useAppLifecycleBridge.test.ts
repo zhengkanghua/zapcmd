@@ -18,7 +18,8 @@ describe("useAppLifecycleBridge", () => {
       settingsStorageKeys: ["zapcmd.settings"] as const
     };
     const settingsWindow = {
-      loadSettings: vi.fn(),
+      initializeSettings: vi.fn(),
+      reloadSettings: vi.fn(),
       loadAvailableTerminals: vi.fn(async () => {}),
       applySettingsRouteFromHash: vi.fn(),
       onSettingsHashChange: vi.fn(),
@@ -63,7 +64,8 @@ describe("useAppLifecycleBridge", () => {
     expect(mocked).toHaveBeenCalledTimes(1);
     const arg = mocked.mock.calls[0]?.[0];
     expect(arg?.onWindowKeydown).toBe(onWindowKeydown);
-    expect(arg?.loadSettings).toBe(settingsWindow.loadSettings);
+    expect(arg?.initializeSettings).toBe(settingsWindow.initializeSettings);
+    expect(arg?.reloadSettings).toBe(settingsWindow.reloadSettings);
     expect(arg?.syncWindowSize).toBe(windowSizing.syncWindowSize);
     expect(arg?.readLauncherHotkey).toBe(readLauncherHotkey);
     expect(arg?.scheduleSearchInputFocus).toBe(scheduleSearchInputFocus);

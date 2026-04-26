@@ -1,7 +1,8 @@
 use super::{
-    clamp_to_monitor, compute_reposition_to_cursor_monitor, point_in_monitor,
+    claim_focus_hide_worker, clamp_to_monitor, compute_reposition_to_cursor_monitor, point_in_monitor,
     resolve_restored_window_position_with, center_in_monitor, MainWindowBounds, MonitorInfo,
 };
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{PhysicalPosition, PhysicalSize};
 
 fn monitor(
@@ -247,4 +248,16 @@ fn reposition_uses_default_window_size_when_missing() {
         compute_reposition_to_cursor_monitor(cursor, window_pos, None, &monitors),
         Some(expected)
     );
+}
+
+#[test]
+fn focus_hide_worker_claim_is_single_flight() {
+    let inflight = AtomicBool::new(false);
+
+    assert!(claim_focus_hide_worker(&inflight));
+    assert!(!claim_focus_hide_worker(&inflight));
+
+    inflight.store(false, Ordering::SeqCst);
+
+    assert!(claim_focus_hide_worker(&inflight));
 }

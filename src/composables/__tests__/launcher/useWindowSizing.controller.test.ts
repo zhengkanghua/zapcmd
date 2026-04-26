@@ -65,7 +65,7 @@ function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides = {}) 
     windowWidthCap: ref(2000),
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
-    loadSettings: () => {}
+    reloadSettings: () => {}
   };
 
   const options = {
@@ -419,7 +419,7 @@ function createExitHarness() {
     windowWidthCap: ref(2000),
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
-    loadSettings: () => {}
+    reloadSettings: () => {}
   };
   const controller = createWindowSizingController(options);
 
@@ -492,7 +492,7 @@ describe("createWindowSizingController（CommandPanel floor 捕获）", () => {
       windowWidthCap: ref(2000),
       windowHeightCap: ref(2000),
       scheduleSearchInputFocus: () => {},
-      loadSettings: () => {}
+      reloadSettings: () => {}
     });
 
     // 在 nextTick 前切换到“参数面板”布局：Search -> Command 冷启动时应沿用 Search 有效高度。
@@ -570,7 +570,7 @@ describe("createWindowSizingController（CommandPanel 样式同步）", () => {
       windowWidthCap: ref(2000),
       windowHeightCap: ref(2000),
       scheduleSearchInputFocus: () => {},
-      loadSettings: () => {}
+      reloadSettings: () => {}
     });
 
     await controller.syncWindowSize();

@@ -31,6 +31,8 @@ function createLauncherContextStub() {
     },
     settingsWindow: {
       loadSettings: vi.fn(),
+      initializeSettings: vi.fn(),
+      reloadSettings: vi.fn(),
       loadAvailableTerminals: vi.fn(async () => {}),
       applySettingsRouteFromHash: vi.fn(),
       onSettingsHashChange: vi.fn(),
@@ -148,7 +150,12 @@ describe("launcherRuntimeBindings", () => {
     const bridgeOptions = vi.mocked(useAppLifecycleBridge).mock.calls[0]?.[0];
     expect(bridgeOptions?.runtime.isSettingsWindow).toBe(context.isSettingsWindow);
     expect(bridgeOptions?.runtime.resolveAppWindow).toBe(context.resolveAppWindow);
-    expect(bridgeOptions?.settingsWindow.loadSettings).toBe(context.settingsWindow.loadSettings);
+    expect(bridgeOptions?.settingsWindow.initializeSettings).toBe(
+      context.settingsWindow.initializeSettings
+    );
+    expect(bridgeOptions?.settingsWindow.reloadSettings).toBe(
+      context.settingsWindow.reloadSettings
+    );
     expect(bridgeOptions?.windowSizing.syncWindowSize).toBe(windowSizing.syncWindowSize);
     expect(bridgeOptions?.queue.clearQueueTransitionTimer).toBe(
       launcherRuntime.stagingQueue.clearQueueTransitionTimer

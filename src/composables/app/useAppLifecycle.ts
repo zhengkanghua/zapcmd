@@ -12,7 +12,8 @@ interface UseAppLifecycleOptions {
   currentWindowLabel: Ref<string>;
   settingsSyncChannel: Ref<BroadcastChannel | null>;
   settingsStorageKeys: readonly string[];
-  loadSettings: () => void;
+  initializeSettings: () => void;
+  reloadSettings: () => void;
   loadAvailableTerminals: () => Promise<void>;
   applySettingsRouteFromHash: (isInitial: boolean) => void;
   onSettingsHashChange: () => void;
@@ -72,7 +73,7 @@ function createSettingsBroadcastHandler(options: UseAppLifecycleOptions) {
     if (!event.data || event.data.type !== "settings-updated") {
       return;
     }
-    options.loadSettings();
+    options.reloadSettings();
   };
 }
 
@@ -81,7 +82,7 @@ function createStorageHandler(options: UseAppLifecycleOptions) {
     if (!shouldReloadSettings(event, options.settingsStorageKeys)) {
       return;
     }
-    options.loadSettings();
+    options.reloadSettings();
   };
 }
 
@@ -95,7 +96,7 @@ export function useAppLifecycle(options: UseAppLifecycleOptions): void {
     if (disposed) {
       return;
     }
-    options.loadSettings();
+    options.initializeSettings();
     const appWindow = options.resolveAppWindow();
     if (appWindow) {
       options.currentWindowLabel.value = appWindow.label;

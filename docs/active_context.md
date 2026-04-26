@@ -59,3 +59,4 @@
 - 2026-04-25：已收口最新 CI 失败：hotkeys 回归测试改为等待冲突态稳定回流，Windows terminal 测试不再把 `git` 无空格参数强制写死为带引号；`check:all` fresh 通过，hotkeys 单测重复 30 轮通过。
 - 2026-04-25：继续收口 Settings 初始化竞态；终端默认值纠正与自启动同步不再清空既有 hotkey 冲突态，新增 persistence/general 回归，`npm run check:all` 再次全绿。
 - 2026-04-26：继续收口 hotkeys CI 偶发红灯；重复热键回归先等待 store 与冲突文案稳定，再断言双 recorder 冲突样式；同时补 `SettingsHotkeysSection` 双冲突字段透传测试。定向 test 与覆盖率插桩下子集测试均通过。
+- 2026-04-26：审查问题已收口 3 项：主窗口 settings 广播/存储同步改为 reload 真 hydrate；Rust 终端刷新与失焦隐藏改为单实例后台 worker；`command_catalog/prerequisites` 已拆目录模块并移出 complexity allowlist。待全量门禁收口。

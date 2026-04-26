@@ -36,7 +36,7 @@ function createOnAppFocused(
       return;
     }
 
-    options.loadSettings();
+    options.reloadSettings();
     syncWindowSizeImmediate();
     options.scheduleSearchInputFocus(true);
   };

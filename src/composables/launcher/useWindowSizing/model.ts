@@ -54,5 +54,5 @@ export interface UseWindowSizingOptions {
   windowWidthCap: Ref<number>;
   windowHeightCap: Ref<number>;
   scheduleSearchInputFocus: (selectText?: boolean) => void;
-  loadSettings: () => void;
+  reloadSettings: () => void;
 }

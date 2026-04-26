@@ -206,6 +206,13 @@ fn compute_reposition_to_cursor_monitor(
     Some(center_in_monitor(window_size, monitor.position, monitor.size))
 }
 
+#[cfg(desktop)]
+fn claim_focus_hide_worker(inflight: &std::sync::atomic::AtomicBool) -> bool {
+    inflight
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+}
+
 /// If the cursor is on a different monitor than the window, reposition the window
 /// to the center of the cursor's monitor. This handles the case where the window
 /// was persisted on a secondary monitor that is no longer visible.
@@ -299,11 +306,19 @@ pub(crate) fn handle_main_window_event<R: Runtime>(window: &Window<R>, event: &W
         WindowEvent::Focused(focused) => {
             if !focused {
                 #[cfg(desktop)]
-                let (app_handle, move_save_token) = {
+                let (app_handle, move_save_token, claimed) = {
                     let app = window.app_handle();
                     let state = app.state::<AppState>();
-                    (app.clone(), state.move_save_token.load(Ordering::SeqCst))
+                    (
+                        app.clone(),
+                        state.move_save_token.load(Ordering::SeqCst),
+                        claim_focus_hide_worker(&state.focus_hide_inflight),
+                    )
                 };
+                #[cfg(desktop)]
+                if !claimed {
+                    return;
+                }
                 let window = window.clone();
                 std::thread::spawn(move || {
                     std::thread::sleep(Duration::from_millis(220));
@@ -312,6 +327,7 @@ pub(crate) fn handle_main_window_event<R: Runtime>(window: &Window<R>, event: &W
                         let state = app_handle.state::<AppState>();
                         let latest_token = state.move_save_token.load(Ordering::SeqCst);
                         if latest_token != move_save_token {
+                            state.focus_hide_inflight.store(false, Ordering::SeqCst);
                             return;
                         }
                     }
@@ -319,6 +335,11 @@ pub(crate) fn handle_main_window_event<R: Runtime>(window: &Window<R>, event: &W
                     let is_visible = window.is_visible().unwrap_or(false);
                     if still_unfocused && is_visible {
                         let _ = window.hide();
+                    }
+                    #[cfg(desktop)]
+                    {
+                        let state = app_handle.state::<AppState>();
+                        state.focus_hide_inflight.store(false, Ordering::SeqCst);
                     }
                 });
             }

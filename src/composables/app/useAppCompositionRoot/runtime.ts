@@ -202,7 +202,7 @@ function createWindowSizingOptions(
     windowWidthCap: launcherRuntime.layoutMetrics.windowWidthCap,
     windowHeightCap: launcherRuntime.layoutMetrics.windowHeightCap,
     scheduleSearchInputFocus: context.scheduleSearchInputFocus,
-    loadSettings: context.settingsWindow.loadSettings
+    reloadSettings: context.settingsWindow.reloadSettings
   };
 }
 

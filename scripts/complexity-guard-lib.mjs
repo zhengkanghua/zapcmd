@@ -13,7 +13,6 @@ const defaultIgnoredPathPatterns = [
 
 const legacyBaselineAllowlist = new Set([
   "src/AppVisual.vue",
-  "src-tauri/src/command_catalog/prerequisites.rs",
   "src-tauri/src/command_catalog/tests_io.rs",
   "src-tauri/src/terminal/tests_exec.rs",
   "scripts/commands/migrate-builtin-command-sources.mjs",

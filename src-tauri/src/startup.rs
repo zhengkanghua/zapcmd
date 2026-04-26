@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 #[cfg(desktop)]
-use std::sync::atomic::{AtomicBool, AtomicU64};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 #[cfg(desktop)]
 use std::sync::Mutex;
 
@@ -26,12 +26,21 @@ use crate::windowing::toggle_main_window;
 #[cfg(desktop)]
 use crate::windowing::open_or_focus_settings_window;
 
+#[cfg(desktop)]
+fn claim_background_terminal_refresh(inflight: &AtomicBool) -> bool {
+    inflight
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+}
+
 pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
     #[cfg(desktop)]
     app.manage(AppState {
         launcher_hotkey: Mutex::new(DEFAULT_LAUNCHER_HOTKEY.to_string()),
         move_save_inflight: AtomicBool::new(false),
         move_save_token: AtomicU64::new(0),
+        terminal_refresh_inflight: AtomicBool::new(false),
+        focus_hide_inflight: AtomicBool::new(false),
         terminal_discovery_exit_requested: AtomicBool::new(false),
         terminal_discovery_cache: Mutex::new(None),
         terminal_discovery_cache_io_lock: Mutex::new(()),
@@ -66,9 +75,18 @@ pub(crate) fn initialize_main_window<R: Runtime>(app: &mut App<R>) {
 #[cfg(desktop)]
 pub(crate) fn preheat_available_terminals_best_effort(app: &App) {
     let app_handle = app.handle().clone();
+    {
+        let state = app_handle.state::<AppState>();
+        if !claim_background_terminal_refresh(&state.terminal_refresh_inflight) {
+            return;
+        }
+    }
     std::thread::spawn(move || {
         let state = app_handle.state::<AppState>();
         let _ = refresh_available_terminals_impl(&app_handle, &state);
+        state
+            .terminal_refresh_inflight
+            .store(false, Ordering::SeqCst);
     });
 }
 
@@ -117,9 +135,18 @@ pub(crate) fn setup_tray(app: &mut App) -> tauri::Result<()> {
             "rescan_terminals" => {
                 // best-effort: 刷新失败不阻断交互，只记日志
                 let app_handle = app.clone();
+                {
+                    let state = app_handle.state::<AppState>();
+                    if !claim_background_terminal_refresh(&state.terminal_refresh_inflight) {
+                        return;
+                    }
+                }
                 std::thread::spawn(move || {
                     let state = app_handle.state::<AppState>();
                     let _ = refresh_available_terminals_impl(&app_handle, &state);
+                    state
+                        .terminal_refresh_inflight
+                        .store(false, Ordering::SeqCst);
                 });
             }
             "quit_app" => app.exit(0),
@@ -143,3 +170,6 @@ pub(crate) fn setup_tray(app: &mut App) -> tauri::Result<()> {
     let _ = tray_builder.build(app)?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests_logic;

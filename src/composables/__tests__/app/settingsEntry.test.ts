@@ -33,9 +33,12 @@ vi.mock("../../app/useAppCompositionRoot/settingsVm", () => ({
 }));
 
 function createSceneStub() {
+  const loadSettings = vi.fn();
   return {
     settingsWindow: {
-      loadSettings: vi.fn(),
+      loadSettings,
+      initializeSettings: loadSettings,
+      reloadSettings: loadSettings,
       loadAvailableTerminals: vi.fn(async () => {}),
       applySettingsRouteFromHash: vi.fn(),
       onSettingsHashChange: vi.fn(),
@@ -105,11 +108,12 @@ describe("useSettingsEntry", () => {
     const bridgeOptions = vi.mocked(useAppLifecycleBridge).mock.calls[0]?.[0];
     expect(bridgeOptions).toBeTruthy();
 
-    bridgeOptions?.settingsWindow.loadSettings();
+    bridgeOptions?.settingsWindow.initializeSettings();
+    bridgeOptions?.settingsWindow.reloadSettings();
     await bridgeOptions?.settingsWindow.loadAvailableTerminals();
     await bridgeOptions?.readLauncherHotkey();
 
-    expect(scene.settingsWindow.loadSettings).toHaveBeenCalledTimes(1);
+    expect(scene.settingsWindow.loadSettings).toHaveBeenCalledTimes(2);
     expect(scene.settingsWindow.loadAvailableTerminals).toHaveBeenCalledTimes(1);
     expect(readLauncherHotkey).toHaveBeenCalledTimes(1);
   });

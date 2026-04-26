@@ -53,6 +53,8 @@ export function useSettingsWindow(options: UseSettingsWindowOptions) {
     ...terminal,
     ...general,
     ...pointer,
-    ...persistence
+    ...persistence,
+    initializeSettings: persistence.loadSettings,
+    reloadSettings: persistence.loadSettings
   };
 }

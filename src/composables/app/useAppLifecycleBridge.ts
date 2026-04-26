@@ -11,7 +11,8 @@ interface RuntimeModule {
 }
 
 interface SettingsWindowModule {
-  loadSettings: () => void;
+  initializeSettings: () => void;
+  reloadSettings: () => void;
   loadAvailableTerminals: () => Promise<void>;
   applySettingsRouteFromHash: (isInitial: boolean) => void;
   onSettingsHashChange: () => void;
@@ -60,7 +61,8 @@ export function useAppLifecycleBridge(options: UseAppLifecycleBridgeOptions): vo
     currentWindowLabel: options.runtime.currentWindowLabel,
     settingsSyncChannel: options.runtime.settingsSyncChannel,
     settingsStorageKeys: options.runtime.settingsStorageKeys,
-    loadSettings: options.settingsWindow.loadSettings,
+    initializeSettings: options.settingsWindow.initializeSettings,
+    reloadSettings: options.settingsWindow.reloadSettings,
     loadAvailableTerminals: options.settingsWindow.loadAvailableTerminals,
     applySettingsRouteFromHash: options.settingsWindow.applySettingsRouteFromHash,
     onSettingsHashChange: options.settingsWindow.onSettingsHashChange,

@@ -78,7 +78,7 @@ function createBaseOptions(
     windowWidthCap: ref(2000),
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
-    loadSettings: () => {}
+    reloadSettings: () => {}
   };
   const resolved = {
     ...baseOptions,

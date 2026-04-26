@@ -19,6 +19,8 @@ pub(crate) struct AppState {
     pub launcher_hotkey: Mutex<String>,
     pub move_save_inflight: AtomicBool,
     pub move_save_token: AtomicU64,
+    pub terminal_refresh_inflight: AtomicBool,
+    pub focus_hide_inflight: AtomicBool,
     pub terminal_discovery_exit_requested: AtomicBool,
     pub terminal_discovery_cache: Mutex<Option<TerminalDiscoverySnapshot>>,
     pub terminal_discovery_cache_io_lock: Mutex<()>,

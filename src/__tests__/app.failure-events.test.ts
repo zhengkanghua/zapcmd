@@ -136,6 +136,7 @@ interface Deferred<T> {
 
 interface SnapshotOverrides {
   defaultTerminal?: string;
+  windowOpacity?: number;
 }
 
 interface FeedbackContract {
@@ -207,6 +208,9 @@ function buildSnapshot(
     },
     appearance: {
       windowOpacity: 0.96,
+      ...(overrides.windowOpacity !== undefined
+        ? { windowOpacity: overrides.windowOpacity }
+        : {}),
       theme: "obsidian",
       blurEnabled: true,
       motionPreset: "expressive",
@@ -752,6 +756,25 @@ describe("App failure and event regression", () => {
     await waitForUi();
     expect(recorder.text()).toContain("Alt");
     expect(recorder.text()).toContain("L");
+  });
+
+  it("主窗口收到 settings-updated 广播后会刷新当前外观设置", async () => {
+    const wrapper = await mountApp();
+    expect(document.documentElement.style.getPropertyValue("--ui-opacity")).toBe("0.96");
+
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify(buildSnapshot("Alt+V", { windowOpacity: 0.55 })),
+    );
+    const channel = MockBroadcastChannel.instances[0];
+    expect(channel).toBeTruthy();
+
+    channel.emit({ type: "settings-updated" });
+    await waitForUi();
+
+    expect(document.documentElement.style.getPropertyValue("--ui-opacity")).toBe("0.55");
+
+    wrapper.unmount();
   });
 
   it("applies synced default terminal to command execution after storage update", async () => {

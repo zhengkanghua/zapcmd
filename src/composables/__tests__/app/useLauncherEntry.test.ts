@@ -1,4 +1,4 @@
-import { effectScope, ref } from "vue";
+import { effectScope, nextTick, ref } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockState = vi.hoisted(() => {
@@ -179,9 +179,15 @@ function createStore() {
     disabledCommandIds: ref<string[]>([])
   };
 
+  const hydrateFromStorage = vi.fn(() => {
+    refs.language.value = "en";
+    refs.windowOpacity.value = 0.72;
+    refs.defaultTerminal.value = "hydrated-terminal";
+  });
+
   return {
     refs,
-    hydrateFromStorage: vi.fn(),
+    hydrateFromStorage,
     persist: vi.fn(),
     setDefaultTerminal: vi.fn((value: string) => {
       refs.defaultTerminal.value = value;
@@ -202,7 +208,8 @@ function runLauncherEntry(ports: Record<string, unknown> = {}) {
     context: mockState.capturedContext as {
       settingsWindow: {
         loadAvailableTerminals: () => Promise<void>;
-        loadSettings: () => void;
+        initializeSettings: () => void;
+        reloadSettings: () => void;
       };
       settingsSyncChannel: { value: BroadcastChannel | null };
     }
@@ -266,14 +273,17 @@ describe("useLauncherEntry", () => {
 
     vi.clearAllMocks();
     mockState.resolveEffectiveTerminal.mockReturnValue({
-      effectiveId: "fallback",
+      effectiveId: "hydrated-terminal",
       corrected: false
     });
-    context.settingsWindow.loadSettings();
+    context.settingsWindow.reloadSettings();
+    await nextTick();
 
-    expect(store.hydrateFromStorage).not.toHaveBeenCalled();
+    expect(store.hydrateFromStorage).toHaveBeenCalledTimes(1);
     expect(store.persist).not.toHaveBeenCalled();
     expect(store.setDefaultTerminal).not.toHaveBeenCalled();
+    expect(store.refs.language.value).toBe("en");
+    expect(store.refs.defaultTerminal.value).toBe("hydrated-terminal");
 
     scope.stop();
   });

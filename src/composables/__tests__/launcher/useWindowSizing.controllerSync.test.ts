@@ -44,7 +44,7 @@ function createSyncHarness(overrides: Partial<UseWindowSizingOptions> = {}) {
     windowWidthCap: ref(1600),
     windowHeightCap: ref(1600),
     scheduleSearchInputFocus: vi.fn(),
-    loadSettings: vi.fn(),
+    reloadSettings: vi.fn(),
     ...overrides
   };
   const state = createWindowSizingState(options);

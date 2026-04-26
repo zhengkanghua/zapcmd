@@ -46,4 +46,32 @@ describe("complexity-guard", () => {
 
     expect(violations).toEqual([]);
   });
+
+  it("only exempts the current explicit legacy baseline files", () => {
+    const content = Array.from({ length: 405 }, () => "const a = 1;").join("\n");
+
+    const allowlistedViolations = analyzeComplexity({
+      files: [{ path: "src/AppVisual.vue", content }]
+    });
+    const formerLegacyViolations = analyzeComplexity({
+      files: [{ path: "src-tauri/src/command_catalog/prerequisites.rs", content }]
+    });
+    const nonLegacyViolations = analyzeComplexity({
+      files: [{ path: "src-tauri/src/command_catalog/new-hotspot.rs", content }]
+    });
+
+    expect(allowlistedViolations).toEqual([]);
+    expect(formerLegacyViolations).toContainEqual(
+      expect.objectContaining({
+        rule: "file-max-lines",
+        file: "src-tauri/src/command_catalog/prerequisites.rs"
+      })
+    );
+    expect(nonLegacyViolations).toContainEqual(
+      expect.objectContaining({
+        rule: "file-max-lines",
+        file: "src-tauri/src/command_catalog/new-hotspot.rs"
+      })
+    );
+  });
 });

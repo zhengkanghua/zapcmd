@@ -62,7 +62,7 @@ export function createWindowSizingHarness(overrides: PanelHeightHarnessOverrides
     windowWidthCap: ref(2000),
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
-    loadSettings: () => {}
+    reloadSettings: () => {}
   };
 
   const options = {
@@ -372,7 +372,7 @@ export function createExitHarness() {
     windowWidthCap: ref(2000),
     windowHeightCap: ref(2000),
     scheduleSearchInputFocus: () => {},
-    loadSettings: () => {}
+    reloadSettings: () => {}
   };
 
   return {

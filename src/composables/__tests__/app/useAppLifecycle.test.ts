@@ -94,7 +94,8 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
   const isSettingsWindow = ref(options.isSettingsWindow ?? false);
   const focusCapture = createFocusListenerCapture();
 
-  const loadSettings = vi.fn();
+  const initializeSettings = vi.fn();
+  const reloadSettings = vi.fn();
   const loadAvailableTerminals = vi.fn(options.loadAvailableTerminalsImpl ?? (async () => {}));
   const applySettingsRouteFromHash = vi.fn();
   const onSettingsHashChange = vi.fn();
@@ -138,7 +139,8 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
         currentWindowLabel,
         settingsSyncChannel,
         settingsStorageKeys: ["zapcmd.settings", "zapcmd.settings.hotkeys"],
-        loadSettings,
+        initializeSettings,
+        reloadSettings,
         loadAvailableTerminals,
         applySettingsRouteFromHash,
         onSettingsHashChange,
@@ -171,7 +173,8 @@ function createHarness(options: LifecycleHarnessOptions = {}) {
       focusCapture
     },
     spies: {
-      loadSettings,
+      initializeSettings,
+      reloadSettings,
       loadAvailableTerminals,
       applySettingsRouteFromHash,
       onAppFocused,
@@ -224,26 +227,27 @@ describe("useAppLifecycle", () => {
     const wrapper = mount(Harness);
     await flushUi();
 
-    expect(spies.loadSettings).toHaveBeenCalledTimes(1);
+    expect(spies.initializeSettings).toHaveBeenCalledTimes(1);
+    expect(spies.reloadSettings).toHaveBeenCalledTimes(0);
     expect(spies.loadAvailableTerminals).toHaveBeenCalledTimes(1);
     expect(state.currentWindowLabel.value).toBe("settings");
     expect(spies.applySettingsRouteFromHash).toHaveBeenCalledWith(true);
     expect(state.settingsSyncChannel.value).toBeTruthy();
 
-    const beforeStorageReloads = spies.loadSettings.mock.calls.length;
+    const beforeStorageReloads = spies.reloadSettings.mock.calls.length;
     window.dispatchEvent(new StorageEvent("storage", { key: "unrelated.key" }));
     await flushUi();
-    expect(spies.loadSettings.mock.calls.length).toBe(beforeStorageReloads);
+    expect(spies.reloadSettings.mock.calls.length).toBe(beforeStorageReloads);
 
     window.dispatchEvent(new StorageEvent("storage", { key: "zapcmd.settings" }));
     await flushUi();
-    expect(spies.loadSettings.mock.calls.length).toBeGreaterThan(beforeStorageReloads);
+    expect(spies.reloadSettings.mock.calls.length).toBeGreaterThan(beforeStorageReloads);
 
     const channel = MockBroadcastChannel.instances[0];
     expect(channel).toBeTruthy();
     channel.emit({ type: "settings-updated" });
     await flushUi();
-    expect(spies.loadSettings.mock.calls.length).toBeGreaterThan(beforeStorageReloads + 1);
+    expect(spies.reloadSettings.mock.calls.length).toBeGreaterThan(beforeStorageReloads + 1);
 
     wrapper.unmount();
     expect(spies.clearResizeTimer).toHaveBeenCalledTimes(1);
@@ -282,16 +286,16 @@ describe("useAppLifecycle", () => {
     mount(Harness);
     await flushUi();
 
-    const loadCountBeforeEvents = spies.loadSettings.mock.calls.length;
+    const loadCountBeforeEvents = spies.reloadSettings.mock.calls.length;
     const channel = MockBroadcastChannel.instances[0];
 
     channel.emit(undefined);
     await flushUi();
-    expect(spies.loadSettings).toHaveBeenCalledTimes(loadCountBeforeEvents);
+    expect(spies.reloadSettings).toHaveBeenCalledTimes(loadCountBeforeEvents);
 
     window.dispatchEvent(new StorageEvent("storage"));
     await flushUi();
-    expect(spies.loadSettings).toHaveBeenCalledTimes(loadCountBeforeEvents + 1);
+    expect(spies.reloadSettings).toHaveBeenCalledTimes(loadCountBeforeEvents + 1);
   });
 
   it("在 BroadcastChannel 不可用时仍完成主窗口启动", async () => {
