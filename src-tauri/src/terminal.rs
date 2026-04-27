@@ -13,7 +13,7 @@ pub(crate) mod cache;
 pub(crate) mod singleflight;
 pub(crate) mod launch_posix;
 pub(crate) mod commands;
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", test))]
 pub(crate) mod windows_routing;
 #[cfg(target_os = "windows")]
 pub(crate) mod windows_launch;

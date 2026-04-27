@@ -32,10 +32,10 @@ interface ResolvedTerminalOptions {
 async function resolveAvailableTerminals(
   options: UseTerminalExecutionOptions
 ): Promise<ResolvedTerminalOptions> {
-  if (options.availableTerminals.value.length > 0) {
+  if (options.availableTerminalsTrusted.value && options.availableTerminals.value.length > 0) {
     return {
       terminals: options.availableTerminals.value,
-      trusted: options.availableTerminalsTrusted.value
+      trusted: true
     };
   }
 
@@ -56,8 +56,12 @@ async function resolveAvailableTerminals(
         trusted: true
       };
     }
+    options.availableTerminals.value = [];
+    options.availableTerminalsTrusted.value = false;
   } catch (error) {
     console.warn("readAvailableTerminals before execution failed", error);
+    options.availableTerminals.value = [];
+    options.availableTerminalsTrusted.value = false;
   }
 
   return {

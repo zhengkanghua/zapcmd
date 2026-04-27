@@ -28,18 +28,17 @@ function readTimestamp(value: string | null): number {
 
 function shouldCheck(
   lastCheckedAtMs: number,
-  lastAttemptAtMs: number,
+  _lastAttemptAtMs: number,
   nowMs: number,
   intervalMs: number
 ): boolean {
   if (!Number.isFinite(nowMs) || nowMs <= 0) {
     return false;
   }
-  const lastRelevantAtMs = Math.max(lastCheckedAtMs, lastAttemptAtMs);
-  if (!Number.isFinite(lastRelevantAtMs) || lastRelevantAtMs <= 0) {
+  if (!Number.isFinite(lastCheckedAtMs) || lastCheckedAtMs <= 0) {
     return true;
   }
-  return nowMs - lastRelevantAtMs >= intervalMs;
+  return nowMs - lastCheckedAtMs >= intervalMs;
 }
 
 export async function maybeCheckForUpdateAtStartup(options: {

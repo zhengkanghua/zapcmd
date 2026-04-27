@@ -250,7 +250,7 @@ describe("useLauncherEntry", () => {
     vi.restoreAllMocks();
   });
 
-  it("在非 tauri 环境下回退到内置终端，并在纠正默认终端后广播持久化", async () => {
+  it("在非 tauri 环境下回退到内置终端，但不把 fallback 当可信结果持久化", async () => {
     const store = getStore();
     mockState.resolveEffectiveTerminal.mockReturnValue({
       effectiveId: "fallback",
@@ -267,9 +267,9 @@ describe("useLauncherEntry", () => {
 
     expect(mockState.readAvailableTerminals).not.toHaveBeenCalled();
     expect(entry.launcherCompatVm.availableTerminals.value).toEqual(mockState.fallbackTerminals);
-    expect(store.setDefaultTerminal).toHaveBeenCalledWith("fallback");
-    expect(store.persist).toHaveBeenCalledTimes(1);
-    expect(channel.postMessage).toHaveBeenCalledWith({ type: "settings-updated" });
+    expect(store.setDefaultTerminal).not.toHaveBeenCalled();
+    expect(store.persist).not.toHaveBeenCalled();
+    expect(channel.postMessage).not.toHaveBeenCalled();
 
     vi.clearAllMocks();
     mockState.resolveEffectiveTerminal.mockReturnValue({

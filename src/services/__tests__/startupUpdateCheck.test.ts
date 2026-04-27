@@ -68,7 +68,7 @@ describe("startupUpdateCheck", () => {
     errorSpy.mockRestore();
   });
 
-  it("skips retry when the last failed attempt is still within the interval", async () => {
+  it("retries on next startup even when the last failed attempt is still within the interval", async () => {
     localStorage.setItem(LAST_UPDATE_ATTEMPT_STORAGE_KEY, "4800");
 
     const result = await maybeCheckForUpdateAtStartup({
@@ -78,8 +78,8 @@ describe("startupUpdateCheck", () => {
       intervalMs: 500
     });
 
-    expect(result).toEqual({ checked: false, available: false });
-    expect(checkForUpdate).not.toHaveBeenCalled();
+    expect(result).toEqual({ checked: true, available: false });
+    expect(checkForUpdate).toHaveBeenCalledTimes(1);
   });
 
   it("skips when storage is unavailable", async () => {

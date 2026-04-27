@@ -105,12 +105,15 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
   };
 
   const state = createSettingsState();
-  const terminalRefs: { ensureDefaultTerminal?: () => boolean } = {};
+  const terminalRefs: {
+    ensureDefaultTerminal?: (options?: { allowPersist?: boolean }) => boolean;
+  } = {};
 
   const actions = createPersistenceActions({
     options,
     state,
-    ensureDefaultTerminal: () => terminalRefs.ensureDefaultTerminal?.() ?? false
+    ensureDefaultTerminal: (ensureOptions) =>
+      terminalRefs.ensureDefaultTerminal?.(ensureOptions) ?? false
   });
   const terminal = createTerminalActions({
     options,
@@ -129,7 +132,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
 }
 
 describe("useSettingsWindow persistence", () => {
-  it("persists corrected default terminal after loadSettings fallback", async () => {
+  it("does not persist corrected default terminal after non-tauri fallback loadSettings", async () => {
     const harness = createHarness({
       defaultTerminal: ref("ghost"),
       fallbackTerminalOptions: () => [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }]
@@ -137,9 +140,9 @@ describe("useSettingsWindow persistence", () => {
 
     harness.actions.loadSettings();
 
-    expect(harness.options.defaultTerminal.value).toBe("cmd");
-    expect(harness.settingsStore.persist).toHaveBeenCalledTimes(1);
-    expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
+    expect(harness.options.defaultTerminal.value).toBe("ghost");
+    expect(harness.settingsStore.persist).not.toHaveBeenCalled();
+    expect(harness.options.broadcastSettingsUpdated).not.toHaveBeenCalled();
   });
 
   it("persists and broadcasts on single setting change", async () => {
@@ -219,7 +222,7 @@ describe("useSettingsWindow persistence", () => {
     expect(harness.state.settingsErrorPrimaryHotkeyField.value).toBe("launcher");
   });
 
-  it("preserves hotkey conflict state while terminal bootstrap persists a corrected default", async () => {
+  it("preserves hotkey conflict state while non-tauri terminal fallback avoids corrected-default persistence", async () => {
     const harness = createHarness({
       defaultTerminal: ref("ghost"),
       fallbackTerminalOptions: () => [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }]
@@ -232,9 +235,9 @@ describe("useSettingsWindow persistence", () => {
 
     await harness.terminal.loadAvailableTerminals();
 
-    expect(harness.options.defaultTerminal.value).toBe("cmd");
-    expect(harness.settingsStore.persist).toHaveBeenCalledTimes(1);
-    expect(harness.options.broadcastSettingsUpdated).toHaveBeenCalledTimes(1);
+    expect(harness.options.defaultTerminal.value).toBe("ghost");
+    expect(harness.settingsStore.persist).not.toHaveBeenCalled();
+    expect(harness.options.broadcastSettingsUpdated).not.toHaveBeenCalled();
     expect(harness.state.settingsError.value).toBe("duplicate hotkey");
     expect(harness.state.settingsErrorRoute.value).toBe("hotkeys");
     expect(harness.state.settingsErrorHotkeyFieldIds.value).toEqual(["launcher", "toggleQueue"]);

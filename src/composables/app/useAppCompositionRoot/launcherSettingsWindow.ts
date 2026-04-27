@@ -3,6 +3,7 @@ import {
   fallbackTerminalOptions,
   type TerminalOption
 } from "../../../features/terminals/fallbackTerminals";
+import { loadTerminalOptions } from "../../../features/terminals/loadTerminalOptions";
 import { resolveEffectiveTerminal } from "../../../features/terminals/resolveEffectiveTerminal";
 
 interface LauncherSettingsStore {
@@ -74,17 +75,13 @@ export function createLauncherSettingsWindow(options: CreateLauncherSettingsWind
   async function loadAvailableTerminals(): Promise<void> {
     options.terminalLoading.value = true;
     try {
-      if (!options.ports.isTauriRuntime()) {
-        options.availableTerminals.value = fallbackTerminalOptions();
-        options.availableTerminalsTrusted.value = true;
-      } else {
-        const terminals = await options.ports.readAvailableTerminals();
-        const trusted = Array.isArray(terminals) && terminals.length > 0;
-        options.availableTerminals.value = trusted
-          ? terminals
-          : fallbackTerminalOptions();
-        options.availableTerminalsTrusted.value = trusted;
-      }
+      const loaded = await loadTerminalOptions({
+        isTauriRuntime: options.ports.isTauriRuntime(),
+        fallbackTerminals: fallbackTerminalOptions(),
+        readDetectedTerminals: options.ports.readAvailableTerminals
+      });
+      options.availableTerminals.value = loaded.terminals;
+      options.availableTerminalsTrusted.value = loaded.trusted;
       if (ensureDefaultTerminal(options)) {
         broadcastPersistedSettings();
       }

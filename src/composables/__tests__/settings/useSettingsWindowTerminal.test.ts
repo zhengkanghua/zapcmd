@@ -165,4 +165,26 @@ describe("useSettingsWindow terminal actions", () => {
     expect(options.settingsStore.setDefaultTerminal).not.toHaveBeenCalled();
     expect(persistSetting).not.toHaveBeenCalled();
   });
+
+  it("does not persist corrected terminal when non-tauri mode only has fallback terminals", async () => {
+    const options = createOptions({
+      isTauriRuntime: () => false
+    });
+    const state = createSettingsState();
+    const persistSetting = vi.fn(async () => {});
+    const actions = createTerminalActions({
+      options,
+      state,
+      persistSetting
+    });
+
+    await actions.loadAvailableTerminals();
+
+    expect(state.availableTerminals.value).toEqual([
+      { id: "cmd", label: "Command Prompt", path: "cmd.exe" }
+    ]);
+    expect(state.availableTerminalsTrusted.value).toBe(false);
+    expect(options.settingsStore.setDefaultTerminal).not.toHaveBeenCalled();
+    expect(persistSetting).not.toHaveBeenCalled();
+  });
 });

@@ -2,10 +2,16 @@ use crate::terminal::execution::sanitize_command;
 use super::{spawn_and_forget, ProcessCommand, TerminalExecutionError};
 
 #[cfg(not(target_os = "windows"))]
+use std::process::Child;
+#[cfg(not(target_os = "windows"))]
 use std::sync::{
     Arc,
     atomic::{AtomicBool, Ordering},
 };
+#[cfg(not(target_os = "windows"))]
+use std::sync::mpsc;
+#[cfg(not(target_os = "windows"))]
+use std::time::Duration;
 
 #[cfg(target_os = "windows")]
 fn exec_step(summary: &str, program: &str, args: &[&str]) -> super::TerminalExecutionStep {
@@ -93,6 +99,41 @@ fn spawn_with_reaper_invokes_reaper_after_spawn() {
     .expect("spawn with reaper should succeed");
 
     assert!(reaped.load(Ordering::SeqCst));
+}
+
+#[cfg(not(target_os = "windows"))]
+#[test]
+fn spawn_and_forget_reaps_short_lived_child_without_waiting_for_previous_long_lived_child() {
+    use crate::terminal::spawn_with_reaper;
+
+    let (tx, rx) = mpsc::channel::<()>();
+
+    let mut long_lived = ProcessCommand::new("sh");
+    long_lived.args(["-c", "sleep 0.3"]);
+    spawn_with_reaper(&mut long_lived, move |child: Child| {
+        std::thread::spawn(move || {
+            let mut child = child;
+            let _ = child.wait();
+        });
+    })
+    .expect("long-lived child should spawn");
+
+    let mut short_lived = ProcessCommand::new("sh");
+    short_lived.args(["-c", "exit 0"]);
+    spawn_with_reaper(&mut short_lived, move |child: Child| {
+        let tx = tx.clone();
+        std::thread::spawn(move || {
+            let mut child = child;
+            let _ = child.wait();
+            let _ = tx.send(());
+        });
+    })
+    .expect("short-lived child should spawn");
+
+    assert!(
+        rx.recv_timeout(Duration::from_millis(200)).is_ok(),
+        "short-lived child reaper should not be blocked by previous long-lived child"
+    );
 }
 
 #[cfg(target_os = "windows")]
@@ -245,6 +286,27 @@ mod windows {
     }
 
     #[test]
+    fn normal_and_elevated_policy_does_not_treat_non_reusable_terminal_history_as_admin_lane() {
+        let reusable_session_state = WindowsReusableSessionState {
+            normal: None,
+            elevated: Some("pwsh".to_string()),
+        };
+        let terminal_program = resolved_terminal_program("pwsh");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
+            reusable_session_state: &reusable_session_state,
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
+        assert!(!decision.reuse_existing_session);
+        assert!(!decision.track_session_state);
+    }
+
+    #[test]
     fn unknown_terminal_id_returns_invalid_request() {
         let options = vec![TerminalOption {
             id: "wt".to_string(),
@@ -283,6 +345,21 @@ mod windows {
         );
         assert_eq!(reusable_session_state.normal, None);
         assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
+    }
+
+    #[test]
+    fn non_reusable_terminal_history_is_not_tracked_as_reusable_session() {
+        let terminal_program = resolved_terminal_program("pwsh");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: true,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
+            reusable_session_state: &WindowsReusableSessionState::default(),
+        });
+
+        assert!(!decision.track_session_state);
     }
 
     #[test]
@@ -477,5 +554,131 @@ mod linux {
         assert!(command.contains("bash -lc 'echo bash'"));
         assert!(command.contains("sh -c 'echo sh'"));
         assert!(command.contains("[zapcmd][failed][2/2] sh step"));
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+mod windows_routing_logic {
+    use crate::terminal::TerminalExecutionError;
+    use crate::terminal::windows_routing::{
+        ResolvedTerminalProgram,
+        TerminalReusePolicy,
+        WindowsReusableSessionState,
+        WindowsRoutingInput,
+        WindowsSessionKind,
+        decide_windows_route,
+        should_track_windows_reusable_session,
+        update_windows_reusable_session_state,
+    };
+    use std::path::PathBuf;
+
+    fn resolved_terminal_program(id: &str) -> ResolvedTerminalProgram {
+        ResolvedTerminalProgram {
+            id: id.to_string(),
+            executable_path: PathBuf::from(format!(r"C:\terminal\{}.exe", id)),
+            supports_reuse: id == "wt",
+        }
+    }
+
+    #[test]
+    fn normal_and_elevated_policy_does_not_treat_non_reusable_terminal_history_as_admin_lane() {
+        let reusable_session_state = WindowsReusableSessionState {
+            normal: None,
+            elevated: Some("pwsh".to_string()),
+        };
+        let terminal_program = resolved_terminal_program("pwsh");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
+            reusable_session_state: &reusable_session_state,
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
+        assert!(!decision.reuse_existing_session);
+        assert!(!decision.track_session_state);
+    }
+
+    #[test]
+    fn never_policy_keeps_non_reusable_terminal_on_normal_lane() {
+        let terminal_program = resolved_terminal_program("pwsh");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::Never,
+            reusable_session_state: &WindowsReusableSessionState {
+                normal: None,
+                elevated: Some("pwsh".to_string()),
+            },
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
+        assert!(!decision.reuse_existing_session);
+    }
+
+    #[test]
+    fn normal_only_policy_keeps_non_reusable_terminal_on_normal_lane() {
+        let terminal_program = resolved_terminal_program("pwsh");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalOnly,
+            reusable_session_state: &WindowsReusableSessionState {
+                normal: None,
+                elevated: Some("pwsh".to_string()),
+            },
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
+        assert!(!decision.reuse_existing_session);
+    }
+
+    #[test]
+    fn reusable_lane_tracking_is_limited_to_true_reusable_terminal_sessions() {
+        let terminal_program = resolved_terminal_program("pwsh");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: true,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
+            reusable_session_state: &WindowsReusableSessionState::default(),
+        });
+
+        assert!(!decision.track_session_state);
+        assert!(!should_track_windows_reusable_session(&decision));
+    }
+
+    #[test]
+    fn only_success_updates_windows_reusable_session_state() {
+        let mut reusable_session_state = WindowsReusableSessionState::default();
+        let ok = Ok(());
+        let error = Err(TerminalExecutionError::new(
+            "elevation-launch-failed",
+            "failed",
+        ));
+
+        update_windows_reusable_session_state(
+            &mut reusable_session_state,
+            WindowsSessionKind::Elevated,
+            "wt",
+            &ok,
+        );
+        assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
+
+        update_windows_reusable_session_state(
+            &mut reusable_session_state,
+            WindowsSessionKind::Normal,
+            "pwsh",
+            &error,
+        );
+        assert_eq!(reusable_session_state.normal, None);
+        assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
     }
 }

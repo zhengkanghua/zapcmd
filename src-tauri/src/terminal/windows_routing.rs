@@ -30,6 +30,8 @@ pub(crate) struct ResolvedTerminalProgram {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct WindowsReusableSessionState {
+    // 这里只记录“已知存在且可复用”的会话车道归属。
+    // 它不是终端程序探测结果，也不是“历史上曾成功提权一次”的审计日志。
     pub normal: Option<String>,
     pub elevated: Option<String>,
 }
@@ -66,6 +68,13 @@ fn lane_matches(recorded_program: Option<&str>, terminal_program: &ResolvedTermi
 fn resolve_target_session_kind(input: &WindowsRoutingInput<'_>) -> WindowsSessionKind {
     if input.requires_elevation || input.always_elevated {
         return WindowsSessionKind::Elevated;
+    }
+
+    // 非复用终端（cmd/pwsh/powershell）即便历史上曾成功提权，
+    // 也不能证明“当前仍存在一个可复用的管理员会话”。
+    // 这类终端的历史记录只能说明过去启动成功过，不能作为本次继续走管理员车道的证据。
+    if !input.terminal_program.supports_reuse {
+        return WindowsSessionKind::Normal;
     }
 
     if matches!(
@@ -125,7 +134,9 @@ fn should_track_session_state(
     terminal_program: &ResolvedTerminalProgram,
     uses_reusable_lane: bool,
 ) -> bool {
-    !terminal_program.supports_reuse || uses_reusable_lane
+    // 只有真正支持复用、且本次实际走了复用车道的终端，才允许写入可复用会话状态。
+    // 否则会把“历史成功启动”误记成“当前可复用会话存在”。
+    terminal_program.supports_reuse && uses_reusable_lane
 }
 
 pub(crate) fn build_windows_launch_plan(

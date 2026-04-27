@@ -62,3 +62,6 @@
 - 2026-04-26：审查问题已收口 3 项：主窗口 settings 广播/存储同步改为 reload 真 hydrate；Rust 终端刷新与失焦隐藏改为单实例后台 worker；`command_catalog/prerequisites` 已拆目录模块并移出 complexity allowlist。待全量门禁收口。
 - 2026-04-27：项目审查续修收口；Launcher 屏幕尺寸刷新链路与焦点回归稳定，Settings Commands 渐进渲染调度已下沉，Command Catalog 改正 builtin 错误归因并统一 locale/activated 异步失败收口；`lint`、`typecheck`、`test:coverage`、`build`、`check:rust`、`test:rust` fresh 通过。
 - 2026-04-27：运行时审计整改已再收口 4 项：user command cache 两阶段提交、catalog refresh singleflight、staged command 真唯一 ID、终端 fallback 仅运行时使用不再误持久化；Rust 启动刷新加 RAII inflight guard；Launcher/Settings 抽共享 `settingsFacts`。已过前端定向 111 测试、Rust `startup::tests_logic` 与 `typecheck`。
+- 2026-04-27：继续收口审计项 2/5/6：Unix/mac 终端子进程改独立后台回收，避免前一个长命终端阻塞后续 child wait；前端新增共享 `loadTerminalOptions`，non-tauri fallback 明确标记为不可信且不再纠正/持久化默认终端；相关前端定向 29 测试、Rust terminal 定向 11 测试通过。第 3 项“更新失败是否 24h 节流”暂待产品规则确认，第 4 项仅完成解释未改行为。
+- 2026-04-27：第 3/4 项规则已确认并落地：启动更新仅成功后写入 24h 节流，失败只记 attempt 不阻断下次启动重试；执行链遇到空列表或不可信终端缓存时会重新向后端探测，不再把失败 fallback 当长期真值。相关前端定向 36 测试与 `typecheck` 通过。
+- 2026-04-27：第 1 项边界已收口并修复：Windows 终端程序存在检查与“可复用管理员会话仍可用”显式分离；不可复用终端（如 `pwsh/cmd`）的历史提权成功不再被当成当前管理员会话可复用证据，也不再写入 reusable session state。新增跨平台可跑的 Windows 路由纯逻辑测试，Rust `terminal::tests_exec` 14 通过。

@@ -58,7 +58,7 @@ export interface InstantPersistenceActions {
 export function createPersistenceActions(deps: {
   options: UseSettingsWindowOptions;
   state: SettingsWindowState;
-  ensureDefaultTerminal?: () => boolean;
+  ensureDefaultTerminal?: (options?: { allowPersist?: boolean }) => boolean;
   loadAutoStartEnabled?: () => Promise<void>;
 }): InstantPersistenceActions {
   const { options, state } = deps;
@@ -94,7 +94,10 @@ export function createPersistenceActions(deps: {
 
   function loadSettings(): void {
     options.settingsStore.hydrateFromStorage();
-    const corrected = deps.ensureDefaultTerminal?.() ?? false;
+    const corrected =
+      deps.ensureDefaultTerminal?.({
+        allowPersist: state.availableTerminalsTrusted.value
+      }) ?? false;
     clearSettingsErrorState(state);
     if (corrected) {
       void persistSetting({ clearErrors: false });

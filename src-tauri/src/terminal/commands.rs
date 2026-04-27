@@ -127,6 +127,8 @@ pub(crate) fn run_command_in_terminal(
         );
         if let Ok(decision) = &result {
             if windows_routing::should_track_windows_reusable_session(decision) {
+                // 这里只在“本次已确认走了可复用车道”的前提下更新状态，
+                // 避免把一次性的提权成功误记成后续可直接复用的管理员会话。
                 let mut reusable_session_state = state
                     .windows_reusable_session_state
                     .lock()

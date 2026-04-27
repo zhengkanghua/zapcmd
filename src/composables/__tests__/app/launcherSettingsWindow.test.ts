@@ -30,7 +30,7 @@ describe("createLauncherSettingsWindow", () => {
     mockState.resolveEffectiveTerminal.mockReset();
   });
 
-  it("uses fallback terminals and broadcasts persistence when default terminal is corrected", async () => {
+  it("uses fallback terminals in non-tauri mode without persisting corrected default terminal", async () => {
     const settingsStore = createStore();
     const settingsSyncChannel = ref<BroadcastChannel | null>({
       postMessage: vi.fn()
@@ -60,11 +60,10 @@ describe("createLauncherSettingsWindow", () => {
     await settingsWindow.loadAvailableTerminals();
 
     expect(availableTerminals.value).toEqual(mockState.fallbackTerminals);
-    expect(settingsStore.setDefaultTerminal).toHaveBeenCalledWith("fallback");
-    expect(settingsStore.persist).toHaveBeenCalledTimes(1);
-    expect(settingsSyncChannel.value?.postMessage).toHaveBeenCalledWith({
-      type: "settings-updated"
-    });
+    expect(availableTerminalsTrusted.value).toBe(false);
+    expect(settingsStore.setDefaultTerminal).not.toHaveBeenCalled();
+    expect(settingsStore.persist).not.toHaveBeenCalled();
+    expect(settingsSyncChannel.value?.postMessage).not.toHaveBeenCalled();
   });
 
   it("does not persist corrected terminal when tauri terminal bootstrap falls back after a read failure", async () => {

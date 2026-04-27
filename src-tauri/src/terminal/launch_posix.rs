@@ -2,25 +2,9 @@
 use std::process::Child;
 use std::process::Command as ProcessCommand;
 #[cfg(not(target_os = "windows"))]
-use std::sync::{OnceLock, mpsc};
-#[cfg(not(target_os = "windows"))]
 use std::thread;
 
 use super::TerminalExecutionError;
-
-#[cfg(not(target_os = "windows"))]
-fn child_reaper_sender() -> &'static mpsc::Sender<Child> {
-    static CHILD_REAPER_SENDER: OnceLock<mpsc::Sender<Child>> = OnceLock::new();
-    CHILD_REAPER_SENDER.get_or_init(|| {
-        let (sender, receiver) = mpsc::channel::<Child>();
-        thread::spawn(move || {
-            for mut child in receiver {
-                let _ = child.wait();
-            }
-        });
-        sender
-    })
-}
 
 #[cfg(not(target_os = "windows"))]
 pub(crate) fn spawn_with_reaper<F>(cmd: &mut ProcessCommand, reaper: F) -> Result<(), String>
@@ -34,11 +18,11 @@ where
 
 #[cfg(not(target_os = "windows"))]
 fn reap_spawned_child_in_background(child: Child) {
-    // Unix/mac 若父进程从不 wait 已退出子进程，可能留下 zombie；这里统一交给单 worker 回收。
-    if let Err(error) = child_reaper_sender().send(child) {
-        let mut child = error.0;
+    // 每个终端子进程独立回收，避免前一个长生命周期窗口阻塞后续 child 的 wait。
+    thread::spawn(move || {
+        let mut child = child;
         let _ = child.wait();
-    }
+    });
 }
 
 pub(crate) fn spawn_and_forget(cmd: &mut ProcessCommand) -> Result<(), String> {

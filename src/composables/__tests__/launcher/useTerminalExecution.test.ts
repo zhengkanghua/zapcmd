@@ -335,6 +335,30 @@ describe("useTerminalExecution", () => {
     );
   });
 
+  it("retries backend discovery when cached terminals are untrusted fallback entries", async () => {
+    const { run, readAvailableTerminals, execution } = createExecutionHarness(
+      "ghost",
+      false,
+      "never",
+      {
+        isTauriRuntime: true,
+        initialAvailableTerminals: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }],
+        availableTerminalsTrusted: false,
+        discoveredTerminals: [{ id: "wt", label: "Windows Terminal", path: "wt.exe" }],
+        fallbackTerminalOptions: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }]
+      }
+    );
+
+    await execution.runCommandInTerminal(createExecStep("dir", "cmd", ["/c", "dir"]));
+
+    expect(readAvailableTerminals).toHaveBeenCalledTimes(1);
+    expect(run).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalId: "wt"
+      })
+    );
+  });
+
   it("falls back to unresolved terminal when tauri discovery returns no usable terminals", async () => {
     const { run, persistCorrectedTerminal, execution } = createExecutionHarness(
       "ghost",
