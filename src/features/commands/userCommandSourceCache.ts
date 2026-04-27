@@ -89,7 +89,7 @@ function createEmptyState(): UserCommandSourceCacheState {
 }
 
 function buildSnapshotFromPaths(
-  state: UserCommandSourceCacheState,
+  cacheByPath: ReadonlyMap<string, CachedEntry>,
   paths: string[],
   scanIssues: CommandLoadIssue[]
 ): UserCommandSourceCacheSnapshot {
@@ -97,7 +97,7 @@ function buildSnapshotFromPaths(
   const issues: CommandLoadIssue[] = [...scanIssues];
 
   for (const path of paths) {
-    const cached = state.cacheByPath.get(path);
+    const cached = cacheByPath.get(path);
     if (!cached) {
       continue;
     }
@@ -211,7 +211,11 @@ function applyCompletedScan(
   state.scannedPaths = files.map((file) => file.path);
   state.lastScanIssues = scanIssues;
   state.primedScan = true;
-  return buildSnapshotFromPaths(state, state.scannedPaths, scanIssues);
+  return buildSnapshotFromPaths(
+    state.cacheByPath,
+    state.scannedPaths,
+    scanIssues
+  );
 }
 
 async function refreshCacheFromScan(params: {
@@ -223,7 +227,7 @@ async function refreshCacheFromScan(params: {
   const scanned = await params.options.scanUserCommandFiles();
   if (!shouldContinue()) {
     return buildSnapshotFromPaths(
-      params.state,
+      params.state.cacheByPath,
       params.state.scannedPaths,
       params.state.lastScanIssues
     );
@@ -235,10 +239,11 @@ async function refreshCacheFromScan(params: {
     createScanFailedIssue(issue.path, issue.reason)
   );
 
-  syncRemovedCacheEntries(params.state.cacheByPath, nextPathSet);
+  const nextCacheByPath = new Map(params.state.cacheByPath);
+  syncRemovedCacheEntries(nextCacheByPath, nextPathSet);
   const readTasks = createReadTasks({
     files: sortedFiles,
-    cacheByPath: params.state.cacheByPath,
+    cacheByPath: nextCacheByPath,
     readUserCommandFile: params.options.readUserCommandFile,
     shouldContinue
   });
@@ -250,12 +255,13 @@ async function refreshCacheFromScan(params: {
   );
   if (!shouldContinue()) {
     return buildSnapshotFromPaths(
-      params.state,
+      params.state.cacheByPath,
       params.state.scannedPaths,
       params.state.lastScanIssues
     );
   }
 
+  params.state.cacheByPath = nextCacheByPath;
   return applyCompletedScan(params.state, sortedFiles, scanIssues);
 }
 
@@ -280,7 +286,11 @@ export function createUserCommandSourceCache(
   }
 
   function remapFromCache(): UserCommandSourceCacheSnapshot {
-    return buildSnapshotFromPaths(state, state.scannedPaths, state.lastScanIssues);
+    return buildSnapshotFromPaths(
+      state.cacheByPath,
+      state.scannedPaths,
+      state.lastScanIssues
+    );
   }
 
   function clear(): void {

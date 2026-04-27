@@ -13,6 +13,7 @@ interface UseTerminalExecutionOptions {
   alwaysElevatedTerminal: Ref<boolean>;
   terminalReusePolicy: Ref<TerminalReusePolicy>;
   availableTerminals: Ref<TerminalOption[]>;
+  availableTerminalsTrusted: Ref<boolean>;
   fallbackTerminalOptions: () => TerminalOption[];
   isTauriRuntime: () => boolean;
   readAvailableTerminals: () => Promise<TerminalOption[]>;
@@ -23,40 +24,58 @@ interface TerminalExecutionOptions {
   requiresElevation?: boolean;
 }
 
+interface ResolvedTerminalOptions {
+  terminals: TerminalOption[];
+  trusted: boolean;
+}
+
 async function resolveAvailableTerminals(
   options: UseTerminalExecutionOptions
-): Promise<TerminalOption[]> {
+): Promise<ResolvedTerminalOptions> {
   if (options.availableTerminals.value.length > 0) {
-    return options.availableTerminals.value;
+    return {
+      terminals: options.availableTerminals.value,
+      trusted: options.availableTerminalsTrusted.value
+    };
   }
 
   if (!options.isTauriRuntime()) {
-    return [];
+    return {
+      terminals: [],
+      trusted: false
+    };
   }
 
   try {
     const discovered = await options.readAvailableTerminals();
     if (Array.isArray(discovered) && discovered.length > 0) {
       options.availableTerminals.value = discovered;
-      return discovered;
+      options.availableTerminalsTrusted.value = true;
+      return {
+        terminals: discovered,
+        trusted: true
+      };
     }
   } catch (error) {
     console.warn("readAvailableTerminals before execution failed", error);
   }
 
-  return [];
+  return {
+    terminals: [],
+    trusted: false
+  };
 }
 
 async function resolveTerminalIdBeforeDispatch(
   options: UseTerminalExecutionOptions
 ): Promise<string> {
-  const availableTerminals = await resolveAvailableTerminals(options);
+  const { terminals: availableTerminals, trusted } = await resolveAvailableTerminals(options);
   const resolution = resolveEffectiveTerminal(
     options.defaultTerminal.value,
     availableTerminals,
     options.fallbackTerminalOptions()
   );
-  if (resolution.corrected) {
+  if (resolution.corrected && trusted) {
     options.defaultTerminal.value = resolution.effectiveId;
     try {
       options.persistCorrectedTerminal();

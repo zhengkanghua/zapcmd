@@ -64,6 +64,7 @@ export interface UseSettingsWindowOptions {
 
 export interface SettingsWindowState {
   availableTerminals: Ref<TerminalOption[]>;
+  availableTerminalsTrusted: Ref<boolean>;
   terminalLoading: Ref<boolean>;
   launchAtLoginLoading: Ref<boolean>;
   launchAtLoginBaseline: Ref<boolean | null>;
@@ -78,6 +79,7 @@ export interface SettingsWindowState {
 export function createSettingsState(): SettingsWindowState {
   return {
     availableTerminals: ref([]),
+    availableTerminalsTrusted: ref(false),
     terminalLoading: ref(false),
     launchAtLoginLoading: ref(false),
     launchAtLoginBaseline: ref(null),

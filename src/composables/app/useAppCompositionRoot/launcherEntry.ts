@@ -1,12 +1,7 @@
-import { storeToRefs } from "pinia";
 import { ref } from "vue";
-import { currentLocale } from "../../../i18n";
 import {
   type TerminalOption
 } from "../../../features/terminals/fallbackTerminals";
-import { useCommandCatalog } from "../../launcher/useCommandCatalog";
-import { useHotkeyBindings } from "../../settings/useHotkeyBindings";
-import { useSettingsStore } from "../../../stores/settingsStore";
 import { createAppShellVm } from "./appShellVm";
 import { bindLauncherAppearanceState } from "./launcherAppearance";
 import { createLauncherRuntimeContext } from "./launcherContext";
@@ -21,6 +16,7 @@ import {
 } from "./launcherSettingsWindow";
 import { createAppCompositionRootPorts, type AppCompositionRootPorts } from "./ports";
 import { createAppCompositionRuntime } from "./runtime";
+import { createLauncherSettingsFacts } from "./settingsFacts";
 
 export interface UseLauncherEntryOptions {
   ports?: Partial<AppCompositionRootPorts>;
@@ -28,9 +24,13 @@ export interface UseLauncherEntryOptions {
 
 export function useLauncherEntry(options: UseLauncherEntryOptions = {}) {
   const ports = createAppCompositionRootPorts(options.ports);
-  const settingsStore = useSettingsStore();
-  settingsStore.hydrateFromStorage();
-  const settingsRefs = storeToRefs(settingsStore);
+  const settingsFacts = createLauncherSettingsFacts({ ports });
+  const {
+    settingsStore,
+    settingsRefs,
+    hotkeyBindings,
+    commandCatalog
+  } = settingsFacts;
   const windowRuntime = createAppWindowRuntimeState(ports, "main");
   bindLauncherAppearanceState({
     language: settingsRefs.language,
@@ -39,29 +39,15 @@ export function useLauncherEntry(options: UseLauncherEntryOptions = {}) {
     blurEnabled: settingsRefs.blurEnabled,
     motionPreset: settingsRefs.motionPreset
   });
-
-  const hotkeyBindings = useHotkeyBindings({
-    hotkeys: settingsRefs.hotkeys,
-    pointerActions: settingsRefs.pointerActions,
-    setHotkey: (field, value) => {
-      settingsStore.setHotkey(field, value);
-    }
-  });
-  const commandCatalog = useCommandCatalog({
-    isTauriRuntime: ports.isTauriRuntime,
-    scanUserCommandFiles: ports.scanUserCommandFiles,
-    readUserCommandFile: ports.readUserCommandFile,
-    readRuntimePlatform: ports.readRuntimePlatform,
-    disabledCommandIds: settingsRefs.disabledCommandIds,
-    locale: currentLocale
-  });
   const availableTerminals = ref<TerminalOption[]>([]);
+  const availableTerminalsTrusted = ref(false);
   const terminalLoading = ref(false);
   const settingsWindow = createLauncherSettingsWindow({
     ports,
     settingsStore,
     defaultTerminal: settingsRefs.defaultTerminal,
     availableTerminals,
+    availableTerminalsTrusted,
     terminalLoading,
     settingsSyncChannel: windowRuntime.settingsSyncChannel
   });
@@ -73,6 +59,7 @@ export function useLauncherEntry(options: UseLauncherEntryOptions = {}) {
     alwaysElevatedTerminal: settingsRefs.alwaysElevatedTerminal,
     terminalReusePolicy: settingsRefs.terminalReusePolicy,
     availableTerminals,
+    availableTerminalsTrusted,
     persistCorrectedTerminal: createSettingsSyncBroadcaster(
       settingsStore,
       windowRuntime.settingsSyncChannel

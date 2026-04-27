@@ -210,6 +210,54 @@ describe("createUserCommandSourceCache", () => {
     ).toBe(false);
   });
 
+  it("keeps the previously committed snapshot stable when a later refresh is cancelled mid-flight", async () => {
+    const stablePath = "C:/Users/test/.zapcmd/commands/stable.json";
+    const cancelledPath = "C:/Users/test/.zapcmd/commands/cancelled.json";
+    let shouldContinue = true;
+    let releaseCancelledRead!: () => void;
+    const scanUserCommandFiles = vi
+      .fn(async () => ({
+        files: [{ path: stablePath, modifiedMs: 1, size: 16 }],
+        issues: []
+      }))
+      .mockImplementationOnce(async () => ({
+        files: [{ path: stablePath, modifiedMs: 1, size: 16 }],
+        issues: []
+      }))
+      .mockImplementationOnce(async () => ({
+        files: [{ path: cancelledPath, modifiedMs: 2, size: 16 }],
+        issues: []
+      }));
+    const readUserCommandFile = vi.fn((path: string) => {
+      if (path === stablePath) {
+        return Promise.resolve(createCommandFile(path, "stable"));
+      }
+      return new Promise<ReturnType<typeof createCommandFile>>((resolve) => {
+        releaseCancelledRead = () => {
+          resolve(createCommandFile(path, "cancelled"));
+        };
+      });
+    });
+    const cache = createUserCommandSourceCache({
+      scanUserCommandFiles,
+      readUserCommandFile
+    });
+
+    const stableSnapshot = await cache.refreshFromScan();
+    const pending = cache.refreshFromScan({
+      shouldContinue: () => shouldContinue
+    });
+    await vi.waitFor(() => {
+      expect(readUserCommandFile).toHaveBeenCalledWith(cancelledPath);
+    });
+
+    shouldContinue = false;
+    releaseCancelledRead();
+    await pending;
+
+    expect(cache.remapFromCache()).toEqual(stableSnapshot);
+  });
+
   it("keeps scan issues for files rejected by backend limits", async () => {
     const path = "C:/Users/test/.zapcmd/commands/huge.json";
     const cache = createUserCommandSourceCache({

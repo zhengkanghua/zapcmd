@@ -1,6 +1,8 @@
 use std::time::Duration;
 
 #[cfg(desktop)]
+use std::panic::{self, AssertUnwindSafe};
+#[cfg(desktop)]
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 #[cfg(desktop)]
 use std::sync::Mutex;
@@ -31,6 +33,30 @@ fn claim_background_terminal_refresh(inflight: &AtomicBool) -> bool {
     inflight
         .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
         .is_ok()
+}
+
+#[cfg(desktop)]
+fn run_claimed_background_terminal_refresh<F>(inflight: &AtomicBool, work: F)
+where
+    F: FnOnce(),
+{
+    struct BackgroundTerminalRefreshGuard<'a> {
+        inflight: &'a AtomicBool,
+    }
+
+    impl Drop for BackgroundTerminalRefreshGuard<'_> {
+        fn drop(&mut self) {
+            self.inflight.store(false, Ordering::SeqCst);
+        }
+    }
+
+    let reset_guard = BackgroundTerminalRefreshGuard { inflight };
+    let result = panic::catch_unwind(AssertUnwindSafe(work));
+    drop(reset_guard);
+
+    if let Err(payload) = result {
+        panic::resume_unwind(payload);
+    }
 }
 
 pub(crate) fn initialize_state<R: Runtime>(app: &mut App<R>) {
@@ -83,10 +109,9 @@ pub(crate) fn preheat_available_terminals_best_effort(app: &App) {
     }
     std::thread::spawn(move || {
         let state = app_handle.state::<AppState>();
-        let _ = refresh_available_terminals_impl(&app_handle, &state);
-        state
-            .terminal_refresh_inflight
-            .store(false, Ordering::SeqCst);
+        run_claimed_background_terminal_refresh(&state.terminal_refresh_inflight, || {
+            let _ = refresh_available_terminals_impl(&app_handle, &state);
+        });
     });
 }
 
@@ -143,10 +168,9 @@ pub(crate) fn setup_tray(app: &mut App) -> tauri::Result<()> {
                 }
                 std::thread::spawn(move || {
                     let state = app_handle.state::<AppState>();
-                    let _ = refresh_available_terminals_impl(&app_handle, &state);
-                    state
-                        .terminal_refresh_inflight
-                        .store(false, Ordering::SeqCst);
+                    run_claimed_background_terminal_refresh(&state.terminal_refresh_inflight, || {
+                        let _ = refresh_available_terminals_impl(&app_handle, &state);
+                    });
                 });
             }
             "quit_app" => app.exit(0),

@@ -1,14 +1,10 @@
-import { storeToRefs } from "pinia";
 import { computed, onScopeDispose, ref, watch, type Ref } from "vue";
 import { fallbackTerminalOptions } from "../../../features/terminals/fallbackTerminals";
-import { currentLocale, setAppLocale, t } from "../../../i18n";
+import { setAppLocale, t } from "../../../i18n";
 import {
   openExternalTarget,
   type ExternalTargetOpenResult
 } from "../../../services/externalNavigator";
-import { useSettingsStore } from "../../../stores/settingsStore";
-import { useCommandCatalog } from "../../launcher/useCommandCatalog";
-import { useHotkeyBindings } from "../../settings/useHotkeyBindings";
 import { useCommandManagement } from "../../settings/useCommandManagement";
 import { useSettingsWindow } from "../../settings/useSettingsWindow";
 import { useUpdateManager } from "../../update/useUpdateManager";
@@ -16,11 +12,12 @@ import { useMotionPreset } from "../useMotionPreset";
 import { useTheme } from "../useTheme";
 import { HOTKEY_DEFINITIONS, SETTINGS_HASH_PREFIX } from "./constants";
 import type { AppCompositionRootPorts } from "./ports";
+import { createSettingsSceneFacts, type SettingsStoreRefs } from "./settingsFacts";
 
 const FALLBACK_APP_VERSION = "";
 const HOMEPAGE_ACTION_STATUS_DISMISS_DELAY_MS = 2800;
-
-type SettingsStoreRefs = ReturnType<typeof createSettingsStoreRefs>;
+type SettingsSceneFacts = ReturnType<typeof createSettingsSceneFacts>;
+type SettingsSceneCommandCatalog = ReturnType<SettingsSceneFacts["createCommandCatalog"]>;
 
 export interface SettingsActionStatus {
   tone: "success" | "error";
@@ -40,10 +37,10 @@ export interface SettingsExternalActionResult {
  * 让主窗口与设置窗口复用同一份事实源，而不是各自再拼一套。
  */
 export type SettingsScene = SettingsStoreRefs & {
-  settingsStore: ReturnType<typeof useSettingsStore>;
-  hotkeyBindings: ReturnType<typeof useHotkeyBindings>;
+  settingsStore: SettingsSceneFacts["settingsStore"];
+  hotkeyBindings: SettingsSceneFacts["hotkeyBindings"];
   settingsWindow: ReturnType<typeof useSettingsWindow>;
-  commandCatalog: ReturnType<typeof useCommandCatalog>;
+  commandCatalog: SettingsSceneCommandCatalog;
   commandManagement: ReturnType<typeof useCommandManagement>;
   updateManager: ReturnType<typeof useUpdateManager>;
   themeManager: ReturnType<typeof useTheme>;
@@ -68,10 +65,6 @@ function resolveHomepageUrl(): string | null {
   const owner = typeof __GITHUB_OWNER__ === "string" ? __GITHUB_OWNER__.trim() : "";
   const repo = typeof __GITHUB_REPO__ === "string" ? __GITHUB_REPO__.trim() : "";
   return owner && repo ? `https://github.com/${owner}/${repo}` : null;
-}
-
-function createSettingsStoreRefs(settingsStore: ReturnType<typeof useSettingsStore>) {
-  return storeToRefs(settingsStore);
 }
 
 function mapHomepageOpenResult(
@@ -163,31 +156,24 @@ function createHomepageActionStatusController() {
 
 function createSettingsSceneRuntime(params: {
   options: CreateSettingsSceneOptions;
-  settingsStore: ReturnType<typeof useSettingsStore>;
-  settingsRefs: SettingsStoreRefs;
+  facts: SettingsSceneFacts;
 }) {
+  const { settingsStore, settingsRefs, hotkeyBindings } = params.facts;
   const updateManager = useUpdateManager({
     readRuntimePlatform: params.options.ports.readRuntimePlatform
-  });
-  const hotkeyBindings = useHotkeyBindings({
-    hotkeys: params.settingsRefs.hotkeys,
-    pointerActions: params.settingsRefs.pointerActions,
-    setHotkey: (field, value) => {
-      params.settingsStore.setHotkey(field, value);
-    }
   });
   const settingsWindow = useSettingsWindow({
     settingsHashPrefix: SETTINGS_HASH_PREFIX,
     hotkeyDefinitions: HOTKEY_DEFINITIONS,
     isSettingsWindow: params.options.isSettingsWindow,
-    defaultTerminal: params.settingsRefs.defaultTerminal,
-    terminalReusePolicy: params.settingsRefs.terminalReusePolicy,
-    language: params.settingsRefs.language,
-    autoCheckUpdate: params.settingsRefs.autoCheckUpdate,
-    launchAtLogin: params.settingsRefs.launchAtLogin,
-    alwaysElevatedTerminal: params.settingsRefs.alwaysElevatedTerminal,
-    pointerActions: params.settingsRefs.pointerActions,
-    settingsStore: params.settingsStore,
+    defaultTerminal: settingsRefs.defaultTerminal,
+    terminalReusePolicy: settingsRefs.terminalReusePolicy,
+    language: settingsRefs.language,
+    autoCheckUpdate: settingsRefs.autoCheckUpdate,
+    launchAtLogin: settingsRefs.launchAtLogin,
+    alwaysElevatedTerminal: settingsRefs.alwaysElevatedTerminal,
+    pointerActions: settingsRefs.pointerActions,
+    settingsStore,
     getHotkeyValue: hotkeyBindings.getHotkeyValue,
     setHotkeyValue: hotkeyBindings.setHotkeyValue,
     isTauriRuntime: params.options.ports.isTauriRuntime,
@@ -206,31 +192,25 @@ function createSettingsSceneRuntime(params: {
       !params.options.isSettingsWindow.value ||
       settingsWindow.settingsRoute.value === "commands"
   );
-  const commandCatalog = useCommandCatalog({
-    isTauriRuntime: params.options.ports.isTauriRuntime,
-    scanUserCommandFiles: params.options.ports.scanUserCommandFiles,
-    readUserCommandFile: params.options.ports.readUserCommandFile,
-    readRuntimePlatform: params.options.ports.readRuntimePlatform,
-    disabledCommandIds: params.settingsRefs.disabledCommandIds,
-    locale: currentLocale,
+  const commandCatalog = params.facts.createCommandCatalog({
     activated: commandCatalogActivated
   });
   const commandManagement = useCommandManagement({
     allCommandTemplates: commandCatalog.allCommandTemplates,
-    disabledCommandIds: params.settingsRefs.disabledCommandIds,
+    disabledCommandIds: settingsRefs.disabledCommandIds,
     commandSourceById: commandCatalog.commandSourceById,
     userCommandSourceById: commandCatalog.userCommandSourceById,
     overriddenCommandIds: commandCatalog.overriddenCommandIds,
     loadIssues: commandCatalog.loadIssues,
-    setCommandEnabled: params.settingsStore.setCommandEnabled.bind(params.settingsStore),
-    setDisabledCommandIds: params.settingsStore.setDisabledCommandIds.bind(params.settingsStore)
+    setCommandEnabled: settingsStore.setCommandEnabled.bind(settingsStore),
+    setDisabledCommandIds: settingsStore.setDisabledCommandIds.bind(settingsStore)
   });
   const themeManager = useTheme({
-    themeId: params.settingsRefs.theme,
-    blurEnabled: params.settingsRefs.blurEnabled
+    themeId: settingsRefs.theme,
+    blurEnabled: settingsRefs.blurEnabled
   });
   const motionPresetManager = useMotionPreset({
-    presetId: params.settingsRefs.motionPreset
+    presetId: settingsRefs.motionPreset
   });
 
   return {
@@ -249,8 +229,9 @@ function createSettingsSceneRuntime(params: {
  * 这里故意只收拢 Settings 相关状态，不引入跨窗口共享单例。
  */
 export function createSettingsScene(options: CreateSettingsSceneOptions): SettingsScene {
-  const settingsStore = useSettingsStore();
-  const settingsRefs = createSettingsStoreRefs(settingsStore);
+  const facts = createSettingsSceneFacts({
+    ports: options.ports
+  });
   const { homepageActionStatus, showHomepageActionStatus } =
     createHomepageActionStatusController();
   const {
@@ -263,15 +244,14 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
     motionPresetManager
   } = createSettingsSceneRuntime({
     options,
-    settingsStore,
-    settingsRefs
+    facts
   });
 
   bindSettingsSideEffects({
     isSettingsWindow: options.isSettingsWindow,
     updateManager,
-    language: settingsRefs.language,
-    windowOpacity: settingsRefs.windowOpacity
+    language: facts.settingsRefs.language,
+    windowOpacity: facts.settingsRefs.windowOpacity
   });
 
   async function openHomepage(): Promise<SettingsExternalActionResult> {
@@ -290,8 +270,8 @@ export function createSettingsScene(options: CreateSettingsSceneOptions): Settin
   }
 
   return {
-    settingsStore,
-    ...settingsRefs,
+    settingsStore: facts.settingsStore,
+    ...facts.settingsRefs,
     hotkeyBindings,
     settingsWindow,
     commandCatalog,

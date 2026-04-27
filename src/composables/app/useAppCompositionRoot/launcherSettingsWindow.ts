@@ -21,6 +21,7 @@ export interface CreateLauncherSettingsWindowOptions {
   settingsStore: LauncherSettingsStore;
   defaultTerminal: Ref<string>;
   availableTerminals: Ref<TerminalOption[]>;
+  availableTerminalsTrusted: Ref<boolean>;
   terminalLoading: Ref<boolean>;
   settingsSyncChannel: Ref<BroadcastChannel | null>;
 }
@@ -43,8 +44,12 @@ export function createSettingsSyncBroadcaster(
  */
 export function ensureDefaultTerminal(params: Pick<
   CreateLauncherSettingsWindowOptions,
-  "defaultTerminal" | "availableTerminals" | "settingsStore"
->): boolean {
+  "defaultTerminal" | "availableTerminals" | "availableTerminalsTrusted" | "settingsStore"
+>, options: { allowPersist?: boolean } = {}): boolean {
+  const allowPersist = options.allowPersist ?? params.availableTerminalsTrusted.value;
+  if (!allowPersist) {
+    return false;
+  }
   const resolution = resolveEffectiveTerminal(
     params.defaultTerminal.value,
     params.availableTerminals.value,
@@ -71,12 +76,14 @@ export function createLauncherSettingsWindow(options: CreateLauncherSettingsWind
     try {
       if (!options.ports.isTauriRuntime()) {
         options.availableTerminals.value = fallbackTerminalOptions();
+        options.availableTerminalsTrusted.value = true;
       } else {
         const terminals = await options.ports.readAvailableTerminals();
-        options.availableTerminals.value =
-          Array.isArray(terminals) && terminals.length > 0
-            ? terminals
-            : fallbackTerminalOptions();
+        const trusted = Array.isArray(terminals) && terminals.length > 0;
+        options.availableTerminals.value = trusted
+          ? terminals
+          : fallbackTerminalOptions();
+        options.availableTerminalsTrusted.value = trusted;
       }
       if (ensureDefaultTerminal(options)) {
         broadcastPersistedSettings();
@@ -84,6 +91,7 @@ export function createLauncherSettingsWindow(options: CreateLauncherSettingsWind
     } catch (error) {
       console.warn("launcher terminal bootstrap failed; using fallback", error);
       options.availableTerminals.value = fallbackTerminalOptions();
+      options.availableTerminalsTrusted.value = false;
       if (ensureDefaultTerminal(options)) {
         broadcastPersistedSettings();
       }

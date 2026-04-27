@@ -23,6 +23,22 @@ describe("launcherRuntimeAssembly architecture", () => {
     expect(source).toContain("createWindowScopedLauncherRuntime(");
   });
 
+  it("wires launcherEntry and settingsScene through shared settings facts", () => {
+    const launcherEntrySource = readFileSync(
+      "src/composables/app/useAppCompositionRoot/launcherEntry.ts",
+      "utf8"
+    );
+    const settingsSceneSource = readFileSync(
+      "src/composables/app/useAppCompositionRoot/settingsScene.ts",
+      "utf8"
+    );
+
+    expect(launcherEntrySource).toContain('from "./settingsFacts"');
+    expect(launcherEntrySource).toContain("createLauncherSettingsFacts(");
+    expect(settingsSceneSource).toContain('from "./settingsFacts"');
+    expect(settingsSceneSource).toContain("createSettingsSceneFacts(");
+  });
+
   it("does not warn when resolving app window eagerly outside tauri runtime", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const { createAppWindowRuntimeState } = await import(

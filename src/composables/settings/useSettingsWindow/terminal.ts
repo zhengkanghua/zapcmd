@@ -3,7 +3,7 @@ import { resolveEffectiveTerminal } from "../../../features/terminals/resolveEff
 import { clearSettingsErrorState, type SettingsWindowState, type UseSettingsWindowOptions } from "./model";
 
 export interface TerminalActions {
-  ensureDefaultTerminal: () => boolean;
+  ensureDefaultTerminal: (options?: { allowPersist?: boolean }) => boolean;
   selectTerminalOption: (id: string) => void;
   selectLanguageOption: (locale: AppLocale) => void;
   onGlobalPointerDown: (event: PointerEvent) => void;
@@ -18,7 +18,12 @@ export function createTerminalActions(deps: {
 }): TerminalActions {
   const { options, state, persistSetting } = deps;
 
-  function ensureDefaultTerminal(): boolean {
+  function ensureDefaultTerminal(
+    ensureOptions: { allowPersist?: boolean } = {}
+  ): boolean {
+    if (ensureOptions.allowPersist === false) {
+      return false;
+    }
     const resolution = resolveEffectiveTerminal(
       options.defaultTerminal.value,
       state.availableTerminals.value,
@@ -53,20 +58,23 @@ export function createTerminalActions(deps: {
     try {
       if (!options.isTauriRuntime()) {
         state.availableTerminals.value = options.fallbackTerminalOptions();
+        state.availableTerminalsTrusted.value = true;
       } else {
         const terminals = await options.readAvailableTerminals();
-        state.availableTerminals.value =
-          Array.isArray(terminals) && terminals.length > 0
-            ? terminals
-            : options.fallbackTerminalOptions();
+        const trusted = Array.isArray(terminals) && terminals.length > 0;
+        state.availableTerminals.value = trusted
+          ? terminals
+          : options.fallbackTerminalOptions();
+        state.availableTerminalsTrusted.value = trusted;
       }
-      if (ensureDefaultTerminal()) {
+      if (ensureDefaultTerminal({ allowPersist: state.availableTerminalsTrusted.value })) {
         await persistSetting({ clearErrors: false });
       }
     } catch (error) {
       console.warn("loadAvailableTerminals failed; using fallback", error);
       state.availableTerminals.value = options.fallbackTerminalOptions();
-      if (ensureDefaultTerminal()) {
+      state.availableTerminalsTrusted.value = false;
+      if (ensureDefaultTerminal({ allowPersist: false })) {
         await persistSetting({ clearErrors: false });
       }
     } finally {
@@ -79,21 +87,24 @@ export function createTerminalActions(deps: {
     try {
       if (!options.isTauriRuntime()) {
         state.availableTerminals.value = options.fallbackTerminalOptions();
+        state.availableTerminalsTrusted.value = true;
       } else {
         const terminals = await options.refreshAvailableTerminals();
-        state.availableTerminals.value =
-          Array.isArray(terminals) && terminals.length > 0
-            ? terminals
-            : options.fallbackTerminalOptions();
+        const trusted = Array.isArray(terminals) && terminals.length > 0;
+        state.availableTerminals.value = trusted
+          ? terminals
+          : options.fallbackTerminalOptions();
+        state.availableTerminalsTrusted.value = trusted;
       }
 
-      if (ensureDefaultTerminal()) {
+      if (ensureDefaultTerminal({ allowPersist: state.availableTerminalsTrusted.value })) {
         await persistSetting({ clearErrors: false });
       }
     } catch (error) {
       console.warn("refreshAvailableTerminals failed", error);
       state.availableTerminals.value = options.fallbackTerminalOptions();
-      if (ensureDefaultTerminal()) {
+      state.availableTerminalsTrusted.value = false;
+      if (ensureDefaultTerminal({ allowPersist: false })) {
         await persistSetting({ clearErrors: false });
       }
     } finally {

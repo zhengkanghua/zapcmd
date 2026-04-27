@@ -22,6 +22,14 @@ async function waitForCondition(
   throw new Error("condition not satisfied in time");
 }
 
+async function flushMicrotasks(cycles = 1): Promise<void> {
+  for (let index = 0; index < cycles; index += 1) {
+    await nextTick();
+    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+}
+
 function createUserCommandFile(content: string, modifiedMs: number) {
   return {
     path: "C:/Users/test/.zapcmd/commands/custom.json",
@@ -1021,36 +1029,24 @@ describe("useCommandCatalog", () => {
     }
   });
 
-  it("并发 refresh 时只允许最新请求结果回写", async () => {
-    const stalePath = "C:/Users/test/.zapcmd/commands/stale.json";
-    const latestPath = "C:/Users/test/.zapcmd/commands/latest.json";
-    let staleScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
-    let latestScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
-    let staleReadResolve!: (value: ReturnType<typeof createUserCommandFile>) => void;
-    let latestReadResolve!: (value: ReturnType<typeof createUserCommandFile>) => void;
+  it("并发 refresh 会复用同一轮请求并回写该轮结果", async () => {
+    const inflightPath = "C:/Users/test/.zapcmd/commands/inflight.json";
+    let inflightScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
+    let inflightReadResolve!: (value: ReturnType<typeof createUserCommandFile>) => void;
     const scanUserCommandFiles = vi
       .fn(async () => createScanResult([]))
       .mockImplementationOnce(async () => createScanResult([]))
       .mockImplementationOnce(
         () =>
           new Promise<ReturnType<typeof createScanResult>>((resolve) => {
-            staleScanResolve = resolve;
-          })
-      )
-      .mockImplementationOnce(
-        () =>
-          new Promise<ReturnType<typeof createScanResult>>((resolve) => {
-            latestScanResolve = resolve;
+            inflightScanResolve = resolve;
           })
       );
     const readUserCommandFile = vi.fn(
       (path: string) =>
         new Promise<ReturnType<typeof createUserCommandFile>>((resolve) => {
-          if (path === stalePath) {
-            staleReadResolve = resolve;
-            return;
-          }
-          latestReadResolve = resolve;
+          void path;
+          inflightReadResolve = resolve;
         })
     );
 
@@ -1075,68 +1071,33 @@ describe("useCommandCatalog", () => {
     const wrapper = mount(Harness);
     await waitForCondition(() => isCatalogReady());
 
-    const staleRefresh = refreshUserCommands();
-    await waitForCondition(() => typeof staleScanResolve === "function");
-    staleScanResolve(
+    const firstRefresh = refreshUserCommands();
+    const secondRefresh = refreshUserCommands();
+
+    await waitForCondition(() => typeof inflightScanResolve === "function");
+    inflightScanResolve(
       createScanResult([
         {
-          path: stalePath,
+          path: inflightPath,
           modifiedMs: 1,
           size: 1
         }
       ])
     );
-    await waitForCondition(() => typeof staleReadResolve === "function");
-
-    const latestRefresh = refreshUserCommands();
-    await waitForCondition(() => typeof latestScanResolve === "function");
-    latestScanResolve(
-      createScanResult([
-        {
-          path: latestPath,
-          modifiedMs: 2,
-          size: 2
-        }
-      ])
-    );
-    await waitForCondition(() => typeof latestReadResolve === "function");
-    latestReadResolve(
+    await waitForCondition(() => typeof inflightReadResolve === "function");
+    inflightReadResolve(
       createUserCommandFile(
         JSON.stringify({
           commands: [
             {
-              id: "latest-command",
-              name: "Latest Command",
-              tags: ["latest"],
+              id: "inflight-command",
+              name: "Inflight Command",
+              tags: ["inflight"],
               category: "custom",
               platform: "all",
               exec: {
                 program: "echo",
-                args: ["latest"]
-              },
-              adminRequired: false
-            }
-          ]
-        }),
-        2
-      )
-    );
-    await latestRefresh;
-    await waitForCondition(() => getTemplates().some((item) => item.id === "latest-command"));
-
-    staleReadResolve(
-      createUserCommandFile(
-        JSON.stringify({
-          commands: [
-            {
-              id: "stale-command",
-              name: "Stale Command",
-              tags: ["stale"],
-              category: "custom",
-              platform: "all",
-              exec: {
-                program: "echo",
-                args: ["stale"]
+                args: ["inflight"]
               },
               adminRequired: false
             }
@@ -1145,27 +1106,25 @@ describe("useCommandCatalog", () => {
         1
       )
     );
-    await staleRefresh;
+    await Promise.all([firstRefresh, secondRefresh]);
 
-    expect(getTemplates().some((item) => item.id === "latest-command")).toBe(true);
-    expect(getTemplates().some((item) => item.id === "stale-command")).toBe(false);
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(2);
+    expect(readUserCommandFile).toHaveBeenCalledTimes(1);
+    expect(getTemplates().some((item) => item.id === "inflight-command")).toBe(true);
 
     wrapper.unmount();
   });
 
-  it("并发 refresh 被新请求取代后不会继续启动剩余文件读取", async () => {
-    const stalePaths = [
-      "C:/Users/test/.zapcmd/commands/stale-1.json",
-      "C:/Users/test/.zapcmd/commands/stale-2.json",
-      "C:/Users/test/.zapcmd/commands/stale-3.json",
-      "C:/Users/test/.zapcmd/commands/stale-4.json",
-      "C:/Users/test/.zapcmd/commands/stale-5.json"
+  it("并发 refresh 复用 in-flight 请求，不会启动第二轮 scan", async () => {
+    const inflightPaths = [
+      "C:/Users/test/.zapcmd/commands/inflight-1.json",
+      "C:/Users/test/.zapcmd/commands/inflight-2.json",
+      "C:/Users/test/.zapcmd/commands/inflight-3.json",
+      "C:/Users/test/.zapcmd/commands/inflight-4.json",
+      "C:/Users/test/.zapcmd/commands/inflight-5.json"
     ];
-    const latestPath = "C:/Users/test/.zapcmd/commands/latest-only.json";
-    let staleScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
-    let latestScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
-    const staleReadResolvers = new Map<string, (value: ReturnType<typeof createUserCommandFile>) => void>();
-    let latestReadResolve!: (value: ReturnType<typeof createUserCommandFile>) => void;
+    let inflightScanResolve!: (value: ReturnType<typeof createScanResult>) => void;
+    const inflightReadResolvers = new Map<string, (value: ReturnType<typeof createUserCommandFile>) => void>();
 
     const scanUserCommandFiles = vi
       .fn(async () => createScanResult([]))
@@ -1173,23 +1132,13 @@ describe("useCommandCatalog", () => {
       .mockImplementationOnce(
         () =>
           new Promise<ReturnType<typeof createScanResult>>((resolve) => {
-            staleScanResolve = resolve;
-          })
-      )
-      .mockImplementationOnce(
-        () =>
-          new Promise<ReturnType<typeof createScanResult>>((resolve) => {
-            latestScanResolve = resolve;
+            inflightScanResolve = resolve;
           })
       );
     const readUserCommandFile = vi.fn(
       (path: string) =>
         new Promise<ReturnType<typeof createUserCommandFile>>((resolve) => {
-          if (path === latestPath) {
-            latestReadResolve = resolve;
-            return;
-          }
-          staleReadResolvers.set(path, resolve);
+          inflightReadResolvers.set(path, resolve);
         })
     );
 
@@ -1212,80 +1161,56 @@ describe("useCommandCatalog", () => {
     const wrapper = mount(Harness);
     await waitForCondition(() => isCatalogReady());
 
-    const staleRefresh = refreshUserCommands();
-    await waitForCondition(() => typeof staleScanResolve === "function");
-    staleScanResolve(
+    const firstRefresh = refreshUserCommands();
+    const secondRefresh = refreshUserCommands();
+
+    await waitForCondition(() => typeof inflightScanResolve === "function");
+    inflightScanResolve(
       createScanResult(
-        stalePaths.map((path, index) => ({
+        inflightPaths.map((path, index) => ({
           path,
           modifiedMs: index + 1,
           size: index + 10
         }))
       )
     );
-    await waitForCondition(() => staleReadResolvers.size === 4);
+    await waitForCondition(() => inflightReadResolvers.size > 0);
 
-    const latestRefresh = refreshUserCommands();
-    await waitForCondition(() => typeof latestScanResolve === "function");
-    latestScanResolve(
-      createScanResult([
-        {
-          path: latestPath,
-          modifiedMs: 9,
-          size: 99
+    const resolvedPaths = new Set<string>();
+    while (resolvedPaths.size < inflightPaths.length) {
+      for (const [path, resolve] of inflightReadResolvers.entries()) {
+        if (resolvedPaths.has(path)) {
+          continue;
         }
-      ])
-    );
-    await waitForCondition(() => typeof latestReadResolve === "function");
-    latestReadResolve(
-      createUserCommandFile(
-        JSON.stringify({
-          commands: [
-            {
-              id: "latest-only-command",
-              name: "Latest Only",
-              tags: ["latest"],
-              category: "custom",
-              platform: "all",
-              exec: {
-                program: "echo",
-                args: ["latest"]
-              },
-              adminRequired: false
-            }
-          ]
-        }),
-        9
-      )
-    );
-
-    for (const [path, resolve] of staleReadResolvers.entries()) {
-      resolve(
-        createUserCommandFile(
-          JSON.stringify({
-            commands: [
-              {
-                id: path.split("/").at(-1) ?? "stale",
-                name: path,
-                tags: ["stale"],
-                category: "custom",
-                platform: "all",
-                exec: {
-                  program: "echo",
-                  args: [path]
-                },
-                adminRequired: false
-              }
-            ]
-          }),
-          1
-        )
-      );
+        resolvedPaths.add(path);
+        resolve(
+          createUserCommandFile(
+            JSON.stringify({
+              commands: [
+                {
+                  id: path.split("/").at(-1) ?? "inflight",
+                  name: path,
+                  tags: ["inflight"],
+                  category: "custom",
+                  platform: "all",
+                  exec: {
+                    program: "echo",
+                    args: [path]
+                  },
+                  adminRequired: false
+                }
+              ]
+            }),
+            1
+          )
+        );
+      }
+      await flushMicrotasks(2);
     }
 
-    await latestRefresh;
-    await staleRefresh;
+    await Promise.all([firstRefresh, secondRefresh]);
 
+    expect(scanUserCommandFiles).toHaveBeenCalledTimes(2);
     expect(readUserCommandFile).toHaveBeenCalledTimes(5);
 
     wrapper.unmount();

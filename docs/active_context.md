@@ -61,3 +61,4 @@
 - 2026-04-26：继续收口 hotkeys CI 偶发红灯；重复热键回归先等待 store 与冲突文案稳定，再断言双 recorder 冲突样式；同时补 `SettingsHotkeysSection` 双冲突字段透传测试。定向 test 与覆盖率插桩下子集测试均通过。
 - 2026-04-26：审查问题已收口 3 项：主窗口 settings 广播/存储同步改为 reload 真 hydrate；Rust 终端刷新与失焦隐藏改为单实例后台 worker；`command_catalog/prerequisites` 已拆目录模块并移出 complexity allowlist。待全量门禁收口。
 - 2026-04-27：项目审查续修收口；Launcher 屏幕尺寸刷新链路与焦点回归稳定，Settings Commands 渐进渲染调度已下沉，Command Catalog 改正 builtin 错误归因并统一 locale/activated 异步失败收口；`lint`、`typecheck`、`test:coverage`、`build`、`check:rust`、`test:rust` fresh 通过。
+- 2026-04-27：运行时审计整改已再收口 4 项：user command cache 两阶段提交、catalog refresh singleflight、staged command 真唯一 ID、终端 fallback 仅运行时使用不再误持久化；Rust 启动刷新加 RAII inflight guard；Launcher/Settings 抽共享 `settingsFacts`。已过前端定向 111 测试、Rust `startup::tests_logic` 与 `typecheck`。

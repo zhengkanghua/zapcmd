@@ -31,6 +31,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     alwaysElevatedTerminal: settingsScene.alwaysElevatedTerminal,
     terminalReusePolicy: settingsScene.terminalReusePolicy,
     availableTerminals: settingsWindow.availableTerminals,
+    availableTerminalsTrusted: settingsWindow.availableTerminalsTrusted,
     persistCorrectedTerminal: createSettingsSyncBroadcaster(
       settingsScene.settingsStore,
       windowRuntime.settingsSyncChannel

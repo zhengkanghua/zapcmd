@@ -32,6 +32,7 @@ interface CreateLauncherRuntimeAssemblyOptions {
   alwaysElevatedTerminal: Ref<boolean>;
   terminalReusePolicy: Ref<TerminalReusePolicy>;
   availableTerminals: Ref<TerminalOption[]>;
+  availableTerminalsTrusted: Ref<boolean>;
   persistCorrectedTerminal: () => void;
 }
 
@@ -43,6 +44,7 @@ interface CreateWindowScopedLauncherRuntimeOptions {
   alwaysElevatedTerminal: Ref<boolean>;
   terminalReusePolicy: Ref<TerminalReusePolicy>;
   availableTerminals: Ref<TerminalOption[]>;
+  availableTerminalsTrusted: Ref<boolean>;
   persistCorrectedTerminal: () => void;
 }
 
@@ -100,6 +102,7 @@ export function createLauncherRuntimeAssembly(
     alwaysElevatedTerminal: options.alwaysElevatedTerminal,
     terminalReusePolicy: options.terminalReusePolicy,
     availableTerminals: options.availableTerminals,
+    availableTerminalsTrusted: options.availableTerminalsTrusted,
     fallbackTerminalOptions,
     isTauriRuntime: options.ports.isTauriRuntime,
     readAvailableTerminals: options.ports.readAvailableTerminals,
@@ -139,6 +142,7 @@ export function createWindowScopedLauncherRuntime(
     alwaysElevatedTerminal: options.alwaysElevatedTerminal,
     terminalReusePolicy: options.terminalReusePolicy,
     availableTerminals: options.availableTerminals,
+    availableTerminalsTrusted: options.availableTerminalsTrusted,
     persistCorrectedTerminal: options.persistCorrectedTerminal
   });
 }

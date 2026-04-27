@@ -141,4 +141,28 @@ describe("useSettingsWindow terminal actions", () => {
     expect(options.defaultTerminal.value).toBe("wt");
     expect(persistSetting).toHaveBeenCalledTimes(1);
   });
+
+  it("does not persist corrected terminal when refreshAvailableTerminals falls back after refresh failure", async () => {
+    const options = createOptions({
+      refreshAvailableTerminals: vi.fn(async () => {
+        throw new Error("boom");
+      })
+    });
+    const state = createSettingsState();
+    const persistSetting = vi.fn(async () => {});
+    const actions = createTerminalActions({
+      options,
+      state,
+      persistSetting
+    });
+
+    await actions.refreshAvailableTerminals();
+
+    expect(state.availableTerminals.value).toEqual([
+      { id: "cmd", label: "Command Prompt", path: "cmd.exe" }
+    ]);
+    expect(options.defaultTerminal.value).toBe("ghost");
+    expect(options.settingsStore.setDefaultTerminal).not.toHaveBeenCalled();
+    expect(persistSetting).not.toHaveBeenCalled();
+  });
 });

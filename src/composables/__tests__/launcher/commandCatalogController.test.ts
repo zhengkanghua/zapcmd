@@ -143,7 +143,7 @@ describe("command catalog controller internals", () => {
     }
   });
 
-  it("refresh ignores a stale request when a newer one wins before runtime platform resolves", async () => {
+  it("refresh reuses the in-flight request before runtime platform resolves", async () => {
     const { createCommandCatalogRuntimeController } = await import(
       "../../launcher/useCommandCatalog/controller"
     );
@@ -175,13 +175,52 @@ describe("command catalog controller internals", () => {
 
     await Promise.all([firstRefresh, secondRefresh]);
 
-    expect(readRuntimePlatform).toHaveBeenCalledTimes(2);
+    expect(readRuntimePlatform).toHaveBeenCalledTimes(1);
     expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
     expect(state.catalogStatus.value).toBe("ready");
     expect(state.catalogReady.value).toBe(true);
   });
 
-  it("refresh ignores a stale request when a newer one wins before builtin templates finish loading", async () => {
+  it("reuses the in-flight refresh instead of starting a second scan", async () => {
+    const { createCommandCatalogRuntimeController } = await import(
+      "../../launcher/useCommandCatalog/controller"
+    );
+
+    const options: UseCommandCatalogOptions = {
+      isTauriRuntime: () => true,
+      disabledCommandIds: ref([]),
+      scanUserCommandFiles: async () => ({ files: [], issues: [] }),
+      readUserCommandFile: async () => ({
+        path: "C:/Users/test/.zapcmd/commands/custom.json",
+        content: "{\"commands\":[]}",
+        modifiedMs: 1,
+        size: 15
+      }),
+      readRuntimePlatform: async () => "win"
+    };
+    const state = createCommandCatalogState(options);
+    const refreshDeferred = createDeferred<{ payloadEntries: []; issues: [] }>();
+    const refreshFromScan = vi.fn(async () => refreshDeferred.promise);
+    (state as { userCommandSourceCache: unknown }).userCommandSourceCache = {
+      hasPrimedScan: () => false,
+      remapFromCache: vi.fn(() => ({ payloadEntries: [], issues: [] })),
+      refreshFromScan,
+      clear: vi.fn()
+    };
+    const controller = createCommandCatalogRuntimeController(options, state);
+
+    const firstRefresh = controller.refreshUserCommands();
+    await flushMicrotasks();
+    const secondRefresh = controller.refreshUserCommands();
+    refreshDeferred.resolve({ payloadEntries: [], issues: [] });
+
+    await Promise.all([firstRefresh, secondRefresh]);
+
+    expect(refreshFromScan).toHaveBeenCalledTimes(1);
+    expect(state.catalogReady.value).toBe(true);
+  });
+
+  it("refresh reuses the in-flight request before builtin templates finish loading", async () => {
     const runtimePlatformModule = await import(
       "../../launcher/useCommandCatalog/runtimePlatform"
     );
@@ -219,7 +258,7 @@ describe("command catalog controller internals", () => {
 
       await Promise.all([firstRefresh, secondRefresh]);
 
-      expect(loadBuiltinSpy).toHaveBeenCalledTimes(2);
+      expect(loadBuiltinSpy).toHaveBeenCalledTimes(1);
       expect(scanUserCommandFiles).toHaveBeenCalledTimes(1);
       expect(state.catalogStatus.value).toBe("ready");
       expect(state.catalogReady.value).toBe(true);

@@ -8,6 +8,7 @@ type TestTerminalOption = { id: string; label: string; path: string };
 interface ExecutionHarnessOptions {
   isTauriRuntime?: boolean;
   initialAvailableTerminals?: TestTerminalOption[];
+  availableTerminalsTrusted?: boolean;
   discoveredTerminals?: TestTerminalOption[];
   fallbackTerminalOptions?: TestTerminalOption[];
   readAvailableTerminals?: () => Promise<TestTerminalOption[]>;
@@ -25,6 +26,9 @@ function createExecutionHarness(
   const availableTerminals = ref<TestTerminalOption[]>(
     options.initialAvailableTerminals ?? []
   );
+  const availableTerminalsTrusted = ref(
+    options.availableTerminalsTrusted ?? availableTerminals.value.length > 0
+  );
   const readAvailableTerminals = vi.fn(
     options.readAvailableTerminals ??
       (async () => options.discoveredTerminals ?? [])
@@ -36,6 +40,7 @@ function createExecutionHarness(
     alwaysElevatedTerminal: ref(alwaysElevated),
     terminalReusePolicy,
     availableTerminals,
+    availableTerminalsTrusted,
     fallbackTerminalOptions: () => options.fallbackTerminalOptions ?? [],
     isTauriRuntime: () => options.isTauriRuntime ?? false,
     readAvailableTerminals,
@@ -47,6 +52,7 @@ function createExecutionHarness(
     defaultTerminal,
     terminalReusePolicy,
     availableTerminals,
+    availableTerminalsTrusted,
     readAvailableTerminals,
     persistCorrectedTerminal,
     execution
@@ -227,10 +233,12 @@ describe("useTerminalExecution", () => {
       run,
       defaultTerminal,
       availableTerminals,
+      availableTerminalsTrusted,
       persistCorrectedTerminal,
       execution
     } = createExecutionHarness("ghost");
     availableTerminals.value = [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }];
+    availableTerminalsTrusted.value = true;
 
     await execution.runCommandInTerminal(createExecStep("dir", "cmd", ["/c", "dir"]));
 
@@ -350,8 +358,9 @@ describe("useTerminalExecution", () => {
 
   it("warns and continues when terminal discovery fails", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const { run, execution } = createExecutionHarness("ghost", false, "never", {
+    const { run, persistCorrectedTerminal, execution } = createExecutionHarness("ghost", false, "never", {
       isTauriRuntime: true,
+      fallbackTerminalOptions: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }],
       readAvailableTerminals: async () => {
         throw new Error("boom");
       }
@@ -365,9 +374,10 @@ describe("useTerminalExecution", () => {
     );
     expect(run).toHaveBeenCalledWith(
       expect.objectContaining({
-        terminalId: "ghost"
+        terminalId: "cmd"
       })
     );
+    expect(persistCorrectedTerminal).not.toHaveBeenCalled();
     warnSpy.mockRestore();
   });
 

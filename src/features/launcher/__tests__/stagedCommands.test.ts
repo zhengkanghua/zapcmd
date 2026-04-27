@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { CommandTemplate } from "../../commands/types";
 import type { StagedCommand } from "../types";
 import {
+  buildStagedCommandSnapshot,
   buildPersistedLauncherSessionCommandSnapshot,
   resolveStagedCommandSourceId,
   restorePersistedLauncherSessionCommandSnapshot
@@ -169,5 +170,23 @@ describe("stagedCommands session snapshot helpers", () => {
     expect(restored.executionTemplate.kind).toBe("script");
     expect(restored.execution.kind).toBe("script");
     expect(restored.blockingIssue?.code).toBe("stale-command-snapshot");
+  });
+
+  it("generates distinct staged ids even when the same command is queued within one millisecond", () => {
+    const template = createTemplate();
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(1745740800000);
+
+    try {
+      const first = buildStagedCommandSnapshot({ command: template });
+      const second = buildStagedCommandSnapshot({ command: template });
+
+      expect(first).not.toBeNull();
+      expect(second).not.toBeNull();
+      expect(first?.id).not.toBe(second?.id);
+      expect(first?.sourceCommandId).toBe(template.id);
+      expect(second?.sourceCommandId).toBe(template.id);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 });

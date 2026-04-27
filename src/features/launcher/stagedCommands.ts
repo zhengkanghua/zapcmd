@@ -22,6 +22,13 @@ const STALE_SNAPSHOT_PLACEHOLDER_EXECUTION: ResolvedCommandExecution = {
   command: "echo stale-command-snapshot"
 };
 
+function createStagedCommandId(commandId: string): string {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return `${commandId}-${globalThis.crypto.randomUUID()}`;
+  }
+  return `${commandId}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export interface PersistedLauncherSessionCommand {
   id: string;
   sourceCommandId?: string;
@@ -183,7 +190,7 @@ export function buildStagedCommandSnapshot(params: {
   const resolved = resolveCommandExecution(command, values);
 
   return {
-    id: id ?? `${command.id}-${Date.now()}`,
+    id: id ?? createStagedCommandId(command.id),
     sourceCommandId: command.id,
     title: command.title,
     rawPreview: command.preview,

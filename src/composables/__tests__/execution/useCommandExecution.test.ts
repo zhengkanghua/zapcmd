@@ -328,6 +328,32 @@ describe("useCommandExecution", () => {
     expect(harness.triggerStagedFeedback).toHaveBeenCalledWith("list-dir");
   });
 
+  it("can remove one duplicated queued command without deleting the other entry", () => {
+    const harness = createHarness();
+    const command = createNoArgCommand();
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(1745740800000);
+
+    try {
+      harness.execution.stageResult(command);
+      harness.execution.stageResult(command);
+
+      expect(harness.stagedCommands.value).toHaveLength(2);
+      const firstId = harness.stagedCommands.value[0]?.id;
+      const secondId = harness.stagedCommands.value[1]?.id;
+
+      expect(firstId).toBeTruthy();
+      expect(secondId).toBeTruthy();
+      expect(firstId).not.toBe(secondId);
+
+      harness.execution.removeStagedCommand(firstId!);
+
+      expect(harness.stagedCommands.value).toHaveLength(1);
+      expect(harness.stagedCommands.value[0]?.id).toBe(secondId);
+    } finally {
+      nowSpy.mockRestore();
+    }
+  });
+
   it("stages stdin-based exec with decoupled preview and execution payload", () => {
     const harness = createHarness();
 
@@ -1224,6 +1250,37 @@ describe("useCommandExecution", () => {
     expect(harness.stagedCommands.value[0]?.preflightCache?.issueCount).toBe(0);
     expect(harness.stagedCommands.value[1]?.preflightCache?.issueCount).toBe(1);
     expect(harness.execution.refreshingQueuedCommandIds.value).not.toContain(targetId);
+  });
+
+  it("ignores a single queued preflight refresh that resolves after the target item was removed", async () => {
+    const harness = createHarness();
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: false,
+        code: "missing-binary",
+        required: true,
+        message: "docker not found"
+      }
+    ]);
+    harness.execution.stageResult(createPrerequisiteCommand());
+    await flushExecution();
+
+    const targetId = harness.stagedCommands.value[0]?.id;
+    let resolveRefresh: (value: CommandPrerequisiteProbeResult[]) => void = () => {};
+    harness.runCommandPreflight.mockImplementationOnce(
+      () =>
+        new Promise<CommandPrerequisiteProbeResult[]>((resolve) => {
+          resolveRefresh = resolve;
+        })
+    );
+
+    const refreshPromise = harness.execution.refreshQueuedCommandPreflight(targetId!);
+    harness.execution.removeStagedCommand(targetId!);
+    resolveRefresh([]);
+    await refreshPromise;
+
+    expect(harness.stagedCommands.value).toEqual([]);
   });
 
   it("refreshes all queued command caches and reports total issue count", async () => {

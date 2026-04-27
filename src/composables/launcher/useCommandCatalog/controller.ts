@@ -297,6 +297,7 @@ export function createCommandCatalogRuntimeController(
   state: CommandCatalogState
 ) {
   let runtimePlatform: RuntimePlatform | null = null;
+  let inFlightRefresh: Promise<void> | null = null;
   const requestGuard = createLatestRequestGuard();
   const getRuntimePlatform = () => runtimePlatform;
   const setRuntimePlatform = (value: RuntimePlatform) => {
@@ -320,7 +321,7 @@ export function createCommandCatalogRuntimeController(
     applyMergedTemplates,
     getRuntimePlatform
   });
-  const refreshUserCommands = createRefreshUserCommands({
+  const refreshUserCommandsInternal = createRefreshUserCommands({
     options,
     state,
     requestGuard,
@@ -329,6 +330,17 @@ export function createCommandCatalogRuntimeController(
     applyMergedTemplates,
     getRuntimePlatform
   });
+
+  async function refreshUserCommands(): Promise<void> {
+    if (inFlightRefresh) {
+      return inFlightRefresh;
+    }
+
+    inFlightRefresh = refreshUserCommandsInternal().finally(() => {
+      inFlightRefresh = null;
+    });
+    return inFlightRefresh;
+  }
 
   return {
     loadBuiltinTemplatesAndSource,
