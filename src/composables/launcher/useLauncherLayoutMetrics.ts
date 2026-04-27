@@ -1,4 +1,4 @@
-import { computed, type Ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 import {
   FLOW_PANEL_WIDTH_RATIO,
   FLOW_PANEL_MIN_WIDTH,
@@ -73,6 +73,27 @@ interface UseLauncherLayoutMetricsOptions {
   commandPageOpen: Ref<boolean>;
 }
 
+const launcherScreenMetricsVersion = ref(0);
+let launcherScreenMetricsListenerBound = false;
+
+export function refreshLauncherScreenMetrics(): void {
+  launcherScreenMetricsVersion.value += 1;
+}
+
+export function getLauncherScreenMetricsVersionForTest(): number {
+  return launcherScreenMetricsVersion.value;
+}
+
+function ensureLauncherScreenMetricsListener(): void {
+  if (launcherScreenMetricsListenerBound || typeof window === "undefined") {
+    return;
+  }
+
+  window.addEventListener("resize", refreshLauncherScreenMetrics);
+  window.addEventListener("focus", refreshLauncherScreenMetrics);
+  launcherScreenMetricsListenerBound = true;
+}
+
 function resolveScreenHeight(): number {
   if (typeof window !== "undefined" && Number.isFinite(window.screen?.availHeight)) {
     return window.screen.availHeight;
@@ -128,19 +149,25 @@ function createOverlayPanelWidths(options: {
 }
 
 export function useLauncherLayoutMetrics(options: UseLauncherLayoutMetricsOptions) {
+  ensureLauncherScreenMetricsListener();
   const drawerOpen = computed(() => options.query.value.trim().length > 0);
   const shellGap = computed(() => 0);
   const windowHeightCap = computed(() => {
+    const _screenMetricsVersion = launcherScreenMetricsVersion.value;
     const screenHeight = resolveScreenHeight();
     return Math.max(420, Math.floor(screenHeight * 0.82));
   });
 
   const windowWidthCap = computed(() => {
+    const _screenMetricsVersion = launcherScreenMetricsVersion.value;
     const screenWidth = resolveScreenWidth();
     return Math.max(480, Math.floor(screenWidth * 0.94));
   });
 
-  const searchMainWidth = computed(() => resolveSearchMainWidth(resolveScreenWidth()));
+  const searchMainWidth = computed(() => {
+    const _screenMetricsVersion = launcherScreenMetricsVersion.value;
+    return resolveSearchMainWidth(resolveScreenWidth());
+  });
   const { flowPanelWidth, flowWidth } = createOverlayPanelWidths({
     searchMainWidth,
     commandPageOpen: options.commandPageOpen,

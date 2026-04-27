@@ -8,6 +8,7 @@ import type {
 import type { AppLocale } from "../../../i18n";
 
 export const USER_COMMAND_SOURCE_ID = "user-command-files";
+export const BUILTIN_COMMAND_SOURCE_ID = "builtin-command-templates";
 export type CommandCatalogStatus = "idle" | "loading" | "ready" | "error";
 
 export interface UseCommandCatalogOptions {

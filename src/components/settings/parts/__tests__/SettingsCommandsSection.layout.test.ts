@@ -1,14 +1,11 @@
 import { mount } from "@vue/test-utils";
-import { computed, defineComponent, nextTick, ref } from "vue";
+import { defineComponent, nextTick, ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import SettingsCommandsSection from "../SettingsCommandsSection.vue";
 import SettingsCommandsTable from "../settingsCommands/SettingsCommandsTable.vue";
 import SettingsCommandsToolbar from "../settingsCommands/SettingsCommandsToolbar.vue";
-import {
-  COMMAND_ROWS_INITIAL_RENDER_LIMIT,
-  COMMAND_ROWS_RENDER_CHUNK_SIZE
-} from "../../../../composables/settings/useCommandManagement";
+import { useCommandManagement } from "../../../../composables/settings/useCommandManagement";
 
 describe("SettingsCommandsSection layout", () => {
   it("renders a two-stage toolbar and a bounded table structure", () => {
@@ -127,23 +124,41 @@ describe("SettingsCommandsSection layout", () => {
           SettingsCommandsSection
         },
         setup() {
-          const renderedCount = ref(COMMAND_ROWS_INITIAL_RENDER_LIMIT);
-          const visibleCommandRows = computed(() =>
-            commandRows.slice(0, renderedCount.value)
-          );
-
-          function advanceVisibleCommandRows(): void {
-            renderedCount.value = Math.min(
-              commandRows.length,
-              renderedCount.value + COMMAND_ROWS_RENDER_CHUNK_SIZE
-            );
-          }
+          const management = useCommandManagement({
+            allCommandTemplates: ref(
+              commandRows.map((row) => ({
+                id: row.id,
+                title: row.title,
+                description: row.title,
+                preview: row.id,
+                folder: row.source === "user" ? "@_user" : "@_builtin",
+                category: row.category,
+                needsArgs: false
+              }))
+            ),
+            disabledCommandIds: ref(
+              commandRows.filter((row) => !row.enabled).map((row) => row.id)
+            ),
+            commandSourceById: ref(
+              Object.fromEntries(commandRows.map((row) => [row.id, `${row.source}.json`]))
+            ),
+            userCommandSourceById: ref(
+              Object.fromEntries(
+                commandRows
+                  .filter((row) => row.source === "user")
+                  .map((row) => [row.id, "user.json"])
+              )
+            ),
+            overriddenCommandIds: ref([]),
+            loadIssues: ref([]),
+            setCommandEnabled: () => {},
+            setDisabledCommandIds: () => {}
+          });
 
           return {
-            commandRows,
-            visibleCommandRows,
-            renderedCount,
-            advanceVisibleCommandRows
+            commandRows: management.commandRows,
+            visibleCommandRows: management.visibleCommandRows,
+            renderedCount: management.renderedCommandRowCount
           };
         },
         template: `
@@ -177,7 +192,7 @@ describe("SettingsCommandsSection layout", () => {
             :command-issue-options="[{ value: 'all', label: '全部问题' }]"
             :command-sort-options="[{ value: 'default', label: '默认' }]"
             :command-source-file-options="[]"
-            :advance-visible-command-rows="advanceVisibleCommandRows"
+            :advance-visible-command-rows="() => {}"
           />
         `
       });

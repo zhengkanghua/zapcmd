@@ -18,7 +18,6 @@ export function useCommandCatalog(
 ): UseCommandCatalogReturn {
   const state = createCommandCatalogState(options);
   const {
-    loadBuiltinTemplatesAndSource,
     applyMergedTemplates,
     remapFromCacheIfPrimed,
     refreshUserCommands
@@ -26,7 +25,6 @@ export function useCommandCatalog(
 
   bindCommandCatalogLifecycle({
     options,
-    loadBuiltinTemplatesAndSource,
     applyMergedTemplates,
     refreshUserCommands,
     remapFromCacheIfPrimed

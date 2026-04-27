@@ -48,31 +48,52 @@ function bindCatalogMountedHook(params: {
   });
 }
 
+function dispatchCatalogTask(task: () => Promise<void>): void {
+  void task().catch((error) => {
+    console.warn("[commands] catalog lifecycle task failed", error);
+  });
+}
+
+function createLocaleRefreshTask(params: {
+  options: UseCommandCatalogOptions;
+  remapFromCacheIfPrimed: () => Promise<boolean>;
+  refreshUserCommands: () => Promise<void>;
+}) {
+  return async (): Promise<void> => {
+    if (!params.options.isTauriRuntime()) {
+      await params.refreshUserCommands();
+      return;
+    }
+
+    try {
+      const handled = await params.remapFromCacheIfPrimed();
+      if (!handled) {
+        await params.refreshUserCommands();
+      }
+    } catch {
+      await params.refreshUserCommands();
+    }
+  };
+}
+
 export function bindCommandCatalogLifecycle(params: {
   options: UseCommandCatalogOptions;
-  loadBuiltinTemplatesAndSource: () => Promise<void>;
   applyMergedTemplates: () => void;
   refreshUserCommands: () => Promise<void>;
   remapFromCacheIfPrimed: () => Promise<boolean>;
 }): void {
+  const refreshCatalogForLocaleChange = createLocaleRefreshTask({
+    options: params.options,
+    remapFromCacheIfPrimed: params.remapFromCacheIfPrimed,
+    refreshUserCommands: params.refreshUserCommands
+  });
   bindCatalogWatchers({
     options: params.options,
     onDisabledCommandIdsChanged: () => {
       params.applyMergedTemplates();
     },
     onLocaleChanged: () => {
-      if (!params.options.isTauriRuntime()) {
-        void params.loadBuiltinTemplatesAndSource().then(() => {
-          params.applyMergedTemplates();
-        });
-        return;
-      }
-      void params.remapFromCacheIfPrimed().then((handled) => {
-        if (!handled) {
-          return params.refreshUserCommands();
-        }
-        return undefined;
-      });
+      dispatchCatalogTask(refreshCatalogForLocaleChange);
     }
   });
   if (params.options.activated) {
@@ -82,7 +103,7 @@ export function bindCommandCatalogLifecycle(params: {
         if (!activated || previousActivated) {
           return;
         }
-        void params.refreshUserCommands();
+        dispatchCatalogTask(params.refreshUserCommands);
       },
       { immediate: false }
     );

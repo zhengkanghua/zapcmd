@@ -6,6 +6,7 @@ import {
   SEARCH_CAPSULE_HEIGHT_PX,
   WINDOW_SIZING_CONSTANTS
 } from "../../launcher/useLauncherLayoutMetrics";
+import * as launcherLayoutMetricsModule from "../../launcher/useLauncherLayoutMetrics";
 import { createWindowSizingController } from "../../launcher/useWindowSizing/controller";
 import {
   UI_TOP_ALIGN_OFFSET_PX_FALLBACK,
@@ -442,6 +443,55 @@ function createExitHarness() {
 }
 
 describe("createWindowSizingController（公开 contract）", () => {
+  it("onAppFocused 会先刷新屏幕尺寸来源，再执行既有同步链路", async () => {
+    const scheduleSearchInputFocus = vi.fn();
+    const reloadSettings = vi.fn();
+    const requestSetMainWindowSize = vi.fn<
+      UseWindowSizingOptions["requestSetMainWindowSize"]
+    >(async () => {});
+    const versionBefore =
+      launcherLayoutMetricsModule.getLauncherScreenMetricsVersionForTest();
+
+    const controller = createWindowSizingController({
+      constants: WINDOW_SIZING_CONSTANTS,
+      isSettingsWindow: ref(false),
+      isTauriRuntime: () => true,
+      resolveAppWindow: () => null,
+      requestSetMainWindowSize,
+      requestAnimateMainWindowSize: async () => {},
+      requestResizeMainWindowForReveal: async () => {},
+      searchShellRef: ref(null),
+      stagingPanelRef: ref(null),
+      stagingExpanded: ref(false),
+      pendingCommand: ref<unknown>(null),
+      commandPanelInheritedHeight: ref<number | null>(null),
+      commandPanelLockedHeight: ref<number | null>(null),
+      flowPanelInheritedHeight: ref<number | null>(null),
+      flowPanelLockedHeight: ref<number | null>(null),
+      drawerOpen: ref(false),
+      drawerViewportHeight: ref(0),
+      searchPanelEffectiveHeight: ref(SEARCH_CAPSULE_HEIGHT_PX),
+      sharedPanelMaxHeight: ref(LAUNCHER_FRAME_DESIGN_CAP_PX),
+      searchMainWidth: ref(680),
+      minShellWidth: ref(0),
+      windowWidthCap: ref(2000),
+      windowHeightCap: ref(2000),
+      scheduleSearchInputFocus,
+      reloadSettings
+    });
+
+    controller.onAppFocused();
+
+    expect(
+      launcherLayoutMetricsModule.getLauncherScreenMetricsVersionForTest()
+    ).toBe(versionBefore + 1);
+    expect(reloadSettings).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => {
+      expect(requestSetMainWindowSize).toHaveBeenCalledTimes(1);
+    });
+    expect(scheduleSearchInputFocus).toHaveBeenCalledWith(true);
+  });
+
   it("保留 Flow 高度通知 API，且不暴露 observation timer 状态", () => {
     const { controller } = createWindowSizingHarness();
 

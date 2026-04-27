@@ -224,4 +224,27 @@ describe("useLauncherLayoutMetrics", () => {
         LAUNCHER_DRAWER_VIEWPORT_CHROME_HEIGHT_PX
     );
   });
+
+  it("recomputes width and height caps after screen metrics change", () => {
+    setScreenSize(1600, 900);
+    const metrics = useLauncherLayoutMetrics({
+      query: ref("dock"),
+      filteredResults: ref([]),
+      stagedCommands: ref([]),
+      stagingExpanded: ref(false),
+      commandPageOpen: ref(false)
+    });
+
+    expect(metrics.windowWidthCap.value).toBe(1504);
+    expect(metrics.windowHeightCap.value).toBe(738);
+    expect(metrics.searchMainWidth.value).toBe(680);
+
+    setScreenSize(1000, 600);
+    window.dispatchEvent(new Event("resize"));
+
+    expect(metrics.windowWidthCap.value).toBe(940);
+    expect(metrics.windowHeightCap.value).toBe(491);
+    expect(metrics.searchMainWidth.value).toBe(560);
+  });
+
 });

@@ -5,6 +5,7 @@ import { useCommandCatalog } from "../../launcher/useCommandCatalog";
 import type { CommandTemplate } from "../../../features/commands/types";
 import { setAppLocale } from "../../../i18n";
 import * as runtimeLoader from "../../../features/commands/runtimeLoader";
+import * as runtimePlatformModule from "../../launcher/useCommandCatalog/runtimePlatform";
 
 async function waitForCondition(
   predicate: () => boolean,
@@ -909,6 +910,114 @@ describe("useCommandCatalog", () => {
       wrapper.unmount();
     } finally {
       setAppLocale("zh-CN");
+    }
+  });
+
+  it("reports builtin load failure on non-tauri locale switch with consistent error state", async () => {
+    setAppLocale("zh-CN");
+    const locale = ref<"zh-CN" | "en-US">("zh-CN");
+    const originalLoadBuiltin = runtimePlatformModule.loadBuiltinTemplatesAndSourceForState;
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const loadBuiltinSpy = vi
+      .spyOn(runtimePlatformModule, "loadBuiltinTemplatesAndSourceForState")
+      .mockImplementationOnce(async (params) => originalLoadBuiltin(params))
+      .mockRejectedValue(new Error("builtin locale reload failed"));
+
+    try {
+      let getCatalogStatus: () => string = () => "idle";
+      let isCatalogReady: () => boolean = () => false;
+      let getIssues: () => Array<{ code: string; stage: string; sourceId: string; reason: string }> =
+        () => [];
+      const Harness = defineComponent({
+        setup() {
+          const catalog = useCommandCatalog({
+            isTauriRuntime: () => false,
+            locale
+          });
+          getCatalogStatus = () => catalog.catalogStatus.value;
+          isCatalogReady = () => catalog.catalogReady.value;
+          getIssues = () => catalog.loadIssues.value;
+          return () => null;
+        }
+      });
+
+      const wrapper = mount(Harness);
+      await waitForCondition(() => isCatalogReady());
+
+      locale.value = "en-US";
+      await waitForCondition(() => getCatalogStatus() === "error");
+
+      expect(isCatalogReady()).toBe(false);
+      expect(getIssues()).toContainEqual(
+        expect.objectContaining({
+          code: "scan-failed",
+          stage: "scan",
+          sourceId: "builtin-command-templates"
+        })
+      );
+
+      wrapper.unmount();
+    } finally {
+      loadBuiltinSpy.mockRestore();
+      warnSpy.mockRestore();
+      setAppLocale("zh-CN");
+    }
+  });
+
+  it("reports builtin load failure when activated becomes true", async () => {
+    const activated = ref(false);
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const originalLoadBuiltin = runtimePlatformModule.loadBuiltinTemplatesAndSourceForState;
+    const loadBuiltinSpy = vi
+      .spyOn(runtimePlatformModule, "loadBuiltinTemplatesAndSourceForState")
+      .mockRejectedValue(new Error("builtin activated reload failed"));
+
+    try {
+      let getCatalogStatus: () => string = () => "idle";
+      let isCatalogReady: () => boolean = () => false;
+      let getIssues: () => Array<{ code: string; stage: string; sourceId: string; reason: string }> =
+        () => [];
+
+      const Harness = defineComponent({
+        setup() {
+          const catalog = useCommandCatalog({
+            isTauriRuntime: () => true,
+            scanUserCommandFiles: async () => createScanResult([]),
+            readUserCommandFile: async () => createUserCommandFile(JSON.stringify({ commands: [] }), 1),
+            readRuntimePlatform: async () => "win",
+            activated
+          });
+          getCatalogStatus = () => catalog.catalogStatus.value;
+          isCatalogReady = () => catalog.catalogReady.value;
+          getIssues = () => catalog.loadIssues.value;
+          return () => null;
+        }
+      });
+
+      const wrapper = mount(Harness);
+      await nextTick();
+      await Promise.resolve();
+
+      expect(getCatalogStatus()).toBe("idle");
+      expect(isCatalogReady()).toBe(false);
+
+      activated.value = true;
+      await waitForCondition(() => getCatalogStatus() === "error");
+
+      expect(isCatalogReady()).toBe(false);
+      expect(getIssues()).toContainEqual(
+        expect.objectContaining({
+          code: "scan-failed",
+          stage: "scan",
+          sourceId: "builtin-command-templates"
+        })
+      );
+
+      wrapper.unmount();
+    } finally {
+      loadBuiltinSpy.mockRestore();
+      warnSpy.mockRestore();
+      void originalLoadBuiltin;
     }
   });
 

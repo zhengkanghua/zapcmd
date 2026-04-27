@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from "vue";
+import { ref } from "vue";
 import type { CommandManagementViewState } from "../../../features/settings/types";
 import { useI18nText } from "../../../i18n";
 import type { SettingsCommandsProps } from "../types";
@@ -21,45 +21,6 @@ const emit = defineEmits<{
 }>();
 
 const moreFiltersOpen = ref(false);
-let deferredCommandRowTimer: number | null = null;
-
-function cancelDeferredCommandRows(): void {
-  if (deferredCommandRowTimer === null) {
-    return;
-  }
-  window.clearTimeout(deferredCommandRowTimer);
-  deferredCommandRowTimer = null;
-}
-
-function scheduleDeferredCommandRows(): void {
-  cancelDeferredCommandRows();
-  if (props.visibleCommandRows.length >= props.commandRows.length) {
-    return;
-  }
-
-  deferredCommandRowTimer = window.setTimeout(() => {
-    deferredCommandRowTimer = null;
-    props.advanceVisibleCommandRows();
-    if (props.visibleCommandRows.length < props.commandRows.length) {
-      scheduleDeferredCommandRows();
-    }
-  }, 0);
-}
-
-watch(
-  () => props.commandRows,
-  () => {
-    cancelDeferredCommandRows();
-    if (props.commandRows.length > props.visibleCommandRows.length) {
-      scheduleDeferredCommandRows();
-    }
-  },
-  { immediate: true }
-);
-
-onBeforeUnmount(() => {
-  cancelDeferredCommandRows();
-});
 </script>
 
 <template>

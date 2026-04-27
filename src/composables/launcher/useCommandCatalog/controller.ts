@@ -12,6 +12,7 @@ import {
 import { createCommandCatalogState } from "./state";
 import { createLatestRequestGuard } from "./requestGuard";
 import {
+  BUILTIN_COMMAND_SOURCE_ID,
   USER_COMMAND_SOURCE_ID,
   type UseCommandCatalogOptions
 } from "./types";
@@ -195,12 +196,14 @@ function applyRefreshFailure(params: {
   builtinLoaded: boolean;
   applyMergedTemplates: () => void;
 }) {
-  console.warn("[commands] failed to refresh user command files", params.error);
+  console.warn("[commands] failed to refresh command catalog", params.error);
   params.state.userCommandSourceCache?.clear();
   params.state.loadIssues.value = [
-    params.state.userCommandSourceCache
-      ? createScanFailedIssue(USER_COMMAND_SOURCE_ID, params.error)
-      : createReadFailedIssue(USER_COMMAND_SOURCE_ID, params.error)
+    params.builtinLoaded
+      ? params.state.userCommandSourceCache
+        ? createScanFailedIssue(USER_COMMAND_SOURCE_ID, params.error)
+        : createReadFailedIssue(USER_COMMAND_SOURCE_ID, params.error)
+      : createScanFailedIssue(BUILTIN_COMMAND_SOURCE_ID, params.error)
   ];
   params.applyMergedTemplates();
   if (params.builtinLoaded) {

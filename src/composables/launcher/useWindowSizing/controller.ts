@@ -8,6 +8,7 @@ import {
 } from "./controllerState";
 import { createWindowSizingSync } from "./controllerSync";
 import { createFlowRevealCoordinator } from "./flowRevealCoordinator";
+import { refreshLauncherScreenMetrics } from "../useLauncherLayoutMetrics";
 import type { UseWindowSizingOptions } from "./model";
 import { resolveShellDragStripHeightFromDom } from "./windowSync";
 
@@ -36,6 +37,7 @@ function createOnAppFocused(
       return;
     }
 
+    refreshLauncherScreenMetrics();
     options.reloadSettings();
     syncWindowSizeImmediate();
     options.scheduleSearchInputFocus(true);

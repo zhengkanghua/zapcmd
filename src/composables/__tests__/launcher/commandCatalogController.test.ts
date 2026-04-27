@@ -134,7 +134,7 @@ describe("command catalog controller internals", () => {
         expect.objectContaining({
           code: "scan-failed",
           stage: "scan",
-          sourceId: "user-command-files"
+          sourceId: "builtin-command-templates"
         })
       );
     } finally {
