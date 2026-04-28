@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useTerminalExecution } from "../../launcher/useTerminalExecution";
+import { CommandExecutionError } from "../../../services/commandExecutor";
 import type { TerminalReusePolicy } from "../../../stores/settingsStore";
 
 type TestTerminalOption = { id: string; label: string; path: string };
@@ -431,6 +432,51 @@ describe("useTerminalExecution", () => {
       expect.any(Error)
     );
     warnSpy.mockRestore();
+  });
+
+  it("rediscoveries terminals and retries once after invalid-request from a stale trusted cache", async () => {
+    const {
+      run,
+      defaultTerminal,
+      availableTerminals,
+      availableTerminalsTrusted,
+      readAvailableTerminals,
+      persistCorrectedTerminal,
+      execution
+    } = createExecutionHarness("ghost", false, "never", {
+      isTauriRuntime: true,
+      initialAvailableTerminals: [{ id: "ghost", label: "Ghost Terminal", path: "ghost.exe" }],
+      availableTerminalsTrusted: true,
+      discoveredTerminals: [{ id: "wt", label: "Windows Terminal", path: "wt.exe" }]
+    });
+    run
+      .mockRejectedValueOnce(
+        new CommandExecutionError("invalid-request", "Unknown terminal id: ghost")
+      )
+      .mockResolvedValueOnce(undefined);
+
+    await execution.runCommandInTerminal(createExecStep("dir", "cmd", ["/c", "dir"]));
+
+    expect(run).toHaveBeenCalledTimes(2);
+    expect(run).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        terminalId: "ghost"
+      })
+    );
+    expect(run).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        terminalId: "wt"
+      })
+    );
+    expect(readAvailableTerminals).toHaveBeenCalledTimes(1);
+    expect(availableTerminalsTrusted.value).toBe(true);
+    expect(availableTerminals.value).toEqual([
+      { id: "wt", label: "Windows Terminal", path: "wt.exe" }
+    ]);
+    expect(defaultTerminal.value).toBe("wt");
+    expect(persistCorrectedTerminal).toHaveBeenCalledTimes(1);
   });
 
   it("rejects blank single-step summaries before dispatch", async () => {

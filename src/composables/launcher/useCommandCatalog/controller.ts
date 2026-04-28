@@ -221,6 +221,7 @@ function createRefreshUserCommands(params: {
   loadBuiltinTemplatesAndSource: () => Promise<void>;
   applyMergedTemplates: () => void;
   getRuntimePlatform: () => RuntimePlatform | null;
+  onUserSourceRefreshWindowChange?: (eligible: boolean) => void;
 }) {
   return async (): Promise<void> => {
     const currentRequest = params.requestGuard.start();
@@ -260,9 +261,15 @@ function createRefreshUserCommands(params: {
         return;
       }
 
-      const scanned = await params.state.userCommandSourceCache.refreshFromScan({
-        shouldContinue: () => params.requestGuard.isLatest(currentRequest)
-      });
+      params.onUserSourceRefreshWindowChange?.(true);
+      let scanned: UserCommandSourceCacheSnapshot;
+      try {
+        scanned = await params.state.userCommandSourceCache.refreshFromScan({
+          shouldContinue: () => params.requestGuard.isLatest(currentRequest)
+        });
+      } finally {
+        params.onUserSourceRefreshWindowChange?.(false);
+      }
       if (!params.requestGuard.isLatest(currentRequest)) {
         return;
       }
@@ -298,6 +305,9 @@ export function createCommandCatalogRuntimeController(
 ) {
   let runtimePlatform: RuntimePlatform | null = null;
   let inFlightRefresh: Promise<void> | null = null;
+  let queuedRefresh: Promise<void> | null = null;
+  let needsRerun = false;
+  let rerunEligible = false;
   const requestGuard = createLatestRequestGuard();
   const getRuntimePlatform = () => runtimePlatform;
   const setRuntimePlatform = (value: RuntimePlatform) => {
@@ -328,18 +338,55 @@ export function createCommandCatalogRuntimeController(
     resolveRuntimePlatform,
     loadBuiltinTemplatesAndSource,
     applyMergedTemplates,
-    getRuntimePlatform
+    getRuntimePlatform,
+    onUserSourceRefreshWindowChange: (eligible) => {
+      rerunEligible = eligible;
+    }
   });
 
+  function startRefreshCycle(): Promise<void> {
+    const currentRefresh = refreshUserCommandsInternal();
+    inFlightRefresh = currentRefresh.finally(() => {
+      if (inFlightRefresh === currentRefresh) {
+        inFlightRefresh = null;
+      }
+      rerunEligible = false;
+    });
+    return inFlightRefresh;
+  }
+
+  async function runQueuedRefreshes(): Promise<void> {
+    while (needsRerun) {
+      needsRerun = false;
+      await startRefreshCycle();
+    }
+  }
+
   async function refreshUserCommands(): Promise<void> {
-    if (inFlightRefresh) {
+    if (inFlightRefresh && state.catalogStatus.value !== "loading") {
+      inFlightRefresh = null;
+    }
+
+    if (!inFlightRefresh) {
+      return startRefreshCycle();
+    }
+
+    if (!rerunEligible) {
       return inFlightRefresh;
     }
 
-    inFlightRefresh = refreshUserCommandsInternal().finally(() => {
-      inFlightRefresh = null;
-    });
-    return inFlightRefresh;
+    // 不吞掉并发期间的第二次刷新意图；当前轮结束后最多顺延补跑一轮，
+    // 若补跑期间又有新请求，则继续合并到同一条串行队列里。
+    needsRerun = true;
+    if (!queuedRefresh) {
+      queuedRefresh = inFlightRefresh
+        .catch(() => undefined)
+        .then(() => runQueuedRefreshes())
+        .finally(() => {
+          queuedRefresh = null;
+        });
+    }
+    return queuedRefresh;
   }
 
   return {

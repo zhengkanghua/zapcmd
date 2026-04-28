@@ -118,7 +118,7 @@ describe("isRuntimeCommandFile", () => {
         program: "echo",
         args: ["hello"]
       },
-      adminRequired: true
+      adminRequired: false
     } as unknown as ValidCommand;
 
     expect(isRuntimeCommandFile(payload)).toBe(true);

@@ -31,6 +31,7 @@ import {
   bindLifecycleBridge,
   createWindowSizingSettleNotifiers
 } from "./launcherRuntimeBindings";
+import { bindStagedCatalogSync } from "./stagedCatalogSync";
 
 type LauncherRuntime = ReturnType<typeof createLauncherRuntime>;
 
@@ -73,6 +74,10 @@ function createLauncherRuntime(context: LauncherRuntimeContext) {
     suspendPersistence: context.stagingGripReorderActive,
     restoreStagedCommands: (commands) => restoreLauncherSessionCommands(context, commands),
     openStagingDrawer: stagingQueue.openQueuePanel
+  });
+  bindStagedCatalogSync({
+    stagedCommands: context.stagedCommands,
+    allCommandTemplates: context.commandCatalog.allCommandTemplates
   });
 
   const navStack = useLauncherNavStack();

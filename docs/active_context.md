@@ -65,3 +65,4 @@
 - 2026-04-27：继续收口审计项 2/5/6：Unix/mac 终端子进程改独立后台回收，避免前一个长命终端阻塞后续 child wait；前端新增共享 `loadTerminalOptions`，non-tauri fallback 明确标记为不可信且不再纠正/持久化默认终端；相关前端定向 29 测试、Rust terminal 定向 11 测试通过。第 3 项“更新失败是否 24h 节流”暂待产品规则确认，第 4 项仅完成解释未改行为。
 - 2026-04-27：第 3/4 项规则已确认并落地：启动更新仅成功后写入 24h 节流，失败只记 attempt 不阻断下次启动重试；执行链遇到空列表或不可信终端缓存时会重新向后端探测，不再把失败 fallback 当长期真值。相关前端定向 36 测试与 `typecheck` 通过。
 - 2026-04-27：第 1 项边界已收口并修复：Windows 终端程序存在检查与“可复用管理员会话仍可用”显式分离；不可复用终端（如 `pwsh/cmd`）的历史提权成功不再被当成当前管理员会话可复用证据，也不再写入 reusable session state。新增跨平台可跑的 Windows 路由纯逻辑测试，Rust `terminal::tests_exec` 14 通过。
+- 2026-04-28：运行时审计 4 项补齐：catalog 用户源刷新支持 queued rerun，`adminRequired` 非 Windows 需显式自提权语义，旧 trusted terminal id 失败后自动重发现并单次重试，staged queue 随 catalog 在线重建；定向测试与 `typecheck` 已验证。

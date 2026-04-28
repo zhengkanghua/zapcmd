@@ -105,6 +105,19 @@ function findMatchingShellPrerequisite(
   );
 }
 
+function hasExplicitNonWindowsSelfElevation(command: RuntimeCommand): boolean {
+  if (isExecRuntimeCommand(command)) {
+    return command.exec.program.trim().toLowerCase() === "sudo";
+  }
+
+  const normalizedScript = command.script.command.trim().toLowerCase();
+  return (
+    normalizedScript.startsWith("sudo ") ||
+    normalizedScript.includes("; sudo ") ||
+    normalizedScript.includes("&& sudo ")
+  );
+}
+
 function findExecBusinessRuleViolation(
   command: RuntimeCommand,
   commandPath: string,
@@ -204,6 +217,13 @@ function findCommandBusinessRuleViolation(
   }
   if (command.tags.some((tag) => tag.trim().length === 0)) {
     return `${commandPath}.tags must not contain blank items.`;
+  }
+  if (
+    command.adminRequired &&
+    command.platform !== "win" &&
+    !hasExplicitNonWindowsSelfElevation(command)
+  ) {
+    return `${commandPath}.adminRequired on non-win platforms must use an explicit self-elevation command (for example sudo).`;
   }
 
   if (isExecRuntimeCommand(command)) {

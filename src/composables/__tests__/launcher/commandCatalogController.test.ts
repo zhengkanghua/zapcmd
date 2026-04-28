@@ -181,7 +181,7 @@ describe("command catalog controller internals", () => {
     expect(state.catalogReady.value).toBe(true);
   });
 
-  it("reuses the in-flight refresh instead of starting a second scan", async () => {
+  it("re-runs one more scan after a second refresh arrives during the in-flight user scan", async () => {
     const { createCommandCatalogRuntimeController } = await import(
       "../../launcher/useCommandCatalog/controller"
     );
@@ -210,13 +210,15 @@ describe("command catalog controller internals", () => {
     const controller = createCommandCatalogRuntimeController(options, state);
 
     const firstRefresh = controller.refreshUserCommands();
-    await flushMicrotasks();
+    for (let attempt = 0; attempt < 10 && refreshFromScan.mock.calls.length === 0; attempt += 1) {
+      await flushMicrotasks();
+    }
     const secondRefresh = controller.refreshUserCommands();
     refreshDeferred.resolve({ payloadEntries: [], issues: [] });
 
     await Promise.all([firstRefresh, secondRefresh]);
 
-    expect(refreshFromScan).toHaveBeenCalledTimes(1);
+    expect(refreshFromScan).toHaveBeenCalledTimes(2);
     expect(state.catalogReady.value).toBe(true);
   });
 

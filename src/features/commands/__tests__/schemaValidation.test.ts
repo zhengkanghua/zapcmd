@@ -259,6 +259,31 @@ describe("schemaValidation", () => {
     expect(expectInvalidReason(payload)).toContain("valid number string");
   });
 
+  it("allows adminRequired=true on non-win platforms when the command self-escalates explicitly", () => {
+    const payload = createValidPayload();
+    const command = getFirstCommand(payload);
+    command.platform = "linux";
+    command.adminRequired = true;
+    command.exec = {
+      program: "sudo",
+      args: ["systemd-resolve", "--flush-caches"]
+    };
+    command.args = undefined;
+
+    expect(validateRuntimeCommandFile(payload).valid).toBe(true);
+  });
+
+  it("rejects adminRequired=true on non-win platforms when execution has no explicit self-elevation", () => {
+    const payload = createValidPayload();
+    const command = getFirstCommand(payload);
+    command.platform = "linux";
+    command.adminRequired = true;
+
+    expect(expectInvalidReason(payload)).toContain(
+      "adminRequired on non-win platforms must use an explicit self-elevation command"
+    );
+  });
+
   it("rejects number defaults below min", () => {
     const payload = createValidPayload();
     const firstArg = getFirstArg(payload);
