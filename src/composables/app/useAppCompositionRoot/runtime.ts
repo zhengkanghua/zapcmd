@@ -103,6 +103,7 @@ function createLauncherRuntime(context: LauncherRuntimeContext) {
     runCommandInTerminal: context.runCommandInTerminal,
     runCommandsInTerminal: context.runCommandsInTerminal,
     runCommandPreflight: commandPreflight.check.bind(commandPreflight),
+    queueAutoClearOnSuccess: context.queueAutoClearOnSuccess,
     copyTextToClipboard,
     resolveCommandTitle: (commandId) =>
       context.commandCatalog.commandTemplates.value.find((item) => item.id === commandId)?.title ?? null,

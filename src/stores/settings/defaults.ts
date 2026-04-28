@@ -54,6 +54,7 @@ export interface PersistedSettingsSnapshot {
   general: {
     defaultTerminal: string;
     terminalReusePolicy: TerminalReusePolicy;
+    queueAutoClearOnSuccess: boolean;
     language: AppLocale;
     autoCheckUpdate: boolean;
     launchAtLogin: boolean;
@@ -73,6 +74,7 @@ export interface PersistedSettingsSnapshot {
 
 export const DEFAULT_TERMINAL = "powershell";
 export const DEFAULT_TERMINAL_REUSE_POLICY: TerminalReusePolicy = "never";
+export const DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS = true;
 export const DEFAULT_LANGUAGE: AppLocale = "zh-CN";
 export const DEFAULT_AUTO_CHECK_UPDATE = true;
 export const DEFAULT_LAUNCH_AT_LOGIN = false;
@@ -144,6 +146,7 @@ export function createDefaultSettingsSnapshot(): PersistedSettingsSnapshot {
     general: {
       defaultTerminal: DEFAULT_TERMINAL,
       terminalReusePolicy: DEFAULT_TERMINAL_REUSE_POLICY,
+      queueAutoClearOnSuccess: DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS,
       language: DEFAULT_LANGUAGE,
       autoCheckUpdate: DEFAULT_AUTO_CHECK_UPDATE,
       launchAtLogin: DEFAULT_LAUNCH_AT_LOGIN,

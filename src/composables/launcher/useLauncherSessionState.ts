@@ -31,32 +31,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function createPersistedCommandIdSignature(stagedCommands: readonly StagedCommand[]): string {
-  return stagedCommands.map((command) => command.id).join("\u0001");
-}
-
-function serializeArgValues(argValues: Record<string, string>): string {
-  const keys = Object.keys(argValues).sort();
-  if (keys.length === 0) {
-    return "";
-  }
-
-  return keys
-    .map((key) => `${key}\u0002${argValues[key] ?? ""}`)
-    .join("\u0001");
-}
-
-function createPersistedCommandValueSignature(stagedCommands: readonly StagedCommand[]): string {
+function createPersistedCommandStructureSignature(stagedCommands: readonly StagedCommand[]): string {
   return stagedCommands
     .map((command) =>
-      [
-        command.id,
-        command.sourceCommandId ?? "",
-        command.title,
-        command.rawPreview,
-        command.renderedPreview,
-        serializeArgValues(command.argValues)
-      ].join("\u0001")
+      `${command.id}\u0001${command.sourceCommandId ?? ""}\u0001${command.title}\u0001${command.rawPreview}`
     )
     .join("\u0004");
 }
@@ -162,18 +140,17 @@ function bindStructurePersistenceWatcher(params: {
   restoreFromStorageIfNeeded: () => void;
   clearPendingPersist: () => void;
   scheduleStructuralPersist: (stagingExpanded: boolean) => void;
-  setSkipNextDeferredWrite: (value: boolean) => void;
 }) {
   watch(
     [
-      () => createPersistedCommandIdSignature(params.options.stagedCommands.value),
+      () => createPersistedCommandStructureSignature(params.options.stagedCommands.value),
       params.options.stagingExpanded,
       params.options.enabled,
       () => params.options.suspendPersistence?.value ?? false
     ],
     (
-      [commandIdSignature, stagingExpanded, enabled, suspendPersistence],
-      [previousCommandIdSignature, _previousStagingExpanded, previousEnabled, previousSuspendPersistence]
+      [_commandStructureSignature, stagingExpanded, enabled, suspendPersistence],
+      [_previousCommandStructureSignature, _previousStagingExpanded, previousEnabled]
     ) => {
       if (enabled && !previousEnabled) {
         params.restoreFromStorageIfNeeded();
@@ -183,50 +160,7 @@ function bindStructurePersistenceWatcher(params: {
         return;
       }
 
-      params.setSkipNextDeferredWrite(
-        commandIdSignature !== previousCommandIdSignature ||
-          enabled !== previousEnabled ||
-          suspendPersistence !== previousSuspendPersistence
-      );
       params.scheduleStructuralPersist(stagingExpanded);
-    }
-  );
-}
-
-function bindArgPersistenceWatcher(params: {
-  options: UseLauncherSessionStateOptions;
-  restoring: () => boolean;
-  clearPendingPersist: () => void;
-  readSkipNextDeferredWrite: () => boolean;
-  setSkipNextDeferredWrite: (value: boolean) => void;
-  scheduleArgPersist: (
-    stagedCommands: readonly PersistedLauncherSessionCommand[],
-    stagingExpanded: boolean
-  ) => void;
-}) {
-  watch(
-    [
-      () => createPersistedCommandValueSignature(params.options.stagedCommands.value),
-      params.options.enabled,
-      () => params.options.suspendPersistence?.value ?? false,
-      params.options.stagingExpanded
-    ],
-    ([_valueSignature, enabled, suspendPersistence, stagingExpanded]) => {
-      if (!enabled || params.restoring() || suspendPersistence) {
-        params.clearPendingPersist();
-        params.setSkipNextDeferredWrite(false);
-        return;
-      }
-
-      if (params.readSkipNextDeferredWrite()) {
-        params.setSkipNextDeferredWrite(false);
-        return;
-      }
-
-      params.scheduleArgPersist(
-        buildPersistedLauncherSessionCommands(params.options.stagedCommands.value),
-        stagingExpanded
-      );
     }
   );
 }
@@ -238,7 +172,6 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
   let deferredWriteTimer: ReturnType<typeof setTimeout> | null = null;
   let pendingSerializedSnapshot: string | null = null;
   let lastWrittenSerializedSnapshot: string | null = null;
-  let skipNextDeferredWrite = false;
 
   function clearDeferredWriteTimer(): void {
     if (!deferredWriteTimer) {
@@ -326,21 +259,6 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
         stagingExpanded,
         0
       );
-    },
-    setSkipNextDeferredWrite: (value) => {
-      skipNextDeferredWrite = value;
-    }
-  });
-  bindArgPersistenceWatcher({
-    options,
-    restoring: () => restoring,
-    clearPendingPersist,
-    readSkipNextDeferredWrite: () => skipNextDeferredWrite,
-    setSkipNextDeferredWrite: (value) => {
-      skipNextDeferredWrite = value;
-    },
-    scheduleArgPersist: (stagedCommands, stagingExpanded) => {
-      scheduleDeferredPersist(stagedCommands, stagingExpanded);
     }
   });
 }

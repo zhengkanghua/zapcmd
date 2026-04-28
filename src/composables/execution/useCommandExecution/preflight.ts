@@ -69,3 +69,17 @@ export function createEmptyPreflightCache(): StagedCommandPreflightCache {
     issues: []
   };
 }
+
+export async function collectStagedCommandPreflight(
+  options: UseCommandExecutionOptions,
+  command: StagedCommand
+): Promise<{
+  cache: StagedCommandPreflightCache;
+  issues: CommandPreflightIssue[];
+}> {
+  const issues = await collectCommandPreflightIssues(options, command.prerequisites, command.title);
+  return {
+    cache: buildStagedPreflightCache(command.title, issues) ?? createEmptyPreflightCache(),
+    issues
+  };
+}

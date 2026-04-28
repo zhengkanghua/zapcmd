@@ -262,7 +262,7 @@ mod windows {
     }
 
     #[test]
-    fn normal_and_elevated_policy_can_reuse_wt_admin_lane() {
+    fn normal_and_elevated_policy_does_not_reuse_wt_admin_lane_without_live_proof() {
         let reusable_session_state = WindowsReusableSessionState {
             normal: None,
             elevated: Some("wt".to_string()),
@@ -277,8 +277,8 @@ mod windows {
             reusable_session_state: &reusable_session_state,
         });
 
-        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
-        assert_eq!(decision.launch_plan.args[1], ZAPCMD_WT_ADMIN_WINDOW_ID);
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
+        assert_eq!(decision.launch_plan.args[1], ZAPCMD_WT_WINDOW_ID);
         assert_eq!(
             resolve_windows_launch_mode(&decision, &reusable_session_state),
             WindowsLaunchMode::Direct

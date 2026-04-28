@@ -28,6 +28,7 @@ interface SettingsStoreLike {
   setAutoCheckUpdate: (value: boolean) => void;
   setLaunchAtLogin: (value: boolean) => void;
   setAlwaysElevatedTerminal: (value: boolean) => void;
+  setQueueAutoClearOnSuccess: (value: boolean) => void;
   setTerminalReusePolicy: (value: TerminalReusePolicy) => void;
 }
 
@@ -48,6 +49,7 @@ export interface UseSettingsWindowOptions {
   autoCheckUpdate: Ref<boolean>;
   launchAtLogin: Ref<boolean>;
   alwaysElevatedTerminal: Ref<boolean>;
+  queueAutoClearOnSuccess: Ref<boolean>;
   pointerActions: Ref<PointerActionSettings>;
   settingsStore: SettingsStoreLike;
   getHotkeyValue: (field: HotkeyFieldId) => string;

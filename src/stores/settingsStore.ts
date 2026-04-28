@@ -4,6 +4,7 @@ import {
   DEFAULT_AUTO_CHECK_UPDATE,
   DEFAULT_ALWAYS_ELEVATED_TERMINAL,
   DEFAULT_LAUNCH_AT_LOGIN,
+  DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS,
   SETTINGS_SCHEMA_VERSION,
   createDefaultSettingsSnapshot,
   type HotkeyFieldId,
@@ -71,6 +72,7 @@ interface SettingsState {
   autoCheckUpdate: boolean;
   launchAtLogin: boolean;
   alwaysElevatedTerminal: boolean;
+  queueAutoClearOnSuccess: boolean;
   pointerActions: PointerActionSettings;
   disabledCommandIds: string[];
   windowOpacity: number;
@@ -87,6 +89,7 @@ type SettingsGeneralState = Pick<
   | "autoCheckUpdate"
   | "launchAtLogin"
   | "alwaysElevatedTerminal"
+  | "queueAutoClearOnSuccess"
   | "pointerActions"
 >;
 
@@ -98,6 +101,7 @@ function snapshotGeneralFromState(state: SettingsGeneralState): PersistedSetting
     autoCheckUpdate: state.autoCheckUpdate,
     launchAtLogin: state.launchAtLogin,
     alwaysElevatedTerminal: state.alwaysElevatedTerminal,
+    queueAutoClearOnSuccess: state.queueAutoClearOnSuccess,
     pointerActions: state.pointerActions
   };
 }
@@ -110,6 +114,7 @@ function applyGeneralState(target: SettingsGeneralState, general: PersistedSetti
   target.autoCheckUpdate = general.autoCheckUpdate;
   target.launchAtLogin = general.launchAtLogin;
   target.alwaysElevatedTerminal = general.alwaysElevatedTerminal;
+  target.queueAutoClearOnSuccess = general.queueAutoClearOnSuccess;
   target.pointerActions = general.pointerActions;
 }
 
@@ -146,6 +151,7 @@ export const useSettingsStore = defineStore("settings", {
       autoCheckUpdate: defaults.general.autoCheckUpdate,
       launchAtLogin: defaults.general.launchAtLogin,
       alwaysElevatedTerminal: defaults.general.alwaysElevatedTerminal,
+      queueAutoClearOnSuccess: defaults.general.queueAutoClearOnSuccess,
       pointerActions: defaults.general.pointerActions,
       disabledCommandIds: defaults.commands.disabledCommandIds,
       windowOpacity: defaults.appearance.windowOpacity,
@@ -193,6 +199,9 @@ export const useSettingsStore = defineStore("settings", {
     setAlwaysElevatedTerminal(value: boolean): void {
       this.alwaysElevatedTerminal = normalizeBoolean(value, DEFAULT_ALWAYS_ELEVATED_TERMINAL);
     },
+    setQueueAutoClearOnSuccess(value: boolean): void {
+      this.queueAutoClearOnSuccess = normalizeBoolean(value, DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS);
+    },
     setPointerAction(field: PointerActionFieldId, action: SearchResultPointerAction): void {
       this.pointerActions = normalizePointerActions({
         ...this.pointerActions,
@@ -238,6 +247,7 @@ export const useSettingsStore = defineStore("settings", {
         autoCheckUpdate: this.autoCheckUpdate,
         launchAtLogin: this.launchAtLogin,
         alwaysElevatedTerminal: this.alwaysElevatedTerminal,
+        queueAutoClearOnSuccess: this.queueAutoClearOnSuccess,
         pointerActions: this.pointerActions,
         disabledCommandIds: this.disabledCommandIds,
         windowOpacity: this.windowOpacity,

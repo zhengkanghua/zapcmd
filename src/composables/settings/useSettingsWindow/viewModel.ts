@@ -68,6 +68,7 @@ export function createSettingsViewModel(deps: {
             : t("settings.general.languageOptionEnUs")
       }))
     ),
+    queueAutoClearOnSuccess: options.queueAutoClearOnSuccess,
     generalErrorMessage: state.generalErrorMessage
   };
 }

@@ -70,23 +70,9 @@ fn resolve_target_session_kind(input: &WindowsRoutingInput<'_>) -> WindowsSessio
         return WindowsSessionKind::Elevated;
     }
 
-    // 非复用终端（cmd/pwsh/powershell）即便历史上曾成功提权，
-    // 也不能证明“当前仍存在一个可复用的管理员会话”。
-    // 这类终端的历史记录只能说明过去启动成功过，不能作为本次继续走管理员车道的证据。
-    if !input.terminal_program.supports_reuse {
-        return WindowsSessionKind::Normal;
-    }
-
-    if matches!(
-        input.terminal_reuse_policy,
-        TerminalReusePolicy::NormalAndElevated
-    ) && lane_matches(
-        input.reusable_session_state.elevated.as_deref(),
-        input.terminal_program,
-    ) {
-        return WindowsSessionKind::Elevated;
-    }
-
+    // 普通命令永远默认走普通车道。
+    // 即使历史上记录过 elevated 会话，也没有“当前仍存活且上下文安全”的证据，
+    // 不能据此把一次普通执行静默升级到管理员终端。
     WindowsSessionKind::Normal
 }
 

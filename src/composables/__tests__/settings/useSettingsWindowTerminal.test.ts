@@ -12,10 +12,12 @@ import { createTerminalActions } from "../../settings/useSettingsWindow/terminal
 
 type TerminalTestOptions = UseSettingsWindowOptions & {
   refreshAvailableTerminals: ReturnType<typeof vi.fn>;
+  queueAutoClearOnSuccess: { value: boolean };
   settingsStore: UseSettingsWindowOptions["settingsStore"] & {
     setDefaultTerminal: ReturnType<typeof vi.fn>;
     setLanguage: ReturnType<typeof vi.fn>;
     setAutoCheckUpdate: ReturnType<typeof vi.fn>;
+    setQueueAutoClearOnSuccess: ReturnType<typeof vi.fn>;
   };
 };
 
@@ -27,6 +29,7 @@ function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTe
   const autoCheckUpdate = ref(true);
   const launchAtLogin = ref(false);
   const alwaysElevatedTerminal = ref(false);
+  const queueAutoClearOnSuccess = ref(true);
   const settingsStore = {
     persist: vi.fn(),
     hydrateFromStorage: vi.fn(),
@@ -42,6 +45,9 @@ function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTe
     }),
     setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
       alwaysElevatedTerminal.value = value;
+    }),
+    setQueueAutoClearOnSuccess: vi.fn((value: boolean) => {
+      queueAutoClearOnSuccess.value = value;
     }),
     setLanguage: vi.fn((value: "zh-CN" | "en-US") => {
       language.value = value;
@@ -68,6 +74,7 @@ function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTe
     autoCheckUpdate,
     launchAtLogin,
     alwaysElevatedTerminal,
+    queueAutoClearOnSuccess,
     pointerActions: ref(baseSnapshot.general.pointerActions),
     settingsStore,
     getHotkeyValue: vi.fn((field: HotkeyFieldId) => baseSnapshot.hotkeys[field]),

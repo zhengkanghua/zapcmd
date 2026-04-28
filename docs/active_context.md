@@ -66,3 +66,5 @@
 - 2026-04-27：第 3/4 项规则已确认并落地：启动更新仅成功后写入 24h 节流，失败只记 attempt 不阻断下次启动重试；执行链遇到空列表或不可信终端缓存时会重新向后端探测，不再把失败 fallback 当长期真值。相关前端定向 36 测试与 `typecheck` 通过。
 - 2026-04-27：第 1 项边界已收口并修复：Windows 终端程序存在检查与“可复用管理员会话仍可用”显式分离；不可复用终端（如 `pwsh/cmd`）的历史提权成功不再被当成当前管理员会话可复用证据，也不再写入 reusable session state。新增跨平台可跑的 Windows 路由纯逻辑测试，Rust `terminal::tests_exec` 14 通过。
 - 2026-04-28：运行时审计 4 项补齐：catalog 用户源刷新支持 queued rerun，`adminRequired` 非 Windows 需显式自提权语义，旧 trusted terminal id 失败后自动重发现并单次重试，staged queue 随 catalog 在线重建；定向测试与 `typecheck` 已验证。
+- 2026-04-28：队列执行改 fresh preflight + fail-fast；整队成功按设置自动清空（默认开）；Launcher session 仅持久化最小 DTO；Windows `normal-and-elevated` 不再凭历史 elevated 复用管理员车道。前端定向 140 测试、`terminal::tests_exec`、`typecheck` 通过。
+- 2026-04-28：队列执行/会话安全收口完成；核心回归已改为“恢复后重填全部必填参数”，`npm run check:all` fresh 全绿，待提交并 push。

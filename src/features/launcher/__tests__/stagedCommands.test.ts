@@ -108,12 +108,7 @@ describe("stagedCommands session snapshot helpers", () => {
       id: "docker-logs-1",
       sourceCommandId: "docker-logs",
       title: "Docker Logs",
-      rawPreview: "docker logs {{container}} --tail {{tail}}",
-      renderedPreview: "docker logs api --tail 30",
-      argValues: {
-        container: "api",
-        tail: "30"
-      }
+      rawPreview: "docker logs {{container}} --tail {{tail}}"
     });
   });
 
@@ -123,11 +118,7 @@ describe("stagedCommands session snapshot helpers", () => {
         id: "docker-logs-1",
         sourceCommandId: "docker-logs",
         title: "旧标题",
-        rawPreview: "docker logs {{container}} --tail 120",
-        renderedPreview: "docker logs old-api --tail 120",
-        argValues: {
-          container: "api"
-        }
+        rawPreview: "docker logs {{container}} --tail 120"
       },
       createTemplate()
     );
@@ -137,10 +128,7 @@ describe("stagedCommands session snapshot helpers", () => {
     expect(restored.title).toBe("Docker Logs");
     expect(restored.rawPreview).toBe("docker logs {{container}} --tail {{tail}}");
     expect(restored.renderedPreview).toBe("docker logs api --tail 30");
-    expect(restored.argValues).toEqual({
-      container: "api",
-      tail: "30"
-    });
+    expect(restored.argValues).toEqual({});
     expect(restored.args).toHaveLength(2);
     expect(restored.preflightCache).toBeUndefined();
     expect(restored.blockingIssue).toBeUndefined();
@@ -150,21 +138,15 @@ describe("stagedCommands session snapshot helpers", () => {
     const restored = restorePersistedLauncherSessionCommandSnapshot({
       id: "docker-logs-1710000000000",
       title: "Docker Logs",
-      rawPreview: "docker logs {{container}} --tail 120",
-      renderedPreview: "docker logs api --tail 120",
-      argValues: {
-        container: "api"
-      }
+      rawPreview: "docker logs {{container}} --tail 120"
     });
 
     expect(resolveStagedCommandSourceId(restored)).toBe("docker-logs");
     expect(restored.sourceCommandId).toBe("docker-logs");
     expect(restored.title).toBe("Docker Logs");
     expect(restored.rawPreview).toBe("docker logs {{container}} --tail 120");
-    expect(restored.renderedPreview).toBe("docker logs api --tail 120");
-    expect(restored.argValues).toEqual({
-      container: "api"
-    });
+    expect(restored.renderedPreview).toBe("docker logs {{container}} --tail 120");
+    expect(restored.argValues).toEqual({});
     expect(restored.args).toEqual([]);
     expect(restored.preflightCache).toBeUndefined();
     expect(restored.executionTemplate.kind).toBe("script");

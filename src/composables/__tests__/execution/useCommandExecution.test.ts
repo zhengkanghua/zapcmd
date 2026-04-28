@@ -1,4 +1,4 @@
-import { nextTick, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import type {
@@ -230,6 +230,7 @@ function createHarness(useBatchRunner = false): Harness {
     commandId === "install-docker" ? "安装 Docker" : null
   );
   const onNeedPanel = vi.fn();
+  const queueAutoClearOnSuccess = ref(true);
 
   const execution = useCommandExecution({
     stagedCommands,
@@ -245,8 +246,9 @@ function createHarness(useBatchRunner = false): Harness {
     runCommandPreflight,
     copyTextToClipboard,
     resolveCommandTitle,
-    onNeedPanel
-  });
+    onNeedPanel,
+    queueAutoClearOnSuccess: computed(() => queueAutoClearOnSuccess.value)
+  } as Parameters<typeof useCommandExecution>[0]);
 
   return {
     stagedCommands,
@@ -1117,8 +1119,19 @@ describe("useCommandExecution", () => {
     expect(harness.execution.executionFeedbackMessage.value).toContain("下一步");
   });
 
-  it("executes queued commands even when cached prerequisite issues exist", async () => {
+  it("re-probes queued prerequisites before execution and blocks when required prerequisite now fails", async () => {
     const harness = createHarness(true);
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: true,
+        code: "ok",
+        required: true,
+        message: ""
+      }
+    ]);
+    harness.execution.stageResult(createPrerequisiteCommand());
+    await flushExecution();
     harness.runCommandPreflight.mockResolvedValueOnce([
       {
         id: "docker",
@@ -1128,23 +1141,35 @@ describe("useCommandExecution", () => {
         message: "docker not found"
       }
     ]);
-    harness.execution.stageResult(createPrerequisiteCommand());
-    await flushExecution();
-    harness.runCommandPreflight.mockClear();
 
     await harness.execution.executeStaged();
 
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledTimes(1);
-    expect(harness.runCommandsInTerminal).toHaveBeenCalledWith(
-      [createExecStep("docker ps", "docker", ["ps"])],
-      {
-        requiresElevation: false
-      }
-    );
-    expect(harness.runCommandPreflight).not.toHaveBeenCalled();
-    expect(harness.execution.executionFeedbackTone.value).toBe("success");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("1 个节点");
-    expect(harness.execution.executionFeedbackMessage.value).not.toContain("环境提示");
+    expect(harness.runCommandPreflight).toHaveBeenCalledTimes(2);
+    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
+    expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.execution.executionFeedbackTone.value).toBe("error");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("无法执行该命令");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("未检测到 docker");
+  });
+
+  it("keeps staged queue when batch execution fails", async () => {
+    const harness = createHarness(true);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.runCommandsInTerminal.mockRejectedValueOnce(new Error("queue failed"));
+
+    try {
+      harness.execution.stageResult(createNoArgCommand());
+      harness.execution.stageResult(createGitPruneCommand());
+
+      await harness.execution.executeStaged();
+
+      expect(harness.stagedCommands.value).toHaveLength(2);
+      expect(harness.execution.executionFeedbackTone.value).toBe("error");
+      expect(harness.execution.executionFeedbackMessage.value).toContain("queue failed");
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it("blocks queued execution when staged snapshot contains a problem command", async () => {

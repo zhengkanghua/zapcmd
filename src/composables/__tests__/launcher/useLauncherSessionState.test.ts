@@ -20,7 +20,7 @@ interface MockStorage {
 
 type SessionCommandLike = Pick<
   StagedCommand,
-  "id" | "sourceCommandId" | "title" | "rawPreview" | "renderedPreview" | "argValues"
+  "id" | "sourceCommandId" | "title" | "rawPreview"
 >;
 
 function createStorage(initialValue: string | null): MockStorage {
@@ -88,8 +88,6 @@ function createPersistedCommandSnapshot(
     sourceCommandId: id,
     title: id,
     rawPreview: `echo ${id}`,
-    renderedPreview: `echo ${id}`,
-    argValues: {},
     ...overrides
   };
 }
@@ -120,9 +118,7 @@ function restoreSnapshots(commands: readonly SessionCommandLike[]): StagedComman
     createStagedCommand(command.id, {
       sourceCommandId: command.sourceCommandId,
       title: command.title,
-      rawPreview: command.rawPreview,
-      renderedPreview: command.renderedPreview,
-      argValues: command.argValues
+      rawPreview: command.rawPreview
     })
   );
 }
@@ -183,11 +179,7 @@ describe("useLauncherSessionState", () => {
           createLegacySessionCommand("restored", {
             sourceCommandId: "docker-logs",
             title: "Docker Logs",
-            rawPreview: "docker logs {{target}}",
-            renderedPreview: "docker logs api",
-            argValues: {
-              target: "api"
-            }
+            rawPreview: "docker logs {{target}}"
           })
         ]
       })
@@ -210,11 +202,7 @@ describe("useLauncherSessionState", () => {
       createPersistedCommandSnapshot("restored", {
         sourceCommandId: "docker-logs",
         title: "Docker Logs",
-        rawPreview: "docker logs {{target}}",
-        renderedPreview: "docker logs api",
-        argValues: {
-          target: "api"
-        }
+        rawPreview: "docker logs {{target}}"
       })
     ]);
     expect(stagedCommands.value[0]?.title).toBe("Docker Logs");
@@ -302,23 +290,12 @@ describe("useLauncherSessionState", () => {
           {
             id: 1,
             title: "bad-id-type",
-            rawPreview: "echo bad",
-            renderedPreview: "echo bad",
-            argValues: {}
+            rawPreview: "echo bad"
           },
           {
             id: "bad-title",
             title: "",
-            rawPreview: "echo bad-title",
-            renderedPreview: "echo bad-title",
-            argValues: {}
-          },
-          {
-            id: "bad-argValues",
-            title: "bad-argValues",
-            rawPreview: "echo bad-argValues",
-            renderedPreview: "echo bad-argValues",
-            argValues: "oops"
+            rawPreview: "echo bad-title"
           }
         ]
       })
@@ -444,11 +421,7 @@ describe("useLauncherSessionState", () => {
       createPersistedCommandSnapshot("a", {
         sourceCommandId: "docker-logs",
         title: "Docker Logs",
-        rawPreview: "docker logs {{target}}",
-        renderedPreview: "docker logs api",
-        argValues: {
-          target: "api"
-        }
+        rawPreview: "docker logs {{target}}"
       }),
       createPersistedCommandSnapshot("b")
     ]);
@@ -509,11 +482,7 @@ describe("useLauncherSessionState", () => {
           createPersistedCommandSnapshot("docker-logs-1710000000000", {
             sourceCommandId: "docker-logs",
             title: "旧标题",
-            rawPreview: "docker logs {{target}} --tail 120",
-            renderedPreview: "docker logs old-target --tail 120",
-            argValues: {
-              target: "old-target"
-            }
+            rawPreview: "docker logs {{target}} --tail 120"
           })
         ]
       })
@@ -598,7 +567,7 @@ describe("useLauncherSessionState", () => {
     expect(readLatestPayload(storage).stagedCommands.map((item) => item.id)).toEqual(["b", "a"]);
   });
 
-  it("debounces arg value persistence for high-frequency edits and still writes only minimal DTO fields", async () => {
+  it("does not persist when only argValues and renderedPreview change", async () => {
     vi.useFakeTimers();
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([
@@ -625,24 +594,10 @@ describe("useLauncherSessionState", () => {
     stagedCommands.value[0]!.renderedPreview = "echo 123";
     await nextTick();
 
-    expect(storage.setItem).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(179);
+    vi.runAllTimers();
     await nextTick();
-    expect(storage.setItem).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(1);
-    await nextTick();
-    expect(storage.setItem).toHaveBeenCalledTimes(1);
-    expect(readLatestPayload(storage).stagedCommands).toEqual([
-      createPersistedCommandSnapshot("debounced", {
-        renderedPreview: "echo 123",
-        rawPreview: "echo {{pid}}",
-        argValues: {
-          pid: "123"
-        }
-      })
-    ]);
+    expect(storage.setItem).not.toHaveBeenCalled();
   });
 
   it("does not persist when only preflightCache changes", async () => {
@@ -759,10 +714,10 @@ describe("useLauncherSessionState", () => {
     expect(restoredCommands.value.map((item) => item.id)).toEqual(["c", "a"]);
   });
 
-  it("flushes pending delayed persistence when the scope is disposed", async () => {
+  it("flushes pending structural persistence when the scope is disposed", async () => {
     vi.useFakeTimers();
     const storage = createStorage(null);
-    const stagedCommands = ref<StagedCommand[]>([createStagedCommand("debounced")]);
+    const stagedCommands = ref<StagedCommand[]>([]);
     const scope = effectScope();
 
     scope.run(() => {
@@ -775,10 +730,7 @@ describe("useLauncherSessionState", () => {
       });
     });
 
-    stagedCommands.value[0]!.argValues = {
-      pid: "456"
-    };
-    stagedCommands.value[0]!.renderedPreview = "echo 456";
+    stagedCommands.value = [createStagedCommand("debounced")];
     await nextTick();
     scope.stop();
     await nextTick();
@@ -786,11 +738,7 @@ describe("useLauncherSessionState", () => {
     expect(storage.setItem).toHaveBeenCalledTimes(1);
     expect(readLatestPayload(storage).stagedCommands[0]).toEqual(
       createPersistedCommandSnapshot("debounced", {
-        renderedPreview: "echo 456",
-        rawPreview: "echo debounced",
-        argValues: {
-          pid: "456"
-        }
+        rawPreview: "echo debounced"
       })
     );
   });

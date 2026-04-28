@@ -13,6 +13,7 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_MOTION_PRESET,
+  DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS,
   POINTER_ACTION_FIELD_IDS,
   DEFAULT_TERMINAL,
   DEFAULT_TERMINAL_REUSE_POLICY,
@@ -220,6 +221,10 @@ export function normalizePersistedSettingsSnapshot(
     general: {
       defaultTerminal: normalizeTerminalId(snapshot.general.defaultTerminal),
       terminalReusePolicy: normalizeTerminalReusePolicy(snapshot.general.terminalReusePolicy),
+      queueAutoClearOnSuccess: normalizeBoolean(
+        snapshot.general.queueAutoClearOnSuccess,
+        DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS
+      ),
       language: normalizeLanguage(snapshot.general.language),
       autoCheckUpdate: normalizeBoolean(snapshot.general.autoCheckUpdate, DEFAULT_AUTO_CHECK_UPDATE),
       launchAtLogin: normalizeBoolean(snapshot.general.launchAtLogin, DEFAULT_LAUNCH_AT_LOGIN),

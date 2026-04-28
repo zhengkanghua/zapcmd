@@ -75,6 +75,20 @@ async function waitForUi(): Promise<void> {
   await nextTick();
 }
 
+async function waitForResultItems(
+  wrapper: VueWrapper,
+  minCount = 1,
+  attempts = 20,
+): Promise<void> {
+  for (let i = 0; i < attempts; i += 1) {
+    await waitForUi();
+    if (wrapper.findAll(".result-item").length >= minCount) {
+      return;
+    }
+  }
+  throw new Error("搜索结果未在预期时间内加载完成");
+}
+
 function removeWrapper(wrapper: VueWrapper): void {
   const index = wrappers.indexOf(wrapper);
   if (index >= 0) {
@@ -96,6 +110,22 @@ async function mountApp(): Promise<VueWrapper> {
 
 function dispatchWindowKeydown(key: string, init: KeyboardEventInit = {}): void {
   window.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key,
+      bubbles: true,
+      cancelable: true,
+      ...init,
+    }),
+  );
+}
+
+function dispatchSearchInputKeydown(
+  wrapper: VueWrapper,
+  key: string,
+  init: KeyboardEventInit = {},
+): void {
+  const input = wrapper.get("#zapcmd-search-input").element as HTMLInputElement;
+  input.dispatchEvent(
     new KeyboardEvent("keydown", {
       key,
       bubbles: true,
@@ -172,6 +202,12 @@ function expectFirstExecutionStepContains(
   expect(step?.execution.command).toContain(snippet);
 }
 
+function expectCondition(value: boolean, message: string): void {
+  if (!value) {
+    throw new Error(message);
+  }
+}
+
 function resolveProbeInvoke(command: string, payload?: unknown): unknown {
   if (command !== "probe_command_prerequisites") {
     return undefined;
@@ -216,44 +252,121 @@ afterEach(() => {
 });
 
 describe("App 核心路径回归（Phase 3）", () => {
-  it("覆盖成功链路：搜索 → 填参 → 入队 → 重挂载恢复 → Ctrl+Enter 执行 → 队列清空", async () => {
+  it("覆盖成功链路：搜索 → 填参 → 入队 → 重挂载恢复后补参 → 执行队列 → 队列清空", async () => {
     hoisted.runMock.mockResolvedValue(undefined);
 
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
+    await waitForResultItems(wrapper);
 
-    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    await wrapper.get(".result-item").trigger("click");
     await waitForUi();
-    expect(wrapper.find(".command-panel").exists()).toBe(true);
+    expectCondition(
+      wrapper.find(".launcher-action-panel").exists(),
+      "点击搜索结果后应先进入动作面板",
+    );
+
+    const actionButtons = wrapper.findAll(".launcher-action-panel__action");
+    expectCondition(
+      actionButtons.length >= 2,
+      "动作面板至少应提供执行和入队操作",
+    );
+    await actionButtons[1]!.trigger("click");
+    await waitForUi();
+    expectCondition(
+      wrapper.find(".command-panel").exists(),
+      "选择加入队列后应打开参数面板",
+    );
 
     await wrapper.get(".command-panel__input").setValue("my-container");
     await wrapper.get("[data-testid='confirm-btn']").trigger("click");
     await waitForUi();
 
     expectQueueCount(wrapper, 1);
-    expect(wrapper.find(".flow-panel-overlay").exists()).toBe(false);
+    expectCondition(
+      !wrapper.find(".flow-panel-overlay").exists(),
+      "入队后未主动打开复核面板时不应显示 flow panel",
+    );
 
     await openReviewByPill(wrapper);
     expect(wrapper.get(".flow-card__command").text()).toContain("my-container");
 
     await waitForUi();
-    expect(localStorage.getItem(LAUNCHER_SESSION_STORAGE_KEY)).toBeTruthy();
+    const persistedSession = localStorage.getItem(LAUNCHER_SESSION_STORAGE_KEY);
+    expect(persistedSession).toBeTruthy();
+    expect(persistedSession).not.toContain("my-container");
 
     wrapper.unmount();
     removeWrapper(wrapper);
 
     const restored = await mountApp();
     expectQueueCount(restored, 1);
-    expect(restored.find(".flow-panel-overlay").exists()).toBe(false);
+    expectCondition(
+      !restored.find(".flow-panel-overlay").exists(),
+      "重挂载恢复后不应自动展开 flow panel",
+    );
 
     await openReviewByPill(restored);
+    const restoredCommandText = restored.get(".flow-card__command").text();
+    expect(restoredCommandText).not.toContain("my-container");
+
+    const restoredParamButtons = restored.findAll(".flow-card__param-value");
+    expect(restoredParamButtons.length).toBeGreaterThanOrEqual(2);
+    expect(restoredParamButtons[0]?.text()).not.toBe("my-container");
+    await restoredParamButtons[0]?.trigger("click");
+    await waitForUi();
+
+    const restoredContainerInput = restored.get(".flow-card__param-input");
+    await restoredContainerInput.setValue("my-container");
+    await restoredContainerInput.trigger("keydown.enter");
+    await waitForUi();
+
+    const refreshedParamButtons = restored.findAll(".flow-card__param-value");
+    expect(refreshedParamButtons.length).toBeGreaterThanOrEqual(2);
+    const restoredTailButton = refreshedParamButtons[1]!;
+    await restoredTailButton.trigger("click");
+    await waitForUi();
+    if (!restored.find(".flow-card__param-input").exists()) {
+      await restoredTailButton.trigger("keydown.enter");
+    }
+    await waitForUi();
+    expectCondition(
+      restored.find(".flow-card__param-input").exists(),
+      "编辑第二个参数后应进入输入态",
+    );
+
+    const restoredTailInput = restored.get(".flow-card__param-input");
+    await restoredTailInput.setValue("100");
+    await restoredTailInput.trigger("keydown.enter");
+    await waitForUi();
+
     expect(restored.get(".flow-card__command").text()).toContain("my-container");
+    expect(restored.get(".flow-card__command").text()).toContain("100");
+    expect(restored.find(".flow-card__param-input").exists()).toBe(false);
 
-    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    const executeButton = restored.get(".flow-panel__execute-btn");
+    await executeButton.trigger("click");
     await waitForUi();
     await waitForUi();
 
-    expect(hoisted.runMock).toHaveBeenCalled();
+    expectCondition(
+      hoisted.runMock.mock.calls.length > 0,
+      [
+        "执行未触发",
+        `feedback=${
+          restored.find(".execution-feedback").exists()
+            ? restored.find(".execution-feedback").text()
+            : "<empty>"
+        }`,
+        `buttonDisabled=${String((executeButton.element as HTMLButtonElement).disabled)}`,
+        `buttonAriaDisabled=${executeButton.attributes("aria-disabled") ?? "<unset>"}`,
+        `queueCommand=${
+          restored.find(".flow-card__command").exists()
+            ? restored.find(".flow-card__command").text()
+            : "<empty>"
+        }`
+      ].join(" | "),
+    );
     const request = hoisted.runMock.mock.calls[0]?.[0];
     expectFirstExecutionStepContains(request, "my-container");
 
@@ -269,7 +382,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
-    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    dispatchSearchInputKeydown(wrapper, "Enter", { ctrlKey: true });
     await waitForUi();
     expect(wrapper.find(".command-panel").exists()).toBe(true);
 
@@ -281,7 +394,7 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     await openReviewByPill(wrapper);
 
-    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    dispatchSearchInputKeydown(wrapper, "Enter", { ctrlKey: true });
     await waitForUi();
     await waitForUi();
 
@@ -302,7 +415,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     const wrapper = await mountApp();
     await focusSearchAndType(wrapper, "查看容器日志");
 
-    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    dispatchSearchInputKeydown(wrapper, "Enter", { ctrlKey: true });
     await waitForUi();
     expect(wrapper.find(".command-panel").exists()).toBe(true);
 
@@ -311,7 +424,7 @@ describe("App 核心路径回归（Phase 3）", () => {
     await waitForUi();
 
     await openReviewByPill(wrapper);
-    dispatchWindowKeydown("Enter", { ctrlKey: true });
+    dispatchSearchInputKeydown(wrapper, "Enter", { ctrlKey: true });
     await waitForUi();
     await waitForUi();
 

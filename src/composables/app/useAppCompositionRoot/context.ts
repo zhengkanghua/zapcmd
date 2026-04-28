@@ -52,6 +52,7 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     autoCheckUpdate: settingsScene.autoCheckUpdate,
     launchAtLogin: settingsScene.launchAtLogin,
     alwaysElevatedTerminal: settingsScene.alwaysElevatedTerminal,
+    queueAutoClearOnSuccess: settingsScene.queueAutoClearOnSuccess,
     currentWindowLabel: launcherRuntime.currentWindowLabel,
     settingsSyncChannel: launcherRuntime.settingsSyncChannel,
     resolveAppWindow: launcherRuntime.resolveAppWindow,

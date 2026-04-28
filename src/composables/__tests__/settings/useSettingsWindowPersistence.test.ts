@@ -29,6 +29,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
   const autoCheckUpdate = overrides.autoCheckUpdate ?? ref(true);
   const launchAtLogin = overrides.launchAtLogin ?? ref(false);
   const alwaysElevatedTerminal = overrides.alwaysElevatedTerminal ?? ref(false);
+  const queueAutoClearOnSuccess = overrides.queueAutoClearOnSuccess ?? ref(true);
   const pointerActions =
     overrides.pointerActions ??
     ref({
@@ -65,6 +66,9 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
       alwaysElevatedTerminal.value = value;
     }),
+    setQueueAutoClearOnSuccess: vi.fn((value: boolean) => {
+      queueAutoClearOnSuccess.value = value;
+    }),
     setDefaultTerminal: vi.fn((value: string) => {
       defaultTerminal.value = value;
     }),
@@ -89,6 +93,7 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     autoCheckUpdate,
     launchAtLogin,
     alwaysElevatedTerminal,
+    queueAutoClearOnSuccess,
     pointerActions,
     settingsStore,
     getHotkeyValue: vi.fn(() => "Alt+K"),

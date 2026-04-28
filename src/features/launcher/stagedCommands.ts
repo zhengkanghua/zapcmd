@@ -34,8 +34,6 @@ export interface PersistedLauncherSessionCommand {
   sourceCommandId?: string;
   title: string;
   rawPreview: string;
-  renderedPreview: string;
-  argValues: Record<string, string>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -65,19 +63,6 @@ function sanitizePreviewString(value: unknown): string | null {
   return value;
 }
 
-function sanitizeArgValues(value: unknown): Record<string, string> | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  return Object.entries(value).reduce<Record<string, string>>((acc, [key, item]) => {
-    if (typeof item === "string") {
-      acc[key] = item;
-    }
-    return acc;
-  }, {});
-}
-
 function createStalePersistedLauncherSessionCommand(
   command: PersistedLauncherSessionCommand
 ): StagedCommand {
@@ -88,11 +73,11 @@ function createStalePersistedLauncherSessionCommand(
     sourceCommandId,
     title: command.title,
     rawPreview: command.rawPreview,
-    renderedPreview: command.renderedPreview,
+    renderedPreview: command.rawPreview,
     executionTemplate: STALE_SNAPSHOT_PLACEHOLDER_EXECUTION_TEMPLATE,
     execution: STALE_SNAPSHOT_PLACEHOLDER_EXECUTION,
     args: [],
-    argValues: { ...command.argValues },
+    argValues: {},
     blockingIssue: createStaleCommandSnapshotIssue(sourceCommandId)
   };
 }
@@ -103,7 +88,6 @@ function rehydratePersistedLauncherSessionCommand(
 ): StagedCommand | null {
   const rebuilt = buildStagedCommandSnapshot({
     command: currentTemplate,
-    argValues: command.argValues,
     id: command.id
   });
   if (!rebuilt) {
@@ -111,6 +95,7 @@ function rehydratePersistedLauncherSessionCommand(
   }
   return {
     ...rebuilt,
+    argValues: {},
     preflightCache: undefined
   };
 }
@@ -139,9 +124,7 @@ export function normalizePersistedLauncherSessionCommandSnapshot(
   const id = sanitizeRequiredString(value.id);
   const title = sanitizeRequiredString(value.title);
   const rawPreview = sanitizePreviewString(value.rawPreview);
-  const renderedPreview = sanitizePreviewString(value.renderedPreview);
-  const argValues = sanitizeArgValues(value.argValues);
-  if (!id || !title || !rawPreview || !renderedPreview || !argValues) {
+  if (!id || !title || !rawPreview) {
     return null;
   }
 
@@ -153,25 +136,21 @@ export function normalizePersistedLauncherSessionCommandSnapshot(
     id,
     sourceCommandId: sourceCommandId ?? undefined,
     title,
-    rawPreview,
-    renderedPreview,
-    argValues
+    rawPreview
   };
 }
 
 export function buildPersistedLauncherSessionCommandSnapshot(
   command: Pick<
     StagedCommand,
-    "id" | "sourceCommandId" | "title" | "rawPreview" | "renderedPreview" | "argValues"
+    "id" | "sourceCommandId" | "title" | "rawPreview"
   >
 ): PersistedLauncherSessionCommand {
   return {
     id: command.id,
     sourceCommandId: sanitizeSourceCommandId(command.sourceCommandId) ?? undefined,
     title: command.title,
-    rawPreview: command.rawPreview,
-    renderedPreview: command.renderedPreview,
-    argValues: { ...command.argValues }
+    rawPreview: command.rawPreview
   };
 }
 

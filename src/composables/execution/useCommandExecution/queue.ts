@@ -4,12 +4,17 @@ import { t } from "../../../i18n";
 import { checkQueueCommandSafety } from "../../../features/security/commandSafety";
 import {
   appendToStaging,
+  appendPreflightWarnings,
   buildExecutionFailureFeedback,
+  buildPreflightBlockedFeedback,
+  collectBlockingPreflightIssues,
+  collectWarningPreflightIssues,
   summarizeCommandForFeedback
 } from "./helpers";
 import type { CommandExecutionState, UseCommandExecutionOptions } from "./model";
 import {
   collectCommandPreflightCache,
+  collectStagedCommandPreflight,
   createEmptyPreflightCache,
   hasPrerequisites
 } from "./preflight";
@@ -89,7 +94,8 @@ async function runStagedSnapshot(
     state,
     clearStaging
   }: Pick<QueueActionDeps, "options" | "state" | "clearStaging">,
-  snapshot: StagedCommand[]
+  snapshot: StagedCommand[],
+  warningFeedback = ""
 ): Promise<void> {
   state.executing.value = true;
   const steps = snapshot
@@ -115,14 +121,17 @@ async function runStagedSnapshot(
       }
     }
 
-    clearStaging();
+    if (options.queueAutoClearOnSuccess?.value ?? true) {
+      clearStaging();
+    }
     const firstCommand = summarizeCommandForFeedback(steps[0]?.summary ?? "");
+    const successMessage = t("execution.queueSuccess", {
+      count: steps.length,
+      firstCommand
+    });
     state.setExecutionFeedback(
       "success",
-      t("execution.queueSuccess", {
-        count: steps.length,
-        firstCommand
-      })
+      warningFeedback ? `${successMessage} ${warningFeedback}` : successMessage
     );
   } catch (error) {
     console.error("queue execution failed:", error);
@@ -152,6 +161,37 @@ function createExecuteStagedAction({
     if (snapshot.some((item) => rejectBlockingIssue(item, "queue"))) {
       return;
     }
+
+    const blockingIssues = [];
+    const warningIssues = [];
+    const nextCaches = new Map<string, StagedCommand["preflightCache"]>();
+    for (const item of snapshot) {
+      const preflight = await collectStagedCommandPreflight(options, item);
+      nextCaches.set(item.id, preflight.cache);
+      blockingIssues.push(...collectBlockingPreflightIssues(preflight.issues));
+      warningIssues.push(...collectWarningPreflightIssues(preflight.issues));
+    }
+
+    if (nextCaches.size > 0) {
+      options.stagedCommands.value = options.stagedCommands.value.map((command: StagedCommand) => {
+        const nextCache = nextCaches.get(command.id);
+        return nextCache
+          ? {
+              ...command,
+              preflightCache: nextCache
+            }
+          : command;
+      });
+    }
+
+    if (blockingIssues.length > 0) {
+      state.setExecutionFeedback("error", buildPreflightBlockedFeedback(options, blockingIssues));
+      options.scheduleSearchInputFocus(false);
+      return;
+    }
+
+    const warningFeedback =
+      warningIssues.length > 0 ? appendPreflightWarnings(options, "", warningIssues).trim() : "";
 
     const queueSafety = checkQueueCommandSafety(
       snapshot.map((item) => ({
@@ -184,12 +224,12 @@ function createExecuteStagedAction({
           }),
           items: queueSafety.confirmationItems
         },
-        async () => runStagedSnapshot({ options, state, clearStaging }, snapshot)
+        async () => runStagedSnapshot({ options, state, clearStaging }, snapshot, warningFeedback)
       );
       return;
     }
 
-    await runStagedSnapshot({ options, state, clearStaging }, snapshot);
+    await runStagedSnapshot({ options, state, clearStaging }, snapshot, warningFeedback);
   };
 }
 

@@ -26,6 +26,7 @@ export interface LauncherRuntimeContext {
   autoCheckUpdate: Ref<boolean>;
   launchAtLogin: Ref<boolean>;
   alwaysElevatedTerminal: Ref<boolean>;
+  queueAutoClearOnSuccess: Ref<boolean>;
   currentWindowLabel: Ref<string>;
   settingsSyncChannel: Ref<BroadcastChannel | null>;
   resolveAppWindow: () => ReturnType<AppCompositionRootPorts["getCurrentWindow"]> | null;
