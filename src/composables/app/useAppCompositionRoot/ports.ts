@@ -20,6 +20,7 @@ import {
   maybeCheckForUpdateAtStartup,
   type StartupUpdateCheckResult
 } from "../../../services/startupUpdateCheck";
+import { resolveSafeStorage } from "../../../shared/storage";
 
 export interface StartupUpdateCheckInput {
   enabled: boolean;
@@ -64,7 +65,15 @@ export function createDefaultAppCompositionRootPorts(): AppCompositionRootPorts 
         window.open(url, "_blank", "noopener,noreferrer");
       }
     },
-    getLocalStorage: () => (typeof window === "undefined" ? null : window.localStorage),
+    getLocalStorage: () => {
+      if (typeof window === "undefined") {
+        return null;
+      }
+      return resolveSafeStorage(
+        () => window.localStorage,
+        "app localStorage unavailable"
+      );
+    },
     checkStartupUpdate: maybeCheckForUpdateAtStartup,
     scanUserCommandFiles,
     readUserCommandFile,

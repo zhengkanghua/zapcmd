@@ -35,8 +35,12 @@ export function createSettingsSyncBroadcaster(
   settingsSyncChannel: Ref<BroadcastChannel | null>
 ) {
   return () => {
-    settingsStore.persist();
-    settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
+    try {
+      settingsStore.persist();
+      settingsSyncChannel.value?.postMessage({ type: "settings-updated" });
+    } catch (error) {
+      console.warn("launcher settings sync broadcast failed", error);
+    }
   };
 }
 

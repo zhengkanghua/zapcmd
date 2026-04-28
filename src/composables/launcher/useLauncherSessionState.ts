@@ -6,6 +6,11 @@ import {
   type PersistedLauncherSessionCommand
 } from "../../features/launcher/stagedCommands";
 import type { StagedCommand } from "../../features/launcher/types";
+import {
+  resolveSafeStorage,
+  readStorageItemSafely,
+  safeRemoveStorageItem
+} from "../../shared/storage";
 
 export const LAUNCHER_SESSION_STORAGE_KEY = "zapcmd.session.launcher";
 const LAUNCHER_SESSION_SCHEMA_VERSION = 3;
@@ -74,7 +79,15 @@ function readLauncherSession(
     return null;
   }
 
-  const raw = storage.getItem(LAUNCHER_SESSION_STORAGE_KEY);
+  const rawResult = readStorageItemSafely(
+    storage,
+    LAUNCHER_SESSION_STORAGE_KEY,
+    "launcher session snapshot read failed; skipping restore"
+  );
+  if (!rawResult.ok) {
+    return null;
+  }
+  const raw = rawResult.value;
   if (!raw) {
     return null;
   }
@@ -85,11 +98,19 @@ function readLauncherSession(
     if (normalized) {
       return normalized;
     }
-    storage.removeItem(LAUNCHER_SESSION_STORAGE_KEY);
+    safeRemoveStorageItem(
+      storage,
+      LAUNCHER_SESSION_STORAGE_KEY,
+      "launcher session snapshot clear failed"
+    );
     return null;
   } catch (error) {
     console.warn("launcher session snapshot invalid; clearing", error);
-    storage.removeItem(LAUNCHER_SESSION_STORAGE_KEY);
+    safeRemoveStorageItem(
+      storage,
+      LAUNCHER_SESSION_STORAGE_KEY,
+      "launcher session snapshot clear failed"
+    );
     return null;
   }
 }
@@ -129,7 +150,10 @@ function resolveStorage(
     return storage;
   }
   if (typeof window !== "undefined") {
-    return window.localStorage;
+    return resolveSafeStorage(
+      () => window.localStorage,
+      "launcher session storage unavailable"
+    );
   }
   return null;
 }
@@ -242,8 +266,11 @@ export function useLauncherSessionState(options: UseLauncherSessionStateOptions)
         restoring = false;
       }
     }
-    lastWrittenSerializedSnapshot =
-      storage && "getItem" in storage ? storage.getItem(LAUNCHER_SESSION_STORAGE_KEY) : null;
+    lastWrittenSerializedSnapshot = readStorageItemSafely(
+      storage,
+      LAUNCHER_SESSION_STORAGE_KEY,
+      "launcher session snapshot read failed; skipping restore"
+    ).value;
   }
 
   restoreFromStorageIfNeeded();

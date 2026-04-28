@@ -68,3 +68,5 @@
 - 2026-04-28：运行时审计 4 项补齐：catalog 用户源刷新支持 queued rerun，`adminRequired` 非 Windows 需显式自提权语义，旧 trusted terminal id 失败后自动重发现并单次重试，staged queue 随 catalog 在线重建；定向测试与 `typecheck` 已验证。
 - 2026-04-28：队列执行改 fresh preflight + fail-fast；整队成功按设置自动清空（默认开）；Launcher session 仅持久化最小 DTO；Windows `normal-and-elevated` 不再凭历史 elevated 复用管理员车道。前端定向 140 测试、`terminal::tests_exec`、`typecheck` 通过。
 - 2026-04-28：队列执行/会话安全收口完成；核心回归已改为“恢复后重填全部必填参数”，`npm run check:all` fresh 全绿，待提交并 push。
+- 2026-04-28：执行语义边界再次确认并入记忆：执行流保持“整队一次投递、同一终端、顺序执行”；只要队列任一步 `adminRequired=true`，整队进入管理员终端。这是明确产品约束，不按缺陷处理。
+- 2026-04-28：storage 边界收口中：settings 启动读取、Launcher session 恢复、startup update 节流读、主窗口默认终端纠正广播均改为 storage 异常降级不崩；定向测试与 typecheck 已通过。

@@ -427,10 +427,71 @@ describe("settingsStore migration and persistence", () => {
     );
   });
 
+  it("hydrateFromStorage swallows normalization write-back failure", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const snapshot = createDefaultSettingsSnapshot();
+    snapshot.general.language = "en-US";
+
+    const adapter: SettingsStorageAdapter = {
+      readSettings: vi.fn(() => snapshot),
+      writeSettings: vi.fn(() => {
+        throw new Error("write blocked");
+      })
+    };
+
+    const store = useSettingsStore();
+
+    expect(() => store.hydrateFromStorage(adapter)).not.toThrow();
+    expect(store.language).toBe("en-US");
+    expect(warnSpy).toHaveBeenCalledWith(
+      "settings hydrate normalization write-back failed",
+      expect.any(Error)
+    );
+    warnSpy.mockRestore();
+  });
+
   it("adapter supports null storage fallback without throwing", () => {
     const adapter = createSettingsStorageAdapter({ storage: null });
     expect(adapter.readSettings()).toEqual(createDefaultSettingsSnapshot());
     expect(() => adapter.writeSettings(createDefaultSettingsSnapshot())).not.toThrow();
+  });
+
+  it("adapter falls back to defaults when storage getItem throws", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const storage = {
+      getItem: vi.fn(() => {
+        throw new Error("storage blocked");
+      }),
+      setItem: vi.fn()
+    } as unknown as Storage;
+
+    const adapter = createSettingsStorageAdapter({ storage });
+
+    expect(adapter.readSettings()).toEqual(createDefaultSettingsSnapshot());
+    expect(warnSpy).toHaveBeenCalledWith("settings storage read failed", expect.any(Error));
+    warnSpy.mockRestore();
+  });
+
+  it("readSettingsFromStorage falls back to defaults when window.localStorage getter throws", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const originalDescriptor = Object.getOwnPropertyDescriptor(window, "localStorage");
+
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get() {
+        throw new Error("getter blocked");
+      }
+    });
+
+    try {
+      expect(readSettingsFromStorage()).toEqual(createDefaultSettingsSnapshot());
+      expect(warnSpy).toHaveBeenCalledWith("settings storage unavailable", expect.any(Error));
+    } finally {
+      if (originalDescriptor) {
+        Object.defineProperty(window, "localStorage", originalDescriptor);
+      }
+      warnSpy.mockRestore();
+    }
   });
 
   it("为缺少 appearance.theme 的旧存储填充默认值 obsidian", () => {

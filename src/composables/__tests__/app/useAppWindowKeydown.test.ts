@@ -239,4 +239,27 @@ describe("useAppCompositionRoot ports", () => {
       storage: null
     });
   });
+
+  it("returns null when window.localStorage getter throws", () => {
+    const originalDescriptor = Object.getOwnPropertyDescriptor(window, "localStorage");
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get() {
+        throw new Error("getter blocked");
+      }
+    });
+
+    try {
+      const ports = createAppCompositionRootPorts();
+      expect(ports.getLocalStorage()).toBeNull();
+      expect(warnSpy).toHaveBeenCalledWith("app localStorage unavailable", expect.any(Error));
+    } finally {
+      if (originalDescriptor) {
+        Object.defineProperty(window, "localStorage", originalDescriptor);
+      }
+      warnSpy.mockRestore();
+    }
+  });
 });

@@ -165,7 +165,11 @@ export const useSettingsStore = defineStore("settings", {
       const storageAdapter = resolveAdapter(adapter);
       const snapshot = storageAdapter.readSettings();
       this.applySnapshot(snapshot);
-      storageAdapter.writeSettings(snapshot);
+      try {
+        storageAdapter.writeSettings(snapshot);
+      } catch (error) {
+        console.warn("settings hydrate normalization write-back failed", error);
+      }
     },
     applySnapshot(snapshot: PersistedSettingsSnapshot): void {
       const normalized = normalizePersistedSettingsSnapshot(snapshot);

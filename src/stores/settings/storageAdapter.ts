@@ -5,6 +5,7 @@ import {
 } from "./defaults";
 import { migrateSettingsPayload } from "./migration";
 import { isRecord, normalizePersistedSettingsSnapshot } from "./normalization";
+import { resolveSafeStorage, safeGetStorageItem, setStorageItem } from "../../shared/storage";
 
 export interface SettingsStorageAdapter {
   readSettings: () => PersistedSettingsSnapshot;
@@ -19,7 +20,10 @@ function resolveStorage(): Storage | null {
   if (typeof window === "undefined") {
     return null;
   }
-  return window.localStorage ?? null;
+  return resolveSafeStorage(
+    () => window.localStorage ?? null,
+    "settings storage unavailable"
+  );
 }
 
 function resolveConfiguredStorage(options: CreateSettingsStorageAdapterOptions): Storage | null {
@@ -60,7 +64,10 @@ export function createSettingsStorageAdapter(
         return createDefaultSettingsSnapshot();
       }
 
-      const currentPayload = parseJsonRecord(storage.getItem(SETTINGS_STORAGE_KEY), parseState);
+      const currentPayload = parseJsonRecord(
+        safeGetStorageItem(storage, SETTINGS_STORAGE_KEY, "settings storage read failed"),
+        parseState
+      );
       return migrateSettingsPayload(currentPayload) ?? createDefaultSettingsSnapshot();
     },
     writeSettings: (snapshot: PersistedSettingsSnapshot): void => {
@@ -69,7 +76,7 @@ export function createSettingsStorageAdapter(
       }
 
       const normalizedSnapshot = normalizePersistedSettingsSnapshot(snapshot);
-      storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(normalizedSnapshot));
+      setStorageItem(storage, SETTINGS_STORAGE_KEY, JSON.stringify(normalizedSnapshot));
     }
   };
 }

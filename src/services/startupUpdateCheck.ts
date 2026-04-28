@@ -1,4 +1,5 @@
 import { checkForUpdate } from "./updateService";
+import { readStorageItemSafely, setStorageItem } from "../shared/storage";
 
 export const LAST_UPDATE_CHECK_STORAGE_KEY = "zapcmd.lastUpdateCheck";
 export const LAST_UPDATE_ATTEMPT_STORAGE_KEY = "zapcmd.lastUpdateAttempt";
@@ -53,8 +54,21 @@ export async function maybeCheckForUpdateAtStartup(options: {
 
   const nowMs = options.nowMs ?? Date.now();
   const intervalMs = options.intervalMs ?? AUTO_UPDATE_CHECK_INTERVAL_MS;
-  const lastCheckedAtMs = readTimestamp(options.storage.getItem(LAST_UPDATE_CHECK_STORAGE_KEY));
-  const lastAttemptAtMs = readTimestamp(options.storage.getItem(LAST_UPDATE_ATTEMPT_STORAGE_KEY));
+  const lastCheckedRead = readStorageItemSafely(
+    options.storage,
+    LAST_UPDATE_CHECK_STORAGE_KEY,
+    "startup update check storage read failed:"
+  );
+  const lastAttemptRead = readStorageItemSafely(
+    options.storage,
+    LAST_UPDATE_ATTEMPT_STORAGE_KEY,
+    "startup update check storage read failed:"
+  );
+  if (!lastCheckedRead.ok || !lastAttemptRead.ok) {
+    return { checked: false, available: false };
+  }
+  const lastCheckedAtMs = readTimestamp(lastCheckedRead.value);
+  const lastAttemptAtMs = readTimestamp(lastAttemptRead.value);
 
   if (!shouldCheck(lastCheckedAtMs, lastAttemptAtMs, nowMs, intervalMs)) {
     return { checked: false, available: false };
@@ -63,8 +77,8 @@ export async function maybeCheckForUpdateAtStartup(options: {
   try {
     const response = await checkForUpdate();
     try {
-      options.storage.setItem(LAST_UPDATE_CHECK_STORAGE_KEY, String(nowMs));
-      options.storage.setItem(LAST_UPDATE_ATTEMPT_STORAGE_KEY, String(nowMs));
+      setStorageItem(options.storage, LAST_UPDATE_CHECK_STORAGE_KEY, String(nowMs));
+      setStorageItem(options.storage, LAST_UPDATE_ATTEMPT_STORAGE_KEY, String(nowMs));
     } catch (error) {
       console.warn("startup update check timestamp write failed:", error);
     }
@@ -76,7 +90,7 @@ export async function maybeCheckForUpdateAtStartup(options: {
     };
   } catch (error) {
     try {
-      options.storage.setItem(LAST_UPDATE_ATTEMPT_STORAGE_KEY, String(nowMs));
+      setStorageItem(options.storage, LAST_UPDATE_ATTEMPT_STORAGE_KEY, String(nowMs));
     } catch (writeError) {
       console.warn("startup update attempt timestamp write failed:", writeError);
     }

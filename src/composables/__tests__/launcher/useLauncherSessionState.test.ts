@@ -333,6 +333,34 @@ describe("useLauncherSessionState", () => {
     warnSpy.mockRestore();
   });
 
+  it("ignores session restore when storage getItem throws", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const storage: MockStorage = {
+      getItem: vi.fn(() => {
+        throw new Error("storage blocked");
+      }),
+      setItem: vi.fn(),
+      removeItem: vi.fn()
+    };
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    useLauncherSessionState({
+      enabled: ref(true),
+      stagedCommands,
+      stagingExpanded: ref(false),
+      openStagingDrawer: vi.fn(),
+      storage
+    });
+
+    expect(stagedCommands.value).toHaveLength(0);
+    expect(storage.removeItem).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith(
+      "launcher session snapshot read failed; skipping restore",
+      expect.any(Error)
+    );
+    warnSpy.mockRestore();
+  });
+
   it("clears snapshot when parsed payload is null", () => {
     const storage = createStorage("null");
     const stagedCommands = ref<StagedCommand[]>([]);
@@ -741,5 +769,40 @@ describe("useLauncherSessionState", () => {
         rawPreview: "echo debounced"
       })
     );
+  });
+
+  it("does not crash when window.localStorage getter throws", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const originalDescriptor = Object.getOwnPropertyDescriptor(window, "localStorage");
+    const stagedCommands = ref<StagedCommand[]>([]);
+
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get() {
+        throw new Error("getter blocked");
+      }
+    });
+
+    try {
+      expect(() =>
+        useLauncherSessionState({
+          enabled: ref(true),
+          stagedCommands,
+          stagingExpanded: ref(false),
+          openStagingDrawer: vi.fn(),
+          restoreStagedCommands: restoreSnapshots
+        })
+      ).not.toThrow();
+      expect(stagedCommands.value).toHaveLength(0);
+      expect(warnSpy).toHaveBeenCalledWith(
+        "launcher session storage unavailable",
+        expect.any(Error)
+      );
+    } finally {
+      if (originalDescriptor) {
+        Object.defineProperty(window, "localStorage", originalDescriptor);
+      }
+      warnSpy.mockRestore();
+    }
   });
 });

@@ -89,4 +89,22 @@ describe("startupUpdateCheck", () => {
     });
     expect(result).toEqual({ checked: false, available: false });
   });
+
+  it("skips safely when storage getItem throws", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const result = await maybeCheckForUpdateAtStartup({
+      enabled: true,
+      storage: {
+        getItem: vi.fn(() => {
+          throw new Error("storage blocked");
+        }),
+        setItem: vi.fn()
+      } as unknown as Storage
+    });
+
+    expect(result).toEqual({ checked: false, available: false });
+    expect(checkForUpdate).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith("startup update check storage read failed:", expect.any(Error));
+    warnSpy.mockRestore();
+  });
 });

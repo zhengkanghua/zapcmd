@@ -102,4 +102,48 @@ describe("createLauncherSettingsWindow", () => {
     expect(settingsStore.persist).not.toHaveBeenCalled();
     expect(settingsSyncChannel.value?.postMessage).not.toHaveBeenCalled();
   });
+
+  it("does not crash when corrected terminal persistence throws during bootstrap", async () => {
+    const settingsStore = createStore();
+    settingsStore.persist.mockImplementation(() => {
+      throw new Error("persist blocked");
+    });
+    const postMessage = vi.fn();
+    const settingsSyncChannel = ref<BroadcastChannel | null>({
+      postMessage
+    } as unknown as BroadcastChannel);
+    const availableTerminals = ref<Array<{ id: string; label: string; path: string }>>([]);
+    const availableTerminalsTrusted = ref(false);
+    const terminalLoading = ref(false);
+    const defaultTerminal = ref("missing-terminal");
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    mockState.resolveEffectiveTerminal.mockReturnValue({
+      effectiveId: "powershell",
+      corrected: true
+    });
+
+    const settingsWindow = createLauncherSettingsWindow({
+      ports: {
+        isTauriRuntime: () => true,
+        readAvailableTerminals: vi.fn(async () => [
+          { id: "powershell", label: "PowerShell", path: "powershell.exe" }
+        ])
+      },
+      settingsStore,
+      defaultTerminal,
+      availableTerminals,
+      availableTerminalsTrusted,
+      terminalLoading,
+      settingsSyncChannel
+    });
+
+    await expect(settingsWindow.loadAvailableTerminals()).resolves.toBeUndefined();
+    expect(settingsStore.setDefaultTerminal).toHaveBeenCalledWith("powershell");
+    expect(postMessage).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith(
+      "launcher settings sync broadcast failed",
+      expect.any(Error)
+    );
+    warnSpy.mockRestore();
+  });
 });
