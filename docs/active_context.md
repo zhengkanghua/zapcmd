@@ -73,3 +73,4 @@
 - 2026-04-29：高风险执行语义已收口：删除自动清队设置，队列执行只提示“已发送到终端”且默认保留；执行前 fresh preflight 已加互斥，避免重复派发；Rust `cmd/pwsh` 宿主命令显式 fail-fast；Windows elevated 永不复用，普通 `wt` 复用失败会退回新窗口。前端/Settings/Rust 定向与 `typecheck` 已过。
 - 2026-04-29：已确认下一轮设计方向：彻底移除外部终端复用，Settings 只保留默认终端与“始终使用管理员终端”；队列整队提权语义保持不变；settings schema 将升版本并强清理 `terminalReusePolicy`，后续若需复用改走自研终端路线。
 - 2026-04-29：终端复用移除已落地：前端/Store/Rust 已删除 `terminalReusePolicy` 与 Windows reusable session 状态，Settings schema 升到 v3；前端 159 定向测试与 Rust `terminal::tests_exec` 13 测试通过。发布面准备升到 `1.3.0`，后续按 `v1.3.0` tag 走现有 release workflow。
+- 2026-04-29：补修 Windows 编译回归：`src-tauri/src/terminal/commands.rs` 恢复 `windows_routing` 条件导入；Linux Rust 定向 13 测试通过，Windows target 编译已越过原未解析模块错误，后续仅卡在 WSL 缺少 `lib.exe` 交叉工具链。

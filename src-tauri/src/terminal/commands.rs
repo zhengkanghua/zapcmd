@@ -4,6 +4,8 @@ use std::path::Path;
 #[cfg(desktop)]
 use crate::app_state::AppState;
 #[cfg(target_os = "windows")]
+use crate::terminal::windows_routing;
+#[cfg(target_os = "windows")]
 use tauri::Manager;
 
 use super::TerminalExecutionError;
