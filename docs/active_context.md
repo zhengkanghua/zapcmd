@@ -75,3 +75,4 @@
 - 2026-04-29：终端复用移除已落地：前端/Store/Rust 已删除 `terminalReusePolicy` 与 Windows reusable session 状态，Settings schema 升到 v3；前端 159 定向测试与 Rust `terminal::tests_exec` 13 测试通过。发布面准备升到 `1.3.0`，后续按 `v1.3.0` tag 走现有 release workflow。
 - 2026-04-29：补修 Windows 编译回归：`src-tauri/src/terminal/commands.rs` 恢复 `windows_routing` 条件导入；Linux Rust 定向 13 测试通过，Windows target 编译已越过原未解析模块错误，后续仅卡在 WSL 缺少 `lib.exe` 交叉工具链。
 - 2026-04-29：Windows 后端执行入口加固：`run_command_in_terminal` 增加 steps/字段/总字节预算，`cmd` host 的结构化 exec 对控制元字符转义；preflight probe 增加数量/字段预算，超限 fail-closed。相关 Rust 定向与 `cargo check` 通过。
+- 2026-04-29：执行链继续加固：`cmd/wt` exec 空格路径按 Windows argv 引用，PowerShell step 同时检查 `$?` 与 `$LASTEXITCODE` fail-fast；用户命令 `validation.pattern` 超过 512 字符标记为配置错误。

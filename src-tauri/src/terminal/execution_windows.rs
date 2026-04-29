@@ -1,6 +1,7 @@
 use super::execution_common::{
-    build_failed_marker, build_run_marker, sanitize_steps, SanitizedExecutionSpec,
-    SanitizedExecutionStep,
+    build_cmd_safe_windows_process_command, build_failed_marker,
+    build_powershell_step_failure_guard, build_run_marker, sanitize_steps,
+    SanitizedExecutionSpec, SanitizedExecutionStep,
 };
 use super::windows_launch;
 use super::TerminalExecutionError;
@@ -64,26 +65,6 @@ fn escape_cmd_echo_text(value: &str) -> String {
         .join("")
 }
 
-fn escape_cmd_argument(value: &str) -> String {
-    value
-        .chars()
-        .map(|character| match character {
-            '^' => "^^".to_string(),
-            '&' => "^&".to_string(),
-            '|' => "^|".to_string(),
-            '<' => "^<".to_string(),
-            '>' => "^>".to_string(),
-            '(' => "^(".to_string(),
-            ')' => "^)".to_string(),
-            '%' => "^%".to_string(),
-            '!' => "^^!".to_string(),
-            '"' => "^\"".to_string(),
-            _ => character.to_string(),
-        })
-        .collect::<Vec<_>>()
-        .join("")
-}
-
 fn escape_powershell_single_quoted_literal(value: &str) -> String {
     value.replace('\'', "''")
 }
@@ -136,10 +117,7 @@ fn build_windows_process_command(program: &str, args: &[String]) -> String {
 }
 
 fn build_cmd_process_command(program: &str, args: &[String]) -> String {
-    let mut parts = Vec::with_capacity(args.len() + 1);
-    parts.push(escape_cmd_argument(program));
-    parts.extend(args.iter().map(|arg| escape_cmd_argument(arg.as_str())));
-    parts.join(" ")
+    build_cmd_safe_windows_process_command(program, args)
 }
 
 fn build_cmd_script_invocation(
@@ -292,11 +270,11 @@ fn build_powershell_host_command(
         parts.push(build_powershell_step_command(terminal_id, step)?);
         parts.push("$zapcmdSuccess = $?".to_string());
         parts.push("$zapcmdCode = $LASTEXITCODE".to_string());
-        parts.push(format!(
-            "if (-not $zapcmdSuccess) {{ Write-Host {}; if ($null -ne $zapcmdCode -and $zapcmdCode -ne 0) {{ exit $zapcmdCode }}; exit 1 }}",
+        parts.push(build_powershell_step_failure_guard(
             quote_powershell_single_quoted(
                 build_failed_marker(index, total, step.summary.as_str()).as_str()
             )
+            .as_str(),
         ));
     }
 

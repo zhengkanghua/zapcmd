@@ -1,4 +1,7 @@
 use super::{spawn_and_forget, ProcessCommand, TerminalExecutionError};
+use crate::terminal::execution_common::{
+    build_cmd_safe_windows_process_command, build_powershell_step_failure_guard,
+};
 use crate::terminal::execution::sanitize_command;
 use crate::terminal::execution_common::sanitize_steps;
 
@@ -117,6 +120,27 @@ fn sanitize_steps_rejects_oversized_execution_field_at_ipc_boundary() {
 fn spawn_and_forget_propagates_spawn_error() {
     let mut cmd = ProcessCommand::new("definitely-not-a-real-binary-xyz");
     assert!(spawn_and_forget(&mut cmd).is_err());
+}
+
+#[test]
+fn cmd_safe_windows_process_command_quotes_spaced_program_and_arguments() {
+    let command = build_cmd_safe_windows_process_command(
+        r"C:\Program Files\Git\bin\git.exe",
+        &[r"C:\repo with space".to_string(), "status".to_string()],
+    );
+
+    assert!(command.contains(r#""C:\Program Files\Git\bin\git.exe""#));
+    assert!(command.contains(r#""C:\repo with space""#));
+    assert!(command.ends_with(" status"));
+}
+
+#[test]
+fn powershell_step_failure_guard_treats_native_exit_code_as_failure() {
+    let guard = build_powershell_step_failure_guard("'[zapcmd][failed] native command'");
+
+    assert!(guard.contains("-not $zapcmdSuccess"));
+    assert!(guard.contains("$null -ne $zapcmdCode -and $zapcmdCode -ne 0"));
+    assert!(guard.contains("-or"));
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -428,6 +452,23 @@ mod windows {
         assert!(command.contains("echo hello^&calc literal^|more ^%PATH^% ^^!TEMP^^!"));
         assert!(!command.contains("hello&calc"));
         assert!(!command.contains("literal|more"));
+    }
+
+    #[test]
+    fn cmd_exec_step_quotes_spaced_program_and_arguments() {
+        let command = build_windows_host_command(
+            "cmd",
+            &[super::exec_step(
+                "spaced path",
+                r"C:\Program Files\Git\bin\git.exe",
+                &[r"C:\repo with space", "status"],
+            )],
+        )
+        .expect("windows host command should build");
+
+        assert!(command.contains(r#""C:\Program Files\Git\bin\git.exe""#));
+        assert!(command.contains(r#""C:\repo with space""#));
+        assert!(command.contains(" status "));
     }
 }
 

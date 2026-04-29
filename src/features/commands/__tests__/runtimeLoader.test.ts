@@ -668,6 +668,63 @@ describe("runtimeLoader", () => {
     }
   });
 
+  it("keeps command visible but marks it as invalid when arg regex pattern is oversized", () => {
+    const loaded = loadUserCommandTemplatesWithReport(
+      [
+        {
+          path: "C:/Users/test/.zapcmd/commands/oversized-pattern.json",
+          content: JSON.stringify({
+            commands: [
+              {
+                id: "oversized-pattern-command",
+                name: "Oversized Pattern Command",
+                tags: ["test"],
+                category: "custom",
+                platform: "win",
+                exec: {
+                  program: "echo",
+                  args: ["{{value}}"]
+                },
+                adminRequired: false,
+                args: [
+                  {
+                    key: "value",
+                    label: "Value",
+                    type: "text",
+                    required: true,
+                    validation: {
+                      pattern: "a".repeat(513)
+                    }
+                  }
+                ]
+              }
+            ]
+          }),
+          modifiedMs: 1
+        }
+      ],
+      { runtimePlatform: "win" }
+    );
+
+    expect(loaded.templates).toHaveLength(1);
+    expect(loaded.templates[0]).toMatchObject({
+      id: "oversized-pattern-command",
+      blockingIssue: {
+        code: "invalid-arg-pattern"
+      }
+    });
+    expect(loaded.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid-command-config",
+          stage: "command",
+          sourceId: "C:/Users/test/.zapcmd/commands/oversized-pattern.json",
+          commandId: "oversized-pattern-command"
+        })
+      ])
+    );
+  });
+
   it("reports duplicate ids with merge stage reason", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     try {

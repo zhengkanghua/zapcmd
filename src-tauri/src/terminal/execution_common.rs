@@ -34,6 +34,85 @@ pub(crate) fn sanitize_command(command: &str) -> Result<String, TerminalExecutio
     Ok(trimmed.to_string())
 }
 
+#[cfg(any(target_os = "windows", test))]
+fn quote_windows_argument(value: &str) -> String {
+    if value.is_empty() {
+        return "\"\"".to_string();
+    }
+    let needs_quotes = value
+        .chars()
+        .any(|character| character == ' ' || character == '\t' || character == '"');
+    if !needs_quotes {
+        return value.to_string();
+    }
+
+    let mut quoted = String::with_capacity(value.len() + 2);
+    let mut pending_backslashes = 0usize;
+    quoted.push('"');
+
+    for character in value.chars() {
+        match character {
+            '\\' => {
+                pending_backslashes += 1;
+            }
+            '"' => {
+                quoted.push_str(&"\\".repeat(pending_backslashes * 2 + 1));
+                quoted.push('"');
+                pending_backslashes = 0;
+            }
+            _ => {
+                quoted.push_str(&"\\".repeat(pending_backslashes));
+                quoted.push(character);
+                pending_backslashes = 0;
+            }
+        }
+    }
+
+    quoted.push_str(&"\\".repeat(pending_backslashes * 2));
+    quoted.push('"');
+    quoted
+}
+
+#[cfg(any(target_os = "windows", test))]
+fn escape_cmd_control_characters(value: &str) -> String {
+    value
+        .chars()
+        .map(|character| match character {
+            '^' => "^^".to_string(),
+            '&' => "^&".to_string(),
+            '|' => "^|".to_string(),
+            '<' => "^<".to_string(),
+            '>' => "^>".to_string(),
+            '(' => "^(".to_string(),
+            ')' => "^)".to_string(),
+            '%' => "^%".to_string(),
+            '!' => "^^!".to_string(),
+            _ => character.to_string(),
+        })
+        .collect::<Vec<_>>()
+        .join("")
+}
+
+/// 构造可嵌入 `cmd /K` 的 Windows argv 字符串，并保留 cmd 控制字符转义。
+#[cfg(any(target_os = "windows", test))]
+pub(crate) fn build_cmd_safe_windows_process_command(program: &str, args: &[String]) -> String {
+    let mut argv = Vec::with_capacity(args.len() + 1);
+    argv.push(program.to_string());
+    argv.extend(args.iter().cloned());
+    argv.iter()
+        .map(|arg| escape_cmd_control_characters(quote_windows_argument(arg).as_str()))
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+#[cfg(any(target_os = "windows", test))]
+pub(crate) fn build_powershell_step_failure_guard(failed_marker_literal: &str) -> String {
+    format!(
+        "if (-not $zapcmdSuccess -or ($null -ne $zapcmdCode -and $zapcmdCode -ne 0)) {{ Write-Host {}; if ($null -ne $zapcmdCode -and $zapcmdCode -ne 0) {{ exit $zapcmdCode }}; exit 1 }}",
+        failed_marker_literal
+    )
+}
+
 fn reject_oversized_field(value: &str) -> Result<(), TerminalExecutionError> {
     if value.len() > MAX_EXECUTION_FIELD_BYTES {
         return Err(TerminalExecutionError::new(

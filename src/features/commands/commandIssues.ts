@@ -1,6 +1,8 @@
 import { t } from "../../i18n";
 import type { CommandArg, CommandTemplate } from "./types";
 
+const MAX_VALIDATION_PATTERN_LENGTH = 512;
+
 export interface CommandBlockingIssue {
   code: "invalid-arg-pattern" | "stale-command-snapshot";
   message: string;
@@ -18,6 +20,17 @@ function buildInvalidArgPatternIssue(arg: CommandArg): CommandBlockingIssue | nu
   const pattern = arg.validationPattern?.trim();
   if (!pattern) {
     return null;
+  }
+  if (pattern.length > MAX_VALIDATION_PATTERN_LENGTH) {
+    return {
+      code: "invalid-arg-pattern",
+      message: t("execution.invalidCommandConfig"),
+      detail: t("execution.invalidCommandPatternDetail", {
+        label: arg.label,
+        pattern: `${pattern.slice(0, 80)}...`,
+        reason: `pattern length cannot exceed ${MAX_VALIDATION_PATTERN_LENGTH} characters`
+      })
+    };
   }
 
   try {
