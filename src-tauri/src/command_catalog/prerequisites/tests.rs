@@ -1,4 +1,4 @@
-use super::cache::probe_command_prerequisites_with;
+use super::cache::{probe_command_prerequisites_with, validate_probe_request};
 use super::probe::probe_prerequisite_with;
 use super::types::{PrerequisiteProbeInput, ProbeBinaryStatus};
 
@@ -234,6 +234,38 @@ fn probe_command_prerequisites_reuses_binary_probe_results() {
     assert!(results.iter().all(|result| result.ok));
     assert_eq!(binary_calls, 1);
     assert_eq!(env_calls, 0);
+}
+
+#[test]
+fn validate_probe_request_rejects_excessive_prerequisite_count() {
+    let prerequisites = (0..65)
+        .map(|index| PrerequisiteProbeInput {
+            id: format!("binary-{index}"),
+            r#type: "binary".to_string(),
+            required: true,
+            check: "docker".to_string(),
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        validate_probe_request(prerequisites.as_slice()).unwrap_err(),
+        "Prerequisite probe count cannot exceed 64."
+    );
+}
+
+#[test]
+fn validate_probe_request_rejects_oversized_probe_field() {
+    let prerequisites = vec![PrerequisiteProbeInput {
+        id: "oversized".to_string(),
+        r#type: "binary".to_string(),
+        required: true,
+        check: "a".repeat(513),
+    }];
+
+    assert_eq!(
+        validate_probe_request(prerequisites.as_slice()).unwrap_err(),
+        "Prerequisite probe field exceeds maximum size of 512 bytes."
+    );
 }
 
 #[test]

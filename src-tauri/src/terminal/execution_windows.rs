@@ -1,13 +1,10 @@
-use super::TerminalExecutionError;
-use super::TerminalExecutionStep;
 use super::execution_common::{
-    SanitizedExecutionSpec,
+    build_failed_marker, build_run_marker, sanitize_steps, SanitizedExecutionSpec,
     SanitizedExecutionStep,
-    build_failed_marker,
-    build_run_marker,
-    sanitize_steps,
 };
 use super::windows_launch;
+use super::TerminalExecutionError;
+use super::TerminalExecutionStep;
 
 fn encode_base64_chunk(value: u8) -> char {
     const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -49,7 +46,8 @@ fn encode_utf8_to_base64(value: &str) -> String {
 }
 
 fn escape_cmd_echo_text(value: &str) -> String {
-    value.chars()
+    value
+        .chars()
         .map(|character| match character {
             '^' => "^^".to_string(),
             '&' => "^&".to_string(),
@@ -60,6 +58,26 @@ fn escape_cmd_echo_text(value: &str) -> String {
             ')' => "^)".to_string(),
             '%' => "%%".to_string(),
             '!' => "^^!".to_string(),
+            _ => character.to_string(),
+        })
+        .collect::<Vec<_>>()
+        .join("")
+}
+
+fn escape_cmd_argument(value: &str) -> String {
+    value
+        .chars()
+        .map(|character| match character {
+            '^' => "^^".to_string(),
+            '&' => "^&".to_string(),
+            '|' => "^|".to_string(),
+            '<' => "^<".to_string(),
+            '>' => "^>".to_string(),
+            '(' => "^(".to_string(),
+            ')' => "^)".to_string(),
+            '%' => "^%".to_string(),
+            '!' => "^^!".to_string(),
+            '"' => "^\"".to_string(),
             _ => character.to_string(),
         })
         .collect::<Vec<_>>()
@@ -88,11 +106,7 @@ fn build_powershell_array_literal(args: &[String]) -> String {
     }
 }
 
-fn build_powershell_exec_invocation(
-    program: &str,
-    args: &[String],
-    stdin: Option<&str>,
-) -> String {
+fn build_powershell_exec_invocation(program: &str, args: &[String], stdin: Option<&str>) -> String {
     let program_literal = quote_powershell_single_quoted(program);
     let args_literal = build_powershell_array_literal(args);
     let call = if args.is_empty() {
@@ -119,6 +133,13 @@ fn build_windows_process_command(program: &str, args: &[String]) -> String {
     argv.push(program.to_string());
     argv.extend(args.iter().cloned());
     windows_launch::join_windows_arguments(argv.as_slice())
+}
+
+fn build_cmd_process_command(program: &str, args: &[String]) -> String {
+    let mut parts = Vec::with_capacity(args.len() + 1);
+    parts.push(escape_cmd_argument(program));
+    parts.extend(args.iter().map(|arg| escape_cmd_argument(arg.as_str())));
+    parts.join(" ")
 }
 
 fn build_cmd_script_invocation(
@@ -150,9 +171,7 @@ fn build_cmd_script_invocation(
     }
 }
 
-fn build_cmd_step_command(
-    step: &SanitizedExecutionStep,
-) -> Result<String, TerminalExecutionError> {
+fn build_cmd_step_command(step: &SanitizedExecutionStep) -> Result<String, TerminalExecutionError> {
     match &step.execution {
         SanitizedExecutionSpec::Exec {
             program,
@@ -164,10 +183,14 @@ fn build_cmd_step_command(
                 &[
                     "-NoProfile".to_string(),
                     "-Command".to_string(),
-                    build_powershell_exec_invocation(program.as_str(), args.as_slice(), Some(value)),
+                    build_powershell_exec_invocation(
+                        program.as_str(),
+                        args.as_slice(),
+                        Some(value),
+                    ),
                 ],
             ),
-            None => build_windows_process_command(program.as_str(), args.as_slice()),
+            None => build_cmd_process_command(program.as_str(), args.as_slice()),
         }),
         SanitizedExecutionSpec::Script { runner, command } => {
             build_cmd_script_invocation(runner.as_str(), command.as_str())
@@ -223,11 +246,9 @@ fn build_powershell_step_command(
             args.as_slice(),
             stdin.as_deref(),
         )),
-        SanitizedExecutionSpec::Script { runner, command } => build_powershell_script_invocation(
-            host_terminal_id,
-            runner.as_str(),
-            command.as_str(),
-        ),
+        SanitizedExecutionSpec::Script { runner, command } => {
+            build_powershell_script_invocation(host_terminal_id, runner.as_str(), command.as_str())
+        }
     }
 }
 

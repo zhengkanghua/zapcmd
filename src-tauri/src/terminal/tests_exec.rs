@@ -1,15 +1,16 @@
-use crate::terminal::execution::sanitize_command;
 use super::{spawn_and_forget, ProcessCommand, TerminalExecutionError};
+use crate::terminal::execution::sanitize_command;
+use crate::terminal::execution_common::sanitize_steps;
 
 #[cfg(not(target_os = "windows"))]
 use std::process::Child;
 #[cfg(not(target_os = "windows"))]
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
-#[cfg(not(target_os = "windows"))]
 use std::sync::mpsc;
+#[cfg(not(target_os = "windows"))]
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 #[cfg(not(target_os = "windows"))]
 use std::time::Duration;
 
@@ -79,6 +80,40 @@ fn sanitize_command_keeps_structured_invalid_request_error() {
 }
 
 #[test]
+fn sanitize_steps_rejects_excessive_step_count_at_ipc_boundary() {
+    let steps = (0..33)
+        .map(|index| script_step(&format!("step {index}"), "powershell", "Write-Host ok"))
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        sanitize_steps(steps.as_slice()).unwrap_err(),
+        TerminalExecutionError::new("invalid-request", "Execution steps cannot exceed 32.")
+    );
+}
+
+#[test]
+fn sanitize_steps_rejects_oversized_execution_field_at_ipc_boundary() {
+    let oversized_program = "a".repeat(8193);
+    let steps = vec![super::TerminalExecutionStep {
+        summary: "oversized program".to_string(),
+        execution: super::ExecutionSpec::Exec {
+            program: oversized_program,
+            args: vec![],
+            stdin_arg_key: None,
+            stdin: None,
+        },
+    }];
+
+    assert_eq!(
+        sanitize_steps(steps.as_slice()).unwrap_err(),
+        TerminalExecutionError::new(
+            "invalid-request",
+            "Execution field exceeds maximum size of 8192 bytes."
+        )
+    );
+}
+
+#[test]
 fn spawn_and_forget_propagates_spawn_error() {
     let mut cmd = ProcessCommand::new("definitely-not-a-real-binary-xyz");
     assert!(spawn_and_forget(&mut cmd).is_err());
@@ -138,25 +173,16 @@ fn spawn_and_forget_reaps_short_lived_child_without_waiting_for_previous_long_li
 
 #[cfg(target_os = "windows")]
 mod windows {
-    use crate::terminal::{
-        ExecutionSpec,
-        join_windows_arguments,
-        map_windows_launch_error,
-        resolve_windows_terminal_program_from_options,
-        resolve_windows_launch_mode,
-        to_wide,
-        windows_routing::{
-            decide_windows_route,
-            ResolvedTerminalProgram,
-            WindowsRoutingInput,
-            WindowsSessionKind,
-        },
-        WindowsLaunchMode,
-        TerminalExecutionError,
-        TerminalExecutionStep,
-        TerminalOption,
-    };
     use crate::terminal::execution::build_windows_host_command;
+    use crate::terminal::{
+        join_windows_arguments, map_windows_launch_error, resolve_windows_launch_mode,
+        resolve_windows_terminal_program_from_options, to_wide,
+        windows_routing::{
+            decide_windows_route, ResolvedTerminalProgram, WindowsRoutingInput, WindowsSessionKind,
+        },
+        ExecutionSpec, TerminalExecutionError, TerminalExecutionStep, TerminalOption,
+        WindowsLaunchMode,
+    };
     use std::path::PathBuf;
     use std::slice;
     use windows_sys::Win32::Foundation::LocalFree;
@@ -176,7 +202,10 @@ mod windows {
         let raw = to_wide(command_line);
         let mut argument_count = 0i32;
         let arguments = unsafe { CommandLineToArgvW(raw.as_ptr(), &mut argument_count) };
-        assert!(!arguments.is_null(), "CommandLineToArgvW should parse the command line");
+        assert!(
+            !arguments.is_null(),
+            "CommandLineToArgvW should parse the command line"
+        );
 
         let parsed = unsafe { slice::from_raw_parts(arguments, argument_count as usize) }
             .iter()
@@ -225,7 +254,10 @@ mod windows {
         });
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
-        assert_eq!(decision.launch_plan.program, PathBuf::from(r"C:\terminal\wt.exe"));
+        assert_eq!(
+            decision.launch_plan.program,
+            PathBuf::from(r"C:\terminal\wt.exe")
+        );
         assert_eq!(decision.launch_plan.args[1], "new");
     }
 
@@ -253,7 +285,10 @@ mod windows {
             always_elevated: false,
         });
 
-        assert_eq!(resolve_windows_launch_mode(&decision), WindowsLaunchMode::ElevatedViaRunas);
+        assert_eq!(
+            resolve_windows_launch_mode(&decision),
+            WindowsLaunchMode::ElevatedViaRunas
+        );
     }
 
     #[test]
@@ -267,7 +302,10 @@ mod windows {
         });
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
-        assert_eq!(resolve_windows_launch_mode(&decision), WindowsLaunchMode::Direct);
+        assert_eq!(
+            resolve_windows_launch_mode(&decision),
+            WindowsLaunchMode::Direct
+        );
     }
 
     #[test]
@@ -303,11 +341,7 @@ mod windows {
 
     #[test]
     fn windows_argument_join_roundtrips_embedded_quotes_and_trailing_backslashes() {
-        assert_windows_arguments_roundtrip(&[
-            "/V:ON",
-            "/K",
-            r#"echo "C:\Program Files\ZapCmd\\""#,
-        ]);
+        assert_windows_arguments_roundtrip(&["/V:ON", "/K", r#"echo "C:\Program Files\ZapCmd\\""#]);
     }
 
     #[test]
@@ -323,9 +357,7 @@ mod windows {
 
         assert!(command.contains("[zapcmd][run][1/2] git status"));
         assert!(command.contains("[zapcmd][run][2/2] git branch"));
-        assert!(
-            command.contains(" & git status & ") || command.contains(r#" & "git" status & "#)
-        );
+        assert!(command.contains(" & git status & ") || command.contains(r#" & "git" status & "#));
         assert!(command.contains("[zapcmd][failed][2/2] git branch"));
     }
 
@@ -370,11 +402,9 @@ mod windows {
 
     #[test]
     fn cmd_script_step_keeps_cmd_control_shell() {
-        let command = build_windows_host_command(
-            "cmd",
-            &[super::script_step("dir", "cmd", "dir /b")],
-        )
-        .expect("windows host command should build");
+        let command =
+            build_windows_host_command("cmd", &[super::script_step("dir", "cmd", "dir /b")])
+                .expect("windows host command should build");
 
         assert!(command.contains("[zapcmd][run] dir"));
         assert!(command.contains("dir /b"));
@@ -383,6 +413,22 @@ mod windows {
         assert!(command.contains(r#"exit /b !zapcmdCode!"#));
     }
 
+    #[test]
+    fn cmd_exec_step_escapes_cmd_control_metacharacters() {
+        let command = build_windows_host_command(
+            "cmd",
+            &[super::exec_step(
+                "safe echo",
+                "echo",
+                &["hello&calc", "literal|more", "%PATH%", "!TEMP!"],
+            )],
+        )
+        .expect("windows host command should build");
+
+        assert!(command.contains("echo hello^&calc literal^|more ^%PATH^% ^^!TEMP^^!"));
+        assert!(!command.contains("hello&calc"));
+        assert!(!command.contains("literal|more"));
+    }
 }
 
 #[cfg(target_os = "macos")]
@@ -442,28 +488,56 @@ mod linux {
     fn build_linux_gnome_terminal_bash_lc_contract() {
         let cmd = build_command_linux("gnome-terminal", "echo 1");
         assert_command(&cmd, "gnome-terminal", &["--", "bash", "-lc", "echo 1"]);
-        assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+        assert_eq!(
+            command_args(&cmd)
+                .iter()
+                .filter(|arg| *arg == "echo 1")
+                .count(),
+            1
+        );
     }
 
     #[test]
     fn build_linux_konsole_bash_lc_contract() {
         let cmd = build_command_linux("konsole", "echo 1");
         assert_command(&cmd, "konsole", &["-e", "bash", "-lc", "echo 1"]);
-        assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+        assert_eq!(
+            command_args(&cmd)
+                .iter()
+                .filter(|arg| *arg == "echo 1")
+                .count(),
+            1
+        );
     }
 
     #[test]
     fn build_linux_alacritty_bash_lc_contract() {
         let cmd = build_command_linux("alacritty", "echo 1");
         assert_command(&cmd, "alacritty", &["-e", "bash", "-lc", "echo 1"]);
-        assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+        assert_eq!(
+            command_args(&cmd)
+                .iter()
+                .filter(|arg| *arg == "echo 1")
+                .count(),
+            1
+        );
     }
 
     #[test]
     fn build_linux_default_bash_lc_contract() {
         let cmd = build_command_linux("something-else", "echo 1");
-        assert_command(&cmd, "x-terminal-emulator", &["-e", "bash", "-lc", "echo 1"]);
-        assert_eq!(command_args(&cmd).iter().filter(|arg| *arg == "echo 1").count(), 1);
+        assert_command(
+            &cmd,
+            "x-terminal-emulator",
+            &["-e", "bash", "-lc", "echo 1"],
+        );
+        assert_eq!(
+            command_args(&cmd)
+                .iter()
+                .filter(|arg| *arg == "echo 1")
+                .count(),
+            1
+        );
     }
 
     #[test]
@@ -485,10 +559,7 @@ mod linux {
 #[cfg(not(target_os = "windows"))]
 mod windows_routing_logic {
     use crate::terminal::windows_routing::{
-        ResolvedTerminalProgram,
-        WindowsRoutingInput,
-        WindowsSessionKind,
-        decide_windows_route,
+        decide_windows_route, ResolvedTerminalProgram, WindowsRoutingInput, WindowsSessionKind,
     };
     use std::path::PathBuf;
 

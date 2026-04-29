@@ -74,3 +74,4 @@
 - 2026-04-29：已确认下一轮设计方向：彻底移除外部终端复用，Settings 只保留默认终端与“始终使用管理员终端”；队列整队提权语义保持不变；settings schema 将升版本并强清理 `terminalReusePolicy`，后续若需复用改走自研终端路线。
 - 2026-04-29：终端复用移除已落地：前端/Store/Rust 已删除 `terminalReusePolicy` 与 Windows reusable session 状态，Settings schema 升到 v3；前端 159 定向测试与 Rust `terminal::tests_exec` 13 测试通过。发布面准备升到 `1.3.0`，后续按 `v1.3.0` tag 走现有 release workflow。
 - 2026-04-29：补修 Windows 编译回归：`src-tauri/src/terminal/commands.rs` 恢复 `windows_routing` 条件导入；Linux Rust 定向 13 测试通过，Windows target 编译已越过原未解析模块错误，后续仅卡在 WSL 缺少 `lib.exe` 交叉工具链。
+- 2026-04-29：Windows 后端执行入口加固：`run_command_in_terminal` 增加 steps/字段/总字节预算，`cmd` host 的结构化 exec 对控制元字符转义；preflight probe 增加数量/字段预算，超限 fail-closed。相关 Rust 定向与 `cargo check` 通过。
