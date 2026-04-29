@@ -144,18 +144,12 @@ mod windows {
         map_windows_launch_error,
         resolve_windows_terminal_program_from_options,
         resolve_windows_launch_mode,
-        should_retry_windows_launch_without_reuse,
         to_wide,
         windows_routing::{
             decide_windows_route,
             ResolvedTerminalProgram,
-            TerminalReusePolicy,
-            WindowsReusableSessionState,
             WindowsRoutingInput,
             WindowsSessionKind,
-            ZAPCMD_WT_ADMIN_WINDOW_ID,
-            ZAPCMD_WT_WINDOW_ID,
-            update_windows_reusable_session_state,
         },
         WindowsLaunchMode,
         TerminalExecutionError,
@@ -217,24 +211,17 @@ mod windows {
         ResolvedTerminalProgram {
             id: id.to_string(),
             executable_path: PathBuf::from(format!(r"C:\terminal\{}.exe", id)),
-            supports_reuse: id == "wt",
         }
     }
 
     #[test]
-    fn never_policy_does_not_reuse_previous_elevated_lane_for_normal_command() {
-        let reusable_session_state = WindowsReusableSessionState {
-            normal: None,
-            elevated: Some("wt".to_string()),
-        };
+    fn wt_normal_command_always_opens_new_window() {
         let terminal_program = resolved_terminal_program("wt");
         let decision = decide_windows_route(WindowsRoutingInput {
             terminal_program: &terminal_program,
             command: "echo 1",
             requires_elevation: false,
             always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::Never,
-            reusable_session_state: &reusable_session_state,
         });
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
@@ -243,68 +230,44 @@ mod windows {
     }
 
     #[test]
-    fn normal_only_policy_never_reuses_elevated_lane() {
-        let reusable_session_state = WindowsReusableSessionState {
-            normal: None,
-            elevated: Some("wt".to_string()),
-        };
+    fn wt_elevated_command_always_uses_new_window_plan() {
         let terminal_program = resolved_terminal_program("wt");
         let decision = decide_windows_route(WindowsRoutingInput {
             terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: false,
+            command: "net session",
+            requires_elevation: true,
             always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalOnly,
-            reusable_session_state: &reusable_session_state,
         });
 
-        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
-        assert_eq!(decision.launch_plan.args[1], ZAPCMD_WT_WINDOW_ID);
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
+        assert_eq!(decision.launch_plan.args[1], "new");
     }
 
     #[test]
-    fn normal_and_elevated_policy_does_not_reuse_wt_admin_lane_without_live_proof() {
-        let reusable_session_state = WindowsReusableSessionState {
-            normal: None,
-            elevated: Some("wt".to_string()),
-        };
+    fn elevated_route_still_requires_runas_mode() {
         let terminal_program = resolved_terminal_program("wt");
         let decision = decide_windows_route(WindowsRoutingInput {
             terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: false,
+            command: "net session",
+            requires_elevation: true,
             always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
-            reusable_session_state: &reusable_session_state,
         });
 
-        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
-        assert_eq!(decision.launch_plan.args[1], ZAPCMD_WT_WINDOW_ID);
-        assert_eq!(
-            resolve_windows_launch_mode(&decision, &reusable_session_state),
-            WindowsLaunchMode::Direct
-        );
+        assert_eq!(resolve_windows_launch_mode(&decision), WindowsLaunchMode::ElevatedViaRunas);
     }
 
     #[test]
-    fn normal_and_elevated_policy_does_not_treat_non_reusable_terminal_history_as_admin_lane() {
-        let reusable_session_state = WindowsReusableSessionState {
-            normal: None,
-            elevated: Some("pwsh".to_string()),
-        };
+    fn normal_route_uses_direct_mode() {
         let terminal_program = resolved_terminal_program("pwsh");
         let decision = decide_windows_route(WindowsRoutingInput {
             terminal_program: &terminal_program,
             command: "echo 1",
             requires_elevation: false,
             always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
-            reusable_session_state: &reusable_session_state,
         });
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
-        assert!(!decision.reuse_existing_session);
-        assert!(!decision.track_session_state);
+        assert_eq!(resolve_windows_launch_mode(&decision), WindowsLaunchMode::Direct);
     }
 
     #[test]
@@ -319,48 +282,6 @@ mod windows {
             resolve_windows_terminal_program_from_options("ghost", options.as_slice()).unwrap_err(),
             TerminalExecutionError::new("invalid-request", "Unknown terminal id: ghost")
         );
-    }
-
-    #[test]
-    fn only_success_updates_windows_reusable_session_state() {
-        let mut reusable_session_state = WindowsReusableSessionState::default();
-        let ok = Ok(());
-        let error = Err(TerminalExecutionError::new(
-            "elevation-launch-failed",
-            "failed"
-        ));
-
-        update_windows_reusable_session_state(
-            &mut reusable_session_state,
-            WindowsSessionKind::Elevated,
-            "wt",
-            &ok,
-        );
-        assert_eq!(reusable_session_state.elevated, None);
-
-        update_windows_reusable_session_state(
-            &mut reusable_session_state,
-            WindowsSessionKind::Normal,
-            "pwsh",
-            &error,
-        );
-        assert_eq!(reusable_session_state.normal, None);
-        assert_eq!(reusable_session_state.elevated, None);
-    }
-
-    #[test]
-    fn non_reusable_terminal_history_is_not_tracked_as_reusable_session() {
-        let terminal_program = resolved_terminal_program("pwsh");
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: true,
-            always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
-            reusable_session_state: &WindowsReusableSessionState::default(),
-        });
-
-        assert!(!decision.track_session_state);
     }
 
     #[test]
@@ -460,37 +381,6 @@ mod windows {
         assert!(command.contains(r#"set "zapcmdCode=!ERRORLEVEL!""#));
         assert!(command.contains(r#"if not "!zapcmdCode!"=="0" (echo"#));
         assert!(command.contains(r#"exit /b !zapcmdCode!"#));
-    }
-
-    #[test]
-    fn reusable_normal_wt_failure_retries_as_new_window() {
-        let terminal_program = resolved_terminal_program("wt");
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
-            reusable_session_state: &WindowsReusableSessionState {
-                normal: Some("wt".to_string()),
-                elevated: None,
-            },
-        });
-        let error = TerminalExecutionError::new("terminal-launch-failed", "spawn failed");
-
-        assert!(decision.reuse_existing_session);
-        assert!(should_retry_windows_launch_without_reuse(&decision, &error));
-
-        let retry_decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::Never,
-            reusable_session_state: &WindowsReusableSessionState::default(),
-        });
-        assert!(!retry_decision.reuse_existing_session);
-        assert_eq!(retry_decision.launch_plan.args[1], "new");
     }
 
 }
@@ -594,180 +484,44 @@ mod linux {
 
 #[cfg(not(target_os = "windows"))]
 mod windows_routing_logic {
-    use crate::terminal::TerminalExecutionError;
     use crate::terminal::windows_routing::{
         ResolvedTerminalProgram,
-        TerminalReusePolicy,
-        WindowsReusableSessionState,
         WindowsRoutingInput,
         WindowsSessionKind,
         decide_windows_route,
-        should_track_windows_reusable_session,
-        update_windows_reusable_session_state,
     };
-    use crate::terminal::should_retry_windows_launch_without_reuse;
     use std::path::PathBuf;
 
     fn resolved_terminal_program(id: &str) -> ResolvedTerminalProgram {
         ResolvedTerminalProgram {
             id: id.to_string(),
             executable_path: PathBuf::from(format!(r"C:\terminal\{}.exe", id)),
-            supports_reuse: id == "wt",
         }
     }
 
     #[test]
-    fn normal_and_elevated_policy_does_not_treat_non_reusable_terminal_history_as_admin_lane() {
-        let reusable_session_state = WindowsReusableSessionState {
-            normal: None,
-            elevated: Some("pwsh".to_string()),
-        };
+    fn normal_commands_stay_on_normal_lane() {
         let terminal_program = resolved_terminal_program("pwsh");
         let decision = decide_windows_route(WindowsRoutingInput {
             terminal_program: &terminal_program,
             command: "echo 1",
             requires_elevation: false,
             always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
-            reusable_session_state: &reusable_session_state,
         });
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
-        assert!(!decision.reuse_existing_session);
-        assert!(!decision.track_session_state);
     }
 
     #[test]
-    fn never_policy_keeps_non_reusable_terminal_on_normal_lane() {
-        let terminal_program = resolved_terminal_program("pwsh");
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::Never,
-            reusable_session_state: &WindowsReusableSessionState {
-                normal: None,
-                elevated: Some("pwsh".to_string()),
-            },
-        });
-
-        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
-        assert!(!decision.reuse_existing_session);
-    }
-
-    #[test]
-    fn normal_only_policy_keeps_non_reusable_terminal_on_normal_lane() {
-        let terminal_program = resolved_terminal_program("pwsh");
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalOnly,
-            reusable_session_state: &WindowsReusableSessionState {
-                normal: None,
-                elevated: Some("pwsh".to_string()),
-            },
-        });
-
-        assert_eq!(decision.target_session_kind, WindowsSessionKind::Normal);
-        assert!(!decision.reuse_existing_session);
-    }
-
-    #[test]
-    fn reusable_lane_tracking_is_limited_to_true_reusable_terminal_sessions() {
-        let terminal_program = resolved_terminal_program("pwsh");
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: true,
-            always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
-            reusable_session_state: &WindowsReusableSessionState::default(),
-        });
-
-        assert!(!decision.track_session_state);
-        assert!(!should_track_windows_reusable_session(&decision));
-    }
-
-    #[test]
-    fn elevated_wt_lane_is_not_reused_without_live_proof() {
+    fn elevated_commands_stay_on_elevated_lane() {
         let terminal_program = resolved_terminal_program("wt");
-        let reusable_session_state = WindowsReusableSessionState {
-            normal: Some("wt".to_string()),
-            elevated: Some("wt".to_string()),
-        };
         let decision = decide_windows_route(WindowsRoutingInput {
             terminal_program: &terminal_program,
             command: "net session",
             requires_elevation: true,
             always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
-            reusable_session_state: &reusable_session_state,
         });
 
         assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
-        assert!(!decision.reuse_existing_session);
-        assert!(!decision.track_session_state);
-    }
-
-    #[test]
-    fn reusable_normal_wt_failure_should_retry_without_reuse() {
-        let terminal_program = resolved_terminal_program("wt");
-        let decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::NormalOnly,
-            reusable_session_state: &WindowsReusableSessionState {
-                normal: Some("wt".to_string()),
-                elevated: None,
-            },
-        });
-        let error = TerminalExecutionError::new("terminal-launch-failed", "spawn failed");
-
-        assert!(decision.reuse_existing_session);
-        assert!(should_retry_windows_launch_without_reuse(&decision, &error));
-
-        let retry_decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command: "echo 1",
-            requires_elevation: false,
-            always_elevated: false,
-            terminal_reuse_policy: TerminalReusePolicy::Never,
-            reusable_session_state: &WindowsReusableSessionState::default(),
-        });
-
-        assert!(!retry_decision.reuse_existing_session);
-        assert_eq!(retry_decision.target_session_kind, WindowsSessionKind::Normal);
-    }
-
-    #[test]
-    fn only_success_updates_windows_reusable_session_state() {
-        let mut reusable_session_state = WindowsReusableSessionState::default();
-        let ok = Ok(());
-        let error = Err(TerminalExecutionError::new(
-            "elevation-launch-failed",
-            "failed",
-        ));
-
-        update_windows_reusable_session_state(
-            &mut reusable_session_state,
-            WindowsSessionKind::Elevated,
-            "wt",
-            &ok,
-        );
-        assert_eq!(reusable_session_state.elevated, None);
-
-        update_windows_reusable_session_state(
-            &mut reusable_session_state,
-            WindowsSessionKind::Normal,
-            "pwsh",
-            &error,
-        );
-        assert_eq!(reusable_session_state.normal, None);
-        assert_eq!(reusable_session_state.elevated, None);
     }
 }

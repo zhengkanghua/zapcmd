@@ -4,8 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createDefaultSettingsSnapshot,
   type PointerActionFieldId,
-  type SearchResultPointerAction,
-  type TerminalReusePolicy
+  type SearchResultPointerAction
 } from "../../../stores/settingsStore";
 import { createPointerActions } from "../../settings/useSettingsWindow/pointer";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
@@ -13,7 +12,6 @@ import { createSettingsState, type UseSettingsWindowOptions } from "../../settin
 function createOptions() {
   const snapshot = createDefaultSettingsSnapshot();
   const defaultTerminal = ref(snapshot.general.defaultTerminal);
-  const terminalReusePolicy = ref<TerminalReusePolicy>(snapshot.general.terminalReusePolicy);
   const language = ref(snapshot.general.language);
   const autoCheckUpdate = ref(snapshot.general.autoCheckUpdate);
   const launchAtLogin = ref(snapshot.general.launchAtLogin);
@@ -25,7 +23,6 @@ function createOptions() {
     hotkeyDefinitions: [],
     isSettingsWindow: ref(true),
     defaultTerminal,
-    terminalReusePolicy,
     language,
     autoCheckUpdate,
     launchAtLogin,
@@ -54,9 +51,6 @@ function createOptions() {
       }),
       setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
         alwaysElevatedTerminal.value = value;
-      }),
-      setTerminalReusePolicy: vi.fn((value: TerminalReusePolicy) => {
-        terminalReusePolicy.value = value;
       })
     },
     getHotkeyValue: vi.fn(() => ""),

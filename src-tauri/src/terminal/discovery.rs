@@ -163,7 +163,6 @@ pub(crate) fn resolve_windows_terminal_program_from_options(
     Ok(windows_routing::ResolvedTerminalProgram {
         id: option.id.clone(),
         executable_path: PathBuf::from(option.path.as_str()),
-        supports_reuse: option.id == "wt",
     })
 }
 

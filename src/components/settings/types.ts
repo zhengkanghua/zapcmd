@@ -19,8 +19,7 @@ import type { TerminalOption } from "../../features/terminals/fallbackTerminals"
 import type {
   HotkeyFieldId,
   PointerActionFieldId,
-  SearchResultPointerAction,
-  TerminalReusePolicy
+  SearchResultPointerAction
 } from "../../stores/settingsStore";
 import type { AppLocale } from "../../i18n";
 import type { ThemeMeta } from "../../features/themes/themeRegistry";
@@ -61,7 +60,6 @@ export interface SettingsGeneralProps {
   availableTerminals: TerminalOption[];
   terminalLoading: boolean;
   defaultTerminal: string;
-  terminalReusePolicy: TerminalReusePolicy;
   selectedTerminalPath: string;
   language: AppLocale;
   languageOptions: Array<{ value: AppLocale; label: string }>;

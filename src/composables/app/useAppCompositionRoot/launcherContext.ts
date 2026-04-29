@@ -21,7 +21,6 @@ export interface LauncherRuntimeContext {
   hotkeyBindings: ReturnType<typeof useHotkeyBindings>;
   pointerActions: Ref<PointerActionSettings>;
   defaultTerminal: Ref<string>;
-  terminalReusePolicy: Ref<string>;
   language: Ref<string>;
   autoCheckUpdate: Ref<boolean>;
   launchAtLogin: Ref<boolean>;

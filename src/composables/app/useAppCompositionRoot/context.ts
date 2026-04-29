@@ -29,7 +29,6 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     commandCatalog,
     defaultTerminal: settingsScene.defaultTerminal,
     alwaysElevatedTerminal: settingsScene.alwaysElevatedTerminal,
-    terminalReusePolicy: settingsScene.terminalReusePolicy,
     availableTerminals: settingsWindow.availableTerminals,
     availableTerminalsTrusted: settingsWindow.availableTerminalsTrusted,
     persistCorrectedTerminal: createSettingsSyncBroadcaster(
@@ -47,7 +46,6 @@ export function createAppCompositionContext(options: AppCompositionContextOption
     hotkeyBindings: settingsScene.hotkeyBindings,
     pointerActions: settingsScene.pointerActions,
     defaultTerminal: settingsScene.defaultTerminal,
-    terminalReusePolicy: settingsScene.terminalReusePolicy,
     language: settingsScene.language,
     autoCheckUpdate: settingsScene.autoCheckUpdate,
     launchAtLogin: settingsScene.launchAtLogin,

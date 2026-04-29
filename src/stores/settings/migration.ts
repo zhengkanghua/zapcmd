@@ -6,7 +6,6 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_TERMINAL,
-  DEFAULT_TERMINAL_REUSE_POLICY,
   DEFAULT_THEME,
   DEFAULT_WINDOW_OPACITY,
   HOTKEY_FIELD_IDS,
@@ -25,7 +24,6 @@ import {
   normalizeLanguage,
   normalizePointerActions,
   normalizeTerminalId,
-  normalizeTerminalReusePolicy,
   normalizeThemeId,
   normalizeWindowOpacity
 } from "./normalization";
@@ -59,13 +57,6 @@ function extractLanguage(payload: SettingsPayload) {
     return DEFAULT_LANGUAGE;
   }
   return normalizeLanguage(payload.general.language);
-}
-
-function extractTerminalReusePolicy(payload: SettingsPayload) {
-  if (!isRecord(payload.general)) {
-    return DEFAULT_TERMINAL_REUSE_POLICY;
-  }
-  return normalizeTerminalReusePolicy(payload.general.terminalReusePolicy);
 }
 
 function extractAutoCheckUpdate(payload: SettingsPayload): boolean {
@@ -134,7 +125,6 @@ function createSnapshot(payload: SettingsPayload): PersistedSettingsSnapshot {
     hotkeys: normalizeHotkeys(extractHotkeys(payload)),
     general: {
       defaultTerminal: extractDefaultTerminal(payload),
-      terminalReusePolicy: extractTerminalReusePolicy(payload),
       language: extractLanguage(payload),
       autoCheckUpdate: extractAutoCheckUpdate(payload),
       launchAtLogin: extractLaunchAtLogin(payload),
@@ -158,8 +148,11 @@ export function migrateSettingsPayload(payload: unknown): PersistedSettingsSnaps
     return createSnapshot(payload);
   }
 
-  // v1 是本轮 schema 升级前的最后一个稳定快照，需要无条件迁移到 v2。
+  // v1/v2 都是本轮 schema 升级前的稳定快照，需要无条件迁移到 v3 并丢弃已废弃字段。
   if (version === 1) {
+    return createSnapshot(payload);
+  }
+  if (version === 2) {
     return createSnapshot(payload);
   }
 

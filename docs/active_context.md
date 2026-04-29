@@ -71,3 +71,5 @@
 - 2026-04-28：执行语义边界再次确认并入记忆：执行流保持“整队一次投递、同一终端、顺序执行”；只要队列任一步 `adminRequired=true`，整队进入管理员终端。这是明确产品约束，不按缺陷处理。
 - 2026-04-28：storage 边界收口中：settings 启动读取、Launcher session 恢复、startup update 节流读、主窗口默认终端纠正广播均改为 storage 异常降级不崩；定向测试与 typecheck 已通过。
 - 2026-04-29：高风险执行语义已收口：删除自动清队设置，队列执行只提示“已发送到终端”且默认保留；执行前 fresh preflight 已加互斥，避免重复派发；Rust `cmd/pwsh` 宿主命令显式 fail-fast；Windows elevated 永不复用，普通 `wt` 复用失败会退回新窗口。前端/Settings/Rust 定向与 `typecheck` 已过。
+- 2026-04-29：已确认下一轮设计方向：彻底移除外部终端复用，Settings 只保留默认终端与“始终使用管理员终端”；队列整队提权语义保持不变；settings schema 将升版本并强清理 `terminalReusePolicy`，后续若需复用改走自研终端路线。
+- 2026-04-29：终端复用移除已落地：前端/Store/Rust 已删除 `terminalReusePolicy` 与 Windows reusable session 状态，Settings schema 升到 v3；前端 159 定向测试与 Rust `terminal::tests_exec` 13 测试通过。发布面准备升到 `1.3.0`，后续按 `v1.3.0` tag 走现有 release workflow。

@@ -12,7 +12,6 @@ function createProps(
     availableTerminals: [{ id: "powershell", label: "PowerShell", path: "powershell.exe" }],
     terminalLoading: false,
     defaultTerminal: "powershell",
-    terminalReusePolicy: "never" as const,
     selectedTerminalPath: "powershell.exe",
     language: "zh-CN" as const,
     languageOptions: [
@@ -46,8 +45,7 @@ describe("SettingsGeneralSection interactions", () => {
 
     const dropdowns = wrapper.findAllComponents(SDropdown);
     dropdowns[0]!.vm.$emit("update:modelValue", "powershell");
-    dropdowns[1]!.vm.$emit("update:modelValue", "normal-and-elevated");
-    dropdowns[2]!.vm.$emit("update:modelValue", "en-US");
+    dropdowns[1]!.vm.$emit("update:modelValue", "en-US");
     await nextTick();
 
     const toggles = wrapper.findAll(".s-toggle");
@@ -56,11 +54,11 @@ describe("SettingsGeneralSection interactions", () => {
     await toggles[2]!.trigger("click");
 
     expect(wrapper.emitted("select-terminal")?.[0]).toEqual(["powershell"]);
-    expect(wrapper.emitted("set-terminal-reuse-policy")?.[0]).toEqual(["normal-and-elevated"]);
     expect(wrapper.emitted("select-language")?.[0]).toEqual(["en-US"]);
     expect(wrapper.emitted("set-auto-check-update")?.[0]).toEqual([false]);
     expect(wrapper.emitted("set-launch-at-login")?.[0]).toEqual([true]);
     expect(wrapper.emitted("set-always-elevated-terminal")?.[0]).toEqual([true]);
+    expect(wrapper.emitted("set-terminal-reuse-policy")).toBeUndefined();
   });
 
   it("switches terminal dropdown between loading, empty and normal states", async () => {

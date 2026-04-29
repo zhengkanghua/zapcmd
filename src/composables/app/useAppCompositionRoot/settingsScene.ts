@@ -167,7 +167,6 @@ function createSettingsSceneRuntime(params: {
     hotkeyDefinitions: HOTKEY_DEFINITIONS,
     isSettingsWindow: params.options.isSettingsWindow,
     defaultTerminal: settingsRefs.defaultTerminal,
-    terminalReusePolicy: settingsRefs.terminalReusePolicy,
     language: settingsRefs.language,
     autoCheckUpdate: settingsRefs.autoCheckUpdate,
     launchAtLogin: settingsRefs.launchAtLogin,

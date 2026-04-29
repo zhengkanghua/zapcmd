@@ -43,8 +43,6 @@ pub(crate) use self::windows_launch::{
 };
 #[cfg(all(test, target_os = "windows"))]
 pub(crate) use self::discovery::resolve_windows_terminal_program_from_options;
-#[cfg(all(test, not(target_os = "windows")))]
-pub(crate) use self::windows_routing::should_retry_windows_launch_without_reuse;
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub(crate) struct TerminalOption {
@@ -65,11 +63,6 @@ impl TerminalExecutionError {
             code: code.to_string(),
             message: message.into(),
         }
-    }
-
-    #[cfg(any(test, target_os = "windows"))]
-    pub(crate) fn code(&self) -> &str {
-        self.code.as_str()
     }
 }
 

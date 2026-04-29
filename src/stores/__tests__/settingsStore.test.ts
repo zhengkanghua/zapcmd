@@ -78,7 +78,7 @@ describe("settingsStore migration and persistence", () => {
   it("defaults pointerActions to left action-panel and right stage", () => {
     const snapshot = createDefaultSettingsSnapshot();
 
-    expect(snapshot.version).toBe(2);
+    expect(snapshot.version).toBe(3);
     expect((snapshot.general as Record<string, unknown>).pointerActions).toEqual({
       leftClick: "action-panel",
       rightClick: "stage"
@@ -94,7 +94,7 @@ describe("settingsStore migration and persistence", () => {
       general: { defaultTerminal: "pwsh" }
     });
 
-    expect(migrated?.version).toBe(2);
+    expect(migrated?.version).toBe(3);
     expect((migrated?.general as Record<string, unknown>).pointerActions).toEqual({
       leftClick: "action-panel",
       rightClick: "stage"
@@ -113,10 +113,8 @@ describe("settingsStore migration and persistence", () => {
     );
   });
 
-  it("defaults terminalReusePolicy to never", () => {
-    expect((createDefaultSettingsSnapshot().general as Record<string, unknown>).terminalReusePolicy).toBe(
-      "never"
-    );
+  it("does not include terminalReusePolicy in default snapshot", () => {
+    expect("terminalReusePolicy" in createDefaultSettingsSnapshot().general).toBe(false);
   });
 
   it("migrates alwaysElevatedTerminal from legacy payload", () => {
@@ -128,15 +126,13 @@ describe("settingsStore migration and persistence", () => {
     expect(migrated?.general.alwaysElevatedTerminal).toBe(true);
   });
 
-  it("migrates terminalReusePolicy from legacy payload", () => {
+  it("drops terminalReusePolicy from legacy payload during migration", () => {
     const migrated = migrateSettingsPayload({
       version: 1,
       general: { terminalReusePolicy: "normal-and-elevated" }
     });
 
-    expect((migrated?.general as Record<string, unknown>).terminalReusePolicy).toBe(
-      "normal-and-elevated"
-    );
+    expect("terminalReusePolicy" in (migrated?.general as Record<string, unknown>)).toBe(false);
   });
 
   it("migrates missing appearance.motionPreset to expressive", () => {
@@ -296,17 +292,10 @@ describe("settingsStore migration and persistence", () => {
     expect(store.toSnapshot().general.alwaysElevatedTerminal).toBe(true);
   });
 
-  it("persists terminalReusePolicy in snapshot", () => {
+  it("does not persist terminalReusePolicy in snapshot", () => {
     const store = useSettingsStore();
-    const storeWithTerminalReusePolicy = store as typeof store & {
-      setTerminalReusePolicy?: (value: string) => void;
-    };
 
-    storeWithTerminalReusePolicy.setTerminalReusePolicy?.("normal-only");
-
-    expect((store.toSnapshot().general as Record<string, unknown>).terminalReusePolicy).toBe(
-      "normal-only"
-    );
+    expect("terminalReusePolicy" in (store.toSnapshot().general as Record<string, unknown>)).toBe(false);
   });
 
   it("persists commands snapshot without transient view state", () => {

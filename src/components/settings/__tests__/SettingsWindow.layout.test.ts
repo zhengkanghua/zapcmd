@@ -67,7 +67,6 @@ function createSettingsWindowProps(
     availableTerminals: [terminalOption],
     terminalLoading: false,
     defaultTerminal: terminalOption.id,
-    terminalReusePolicy: "never",
     selectedTerminalPath: terminalOption.path,
     language: defaults.general.language,
     languageOptions: [
@@ -232,7 +231,6 @@ describe("SettingsWindow stable shell", () => {
               "<button class='auto-update-stub' @click=\"$emit('set-auto-check-update', false)\">auto</button>" +
               "<button class='login-stub' @click=\"$emit('set-launch-at-login', true)\">login</button>" +
               "<button class='elevated-stub' @click=\"$emit('set-always-elevated-terminal', true)\">elevated</button>" +
-              "<button class='reuse-stub' @click=\"$emit('set-terminal-reuse-policy', 'normal-only')\">reuse</button>" +
               "</div>"
           },
           SettingsCommandsSection: {
@@ -277,13 +275,12 @@ describe("SettingsWindow stable shell", () => {
     await wrapper.get(".auto-update-stub").trigger("click");
     await wrapper.get(".login-stub").trigger("click");
     await wrapper.get(".elevated-stub").trigger("click");
-    await wrapper.get(".reuse-stub").trigger("click");
     expect(wrapper.emitted("select-terminal")?.[0]).toEqual(["wt"]);
     expect(wrapper.emitted("select-language")?.[0]).toEqual(["en-US"]);
     expect(wrapper.emitted("set-auto-check-update")?.[0]).toEqual([false]);
     expect(wrapper.emitted("set-launch-at-login")?.[0]).toEqual([true]);
     expect(wrapper.emitted("set-always-elevated-terminal")?.[0]).toEqual([true]);
-    expect(wrapper.emitted("set-terminal-reuse-policy")?.[0]).toEqual(["normal-only"]);
+    expect(wrapper.emitted("set-terminal-reuse-policy")).toBeUndefined();
 
     await wrapper.setProps({ settingsRoute: "commands" });
     await wrapper.get(".toggle-command-stub").trigger("click");

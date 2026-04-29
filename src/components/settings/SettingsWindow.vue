@@ -4,8 +4,7 @@ import type { CommandManagementViewState, SettingsRoute } from "../../features/s
 import type {
   HotkeyFieldId,
   PointerActionFieldId,
-  SearchResultPointerAction,
-  TerminalReusePolicy
+  SearchResultPointerAction
 } from "../../stores/settingsStore";
 import { useI18nText, type AppLocale } from "../../i18n";
 import SettingsAppearanceSection from "./parts/SettingsAppearanceSection.vue";
@@ -43,7 +42,6 @@ const emit = defineEmits<{
   (e: "set-auto-check-update", value: boolean): void;
   (e: "set-launch-at-login", value: boolean): void;
   (e: "set-always-elevated-terminal", value: boolean): void;
-  (e: "set-terminal-reuse-policy", value: TerminalReusePolicy): void;
   (e: "toggle-command-enabled", commandId: string, enabled: boolean): void;
   (e: "set-filtered-commands-enabled", enabled: boolean): void;
   (e: "update-command-view", patch: Partial<CommandManagementViewState>): void;
@@ -108,7 +106,6 @@ const emit = defineEmits<{
             :available-terminals="props.availableTerminals"
             :terminal-loading="props.terminalLoading"
             :default-terminal="props.defaultTerminal"
-            :terminal-reuse-policy="props.terminalReusePolicy"
             :selected-terminal-path="props.selectedTerminalPath"
             :language="props.language"
             :language-options="props.languageOptions"
@@ -123,7 +120,6 @@ const emit = defineEmits<{
             @set-auto-check-update="emit('set-auto-check-update', $event)"
             @set-launch-at-login="emit('set-launch-at-login', $event)"
             @set-always-elevated-terminal="emit('set-always-elevated-terminal', $event)"
-            @set-terminal-reuse-policy="emit('set-terminal-reuse-policy', $event)"
           />
           <SettingsCommandsSection
             v-else-if="settingsRoute === 'commands'"

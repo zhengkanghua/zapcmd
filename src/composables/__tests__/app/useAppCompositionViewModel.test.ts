@@ -52,7 +52,6 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
   const themeManager = createDeepStub();
   const motionPresetManager = createDeepStub();
   const defaultTerminal = ref("powershell");
-  const terminalReusePolicy = ref("never");
   const language = ref("zh-CN");
   const autoCheckUpdate = ref(true);
   const launchAtLogin = ref(false);
@@ -89,7 +88,6 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     themeManager,
     motionPresetManager,
     defaultTerminal,
-    terminalReusePolicy,
     language,
     autoCheckUpdate,
     launchAtLogin,
@@ -140,7 +138,6 @@ function createContextStub(options: { runtimePlatform?: ReturnType<typeof ref> }
     themeManager,
     motionPresetManager,
     defaultTerminal,
-    terminalReusePolicy,
     language,
     autoCheckUpdate,
     launchAtLogin,

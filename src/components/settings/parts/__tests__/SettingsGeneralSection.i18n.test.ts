@@ -16,7 +16,6 @@ describe("SettingsGeneralSection i18n", () => {
         availableTerminals: [{ id: "powershell", label: "PowerShell", path: "powershell.exe" }],
         terminalLoading: false,
         defaultTerminal: "powershell",
-        terminalReusePolicy: "never",
         selectedTerminalPath: "powershell.exe",
         language: "zh-CN",
         languageOptions: [
@@ -37,11 +36,9 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("界面");
     expect(wrapper.text()).toContain("默认终端");
     expect(wrapper.text()).toContain("重新扫描终端");
-    expect(wrapper.text()).toContain("终端复用策略");
-    expect(wrapper.text()).toContain("当前仅 Windows 生效");
-    expect(wrapper.text()).toContain("管理员终端也会复用");
     expect(wrapper.text()).toContain("始终调用管理员权限终端");
-    expect(wrapper.findAll(".setting-item")).toHaveLength(7);
+    expect(wrapper.text()).not.toContain("终端复用策略");
+    expect(wrapper.findAll(".setting-item")).toHaveLength(6);
     expect(wrapper.find(".setting-item__description").exists()).toBe(true);
     const trigger = wrapper.get(".s-dropdown__trigger");
     expect(trigger.text()).toContain("PowerShell");
@@ -59,10 +56,8 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("Interface");
     expect(wrapper.text()).toContain("Default terminal");
     expect(wrapper.text()).toContain("Rescan terminals");
-    expect(wrapper.text()).toContain("Terminal reuse policy");
-    expect(wrapper.text()).toContain("Windows only");
-    expect(wrapper.text()).toContain("Elevated terminals can also be reused");
     expect(wrapper.text()).toContain("Always use elevated terminal");
+    expect(wrapper.text()).not.toContain("Terminal reuse policy");
   });
 
   it("hides elevated terminal toggle outside windows", () => {
@@ -71,7 +66,6 @@ describe("SettingsGeneralSection i18n", () => {
         availableTerminals: [{ id: "powershell", label: "PowerShell", path: "powershell.exe" }],
         terminalLoading: false,
         defaultTerminal: "powershell",
-        terminalReusePolicy: "never",
         selectedTerminalPath: "powershell.exe",
         language: "zh-CN",
         languageOptions: [
@@ -87,6 +81,6 @@ describe("SettingsGeneralSection i18n", () => {
     });
 
     expect(wrapper.text()).not.toContain("始终调用管理员权限终端");
-    expect(wrapper.findAll(".setting-item")).toHaveLength(6);
+    expect(wrapper.findAll(".setting-item")).toHaveLength(5);
   });
 });

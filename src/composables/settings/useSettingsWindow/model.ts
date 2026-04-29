@@ -8,8 +8,7 @@ import type {
   PointerActionFieldId,
   PointerActionSettings,
   PersistedSettingsSnapshot,
-  SearchResultPointerAction,
-  TerminalReusePolicy
+  SearchResultPointerAction
 } from "../../../stores/settingsStore";
 
 export interface HotkeyEntry extends HotkeyFieldDefinition {
@@ -28,7 +27,6 @@ interface SettingsStoreLike {
   setAutoCheckUpdate: (value: boolean) => void;
   setLaunchAtLogin: (value: boolean) => void;
   setAlwaysElevatedTerminal: (value: boolean) => void;
-  setTerminalReusePolicy: (value: TerminalReusePolicy) => void;
 }
 
 export interface SettingsValidationIssue {
@@ -43,7 +41,6 @@ export interface UseSettingsWindowOptions {
   hotkeyDefinitions: HotkeyFieldDefinition[];
   isSettingsWindow: Ref<boolean>;
   defaultTerminal: Ref<string>;
-  terminalReusePolicy: Ref<TerminalReusePolicy>;
   language: Ref<AppLocale>;
   autoCheckUpdate: Ref<boolean>;
   launchAtLogin: Ref<boolean>;

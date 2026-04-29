@@ -4,8 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { HotkeyFieldDefinition } from "../../../features/settings/types";
 import {
   createDefaultSettingsSnapshot,
-  type HotkeyFieldId,
-  type TerminalReusePolicy
+  type HotkeyFieldId
 } from "../../../stores/settingsStore";
 import { createSettingsState, type UseSettingsWindowOptions } from "../../settings/useSettingsWindow/model";
 import { createTerminalActions } from "../../settings/useSettingsWindow/terminal";
@@ -22,7 +21,6 @@ type TerminalTestOptions = UseSettingsWindowOptions & {
 function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTestOptions {
   const baseSnapshot = createDefaultSettingsSnapshot();
   const defaultTerminal = ref("ghost");
-  const terminalReusePolicy = ref<TerminalReusePolicy>("never");
   const language = ref<"zh-CN" | "en-US">("zh-CN");
   const autoCheckUpdate = ref(true);
   const launchAtLogin = ref(false);
@@ -48,9 +46,6 @@ function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTe
     }),
     setAutoCheckUpdate: vi.fn((value: boolean) => {
       autoCheckUpdate.value = value;
-    }),
-    setTerminalReusePolicy: vi.fn((value: TerminalReusePolicy) => {
-      terminalReusePolicy.value = value;
     })
   };
 
@@ -63,7 +58,6 @@ function createOptions(overrides: Partial<TerminalTestOptions> = {}): TerminalTe
     hotkeyDefinitions,
     isSettingsWindow: ref(true),
     defaultTerminal,
-    terminalReusePolicy,
     language,
     autoCheckUpdate,
     launchAtLogin,

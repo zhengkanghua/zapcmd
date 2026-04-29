@@ -6,13 +6,11 @@ import {
   type CommandExecutor,
   type StructuredTerminalExecutionStep
 } from "../../services/commandExecutor";
-import type { TerminalReusePolicy } from "../../stores/settingsStore";
 
 interface UseTerminalExecutionOptions {
   commandExecutor: CommandExecutor;
   defaultTerminal: Ref<string>;
   alwaysElevatedTerminal: Ref<boolean>;
-  terminalReusePolicy: Ref<TerminalReusePolicy>;
   availableTerminals: Ref<TerminalOption[]>;
   availableTerminalsTrusted: Ref<boolean>;
   fallbackTerminalOptions: () => TerminalOption[];
@@ -144,8 +142,7 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
     const baseRequest = {
       steps: params.steps,
       requiresElevation: params.requiresElevation,
-      alwaysElevated: options.alwaysElevatedTerminal.value,
-      terminalReusePolicy: options.terminalReusePolicy.value
+      alwaysElevated: options.alwaysElevatedTerminal.value
     };
 
     try {
@@ -176,11 +173,9 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
     if (summary.length === 0) {
       throw new Error("Command summary cannot be empty.");
     }
-
-    // 前端统一透传 reuse policy；当前只有 Windows 后端真正消费，其他平台保持无条件忽略。
     await runTerminalRequest({
       steps: [step],
-      requiresElevation: executionOptions.requiresElevation === true,
+      requiresElevation: executionOptions.requiresElevation === true
     });
   }
 
@@ -192,11 +187,9 @@ export function useTerminalExecution(options: UseTerminalExecutionOptions) {
     if (normalizedSteps.length === 0) {
       throw new Error("No executable commands in queue.");
     }
-
-    // 批量执行与单条执行共享同一契约，避免前端再按平台分叉 reuse policy 行为。
     await runTerminalRequest({
       steps: normalizedSteps,
-      requiresElevation: executionOptions.requiresElevation === true,
+      requiresElevation: executionOptions.requiresElevation === true
     });
   }
 

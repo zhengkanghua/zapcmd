@@ -56,7 +56,7 @@ describe("createCommandExecutor", () => {
     });
   });
 
-  it("passes terminalReusePolicy through tauri invoke payload", async () => {
+  it("does not include terminalReusePolicy in tauri invoke payload", async () => {
     isTauriMock.mockReturnValue(true);
     const executor = createCommandExecutor();
 
@@ -73,8 +73,7 @@ describe("createCommandExecutor", () => {
         }
       ],
       requiresElevation: true,
-      alwaysElevated: false,
-      terminalReusePolicy: "normal-only"
+      alwaysElevated: false
     });
 
     expect(invokeMock).toHaveBeenCalledWith("run_command_in_terminal", {
@@ -90,8 +89,7 @@ describe("createCommandExecutor", () => {
         }
       ],
       requiresElevation: true,
-      alwaysElevated: false,
-      terminalReusePolicy: "normal-only"
+      alwaysElevated: false
     });
   });
 

@@ -6,8 +6,7 @@ import {
   createDefaultSettingsSnapshot,
   type HotkeyFieldId,
   type PointerActionFieldId,
-  type SearchResultPointerAction,
-  type TerminalReusePolicy
+  type SearchResultPointerAction
 } from "../../../stores/settingsStore";
 import { createPersistenceActions } from "../../settings/useSettingsWindow/persistence";
 import { createTerminalActions } from "../../settings/useSettingsWindow/terminal";
@@ -24,7 +23,6 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
 
   const baseSnapshot = createDefaultSettingsSnapshot();
   const defaultTerminal = overrides.defaultTerminal ?? ref("powershell");
-  const terminalReusePolicy = overrides.terminalReusePolicy ?? ref<TerminalReusePolicy>("never");
   const language = overrides.language ?? ref<"zh-CN" | "en-US">("zh-CN");
   const autoCheckUpdate = overrides.autoCheckUpdate ?? ref(true);
   const launchAtLogin = overrides.launchAtLogin ?? ref(false);
@@ -48,7 +46,6 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
       general: {
         ...baseSnapshot.general,
         defaultTerminal: "powershell",
-        terminalReusePolicy: "never" as const,
         language: "zh-CN" as const,
         autoCheckUpdate: true,
         launchAtLogin: false
@@ -73,9 +70,6 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     }),
     setAutoCheckUpdate: vi.fn((value: boolean) => {
       autoCheckUpdate.value = value;
-    }),
-    setTerminalReusePolicy: vi.fn((value: TerminalReusePolicy) => {
-      terminalReusePolicy.value = value;
     })
   };
 
@@ -84,7 +78,6 @@ function createHarness(overrides: Partial<UseSettingsWindowOptions> = {}) {
     hotkeyDefinitions,
     isSettingsWindow: ref(true),
     defaultTerminal,
-    terminalReusePolicy,
     language,
     autoCheckUpdate,
     launchAtLogin,

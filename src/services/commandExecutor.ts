@@ -1,7 +1,6 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { t } from "../i18n";
 import type { ResolvedCommandExecution } from "../features/commands/types";
-import type { TerminalReusePolicy } from "../stores/settingsStore";
 
 export interface StructuredTerminalExecutionStep {
   summary: string;
@@ -13,7 +12,6 @@ export interface CommandExecutionRequest {
   steps: StructuredTerminalExecutionStep[];
   requiresElevation?: boolean;
   alwaysElevated?: boolean;
-  terminalReusePolicy?: TerminalReusePolicy;
 }
 
 export interface CommandExecutor {
@@ -48,16 +46,12 @@ class TauriCommandExecutor implements CommandExecutor {
         steps: StructuredTerminalExecutionStep[];
         requiresElevation: boolean;
         alwaysElevated: boolean;
-        terminalReusePolicy?: TerminalReusePolicy;
       } = {
         terminalId: request.terminalId,
         steps: request.steps,
         requiresElevation: request.requiresElevation ?? false,
         alwaysElevated: request.alwaysElevated ?? false
       };
-      if (request.terminalReusePolicy) {
-        payload.terminalReusePolicy = request.terminalReusePolicy;
-      }
 
       await invoke("run_command_in_terminal", payload);
     } catch (error) {

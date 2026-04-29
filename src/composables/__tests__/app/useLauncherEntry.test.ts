@@ -167,7 +167,6 @@ function createStore() {
     hotkeys: ref({ launcher: "Ctrl+K" }),
     pointerActions: ref({ leftClick: "execute", rightClick: "stage" }),
     defaultTerminal: ref("missing-terminal"),
-    terminalReusePolicy: ref("never"),
     language: ref("zh-CN"),
     autoCheckUpdate: ref(true),
     launchAtLogin: ref(false),

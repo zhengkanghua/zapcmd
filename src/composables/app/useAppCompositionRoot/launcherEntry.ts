@@ -57,7 +57,6 @@ export function useLauncherEntry(options: UseLauncherEntryOptions = {}) {
     commandCatalog,
     defaultTerminal: settingsRefs.defaultTerminal,
     alwaysElevatedTerminal: settingsRefs.alwaysElevatedTerminal,
-    terminalReusePolicy: settingsRefs.terminalReusePolicy,
     availableTerminals,
     availableTerminalsTrusted,
     persistCorrectedTerminal: createSettingsSyncBroadcaster(
@@ -75,7 +74,6 @@ export function useLauncherEntry(options: UseLauncherEntryOptions = {}) {
     hotkeyBindings,
     pointerActions: settingsRefs.pointerActions,
     defaultTerminal: settingsRefs.defaultTerminal,
-    terminalReusePolicy: settingsRefs.terminalReusePolicy,
     language: settingsRefs.language,
     autoCheckUpdate: settingsRefs.autoCheckUpdate,
     launchAtLogin: settingsRefs.launchAtLogin,

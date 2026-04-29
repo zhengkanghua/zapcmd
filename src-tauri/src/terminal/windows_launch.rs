@@ -13,10 +13,7 @@ use super::launch_posix::{spawn_and_forget, terminal_launch_failed};
 use super::windows_routing::{
     decide_windows_route,
     ResolvedTerminalProgram,
-    should_retry_windows_launch_without_reuse,
-    TerminalReusePolicy,
     WindowsLaunchPlan,
-    WindowsReusableSessionState,
     WindowsRoutingDecision,
     WindowsRoutingInput,
     WindowsSessionKind,
@@ -105,16 +102,8 @@ pub(crate) fn map_windows_launch_error(code: u32) -> TerminalExecutionError {
 
 pub(crate) fn resolve_windows_launch_mode(
     decision: &WindowsRoutingDecision,
-    reusable_session_state: &WindowsReusableSessionState,
 ) -> WindowsLaunchMode {
     if decision.target_session_kind == WindowsSessionKind::Normal {
-        return WindowsLaunchMode::Direct;
-    }
-
-    if decision.reuse_existing_session
-        && decision.terminal_program_id == "wt"
-        && reusable_session_state.elevated.as_deref() == Some("wt")
-    {
         return WindowsLaunchMode::Direct;
     }
 
@@ -149,9 +138,8 @@ fn spawn_windows_launch_plan_elevated(
 
 fn dispatch_windows_routing_decision(
     decision: &WindowsRoutingDecision,
-    reusable_session_state: &WindowsReusableSessionState,
 ) -> Result<(), TerminalExecutionError> {
-    match resolve_windows_launch_mode(decision, reusable_session_state) {
+    match resolve_windows_launch_mode(decision) {
         WindowsLaunchMode::Direct => spawn_windows_launch_plan(&decision.launch_plan),
         WindowsLaunchMode::ElevatedViaRunas => {
             spawn_windows_launch_plan_elevated(&decision.launch_plan)
@@ -160,36 +148,17 @@ fn dispatch_windows_routing_decision(
 }
 
 pub(super) fn run_command_windows(
-    reusable_session_state: WindowsReusableSessionState,
     terminal_program: ResolvedTerminalProgram,
     command: &str,
     requires_elevation: bool,
     always_elevated: bool,
-    terminal_reuse_policy: TerminalReusePolicy,
 ) -> Result<WindowsRoutingDecision, TerminalExecutionError> {
     let decision = decide_windows_route(WindowsRoutingInput {
         terminal_program: &terminal_program,
         command,
         requires_elevation,
         always_elevated,
-        terminal_reuse_policy,
-        reusable_session_state: &reusable_session_state,
     });
-    if let Err(error) = dispatch_windows_routing_decision(&decision, &reusable_session_state) {
-        if !should_retry_windows_launch_without_reuse(&decision, &error) {
-            return Err(error);
-        }
-
-        let retry_decision = decide_windows_route(WindowsRoutingInput {
-            terminal_program: &terminal_program,
-            command,
-            requires_elevation,
-            always_elevated,
-            terminal_reuse_policy: TerminalReusePolicy::Never,
-            reusable_session_state: &WindowsReusableSessionState::default(),
-        });
-        dispatch_windows_routing_decision(&retry_decision, &WindowsReusableSessionState::default())?;
-        return Ok(retry_decision);
-    }
+    dispatch_windows_routing_decision(&decision)?;
     Ok(decision)
 }

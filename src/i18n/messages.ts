@@ -150,15 +150,6 @@ export const messages = {
         terminalPathNotFound: "未检测到路径",
         language: "界面语言",
         terminalHint: "命令默认会发送到此终端；需要管理员权限时，将由系统拉起对应终端。",
-        terminalReusePolicy: "终端复用策略",
-        terminalReusePolicyHint:
-          "控制 ZapCmd 是否复用最近一次打开的终端窗口。当前仅 Windows 生效，其他平台会忽略此设置。",
-        terminalReusePolicyNever: "从不复用",
-        terminalReusePolicyNeverHint: "每次执行都打开新的终端窗口，隔离最好。",
-        terminalReusePolicyNormalOnly: "仅复用普通终端",
-        terminalReusePolicyNormalOnlyHint: "普通终端可复用；管理员终端始终新开，避免权限串线。",
-        terminalReusePolicyNormalAndElevated: "普通与管理员终端都复用",
-        terminalReusePolicyNormalAndElevatedHint: "管理员终端也会复用；执行更快，但要注意权限上下文。",
         alwaysElevatedTerminal: "始终调用管理员权限终端",
         alwaysElevatedTerminalHint:
           "开启后，所有命令都会通过管理员终端运行；关闭时，仅在命令或队列需要管理员权限时才触发系统提权。",
@@ -578,17 +569,6 @@ export const messages = {
         language: "Language",
         terminalHint:
           "Commands are sent to this terminal by default. When elevation is required, Windows opens the matching terminal with system elevation.",
-        terminalReusePolicy: "Terminal reuse policy",
-        terminalReusePolicyHint:
-          "Controls whether ZapCmd reuses the most recently opened terminal window. Windows only for now; other platforms ignore this setting.",
-        terminalReusePolicyNever: "Never reuse",
-        terminalReusePolicyNeverHint: "Always open a fresh terminal window for the strongest isolation.",
-        terminalReusePolicyNormalOnly: "Reuse normal terminals only",
-        terminalReusePolicyNormalOnlyHint:
-          "Normal terminals can be reused. Elevated terminals always open new to avoid privilege bleed.",
-        terminalReusePolicyNormalAndElevated: "Reuse normal and elevated terminals",
-        terminalReusePolicyNormalAndElevatedHint:
-          "Elevated terminals can also be reused. Faster, but privilege context persists.",
         alwaysElevatedTerminal: "Always use elevated terminal",
         alwaysElevatedTerminalHint:
           "When enabled, every command runs in an elevated terminal. When disabled, elevation is requested only when a command or flow needs it.",

@@ -2,7 +2,6 @@ import { ref } from "vue";
 import { describe, expect, it, vi } from "vitest";
 import { useTerminalExecution } from "../../launcher/useTerminalExecution";
 import { CommandExecutionError } from "../../../services/commandExecutor";
-import type { TerminalReusePolicy } from "../../../stores/settingsStore";
 
 type TestTerminalOption = { id: string; label: string; path: string };
 
@@ -18,12 +17,10 @@ interface ExecutionHarnessOptions {
 function createExecutionHarness(
   initialTerminalId: string,
   alwaysElevated = false,
-  initialTerminalReusePolicy: TerminalReusePolicy = "never",
   options: ExecutionHarnessOptions = {}
 ) {
   const run = vi.fn(async () => {});
   const defaultTerminal = ref(initialTerminalId);
-  const terminalReusePolicy = ref(initialTerminalReusePolicy);
   const availableTerminals = ref<TestTerminalOption[]>(
     options.initialAvailableTerminals ?? []
   );
@@ -39,7 +36,6 @@ function createExecutionHarness(
     commandExecutor: { run },
     defaultTerminal,
     alwaysElevatedTerminal: ref(alwaysElevated),
-    terminalReusePolicy,
     availableTerminals,
     availableTerminalsTrusted,
     fallbackTerminalOptions: () => options.fallbackTerminalOptions ?? [],
@@ -51,7 +47,6 @@ function createExecutionHarness(
   return {
     run,
     defaultTerminal,
-    terminalReusePolicy,
     availableTerminals,
     availableTerminalsTrusted,
     readAvailableTerminals,
@@ -103,8 +98,7 @@ describe("useTerminalExecution", () => {
         }
       ],
       requiresElevation: false,
-      alwaysElevated: false,
-      terminalReusePolicy: "never"
+      alwaysElevated: false
     });
   });
 
@@ -130,8 +124,7 @@ describe("useTerminalExecution", () => {
         }
       ],
       requiresElevation: true,
-      alwaysElevated: true,
-      terminalReusePolicy: "never"
+      alwaysElevated: true
     });
   });
 
@@ -164,8 +157,7 @@ describe("useTerminalExecution", () => {
         }
       ],
       requiresElevation: false,
-      alwaysElevated: false,
-      terminalReusePolicy: "never"
+      alwaysElevated: false
     });
   });
 
@@ -198,8 +190,7 @@ describe("useTerminalExecution", () => {
         }
       ],
       requiresElevation: false,
-      alwaysElevated: false,
-      terminalReusePolicy: "never"
+      alwaysElevated: false
     });
   });
 
@@ -224,8 +215,7 @@ describe("useTerminalExecution", () => {
         }
       ],
       requiresElevation: true,
-      alwaysElevated: true,
-      terminalReusePolicy: "never"
+      alwaysElevated: true
     });
   });
 
@@ -252,27 +242,22 @@ describe("useTerminalExecution", () => {
     expect(persistCorrectedTerminal).toHaveBeenCalledTimes(1);
   });
 
-  it("passes terminal reuse policy to executor requests", async () => {
-    const { run, execution } = createExecutionHarness("wt", false, "normal-only");
+  it("does not pass terminal reuse policy to executor requests", async () => {
+    const { run, execution } = createExecutionHarness("wt", false);
 
     await execution.runCommandInTerminal(createExecStep("dir", "cmd", ["/c", "dir"]));
 
     expect(run).toHaveBeenCalledWith(
-      expect.objectContaining({
-        terminalReusePolicy: "normal-only"
+      expect.not.objectContaining({
+        terminalReusePolicy: expect.anything()
       })
     );
   });
 
-  it("passes terminal reuse policy for queue requests without frontend platform branching", async () => {
-    const { run, readAvailableTerminals, execution } = createExecutionHarness(
-      "wt",
-      false,
-      "normal-only",
-      {
-        isTauriRuntime: false
-      }
-    );
+  it("does not pass terminal reuse policy for queue requests without frontend platform branching", async () => {
+    const { run, readAvailableTerminals, execution } = createExecutionHarness("wt", false, {
+      isTauriRuntime: false
+    });
 
     await execution.runCommandsInTerminal([
       createExecStep("git status", "git", ["status"])
@@ -281,8 +266,7 @@ describe("useTerminalExecution", () => {
     expect(readAvailableTerminals).not.toHaveBeenCalled();
     expect(run).toHaveBeenCalledWith(
       expect.objectContaining({
-        terminalId: "wt",
-        terminalReusePolicy: "normal-only"
+        terminalId: "wt"
       })
     );
   });
@@ -295,7 +279,7 @@ describe("useTerminalExecution", () => {
       readAvailableTerminals,
       persistCorrectedTerminal,
       execution
-    } = createExecutionHarness("ghost", false, "never", {
+    } = createExecutionHarness("ghost", false, {
       isTauriRuntime: true,
       discoveredTerminals: [{ id: "wt", label: "Windows Terminal", path: "wt.exe" }]
     });
@@ -316,15 +300,10 @@ describe("useTerminalExecution", () => {
   });
 
   it("skips rediscovery when terminals are already cached", async () => {
-    const { run, readAvailableTerminals, execution } = createExecutionHarness(
-      "pwsh",
-      false,
-      "never",
-      {
-        isTauriRuntime: true,
-        initialAvailableTerminals: [{ id: "pwsh", label: "PowerShell 7", path: "pwsh.exe" }]
-      }
-    );
+    const { run, readAvailableTerminals, execution } = createExecutionHarness("pwsh", false, {
+      isTauriRuntime: true,
+      initialAvailableTerminals: [{ id: "pwsh", label: "PowerShell 7", path: "pwsh.exe" }]
+    });
 
     await execution.runCommandInTerminal(createExecStep("dir", "cmd", ["/c", "dir"]));
 
@@ -337,18 +316,13 @@ describe("useTerminalExecution", () => {
   });
 
   it("retries backend discovery when cached terminals are untrusted fallback entries", async () => {
-    const { run, readAvailableTerminals, execution } = createExecutionHarness(
-      "ghost",
-      false,
-      "never",
-      {
-        isTauriRuntime: true,
-        initialAvailableTerminals: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }],
-        availableTerminalsTrusted: false,
-        discoveredTerminals: [{ id: "wt", label: "Windows Terminal", path: "wt.exe" }],
-        fallbackTerminalOptions: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }]
-      }
-    );
+    const { run, readAvailableTerminals, execution } = createExecutionHarness("ghost", false, {
+      isTauriRuntime: true,
+      initialAvailableTerminals: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }],
+      availableTerminalsTrusted: false,
+      discoveredTerminals: [{ id: "wt", label: "Windows Terminal", path: "wt.exe" }],
+      fallbackTerminalOptions: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }]
+    });
 
     await execution.runCommandInTerminal(createExecStep("dir", "cmd", ["/c", "dir"]));
 
@@ -364,7 +338,6 @@ describe("useTerminalExecution", () => {
     const { run, persistCorrectedTerminal, execution } = createExecutionHarness(
       "ghost",
       false,
-      "never",
       {
         isTauriRuntime: true,
         discoveredTerminals: []
@@ -383,7 +356,7 @@ describe("useTerminalExecution", () => {
 
   it("warns and continues when terminal discovery fails", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const { run, persistCorrectedTerminal, execution } = createExecutionHarness("ghost", false, "never", {
+    const { run, persistCorrectedTerminal, execution } = createExecutionHarness("ghost", false, {
       isTauriRuntime: true,
       fallbackTerminalOptions: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }],
       readAvailableTerminals: async () => {
@@ -412,7 +385,7 @@ describe("useTerminalExecution", () => {
       run,
       persistCorrectedTerminal,
       execution
-    } = createExecutionHarness("ghost", false, "never", {
+    } = createExecutionHarness("ghost", false, {
       isTauriRuntime: true,
       initialAvailableTerminals: [{ id: "cmd", label: "Command Prompt", path: "cmd.exe" }]
     });
@@ -443,7 +416,7 @@ describe("useTerminalExecution", () => {
       readAvailableTerminals,
       persistCorrectedTerminal,
       execution
-    } = createExecutionHarness("ghost", false, "never", {
+    } = createExecutionHarness("ghost", false, {
       isTauriRuntime: true,
       initialAvailableTerminals: [{ id: "ghost", label: "Ghost Terminal", path: "ghost.exe" }],
       availableTerminalsTrusted: true,
@@ -518,8 +491,7 @@ describe("useTerminalExecution", () => {
         }
       ],
       requiresElevation: false,
-      alwaysElevated: false,
-      terminalReusePolicy: "never"
+      alwaysElevated: false
     });
   });
 

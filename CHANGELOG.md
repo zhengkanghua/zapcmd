@@ -8,6 +8,14 @@ Format rule / 格式规则：
 2. Use bilingual entries in one line when possible: `中文 / English`.
 3. Release workflow extracts the matching version section into GitHub Release notes.
 
+## [1.3.0] - 2026-04-29
+
+### Changes / 变更
+
+1. 移除外部终端复用能力：Settings 不再暴露终端复用策略，设置项只保留默认终端与“始终调用管理员权限终端” / Remove external terminal reuse: Settings no longer expose terminal reuse policy and now keep only default terminal plus "always use elevated terminal"
+2. Settings schema 升级到 v3，并在迁移时清理历史 `terminalReusePolicy` 字段 / Upgrade settings schema to v3 and drop legacy `terminalReusePolicy` during migration
+3. Windows 终端运行时删除复用路由与会话状态，继续保留整队统一提权与管理员取消等既有执行语义 / Remove Windows terminal reuse routing and session state while preserving flow-wide elevation semantics and existing elevation-cancel handling
+
 ## [1.1.1] - 2026-03-30
 
 ### Fixes / 修复

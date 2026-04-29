@@ -5,7 +5,6 @@ import {
   type TerminalOption
 } from "../../../features/terminals/fallbackTerminals";
 import { createCommandExecutor } from "../../../services/commandExecutor";
-import type { TerminalReusePolicy } from "../../../stores/settingsStore";
 import { createAppWindowResolver } from "../useAppWindowResolver";
 import { useLauncherDomBridge } from "../../launcher/useLauncherDomBridge";
 import { useLauncherSearch } from "../../launcher/useLauncherSearch";
@@ -30,7 +29,6 @@ interface CreateLauncherRuntimeAssemblyOptions {
   resolveAppWindow: () => ReturnType<AppCompositionRootPorts["getCurrentWindow"]> | null;
   defaultTerminal: Ref<string>;
   alwaysElevatedTerminal: Ref<boolean>;
-  terminalReusePolicy: Ref<TerminalReusePolicy>;
   availableTerminals: Ref<TerminalOption[]>;
   availableTerminalsTrusted: Ref<boolean>;
   persistCorrectedTerminal: () => void;
@@ -42,7 +40,6 @@ interface CreateWindowScopedLauncherRuntimeOptions {
   commandCatalog: UseCommandCatalogReturn;
   defaultTerminal: Ref<string>;
   alwaysElevatedTerminal: Ref<boolean>;
-  terminalReusePolicy: Ref<TerminalReusePolicy>;
   availableTerminals: Ref<TerminalOption[]>;
   availableTerminalsTrusted: Ref<boolean>;
   persistCorrectedTerminal: () => void;
@@ -100,7 +97,6 @@ export function createLauncherRuntimeAssembly(
     commandExecutor,
     defaultTerminal: options.defaultTerminal,
     alwaysElevatedTerminal: options.alwaysElevatedTerminal,
-    terminalReusePolicy: options.terminalReusePolicy,
     availableTerminals: options.availableTerminals,
     availableTerminalsTrusted: options.availableTerminalsTrusted,
     fallbackTerminalOptions,
@@ -140,7 +136,6 @@ export function createWindowScopedLauncherRuntime(
     resolveAppWindow: options.windowRuntime.resolveAppWindow,
     defaultTerminal: options.defaultTerminal,
     alwaysElevatedTerminal: options.alwaysElevatedTerminal,
-    terminalReusePolicy: options.terminalReusePolicy,
     availableTerminals: options.availableTerminals,
     availableTerminalsTrusted: options.availableTerminalsTrusted,
     persistCorrectedTerminal: options.persistCorrectedTerminal
