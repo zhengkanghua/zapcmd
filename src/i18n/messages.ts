@@ -360,7 +360,7 @@ export const messages = {
       terminalLaunchFailed: "终端启动失败",
       platformUnsupported: "当前平台暂不支持执行命令",
       queueEmpty: "队列中没有可运行命令。",
-      queueSuccess: "已在同一终端顺序执行 {count} 个节点（首个：{firstCommand}）。",
+      queueDispatched: "命令已发送到终端，将在同一终端顺序执行 {count} 个节点（首个：{firstCommand}）。",
       queueFailed: "运行队列失败：{reason}",
       queueFailedWithNextStep: "运行队列失败：{reason}。下一步：{nextStep}",
       queueFailedFallback: "运行队列失败，请检查终端环境或命令参数。",
@@ -793,7 +793,8 @@ export const messages = {
       terminalLaunchFailed: "Failed to launch terminal.",
       platformUnsupported: "Running commands is not supported on this platform.",
       queueEmpty: "No executable commands in the flow.",
-      queueSuccess: "Executed {count} node(s) sequentially in the same terminal (first: {firstCommand}).",
+      queueDispatched:
+        "Commands were sent to the terminal and will run sequentially in the same terminal ({count} node(s), first: {firstCommand}).",
       queueFailed: "Flow execution failed: {reason}",
       queueFailedWithNextStep: "Flow execution failed: {reason}. Next step: {nextStep}",
       queueFailedFallback: "Flow execution failed. Check terminal environment or command arguments.",

@@ -22,7 +22,6 @@ export function createCommandExecutionActions(
   const queueActions = createQueueActions({
     options,
     state,
-    clearStaging,
     rejectBlockingIssue: singleActions.rejectBlockingIssue
   });
   const panelActions = createPanelActions({

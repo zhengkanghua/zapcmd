@@ -77,7 +77,6 @@ function createSettingsWindowProps(
     autoCheckUpdate: defaults.general.autoCheckUpdate,
     launchAtLogin: defaults.general.launchAtLogin,
     alwaysElevatedTerminal: defaults.general.alwaysElevatedTerminal,
-    queueAutoClearOnSuccess: defaults.general.queueAutoClearOnSuccess,
     generalErrorMessage: "",
     showAlwaysElevatedTerminal: true,
     commandRows: [],
@@ -232,7 +231,6 @@ describe("SettingsWindow stable shell", () => {
               "<button class='language-stub' @click=\"$emit('select-language', 'en-US')\">language</button>" +
               "<button class='auto-update-stub' @click=\"$emit('set-auto-check-update', false)\">auto</button>" +
               "<button class='login-stub' @click=\"$emit('set-launch-at-login', true)\">login</button>" +
-              "<button class='queue-clear-stub' @click=\"$emit('set-queue-auto-clear-on-success', false)\">queue-clear</button>" +
               "<button class='elevated-stub' @click=\"$emit('set-always-elevated-terminal', true)\">elevated</button>" +
               "<button class='reuse-stub' @click=\"$emit('set-terminal-reuse-policy', 'normal-only')\">reuse</button>" +
               "</div>"
@@ -278,14 +276,12 @@ describe("SettingsWindow stable shell", () => {
     await wrapper.get(".language-stub").trigger("click");
     await wrapper.get(".auto-update-stub").trigger("click");
     await wrapper.get(".login-stub").trigger("click");
-    await wrapper.get(".queue-clear-stub").trigger("click");
     await wrapper.get(".elevated-stub").trigger("click");
     await wrapper.get(".reuse-stub").trigger("click");
     expect(wrapper.emitted("select-terminal")?.[0]).toEqual(["wt"]);
     expect(wrapper.emitted("select-language")?.[0]).toEqual(["en-US"]);
     expect(wrapper.emitted("set-auto-check-update")?.[0]).toEqual([false]);
     expect(wrapper.emitted("set-launch-at-login")?.[0]).toEqual([true]);
-    expect(wrapper.emitted("set-queue-auto-clear-on-success")?.[0]).toEqual([false]);
     expect(wrapper.emitted("set-always-elevated-terminal")?.[0]).toEqual([true]);
     expect(wrapper.emitted("set-terminal-reuse-policy")?.[0]).toEqual(["normal-only"]);
 

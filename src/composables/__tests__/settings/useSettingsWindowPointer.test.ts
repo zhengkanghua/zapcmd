@@ -18,7 +18,6 @@ function createOptions() {
   const autoCheckUpdate = ref(snapshot.general.autoCheckUpdate);
   const launchAtLogin = ref(snapshot.general.launchAtLogin);
   const alwaysElevatedTerminal = ref(snapshot.general.alwaysElevatedTerminal);
-  const queueAutoClearOnSuccess = ref(snapshot.general.queueAutoClearOnSuccess);
   const pointerActions = ref(snapshot.general.pointerActions);
 
   return {
@@ -31,7 +30,6 @@ function createOptions() {
     autoCheckUpdate,
     launchAtLogin,
     alwaysElevatedTerminal,
-    queueAutoClearOnSuccess,
     pointerActions,
     settingsStore: {
       persist: vi.fn(),
@@ -56,9 +54,6 @@ function createOptions() {
       }),
       setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
         alwaysElevatedTerminal.value = value;
-      }),
-      setQueueAutoClearOnSuccess: vi.fn((value: boolean) => {
-        queueAutoClearOnSuccess.value = value;
       }),
       setTerminalReusePolicy: vi.fn((value: TerminalReusePolicy) => {
         terminalReusePolicy.value = value;

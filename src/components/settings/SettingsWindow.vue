@@ -43,7 +43,6 @@ const emit = defineEmits<{
   (e: "set-auto-check-update", value: boolean): void;
   (e: "set-launch-at-login", value: boolean): void;
   (e: "set-always-elevated-terminal", value: boolean): void;
-  (e: "set-queue-auto-clear-on-success", value: boolean): void;
   (e: "set-terminal-reuse-policy", value: TerminalReusePolicy): void;
   (e: "toggle-command-enabled", commandId: string, enabled: boolean): void;
   (e: "set-filtered-commands-enabled", enabled: boolean): void;
@@ -116,7 +115,6 @@ const emit = defineEmits<{
             :auto-check-update="props.autoCheckUpdate"
             :launch-at-login="props.launchAtLogin"
             :always-elevated-terminal="props.alwaysElevatedTerminal"
-            :queue-auto-clear-on-success="props.queueAutoClearOnSuccess"
             :general-error-message="props.generalErrorMessage"
             :show-always-elevated-terminal="props.showAlwaysElevatedTerminal"
             @select-terminal="emit('select-terminal', $event)"
@@ -125,7 +123,6 @@ const emit = defineEmits<{
             @set-auto-check-update="emit('set-auto-check-update', $event)"
             @set-launch-at-login="emit('set-launch-at-login', $event)"
             @set-always-elevated-terminal="emit('set-always-elevated-terminal', $event)"
-            @set-queue-auto-clear-on-success="emit('set-queue-auto-clear-on-success', $event)"
             @set-terminal-reuse-policy="emit('set-terminal-reuse-policy', $event)"
           />
           <SettingsCommandsSection

@@ -119,12 +119,6 @@ describe("settingsStore migration and persistence", () => {
     );
   });
 
-  it("defaults queueAutoClearOnSuccess to true", () => {
-    expect((createDefaultSettingsSnapshot().general as Record<string, unknown>).queueAutoClearOnSuccess).toBe(
-      true
-    );
-  });
-
   it("migrates alwaysElevatedTerminal from legacy payload", () => {
     const migrated = migrateSettingsPayload({
       version: 1,
@@ -143,15 +137,6 @@ describe("settingsStore migration and persistence", () => {
     expect((migrated?.general as Record<string, unknown>).terminalReusePolicy).toBe(
       "normal-and-elevated"
     );
-  });
-
-  it("migrates queueAutoClearOnSuccess from legacy payload", () => {
-    const migrated = migrateSettingsPayload({
-      version: 1,
-      general: { queueAutoClearOnSuccess: "false" }
-    });
-
-    expect((migrated?.general as Record<string, unknown>).queueAutoClearOnSuccess).toBe(false);
   });
 
   it("migrates missing appearance.motionPreset to expressive", () => {
@@ -322,17 +307,6 @@ describe("settingsStore migration and persistence", () => {
     expect((store.toSnapshot().general as Record<string, unknown>).terminalReusePolicy).toBe(
       "normal-only"
     );
-  });
-
-  it("persists queueAutoClearOnSuccess in snapshot", () => {
-    const store = useSettingsStore();
-    const typedStore = store as typeof store & {
-      setQueueAutoClearOnSuccess?: (value: boolean) => void;
-    };
-
-    typedStore.setQueueAutoClearOnSuccess?.(false);
-
-    expect((store.toSnapshot().general as Record<string, unknown>).queueAutoClearOnSuccess).toBe(false);
   });
 
   it("persists commands snapshot without transient view state", () => {

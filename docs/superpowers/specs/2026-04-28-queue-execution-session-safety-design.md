@@ -21,15 +21,15 @@
 
 ## 2. 设计决策
 
-### 2.1 队列成功只表示“整队完成且无失败”
+### 2.1 队列反馈只表示“已投递到终端”，不伪造真实完成态
 
 队列执行 contract 改为：
 
 1. Rust 端默认 fail-fast，某一步失败后停止后续步骤。
-2. 前端 `queueSuccess` 只在“整队全部成功”时显示。
-3. 新增设置项 `queueAutoClearOnSuccess`，默认 `true`。
-4. 只有“整队成功 + 开关开启”时才清空队列。
-5. 失败时一律保留队列，便于用户修正后重试。
+2. 前端只显示“命令已发送到终端”，不再把 fire-and-forget 误报成整队成功。
+3. 队列默认保留，由用户手动清理；当前阶段不再提供“成功后自动清队”设置。
+4. 失败时同样保留队列，便于用户修正后重试。
+5. 若未来需要“真实完成后自动清队”，必须补终端执行结果回传协议，而不是继续猜测。
 
 ### 2.2 preflight 缓存降级为展示层，真正执行前必须 fresh probe
 
@@ -68,7 +68,7 @@ Launcher session 最小快照继续保留命令 identity，但删除明文敏感
 
 本轮必须先补红灯测试覆盖：
 
-1. 队列成功/失败/自动清空开关。
+1. 队列成功文案降级为 dispatch 级反馈，且默认保留队列。
 2. 队列执行前 fresh preflight 复检和 required 阻断。
 3. session 持久化不再包含 `argValues` / `renderedPreview`。
 4. Windows `normal-and-elevated` 不再因为历史 elevated lane 直接复用管理员车道。

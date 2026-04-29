@@ -70,3 +70,4 @@
 - 2026-04-28：队列执行/会话安全收口完成；核心回归已改为“恢复后重填全部必填参数”，`npm run check:all` fresh 全绿，待提交并 push。
 - 2026-04-28：执行语义边界再次确认并入记忆：执行流保持“整队一次投递、同一终端、顺序执行”；只要队列任一步 `adminRequired=true`，整队进入管理员终端。这是明确产品约束，不按缺陷处理。
 - 2026-04-28：storage 边界收口中：settings 启动读取、Launcher session 恢复、startup update 节流读、主窗口默认终端纠正广播均改为 storage 异常降级不崩；定向测试与 typecheck 已通过。
+- 2026-04-29：高风险执行语义已收口：删除自动清队设置，队列执行只提示“已发送到终端”且默认保留；执行前 fresh preflight 已加互斥，避免重复派发；Rust `cmd/pwsh` 宿主命令显式 fail-fast；Windows elevated 永不复用，普通 `wt` 复用失败会退回新窗口。前端/Settings/Rust 定向与 `typecheck` 已过。

@@ -19,7 +19,6 @@ const emit = defineEmits<{
   (e: "set-auto-check-update", value: boolean): void;
   (e: "set-launch-at-login", value: boolean): void;
   (e: "set-always-elevated-terminal", value: boolean): void;
-  (e: "set-queue-auto-clear-on-success", value: boolean): void;
   (e: "set-terminal-reuse-policy", value: TerminalReusePolicy): void;
 }>();
 
@@ -118,15 +117,6 @@ function onTerminalReusePolicySelect(value: string): void {
         />
       </SettingItem>
 
-      <SettingItem
-        :label="t('settings.general.queueAutoClearOnSuccess')"
-        :description="t('settings.general.queueAutoClearOnSuccessHint')"
-      >
-        <SToggle
-          :model-value="props.queueAutoClearOnSuccess"
-          @update:model-value="emit('set-queue-auto-clear-on-success', $event)"
-        />
-      </SettingItem>
     </SettingSection>
 
     <SettingSection :label="t('settings.general.sectionTerminal')" heading-id="settings-general-terminal">

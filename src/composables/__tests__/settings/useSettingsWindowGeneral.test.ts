@@ -12,12 +12,10 @@ import { createSettingsState, type UseSettingsWindowOptions } from "../../settin
 
 type GeneralTestOptions = UseSettingsWindowOptions & {
   terminalReusePolicy: { value: TerminalReusePolicy };
-  queueAutoClearOnSuccess: { value: boolean };
   settingsStore: UseSettingsWindowOptions["settingsStore"] & {
     setAutoCheckUpdate: ReturnType<typeof vi.fn>;
     setLanguage: ReturnType<typeof vi.fn>;
     setTerminalReusePolicy: ReturnType<typeof vi.fn>;
-    setQueueAutoClearOnSuccess: ReturnType<typeof vi.fn>;
   };
 };
 
@@ -29,7 +27,6 @@ function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTest
   const autoCheckUpdate = ref(true);
   const launchAtLogin = ref(false);
   const alwaysElevatedTerminal = ref(false);
-  const queueAutoClearOnSuccess = ref(true);
   const settingsStore = {
     persist: vi.fn(),
     hydrateFromStorage: vi.fn(),
@@ -45,9 +42,6 @@ function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTest
     }),
     setAlwaysElevatedTerminal: vi.fn((value: boolean) => {
       alwaysElevatedTerminal.value = value;
-    }),
-    setQueueAutoClearOnSuccess: vi.fn((value: boolean) => {
-      queueAutoClearOnSuccess.value = value;
     }),
     setAutoCheckUpdate: vi.fn((value: boolean) => {
       autoCheckUpdate.value = value;
@@ -74,7 +68,6 @@ function createOptions(overrides: Partial<GeneralTestOptions> = {}): GeneralTest
     autoCheckUpdate,
     launchAtLogin,
     alwaysElevatedTerminal,
-    queueAutoClearOnSuccess,
     pointerActions: ref(baseSnapshot.general.pointerActions),
     settingsStore,
     getHotkeyValue: vi.fn((field: HotkeyFieldId) => baseSnapshot.hotkeys[field]),

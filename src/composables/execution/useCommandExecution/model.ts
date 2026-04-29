@@ -29,7 +29,6 @@ export interface ExecutionSafetyDialog {
 
 export interface UseCommandExecutionOptions {
   stagedCommands: Ref<StagedCommand[]>;
-  queueAutoClearOnSuccess?: Readonly<Ref<boolean>>;
   focusZone: Ref<FocusZone>;
   stagingActiveIndex: Ref<number>;
   openStagingDrawer: () => void;

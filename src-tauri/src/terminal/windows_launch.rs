@@ -13,6 +13,7 @@ use super::launch_posix::{spawn_and_forget, terminal_launch_failed};
 use super::windows_routing::{
     decide_windows_route,
     ResolvedTerminalProgram,
+    should_retry_windows_launch_without_reuse,
     TerminalReusePolicy,
     WindowsLaunchPlan,
     WindowsReusableSessionState,
@@ -174,6 +175,21 @@ pub(super) fn run_command_windows(
         terminal_reuse_policy,
         reusable_session_state: &reusable_session_state,
     });
-    dispatch_windows_routing_decision(&decision, &reusable_session_state)?;
+    if let Err(error) = dispatch_windows_routing_decision(&decision, &reusable_session_state) {
+        if !should_retry_windows_launch_without_reuse(&decision, &error) {
+            return Err(error);
+        }
+
+        let retry_decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command,
+            requires_elevation,
+            always_elevated,
+            terminal_reuse_policy: TerminalReusePolicy::Never,
+            reusable_session_state: &WindowsReusableSessionState::default(),
+        });
+        dispatch_windows_routing_decision(&retry_decision, &WindowsReusableSessionState::default())?;
+        return Ok(retry_decision);
+    }
     Ok(decision)
 }

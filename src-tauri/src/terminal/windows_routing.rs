@@ -88,10 +88,7 @@ fn should_use_reusable_lane(
         WindowsSessionKind::Normal => {
             !matches!(input.terminal_reuse_policy, TerminalReusePolicy::Never)
         }
-        WindowsSessionKind::Elevated => matches!(
-            input.terminal_reuse_policy,
-            TerminalReusePolicy::NormalAndElevated
-        ),
+        WindowsSessionKind::Elevated => false,
     }
 }
 
@@ -210,6 +207,15 @@ pub(crate) fn should_track_windows_reusable_session(
     decision.track_session_state
 }
 
+pub(crate) fn should_retry_windows_launch_without_reuse(
+    decision: &WindowsRoutingDecision,
+    error: &TerminalExecutionError,
+) -> bool {
+    decision.target_session_kind == WindowsSessionKind::Normal
+        && decision.reuse_existing_session
+        && error.code() == "terminal-launch-failed"
+}
+
 pub(crate) fn update_windows_reusable_session_state(
     reusable_session_state: &mut WindowsReusableSessionState,
     session_kind: WindowsSessionKind,
@@ -224,8 +230,6 @@ pub(crate) fn update_windows_reusable_session_state(
         WindowsSessionKind::Normal => {
             reusable_session_state.normal = Some(terminal_program_id.to_string())
         }
-        WindowsSessionKind::Elevated => {
-            reusable_session_state.elevated = Some(terminal_program_id.to_string())
-        }
+        WindowsSessionKind::Elevated => {}
     }
 }

@@ -80,7 +80,6 @@ export function useLauncherEntry(options: UseLauncherEntryOptions = {}) {
     autoCheckUpdate: settingsRefs.autoCheckUpdate,
     launchAtLogin: settingsRefs.launchAtLogin,
     alwaysElevatedTerminal: settingsRefs.alwaysElevatedTerminal,
-    queueAutoClearOnSuccess: settingsRefs.queueAutoClearOnSuccess,
     currentWindowLabel: launcherRuntime.currentWindowLabel,
     settingsSyncChannel: launcherRuntime.settingsSyncChannel,
     resolveAppWindow: launcherRuntime.resolveAppWindow,

@@ -252,7 +252,7 @@ afterEach(() => {
 });
 
 describe("App 核心路径回归（Phase 3）", () => {
-  it("覆盖成功链路：搜索 → 填参 → 入队 → 重挂载恢复后补参 → 执行队列 → 队列清空", async () => {
+  it("覆盖成功链路：搜索 → 填参 → 入队 → 重挂载恢复后补参 → 执行队列 → 保留队列等待终端真实结果", async () => {
     hoisted.runMock.mockResolvedValue(undefined);
 
     const wrapper = await mountApp();
@@ -373,7 +373,8 @@ describe("App 核心路径回归（Phase 3）", () => {
     expect(request?.terminalId).toBe(resolveExpectedTerminalId("powershell"));
 
     await waitForUi();
-    expectQueueCount(restored, 0);
+    expect(restored.get(".execution-feedback").text()).toContain("已发送到终端");
+    expectQueueCount(restored, 1);
   });
 
   it("覆盖失败分支：终端执行失败 → 错误可见且队列不丢失", async () => {

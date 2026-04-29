@@ -172,7 +172,6 @@ function createSettingsSceneRuntime(params: {
     autoCheckUpdate: settingsRefs.autoCheckUpdate,
     launchAtLogin: settingsRefs.launchAtLogin,
     alwaysElevatedTerminal: settingsRefs.alwaysElevatedTerminal,
-    queueAutoClearOnSuccess: settingsRefs.queueAutoClearOnSuccess,
     pointerActions: settingsRefs.pointerActions,
     settingsStore,
     getHotkeyValue: hotkeyBindings.getHotkeyValue,

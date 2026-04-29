@@ -22,7 +22,6 @@ function createProps(
     autoCheckUpdate: true,
     launchAtLogin: false,
     alwaysElevatedTerminal: false,
-    queueAutoClearOnSuccess: true,
     generalErrorMessage: "",
     showAlwaysElevatedTerminal: true,
     ...overrides
@@ -55,14 +54,12 @@ describe("SettingsGeneralSection interactions", () => {
     await toggles[0]!.trigger("click");
     await toggles[1]!.trigger("click");
     await toggles[2]!.trigger("click");
-    await toggles[3]!.trigger("click");
 
     expect(wrapper.emitted("select-terminal")?.[0]).toEqual(["powershell"]);
     expect(wrapper.emitted("set-terminal-reuse-policy")?.[0]).toEqual(["normal-and-elevated"]);
     expect(wrapper.emitted("select-language")?.[0]).toEqual(["en-US"]);
     expect(wrapper.emitted("set-auto-check-update")?.[0]).toEqual([false]);
     expect(wrapper.emitted("set-launch-at-login")?.[0]).toEqual([true]);
-    expect(wrapper.emitted("set-queue-auto-clear-on-success")?.[0]).toEqual([false]);
     expect(wrapper.emitted("set-always-elevated-terminal")?.[0]).toEqual([true]);
   });
 

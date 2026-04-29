@@ -197,7 +197,6 @@ function buildSnapshot(
     general: {
       defaultTerminal: overrides.defaultTerminal ?? "powershell",
       terminalReusePolicy: "never",
-      queueAutoClearOnSuccess: true,
       language: "zh-CN",
       autoCheckUpdate: true,
       launchAtLogin: false,

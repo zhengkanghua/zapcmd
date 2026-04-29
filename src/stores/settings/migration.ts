@@ -7,7 +7,6 @@ import {
   DEFAULT_LAUNCH_AT_LOGIN,
   DEFAULT_TERMINAL,
   DEFAULT_TERMINAL_REUSE_POLICY,
-  DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS,
   DEFAULT_THEME,
   DEFAULT_WINDOW_OPACITY,
   HOTKEY_FIELD_IDS,
@@ -60,16 +59,6 @@ function extractLanguage(payload: SettingsPayload) {
     return DEFAULT_LANGUAGE;
   }
   return normalizeLanguage(payload.general.language);
-}
-
-function extractQueueAutoClearOnSuccess(payload: SettingsPayload): boolean {
-  if (!isRecord(payload.general)) {
-    return DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS;
-  }
-  return normalizeBoolean(
-    payload.general.queueAutoClearOnSuccess,
-    DEFAULT_QUEUE_AUTO_CLEAR_ON_SUCCESS
-  );
 }
 
 function extractTerminalReusePolicy(payload: SettingsPayload) {
@@ -146,7 +135,6 @@ function createSnapshot(payload: SettingsPayload): PersistedSettingsSnapshot {
     general: {
       defaultTerminal: extractDefaultTerminal(payload),
       terminalReusePolicy: extractTerminalReusePolicy(payload),
-      queueAutoClearOnSuccess: extractQueueAutoClearOnSuccess(payload),
       language: extractLanguage(payload),
       autoCheckUpdate: extractAutoCheckUpdate(payload),
       launchAtLogin: extractLaunchAtLogin(payload),

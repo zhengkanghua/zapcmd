@@ -80,7 +80,7 @@ pub(crate) fn build_posix_host_command(
         parts.push(build_posix_step_command(step)?);
         parts.push("zapcmd_code=$?".to_string());
         parts.push(format!(
-            "if [ \"$zapcmd_code\" -ne 0 ]; then printf '%s\\n' {}; fi",
+            "if [ \"$zapcmd_code\" -ne 0 ]; then printf '%s\\n' {}; exit \"$zapcmd_code\"; fi",
             quote_posix_single_quoted(
                 build_failed_marker(index, total, step.summary.as_str()).as_str()
             )

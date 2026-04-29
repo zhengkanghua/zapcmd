@@ -245,7 +245,7 @@ fn build_cmd_host_command(
         parts.push(build_cmd_step_command(step)?);
         parts.push(r#"set "zapcmdCode=!ERRORLEVEL!""#.to_string());
         parts.push(format!(
-            r#"if not "!zapcmdCode!"=="0" echo {}"#,
+            r#"if not "!zapcmdCode!"=="0" (echo {} & exit /b !zapcmdCode!)"#,
             escape_cmd_echo_text(build_failed_marker(index, total, step.summary.as_str()).as_str())
         ));
     }
@@ -272,7 +272,7 @@ fn build_powershell_host_command(
         parts.push("$zapcmdSuccess = $?".to_string());
         parts.push("$zapcmdCode = $LASTEXITCODE".to_string());
         parts.push(format!(
-            "if (-not $zapcmdSuccess) {{ Write-Host {} }}",
+            "if (-not $zapcmdSuccess) {{ Write-Host {}; if ($null -ne $zapcmdCode -and $zapcmdCode -ne 0) {{ exit $zapcmdCode }}; exit 1 }}",
             quote_powershell_single_quoted(
                 build_failed_marker(index, total, step.summary.as_str()).as_str()
             )

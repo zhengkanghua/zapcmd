@@ -1,4 +1,4 @@
-import { computed, nextTick, ref } from "vue";
+import { nextTick, ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CommandTemplate } from "../../../features/commands/commandTemplates";
 import type {
@@ -230,7 +230,6 @@ function createHarness(useBatchRunner = false): Harness {
     commandId === "install-docker" ? "安装 Docker" : null
   );
   const onNeedPanel = vi.fn();
-  const queueAutoClearOnSuccess = ref(true);
 
   const execution = useCommandExecution({
     stagedCommands,
@@ -246,8 +245,7 @@ function createHarness(useBatchRunner = false): Harness {
     runCommandPreflight,
     copyTextToClipboard,
     resolveCommandTitle,
-    onNeedPanel,
-    queueAutoClearOnSuccess: computed(() => queueAutoClearOnSuccess.value)
+    onNeedPanel
   } as Parameters<typeof useCommandExecution>[0]);
 
   return {
@@ -1028,7 +1026,7 @@ describe("useCommandExecution", () => {
     expect(harness.scheduleSearchInputFocus).not.toHaveBeenCalled();
   });
 
-  it("executes staged queue and clears snapshot", async () => {
+  it("dispatches staged queue to terminal and keeps snapshot by default", async () => {
     const harness = createHarness();
     const first = createNoArgCommand();
     const second = createGitPruneCommand();
@@ -1052,10 +1050,10 @@ describe("useCommandExecution", () => {
         requiresElevation: false
       }
     );
-    expect(harness.stagedCommands.value).toHaveLength(0);
+    expect(harness.stagedCommands.value).toHaveLength(2);
     expect(harness.scheduleSearchInputFocus).toHaveBeenCalledWith(true);
     expect(harness.execution.executionFeedbackTone.value).toBe("success");
-    expect(harness.execution.executionFeedbackMessage.value).toContain("2 个节点");
+    expect(harness.execution.executionFeedbackMessage.value).toContain("已发送到终端");
     expect(harness.execution.executionFeedbackMessage.value).toContain("首个：ls -la");
   });
 
@@ -1079,6 +1077,8 @@ describe("useCommandExecution", () => {
       }
     );
     expect(harness.runCommandInTerminal).not.toHaveBeenCalled();
+    expect(harness.stagedCommands.value).toHaveLength(2);
+    expect(harness.execution.executionFeedbackMessage.value).toContain("已发送到终端");
     expect(harness.execution.executionFeedbackMessage.value).toContain("首个：ls -la");
   });
 
@@ -1170,6 +1170,60 @@ describe("useCommandExecution", () => {
     } finally {
       errorSpy.mockRestore();
     }
+  });
+
+  it("prevents duplicate queue dispatch while preflight is still running", async () => {
+    const harness = createHarness(true);
+    let releasePreflight!: () => void;
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: true,
+        code: "ok",
+        required: true,
+        message: ""
+      }
+    ]);
+    harness.runCommandPreflight.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          releasePreflight = () =>
+            resolve([
+              {
+                id: "docker",
+                ok: true,
+                code: "ok",
+                required: true,
+                message: ""
+              }
+            ]);
+        })
+    );
+    harness.runCommandPreflight.mockResolvedValueOnce([
+      {
+        id: "docker",
+        ok: true,
+        code: "ok",
+        required: true,
+        message: ""
+      }
+    ]);
+
+    harness.execution.stageResult(createPrerequisiteCommand());
+    await flushExecution();
+
+    const firstExecution = harness.execution.executeStaged();
+    await nextTick();
+    const secondExecution = harness.execution.executeStaged();
+
+    expect(harness.execution.executing.value).toBe(true);
+    expect(harness.runCommandsInTerminal).not.toHaveBeenCalled();
+
+    releasePreflight();
+    await firstExecution;
+    await secondExecution;
+
+    expect(harness.runCommandsInTerminal).toHaveBeenCalledTimes(1);
   });
 
   it("blocks queued execution when staged snapshot contains a problem command", async () => {

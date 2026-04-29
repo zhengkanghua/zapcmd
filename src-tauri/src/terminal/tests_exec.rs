@@ -144,6 +144,7 @@ mod windows {
         map_windows_launch_error,
         resolve_windows_terminal_program_from_options,
         resolve_windows_launch_mode,
+        should_retry_windows_launch_without_reuse,
         to_wide,
         windows_routing::{
             decide_windows_route,
@@ -335,7 +336,7 @@ mod windows {
             "wt",
             &ok,
         );
-        assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
+        assert_eq!(reusable_session_state.elevated, None);
 
         update_windows_reusable_session_state(
             &mut reusable_session_state,
@@ -344,7 +345,7 @@ mod windows {
             &error,
         );
         assert_eq!(reusable_session_state.normal, None);
-        assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
+        assert_eq!(reusable_session_state.elevated, None);
     }
 
     #[test]
@@ -457,6 +458,39 @@ mod windows {
         assert!(command.contains("[zapcmd][run] dir"));
         assert!(command.contains("dir /b"));
         assert!(command.contains(r#"set "zapcmdCode=!ERRORLEVEL!""#));
+        assert!(command.contains(r#"if not "!zapcmdCode!"=="0" (echo"#));
+        assert!(command.contains(r#"exit /b !zapcmdCode!"#));
+    }
+
+    #[test]
+    fn reusable_normal_wt_failure_retries_as_new_window() {
+        let terminal_program = resolved_terminal_program("wt");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
+            reusable_session_state: &WindowsReusableSessionState {
+                normal: Some("wt".to_string()),
+                elevated: None,
+            },
+        });
+        let error = TerminalExecutionError::new("terminal-launch-failed", "spawn failed");
+
+        assert!(decision.reuse_existing_session);
+        assert!(should_retry_windows_launch_without_reuse(&decision, &error));
+
+        let retry_decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::Never,
+            reusable_session_state: &WindowsReusableSessionState::default(),
+        });
+        assert!(!retry_decision.reuse_existing_session);
+        assert_eq!(retry_decision.launch_plan.args[1], "new");
     }
 
 }
@@ -554,6 +588,7 @@ mod linux {
         assert!(command.contains("bash -lc 'echo bash'"));
         assert!(command.contains("sh -c 'echo sh'"));
         assert!(command.contains("[zapcmd][failed][2/2] sh step"));
+        assert!(command.contains("exit \"$zapcmd_code\""));
     }
 }
 
@@ -570,6 +605,7 @@ mod windows_routing_logic {
         should_track_windows_reusable_session,
         update_windows_reusable_session_state,
     };
+    use crate::terminal::should_retry_windows_launch_without_reuse;
     use std::path::PathBuf;
 
     fn resolved_terminal_program(id: &str) -> ResolvedTerminalProgram {
@@ -656,6 +692,59 @@ mod windows_routing_logic {
     }
 
     #[test]
+    fn elevated_wt_lane_is_not_reused_without_live_proof() {
+        let terminal_program = resolved_terminal_program("wt");
+        let reusable_session_state = WindowsReusableSessionState {
+            normal: Some("wt".to_string()),
+            elevated: Some("wt".to_string()),
+        };
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "net session",
+            requires_elevation: true,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalAndElevated,
+            reusable_session_state: &reusable_session_state,
+        });
+
+        assert_eq!(decision.target_session_kind, WindowsSessionKind::Elevated);
+        assert!(!decision.reuse_existing_session);
+        assert!(!decision.track_session_state);
+    }
+
+    #[test]
+    fn reusable_normal_wt_failure_should_retry_without_reuse() {
+        let terminal_program = resolved_terminal_program("wt");
+        let decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::NormalOnly,
+            reusable_session_state: &WindowsReusableSessionState {
+                normal: Some("wt".to_string()),
+                elevated: None,
+            },
+        });
+        let error = TerminalExecutionError::new("terminal-launch-failed", "spawn failed");
+
+        assert!(decision.reuse_existing_session);
+        assert!(should_retry_windows_launch_without_reuse(&decision, &error));
+
+        let retry_decision = decide_windows_route(WindowsRoutingInput {
+            terminal_program: &terminal_program,
+            command: "echo 1",
+            requires_elevation: false,
+            always_elevated: false,
+            terminal_reuse_policy: TerminalReusePolicy::Never,
+            reusable_session_state: &WindowsReusableSessionState::default(),
+        });
+
+        assert!(!retry_decision.reuse_existing_session);
+        assert_eq!(retry_decision.target_session_kind, WindowsSessionKind::Normal);
+    }
+
+    #[test]
     fn only_success_updates_windows_reusable_session_state() {
         let mut reusable_session_state = WindowsReusableSessionState::default();
         let ok = Ok(());
@@ -670,7 +759,7 @@ mod windows_routing_logic {
             "wt",
             &ok,
         );
-        assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
+        assert_eq!(reusable_session_state.elevated, None);
 
         update_windows_reusable_session_state(
             &mut reusable_session_state,
@@ -679,6 +768,6 @@ mod windows_routing_logic {
             &error,
         );
         assert_eq!(reusable_session_state.normal, None);
-        assert_eq!(reusable_session_state.elevated.as_deref(), Some("wt"));
+        assert_eq!(reusable_session_state.elevated, None);
     }
 }

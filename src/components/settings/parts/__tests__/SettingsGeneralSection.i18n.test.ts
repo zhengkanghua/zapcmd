@@ -26,7 +26,6 @@ describe("SettingsGeneralSection i18n", () => {
         autoCheckUpdate: true,
         launchAtLogin: false,
         alwaysElevatedTerminal: false,
-        queueAutoClearOnSuccess: true,
         generalErrorMessage: "",
         showAlwaysElevatedTerminal: true
       }
@@ -42,7 +41,7 @@ describe("SettingsGeneralSection i18n", () => {
     expect(wrapper.text()).toContain("当前仅 Windows 生效");
     expect(wrapper.text()).toContain("管理员终端也会复用");
     expect(wrapper.text()).toContain("始终调用管理员权限终端");
-    expect(wrapper.findAll(".setting-item")).toHaveLength(8);
+    expect(wrapper.findAll(".setting-item")).toHaveLength(7);
     expect(wrapper.find(".setting-item__description").exists()).toBe(true);
     const trigger = wrapper.get(".s-dropdown__trigger");
     expect(trigger.text()).toContain("PowerShell");
@@ -82,13 +81,12 @@ describe("SettingsGeneralSection i18n", () => {
         autoCheckUpdate: true,
         launchAtLogin: false,
         alwaysElevatedTerminal: true,
-        queueAutoClearOnSuccess: true,
         generalErrorMessage: "",
         showAlwaysElevatedTerminal: false
       }
     });
 
     expect(wrapper.text()).not.toContain("始终调用管理员权限终端");
-    expect(wrapper.findAll(".setting-item")).toHaveLength(7);
+    expect(wrapper.findAll(".setting-item")).toHaveLength(6);
   });
 });

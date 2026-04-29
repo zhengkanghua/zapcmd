@@ -11,7 +11,6 @@ export interface GeneralActions {
   setAutoCheckUpdate: (value: boolean) => void;
   setLaunchAtLogin: (value: boolean) => void;
   setAlwaysElevatedTerminal: (value: boolean) => void;
-  setQueueAutoClearOnSuccess: (value: boolean) => void;
   setTerminalReusePolicy: (value: TerminalReusePolicy) => void;
   loadAutoStartEnabled: () => Promise<void>;
 }
@@ -36,12 +35,6 @@ export function createGeneralActions(deps: {
 
   function setAlwaysElevatedTerminal(value: boolean): void {
     options.settingsStore.setAlwaysElevatedTerminal(value);
-    clearSettingsErrorState(state);
-    void persistSetting();
-  }
-
-  function setQueueAutoClearOnSuccess(value: boolean): void {
-    options.settingsStore.setQueueAutoClearOnSuccess(value);
     clearSettingsErrorState(state);
     void persistSetting();
   }
@@ -88,7 +81,6 @@ export function createGeneralActions(deps: {
     setAutoCheckUpdate,
     setLaunchAtLogin,
     setAlwaysElevatedTerminal,
-    setQueueAutoClearOnSuccess,
     setTerminalReusePolicy,
     loadAutoStartEnabled
   };
