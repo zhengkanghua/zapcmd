@@ -1,10 +1,11 @@
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 #[cfg(target_os = "macos")]
 use std::path::Path;
 #[cfg(target_os = "windows")]
 use std::path::PathBuf;
-use std::process::Command as ProcessCommand;
-#[cfg(target_os = "windows")]
-use std::os::windows::process::CommandExt;
+use std::process::{Command as ProcessCommand, Output, Stdio};
+use std::time::{Duration, Instant};
 
 #[cfg(target_os = "windows")]
 use crate::terminal::windows_routing;
@@ -15,6 +16,7 @@ use super::TerminalOption;
 
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
+const TERMINAL_LOOKUP_TIMEOUT_MS: u64 = 1_500;
 
 pub(crate) fn parse_first_non_empty_line(raw: &str) -> Option<String> {
     raw.lines()
@@ -23,27 +25,72 @@ pub(crate) fn parse_first_non_empty_line(raw: &str) -> Option<String> {
         .map(|line| line.to_string())
 }
 
+fn run_lookup_process_with_timeout(
+    command: &mut ProcessCommand,
+    timeout: Duration,
+) -> Option<Output> {
+    command.stdout(Stdio::piped()).stderr(Stdio::piped());
+    let mut child = command.spawn().ok()?;
+    let start = Instant::now();
+
+    loop {
+        match child.try_wait() {
+            Ok(Some(_)) => return child.wait_with_output().ok(),
+            Ok(None) => {
+                if start.elapsed() >= timeout {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return None;
+                }
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            Err(_) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return None;
+            }
+        }
+    }
+}
+
+fn run_terminal_lookup(command: &mut ProcessCommand) -> Option<Output> {
+    run_lookup_process_with_timeout(command, Duration::from_millis(TERMINAL_LOOKUP_TIMEOUT_MS))
+}
+
+#[cfg(test)]
+pub(crate) fn run_lookup_process_with_timeout_for_test(
+    program: &str,
+    args: &[&str],
+    timeout: Duration,
+) -> Option<String> {
+    let output = run_lookup_process_with_timeout(ProcessCommand::new(program).args(args), timeout)?;
+    if !output.status.success() {
+        return None;
+    }
+    parse_first_non_empty_line(&String::from_utf8_lossy(&output.stdout))
+}
+
 #[cfg(target_os = "windows")]
 pub(crate) fn command_exists(command: &str) -> bool {
-    create_hidden_process("where")
-        .arg(command)
-        .output()
+    let mut process = create_hidden_process("where");
+    process.arg(command);
+    run_terminal_lookup(&mut process)
         .map(|output| output.status.success())
         .unwrap_or(false)
 }
 
 #[cfg(not(target_os = "windows"))]
 pub(crate) fn command_exists(command: &str) -> bool {
-    ProcessCommand::new("which")
-        .arg(command)
-        .output()
+    run_terminal_lookup(ProcessCommand::new("which").arg(command))
         .map(|output| output.status.success())
         .unwrap_or(false)
 }
 
 #[cfg(target_os = "windows")]
 pub(crate) fn command_path(command: &str) -> Option<String> {
-    let output = create_hidden_process("where").arg(command).output().ok()?;
+    let mut process = create_hidden_process("where");
+    process.arg(command);
+    let output = run_terminal_lookup(&mut process)?;
     if !output.status.success() {
         return None;
     }
@@ -53,7 +100,7 @@ pub(crate) fn command_path(command: &str) -> Option<String> {
 
 #[cfg(not(target_os = "windows"))]
 pub(crate) fn command_path(command: &str) -> Option<String> {
-    let output = ProcessCommand::new("which").arg(command).output().ok()?;
+    let output = run_terminal_lookup(ProcessCommand::new("which").arg(command))?;
     if !output.status.success() {
         return None;
     }

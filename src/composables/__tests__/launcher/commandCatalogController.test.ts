@@ -143,6 +143,83 @@ describe("command catalog controller internals", () => {
     }
   });
 
+  it("keeps primed user command cache when a later scan refresh fails", async () => {
+    const runtimePlatformModule = await import(
+      "../../launcher/useCommandCatalog/runtimePlatform"
+    );
+    const { createCommandCatalogRuntimeController } = await import(
+      "../../launcher/useCommandCatalog/controller"
+    );
+    const loadBuiltinSpy = vi
+      .spyOn(runtimePlatformModule, "loadBuiltinTemplatesAndSourceForState")
+      .mockImplementation(async () => undefined);
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const clear = vi.fn();
+
+    try {
+      const options: UseCommandCatalogOptions = {
+        isTauriRuntime: () => true,
+        disabledCommandIds: ref([]),
+        scanUserCommandFiles: async () => ({ files: [], issues: [] }),
+        readUserCommandFile: async () => ({
+          path: "C:/Users/test/.zapcmd/commands/custom.json",
+          content: "{\"commands\":[]}",
+          modifiedMs: 1,
+          size: 15
+        }),
+        readRuntimePlatform: async () => "win"
+      };
+      const state = createCommandCatalogState(options);
+      (state as { userCommandSourceCache: unknown }).userCommandSourceCache = {
+        hasPrimedScan: () => true,
+        remapFromCache: vi.fn(() => ({
+          payloadEntries: [
+            {
+              sourceId: "C:/Users/test/.zapcmd/commands/stale.json",
+              payload: {
+                commands: [
+                  {
+                    id: "custom-stale",
+                    name: "Cached command",
+                    tags: ["custom"],
+                    category: "custom",
+                    platform: "all",
+                    exec: {
+                      program: "echo",
+                      args: ["cached"]
+                    },
+                    adminRequired: false
+                  }
+                ]
+              }
+            }
+          ],
+          issues: []
+        })),
+        refreshFromScan: vi.fn(async () => {
+          throw new Error("scan unavailable");
+        }),
+        clear
+      };
+      const controller = createCommandCatalogRuntimeController(options, state);
+
+      await controller.refreshUserCommands();
+
+      expect(clear).not.toHaveBeenCalled();
+      expect(state.catalogStatus.value).toBe("ready");
+      expect(state.commandTemplates.value.some((item) => item.id === "custom-stale")).toBe(true);
+      expect(state.loadIssues.value).toContainEqual(
+        expect.objectContaining({
+          code: "scan-failed",
+          sourceId: "user-command-files"
+        })
+      );
+    } finally {
+      loadBuiltinSpy.mockRestore();
+      warnSpy.mockRestore();
+    }
+  });
+
   it("refresh reuses the in-flight request before runtime platform resolves", async () => {
     const { createCommandCatalogRuntimeController } = await import(
       "../../launcher/useCommandCatalog/controller"
