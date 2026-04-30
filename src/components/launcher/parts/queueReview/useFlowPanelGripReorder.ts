@@ -149,7 +149,7 @@ export function useFlowPanelGripReorder(deps: FlowPanelGripReorderDeps) {
   const onWindowGripMove = createWindowGripMoveHandler(state, deps);
 
   function startGripReorder(index: number, event: MouseEvent): void {
-    if (event.button !== 0) {
+    if (event.button !== 0 || deps.props.executing) {
       return;
     }
 
@@ -180,7 +180,7 @@ export function useFlowPanelGripReorder(deps: FlowPanelGripReorderDeps) {
   }
 
   function onDragStartWithEditGuard(event: DragEvent, index: number): void {
-    if (state.gripReorderActive.value) {
+    if (state.gripReorderActive.value || deps.props.executing) {
       event.preventDefault();
       return;
     }
@@ -192,6 +192,10 @@ export function useFlowPanelGripReorder(deps: FlowPanelGripReorderDeps) {
   }
 
   function onStagingDragOver(index: number, event: DragEvent): void {
+    if (deps.props.executing) {
+      event.preventDefault();
+      return;
+    }
     state.dragOverCommandId.value = deps.props.queuedCommands[index]?.id ?? null;
     deps.emitStagingDragOver(index, event);
   }

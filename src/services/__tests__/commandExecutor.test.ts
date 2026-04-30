@@ -97,6 +97,44 @@ describe("createCommandExecutor", () => {
     });
   });
 
+  it("defaults safety confirmation to false unless explicitly confirmed", async () => {
+    isTauriMock.mockReturnValue(true);
+    const executor = createCommandExecutor();
+
+    await executor.run({
+      terminalId: "powershell",
+      steps: [
+        {
+          summary: "rm -rf tmp",
+          execution: {
+            kind: "script",
+            runner: "bash",
+            command: "rm -rf tmp"
+          }
+        }
+      ],
+      requiresElevation: false,
+      alwaysElevated: false
+    });
+
+    expect(invokeMock).toHaveBeenCalledWith("run_command_in_terminal", {
+      terminalId: "powershell",
+      steps: [
+        {
+          summary: "rm -rf tmp",
+          execution: {
+            kind: "script",
+            runner: "bash",
+            command: "rm -rf tmp"
+          }
+        }
+      ],
+      requiresElevation: false,
+      alwaysElevated: false,
+      safetyConfirmed: false
+    });
+  });
+
   it("normalizes structured tauri rejection into execution error", async () => {
     isTauriMock.mockReturnValue(true);
     invokeMock.mockRejectedValueOnce({

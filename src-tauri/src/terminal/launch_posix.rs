@@ -2,9 +2,89 @@
 use std::process::Child;
 use std::process::Command as ProcessCommand;
 #[cfg(not(target_os = "windows"))]
+use std::sync::{mpsc, OnceLock};
+#[cfg(not(target_os = "windows"))]
 use std::thread;
+#[cfg(all(test, not(target_os = "windows")))]
+use std::sync::atomic::{AtomicUsize, Ordering};
+#[cfg(not(target_os = "windows"))]
+use std::time::Duration;
 
 use super::TerminalExecutionError;
+
+#[cfg(not(target_os = "windows"))]
+static POSIX_CHILD_REAPER: OnceLock<mpsc::Sender<Child>> = OnceLock::new();
+#[cfg(all(test, not(target_os = "windows")))]
+static POSIX_REAPER_WORKER_START_COUNT: AtomicUsize = AtomicUsize::new(0);
+#[cfg(all(test, not(target_os = "windows")))]
+static POSIX_REAPER_PENDING_CHILD_COUNT: AtomicUsize = AtomicUsize::new(0);
+
+#[cfg(all(test, not(target_os = "windows")))]
+fn increment_pending_child_count_for_test() {
+    POSIX_REAPER_PENDING_CHILD_COUNT.fetch_add(1, Ordering::SeqCst);
+}
+
+#[cfg(not(all(test, not(target_os = "windows"))))]
+fn increment_pending_child_count_for_test() {}
+
+#[cfg(all(test, not(target_os = "windows")))]
+fn decrement_pending_child_count_for_test() {
+    POSIX_REAPER_PENDING_CHILD_COUNT.fetch_sub(1, Ordering::SeqCst);
+}
+
+#[cfg(not(all(test, not(target_os = "windows"))))]
+fn decrement_pending_child_count_for_test() {}
+
+#[cfg(not(target_os = "windows"))]
+fn reap_ready_children(children: &mut Vec<Child>) {
+    let mut index = 0usize;
+    while index < children.len() {
+        match children[index].try_wait() {
+            Ok(Some(_)) | Err(_) => {
+                let mut child = children.swap_remove(index);
+                let _ = child.wait();
+                decrement_pending_child_count_for_test();
+            }
+            Ok(None) => {
+                index += 1;
+            }
+        }
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn shared_child_reaper() -> mpsc::Sender<Child> {
+    POSIX_CHILD_REAPER
+        .get_or_init(|| {
+            #[cfg(test)]
+            POSIX_REAPER_WORKER_START_COUNT.fetch_add(1, Ordering::SeqCst);
+
+            let (tx, rx) = mpsc::channel::<Child>();
+            thread::spawn(move || {
+                let mut children = Vec::<Child>::new();
+                loop {
+                    if children.is_empty() {
+                        match rx.recv() {
+                            Ok(child) => children.push(child),
+                            Err(_) => return,
+                        }
+                    }
+
+                    while let Ok(child) = rx.try_recv() {
+                        children.push(child);
+                    }
+
+                    reap_ready_children(&mut children);
+
+                    if let Ok(child) = rx.recv_timeout(Duration::from_millis(20)) {
+                        children.push(child);
+                    }
+                }
+            });
+            tx
+        })
+        .clone()
+}
 
 #[cfg(not(target_os = "windows"))]
 pub(crate) fn spawn_with_reaper<F>(cmd: &mut ProcessCommand, reaper: F) -> Result<(), String>
@@ -18,11 +98,37 @@ where
 
 #[cfg(not(target_os = "windows"))]
 fn reap_spawned_child_in_background(child: Child) {
-    // 每个终端子进程独立回收，避免前一个长生命周期窗口阻塞后续 child 的 wait。
-    thread::spawn(move || {
-        let mut child = child;
+    increment_pending_child_count_for_test();
+    if let Err(error) = shared_child_reaper().send(child) {
+        let mut child = error.0;
         let _ = child.wait();
-    });
+        decrement_pending_child_count_for_test();
+    }
+}
+
+#[cfg(all(test, not(target_os = "windows")))]
+pub(crate) fn reaper_worker_start_count_for_test() -> usize {
+    POSIX_REAPER_WORKER_START_COUNT.load(Ordering::SeqCst)
+}
+
+#[cfg(all(test, not(target_os = "windows")))]
+pub(crate) fn reaper_pending_child_count_for_test() -> usize {
+    POSIX_REAPER_PENDING_CHILD_COUNT.load(Ordering::SeqCst)
+}
+
+#[cfg(all(test, not(target_os = "windows")))]
+pub(crate) fn wait_for_reaper_pending_child_count_for_test(
+    expected: usize,
+    timeout: Duration,
+) -> bool {
+    let start = std::time::Instant::now();
+    while start.elapsed() < timeout {
+        if reaper_pending_child_count_for_test() == expected {
+            return true;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    reaper_pending_child_count_for_test() == expected
 }
 
 pub(crate) fn spawn_and_forget(cmd: &mut ProcessCommand) -> Result<(), String> {

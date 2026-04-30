@@ -53,7 +53,7 @@ class TauriCommandExecutor implements CommandExecutor {
         steps: request.steps,
         requiresElevation: request.requiresElevation ?? false,
         alwaysElevated: request.alwaysElevated ?? false,
-        safetyConfirmed: request.safetyConfirmed ?? true
+        safetyConfirmed: request.safetyConfirmed === true
       };
 
       await invoke("run_command_in_terminal", payload);

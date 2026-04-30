@@ -71,6 +71,9 @@ function createStageCommandWithPreflight({
     command: CommandTemplate,
     argValues?: Record<string, string>
   ): Promise<void> {
+    if (state.executing.value) {
+      return;
+    }
     if (rejectBlockingIssue(command, "single")) {
       return;
     }
@@ -276,6 +279,9 @@ function createQueuedPreflightRefreshActions({
   state
 }: QueueActionContext) {
   async function refreshQueuedCommandPreflight(id: string): Promise<void> {
+    if (state.executing.value) {
+      return;
+    }
     const target = options.stagedCommands.value.find((command) => command.id === id);
     if (!target) {
       return;
@@ -303,7 +309,11 @@ function createQueuedPreflightRefreshActions({
   }
 
   async function refreshAllQueuedPreflight(): Promise<void> {
-    if (state.refreshingAllQueuedPreflight.value || options.stagedCommands.value.length === 0) {
+    if (
+      state.executing.value ||
+      state.refreshingAllQueuedPreflight.value ||
+      options.stagedCommands.value.length === 0
+    ) {
       return;
     }
 

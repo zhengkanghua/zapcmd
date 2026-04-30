@@ -13,7 +13,7 @@
 - 平台：mac/linux
 - 分类：file
 - 执行：exec
-- 预览：`find {{path}} -name`
+- 预览：`find {{path}} -name {{pattern}}`
 - Tags：文件, file, 查找, find
 
 ### find-file-win
@@ -31,7 +31,7 @@
 - 平台：mac/linux
 - 分类：file
 - 执行：exec
-- 预览：`grep -rn {{path}}`
+- 预览：`grep -rn {{pattern}} {{path}}`
 - Tags：文件, file, 查找, find, 内容, content
 
 ### find-content-win

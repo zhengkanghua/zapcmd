@@ -11,6 +11,9 @@ export function createCommandExecutionActions(
   state: CommandExecutionState
 ) {
   function clearStaging(): void {
+    if (state.executing.value) {
+      return;
+    }
     const count = options.stagedCommands.value.length;
     options.stagedCommands.value = [];
     if (count > 0) {
@@ -34,6 +37,9 @@ export function createCommandExecutionActions(
   });
 
   function removeStagedCommand(id: string): void {
+    if (state.executing.value) {
+      return;
+    }
     options.stagedCommands.value = options.stagedCommands.value.filter((cmd) => cmd.id !== id);
     if (options.stagingActiveIndex.value >= options.stagedCommands.value.length) {
       options.stagingActiveIndex.value = Math.max(0, options.stagedCommands.value.length - 1);
@@ -42,6 +48,9 @@ export function createCommandExecutionActions(
   }
 
   function updateStagedArg(id: string, key: string, value: string): void {
+    if (state.executing.value) {
+      return;
+    }
     options.stagedCommands.value = options.stagedCommands.value.map((cmd: StagedCommand) => {
       if (cmd.id !== id || cmd.args.length === 0) {
         return cmd;

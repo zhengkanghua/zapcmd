@@ -4,6 +4,7 @@ import type {
   ResolvedCommandExecution
 } from "../commands/commandTemplates";
 import { t } from "../../i18n";
+import type { RuntimeScriptRunner } from "../commands/runtimeTypes";
 
 export interface ResolvedCommandExecutionResult {
   renderedPreview: string;
@@ -50,6 +51,44 @@ function replaceArgTokens(
   let rendered = value;
   for (const arg of args) {
     rendered = rendered.split(arg.token).join(resolvedValues[arg.key] ?? "");
+  }
+  return rendered;
+}
+
+function quotePosixSingleQuoted(value: string): string {
+  return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+function quotePowerShellSingleQuoted(value: string): string {
+  return `'${value.replaceAll("'", "''")}'`;
+}
+
+function quoteCmdArgument(value: string): string {
+  return `"${value.replaceAll("^", "^^").replaceAll("\"", "\\\"")}"`;
+}
+
+function quoteScriptArgValue(runner: RuntimeScriptRunner, value: string): string {
+  if (runner === "powershell" || runner === "pwsh") {
+    return quotePowerShellSingleQuoted(value);
+  }
+  if (runner === "cmd") {
+    return quoteCmdArgument(value);
+  }
+  return quotePosixSingleQuoted(value);
+}
+
+function replaceScriptArgTokens(
+  value: string,
+  runner: RuntimeScriptRunner,
+  args: CommandArg[],
+  resolvedValues: Record<string, string>
+): string {
+  let rendered = value;
+  for (const arg of args) {
+    const replacement = quoteScriptArgValue(runner, resolvedValues[arg.key] ?? "");
+    rendered = rendered.split(`"${arg.token}"`).join(replacement);
+    rendered = rendered.split(`'${arg.token}'`).join(replacement);
+    rendered = rendered.split(arg.token).join(replacement);
   }
   return rendered;
 }
@@ -120,7 +159,7 @@ function resolveScriptCommand(
   commandArgs: CommandArg[],
   resolvedValues: Record<string, string>
 ): ResolvedCommandExecutionResult {
-  const renderedCommand = replaceArgTokens(command, commandArgs, resolvedValues).trim();
+  const renderedCommand = replaceScriptArgTokens(command, runner, commandArgs, resolvedValues).trim();
   return {
     renderedPreview: collapsePreviewWhitespace(`${runner}: ${renderedCommand}`),
     execution: {

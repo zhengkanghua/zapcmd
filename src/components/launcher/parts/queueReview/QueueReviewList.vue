@@ -144,6 +144,7 @@ function isRefreshingCommand(cmdId: string): boolean {
                   type="button"
                   class="flow-card__param-value inline-flex min-w-0 items-center text-left text-ui-accent cursor-pointer p-[2px_8px] bg-ui-brand/12 border border-ui-brand/20 rounded-[4px] transition-launcher-surface duration-120 hover:bg-ui-brand/20 hover:border-ui-brand/35 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ui-brand/24 font-mono"
                   :aria-label="`${arg.label}: ${cmd.argValues[arg.key] || arg.defaultValue || '...'}`"
+                  :disabled="props.executing"
                   @click.stop="
                     props.startParamEdit(
                       cmd.id,

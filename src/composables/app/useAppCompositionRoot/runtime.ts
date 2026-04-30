@@ -2,11 +2,7 @@ import { computed } from "vue";
 import type { CommandArg, CommandTemplate } from "../../../features/commands/commandTemplates";
 import { t } from "../../../i18n";
 import { getCommandArgs } from "../../../features/launcher/commandRuntime";
-import {
-  restorePersistedLauncherSessionCommandSnapshot,
-  type PersistedLauncherSessionCommand,
-  resolveStagedCommandSourceId
-} from "../../../features/launcher/stagedCommands";
+import type { PersistedLauncherSessionCommand } from "../../../features/launcher/stagedCommands";
 import { cleanExpiredDismissals } from "../../../features/security/dangerDismiss";
 import { isTypingElement, useMainWindowShell } from "../../launcher/useMainWindowShell";
 import { useAppWindowKeydown } from "../useAppWindowKeydown";
@@ -32,23 +28,20 @@ import {
   createWindowSizingSettleNotifiers
 } from "./launcherRuntimeBindings";
 import { bindStagedCatalogSync } from "./stagedCatalogSync";
+import {
+  resolveLauncherSearchFocusBlocked,
+  restoreLauncherSessionCommands
+} from "./launcherRuntimeSupport";
 
 type LauncherRuntime = ReturnType<typeof createLauncherRuntime>;
 
-function restoreLauncherSessionCommands(
+function restoreRuntimeSessionCommands(
   context: LauncherRuntimeContext,
   commands: PersistedLauncherSessionCommand[]
 ): StagedCommand[] {
-  // 只有在 catalog ready 之后才恢复，并按当前模板重建队列项；找不到模板时保留为 stale 条目并阻断执行。
-  const templatesById = new Map(
-    context.commandCatalog.allCommandTemplates.value.map((item) => [item.id, item])
-  );
-
-  return commands.map((item) =>
-    restorePersistedLauncherSessionCommandSnapshot(
-      item,
-      templatesById.get(resolveStagedCommandSourceId(item))
-    )
+  return restoreLauncherSessionCommands(
+    commands,
+    context.commandCatalog.allCommandTemplates.value
   );
 }
 
@@ -72,7 +65,7 @@ function createLauncherRuntime(context: LauncherRuntimeContext) {
     stagedCommands: context.stagedCommands,
     stagingExpanded: stagingQueue.queueOpen,
     suspendPersistence: context.stagingGripReorderActive,
-    restoreStagedCommands: (commands) => restoreLauncherSessionCommands(context, commands),
+    restoreStagedCommands: (commands) => restoreRuntimeSessionCommands(context, commands),
     openStagingDrawer: stagingQueue.openQueuePanel
   });
   bindStagedCatalogSync({
@@ -147,10 +140,12 @@ function createLauncherRuntime(context: LauncherRuntimeContext) {
   });
   context.ensureActiveStagingVisibleRef.value = visibility.ensureActiveStagingVisible;
   context.shouldBlockSearchInputFocusRef.value = () =>
-    stagingQueue.queueOpen.value ||
-    commandExecution.executing.value ||
-    commandPageOpen.value ||
-    commandExecution.safetyDialog.value !== null;
+    resolveLauncherSearchFocusBlocked({
+      queueOpen: stagingQueue.queueOpen,
+      executing: commandExecution.executing,
+      commandPageOpen,
+      safetyDialog: commandExecution.safetyDialog
+    });
 
   const pendingArgs = computed<CommandArg[]>(() =>
     commandExecution.pendingCommand.value ? getCommandArgs(commandExecution.pendingCommand.value) : []

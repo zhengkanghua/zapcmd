@@ -78,3 +78,5 @@
 - 2026-04-29：执行链继续加固：`cmd/wt` exec 空格路径按 Windows argv 引用，PowerShell step 同时检查 `$?` 与 `$LASTEXITCODE` fail-fast；用户命令 `validation.pattern` 超过 512 字符标记为配置错误。
 - 2026-04-30：审计加固分支处理中；已补终端探测超时、用户命令扫描前置限额、窗口 resize 尺寸校验/错误传播、catalog 刷新失败保留 last-known-good 缓存。
 - 2026-04-30：本轮审计整改已修队列 argValues 持久化/恢复、Rust 执行安全确认兜底、队列执行前 preflight 有限并发、macOS 终端命令改 argv 传参；待最终门禁验证。
+- 2026-04-30：技术审计整改续作已落地：执行安全确认默认 fail-closed、队列执行期冻结编辑、file 搜索 stdin 误用修正、script token runner-aware 转义、POSIX 共享 reaper、Windows 终端 stale cache 执行优先与 runtime helper 抽取；待全量验证。
+- 2026-04-30：上述技术审计整改已通过 `npm run check:all`；期间按生成器补齐 `docs/generated_commands/_file.md`。

@@ -12,6 +12,8 @@ use super::TerminalExecutionError;
 use super::TerminalExecutionStep;
 use super::TerminalOption;
 use super::cache::{discover_available_terminals, refresh_available_terminals_impl};
+#[cfg(target_os = "windows")]
+use super::cache::discover_available_terminals_for_execution;
 use super::execution_common::validate_execution_safety_confirmation;
 #[cfg(target_os = "windows")]
 use super::cache::cached_terminal_option_requires_refresh;
@@ -36,7 +38,7 @@ fn resolve_windows_terminal_program(
     state: &AppState,
     terminal_id: &str,
 ) -> Result<windows_routing::ResolvedTerminalProgram, TerminalExecutionError> {
-    let options = discover_available_terminals(app, state);
+    let options = discover_available_terminals_for_execution(app, state);
     let cached_option = options
         .iter()
         .find(|option| option.id == terminal_id)

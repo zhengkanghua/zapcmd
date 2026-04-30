@@ -1,5 +1,6 @@
 use crate::terminal::discovery_cache::{
     cached_terminal_option_requires_refresh,
+    pick_any_cached_terminal_snapshot,
     pick_cached_terminal_snapshot,
     should_persist_terminal_discovery_snapshot,
     TERMINAL_DISCOVERY_CACHE_TTL_MS,
@@ -85,6 +86,19 @@ fn pick_cached_terminal_snapshot_expires_after_one_hour() {
     let picked = pick_cached_terminal_snapshot(None, Some(&persisted), 1_000 + 60 * 60 * 1000 + 1);
 
     assert_eq!(picked, None);
+}
+
+#[test]
+fn pick_any_cached_terminal_snapshot_returns_expired_cache_for_stale_while_revalidate() {
+    let memory = create_snapshot(1_000, &["powershell"]);
+    let persisted = create_snapshot(2_000, &["wt"]);
+
+    let picked = pick_any_cached_terminal_snapshot(
+        Some(&memory),
+        Some(&persisted),
+    );
+
+    assert_eq!(picked, Some(persisted));
 }
 
 #[test]

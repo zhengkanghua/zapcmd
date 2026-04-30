@@ -1010,6 +1010,38 @@ describe("useCommandExecution", () => {
     expect(harness.stagedCommands.value[0]?.renderedPreview).toBe("sudo ufw allow 9527/tcp");
   });
 
+  it("freezes queued commands while execution is in flight", async () => {
+    const harness = createHarness(true);
+    let releaseRun!: () => void;
+    const runReleased = new Promise<void>((resolve) => {
+      releaseRun = resolve;
+    });
+    harness.runCommandsInTerminal.mockReturnValueOnce(runReleased);
+    const command = createArgCommand();
+
+    harness.execution.stageResult(command);
+    harness.execution.updatePendingArgValue("value", "3000");
+    harness.execution.submitParamInput();
+    await flushExecution();
+    const stagedId = harness.stagedCommands.value[0]?.id;
+    expect(stagedId).toBeTruthy();
+
+    const pending = harness.execution.executeStaged();
+    await flushExecution();
+    expect(harness.execution.executing.value).toBe(true);
+
+    harness.execution.updateStagedArg(stagedId!, "value", "9527");
+    harness.execution.removeStagedCommand(stagedId!);
+    harness.execution.clearStaging();
+
+    expect(harness.stagedCommands.value).toHaveLength(1);
+    expect(harness.stagedCommands.value[0]?.argValues.value).toBe("3000");
+    expect(harness.stagedCommands.value[0]?.renderedPreview).toBe("sudo ufw allow 3000/tcp");
+
+    releaseRun();
+    await pending;
+  });
+
   it("blocks queue execution when param/safety flow is open (shows toast, does not run terminal)", async () => {
     const harness = createHarness(true);
     harness.execution.stageResult(createNoArgCommand());

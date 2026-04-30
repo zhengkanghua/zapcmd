@@ -240,6 +240,52 @@ fn spawn_and_forget_reaps_short_lived_child_without_waiting_for_previous_long_li
     );
 }
 
+#[cfg(not(target_os = "windows"))]
+#[test]
+fn spawn_and_forget_reuses_shared_reaper_worker() {
+    use crate::terminal::launch_posix::{
+        reaper_worker_start_count_for_test,
+    };
+
+    let before = reaper_worker_start_count_for_test();
+
+    let mut first = ProcessCommand::new("sh");
+    first.args(["-c", "exit 0"]);
+    spawn_and_forget(&mut first).expect("first child should spawn");
+
+    let mut second = ProcessCommand::new("sh");
+    second.args(["-c", "exit 0"]);
+    spawn_and_forget(&mut second).expect("second child should spawn");
+
+    assert_eq!(
+        reaper_worker_start_count_for_test(),
+        if before == 0 { 1 } else { before },
+        "spawn_and_forget should reuse one shared child reaper instead of creating one long-lived worker per child"
+    );
+}
+
+#[cfg(not(target_os = "windows"))]
+#[test]
+fn spawn_and_forget_shared_reaper_does_not_block_short_lived_child_behind_long_lived_child() {
+    use crate::terminal::launch_posix::{
+        reaper_pending_child_count_for_test, wait_for_reaper_pending_child_count_for_test,
+    };
+
+    let mut long_lived = ProcessCommand::new("sh");
+    long_lived.args(["-c", "sleep 0.3"]);
+    spawn_and_forget(&mut long_lived).expect("long-lived child should spawn");
+
+    let mut short_lived = ProcessCommand::new("sh");
+    short_lived.args(["-c", "exit 0"]);
+    spawn_and_forget(&mut short_lived).expect("short-lived child should spawn");
+
+    assert!(
+        wait_for_reaper_pending_child_count_for_test(1, Duration::from_millis(200)),
+        "short-lived child should be reaped while the long-lived child is still running; pending={}",
+        reaper_pending_child_count_for_test()
+    );
+}
+
 #[cfg(target_os = "windows")]
 mod windows {
     use crate::terminal::execution::build_windows_host_command;

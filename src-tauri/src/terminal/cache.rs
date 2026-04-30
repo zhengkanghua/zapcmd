@@ -1,6 +1,8 @@
 use std::path::{Path, PathBuf};
 #[cfg(desktop)]
 use std::sync::atomic::Ordering;
+#[cfg(target_os = "windows")]
+use std::thread;
 
 #[cfg(desktop)]
 use crate::app_state::AppState;
@@ -19,6 +21,8 @@ use super::discovery_cache::{
     should_persist_terminal_discovery_snapshot,
     write_persisted_terminal_snapshot,
 };
+#[cfg(target_os = "windows")]
+use super::discovery_cache::pick_any_cached_terminal_snapshot;
 
 fn resolve_terminal_cache_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     let app_data = app
@@ -148,6 +152,23 @@ fn load_cached_terminal_snapshot(
     None
 }
 
+#[cfg(target_os = "windows")]
+fn load_any_terminal_snapshot(
+    app: &tauri::AppHandle,
+    state: &AppState,
+) -> Option<TerminalDiscoverySnapshot> {
+    let memory = read_memory_terminal_snapshot(state).ok().flatten();
+    let cache_path = resolve_terminal_cache_path(app).ok();
+    let persisted = cache_path
+        .as_ref()
+        .and_then(|path| read_persisted_terminal_snapshot(path.as_path()));
+    let selected = pick_any_cached_terminal_snapshot(memory.as_ref(), persisted.as_ref());
+    if let Some(snapshot) = selected.clone() {
+        let _ = write_memory_terminal_snapshot(state, Some(snapshot.clone()));
+    }
+    selected
+}
+
 fn cached_terminal_snapshot_requires_refresh(options: &[TerminalOption]) -> bool {
     options.iter().any(|option| {
         cached_terminal_option_requires_refresh(
@@ -167,6 +188,60 @@ pub(crate) fn discover_available_terminals(
             return snapshot.options;
         }
 
+        clear_terminal_discovery_cache(app, state);
+    }
+
+    run_terminal_discovery(state, |options| {
+        persist_terminal_discovery_snapshot(app, state, options);
+    })
+}
+
+#[cfg(target_os = "windows")]
+fn claim_terminal_refresh(state: &AppState) -> bool {
+    state
+        .terminal_refresh_inflight
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+}
+
+#[cfg(target_os = "windows")]
+fn run_background_terminal_refresh(app: tauri::AppHandle) {
+    {
+        let state = app.state::<AppState>();
+        if !claim_terminal_refresh(&state) {
+            return;
+        }
+    }
+
+    thread::spawn(move || {
+        struct RefreshGuard<'a> {
+            state: &'a AppState,
+        }
+
+        impl Drop for RefreshGuard<'_> {
+            fn drop(&mut self) {
+                self.state
+                    .terminal_refresh_inflight
+                    .store(false, Ordering::SeqCst);
+            }
+        }
+
+        let state = app.state::<AppState>();
+        let _guard = RefreshGuard { state: &state };
+        let _ = refresh_available_terminals_impl(&app, &state);
+    });
+}
+
+#[cfg(target_os = "windows")]
+pub(crate) fn discover_available_terminals_for_execution(
+    app: &tauri::AppHandle,
+    state: &AppState,
+) -> Vec<TerminalOption> {
+    if let Some(snapshot) = load_any_terminal_snapshot(app, state) {
+        if !cached_terminal_snapshot_requires_refresh(snapshot.options.as_slice()) {
+            run_background_terminal_refresh(app.clone());
+            return snapshot.options;
+        }
         clear_terminal_discovery_cache(app, state);
     }
 

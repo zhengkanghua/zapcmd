@@ -43,6 +43,24 @@ pub(crate) fn pick_cached_terminal_snapshot(
         .cloned()
 }
 
+#[cfg(any(target_os = "windows", test))]
+pub(crate) fn pick_any_cached_terminal_snapshot(
+    memory: Option<&TerminalDiscoverySnapshot>,
+    persisted: Option<&TerminalDiscoverySnapshot>,
+) -> Option<TerminalDiscoverySnapshot> {
+    match (memory, persisted) {
+        (Some(left), Some(right)) => {
+            if left.checked_at_ms >= right.checked_at_ms {
+                Some(left.clone())
+            } else {
+                Some(right.clone())
+            }
+        }
+        (Some(snapshot), None) | (None, Some(snapshot)) => Some(snapshot.clone()),
+        (None, None) => None,
+    }
+}
+
 fn looks_like_explicit_path(value: &str) -> bool {
     let trimmed = value.trim();
     trimmed.contains('/') || trimmed.contains('\\') || Path::new(trimmed).is_absolute()

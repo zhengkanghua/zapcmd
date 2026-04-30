@@ -134,6 +134,25 @@ describe("runtimeLoader", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("passes file search patterns as argv instead of stdin", async () => {
+    const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "linux" });
+    const findFile = templates.find((item) => item.id === "find-file-linux");
+    const findContent = templates.find((item) => item.id === "find-content-linux");
+
+    expect(findFile?.execution).toEqual({
+      kind: "exec",
+      program: "find",
+      args: ["{{path}}", "-name", "{{pattern}}"],
+      stdinArgKey: undefined
+    });
+    expect(findContent?.execution).toEqual({
+      kind: "exec",
+      program: "grep",
+      args: ["-rn", "{{pattern}}", "{{path}}"],
+      stdinArgKey: undefined
+    });
+  });
+
   it("does not keep generic shell prerequisite in builtin templates", async () => {
     const templates = await loadBuiltinCommandTemplates({ runtimePlatform: "all" });
     const offenders = templates.flatMap((item) =>

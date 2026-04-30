@@ -156,11 +156,95 @@ describe("commandRuntime", () => {
 
     const resolved = resolveCommandExecution(command, { message: "   " });
 
-    expect(resolved.renderedPreview).toBe("bash: echo hello");
+    expect(resolved.renderedPreview).toBe("bash: echo 'hello'");
     expect(resolved.execution).toEqual({
       kind: "script",
       runner: "bash",
-      command: "echo hello"
+      command: "echo 'hello'"
+    });
+  });
+
+  it("quotes bash script token values by runner instead of raw interpolation", () => {
+    const command = createTemplate({
+      execution: {
+        kind: "script",
+        runner: "bash",
+        command: "echo {{message}}"
+      },
+      needsArgs: true,
+      args: [
+        {
+          key: "message",
+          label: "Message",
+          token: "{{message}}",
+          required: true
+        }
+      ]
+    });
+
+    const resolved = resolveCommandExecution(command, {
+      message: "a b ' c"
+    });
+
+    expect(resolved.execution).toEqual({
+      kind: "script",
+      runner: "bash",
+      command: "echo 'a b '\\'' c'"
+    });
+  });
+
+  it("quotes powershell script token values by runner instead of raw interpolation", () => {
+    const command = createTemplate({
+      execution: {
+        kind: "script",
+        runner: "powershell",
+        command: "Write-Output {{message}}"
+      },
+      needsArgs: true,
+      args: [
+        {
+          key: "message",
+          label: "Message",
+          token: "{{message}}",
+          required: true
+        }
+      ]
+    });
+
+    const resolved = resolveCommandExecution(command, {
+      message: "alpha ' beta"
+    });
+
+    expect(resolved.execution).toEqual({
+      kind: "script",
+      runner: "powershell",
+      command: "Write-Output 'alpha '' beta'"
+    });
+  });
+
+  it("replaces already quoted script tokens without adding nested literal quotes", () => {
+    const command = createTemplate({
+      execution: {
+        kind: "script",
+        runner: "powershell",
+        command: "Select-String -Pattern \"{{pattern}}\" -Path \"{{path}}\""
+      },
+      needsArgs: true,
+      args: [
+        { key: "pattern", label: "Pattern", token: "{{pattern}}", required: true },
+        { key: "path", label: "Path", token: "{{path}}", required: true }
+      ]
+    });
+
+    const resolved = resolveCommandExecution(command, {
+      pattern: "error",
+      path: "app.log"
+    });
+
+    expect(resolved.execution).toEqual({
+      kind: "script",
+      runner: "powershell",
+      command: "Select-String -Pattern 'error' -Path 'app.log'"
     });
   });
 
