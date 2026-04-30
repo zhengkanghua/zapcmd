@@ -41,26 +41,28 @@ pub(crate) fn terminal_launch_failed(message: impl Into<String>) -> TerminalExec
     TerminalExecutionError::new("terminal-launch-failed", message)
 }
 
-#[cfg(target_os = "macos")]
-pub(crate) fn build_command_macos(terminal_id: &str, command: &str) -> ProcessCommand {
-    let escaped = command.replace('\\', "\\\\").replace('\"', "\\\"");
-    match terminal_id {
+#[cfg(any(target_os = "macos", test))]
+pub(crate) fn build_macos_osascript_args(terminal_id: &str, command: &str) -> Vec<String> {
+    let script = match terminal_id {
         "iterm2" => {
-            let script = format!(
-                "tell application \"iTerm\" to create window with default profile command \"{}\"",
-                escaped
-            );
-            let mut process = ProcessCommand::new("osascript");
-            process.args(["-e", &script]);
-            process
+            r#"on run argv
+  tell application "iTerm" to create window with default profile command (item 1 of argv)
+end run"#
         }
         _ => {
-            let script = format!("tell application \"Terminal\" to do script \"{}\"", escaped);
-            let mut process = ProcessCommand::new("osascript");
-            process.args(["-e", &script]);
-            process
+            r#"on run argv
+  tell application "Terminal" to do script (item 1 of argv)
+end run"#
         }
-    }
+    };
+    vec!["-e".to_string(), script.to_string(), command.to_string()]
+}
+
+#[cfg(target_os = "macos")]
+pub(crate) fn build_command_macos(terminal_id: &str, command: &str) -> ProcessCommand {
+    let mut process = ProcessCommand::new("osascript");
+    process.args(build_macos_osascript_args(terminal_id, command));
+    process
 }
 
 #[cfg(target_os = "macos")]

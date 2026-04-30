@@ -166,15 +166,23 @@ function createExecuteStagedAction({
         return;
       }
 
-      const blockingIssues = [];
-      const warningIssues = [];
-      const nextCaches = new Map<string, StagedCommand["preflightCache"]>();
-      for (const item of snapshot) {
-        const preflight = await collectStagedCommandPreflight(options, item);
-        nextCaches.set(item.id, preflight.cache);
-        blockingIssues.push(...collectBlockingPreflightIssues(preflight.issues));
-        warningIssues.push(...collectWarningPreflightIssues(preflight.issues));
-      }
+      const preflightResults = await mapWithConcurrencyLimit(
+        snapshot,
+        QUEUED_PREFLIGHT_REFRESH_CONCURRENCY,
+        async (item) => ({
+          id: item.id,
+          preflight: await collectStagedCommandPreflight(options, item)
+        })
+      );
+      const blockingIssues = preflightResults.flatMap((item) =>
+        collectBlockingPreflightIssues(item.preflight.issues)
+      );
+      const warningIssues = preflightResults.flatMap((item) =>
+        collectWarningPreflightIssues(item.preflight.issues)
+      );
+      const nextCaches = new Map(
+        preflightResults.map((item) => [item.id, item.preflight.cache])
+      );
 
       if (nextCaches.size > 0) {
         options.stagedCommands.value = options.stagedCommands.value.map((command: StagedCommand) => {

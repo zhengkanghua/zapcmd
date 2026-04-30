@@ -108,17 +108,25 @@ describe("stagedCommands session snapshot helpers", () => {
       id: "docker-logs-1",
       sourceCommandId: "docker-logs",
       title: "Docker Logs",
-      rawPreview: "docker logs {{container}} --tail {{tail}}"
+      rawPreview: "docker logs {{container}} --tail {{tail}}",
+      argValues: {
+        container: "api",
+        tail: "30"
+      }
     });
   });
 
-  it("rebuilds a full staged command from minimal snapshot when the current template still exists", () => {
+  it("rebuilds a full staged command with persisted args when the current template still exists", () => {
     const restored = restorePersistedLauncherSessionCommandSnapshot(
       {
         id: "docker-logs-1",
         sourceCommandId: "docker-logs",
         title: "旧标题",
-        rawPreview: "docker logs {{container}} --tail 120"
+        rawPreview: "docker logs {{container}} --tail 120",
+        argValues: {
+          container: "worker",
+          tail: "120"
+        }
       },
       createTemplate()
     );
@@ -127,8 +135,16 @@ describe("stagedCommands session snapshot helpers", () => {
     expect(restored.sourceCommandId).toBe("docker-logs");
     expect(restored.title).toBe("Docker Logs");
     expect(restored.rawPreview).toBe("docker logs {{container}} --tail {{tail}}");
-    expect(restored.renderedPreview).toBe("docker logs api --tail 30");
-    expect(restored.argValues).toEqual({});
+    expect(restored.renderedPreview).toBe("docker logs worker --tail 120");
+    expect(restored.argValues).toEqual({
+      container: "worker",
+      tail: "120"
+    });
+    expect(restored.execution).toEqual({
+      kind: "exec",
+      program: "docker",
+      args: ["logs", "worker", "--tail", "120"]
+    });
     expect(restored.args).toHaveLength(2);
     expect(restored.preflightCache).toBeUndefined();
     expect(restored.blockingIssue).toBeUndefined();

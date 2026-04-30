@@ -77,3 +77,4 @@
 - 2026-04-29：Windows 后端执行入口加固：`run_command_in_terminal` 增加 steps/字段/总字节预算，`cmd` host 的结构化 exec 对控制元字符转义；preflight probe 增加数量/字段预算，超限 fail-closed。相关 Rust 定向与 `cargo check` 通过。
 - 2026-04-29：执行链继续加固：`cmd/wt` exec 空格路径按 Windows argv 引用，PowerShell step 同时检查 `$?` 与 `$LASTEXITCODE` fail-fast；用户命令 `validation.pattern` 超过 512 字符标记为配置错误。
 - 2026-04-30：审计加固分支处理中；已补终端探测超时、用户命令扫描前置限额、窗口 resize 尺寸校验/错误传播、catalog 刷新失败保留 last-known-good 缓存。
+- 2026-04-30：本轮审计整改已修队列 argValues 持久化/恢复、Rust 执行安全确认兜底、队列执行前 preflight 有限并发、macOS 终端命令改 argv 传参；待最终门禁验证。

@@ -35,7 +35,8 @@ describe("createCommandExecutor", () => {
         }
       ],
       requiresElevation: true,
-      alwaysElevated: false
+      alwaysElevated: false,
+      safetyConfirmed: true
     });
 
     expect(invokeMock).toHaveBeenCalledTimes(1);
@@ -52,7 +53,8 @@ describe("createCommandExecutor", () => {
         }
       ],
       requiresElevation: true,
-      alwaysElevated: false
+      alwaysElevated: false,
+      safetyConfirmed: true
     });
   });
 
@@ -73,7 +75,8 @@ describe("createCommandExecutor", () => {
         }
       ],
       requiresElevation: true,
-      alwaysElevated: false
+      alwaysElevated: false,
+      safetyConfirmed: true
     });
 
     expect(invokeMock).toHaveBeenCalledWith("run_command_in_terminal", {
@@ -89,7 +92,8 @@ describe("createCommandExecutor", () => {
         }
       ],
       requiresElevation: true,
-      alwaysElevated: false
+      alwaysElevated: false,
+      safetyConfirmed: true
     });
   });
 

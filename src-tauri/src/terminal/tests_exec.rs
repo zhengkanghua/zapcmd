@@ -3,7 +3,7 @@ use crate::terminal::execution_common::{
     build_cmd_safe_windows_process_command, build_powershell_step_failure_guard,
 };
 use crate::terminal::execution::sanitize_command;
-use crate::terminal::execution_common::sanitize_steps;
+use crate::terminal::execution_common::{sanitize_steps, validate_execution_safety_confirmation};
 
 #[cfg(not(target_os = "windows"))]
 use std::process::Child;
@@ -65,6 +65,18 @@ fn assert_command(cmd: &ProcessCommand, expected_program: &str, expected_args: &
 }
 
 #[test]
+fn macos_terminal_launch_passes_command_via_argv_instead_of_inlining_script_text() {
+    let command = "printf 'hello\nworld' && echo \"quoted\"";
+    let args = crate::terminal::launch_posix::build_macos_osascript_args("terminal", command);
+
+    assert_eq!(args.last().map(String::as_str), Some(command));
+    assert!(
+        args.get(1).is_some_and(|script| !script.contains(command)),
+        "AppleScript source must not inline the command payload"
+    );
+}
+
+#[test]
 fn sanitize_command_trims() {
     assert_eq!(sanitize_command("   echo 1  ").unwrap(), "echo 1");
 }
@@ -114,6 +126,39 @@ fn sanitize_steps_rejects_oversized_execution_field_at_ipc_boundary() {
             "Execution field exceeds maximum size of 8192 bytes."
         )
     );
+}
+
+#[test]
+fn execution_safety_confirmation_rejects_risky_steps_without_confirmation() {
+    let steps = vec![script_step("remove files", "bash", "rm -rf /tmp/zapcmd-risk")];
+
+    assert_eq!(
+        validate_execution_safety_confirmation(steps.as_slice(), false, false, false).unwrap_err(),
+        TerminalExecutionError::new(
+            "safety-confirmation-required",
+            "Risky execution requires explicit safety confirmation."
+        )
+    );
+}
+
+#[test]
+fn execution_safety_confirmation_rejects_elevation_without_confirmation() {
+    let steps = vec![script_step("admin task", "powershell", "Write-Host admin")];
+
+    assert_eq!(
+        validate_execution_safety_confirmation(steps.as_slice(), true, false, false).unwrap_err(),
+        TerminalExecutionError::new(
+            "safety-confirmation-required",
+            "Risky execution requires explicit safety confirmation."
+        )
+    );
+}
+
+#[test]
+fn execution_safety_confirmation_allows_confirmed_risky_steps() {
+    let steps = vec![script_step("kill task", "cmd", "taskkill /F /PID 1234")];
+
+    assert!(validate_execution_safety_confirmation(steps.as_slice(), false, false, true).is_ok());
 }
 
 #[test]

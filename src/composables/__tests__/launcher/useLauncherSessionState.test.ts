@@ -21,7 +21,9 @@ interface MockStorage {
 type SessionCommandLike = Pick<
   StagedCommand,
   "id" | "sourceCommandId" | "title" | "rawPreview"
->;
+> & {
+  argValues?: Record<string, string>;
+};
 
 function createStorage(initialValue: string | null): MockStorage {
   let value = initialValue;
@@ -118,7 +120,8 @@ function restoreSnapshots(commands: readonly SessionCommandLike[]): StagedComman
     createStagedCommand(command.id, {
       sourceCommandId: command.sourceCommandId,
       title: command.title,
-      rawPreview: command.rawPreview
+      rawPreview: command.rawPreview,
+      argValues: command.argValues ?? {}
     })
   );
 }
@@ -202,7 +205,8 @@ describe("useLauncherSessionState", () => {
       createPersistedCommandSnapshot("restored", {
         sourceCommandId: "docker-logs",
         title: "Docker Logs",
-        rawPreview: "docker logs {{target}}"
+        rawPreview: "docker logs {{target}}",
+        argValues: {}
       })
     ]);
     expect(stagedCommands.value[0]?.title).toBe("Docker Logs");
@@ -399,7 +403,7 @@ describe("useLauncherSessionState", () => {
     expect(storage.getItem).not.toHaveBeenCalled();
   });
 
-  it("persists queue structure asynchronously using only the minimal snapshot payload", async () => {
+  it("persists queue structure asynchronously with command args but without runtime-only payload", async () => {
     vi.useFakeTimers();
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([]);
@@ -449,9 +453,14 @@ describe("useLauncherSessionState", () => {
       createPersistedCommandSnapshot("a", {
         sourceCommandId: "docker-logs",
         title: "Docker Logs",
-        rawPreview: "docker logs {{target}}"
+        rawPreview: "docker logs {{target}}",
+        argValues: {
+          target: "api"
+        }
       }),
-      createPersistedCommandSnapshot("b")
+      createPersistedCommandSnapshot("b", {
+        argValues: {}
+      })
     ]);
   });
 
@@ -595,7 +604,7 @@ describe("useLauncherSessionState", () => {
     expect(readLatestPayload(storage).stagedCommands.map((item) => item.id)).toEqual(["b", "a"]);
   });
 
-  it("does not persist when only argValues and renderedPreview change", async () => {
+  it("persists when argValues change so restored queue commands keep user input", async () => {
     vi.useFakeTimers();
     const storage = createStorage(null);
     const stagedCommands = ref<StagedCommand[]>([
@@ -625,7 +634,12 @@ describe("useLauncherSessionState", () => {
     vi.runAllTimers();
     await nextTick();
 
-    expect(storage.setItem).not.toHaveBeenCalled();
+    expect(readLatestPayload(storage).stagedCommands[0]).toMatchObject({
+      id: "debounced",
+      argValues: {
+        pid: "123"
+      }
+    });
   });
 
   it("does not persist when only preflightCache changes", async () => {
@@ -766,7 +780,8 @@ describe("useLauncherSessionState", () => {
     expect(storage.setItem).toHaveBeenCalledTimes(1);
     expect(readLatestPayload(storage).stagedCommands[0]).toEqual(
       createPersistedCommandSnapshot("debounced", {
-        rawPreview: "echo debounced"
+        rawPreview: "echo debounced",
+        argValues: {}
       })
     );
   });

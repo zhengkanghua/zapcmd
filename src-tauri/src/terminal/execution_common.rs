@@ -3,6 +3,15 @@ use super::{ExecutionSpec, TerminalExecutionError, TerminalExecutionStep};
 const MAX_EXECUTION_STEPS: usize = 32;
 const MAX_EXECUTION_FIELD_BYTES: usize = 8 * 1024;
 const MAX_EXECUTION_TOTAL_BYTES: usize = 256 * 1024;
+const RISKY_EXECUTION_PATTERNS: &[&str] = &[
+    "rm -rf",
+    "taskkill",
+    "stop-process",
+    "kill -9",
+    "shutdown /",
+    "format ",
+    "del /",
+];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum SanitizedExecutionSpec {
@@ -224,6 +233,54 @@ pub(super) fn sanitize_steps(
             Ok(SanitizedExecutionStep { summary, execution })
         })
         .collect()
+}
+
+fn execution_text_for_safety(step: &TerminalExecutionStep) -> String {
+    match &step.execution {
+        ExecutionSpec::Exec {
+            program,
+            args,
+            stdin,
+            ..
+        } => {
+            let mut parts = Vec::with_capacity(args.len() + 2);
+            parts.push(program.as_str());
+            parts.extend(args.iter().map(String::as_str));
+            if let Some(value) = stdin.as_ref() {
+                parts.push(value.as_str());
+            }
+            parts.join(" ")
+        }
+        ExecutionSpec::Script { runner, command } => format!("{} {}", runner, command),
+    }
+}
+
+fn step_requires_safety_confirmation(step: &TerminalExecutionStep) -> bool {
+    let normalized = execution_text_for_safety(step).to_ascii_lowercase();
+    RISKY_EXECUTION_PATTERNS
+        .iter()
+        .any(|pattern| normalized.contains(pattern))
+}
+
+pub(crate) fn validate_execution_safety_confirmation(
+    steps: &[TerminalExecutionStep],
+    requires_elevation: bool,
+    always_elevated: bool,
+    safety_confirmed: bool,
+) -> Result<(), TerminalExecutionError> {
+    if safety_confirmed {
+        return Ok(());
+    }
+    let risky = requires_elevation
+        || always_elevated
+        || steps.iter().any(step_requires_safety_confirmation);
+    if !risky {
+        return Ok(());
+    }
+    Err(TerminalExecutionError::new(
+        "safety-confirmation-required",
+        "Risky execution requires explicit safety confirmation.",
+    ))
 }
 
 pub(super) fn build_run_marker(index: usize, total: usize, summary: &str) -> String {

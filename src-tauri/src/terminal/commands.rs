@@ -12,6 +12,7 @@ use super::TerminalExecutionError;
 use super::TerminalExecutionStep;
 use super::TerminalOption;
 use super::cache::{discover_available_terminals, refresh_available_terminals_impl};
+use super::execution_common::validate_execution_safety_confirmation;
 #[cfg(target_os = "windows")]
 use super::cache::cached_terminal_option_requires_refresh;
 #[cfg(target_os = "windows")]
@@ -84,7 +85,15 @@ pub(crate) fn run_command_in_terminal(
     steps: Vec<TerminalExecutionStep>,
     requires_elevation: Option<bool>,
     always_elevated: Option<bool>,
+    safety_confirmed: Option<bool>,
 ) -> Result<(), TerminalExecutionError> {
+    validate_execution_safety_confirmation(
+        steps.as_slice(),
+        requires_elevation.unwrap_or(false),
+        always_elevated.unwrap_or(false),
+        safety_confirmed.unwrap_or(false),
+    )?;
+
     #[cfg(target_os = "windows")]
     {
         let command = build_windows_host_command(terminal_id.as_str(), steps.as_slice())?;

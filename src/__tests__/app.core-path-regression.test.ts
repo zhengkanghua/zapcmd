@@ -294,7 +294,9 @@ describe("App 核心路径回归（Phase 3）", () => {
     await waitForUi();
     const persistedSession = localStorage.getItem(LAUNCHER_SESSION_STORAGE_KEY);
     expect(persistedSession).toBeTruthy();
-    expect(persistedSession).not.toContain("my-container");
+    expect(persistedSession).toContain("my-container");
+    expect(persistedSession).not.toContain("executionTemplate");
+    expect(persistedSession).not.toContain("preflightCache");
 
     wrapper.unmount();
     removeWrapper(wrapper);
@@ -308,11 +310,11 @@ describe("App 核心路径回归（Phase 3）", () => {
 
     await openReviewByPill(restored);
     const restoredCommandText = restored.get(".flow-card__command").text();
-    expect(restoredCommandText).not.toContain("my-container");
+    expect(restoredCommandText).toContain("my-container");
 
     const restoredParamButtons = restored.findAll(".flow-card__param-value");
     expect(restoredParamButtons.length).toBeGreaterThanOrEqual(2);
-    expect(restoredParamButtons[0]?.text()).not.toBe("my-container");
+    expect(restoredParamButtons[0]?.text()).toBe("my-container");
     await restoredParamButtons[0]?.trigger("click");
     await waitForUi();
 

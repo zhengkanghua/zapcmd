@@ -38,9 +38,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function createPersistedCommandStructureSignature(stagedCommands: readonly StagedCommand[]): string {
   return stagedCommands
-    .map((command) =>
-      `${command.id}\u0001${command.sourceCommandId ?? ""}\u0001${command.title}\u0001${command.rawPreview}`
-    )
+    .map((command) => {
+      const argSignature = JSON.stringify(
+        Object.fromEntries(Object.entries(command.argValues).sort(([left], [right]) => left.localeCompare(right)))
+      );
+      return [
+        command.id,
+        command.sourceCommandId ?? "",
+        command.title,
+        command.rawPreview,
+        argSignature
+      ].join("\u0001");
+    })
     .join("\u0004");
 }
 

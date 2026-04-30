@@ -34,6 +34,7 @@ export interface PersistedLauncherSessionCommand {
   sourceCommandId?: string;
   title: string;
   rawPreview: string;
+  argValues?: Record<string, string>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -63,6 +64,21 @@ function sanitizePreviewString(value: unknown): string | null {
   return value;
 }
 
+function sanitizeArgValues(value: unknown): Record<string, string> {
+  if (!isRecord(value)) {
+    return {};
+  }
+
+  return Object.entries(value).reduce<Record<string, string>>((acc, [key, argValue]) => {
+    const normalizedKey = key.trim();
+    if (!normalizedKey || typeof argValue !== "string") {
+      return acc;
+    }
+    acc[normalizedKey] = argValue;
+    return acc;
+  }, {});
+}
+
 function createStalePersistedLauncherSessionCommand(
   command: PersistedLauncherSessionCommand
 ): StagedCommand {
@@ -77,7 +93,7 @@ function createStalePersistedLauncherSessionCommand(
     executionTemplate: STALE_SNAPSHOT_PLACEHOLDER_EXECUTION_TEMPLATE,
     execution: STALE_SNAPSHOT_PLACEHOLDER_EXECUTION,
     args: [],
-    argValues: {},
+    argValues: sanitizeArgValues(command.argValues),
     blockingIssue: createStaleCommandSnapshotIssue(sourceCommandId)
   };
 }
@@ -88,14 +104,14 @@ function rehydratePersistedLauncherSessionCommand(
 ): StagedCommand | null {
   const rebuilt = buildStagedCommandSnapshot({
     command: currentTemplate,
-    id: command.id
+    id: command.id,
+    argValues: command.argValues
   });
   if (!rebuilt) {
     return null;
   }
   return {
     ...rebuilt,
-    argValues: {},
     preflightCache: undefined
   };
 }
@@ -136,21 +152,23 @@ export function normalizePersistedLauncherSessionCommandSnapshot(
     id,
     sourceCommandId: sourceCommandId ?? undefined,
     title,
-    rawPreview
+    rawPreview,
+    argValues: sanitizeArgValues(value.argValues)
   };
 }
 
 export function buildPersistedLauncherSessionCommandSnapshot(
   command: Pick<
     StagedCommand,
-    "id" | "sourceCommandId" | "title" | "rawPreview"
+    "id" | "sourceCommandId" | "title" | "rawPreview" | "argValues"
   >
 ): PersistedLauncherSessionCommand {
   return {
     id: command.id,
     sourceCommandId: sanitizeSourceCommandId(command.sourceCommandId) ?? undefined,
     title: command.title,
-    rawPreview: command.rawPreview
+    rawPreview: command.rawPreview,
+    argValues: sanitizeArgValues(command.argValues)
   };
 }
 

@@ -12,6 +12,7 @@ export interface CommandExecutionRequest {
   steps: StructuredTerminalExecutionStep[];
   requiresElevation?: boolean;
   alwaysElevated?: boolean;
+  safetyConfirmed?: boolean;
 }
 
 export interface CommandExecutor {
@@ -46,11 +47,13 @@ class TauriCommandExecutor implements CommandExecutor {
         steps: StructuredTerminalExecutionStep[];
         requiresElevation: boolean;
         alwaysElevated: boolean;
+        safetyConfirmed: boolean;
       } = {
         terminalId: request.terminalId,
         steps: request.steps,
         requiresElevation: request.requiresElevation ?? false,
-        alwaysElevated: request.alwaysElevated ?? false
+        alwaysElevated: request.alwaysElevated ?? false,
+        safetyConfirmed: request.safetyConfirmed ?? true
       };
 
       await invoke("run_command_in_terminal", payload);
