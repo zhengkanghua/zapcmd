@@ -1,6 +1,7 @@
-use crate::terminal::discovery::parse_first_non_empty_line;
 use super::TerminalOption;
+use crate::terminal::discovery::parse_first_non_empty_line;
 use std::collections::HashSet;
+use std::time::{Duration, Instant};
 
 fn collect_ids(options: &[TerminalOption]) -> HashSet<String> {
     options.iter().map(|option| option.id.clone()).collect()
@@ -19,6 +20,19 @@ fn parse_first_non_empty_line_picks_first_trimmed_line() {
 #[test]
 fn parse_first_non_empty_line_returns_none_when_all_blank() {
     assert_eq!(parse_first_non_empty_line(" \n\t\r\n"), None);
+}
+
+#[test]
+fn terminal_lookup_process_times_out_instead_of_waiting_for_child_output() {
+    let start = Instant::now();
+    let result = crate::terminal::discovery::run_lookup_process_with_timeout_for_test(
+        "sh",
+        &["-c", "sleep 2; printf /tmp/zapcmd"],
+        Duration::from_millis(80),
+    );
+
+    assert!(start.elapsed() < Duration::from_millis(800));
+    assert_eq!(result, None);
 }
 
 #[cfg(target_os = "windows")]
@@ -45,9 +59,12 @@ mod windows {
 
     #[test]
     fn resolve_windows_terminals_falls_back_to_powershell() {
-        let options = resolve_windows_terminals(|_| false, |_| {
-            panic!("fallback path 不应依赖 where/which 解析结果");
-        });
+        let options = resolve_windows_terminals(
+            |_| false,
+            |_| {
+                panic!("fallback path 不应依赖 where/which 解析结果");
+            },
+        );
 
         assert!(!options.is_empty());
         assert!(options.iter().any(|option| option.id == "powershell"));
@@ -67,7 +84,10 @@ mod macos {
 
         let without_iterm = resolve_macos_terminals(|_| false);
 
-        assert_eq!(collect_ids(&with_iterm), expected_ids(&["terminal", "iterm2"]));
+        assert_eq!(
+            collect_ids(&with_iterm),
+            expected_ids(&["terminal", "iterm2"])
+        );
         assert_eq!(collect_ids(&without_iterm), expected_ids(&["terminal"]));
     }
 }
@@ -89,11 +109,16 @@ mod linux {
 
     #[test]
     fn resolve_linux_terminals_falls_back_to_x_terminal_emulator() {
-        let options = resolve_linux_terminals(|_| false, |_| {
-            panic!("fallback path 不应依赖 which 解析结果");
-        });
+        let options = resolve_linux_terminals(
+            |_| false,
+            |_| {
+                panic!("fallback path 不应依赖 which 解析结果");
+            },
+        );
 
         assert!(!options.is_empty());
-        assert!(options.iter().any(|option| option.id == "x-terminal-emulator"));
+        assert!(options
+            .iter()
+            .any(|option| option.id == "x-terminal-emulator"));
     }
 }

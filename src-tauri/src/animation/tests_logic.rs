@@ -1,6 +1,6 @@
 use super::{
     ease_out_cubic, should_block_until_animation_complete, size_cache::WindowSizeCache,
-    ResizeCommandMode, ResizeScheduler, ResizeTarget,
+    validate_resize_target, ResizeCommandMode, ResizeScheduler, ResizeTarget,
 };
 
 #[test]
@@ -67,6 +67,21 @@ fn window_size_cache_recovers_after_poison() {
     cache.write_or_recover(800.0, 600.0);
 
     assert_eq!(cache.read_or_recover(), (800.0, 600.0));
+}
+
+#[test]
+fn validate_resize_target_rejects_non_finite_and_oversized_values() {
+    assert!(validate_resize_target(f64::NAN, 240.0).is_err());
+    assert!(validate_resize_target(640.0, f64::INFINITY).is_err());
+    assert!(validate_resize_target(10_000.0, 240.0).is_err());
+    assert!(validate_resize_target(640.0, 10_000.0).is_err());
+}
+
+#[test]
+fn validate_resize_target_preserves_minimum_window_size_contract() {
+    let target = validate_resize_target(12.0, 24.0).expect("small finite sizes should be clamped");
+
+    assert_eq!(target, ResizeTarget::new(320.0, 124.0));
 }
 
 #[test]

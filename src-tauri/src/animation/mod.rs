@@ -26,6 +26,10 @@ const SHRINK_DELAY_MS: u64 = 300;
 const MIN_WIDTH: f64 = 320.0;
 /// 窗口最小高度
 const MIN_HEIGHT: f64 = 124.0;
+/// 窗口最大宽度，防止异常 payload 请求超大桌面尺寸。
+const MAX_WIDTH: f64 = 4_096.0;
+/// 窗口最大高度，防止异常 payload 请求超大桌面尺寸。
+const MAX_HEIGHT: f64 = 2_304.0;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum ResizeCommandMode {
@@ -65,6 +69,22 @@ pub(crate) fn ease_out_cubic(t: f64) -> f64 {
     1.0 - (1.0 - t).powi(3)
 }
 
+pub(crate) fn validate_resize_target(width: f64, height: f64) -> Result<ResizeTarget, String> {
+    if !width.is_finite() || !height.is_finite() {
+        return Err("Window size must be finite.".to_string());
+    }
+    if width > MAX_WIDTH || height > MAX_HEIGHT {
+        return Err(format!(
+            "Window size cannot exceed {}x{}.",
+            MAX_WIDTH as u64, MAX_HEIGHT as u64
+        ));
+    }
+    Ok(ResizeTarget::new(
+        width.max(MIN_WIDTH),
+        height.max(MIN_HEIGHT),
+    ))
+}
+
 fn lock_scheduler(scheduler: &Mutex<ResizeScheduler>) -> MutexGuard<'_, ResizeScheduler> {
     scheduler
         .lock()
@@ -78,13 +98,13 @@ async fn run_resize_main_window_command(
     height: f64,
     mode: ResizeCommandMode,
 ) -> Result<(), String> {
-    let target = ResizeTarget::new(width.max(MIN_WIDTH), height.max(MIN_HEIGHT));
+    let target = validate_resize_target(width, height)?;
     let (current_w, current_h) = state.current_size.read_or_recover();
     let current = ResizeTarget::new(current_w, current_h);
 
     // 首次调用 — current_size 为零，即时设置并记录
     if current_w == 0.0 && current_h == 0.0 {
-        set_size_with_position_guard(&window, target.width, target.height);
+        set_size_with_position_guard(&window, target.width, target.height)?;
         state.sync_current_size(target.width, target.height);
         return Ok(());
     }
@@ -104,11 +124,13 @@ async fn run_resize_main_window_command(
 
     if plan.start_animation {
         if plan.wait_for_completion {
-            run_animation_loop(&window, &app).await;
+            run_animation_loop(&window, &app).await?;
         } else {
             let win = window.clone();
             tokio::spawn(async move {
-                run_animation_loop(&win, &app).await;
+                if let Err(error) = run_animation_loop(&win, &app).await {
+                    eprintln!("[zapcmd] main window resize animation failed: {}", error);
+                }
             });
         }
     } else if plan.wait_for_completion {
@@ -174,7 +196,9 @@ async fn run_shrink_timer_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
                     plan
                 };
                 if timer_plan.start_animation {
-                    run_animation_loop(window, app).await;
+                    if let Err(error) = run_animation_loop(window, app).await {
+                        eprintln!("[zapcmd] delayed main window resize animation failed: {}", error);
+                    }
                 }
             }
             _ = &mut notified => continue,
@@ -187,7 +211,7 @@ async fn run_shrink_timer_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
 }
 
 /// 单实例动画循环：同一个 task 在 active_target 变化时原地重启，始终向最新目标收敛。
-async fn run_animation_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
+async fn run_animation_loop(window: &WebviewWindow, app: &tauri::AppHandle) -> Result<(), String> {
     let ctrl = app.state::<AnimationController>();
     let total_frames = ANIMATION_DURATION_MS / ANIMATION_FRAME_MS;
 
@@ -201,12 +225,12 @@ async fn run_animation_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
 
         let Some(target) = target else {
             lock_scheduler(&ctrl.scheduler).finish_animation(start);
-            return;
+            return Ok(());
         };
 
         if target.approx_eq(start) {
             if !lock_scheduler(&ctrl.scheduler).finish_animation(start) {
-                return;
+                return Ok(());
             }
             continue;
         }
@@ -220,7 +244,7 @@ async fn run_animation_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
             let w = start.width + (target.width - start.width) * eased;
             let h = start.height + (target.height - start.height) * eased;
 
-            set_size_with_position_guard(window, w, h);
+            set_size_with_position_guard(window, w, h)?;
             ctrl.current_size.write_or_recover(w, h);
 
             if frame < total_frames {
@@ -232,12 +256,12 @@ async fn run_animation_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
             continue 'retarget;
         }
 
-        set_size_with_position_guard(window, target.width, target.height);
+        set_size_with_position_guard(window, target.width, target.height)?;
         ctrl.current_size
             .write_or_recover(target.width, target.height);
 
         if !lock_scheduler(&ctrl.scheduler).finish_animation(target) {
-            return;
+            return Ok(());
         }
     }
 }
@@ -246,24 +270,29 @@ async fn run_animation_loop(window: &WebviewWindow, app: &tauri::AppHandle) {
 ///
 /// 逻辑与 windowing.rs 中 set_main_window_size 相同：
 /// 记录 resize 前的位置和 token，resize 后若 token 未变则恢复位置。
-fn set_size_with_position_guard(window: &WebviewWindow, w: f64, h: f64) {
+fn set_size_with_position_guard(window: &WebviewWindow, w: f64, h: f64) -> Result<(), String> {
     #[cfg(desktop)]
     let token_before = {
         let app_state = window.app_handle().state::<AppState>();
         app_state.move_save_token.load(Ordering::SeqCst)
     };
     let prev_pos = window.outer_position().ok();
-    let _ = window.set_size(LogicalSize::new(w, h));
+    window
+        .set_size(LogicalSize::new(w, h))
+        .map_err(|err| err.to_string())?;
     #[cfg(desktop)]
     {
         let app_state = window.app_handle().state::<AppState>();
         if app_state.move_save_token.load(Ordering::SeqCst) != token_before {
-            return;
+            return Ok(());
         }
     }
     if let Some(pos) = prev_pos {
-        let _ = window.set_position(tauri::Position::Physical(pos));
+        window
+            .set_position(tauri::Position::Physical(pos))
+            .map_err(|err| err.to_string())?;
     }
+    Ok(())
 }
 
 #[cfg(test)]

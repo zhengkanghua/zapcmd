@@ -1,21 +1,29 @@
-import {
-  createReadFailedIssue,
-  createScanFailedIssue
-} from "../../../features/commands/runtimeLoader";
 import type { RuntimePlatform } from "../../../features/commands/runtimeTypes";
 import { applyMergedCommandCatalogState } from "./merge";
 import {
-  applyUserTemplatesFromPayload,
   loadBuiltinTemplatesAndSourceForState,
   resolveRuntimePlatformOnce
 } from "./runtimePlatform";
 import { createCommandCatalogState } from "./state";
 import { createLatestRequestGuard } from "./requestGuard";
 import {
-  BUILTIN_COMMAND_SOURCE_ID,
-  USER_COMMAND_SOURCE_ID,
   type UseCommandCatalogOptions
 } from "./types";
+import {
+  markCatalogReady,
+  setMissingPortsIssue
+} from "./status";
+import {
+  applyCachedUserTemplates,
+  applyRefreshFailure,
+  applyScannedUserTemplates
+} from "./templateApplication";
+
+export {
+  markCatalogError,
+  markCatalogReady,
+  setMissingPortsIssue
+} from "./status";
 
 type CommandCatalogState = ReturnType<typeof createCommandCatalogState>;
 type RequestGuard = ReturnType<typeof createLatestRequestGuard>;
@@ -23,62 +31,6 @@ type UserCommandSourceCache = NonNullable<CommandCatalogState["userCommandSource
 type UserCommandSourceCacheSnapshot = Awaited<
   ReturnType<UserCommandSourceCache["refreshFromScan"]>
 >;
-
-export function markCatalogReady(state: CommandCatalogState): void {
-  state.catalogStatus.value = "ready";
-  state.catalogReady.value = true;
-}
-
-export function markCatalogError(state: CommandCatalogState): void {
-  state.catalogStatus.value = "error";
-  state.catalogReady.value = false;
-}
-
-export function setMissingPortsIssue(state: CommandCatalogState): void {
-  state.loadIssues.value = [
-    createReadFailedIssue(
-      USER_COMMAND_SOURCE_ID,
-      "user command scan/read ports are not configured."
-    )
-  ];
-}
-
-function applyCachedUserTemplates(params: {
-  state: CommandCatalogState;
-  runtimePlatform: RuntimePlatform | null;
-  applyMergedTemplates: () => void;
-}) {
-  const cached = params.state.userCommandSourceCache?.remapFromCache();
-  if (!cached) {
-    return;
-  }
-  applyUserTemplatesFromPayload({
-    payloadEntries: cached.payloadEntries,
-    sourceIssues: cached.issues,
-    runtimePlatform: params.runtimePlatform,
-    userTemplates: params.state.userTemplates,
-    userCommandSourceById: params.state.userCommandSourceById,
-    loadIssues: params.state.loadIssues,
-    applyMergedTemplates: params.applyMergedTemplates
-  });
-}
-
-function applyScannedUserTemplates(params: {
-  state: CommandCatalogState;
-  runtimePlatform: RuntimePlatform | null;
-  scanned: UserCommandSourceCacheSnapshot;
-  applyMergedTemplates: () => void;
-}) {
-  applyUserTemplatesFromPayload({
-    payloadEntries: params.scanned.payloadEntries,
-    sourceIssues: params.scanned.issues,
-    runtimePlatform: params.runtimePlatform,
-    userTemplates: params.state.userTemplates,
-    userCommandSourceById: params.state.userCommandSourceById,
-    loadIssues: params.state.loadIssues,
-    applyMergedTemplates: params.applyMergedTemplates
-  });
-}
 
 function createResolveRuntimePlatform(
   options: UseCommandCatalogOptions,
@@ -190,29 +142,6 @@ function handleMissingPortsRefresh(params: {
   return true;
 }
 
-function applyRefreshFailure(params: {
-  state: CommandCatalogState;
-  error: unknown;
-  builtinLoaded: boolean;
-  applyMergedTemplates: () => void;
-}) {
-  console.warn("[commands] failed to refresh command catalog", params.error);
-  params.state.userCommandSourceCache?.clear();
-  params.state.loadIssues.value = [
-    params.builtinLoaded
-      ? params.state.userCommandSourceCache
-        ? createScanFailedIssue(USER_COMMAND_SOURCE_ID, params.error)
-        : createReadFailedIssue(USER_COMMAND_SOURCE_ID, params.error)
-      : createScanFailedIssue(BUILTIN_COMMAND_SOURCE_ID, params.error)
-  ];
-  params.applyMergedTemplates();
-  if (params.builtinLoaded) {
-    markCatalogReady(params.state);
-    return;
-  }
-  markCatalogError(params.state);
-}
-
 function createRefreshUserCommands(params: {
   options: UseCommandCatalogOptions;
   state: CommandCatalogState;
@@ -293,6 +222,7 @@ function createRefreshUserCommands(params: {
         state: params.state,
         error,
         builtinLoaded,
+        runtimePlatform: params.getRuntimePlatform(),
         applyMergedTemplates: params.applyMergedTemplates
       });
     }

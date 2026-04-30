@@ -5,6 +5,7 @@ use tauri::{LogicalSize, PhysicalPosition};
 
 use std::sync::atomic::Ordering;
 
+use crate::animation::validate_resize_target;
 #[cfg(desktop)]
 use crate::app_state::{AppState, SETTINGS_WINDOW_LABEL};
 use crate::bounds::reposition_to_cursor_monitor;
@@ -20,8 +21,7 @@ pub(crate) fn set_main_window_size(
     width: f64,
     height: f64,
 ) -> Result<(), String> {
-    let width = width.max(320.0);
-    let height = height.max(124.0);
+    let target = validate_resize_target(width, height)?;
     #[cfg(desktop)]
     let move_save_token = {
         let state = window.app_handle().state::<AppState>();
@@ -29,7 +29,7 @@ pub(crate) fn set_main_window_size(
     };
     let prev_pos: Option<PhysicalPosition<i32>> = window.outer_position().ok();
     window
-        .set_size(LogicalSize::new(width, height))
+        .set_size(LogicalSize::new(target.width, target.height))
         .map_err(|err| err.to_string())?;
     #[cfg(desktop)]
     {
@@ -48,7 +48,7 @@ pub(crate) fn set_main_window_size(
         .app_handle()
         .try_state::<crate::animation::AnimationController>()
     {
-        ctrl.sync_current_size(width, height);
+        ctrl.sync_current_size(target.width, target.height);
     }
     Ok(())
 }

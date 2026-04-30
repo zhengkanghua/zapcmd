@@ -1,6 +1,8 @@
 use super::*;
+use std::cell::Cell;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 fn create_temp_dir(prefix: &str) -> PathBuf {
@@ -212,7 +214,10 @@ fn scan_user_command_files_collects_nonfatal_nested_read_dir_issues() {
                 ]);
             }
             if dir == blocked_dir {
-                return Err(format!("Failed to read dir {}: permission denied", blocked_dir.display()));
+                return Err(format!(
+                    "Failed to read dir {}: permission denied",
+                    blocked_dir.display()
+                ));
             }
             Ok(vec![])
         },
@@ -228,7 +233,10 @@ fn scan_user_command_files_collects_nonfatal_nested_read_dir_issues() {
         vec![good.to_string_lossy().to_string()]
     );
     assert_eq!(scan.issues.len(), 1);
-    assert_eq!(scan.issues[0].path, blocked_dir.to_string_lossy().to_string());
+    assert_eq!(
+        scan.issues[0].path,
+        blocked_dir.to_string_lossy().to_string()
+    );
     assert!(scan.issues[0].reason.contains("permission denied"));
 
     let _ = fs::remove_dir_all(&root);
@@ -241,7 +249,11 @@ fn scan_user_command_files_skips_files_over_size_limit() {
     let large = root.join("large.json");
 
     write_file(&small, r#"{"id":"small"}"#);
-    fs::write(&large, vec![b'x'; USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES as usize + 1]).unwrap();
+    fs::write(
+        &large,
+        vec![b'x'; USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES as usize + 1],
+    )
+    .unwrap();
 
     let scan = super::scan::scan_user_command_files_in(&root).unwrap();
 
@@ -280,11 +292,54 @@ fn scan_user_command_files_limits_accepted_file_count() {
 }
 
 #[test]
+fn scan_user_command_files_stops_descending_after_file_budget_is_reached() {
+    let root = create_temp_dir("scan-count-budget-short-circuit");
+    let overflow_dir = root.join("overflow");
+
+    for index in 0..USER_COMMAND_SOURCE_MAX_FILES {
+        let dir = root.join(format!("accepted-{:04}", index));
+        fs::create_dir_all(&dir).unwrap();
+        write_file(&dir.join("command.json"), r#"{"commands":[]}"#);
+    }
+    fs::create_dir_all(&overflow_dir).unwrap();
+    write_file(&overflow_dir.join("command.json"), r#"{"commands":[]}"#);
+
+    let overflow_was_read = Rc::new(Cell::new(false));
+    let overflow_flag = overflow_was_read.clone();
+    let scan = super::scan::scan_user_command_files_in_with(
+        &root,
+        |dir: &Path| {
+            if dir == overflow_dir {
+                overflow_flag.set(true);
+            }
+            if dir == root {
+                let mut entries = vec![super::scan::ScanDirEntry::Dir(overflow_dir.clone())];
+                entries.extend((0..USER_COMMAND_SOURCE_MAX_FILES).map(|index| {
+                    super::scan::ScanDirEntry::Dir(root.join(format!("accepted-{:04}", index)))
+                }));
+                return Ok(entries);
+            }
+            Ok(vec![super::scan::ScanDirEntry::File(
+                dir.join("command.json"),
+            )])
+        },
+        |path| fs::metadata(path),
+    )
+    .unwrap();
+
+    assert_eq!(scan.files.len(), USER_COMMAND_SOURCE_MAX_FILES);
+    assert!(!overflow_was_read.get());
+
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
 fn scan_user_command_files_limits_total_bytes() {
     let root = create_temp_dir("scan-total-size-limit");
     let per_file = USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES as usize;
 
-    for index in 0..(USER_COMMAND_SOURCE_MAX_TOTAL_BYTES / USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES) {
+    for index in 0..(USER_COMMAND_SOURCE_MAX_TOTAL_BYTES / USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES)
+    {
         fs::write(
             root.join(format!("accepted-{:02}.json", index)),
             vec![b'a'; per_file],
@@ -329,7 +384,10 @@ fn scan_user_command_files_reports_depth_limit() {
                 return Ok(vec![]);
             }
 
-            let name = dir.file_name().and_then(|value| value.to_str()).unwrap_or_default();
+            let name = dir
+                .file_name()
+                .and_then(|value| value.to_str())
+                .unwrap_or_default();
             let Some(level_str) = name.strip_prefix("level-") else {
                 return Ok(vec![]);
             };
@@ -345,7 +403,10 @@ fn scan_user_command_files_reports_depth_limit() {
 
     assert!(scan.files.is_empty());
     assert_eq!(scan.issues.len(), 1);
-    assert_eq!(scan.issues[0].path, beyond_limit.to_string_lossy().to_string());
+    assert_eq!(
+        scan.issues[0].path,
+        beyond_limit.to_string_lossy().to_string()
+    );
     assert!(scan.issues[0].reason.contains("depth exceeded"));
 
     let _ = fs::remove_dir_all(&root);
@@ -379,9 +440,14 @@ fn read_user_command_file_rejects_files_over_size_limit() {
     let commands_dir = ensure_user_commands_dir_with(&home).unwrap();
     let large = commands_dir.join("large.json");
 
-    fs::write(&large, vec![b'x'; USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES as usize + 1]).unwrap();
+    fs::write(
+        &large,
+        vec![b'x'; USER_COMMAND_SOURCE_MAX_FILE_SIZE_BYTES as usize + 1],
+    )
+    .unwrap();
 
-    let err = read_user_command_file_in(&commands_dir, large.to_string_lossy().to_string()).unwrap_err();
+    let err =
+        read_user_command_file_in(&commands_dir, large.to_string_lossy().to_string()).unwrap_err();
 
     assert!(err.contains("exceeds maximum size"));
 
@@ -396,8 +462,8 @@ fn read_user_command_file_rejects_paths_outside_user_commands_dir() {
 
     write_file(&outside, r#"{"id":"outside"}"#);
 
-    let err =
-        read_user_command_file_in(&commands_dir, outside.to_string_lossy().to_string()).unwrap_err();
+    let err = read_user_command_file_in(&commands_dir, outside.to_string_lossy().to_string())
+        .unwrap_err();
 
     assert!(err.contains("outside user commands dir"));
 
@@ -412,7 +478,8 @@ fn read_user_command_file_rejects_non_json_paths_inside_user_commands_dir() {
 
     write_file(&note, "not json");
 
-    let err = read_user_command_file_in(&commands_dir, note.to_string_lossy().to_string()).unwrap_err();
+    let err =
+        read_user_command_file_in(&commands_dir, note.to_string_lossy().to_string()).unwrap_err();
 
     assert!(err.contains("must be a JSON file"));
 
