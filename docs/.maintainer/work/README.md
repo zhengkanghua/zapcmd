@@ -13,4 +13,4 @@
 
 1. 项目宪法：`docs/project_constitution.md`
 2. 项目结构说明：`docs/project_structure.md`
-3. 短期记忆（当前实现快照）：`docs/active_context.md`
+3. 架构说明（当前实现 + Roadmap）：`docs/architecture_plan.md`

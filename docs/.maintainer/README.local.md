@@ -11,10 +11,8 @@
 
 ### 项目公共文档（所有人共用）
 
-- `docs/project_constitution.md`：项目宪法（开发规范/约束/门禁/Docs-first）
+- `docs/project_constitution.md`：项目宪法（开发规范/约束/门禁）
 - `docs/project_structure.md`：项目结构与技术栈说明
-- `docs/active_context.md`：短期记忆（当前实现快照）
-- `docs/plan/README.md`：需求/计划文档（Docs-first 落地入口）
 - `docs/architecture_plan.md`：架构说明（当前实现 + Roadmap）
 
 ### 维护者工作文档（仅维护者/Agent）

@@ -3,8 +3,6 @@
     "allow": [
       "Bash(ls -d \"D:/own_projects/zapcmd/.planning/phases/\"*/ 2>/dev/null)",
       "WebFetch(domain:127.0.0.1)",
-      "Bash(cd D:/own_projects/zapcmd && python3 \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"desktop launcher spotlight raycast command palette dark mode minimal\" --design-system -p \"ZapCmd\")",
-      "Bash(cd D:/own_projects/zapcmd && python3 \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"command palette launcher spotlight keyboard navigation dark\" --domain ux -n 20)",
       "mcp__mcp-router__browser_navigate",
       "mcp__mcp-router__browser_take_screenshot",
       "mcp__mcp-router__browser_type",

@@ -1,7 +1,7 @@
 # ZapCmd 项目宪法（Project Constitution）
 
 > 状态：Active  
-> 最后更新：2026-03-01  
+> 最后更新：2026-09-12  
 > 目的：用一份文档统一“规范/约束/门禁/文档治理/测试策略”，避免口径分散与互相打架。
 
 ---
@@ -10,8 +10,8 @@
 
 1. `README.md` / `README.zh-CN.md`：面向开源用户的使用入口与口径。
 2. `CHANGELOG.md`：发布版本的变更事实。
-3. `docs/project_constitution.md`：项目规范/约束/门禁/Docs-first（规则口径）。
-4. `docs/active_context.md`：当前实现快照（短期记忆，含行为基线）。
+3. `AGENTS.md`：Agent 协作规则与文档导航（Agent 会话的最高入口）。
+4. `docs/project_constitution.md`：项目规范/约束/门禁（规则口径）。
 5. `docs/project_structure.md`：项目结构与技术栈说明。
 6. `docs/architecture_plan.md`：架构说明（当前实现 + Roadmap）。
 7. 其他 `docs/**`：主题文档与补充说明。
@@ -109,21 +109,15 @@
 
 ---
 
-## 5. 文档治理（Docs-first）
+## 5. 文档治理
 
-1. 先改文档，再改代码；代码改了，必须在同一轮补齐相关文档。
-2. 文档必须明确区分：
-   - 当前已实现（Current）
-   - 未来计划（Roadmap）
-3. 禁止把“未落地能力”写成“已实现能力”。
-4. 需求/计划文档统一落到 `docs/plan/`（文档先行的落地入口），并至少包含：
-   - 背景与范围（in/out）
-   - 交互与行为口径（Current vs Roadmap）
-   - 验收标准（可验证）
-   - 测试计划（自动化 + 必要的人工回归点）
-   - 需要同步的文档清单（README/CHANGELOG/契约等）
-5. 文档新增/重命名必须同步更新：`docs/README.md`。
-6. 影响开源用户入口（安装/运行/命令目录/配置/行为口径）的改动，必须同步更新：
+1. 需求/设计讨论沉淀用 `/grill-with-docs`：拷问式访谈对齐理解，术语落 `CONTEXT.md`（懒创建）、硬决策落 `docs/adr/NNNN-slug.md`（懒创建）。
+2. 对话转 spec 用 `/to-spec`：把已对齐的需求综合成 spec，落到 `docs/specs/NNNN-slug.md`（懒创建）；spec 是实现阶段的工作依据，对应交付验证通过后删除（历史进 git 与 ADR）。
+3. 文档必须明确区分：当前已实现（Current）与未来计划（Roadmap）。
+4. 禁止把“未落地能力”写成“已实现能力”。
+5. 行为真源顺序：代码与自动化回归 > 文档。文档解释稳定职责、语义和外部契约；它们与实现冲突时，先修文档或修实现，不要让漂移留存。
+6. 文档新增/重命名必须同步更新：`docs/README.md`。
+7. 影响开源用户入口（安装/运行/命令目录/配置/行为口径）的改动，必须同步更新：
    - `README.md`
    - `README.zh-CN.md`
 
@@ -133,10 +127,11 @@
 
 | 改动类型 | 必须同步 |
 |---|---|
-| 新需求/新功能（必须 Docs-first） | `docs/plan/*` + 自动化回归（至少 1 条） +（如影响用户）`README*` |
-| 主界面交互变化（搜索/抽屉/暂存） | `README.md` + `README.zh-CN.md`（如影响使用方式） + `docs/active_context.md` + 必要的自动化回归 |
-| 快捷键变化 | `README.md` + `README.zh-CN.md`（如影响使用方式） + `docs/active_context.md` + 自动化回归 +（如涉及真机窗口行为）`docs/.maintainer/work/manual_regression_m0_m0a.md` |
-| 执行语义变化（成功/失败/队列） | `README.md` + `README.zh-CN.md` + `docs/active_context.md` + 自动化回归 |
+| 新需求/新功能 | spec（`docs/specs/`，如有） + 自动化回归（至少 1 条） +（如影响用户）`README*` |
+| 主界面交互变化（搜索/抽屉/暂存） | `README.md` + `README.zh-CN.md`（如影响使用方式） + 自动化回归 |
+| 快捷键变化 | `README.md` + `README.zh-CN.md`（如影响使用方式） + 自动化回归 +（如涉及真机窗口行为）`docs/.maintainer/work/manual_regression_m0_m0a.md` |
+| 执行语义变化（成功/失败/队列） | `README.md` + `README.zh-CN.md` + 自动化回归 |
+| 难逆转且有真实取舍的决策 | `docs/adr/NNNN-slug.md`（三条标准见 ADR 格式：难逆转、无上下文会困惑、真实取舍） |
 | 工程规则变化（lint/test/结构约束） | `docs/project_constitution.md` + `AGENTS.md` +（如影响贡献者）`CONTRIBUTING*` |
 | 发布链路变化（CI/Release） | `docs/.maintainer/work/release_runbook.md` + `docs/.maintainer/work/ci_cd_verification.md` +（必要时）`README*` / `CHANGELOG.md` |
 | 新增/重命名文档 | `docs/README.md` |
@@ -161,8 +156,8 @@
 
 ### 7.3 文档
 
-1. 行为改动已同步：`README*` / `docs/active_context.md` / `docs/architecture_plan.md`（按变更类型选择）。
-2. 新需求已落地到 `docs/plan/*`（Docs-first）。
+1. 行为改动已同步：`README*` / `docs/architecture_plan.md`（按变更类型选择）。
+2. 有难逆转决策的已落 ADR，有 spec 的已按完成条件删除并报告。
 3. 新增/重命名文档已更新：`docs/README.md`。
 
 ### 7.4 交付备注模板

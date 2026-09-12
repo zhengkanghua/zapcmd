@@ -1,7 +1,7 @@
 # ZapCmd 项目结构与技术栈
 
 > 状态：Active  
-> 最后更新：2026-03-01  
+> 最后更新：2026-09-12  
 > 目标：让开发者/维护者/Agent 在 10 分钟内建立“仓库结构 + 边界划分 + 常用入口”的心智模型。
 
 ---
@@ -39,7 +39,6 @@ src-tauri/                 后端（Rust）
 
 assets/runtime_templates/   运行时命令模板资产（内置命令 JSON）
 docs/                       协作文档入口（见 docs/README.md）
-docs/plan/                  需求/计划文档（Docs-first）
 docs/.maintainer/           维护者/Agent 内部资料（跑书/人工回归/归档）
 scripts/                    工具脚本（版本同步、hooks、命令生成等）
 .github/                    工作流、模板、协作配置
@@ -70,4 +69,4 @@ scripts/                    工具脚本（版本同步、hooks、命令生成�
 
 ## 5. “当前实现是什么”的入口
 
-短期快照（含 UI 行为基线，建议每轮变更后更新）：`docs/active_context.md`
+架构与 Roadmap：`docs/architecture_plan.md`；精确行为以代码 + 自动化回归为准。领域术语见根 `CONTEXT.md`、关键决策见 `docs/adr/`（两者由 `/grill-with-docs` 按需懒创建，不存在属正常）。
